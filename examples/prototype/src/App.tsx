@@ -43,21 +43,30 @@ const schema = {
                       body: {
                         type: 'sidebar-menu-button',
                          active: true,
-                        body: { type: 'span', body: { type: 'text', content: 'Dashboard' } }
+                        body: [
+                            { type: 'icon', name: 'SquareTerminal' },
+                            { type: 'span', body: { type: 'text', content: 'Dashboard' } }
+                        ]
                       }
                     },
                     {
                       type: 'sidebar-menu-item',
                       body: {
                         type: 'sidebar-menu-button',
-                        body: { type: 'span', body: { type: 'text', content: 'Projects' } }
+                        body: [
+                            { type: 'icon', name: 'Frame' },
+                            { type: 'span', body: { type: 'text', content: 'Projects' } }
+                        ]
                       }
                     },
                     {
                       type: 'sidebar-menu-item',
                       body: {
                         type: 'sidebar-menu-button',
-                        body: { type: 'span', body: { type: 'text', content: 'Tasks' } }
+                        body: [
+                            { type: 'icon', name: 'Map' },
+                            { type: 'span', body: { type: 'text', content: 'Tasks' } }
+                        ]
                       }
                     }
                   ]
@@ -75,14 +84,20 @@ const schema = {
                       type: 'sidebar-menu-item',
                       body: {
                         type: 'sidebar-menu-button',
-                        body: { type: 'span', body: { type: 'text', content: 'Profile' } }
+                        body: [
+                            { type: 'icon', name: 'User' },
+                            { type: 'span', body: { type: 'text', content: 'Profile' } }
+                        ]
                       }
                     },
                     {
                       type: 'sidebar-menu-item',
                       body: {
                         type: 'sidebar-menu-button',
-                        body: { type: 'span', body: { type: 'text', content: 'Billing' } }
+                        body: [
+                             { type: 'icon', name: 'CreditCard' },
+                            { type: 'span', body: { type: 'text', content: 'Billing' } }
+                        ]
                       }
                     }
                   ]
@@ -94,9 +109,36 @@ const schema = {
         {
           type: 'sidebar-footer',
           body: {
-            type: 'div',
-            className: 'p-4 text-xs text-muted-foreground border-t',
-            body: { type: 'text', content: 'v1.0.0' }
+            type: 'sidebar-menu',
+            body: {
+              type: 'sidebar-menu-item',
+              body: {
+                type: 'sidebar-menu-button',
+                size: 'lg',
+                className: 'data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground',
+                body: {
+                    type: 'div',
+                    className: 'flex items-center gap-2 text-left leading-tight',
+                    body: [
+                        {
+                        type: 'avatar',
+                        src: 'https://github.com/shadcn.png',
+                        alt: '@shadcn',
+                        fallback: 'SC',
+                        className: 'h-8 w-8 rounded-lg'
+                        },
+                        {
+                        type: 'div',
+                        className: 'grid flex-1 text-left text-sm leading-tight',
+                        body: [
+                            { type: 'span', className: 'truncate font-semibold', body: {type: 'text', content: 'Troy Su'} },
+                            { type: 'span', className: 'truncate text-xs', body: {type: 'text', content: 'troy@object-ui.com'} }
+                        ]
+                        }
+                    ]
+                }
+              }
+            }
           }
         }
       ]
@@ -239,8 +281,35 @@ const schema = {
                           title: 'Interactive Chart',
                           body: {
                             type: 'div',
-                            className: 'h-[350px] flex items-center justify-center bg-muted/50 rounded-md border border-dashed text-muted-foreground m-6',
-                            body: { type: 'text', content: 'Chart Area Placeholder' }
+                            className: 'p-6',
+                            body: {
+                                type: 'chart',
+                                chartType: 'bar',
+                                className: "aspect-auto h-[350px] w-full",
+                                data: [
+                                    { month: "January", desktop: 186, mobile: 80 },
+                                    { month: "February", desktop: 305, mobile: 200 },
+                                    { month: "March", desktop: 237, mobile: 120 },
+                                    { month: "April", desktop: 73, mobile: 190 },
+                                    { month: "May", desktop: 209, mobile: 130 },
+                                    { month: "June", desktop: 214, mobile: 140 },
+                                ],
+                                config: {
+                                    desktop: {
+                                    label: "Desktop",
+                                    color: "hsl(var(--primary))", 
+                                    },
+                                    mobile: {
+                                    label: "Mobile",
+                                    color: "hsl(var(--primary)/0.5)", 
+                                    },
+                                },
+                                xAxisKey: "month",
+                                series: [
+                                    { dataKey: "desktop" },
+                                    { dataKey: "mobile" }
+                                ]
+                            }
                           }
                         },
                         {
