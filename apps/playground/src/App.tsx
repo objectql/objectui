@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Editor from '@monaco-editor/react';
 import { SchemaRenderer } from '@object-ui/react';
 import '@object-ui/components';
 import { examples, exampleCategories, ExampleKey } from './data/examples';
-import { Monitor, Tablet, Smartphone, Copy, Check } from 'lucide-react';
+import { Monitor, Tablet, Smartphone, Copy, Check, Code2 } from 'lucide-react';
 
 type ViewportSize = 'desktop' | 'tablet' | 'mobile';
 
@@ -88,7 +87,10 @@ export default function Playground() {
       {/* 2. Middle: Code Editor */}
       <div className="w-1/2 h-full border-r flex flex-col">
         <div className="border-b px-4 py-3 bg-muted/20 flex items-center justify-between">
-          <h2 className="text-sm font-semibold">JSON Schema</h2>
+          <div className="flex items-center gap-2">
+            <Code2 className="h-4 w-4 text-muted-foreground" />
+            <h2 className="text-sm font-semibold">JSON Schema</h2>
+          </div>
           <button
             onClick={handleCopySchema}
             className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-md bg-background hover:bg-muted transition-colors border"
@@ -113,21 +115,16 @@ export default function Playground() {
           </div>
         )}
         
-        <div className="flex-1">
-          <Editor
-            height="100%"
-            defaultLanguage="json"
+        <div className="flex-1 overflow-hidden">
+          <textarea
             value={code}
-            onChange={(val) => setCode(val || '')}
-            options={{
-              minimap: { enabled: false },
-              fontSize: 14,
-              lineNumbers: 'on',
-              scrollBeyondLastLine: false,
-              automaticLayout: true,
+            onChange={(e) => setCode(e.target.value)}
+            className="w-full h-full p-4 font-mono text-sm resize-none focus:outline-none border-0 bg-background"
+            spellCheck={false}
+            style={{ 
               tabSize: 2,
+              lineHeight: '1.6'
             }}
-            theme="vs-light"
           />
         </div>
       </div>
