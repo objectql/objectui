@@ -27,7 +27,9 @@
     "paths": {
        "@object-ui/protocol": ["../../packages/protocol/src"],
        "@object-ui/renderer": ["../../packages/renderer/src"],
+       "@object-ui/renderer/*": ["../../packages/renderer/src/*"],
        "@object-ui/ui": ["../../packages/ui/src"],
+       "@object-ui/ui/*": ["../../packages/ui/src/*"],
        "@object-ui/engine": ["../../packages/engine/src"]
     }
   },

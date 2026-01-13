@@ -20,7 +20,8 @@
     "paths": {
       "@object-ui/protocol": ["../protocol/src"],
       "@object-ui/renderer": ["../renderer/src"],
-      "@object-ui/ui": ["../ui/src"]
+      "@object-ui/ui": ["../ui/src"],
+      "@object-ui/ui/*": ["../ui/src/*"]
     }
   },
   "include": ["src"],
