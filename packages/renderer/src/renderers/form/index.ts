@@ -4,3 +4,8 @@ import './textarea';
 import './checkbox';
 import './switch';
 import './select';
+import './radio-group';
+import './slider';
+import './toggle';
+import './input-otp';
+import './calendar';

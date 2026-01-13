@@ -1,0 +1,61 @@
+import React from 'react';
+import { ComponentRegistry } from '../../registry';
+import { 
+  Sheet, 
+  SheetTrigger, 
+  SheetContent, 
+  SheetHeader, 
+  SheetFooter, 
+  SheetTitle, 
+  SheetDescription,
+  SheetClose
+} from '@object-ui/ui';
+import { renderChildren } from '../../utils';
+
+ComponentRegistry.register('sheet', 
+  ({ schema, className, ...props }) => (
+    <Sheet modal={schema.modal} defaultOpen={schema.defaultOpen} {...props}>
+      <SheetTrigger asChild>
+        {renderChildren(schema.trigger)}
+      </SheetTrigger>
+      <SheetContent side={schema.side || 'right'} className={className}>
+        <SheetHeader>
+          {schema.title && <SheetTitle>{schema.title}</SheetTitle>}
+          {schema.description && <SheetDescription>{schema.description}</SheetDescription>}
+        </SheetHeader>
+        {renderChildren(schema.content)}
+        {schema.footer && (
+          <SheetFooter>
+            {renderChildren(schema.footer)}
+          </SheetFooter>
+        )}
+      </SheetContent>
+    </Sheet>
+  ),
+  {
+    label: 'Sheet',
+    inputs: [
+      { name: 'title', type: 'string', label: 'Title' },
+      { name: 'description', type: 'string', label: 'Description' },
+      { name: 'side', type: 'enum', enum: ['top', 'right', 'bottom', 'left'], defaultValue: 'right', label: 'Side' },
+      { name: 'modal', type: 'boolean', label: 'Modal', defaultValue: true },
+       { name: 'defaultOpen', type: 'boolean', label: 'Default Open' },
+      { 
+        name: 'trigger', 
+        type: 'slot', 
+        label: 'Trigger',
+      },
+      { 
+        name: 'content', 
+        type: 'slot', 
+        label: 'Content', 
+      },
+       { 
+        name: 'footer', 
+        type: 'slot', 
+        label: 'Footer' 
+      },
+      { name: 'className', type: 'string', label: 'Content CSS Class' }
+    ]
+  }
+);
