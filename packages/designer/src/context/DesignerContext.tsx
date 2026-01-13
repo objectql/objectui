@@ -244,11 +244,6 @@ export const DesignerProvider: React.FC<DesignerProviderProps> = ({
     addToHistory(withIds);
   }, [addToHistory]);
 
-  const updateSchemaWithHistory = useCallback((newSchema: SchemaNode) => {
-    setSchemaState(newSchema);
-    addToHistory(newSchema);
-  }, [addToHistory]);
-
   const addNode = useCallback((parentId: string | null, node: SchemaNode, index?: number) => {
     const nodeWithId = ensureNodeIds(node);
     
