@@ -60,7 +60,7 @@ function FilterBuilder({
   )
 
   React.useEffect(() => {
-    if (value && value !== filterGroup) {
+    if (value && JSON.stringify(value) !== JSON.stringify(filterGroup)) {
       setFilterGroup(value)
     }
   }, [value])
@@ -72,7 +72,7 @@ function FilterBuilder({
 
   const addCondition = () => {
     const newCondition: FilterCondition = {
-      id: `condition-${Date.now()}`,
+      id: `condition-${crypto.randomUUID()}`,
       field: fields[0]?.value || "",
       operator: "equals",
       value: "",
@@ -190,7 +190,7 @@ function FilterBuilder({
                   <Input
                     className="h-9 text-sm"
                     placeholder="Value"
-                    value={condition.value as string}
+                    value={String(condition.value || "")}
                     onChange={(e) =>
                       updateCondition(condition.id, { value: e.target.value })
                     }
