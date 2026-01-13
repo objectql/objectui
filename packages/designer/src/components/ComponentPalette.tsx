@@ -89,12 +89,12 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({ className })
             onDragStart={(e) => handleDragStart(e, type)}
             onDragEnd={handleDragEnd}
             className={cn(
-                "group flex flex-col items-center justify-center gap-2 p-3 rounded-lg border border-transparent hover:border-blue-200 hover:bg-blue-50 hover:shadow-sm cursor-grab active:cursor-grabbing transition-all bg-white relative",
-                "h-24"
+                "group flex flex-col items-center justify-center gap-1.5 p-2 rounded-lg border border-transparent hover:border-blue-200 hover:bg-blue-50 hover:shadow-sm cursor-grab active:cursor-grabbing transition-all bg-white relative",
+                "h-20"
             )}
           >
-            <div className="w-8 h-8 rounded-md bg-gray-50 group-hover:bg-white flex items-center justify-center text-gray-500 group-hover:text-blue-600 transition-colors border border-gray-100 group-hover:border-blue-100">
-                <Icon size={18} strokeWidth={1.5} />
+            <div className="w-7 h-7 rounded-md bg-gray-50 group-hover:bg-white flex items-center justify-center text-gray-500 group-hover:text-blue-600 transition-colors border border-gray-100 group-hover:border-blue-100">
+                <Icon size={16} strokeWidth={1.5} />
             </div>
             <span className="text-xs font-medium text-gray-600 group-hover:text-blue-700 text-center w-full truncate px-1">
                 {config.label || type}
@@ -109,14 +109,14 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({ className })
   };
 
   return (
-    <div className={cn("flex flex-col h-full bg-gray-50/50 border-r w-72", className)}>
+    <div className={cn("flex flex-col h-full bg-gray-50/50 border-r w-72 overflow-hidden", className)}>
         <div className="px-4 py-3 border-b bg-white shrink-0">
             <h2 className="text-sm font-semibold text-gray-900">Components</h2>
             <p className="text-xs text-gray-500 mt-0.5">Drag to add to canvas</p>
         </div>
         
-        <ScrollArea className="flex-1">
-            <div className="p-4 space-y-6">
+        <ScrollArea className="flex-1 w-full">
+            <div className="p-4 space-y-6 pb-20">
                 {Object.entries(CATEGORIES).map(([category, types]) => {
                     const availableTypes = getComponentscategory(types);
                     if (availableTypes.length === 0) return null;

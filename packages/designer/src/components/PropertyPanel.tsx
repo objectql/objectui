@@ -153,7 +153,7 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({ className }) => {
     };
 
     return (
-        <div className={cn("flex flex-col h-full bg-white border-l w-80 shadow-xl shadow-gray-200/50 z-10", className)}>
+        <div className={cn("flex flex-col h-full bg-white border-l w-80 shadow-xl shadow-gray-200/50 z-10 overflow-hidden", className)}>
             <div className="px-5 py-4 border-b flex items-center justify-between bg-gray-50/50">
                 <div>
                      <div className="flex items-center gap-2">
@@ -173,8 +173,8 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({ className }) => {
                 </Button>
             </div>
             
-            <ScrollArea className="flex-1">
-                <div className="p-5 space-y-6">
+            <ScrollArea className="flex-1 w-full">
+                <div className="p-5 space-y-6 pb-20">
                     {/* Common Properties */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
