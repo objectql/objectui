@@ -238,4 +238,4 @@ const TypingIndicator = React.forwardRef<HTMLDivElement, TypingIndicatorProps>(
 TypingIndicator.displayName = "TypingIndicator"
 
 export { Chatbot, TypingIndicator }
-export type { ChatMessage, ChatMessage as ChatbotMessage }
+export type { ChatMessage }

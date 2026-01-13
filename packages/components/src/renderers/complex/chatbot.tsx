@@ -26,11 +26,12 @@ ComponentRegistry.register('chatbot',
         timestamp: schema.showTimestamp ? new Date().toLocaleTimeString() : undefined,
       };
 
-      setMessages((prev) => [...prev, userMessage]);
+      const updatedMessages = [...messages, userMessage];
+      setMessages(updatedMessages);
 
-      // If onSend callback is provided in schema, call it
+      // If onSend callback is provided in schema, call it with updated messages
       if (schema.onSend) {
-        schema.onSend(content, messages);
+        schema.onSend(content, updatedMessages);
       }
 
       // Auto-response feature for demo purposes
