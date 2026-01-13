@@ -20,7 +20,7 @@ export const examples = {
         },
         {
           "type": "text",
-          "content": "Demonstrating various input states and configurations",
+          "content": "Demonstrates various input states and configurations",
           "className": "text-muted-foreground"
         }
       ]
