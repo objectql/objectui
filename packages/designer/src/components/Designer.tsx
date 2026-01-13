@@ -18,9 +18,13 @@ const DesignerContent: React.FC = () => {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Check if we're in an input/textarea
+      // Check if we're in an editable element
       const target = e.target as HTMLElement;
-      const isEditing = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+      const isEditing = 
+        target.tagName === 'INPUT' || 
+        target.tagName === 'TEXTAREA' || 
+        target.tagName === 'SELECT' ||
+        target.isContentEditable;
 
       // Undo: Ctrl+Z / Cmd+Z
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey && canUndo) {

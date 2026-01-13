@@ -77,6 +77,9 @@ export const Canvas: React.FC<CanvasProps> = ({ className }) => {
         
         const target = (e.target as Element).closest('[data-obj-id]');
         const targetId = target?.getAttribute('data-obj-id');
+        
+        // Use a large number to append to end - will be clamped by addNode/moveNode
+        const APPEND_TO_END = Number.MAX_SAFE_INTEGER;
 
         if (targetId) {
             e.stopPropagation();
@@ -90,15 +93,15 @@ export const Canvas: React.FC<CanvasProps> = ({ className }) => {
                 const relativeY = e.clientY - targetRect.top;
                 const relativePosition = relativeY / targetRect.height;
                 
-                // If dropping in the bottom half, insert after; otherwise insert at beginning
-                insertIndex = relativePosition > 0.5 ? -1 : 0; // -1 means append to end
+                // If dropping in the bottom half, append to end; otherwise insert at beginning
+                insertIndex = relativePosition > 0.5 ? APPEND_TO_END : 0;
             }
             
             // Handle moving existing component
             if (draggingNodeId) {
                 // Don't allow dropping on itself
                 if (draggingNodeId !== targetId) {
-                    moveNode(draggingNodeId, targetId, insertIndex === -1 ? 999 : insertIndex);
+                    moveNode(draggingNodeId, targetId, insertIndex);
                 }
                 setDraggingNodeId(null);
             }
@@ -111,7 +114,8 @@ export const Canvas: React.FC<CanvasProps> = ({ className }) => {
                         ...(config.defaultProps || {}),
                         body: config.defaultChildren || undefined
                     };
-                    addNode(targetId, newNode, insertIndex === -1 ? undefined : insertIndex);
+                    // undefined index means append to end
+                    addNode(targetId, newNode, insertIndex === APPEND_TO_END ? undefined : insertIndex);
                 }
             }
         }

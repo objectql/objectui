@@ -51,9 +51,14 @@ export const Toolbar: React.FC = () => {
     };
 
     const handleCopyJson = async () => {
-        const json = JSON.stringify(schema, null, 2);
-        await navigator.clipboard.writeText(json);
-        // Could add a toast notification here
+        try {
+            const json = JSON.stringify(schema, null, 2);
+            await navigator.clipboard.writeText(json);
+            // Could add a toast notification here for success
+        } catch (error) {
+            console.error('Failed to copy to clipboard:', error);
+            // Fallback: could show an error message or use a different copy method
+        }
     };
 
     const handleImport = () => {

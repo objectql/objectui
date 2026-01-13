@@ -229,7 +229,8 @@ export const DesignerProvider: React.FC<DesignerProviderProps> = ({
       // Limit history to 50 items
       if (newHistory.length > 50) {
         newHistory.shift();
-        setHistoryIndex(prev => prev); // Keep same index since we removed from start
+        // Index is now one less since we removed from start
+        setHistoryIndex(newHistory.length - 1);
       } else {
         setHistoryIndex(newHistory.length - 1);
       }
@@ -313,7 +314,7 @@ export const DesignerProvider: React.FC<DesignerProviderProps> = ({
     const node = findNodeById(schema, id);
     if (node) {
       // Create a deep copy without the ID so it gets a new one when pasted
-      const { id: _, ...nodeWithoutId } = node;
+      const { id: originalId, ...nodeWithoutId } = node;
       setClipboard(nodeWithoutId as SchemaNode);
     }
   }, [schema]);

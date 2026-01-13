@@ -27,7 +27,8 @@ import {
     ChevronRight,
     Layers,
     Columns3,
-    Minus
+    Minus,
+    X
 } from 'lucide-react';
 import { cn } from '@object-ui/components';
 import { ScrollArea } from '@object-ui/components';
@@ -183,10 +184,9 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({ className })
                     <button
                         onClick={() => setSearchQuery('')}
                         className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        aria-label="Clear search"
                     >
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M10.5 3.5L3.5 10.5M3.5 3.5L10.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                        </svg>
+                        <X size={14} />
                     </button>
                 )}
             </div>
