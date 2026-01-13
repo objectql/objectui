@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import type { SchemaNode } from '@object-ui/core';
 
+export type ViewportMode = 'desktop' | 'tablet' | 'mobile';
+
 export interface DesignerContextValue {
   schema: SchemaNode;
   setSchema: (schema: SchemaNode) => void;
@@ -12,6 +14,8 @@ export interface DesignerContextValue {
   setDraggingType: React.Dispatch<React.SetStateAction<string | null>>;
   draggingNodeId: string | null;
   setDraggingNodeId: React.Dispatch<React.SetStateAction<string | null>>;
+  viewportMode: ViewportMode;
+  setViewportMode: React.Dispatch<React.SetStateAction<ViewportMode>>;
   addNode: (parentId: string | null, node: SchemaNode, index?: number) => void;
   updateNode: (id: string, updates: Partial<SchemaNode>) => void;
   removeNode: (id: string) => void;
@@ -196,6 +200,7 @@ export const DesignerProvider: React.FC<DesignerProviderProps> = ({
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
   const [draggingType, setDraggingType] = useState<string | null>(null);
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null);
+  const [viewportMode, setViewportMode] = useState<ViewportMode>('desktop');
   
   // Undo/Redo state
   const [history, setHistory] = useState<SchemaNode[]>([ensureNodeIds(initialSchema || defaultSchema)]);
@@ -333,6 +338,8 @@ export const DesignerProvider: React.FC<DesignerProviderProps> = ({
       setDraggingType,
       draggingNodeId,
       setDraggingNodeId,
+      viewportMode,
+      setViewportMode,
       addNode,
       updateNode,
       removeNode,

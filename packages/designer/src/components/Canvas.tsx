@@ -21,10 +21,21 @@ export const Canvas: React.FC<CanvasProps> = ({ className }) => {
         setDraggingNodeId,
         addNode,
         moveNode,
+        viewportMode,
     } = useDesigner();
 
     const [scale, setScale] = useState(1);
     const canvasRef = React.useRef<HTMLDivElement>(null);
+    
+    // Calculate canvas width based on viewport mode
+    const getCanvasWidth = () => {
+        switch (viewportMode) {
+            case 'mobile': return '375px'; // iPhone size
+            case 'tablet': return '768px'; // iPad size
+            case 'desktop': return '1024px'; // Desktop size
+            default: return '1024px';
+        }
+    };
 
     const handleClick = (e: React.MouseEvent) => {
         // Find closest element with data-obj-id
@@ -272,10 +283,11 @@ export const Canvas: React.FC<CanvasProps> = ({ className }) => {
                 <div 
                     className="bg-white shadow-lg transition-transform origin-top duration-200 ease-out"
                     style={{
-                        width: '100%',
-                        maxWidth: '1024px', // Standard desktop width
+                        width: getCanvasWidth(),
+                        maxWidth: '100%',
                         minHeight: '800px', // Standard height
                         transform: `scale(${scale})`,
+                        transition: 'width 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                     }}
                 >
                     {/* Render the Schema */}

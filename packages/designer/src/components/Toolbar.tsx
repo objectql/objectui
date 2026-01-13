@@ -21,15 +21,18 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@object-ui/components";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@object-ui/components";
 import { Textarea } from '@object-ui/components';
 import { useDesigner } from '../context/DesignerContext';
 import { cn } from '@object-ui/components';
 
-type ViewportMode = 'desktop' | 'tablet' | 'mobile';
-
 export const Toolbar: React.FC = () => {
-    const { schema, setSchema, undo, redo, canUndo, canRedo } = useDesigner();
-    const [viewportMode, setViewportMode] = useState<ViewportMode>('desktop');
+    const { schema, setSchema, undo, redo, canUndo, canRedo, viewportMode, setViewportMode } = useDesigner();
     const [showExportDialog, setShowExportDialog] = useState(false);
     const [showImportDialog, setShowImportDialog] = useState(false);
     const [importJson, setImportJson] = useState('');
@@ -83,56 +86,69 @@ export const Toolbar: React.FC = () => {
     };
 
     return (
-        <div className="h-14 border-b bg-white flex items-center px-4 justify-between shadow-sm z-10 shrink-0">
-            <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-sm">
-                    O
+        <TooltipProvider delayDuration={300}>
+            <div className="h-14 border-b bg-white flex items-center px-4 justify-between shadow-sm z-10 shrink-0">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                        O
+                    </div>
+                    <h1 className="font-semibold text-gray-800 tracking-tight hidden sm:block">Object UI Designer</h1>
+                    <span className="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full border border-blue-200 hidden sm:block font-medium">Beta</span>
                 </div>
-                <h1 className="font-semibold text-gray-800 tracking-tight hidden sm:block">Object UI Designer</h1>
-                <span className="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full border border-blue-200 hidden sm:block font-medium">Beta</span>
-            </div>
 
-            {/* Center Controls */}
-            <div className="flex items-center gap-2">
-                {/* Viewport Toggle */}
-                <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-md border">
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className={cn(
-                            "h-8 w-8 p-0 transition-all",
-                            viewportMode === 'desktop' ? "bg-white text-blue-600 shadow-sm" : "hover:bg-white hover:text-blue-600"
-                        )}
-                        onClick={() => setViewportMode('desktop')}
-                        title="Desktop view"
-                    >
-                        <Monitor size={16} />
-                    </Button>
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className={cn(
-                            "h-8 w-8 p-0 transition-all",
-                            viewportMode === 'tablet' ? "bg-white text-blue-600 shadow-sm" : "hover:bg-white hover:text-blue-600"
-                        )}
-                        onClick={() => setViewportMode('tablet')}
-                        title="Tablet view"
-                    >
-                        <Tablet size={16} />
-                    </Button>
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className={cn(
-                            "h-8 w-8 p-0 transition-all",
-                            viewportMode === 'mobile' ? "bg-white text-blue-600 shadow-sm" : "hover:bg-white hover:text-blue-600"
-                        )}
-                        onClick={() => setViewportMode('mobile')}
-                        title="Mobile view"
-                    >
-                        <Smartphone size={16} />
-                    </Button>
-                </div>
+                {/* Center Controls */}
+                <div className="flex items-center gap-2">
+                    {/* Viewport Toggle */}
+                    <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-md border">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className={cn(
+                                        "h-8 w-8 p-0 transition-all",
+                                        viewportMode === 'desktop' ? "bg-white text-blue-600 shadow-sm" : "hover:bg-white hover:text-blue-600"
+                                    )}
+                                    onClick={() => setViewportMode('desktop')}
+                                >
+                                    <Monitor size={16} />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Desktop View (1024px)</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className={cn(
+                                        "h-8 w-8 p-0 transition-all",
+                                        viewportMode === 'tablet' ? "bg-white text-blue-600 shadow-sm" : "hover:bg-white hover:text-blue-600"
+                                    )}
+                                    onClick={() => setViewportMode('tablet')}
+                                >
+                                    <Tablet size={16} />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Tablet View (768px)</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className={cn(
+                                        "h-8 w-8 p-0 transition-all",
+                                        viewportMode === 'mobile' ? "bg-white text-blue-600 shadow-sm" : "hover:bg-white hover:text-blue-600"
+                                    )}
+                                    onClick={() => setViewportMode('mobile')}
+                                >
+                                    <Smartphone size={16} />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Mobile View (375px)</TooltipContent>
+                        </Tooltip>
+                    </div>
             </div>
 
             {/* Right Actions */}
@@ -293,5 +309,6 @@ export const Toolbar: React.FC = () => {
                 </Button>
             </div>
         </div>
+        </TooltipProvider>
     );
 };
