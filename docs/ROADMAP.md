@@ -193,7 +193,7 @@ Making Object UI ready for your biggest projects.
 While we're building the future, you can already:
 
 ### Try the Preview
-We have an early preview available! Check out our [Playground](https://object-ui.org/playground) to see what's possible.
+We have an early preview available! Check out our [Playground](https://objectui.org/playground) to see what's possible.
 
 ### Join the Community
 - ⭐ **Star us on GitHub**: [objectql/object-ui](https://github.com/objectql/object-ui)
@@ -291,6 +291,6 @@ Object UI is built by developers, for developers. Thank you for your interest an
 
 *Building the future of interface development, one JSON schema at a time* 🚀
 
-**[GitHub](https://github.com/objectql/object-ui)** · **[Documentation](https://objectui.org)** · **[Playground](https://object-ui.org/playground)**
+**[GitHub](https://github.com/objectql/object-ui)** · **[Documentation](https://objectui.org)** · **[Playground](https://objectui.org/playground)**
 
 </div>
