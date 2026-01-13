@@ -24,7 +24,7 @@ This document outlines the technical architecture for Steedos Object UI, designe
 *   **Component Base**: **Shadcn/UI** (built on Radix UI)
     *   Acceessible, unstyled primitives handling complex interactions (Dialogs, Popovers, Tabs).
     *   The implementation serves as the concrete "UI Kit" mapped to JSON nodes.
-*   **Icons**: **Lucide React** (Standard for Shadcn) or **Heroicons**.
+*   **Icons**: **Lucide React** (Standard for Shadcn).
 
 ### C. State & Data
 *   **App State**: **Zustand** or **Jotai**

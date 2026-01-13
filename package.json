@@ -9,6 +9,8 @@
     "docs"
   ],
   "scripts": {
+    "dev": "pnpm --filter prototype dev",
+    "start": "pnpm --filter prototype preview",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "docs:dev": "pnpm --filter object-ui-docs dev",
