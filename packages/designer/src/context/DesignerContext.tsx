@@ -232,6 +232,18 @@ export const DesignerProvider: React.FC<DesignerProviderProps> = ({
     setSelectedNodeId(null);
   }, []);
 
+  /**
+   * Move a node to a different location in the schema tree.
+   * 
+   * @param nodeId - ID of the node to move
+   * @param targetParentId - ID of the target parent container (or null for root)
+   * @param targetIndex - Index position within the target parent's children
+   * 
+   * @remarks
+   * - Prevents moving a node into itself or its descendants
+   * - Removes the node from its current location before adding to new location
+   * - If the node is not found, the schema remains unchanged
+   */
   const moveNode = useCallback((nodeId: string, targetParentId: string | null, targetIndex: number) => {
     setSchemaState(prev => moveNodeInTree(prev, nodeId, targetParentId, targetIndex));
   }, []);

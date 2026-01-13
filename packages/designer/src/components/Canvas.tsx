@@ -23,6 +23,7 @@ export const Canvas: React.FC<CanvasProps> = ({ className }) => {
     } = useDesigner();
 
     const [scale, setScale] = useState(1);
+    const canvasRef = React.useRef<HTMLDivElement>(null);
 
     const handleClick = (e: React.MouseEvent) => {
         // Find closest element with data-obj-id
@@ -72,6 +73,8 @@ export const Canvas: React.FC<CanvasProps> = ({ className }) => {
             if (draggingNodeId) {
                 // Don't allow dropping on itself
                 if (draggingNodeId !== targetId) {
+                    // TODO: Calculate proper insertion index based on drop position
+                    // For now, always insert at the beginning (index 0)
                     moveNode(draggingNodeId, targetId, 0);
                 }
                 setDraggingNodeId(null);
@@ -95,6 +98,8 @@ export const Canvas: React.FC<CanvasProps> = ({ className }) => {
     
     // Make components in canvas draggable
     React.useEffect(() => {
+        if (!canvasRef.current) return;
+        
         const handleDragStart = (e: DragEvent) => {
             const target = (e.target as Element).closest('[data-obj-id]');
             if (target && target.getAttribute('data-obj-id')) {
@@ -117,8 +122,8 @@ export const Canvas: React.FC<CanvasProps> = ({ className }) => {
             setDraggingNodeId(null);
         };
 
-        // Add draggable attribute and event listeners to all elements with data-obj-id
-        const elements = document.querySelectorAll('[data-obj-id]');
+        // Add draggable attribute and event listeners to all elements with data-obj-id within canvas
+        const elements = canvasRef.current.querySelectorAll('[data-obj-id]');
         elements.forEach(el => {
             // Don't make root draggable
             if (el.getAttribute('data-obj-id') !== schema.id) {
@@ -207,6 +212,7 @@ export const Canvas: React.FC<CanvasProps> = ({ className }) => {
             </div>
 
             <div 
+                ref={canvasRef}
                 className="flex-1 overflow-auto p-12 relative flex justify-center"
                 onClick={handleClick}
                 onDragOver={handleDragOver}
