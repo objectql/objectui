@@ -37,33 +37,98 @@ import {
 
 type SortDirection = 'asc' | 'desc' | null;
 
+/**
+ * Column configuration for the data table.
+ * @interface Column
+ */
 interface Column {
+  /** Display name of the column */
   header: string;
+  /** Key to access the data field in each row object */
   accessorKey: string;
+  /** Optional CSS classes for the column header */
   className?: string;
+  /** Optional CSS classes for the column cells */
   cellClassName?: string;
+  /** Width of the column (e.g., '80px' or 80) */
   width?: string | number;
+  /** Whether sorting is enabled for this column (default: true) */
   sortable?: boolean;
+  /** Whether filtering is enabled for this column (default: true) */
   filterable?: boolean;
 }
 
+/**
+ * Schema definition for the enterprise data table component.
+ * Supports sorting, pagination, search, row selection, CSV export, and row actions.
+ * @interface DataTableSchema
+ */
 interface DataTableSchema {
+  /** Optional caption text displayed above the table */
   caption?: string;
+  /** Array of column definitions */
   columns: Column[];
+  /** Array of data objects to display. Each object should have an 'id' field for stable row identification */
   data: any[];
+  /** Enable/disable pagination (default: true) */
   pagination?: boolean;
+  /** Number of rows per page (default: 10) */
   pageSize?: number;
+  /** Enable/disable search across all columns (default: true) */
   searchable?: boolean;
+  /** Enable/disable row selection with checkboxes (default: false) */
   selectable?: boolean;
+  /** Enable/disable column sorting (default: true) */
   sortable?: boolean;
+  /** Enable/disable CSV export button (default: false) */
   exportable?: boolean;
+  /** Show/hide edit and delete action buttons for each row (default: false) */
   rowActions?: boolean;
+  /** Callback function triggered when the edit button is clicked */
   onRowEdit?: (row: any) => void;
+  /** Callback function triggered when the delete button is clicked */
   onRowDelete?: (row: any) => void;
+  /** Callback function triggered when row selection changes, receives array of selected rows */
   onSelectionChange?: (selectedRows: any[]) => void;
+  /** Optional CSS classes for the table container */
   className?: string;
 }
 
+/**
+ * Enterprise-level data table component with Airtable-like features.
+ * 
+ * Provides comprehensive table functionality including:
+ * - Multi-column sorting (ascending/descending/none)
+ * - Real-time search across all columns
+ * - Pagination with configurable page sizes
+ * - Row selection with persistence across pages
+ * - CSV export of filtered/sorted data
+ * - Row action buttons (edit/delete)
+ * 
+ * @example
+ * ```json
+ * {
+ *   "type": "data-table",
+ *   "pagination": true,
+ *   "searchable": true,
+ *   "selectable": true,
+ *   "sortable": true,
+ *   "exportable": true,
+ *   "rowActions": true,
+ *   "columns": [
+ *     { "header": "ID", "accessorKey": "id", "width": "80px" },
+ *     { "header": "Name", "accessorKey": "name" }
+ *   ],
+ *   "data": [
+ *     { "id": 1, "name": "John Doe" }
+ *   ]
+ * }
+ * ```
+ * 
+ * @param {Object} props - Component props
+ * @param {DataTableSchema} props.schema - Table schema configuration
+ * @returns {JSX.Element} Rendered data table component
+ */
 const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
   const {
     caption,
@@ -120,7 +185,14 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
     ? sortedData.slice((currentPage - 1) * pageSize, currentPage * pageSize)
     : sortedData;
 
-  // Generate unique row ID
+  /**
+   * Generates a unique identifier for each row to maintain stable selection state
+   * across pagination and sorting operations.
+   * 
+   * @param {any} row - The data row object
+   * @param {number} index - The row's index in the dataset
+   * @returns {string | number} Unique row identifier (uses 'id' field if available, falls back to index)
+   */
   const getRowId = (row: any, index: number) => {
     // Try to use 'id' field, fall back to index
     return row.id !== undefined ? row.id : `row-${index}`;
