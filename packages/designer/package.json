@@ -9,8 +9,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "peerDependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
   },
   "dependencies": {
     "@object-ui/protocol": "workspace:*",
