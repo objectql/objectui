@@ -3,7 +3,7 @@ export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
-    "../../packages/ui/src/**/*.{js,ts,jsx,tsx}",
+    "../../packages/components/src/**/*.{js,ts,jsx,tsx}",
     "../../packages/designer/src/**/*.{js,ts,jsx,tsx}" // Include designer styles
   ],
   theme: {

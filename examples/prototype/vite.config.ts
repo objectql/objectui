@@ -7,10 +7,10 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@object-ui/protocol': path.resolve(__dirname, '../../packages/protocol/src'),
-      '@object-ui/engine': path.resolve(__dirname, '../../packages/engine/src'),
-      '@object-ui/ui': path.resolve(__dirname, '../../packages/ui/src'),
-      '@object-ui/renderer': path.resolve(__dirname, '../../packages/renderer/src'),
+      '@object-ui/components': path.resolve(__dirname, '../../packages/components/src'),
+      '@object-ui/core': path.resolve(__dirname, '../../packages/core/src'),
+      '@object-ui/react': path.resolve(__dirname, '../../packages/react/src'),
+      '@': path.resolve(__dirname, '../../packages/components/src'),
     }
   }
 })
