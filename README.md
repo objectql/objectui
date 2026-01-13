@@ -14,7 +14,7 @@ A high-performance, schema-driven UI system built on **React 18**, **Tailwind CS
 
 ## 📖 Introduction
 
-**Object UI** is a collection of libraries designed to transform data objects into intelligent user interfaces. It is the official presentation layer of the **Steedos** ecosystem, working in harmony with [ObjectQL](https://github.com/objectql/objectql) and [ObjectOS](https://github.com/objectql/objectos).
+**Object UI** is a collection of libraries designed to transform data objects into intelligent user interfaces. It is the official presentation layer of the **ObjectQL** ecosystem, working in harmony with [ObjectQL](https://github.com/objectql/objectql) and [ObjectOS](https://github.com/objectql/objectos).
 
 Unlike monolithic low-code frameworks, Object UI is built as a **modular ecosystem** under the `@object-ui` scope. You can use the core engine, the component library, or the visual designer independently or together.
 
@@ -27,7 +27,6 @@ Object UI is organized into several distinct packages, each serving a specific p
 | **Core** | [`@object-ui/core`](./packages/core) | **The Brain.** Schema definitions, renderer registry, and logic. No UI dependencies. |
 | **React** | [`@object-ui/react`](./packages/react) | **The Glue.** React context, hooks, and the main `<SchemaRenderer />` component. |
 | **Components** | [`@object-ui/components`](./packages/components) | **The Look.** A set of high-quality UI renderers built with Tailwind CSS & Shadcn. |
-| **Icons** | [`@object-ui/icons`](./packages/icons) | **The Assets.** Optimized SVG icons compatible with the schema engine. |
 | **Designer** | [`@object-ui/designer`](./packages/designer) | **The Tool.** A drag-and-drop visual editor to generate Object UI schemas. |
 
 ## 🏗 Architecture

@@ -1,0 +1,22 @@
+{
+  "name": "@object-ui/components",
+  "version": "0.1.0",
+  "description": "The Look. A set of high-quality UI renderers built with Tailwind CSS & Shadcn.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "dependencies": {
+    "@object-ui/core": "workspace:*",
+    "@object-ui/react": "workspace:*",
+    "tailwindcss": "^3.0.0",
+    "clsx": "^2.0.0",
+    "tailwind-merge": "^2.0.0"
+  }
+}

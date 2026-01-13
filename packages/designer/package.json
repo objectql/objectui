@@ -1,0 +1,20 @@
+{
+  "name": "@object-ui/designer",
+  "version": "0.1.0",
+  "description": "The Tool. A drag-and-drop visual editor to generate Object UI schemas.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "dependencies": {
+    "@object-ui/core": "workspace:*",
+    "@object-ui/react": "workspace:*",
+    "@object-ui/components": "workspace:*"
+  }
+}
