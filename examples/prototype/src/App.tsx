@@ -1,102 +1,213 @@
-import { SchemaRenderer } from '@object-ui/renderer';
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarFooter,
+  SidebarTrigger,
+  SidebarInset,
+} from "@object-ui/ui"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@object-ui/ui"
+import { Separator } from "@object-ui/ui"
+import { Button } from "@object-ui/ui"
+import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@object-ui/ui"
+import { Input } from "@object-ui/ui"
+import { Label } from "@object-ui/ui"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@object-ui/ui"
 
-const meta = {
-  type: 'page',
-  body: [
-    {
-      type: 'sidebar',
-      logo: 'STEEDOS UI',
-      body: [
-        { type: 'menu-item', label: 'Dashboard', active: true, icon: '📊' },
-        { type: 'menu-item', label: 'Projects', icon: '📁' },
-        { type: 'menu-item', label: 'Tasks', icon: '✅' },
-        { type: 'menu-item', label: 'Team', icon: '👥' },
-        { type: 'menu-item', label: 'Reports', icon: '📈' },
-        { type: 'div', className: 'mt-auto pt-4 border-t border-slate-800', body: [
-             { type: 'menu-item', label: 'Settings', icon: '⚙️' },
-             { type: 'menu-item', label: 'Logout', icon: '🚪' }
-        ]}
-      ]
-    },
-    {
-      type: 'div',
-      className: 'flex-1 flex flex-col h-screen overflow-hidden',
-      body: [
-         {
-           type: 'header',
-           title: 'Executive Dashboard',
-           body: [
-             { type: 'button', label: 'New Project', className: 'bg-blue-600 text-white hover:bg-blue-700' },
-             { type: 'button', label: '🔔', className: 'ml-2 bg-gray-100 text-gray-600 rounded-full w-10 h-10 flex items-center justify-center p-0' },
-             { type: 'div', className: 'ml-4 w-8 h-8 rounded-full bg-blue-200 border border-blue-300' }
-           ]
-         },
-         {
-           type: 'div',
-           className: 'flex-1 overflow-auto p-8',
-           body: [
-             // Stats Row
-             {
-               type: 'div',
-               className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8',
-               body: [
-                 { type: 'stat-card', title: 'Total Revenue', value: '$124,592', trend: '+12.5%', iconStr: '💰' },
-                 { type: 'stat-card', title: 'Active Projects', value: '45', trend: '+3', iconStr: '🚀' },
-                 { type: 'stat-card', title: 'Pending Tasks', value: '12', trend: '-2', iconStr: '📝' },
-                 { type: 'stat-card', title: 'Team Capacity', value: '87%', trend: '+5%', iconStr: '⚡' }
-               ]
-             },
-             // Content Row
-             {
-               type: 'div',
-               className: 'grid grid-cols-1 lg:grid-cols-3 gap-8',
-               body: [
-                 {
-                   type: 'card',
-                   title: 'Revenue Overview',
-                   className: 'lg:col-span-2 h-96',
-                   body: {
-                     type: 'div',
-                     className: 'flex items-center justify-center h-full text-gray-400 bg-gray-50 rounded border border-dashed border-gray-200',
-                     body: { type: 'tpl', tpl: '[Chart Component Placeholder]' }
-                   }
-                 },
-                 {
-                   type: 'card',
-                   title: 'Recent Activity',
-                   className: 'h-96',
-                   body: {
-                      type: 'div',
-                      className: 'space-y-4',
-                      body: [
-                        { type: 'div', className: 'flex items-start pb-4 border-b border-gray-100', body: [
-                            { type: 'div', className: 'w-2 h-2 mt-2 rounded-full bg-blue-500 mr-3' },
-                            { type: 'div', body: [ { type: 'div', className: 'text-sm font-medium', body: {type:'tpl', tpl:'New project created'} }, { type: 'div', className: 'text-xs text-gray-500', body: {type:'tpl', tpl:'2 hours ago'} } ] }
-                        ]},
-                        { type: 'div', className: 'flex items-start pb-4 border-b border-gray-100', body: [
-                            { type: 'div', className: 'w-2 h-2 mt-2 rounded-full bg-green-500 mr-3' },
-                            { type: 'div', body: [ { type: 'div', className: 'text-sm font-medium', body: {type:'tpl', tpl:'Task completed: Homepage Design'} }, { type: 'div', className: 'text-xs text-gray-500', body: {type:'tpl', tpl:'4 hours ago'} } ] }
-                        ]},
-                         { type: 'div', className: 'flex items-start pb-4', body: [
-                            { type: 'div', className: 'w-2 h-2 mt-2 rounded-full bg-purple-500 mr-3' },
-                            { type: 'div', body: [ { type: 'div', className: 'text-sm font-medium', body: {type:'tpl', tpl:'Meeting with Client'} }, { type: 'div', className: 'text-xs text-gray-500', body: {type:'tpl', tpl:'Tomorrow, 10:00 AM'} } ] }
-                        ]}
-                      ]
-                   }
-                 }
-               ]
-             }
-           ]
-         }
-      ]
-    }
-  ]
-};
-
-function App() {
+export default function App() {
   return (
-    <SchemaRenderer schema={meta} />
-  );
-}
+    <SidebarProvider>
+      <Sidebar>
+        <SidebarHeader>
+          <div className="px-4 py-2 font-bold text-xl">Object UI</div>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton isActive>
+                    <span>Dashboard</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton>
+                    <span>Objects</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton>
+                    <span>Apps</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+          <SidebarGroup>
+            <SidebarGroupLabel>Settings</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton>
+                    <span>Profile</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton>
+                    <span>Billing</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter>
+          <div className="p-4 text-xs text-muted-foreground">
+            v1.0.0
+          </div>
+        </SidebarFooter>
+      </Sidebar>
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="#">Platform</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Dashboard</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </header>
+        <div className="flex flex-1 flex-col gap-4 p-4 md:p-8">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Total Revenue
+                </CardTitle>
+                <span className="text-muted-foreground">💰</span>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">$45,231.89</div>
+                <p className="text-xs text-muted-foreground">
+                  +20.1% from last month
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Subscriptions
+                </CardTitle>
+                <span className="text-muted-foreground">👤</span>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">+2350</div>
+                <p className="text-xs text-muted-foreground">
+                  +180.1% from last month
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Sales</CardTitle>
+                <span className="text-muted-foreground">💳</span>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">+12,234</div>
+                <p className="text-xs text-muted-foreground">
+                  +19% from last month
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Active Now
+                </CardTitle>
+                <span className="text-muted-foreground">📈</span>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">+573</div>
+                <p className="text-xs text-muted-foreground">
+                  +201 since last hour
+                </p>
+              </CardContent>
+            </Card>
+          </div>
 
-export default App;
+          <Tabs defaultValue="overview" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsTrigger value="reports">Reports</TabsTrigger>
+              <TabsTrigger value="notifications">Notifications</TabsTrigger>
+            </TabsList>
+            <TabsContent value="overview" className="space-y-4">
+               <Card>
+                  <CardHeader>
+                    <CardTitle>Overview</CardTitle>
+                    <CardDescription>
+                      View your dashboard overview here.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <p>This is a demonstration of the Object UI components based on shadcn/ui.</p>
+                    <div className="flex gap-2 flex-wrap">
+                        <Button>Primary Action</Button>
+                        <Button variant="secondary">Secondary</Button>
+                        <Button variant="outline">Outline</Button>
+                        <Button variant="destructive">Destructive</Button>
+                        <Button variant="ghost">Ghost</Button>
+                        <Button variant="link">Link</Button>
+                    </div>
+                  </CardContent>
+               </Card>
+               <Card>
+                 <CardHeader>
+                   <CardTitle>Form Example</CardTitle>
+                   <CardDescription>
+                     A simple form layout using Input and Label components.
+                   </CardDescription>
+                 </CardHeader>
+                 <CardContent className="space-y-4">
+                   <div className="grid w-full max-w-sm items-center gap-1.5">
+                      <Label htmlFor="email">Email</Label>
+                      <Input type="email" id="email" placeholder="Email" />
+                   </div>
+                   <div className="grid w-full max-w-sm items-center gap-1.5">
+                      <Label htmlFor="name">Name</Label>
+                      <Input type="text" id="name" placeholder="Name" />
+                   </div>
+                 </CardContent>
+                 <CardFooter>
+                   <Button className="w-full">Save Changes</Button>
+                 </CardFooter>
+               </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
+  )
+}

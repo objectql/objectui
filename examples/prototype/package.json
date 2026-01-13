@@ -12,6 +12,7 @@
   "dependencies": {
     "@object-ui/protocol": "workspace:*",
     "@object-ui/renderer": "workspace:*",
+    "@object-ui/ui": "workspace:*",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
   },

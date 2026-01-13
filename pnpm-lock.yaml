@@ -74,6 +74,9 @@ importers:
       '@object-ui/renderer':
         specifier: workspace:*
         version: link:../../packages/renderer
+      '@object-ui/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       react:
         specifier: ^19.2.3
         version: 19.2.3
