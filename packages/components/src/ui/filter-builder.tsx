@@ -211,15 +211,38 @@ function FilterBuilder({
     }
 
     // Default input for text, number, date
+    const inputType = getInputType(condition.field)
+    
+    // Format value based on field type
+    const formatValue = () => {
+      if (!condition.value) return ""
+      if (inputType === "date" && typeof condition.value === "string") {
+        // Ensure date is in YYYY-MM-DD format
+        return condition.value.split('T')[0]
+      }
+      return String(condition.value)
+    }
+    
+    // Handle value change with proper type conversion
+    const handleValueChange = (newValue: string) => {
+      let convertedValue: string | number | boolean = newValue
+      
+      if (field?.type === "number" && newValue !== "") {
+        convertedValue = parseFloat(newValue) || 0
+      } else if (field?.type === "date") {
+        convertedValue = newValue // Keep as ISO string
+      }
+      
+      updateCondition(condition.id, { value: convertedValue })
+    }
+    
     return (
       <Input
-        type={getInputType(condition.field)}
+        type={inputType}
         className="h-9 text-sm"
         placeholder="Value"
-        value={String(condition.value || "")}
-        onChange={(e) =>
-          updateCondition(condition.id, { value: e.target.value })
-        }
+        value={formatValue()}
+        onChange={(e) => handleValueChange(e.target.value)}
       />
     )
   }
