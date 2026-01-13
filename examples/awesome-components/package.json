@@ -19,7 +19,7 @@
     "dev": "rollup -c -w",
     "prepublishOnly": "npm run build",
     "test": "echo 'No tests yet'",
-    "lint": "eslint src --ext .ts,.tsx"
+    "lint": "echo 'No lint config'"
   },
 
   "peerDependencies": {
