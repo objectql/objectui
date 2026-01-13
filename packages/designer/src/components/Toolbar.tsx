@@ -84,7 +84,8 @@ export const Toolbar: React.FC = () => {
                 const parsed = JSON.parse(json);
                 setSchema(parsed);
             } catch (error) {
-                console.error('Failed to import file:', error);
+                setImportError(error instanceof Error ? error.message : 'Failed to import JSON file');
+                setShowImportDialog(true);
             }
         };
         reader.readAsText(file);
