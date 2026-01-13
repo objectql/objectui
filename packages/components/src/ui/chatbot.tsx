@@ -139,7 +139,7 @@ const Chatbot = React.forwardRef<HTMLDivElement, ChatbotProps>(
 Chatbot.displayName = "Chatbot"
 
 // Individual message component
-interface ChatMessageProps {
+export interface ChatMessageProps {
   message: ChatMessage
   showTimestamp?: boolean
   userAvatar?: string
@@ -237,4 +237,5 @@ const TypingIndicator = React.forwardRef<HTMLDivElement, TypingIndicatorProps>(
 )
 TypingIndicator.displayName = "TypingIndicator"
 
-export { Chatbot, TypingIndicator, type ChatMessage as ChatbotMessage }
+export { Chatbot, TypingIndicator }
+export type { ChatMessage, ChatMessage as ChatbotMessage }

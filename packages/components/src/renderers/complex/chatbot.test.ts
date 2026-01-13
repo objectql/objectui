@@ -8,16 +8,16 @@ describe('Chatbot Component', () => {
   });
 
   it('should have proper metadata', () => {
-    const metadata = ComponentRegistry.getMetadata('chatbot');
-    expect(metadata).toBeDefined();
-    expect(metadata?.label).toBe('Chatbot');
-    expect(metadata?.inputs).toBeDefined();
-    expect(metadata?.defaultProps).toBeDefined();
+    const config = ComponentRegistry.getConfig('chatbot');
+    expect(config).toBeDefined();
+    expect(config?.label).toBe('Chatbot');
+    expect(config?.inputs).toBeDefined();
+    expect(config?.defaultProps).toBeDefined();
   });
 
   it('should have expected inputs', () => {
-    const metadata = ComponentRegistry.getMetadata('chatbot');
-    const inputNames = metadata?.inputs?.map((input: any) => input.name) || [];
+    const config = ComponentRegistry.getConfig('chatbot');
+    const inputNames = config?.inputs?.map((input: any) => input.name) || [];
     
     expect(inputNames).toContain('messages');
     expect(inputNames).toContain('placeholder');
@@ -27,8 +27,8 @@ describe('Chatbot Component', () => {
   });
 
   it('should have sensible default props', () => {
-    const metadata = ComponentRegistry.getMetadata('chatbot');
-    const defaults = metadata?.defaultProps;
+    const config = ComponentRegistry.getConfig('chatbot');
+    const defaults = config?.defaultProps;
     
     expect(defaults).toBeDefined();
     expect(defaults?.placeholder).toBe('Type your message...');

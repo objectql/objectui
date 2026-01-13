@@ -1,11 +1,11 @@
 import { ComponentRegistry } from '@object-ui/core';
-import { Chatbot, ChatbotMessage } from '@/ui';
+import { Chatbot, type ChatMessage } from '@/ui';
 import { useState } from 'react';
 
 ComponentRegistry.register('chatbot', 
   ({ schema, className, ...props }) => {
     // Initialize messages from schema or use empty array
-    const [messages, setMessages] = useState<ChatbotMessage[]>(
+    const [messages, setMessages] = useState<ChatMessage[]>(
       schema.messages?.map((msg: any, idx: number) => ({
         id: msg.id || `msg-${idx}`,
         role: msg.role || 'user',
@@ -19,7 +19,7 @@ ComponentRegistry.register('chatbot',
     // Handle sending new messages
     const handleSendMessage = (content: string) => {
       // Create user message
-      const userMessage: ChatbotMessage = {
+      const userMessage: ChatMessage = {
         id: `msg-${Date.now()}`,
         role: 'user',
         content,
@@ -36,7 +36,7 @@ ComponentRegistry.register('chatbot',
       // Auto-response feature for demo purposes
       if (schema.autoResponse) {
         setTimeout(() => {
-          const assistantMessage: ChatbotMessage = {
+          const assistantMessage: ChatMessage = {
             id: `msg-${Date.now()}-response`,
             role: 'assistant',
             content: schema.autoResponseText || 'Thank you for your message!',
