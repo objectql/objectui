@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { SchemaRenderer } from '@object-ui/react';
 import '@object-ui/components';
 import { examples, exampleCategories, ExampleKey } from './data/examples';
