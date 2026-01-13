@@ -16,6 +16,7 @@
   "dependencies": {
     "@object-ui/protocol": "workspace:*",
     "@object-ui/renderer": "workspace:*",
-    "@object-ui/ui": "workspace:*"
+    "@object-ui/ui": "workspace:*",
+    "lucide-react": "^0.562.0"
   }
 }

@@ -1,4 +1,3 @@
-import React from 'react';
 import type { SchemaNode } from '@object-ui/protocol';
 
 export type ComponentRendererProps = {

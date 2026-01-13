@@ -1,18 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useDesigner } from '../context/DesignerContext';
 import { ComponentRegistry } from '@object-ui/renderer';
+import { Label } from '@object-ui/ui/components/ui/label';
+import { Input } from '@object-ui/ui/components/ui/input';
+import { Button } from '@object-ui/ui/components/ui/button';
+import { Switch } from '@object-ui/ui/components/ui/switch';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@object-ui/ui/components/ui/select"
+import { Textarea } from '@object-ui/ui/components/ui/textarea';
+import { ScrollArea } from '@object-ui/ui/components/ui/scroll-area';
+import { Settings2, Trash2, Layers, Type } from 'lucide-react';
+import { cn } from '@object-ui/ui/lib/utils';
+import type { ComponentInput } from '@object-ui/renderer/src/registry';
 
 interface PropertyPanelProps {
     className?: string;
 }
 
 export const PropertyPanel: React.FC<PropertyPanelProps> = ({ className }) => {
-    const { schema, selectedNodeId, updateNode } = useDesigner();
+    const { schema, selectedNodeId, updateNode, removeNode } = useDesigner();
     
-    // Find selected node in schema (recursive helper needed or flatten?)
-    // This is inefficient but works for small schemas.
-    // Better to have a map in context.
+    // Recursive finder
     const findNode = (node: any, id: string): any => {
+        if (!node) return null;
         if (node.id === id) return node;
         if (node.body) {
             if (Array.isArray(node.body)) {
@@ -28,65 +43,175 @@ export const PropertyPanel: React.FC<PropertyPanelProps> = ({ className }) => {
     };
     
     const selectedNode = selectedNodeId ? findNode(schema, selectedNodeId) : null;
-    const [jsonInput, setJsonInput] = useState('');
+    const config = selectedNode ? ComponentRegistry.getConfig(selectedNode.type) : null;
 
-    useEffect(() => {
-        if (selectedNode) {
-            // Exclude body from props editing to avoid massive JSON
-            const { body, ...props } = selectedNode;
-            setJsonInput(JSON.stringify(props, null, 2));
-        } else {
-            setJsonInput('');
-        }
-    }, [selectedNodeId, schema]); // Should depend on selectedNode deep?
-
-    const handleApply = () => {
-        try {
-            if (!selectedNodeId) return;
-            const parsed = JSON.parse(jsonInput);
-            updateNode(selectedNodeId, parsed);
-        } catch (e) {
-            alert('Invalid JSON');
-        }
+    const handleInputChange = (name: string, value: any) => {
+        if (!selectedNodeId) return;
+        
+        // Special case: direct schema properties vs props which go into ...rest
+        // Typically props are stored flat on the schema node in this implementation
+        // or inside a 'props' object. The renderer spreads the schema node itself or schema.props.
+        // Let's assume flat for simple properties like className, label, etc.
+        updateNode(selectedNodeId, { [name]: value });
     };
 
     if (!selectedNode) {
         return (
-            <div className={`p-4 bg-gray-50 border-l ${className || ''}`}>
-                <div className="text-gray-500 text-sm">Select a component to edit properties</div>
+            <div className={cn("flex flex-col h-full bg-white border-l w-80 items-center justify-center text-center p-6 text-gray-500", className)}>
+                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                     <Settings2 size={24} className="opacity-20" />
+                </div>
+                <h3 className="font-medium text-gray-900 mb-1">No Selection</h3>
+                <p className="text-sm">Select a component on the canvas to edit its properties.</p>
             </div>
         );
     }
-    
-    const config = ComponentRegistry.getConfig(selectedNode.type);
+
+    const renderInput = (input: ComponentInput) => {
+        const value = selectedNode[input.name] ?? input.defaultValue;
+
+        switch (input.type) {
+            case 'boolean':
+                return (
+                    <div className="flex items-center justify-between py-1">
+                        <Label htmlFor={input.name} className="text-xs font-medium text-gray-600 cursor-pointer">{input.label || input.name}</Label>
+                        <Switch 
+                            id={input.name}
+                            checked={!!value}
+                            onCheckedChange={(checked) => handleInputChange(input.name, checked)}
+                        />
+                    </div>
+                );
+            case 'enum':
+                const options = Array.isArray(input.enum) 
+                    ? input.enum.map(opt => typeof opt === 'string' ? { label: opt, value: opt } : opt)
+                    : [];
+                return (
+                    <div className="space-y-1.5">
+                        <Label className="text-xs font-medium text-gray-600">{input.label || input.name}</Label>
+                        <Select 
+                            value={String(value || '')} 
+                            onValueChange={(val) => handleInputChange(input.name, val)}
+                        >
+                            <SelectTrigger className="h-8 text-xs">
+                                <SelectValue placeholder="Select..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {options.map(opt => (
+                                    <SelectItem key={String(opt.value)} value={String(opt.value)} className="text-xs">
+                                        {opt.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                );
+            case 'number':
+                return (
+                    <div className="space-y-1.5">
+                        <Label htmlFor={input.name} className="text-xs font-medium text-gray-600">{input.label || input.name}</Label>
+                        <Input 
+                            id={input.name}
+                            type="number"
+                            value={value || ''}
+                            onChange={(e) => handleInputChange(input.name, parseFloat(e.target.value))}
+                            className="h-8 text-xs"
+                        />
+                    </div>
+                );
+             case 'file': // Fallthrough to text for now
+             case 'color': // Fallthrough to text for now
+             case 'date': // Fallthrough to text for now
+             case 'string':
+             default:
+                if (input.name === 'description' || input.type === 'string' && (input.label?.toLowerCase().includes('content') || input.label?.toLowerCase().includes('text'))) {
+                     return (
+                        <div className="space-y-1.5">
+                            <Label htmlFor={input.name} className="text-xs font-medium text-gray-600">{input.label || input.name}</Label>
+                            <Textarea
+                                id={input.name}
+                                value={value || ''}
+                                onChange={(e) => handleInputChange(input.name, e.target.value)}
+                                className="min-h-[80px] text-xs"
+                            />
+                        </div>
+                    );
+                }
+                return (
+                    <div className="space-y-1.5">
+                        <Label htmlFor={input.name} className="text-xs font-medium text-gray-600">{input.label || input.name}</Label>
+                        <Input 
+                            id={input.name}
+                            type="text"
+                            value={value || ''}
+                            onChange={(e) => handleInputChange(input.name, e.target.value)}
+                            className="h-8 text-xs bg-white"
+                        />
+                    </div>
+                );
+        }
+    };
 
     return (
-        <div className={`w-80 bg-white border-l flex flex-col ${className || ''}`}>
-            <div className="p-4 border-b">
-                <h3 className="font-semibold">{config?.label || selectedNode.type}</h3>
-                <div className="text-xs text-gray-500 font-mono">{selectedNode.id}</div>
+        <div className={cn("flex flex-col h-full bg-white border-l w-80 shadow-xl shadow-gray-200/50 z-10", className)}>
+            <div className="px-5 py-4 border-b flex items-center justify-between bg-gray-50/50">
+                <div>
+                     <div className="flex items-center gap-2">
+                        <span className="font-semibold text-gray-900 text-sm tracking-tight">{config?.label || selectedNode.type}</span>
+                        <span className="text-[10px] text-gray-400 font-mono bg-gray-100 px-1.5 py-0.5 rounded border uppercase">{selectedNode.type}</span>
+                     </div>
+                     <p className="text-[10px] text-gray-500 mt-0.5 truncate max-w-[180px] font-mono opacity-60">ID: {selectedNode.id}</p>
+                </div>
+                <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50"
+                    onClick={() => removeNode?.(selectedNode.id)}
+                    title="Remove Component"
+                >
+                    <Trash2 size={16} />
+                </Button>
             </div>
             
-            <div className="flex-1 overflow-auto p-4 space-y-4">
-                {/* 
-                   Here we could generate form inputs based on config.inputs
-                   For now, a simple JSON editor for props
-                */}
-                <div>
-                   <label className="block text-sm font-medium mb-1">Properties (JSON)</label>
-                   <textarea 
-                        className="w-full h-60 font-mono text-xs border rounded p-2"
-                        value={jsonInput}
-                        onChange={e => setJsonInput(e.target.value)}
-                   />
+            <ScrollArea className="flex-1">
+                <div className="p-5 space-y-6">
+                    {/* Common Properties */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
+                             <Layers size={14} className="text-blue-600" />
+                             <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Layout & Style</h4>
+                        </div>
+                        
+                        <div className="space-y-1.5">
+                            <Label htmlFor="className" className="text-xs font-medium text-gray-600">Classes (Tailwind)</Label>
+                            <Textarea
+                                id="className" 
+                                value={selectedNode.className || ''}
+                                onChange={(e) => handleInputChange('className', e.target.value)}
+                                className="font-mono text-[11px] h-20 bg-gray-50 border-gray-200 placeholder:text-gray-300"
+                                placeholder="p-4 bg-white rounded-lg..."
+                            />
+                        </div>
+                    </div>
+
+                    {/* Component Specific Properties */}
+                    {config?.inputs && config.inputs.length > 0 && (
+                        <div className="space-y-4">
+                             <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
+                                <Settings2 size={14} className="text-blue-600" />
+                                <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Settings</h4>
+                             </div>
+                             <div className="space-y-4">
+                                {config.inputs.filter(i => i.name !== 'className').map(input => (
+                                    <div key={input.name}>
+                                        {renderInput(input)}
+                                    </div>
+                                ))}
+                             </div>
+                        </div>
+                    )}
                 </div>
-                <button 
-                    onClick={handleApply}
-                    className="w-full bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-700"
-                >
-                    Apply Changes
-                </button>
-            </div>
+            </ScrollArea>
         </div>
     );
 };
