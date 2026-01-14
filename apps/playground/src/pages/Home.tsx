@@ -111,10 +111,7 @@ export const Home = () => {
                 {/* Mock Preview Window */}
                 <div className="bg-gradient-to-br from-gray-50 to-slate-100 border-b border-gray-200 p-6 flex-1 flex items-center justify-center overflow-hidden relative">
                     {/* Decorative grid */}
-                    <div className="absolute inset-0 opacity-20" style={{ 
-                      backgroundImage: 'radial-gradient(circle, #cbd5e1 1px, transparent 1px)',
-                      backgroundSize: '20px 20px'
-                    }}></div>
+                    <div className="absolute inset-0 opacity-20 bg-dot-pattern-sm"></div>
                     
                     <div className="relative w-3/4 h-3/4 bg-white shadow-xl border-2 border-gray-300 rounded-xl flex flex-col group-hover:scale-110 transition-transform duration-500">
                       <div className="h-5 border-b-2 border-gray-200 bg-gradient-to-b from-gray-100 to-gray-50 flex items-center px-2 gap-1.5 rounded-t-xl">

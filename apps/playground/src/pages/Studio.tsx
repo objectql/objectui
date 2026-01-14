@@ -323,11 +323,7 @@ const StudioEditor = ({ exampleId, initialJson }: { exampleId: ExampleKey, initi
           </div>
           
           <div 
-            className="flex-1 overflow-auto p-8 flex justify-center bg-gradient-to-br from-slate-100 via-gray-50 to-indigo-100 relative"
-            style={{ 
-              backgroundImage: 'radial-gradient(circle, #cbd5e1 1.5px, transparent 1.5px)', 
-              backgroundSize: '32px 32px' 
-            }}
+            className="flex-1 overflow-auto p-8 flex justify-center bg-gradient-to-br from-slate-100 via-gray-50 to-indigo-100 relative bg-dot-pattern"
           >
             <div className={`${viewportStyles[viewportSize]} transition-all duration-300 ease-in-out`}>
               <div 
@@ -369,7 +365,7 @@ const StudioEditor = ({ exampleId, initialJson }: { exampleId: ExampleKey, initi
                         <div className="flex flex-col items-center gap-4">
                            <div className="relative">
                              <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-                             <div className="absolute inset-0 w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1s' }}></div>
+                             <div className="absolute inset-0 w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin-reverse"></div>
                            </div>
                            <p className="text-sm font-semibold text-gray-600">Rendering your UI...</p>
                         </div>
@@ -414,12 +410,7 @@ const StudioEditor = ({ exampleId, initialJson }: { exampleId: ExampleKey, initi
           </div>
 
           {/* Side Preview */}
-          <div className="w-1/2 h-full flex flex-col bg-gradient-to-br from-slate-100 via-gray-50 to-indigo-100 relative" 
-            style={{ 
-              backgroundImage: 'radial-gradient(circle, #cbd5e1 1.5px, transparent 1.5px)', 
-              backgroundSize: '32px 32px' 
-            }}
-          >
+          <div className="w-1/2 h-full flex flex-col bg-gradient-to-br from-slate-100 via-gray-50 to-indigo-100 relative bg-dot-pattern">
              <div className="flex-1 overflow-auto p-8 flex items-center justify-center">
                 <div className="w-full max-w-xl mx-auto rounded-2xl shadow-2xl bg-background border-2 border-gray-300 overflow-hidden">
                   <div className="h-9 bg-gradient-to-b from-gray-100 to-gray-50 border-b-2 border-gray-300 flex items-center px-3 gap-2">

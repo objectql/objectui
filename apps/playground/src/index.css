@@ -67,3 +67,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Dot grid background patterns */
+  .bg-dot-pattern {
+    background-image: radial-gradient(circle, #cbd5e1 1.5px, transparent 1.5px);
+    background-size: 32px 32px;
+  }
+  
+  .bg-dot-pattern-sm {
+    background-image: radial-gradient(circle, #cbd5e1 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  /* Custom spinner animation */
+  .animate-spin-reverse {
+    animation: spin 1s linear infinite reverse;
+  }
+}
