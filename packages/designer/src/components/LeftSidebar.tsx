@@ -14,7 +14,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = React.memo(({ className }
   const [activeTab, setActiveTab] = useState<TabType>('palette');
 
   return (
-    <div className={cn("flex flex-col h-full bg-white border-r w-72", className)}>
+    <div className={cn("flex flex-col h-full bg-white w-72", className)}>
       {/* Tab Headers */}
       <div className="flex border-b bg-gray-50/50 shrink-0">
         <button
@@ -44,7 +44,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = React.memo(({ className }
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-hidden border-r-0">
+      <div className="flex-1 overflow-hidden">
         {activeTab === 'palette' ? (
           <ComponentPalette className="h-full" />
         ) : (
