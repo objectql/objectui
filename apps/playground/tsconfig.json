@@ -31,7 +31,8 @@
       "@object-ui/plugin-charts": ["../../packages/plugin-charts/src"],
       "@object-ui/plugin-editor": ["../../packages/plugin-editor/src"],
       "@object-ui/plugin-kanban": ["../../packages/plugin-kanban/src"],
-      "@object-ui/plugin-markdown": ["../../packages/plugin-markdown/src"]
+      "@object-ui/plugin-markdown": ["../../packages/plugin-markdown/src"],
+      "@/*": ["../../packages/components/src/*"]
     }
   },
   "include": ["src"]
