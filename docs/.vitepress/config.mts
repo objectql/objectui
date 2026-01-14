@@ -18,6 +18,7 @@ export default defineConfig({
       { 
         text: 'Documentation',
         items: [
+          { text: '📚 Documentation Index', link: '/DOCUMENTATION_INDEX' },
           { text: 'Protocol Specs', link: '/protocol/overview' },
           { text: 'API Reference', link: '/api/core' },
           { text: 'Technical Specs', link: '/spec/architecture' },
