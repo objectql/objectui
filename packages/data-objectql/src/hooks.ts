@@ -78,7 +78,7 @@ export interface UseObjectQLMutationOptions {
 export function useObjectQL(options: UseObjectQLOptions): ObjectQLDataSource {
   return useMemo(
     () => new ObjectQLDataSource(options.config),
-    // Serialize the entire config to detect any changes
+    [options.config]
     [JSON.stringify(options.config)]
   );
 }
