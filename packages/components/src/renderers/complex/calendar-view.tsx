@@ -1,10 +1,11 @@
 import { ComponentRegistry } from '@object-ui/core';
-import { CalendarView, type CalendarEvent } from '@/ui';
+import type { CalendarViewSchema, CalendarEvent } from '@object-ui/types';
+import { CalendarView } from '@/ui';
 import React from 'react';
 
 // Calendar View Renderer - Airtable-style calendar for displaying records as events
 ComponentRegistry.register('calendar-view', 
-  ({ schema, className, onAction, ...props }) => {
+  ({ schema, className, onAction, ...props }: { schema: CalendarViewSchema; className?: string; onAction?: (action: any) => void; [key: string]: any }) => {
     // Transform schema data to CalendarEvent format
     const events: CalendarEvent[] = React.useMemo(() => {
       if (!schema.data || !Array.isArray(schema.data)) return [];

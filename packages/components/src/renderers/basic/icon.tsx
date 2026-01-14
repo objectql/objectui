@@ -1,8 +1,9 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { IconSchema } from '@object-ui/types';
 import { icons } from 'lucide-react';
 
 ComponentRegistry.register('icon',
-  ({ schema, className, ...props }) => {
+  ({ schema, className, ...props }: { schema: IconSchema; className?: string; [key: string]: any }) => {
     const Icon = (icons as any)[schema.name || schema.icon];
     if (!Icon) return null;
     return <Icon className={className} {...props} />;

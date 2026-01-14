@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { ToasterSchema } from '@object-ui/types';
 import { Toaster as SonnerToaster } from '@/ui';
 import { Toaster as DefaultToaster } from '@/ui'; 
 // Note: In shadcn/ui typical setup, Toaster is exported from 'components/ui/toaster' and 'components/ui/sonner'.
@@ -7,7 +8,7 @@ import { Toaster as DefaultToaster } from '@/ui';
 // Let's assume standard exports.
 
 ComponentRegistry.register('toaster', 
-  ({ schema }) => {
+  ({ schema }: { schema: ToasterSchema }) => {
     if (schema.provider === 'sonner') {
         return <SonnerToaster />;
     }

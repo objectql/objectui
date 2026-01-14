@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { ChartSchema } from '@object-ui/types';
 import {
   ChartContainer,
   ChartTooltip,
@@ -20,7 +21,7 @@ import {
 } from 'recharts';
 
 ComponentRegistry.register('chart',
-  ({ schema, className }) => {
+  ({ schema, className }: { schema: ChartSchema; className?: string }) => {
     const { chartType = 'bar', data = [], config = {}, xAxisKey, series = [] } = schema;
 
     const ChartComponent = {

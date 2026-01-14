@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { AvatarSchema } from '@object-ui/types';
 import {
   Avatar,
   AvatarImage,
@@ -6,7 +7,7 @@ import {
 } from '@/ui';
 
 ComponentRegistry.register('avatar', 
-  ({ schema, className, ...props }) => (
+  ({ schema, className, ...props }: { schema: AvatarSchema; className?: string; [key: string]: any }) => (
     <Avatar className={className} {...props}>
       <AvatarImage src={schema.src} alt={schema.alt} />
       <AvatarFallback>{schema.fallback}</AvatarFallback>

@@ -1,5 +1,6 @@
 import { ComponentRegistry } from '@object-ui/core';
-import { Chatbot, type ChatMessage } from '@/ui';
+import type { ChatbotSchema, ChatMessage } from '@object-ui/types';
+import { Chatbot } from '@/ui';
 import { useState } from 'react';
 
 /**

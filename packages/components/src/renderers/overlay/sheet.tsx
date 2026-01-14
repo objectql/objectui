@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { SheetSchema } from '@object-ui/types';
 import { 
   Sheet, 
   SheetTrigger, 
@@ -11,7 +12,7 @@ import {
 import { renderChildren } from '../../lib/utils';
 
 ComponentRegistry.register('sheet', 
-  ({ schema, className, ...props }) => (
+  ({ schema, className, ...props }: { schema: SheetSchema; className?: string; [key: string]: any }) => (
     <Sheet modal={schema.modal} defaultOpen={schema.defaultOpen} {...props}>
       <SheetTrigger asChild>
         {renderChildren(schema.trigger)}

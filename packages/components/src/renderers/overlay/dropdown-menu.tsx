@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { DropdownMenuSchema } from '@object-ui/types';
 import { 
   DropdownMenu, 
   DropdownMenuTrigger, 
@@ -43,7 +44,7 @@ const renderMenuItems = (items: any[]) => {
 };
 
 ComponentRegistry.register('dropdown-menu', 
-  ({ schema, className, ...props }) => (
+  ({ schema, className, ...props }: { schema: DropdownMenuSchema; className?: string; [key: string]: any }) => (
     <DropdownMenu modal={schema.modal} defaultOpen={schema.defaultOpen} {...props}>
       <DropdownMenuTrigger asChild>
          {renderChildren(schema.trigger)}

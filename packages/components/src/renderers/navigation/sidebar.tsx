@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { SidebarSchema } from '@object-ui/types';
 import { renderChildren } from '../../lib/utils';
 import {
   SidebarProvider,
@@ -36,7 +37,7 @@ ComponentRegistry.register('sidebar-provider',
 );
 
 ComponentRegistry.register('sidebar', 
-  ({ schema, ...props }) => (
+  ({ schema, ...props }: { schema: SidebarSchema; [key: string]: any }) => (
     <Sidebar {...props}>{renderChildren(schema.body)}</Sidebar>
   ),
   {

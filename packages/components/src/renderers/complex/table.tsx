@@ -1,5 +1,6 @@
 // table.tsx implementation
 import { ComponentRegistry } from '@object-ui/core';
+import type { TableSchema } from '@object-ui/types';
 import { 
   Table, 
   TableHeader, 
@@ -13,7 +14,7 @@ import {
 
 // A simple data-driven table
 ComponentRegistry.register('table', 
-  ({ schema, className, ...props }) => (
+  ({ schema, className, ...props }: { schema: TableSchema; className?: string; [key: string]: any }) => (
     <Table className={className} {...props}>
       {schema.caption && <TableCaption>{schema.caption}</TableCaption>}
       <TableHeader>

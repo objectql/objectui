@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { TimelineSchema } from '@object-ui/types';
 import {
   Timeline,
   TimelineItem,
@@ -78,7 +79,7 @@ function formatDate(dateString: string, format?: string): string {
 
 ComponentRegistry.register(
   'timeline',
-  ({ schema, className, ...props }) => {
+  ({ schema, className, ...props }: { schema: TimelineSchema; className?: string; [key: string]: any }) => {
     const {
       variant = 'vertical',
       items = [],

@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { DrawerSchema } from '@object-ui/types';
 import { 
   Drawer, 
   DrawerTrigger, 
@@ -12,7 +13,7 @@ import {
 import { renderChildren } from '../../lib/utils';
 
 ComponentRegistry.register('drawer', 
-  ({ schema, className, ...props }) => (
+  ({ schema, className, ...props }: { schema: DrawerSchema; className?: string; [key: string]: any }) => (
     <Drawer shouldScaleBackground={schema.shouldScaleBackground} defaultOpen={schema.defaultOpen} {...props}>
       <DrawerTrigger asChild>
         {renderChildren(schema.trigger)}

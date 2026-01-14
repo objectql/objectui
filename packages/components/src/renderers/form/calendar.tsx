@@ -1,11 +1,12 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { CalendarSchema } from '@object-ui/types';
 import { Calendar } from '@/ui';
 
 ComponentRegistry.register('calendar', 
-  ({ schema, className, ...props }) => (
+  ({ schema, className, ...props }: { schema: CalendarSchema; className?: string; [key: string]: any }) => (
     <Calendar
       mode={schema.mode || "single"}
-      selected={schema.selected} // This would need state management in a real app
+      selected={schema.value || schema.defaultValue}
       className={className}
       {...props}
     />

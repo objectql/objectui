@@ -1,7 +1,8 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { TextSchema } from '@object-ui/types';
 
 ComponentRegistry.register('text', 
-  ({ schema }) => (
+  ({ schema }: { schema: TextSchema }) => (
     <>{schema.content}</>
   ),
   {

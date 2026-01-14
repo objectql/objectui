@@ -1,5 +1,6 @@
 import React from 'react';
 import { ComponentRegistry } from '@object-ui/core';
+import type { ResizableSchema } from '@object-ui/types';
 import { 
   ResizablePanelGroup, 
   ResizablePanel, 
@@ -8,7 +9,7 @@ import {
 import { renderChildren } from '../../lib/utils';
 
 ComponentRegistry.register('resizable', 
-  ({ schema, className, ...props }) => (
+  ({ schema, className, ...props }: { schema: ResizableSchema; className?: string; [key: string]: any }) => (
     <ResizablePanelGroup 
         direction={schema.direction || 'horizontal'} 
         className={className} 

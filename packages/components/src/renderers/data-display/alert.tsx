@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { AlertSchema } from '@object-ui/types';
 import { renderChildren } from '../../lib/utils';
 import {
   Alert,
@@ -7,7 +8,7 @@ import {
 } from '@/ui';
 
 ComponentRegistry.register('alert', 
-  ({ schema, className, ...props }) => (
+  ({ schema, className, ...props }: { schema: AlertSchema; className?: string; [key: string]: any }) => (
     <Alert variant={schema.variant} className={className} {...props}>
       <AlertTitle>{schema.title}</AlertTitle>
       <AlertDescription>{schema.description || renderChildren(schema.body)}</AlertDescription>

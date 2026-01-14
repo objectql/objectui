@@ -1,15 +1,8 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { TreeViewSchema, TreeNode } from '@object-ui/types';
 import { ChevronRight, ChevronDown, Folder, File } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-
-interface TreeNode {
-  id: string;
-  label: string;
-  icon?: string;
-  children?: TreeNode[];
-  data?: any;
-}
 
 const TreeNodeComponent = ({ 
   node, 

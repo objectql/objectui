@@ -1,5 +1,6 @@
 import React from 'react';
 import { ComponentRegistry } from '@object-ui/core';
+import type { HeaderBarSchema } from '@object-ui/types';
 import {
   SidebarTrigger,
   Separator,
@@ -12,7 +13,7 @@ import {
 } from '@/ui';
 
 ComponentRegistry.register('header-bar', 
-  ({ schema }) => (
+  ({ schema }: { schema: HeaderBarSchema }) => (
     <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
       <SidebarTrigger />
       <Separator orientation="vertical" className="mr-2 h-4" />

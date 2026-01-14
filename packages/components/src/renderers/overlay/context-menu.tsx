@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { ContextMenuSchema } from '@object-ui/types';
 import { 
   ContextMenu, 
   ContextMenuTrigger, 
@@ -42,7 +43,7 @@ const renderContextMenuItems = (items: any[]) => {
 };
 
 ComponentRegistry.register('context-menu', 
-  ({ schema, className, ...props }) => (
+  ({ schema, className, ...props }: { schema: ContextMenuSchema; className?: string; [key: string]: any }) => (
     <ContextMenu modal={schema.modal} {...props}>
       <ContextMenuTrigger asChild>
           {/* Usually a Right Click area */}

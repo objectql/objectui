@@ -1,9 +1,10 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { ScrollAreaSchema } from '@object-ui/types';
 import { ScrollArea, ScrollBar } from '@/ui';
 import { renderChildren } from '../../lib/utils';
 
 ComponentRegistry.register('scroll-area', 
-  ({ schema, className, ...props }) => (
+  ({ schema, className, ...props }: { schema: ScrollAreaSchema; className?: string; [key: string]: any }) => (
     <ScrollArea className={className} style={{ height: schema.height, width: schema.width }} {...props}>
       {renderChildren(schema.content || schema.children)}
       {schema.orientation === 'horizontal' && <ScrollBar orientation="horizontal" />}

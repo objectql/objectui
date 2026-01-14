@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { CollapsibleSchema } from '@object-ui/types';
 import { 
   Collapsible, 
   CollapsibleTrigger, 
@@ -7,7 +8,7 @@ import {
 import { renderChildren } from '../../lib/utils';
 
 ComponentRegistry.register('collapsible', 
-  ({ schema, className, ...props }) => (
+  ({ schema, className, ...props }: { schema: CollapsibleSchema; className?: string; [key: string]: any }) => (
     <Collapsible defaultOpen={schema.defaultOpen} disabled={schema.disabled} className={className} {...props}>
        <CollapsibleTrigger asChild>
          {renderChildren(schema.trigger)}

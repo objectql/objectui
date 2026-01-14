@@ -1,9 +1,10 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { BadgeSchema } from '@object-ui/types';
 import { Badge } from '@/ui';
 import { renderChildren } from '../../lib/utils';
 
 ComponentRegistry.register('badge', 
-  ({ schema, ...props }) => (
+  ({ schema, ...props }: { schema: BadgeSchema; [key: string]: any }) => (
     <Badge variant={schema.variant} className={schema.className} {...props}>
       {schema.label || renderChildren(schema.body)}
     </Badge>

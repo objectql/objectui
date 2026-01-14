@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { DialogSchema } from '@object-ui/types';
 import { 
   Dialog, 
   DialogTrigger, 
@@ -11,7 +12,7 @@ import {
 import { renderChildren } from '../../lib/utils';
 
 ComponentRegistry.register('dialog', 
-  ({ schema, className, ...props }) => (
+  ({ schema, className, ...props }: { schema: DialogSchema; className?: string; [key: string]: any }) => (
     <Dialog modal={schema.modal} defaultOpen={schema.defaultOpen} {...props}>
       <DialogTrigger asChild>
         {renderChildren(schema.trigger)}
