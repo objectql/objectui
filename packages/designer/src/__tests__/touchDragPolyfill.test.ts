@@ -63,7 +63,7 @@ describe('touchDragPolyfill', () => {
       expect(removeEventListenerSpy).toHaveBeenCalledWith('touchcancel', expect.any(Function));
     });
 
-    it('should call onDragStart callback when provided', (done) => {
+    it('should call onDragStart callback when provided', async () => {
       const onDragStart = vi.fn();
       cleanup = enableTouchDrag(element, { onDragStart });
 
@@ -94,10 +94,8 @@ describe('touchDragPolyfill', () => {
       element.dispatchEvent(touchEvent);
 
       // Wait for the setTimeout delay (100ms)
-      setTimeout(() => {
-        expect(onDragStart).toHaveBeenCalled();
-        done();
-      }, 150);
+      await new Promise(resolve => setTimeout(resolve, 150));
+      expect(onDragStart).toHaveBeenCalled();
     });
 
     it('should handle dragData option', () => {
