@@ -216,6 +216,14 @@ export type {
 } from './data';
 
 // ============================================================================
+// Plugin Components - Lazy-Loaded Heavy Components
+// ============================================================================
+export type {
+  CodeEditorSchema,
+  ChartSchema,
+} from './plugin';
+
+// ============================================================================
 // Union Types - Discriminated Unions for All Schemas
 // ============================================================================
 
@@ -228,6 +236,7 @@ import type { DisclosureSchema } from './disclosure';
 import type { OverlaySchema } from './overlay';
 import type { NavigationSchema } from './navigation';
 import type { ComplexSchema } from './complex';
+import type { CodeEditorSchema, ChartSchema } from './plugin';
 
 /**
  * Union of all component schemas.
@@ -242,7 +251,9 @@ export type AnySchema =
   | DisclosureSchema
   | OverlaySchema
   | NavigationSchema
-  | ComplexSchema;
+  | ComplexSchema
+  | CodeEditorSchema
+  | ChartSchema;
 
 /**
  * Utility type to extract the schema type from a type string.
