@@ -640,6 +640,93 @@ export const examples = {
   ]
 }`,
 
+  // Calendar View - Airtable-style calendar
+  'calendar-view': `{
+  "type": "div",
+  "className": "space-y-4",
+  "body": [
+    {
+      "type": "div",
+      "className": "space-y-2",
+      "body": [
+        {
+          "type": "text",
+          "content": "Calendar View",
+          "className": "text-2xl font-bold"
+        },
+        {
+          "type": "text",
+          "content": "Airtable-style calendar for displaying records as events",
+          "className": "text-muted-foreground"
+        }
+      ]
+    },
+    {
+      "type": "calendar-view",
+      "className": "h-[600px] border rounded-lg",
+      "view": "month",
+      "titleField": "title",
+      "startDateField": "start",
+      "endDateField": "end",
+      "colorField": "type",
+      "colorMapping": {
+        "meeting": "#3b82f6",
+        "deadline": "#ef4444",
+        "event": "#10b981",
+        "holiday": "#8b5cf6"
+      },
+      "data": [
+        {
+          "id": 1,
+          "title": "Team Standup",
+          "start": "${new Date(new Date().setHours(9, 0, 0, 0)).toISOString()}",
+          "end": "${new Date(new Date().setHours(9, 30, 0, 0)).toISOString()}",
+          "type": "meeting",
+          "allDay": false
+        },
+        {
+          "id": 2,
+          "title": "Project Launch",
+          "start": "${new Date(new Date().setDate(new Date().getDate() + 3)).toISOString()}",
+          "type": "deadline",
+          "allDay": true
+        },
+        {
+          "id": 3,
+          "title": "Client Meeting",
+          "start": "${new Date(new Date().setDate(new Date().getDate() + 5)).toISOString()}",
+          "end": "${new Date(new Date(new Date().setDate(new Date().getDate() + 5)).setHours(14, 0, 0, 0)).toISOString()}",
+          "type": "meeting",
+          "allDay": false
+        },
+        {
+          "id": 4,
+          "title": "Team Building Event",
+          "start": "${new Date(new Date().setDate(new Date().getDate() + 7)).toISOString()}",
+          "end": "${new Date(new Date().setDate(new Date().getDate() + 9)).toISOString()}",
+          "type": "event",
+          "allDay": true
+        },
+        {
+          "id": 5,
+          "title": "Code Review",
+          "start": "${new Date(new Date().setDate(new Date().getDate() + 1)).toISOString()}",
+          "end": "${new Date(new Date(new Date().setDate(new Date().getDate() + 1)).setHours(15, 0, 0, 0)).toISOString()}",
+          "type": "meeting",
+          "allDay": false
+        },
+        {
+          "id": 6,
+          "title": "National Holiday",
+          "start": "${new Date(new Date().setDate(new Date().getDate() + 10)).toISOString()}",
+          "type": "holiday",
+          "allDay": true
+        }
+      ]
+    }
+  ]
+}`,
+
   // Enterprise Data Table - Airtable-like functionality
   'enterprise-table': `{
   "type": "div",
@@ -698,6 +785,7 @@ export const examples = {
         { 
           "header": "Status", 
           "accessorKey": "status",
+          "width": "100px",
           "sortable": true
         },
         { 
@@ -718,8 +806,8 @@ export const examples = {
           "email": "john.doe@company.com", 
           "department": "Engineering",
           "status": "Active", 
-          "role": "Senior Engineer",
-          "joinDate": "2020-03-15"
+          "role": "Senior Developer",
+          "joinDate": "2022-01-15"
         },
         { 
           "id": 2, 
@@ -728,7 +816,7 @@ export const examples = {
           "department": "Product",
           "status": "Active", 
           "role": "Product Manager",
-          "joinDate": "2019-07-22"
+          "joinDate": "2021-11-20"
         },
         { 
           "id": 3, 
@@ -736,8 +824,8 @@ export const examples = {
           "email": "bob.johnson@company.com", 
           "department": "Sales",
           "status": "Inactive", 
-          "role": "Sales Rep",
-          "joinDate": "2021-01-10"
+          "role": "Sales Representative",
+          "joinDate": "2020-05-10"
         },
         { 
           "id": 4, 
@@ -745,8 +833,8 @@ export const examples = {
           "email": "alice.williams@company.com", 
           "department": "Engineering",
           "status": "Active", 
-          "role": "Engineering Manager",
-          "joinDate": "2018-11-05"
+          "role": "Tech Lead",
+          "joinDate": "2019-08-22"
         },
         { 
           "id": 5, 
@@ -754,8 +842,8 @@ export const examples = {
           "email": "charlie.brown@company.com", 
           "department": "Marketing",
           "status": "Active", 
-          "role": "Marketing Specialist",
-          "joinDate": "2022-02-28"
+          "role": "Marketing Manager",
+          "joinDate": "2021-03-14"
         },
         { 
           "id": 6, 
@@ -764,7 +852,7 @@ export const examples = {
           "department": "HR",
           "status": "Active", 
           "role": "HR Director",
-          "joinDate": "2017-06-12"
+          "joinDate": "2018-12-01"
         },
         { 
           "id": 7, 
@@ -772,8 +860,8 @@ export const examples = {
           "email": "ethan.hunt@company.com", 
           "department": "Operations",
           "status": "Inactive", 
-          "role": "Operations Lead",
-          "joinDate": "2020-09-01"
+          "role": "Operations Coordinator",
+          "joinDate": "2022-06-30"
         },
         { 
           "id": 8, 
@@ -782,25 +870,25 @@ export const examples = {
           "department": "Finance",
           "status": "Active", 
           "role": "Financial Analyst",
-          "joinDate": "2021-04-18"
+          "joinDate": "2020-09-18"
         },
         { 
           "id": 9, 
           "name": "George Wilson", 
           "email": "george.wilson@company.com", 
-          "department": "Product",
+          "department": "Engineering",
           "status": "Active", 
-          "role": "Product Designer",
-          "joinDate": "2019-12-03"
+          "role": "DevOps Engineer",
+          "joinDate": "2021-04-25"
         },
         { 
           "id": 10, 
           "name": "Hannah Montana", 
           "email": "hannah.montana@company.com", 
-          "department": "Marketing",
+          "department": "Product",
           "status": "Active", 
-          "role": "Content Creator",
-          "joinDate": "2022-05-20"
+          "role": "Product Designer",
+          "joinDate": "2022-02-10"
         },
         { 
           "id": 11, 
@@ -808,17 +896,17 @@ export const examples = {
           "email": "ivan.drago@company.com", 
           "department": "Engineering",
           "status": "Inactive", 
-          "role": "Junior Engineer",
-          "joinDate": "2023-01-15"
+          "role": "Backend Developer",
+          "joinDate": "2020-07-12"
         },
         { 
           "id": 12, 
           "name": "Julia Roberts", 
           "email": "julia.roberts@company.com", 
-          "department": "Legal",
+          "department": "Marketing",
           "status": "Active", 
-          "role": "Legal Counsel",
-          "joinDate": "2018-08-25"
+          "role": "Content Strategist",
+          "joinDate": "2021-10-05"
         },
         { 
           "id": 13, 
@@ -827,16 +915,16 @@ export const examples = {
           "department": "Sales",
           "status": "Active", 
           "role": "Sales Director",
-          "joinDate": "2019-03-10"
+          "joinDate": "2019-03-20"
         },
         { 
           "id": 14, 
-          "name": "Laura Palmer", 
-          "email": "laura.palmer@company.com", 
-          "department": "Customer Support",
+          "name": "Laura Croft", 
+          "email": "laura.croft@company.com", 
+          "department": "Operations",
           "status": "Active", 
-          "role": "Support Lead",
-          "joinDate": "2020-11-22"
+          "role": "Operations Analyst",
+          "joinDate": "2021-12-08"
         },
         { 
           "id": 15, 
@@ -904,5 +992,5 @@ export const exampleCategories = {
   'Primitives': ['simple-page', 'input-states', 'button-variants'],
   'Layouts': ['grid-layout', 'dashboard', 'tabs-demo'],
   'Forms': ['form-demo'],
-  'Data Display': ['enterprise-table', 'data-table-simple']
+  'Data Display': ['calendar-view', 'enterprise-table', 'data-table-simple']
 };
