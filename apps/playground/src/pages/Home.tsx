@@ -47,7 +47,7 @@ export const Home = () => {
           {/* Decorative elements */}
           <div className="absolute inset-0 -z-10 overflow-hidden">
             <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-indigo-200 to-purple-200 rounded-full blur-3xl opacity-30 animate-pulse"></div>
-            <div className="absolute top-20 right-1/4 w-80 h-80 bg-gradient-to-br from-blue-200 to-cyan-200 rounded-full blur-3xl opacity-30 animate-pulse delay-1000"></div>
+            <div className="absolute top-20 right-1/4 w-80 h-80 bg-gradient-to-br from-blue-200 to-cyan-200 rounded-full blur-3xl opacity-30 animate-pulse"></div>
           </div>
           
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-200 rounded-full text-sm font-semibold text-indigo-700 mb-6 shadow-sm">
