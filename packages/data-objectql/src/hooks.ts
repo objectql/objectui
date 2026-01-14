@@ -76,10 +76,11 @@ export interface UseObjectQLMutationOptions {
  * ```
  */
 export function useObjectQL(options: UseObjectQLOptions): ObjectQLDataSource {
-  const { baseUrl, token, spaceId } = options.config;
+  const { baseUrl, token } = options.config;
   return useMemo(
-    () => new ObjectQLDataSource({ baseUrl, token, spaceId }),
-    [baseUrl, token, spaceId]
+    () => new ObjectQLDataSource(options.config),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(options.config)]
   );
 }
 
