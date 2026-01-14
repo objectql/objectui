@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, createContext, useContext } from 'react';
 import { useDesigner } from '../context/DesignerContext';
 import { ScrollArea } from '@object-ui/components';
 import { Button } from '@object-ui/components';
@@ -29,9 +29,30 @@ interface TreeNodeProps {
     onSelect: (id: string) => void;
 }
 
+// Context for controlling expansion state globally
+interface TreeExpansionContextValue {
+    expandAll: boolean;
+    collapseAll: boolean;
+}
+
+const TreeExpansionContext = createContext<TreeExpansionContextValue>({
+    expandAll: false,
+    collapseAll: false
+});
+
 const TreeNode: React.FC<TreeNodeProps> = React.memo(({ node, level, isSelected, selectedNodeId, onSelect }) => {
+    const expansionContext = useContext(TreeExpansionContext);
     const [isExpanded, setIsExpanded] = useState(true);
     const [isVisible, setIsVisible] = useState(true);
+    
+    // Effect to handle expand/collapse all from parent
+    React.useEffect(() => {
+        if (expansionContext.expandAll) {
+            setIsExpanded(true);
+        } else if (expansionContext.collapseAll) {
+            setIsExpanded(false);
+        }
+    }, [expansionContext.expandAll, expansionContext.collapseAll]);
     
     const hasChildren = useMemo(() => {
         if (!node.body) return false;
@@ -157,49 +178,68 @@ TreeNode.displayName = 'TreeNode';
 
 export const ComponentTree: React.FC<ComponentTreeProps> = React.memo(({ className }) => {
     const { schema, selectedNodeId, setSelectedNodeId } = useDesigner();
+    const [expandTrigger, setExpandTrigger] = useState(0);
+    const [collapseTrigger, setCollapseTrigger] = useState(0);
     
     const handleSelect = useCallback((id: string) => {
         setSelectedNodeId(id);
     }, [setSelectedNodeId]);
     
+    const handleExpandAll = useCallback(() => {
+        setExpandTrigger(prev => prev + 1);
+    }, []);
+    
+    const handleCollapseAll = useCallback(() => {
+        setCollapseTrigger(prev => prev + 1);
+    }, []);
+    
+    const expansionContextValue = useMemo(() => ({
+        expandAll: expandTrigger > 0,
+        collapseAll: collapseTrigger > 0
+    }), [expandTrigger, collapseTrigger]);
+    
     return (
-        <div className={cn("flex flex-col h-full bg-white", className)}>
-            <ScrollArea className="flex-1">
-                <div className="p-2">
-                    {schema && (
-                        <TreeNode
-                            node={schema}
-                            level={0}
-                            isSelected={selectedNodeId === schema.id}
-                            selectedNodeId={selectedNodeId}
-                            onSelect={handleSelect}
-                        />
-                    )}
-                </div>
-            </ScrollArea>
-            
-            {/* Tree Actions */}
-            <div className="px-4 py-2 border-t shrink-0 bg-gray-50">
-                <div className="flex gap-1">
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-7 text-xs flex-1"
-                        title="Expand all nodes"
-                    >
-                        Expand All
-                    </Button>
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-7 text-xs flex-1"
-                        title="Collapse all nodes"
-                    >
-                        Collapse All
-                    </Button>
+        <TreeExpansionContext.Provider value={expansionContextValue}>
+            <div className={cn("flex flex-col h-full bg-white", className)}>
+                <ScrollArea className="flex-1">
+                    <div className="p-2">
+                        {schema && (
+                            <TreeNode
+                                node={schema}
+                                level={0}
+                                isSelected={selectedNodeId === schema.id}
+                                selectedNodeId={selectedNodeId}
+                                onSelect={handleSelect}
+                            />
+                        )}
+                    </div>
+                </ScrollArea>
+                
+                {/* Tree Actions */}
+                <div className="px-4 py-2 border-t shrink-0 bg-gray-50">
+                    <div className="flex gap-1">
+                        <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-7 text-xs flex-1"
+                            title="Expand all nodes"
+                            onClick={handleExpandAll}
+                        >
+                            Expand All
+                        </Button>
+                        <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-7 text-xs flex-1"
+                            title="Collapse all nodes"
+                            onClick={handleCollapseAll}
+                        >
+                            Collapse All
+                        </Button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </TreeExpansionContext.Provider>
     );
 });
 

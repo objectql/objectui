@@ -30,7 +30,7 @@ interface MenuAction {
 }
 
 export const ContextMenu: React.FC<ContextMenuProps> = ({ position, targetNodeId, onClose }) => {
-    const { copyNode, pasteNode, removeNode, canPaste, selectedNodeId } = useDesigner();
+    const { copyNode, cutNode, duplicateNode, pasteNode, removeNode, canPaste, selectedNodeId } = useDesigner();
     
     const handleCopy = useCallback(() => {
         if (targetNodeId) {
@@ -41,11 +41,10 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ position, targetNodeId
     
     const handleCut = useCallback(() => {
         if (targetNodeId) {
-            copyNode(targetNodeId);
-            removeNode(targetNodeId);
+            cutNode(targetNodeId);
             onClose();
         }
-    }, [targetNodeId, copyNode, removeNode, onClose]);
+    }, [targetNodeId, cutNode, onClose]);
     
     const handlePaste = useCallback(() => {
         if (targetNodeId && canPaste) {
@@ -63,11 +62,10 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ position, targetNodeId
     
     const handleDuplicate = useCallback(() => {
         if (targetNodeId) {
-            copyNode(targetNodeId);
-            pasteNode(targetNodeId);
+            duplicateNode(targetNodeId);
             onClose();
         }
-    }, [targetNodeId, copyNode, pasteNode, onClose]);
+    }, [targetNodeId, duplicateNode, onClose]);
     
     // Close on click outside or Escape key
     useEffect(() => {

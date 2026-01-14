@@ -31,6 +31,8 @@ export interface DesignerContextValue {
   removeNode: (id: string) => void;
   moveNode: (nodeId: string, targetParentId: string | null, targetIndex: number) => void;
   copyNode: (id: string) => void;
+  cutNode: (id: string) => void;
+  duplicateNode: (id: string) => void;
   pasteNode: (parentId: string | null) => void;
   canPaste: boolean;
   undo: () => void;
@@ -315,7 +317,7 @@ export const DesignerProvider: React.FC<DesignerProviderProps> = ({
   const canUndo = historyIndex > 0;
   const canRedo = historyIndex < history.length - 1;
 
-  // Copy/Paste functions
+  // Copy/Paste/Cut/Duplicate functions
   const copyNode = useCallback((id: string) => {
     const node = findNodeById(schema, id);
     if (node) {
@@ -330,6 +332,28 @@ export const DesignerProvider: React.FC<DesignerProviderProps> = ({
       addNode(parentId, clipboard);
     }
   }, [clipboard, addNode]);
+
+  const cutNode = useCallback((id: string) => {
+    const node = findNodeById(schema, id);
+    if (node) {
+      // Copy the node to clipboard
+      const { id: originalId, ...nodeWithoutId } = node;
+      setClipboard(nodeWithoutId as SchemaNode);
+      // Then remove it from the tree
+      removeNode(id);
+    }
+  }, [schema, removeNode]);
+
+  const duplicateNode = useCallback((id: string) => {
+    const node = findNodeById(schema, id);
+    if (node) {
+      // Create a deep copy without the ID
+      const { id: originalId, ...nodeWithoutId } = node;
+      // Add it as a sibling (paste to the same parent)
+      // We need to find the parent to paste into
+      pasteNode(id);
+    }
+  }, [schema, pasteNode]);
 
   const canPaste = clipboard !== null;
 
@@ -354,6 +378,8 @@ export const DesignerProvider: React.FC<DesignerProviderProps> = ({
       removeNode,
       moveNode,
       copyNode,
+      cutNode,
+      duplicateNode,
       pasteNode,
       canPaste,
       undo,
