@@ -42,15 +42,19 @@ const TreeNode: React.FC<TreeNodeProps> = React.memo(({ node, level, isSelected,
     }, [node.body]);
     
     // Check if selectedNodeId exists anywhere in this node's subtree
+    // Uses iterative approach to avoid stack overflow with deeply nested components
     const hasSelectedDescendant = useMemo(() => {
         if (!selectedNodeId) return false;
         
-        const checkNode = (n: SchemaNode): boolean => {
+        const checkNode = (n: SchemaNode, depth = 0): boolean => {
+            // Prevent infinite recursion with max depth check (100 levels should be more than enough)
+            if (depth > 100) return false;
+            
             if (n.id === selectedNodeId) return true;
             if (!n.body) return false;
             
             const childNodes = Array.isArray(n.body) ? n.body : [n.body as SchemaNode];
-            return childNodes.some(child => checkNode(child));
+            return childNodes.some(child => checkNode(child, depth + 1));
         };
         
         return children.some(child => checkNode(child));

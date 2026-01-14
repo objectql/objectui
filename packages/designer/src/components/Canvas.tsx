@@ -15,7 +15,8 @@ const INSERT_AT_START = 0;
 const INSERT_AT_END = undefined; // undefined means append to end in addNode/moveNode
 
 // Context menu configuration
-const ALLOW_ROOT_CONTEXT_MENU = false; // Prevent context menu on root component
+// Set to true to allow context menu on the root component, false to disable it
+const ALLOW_ROOT_CONTEXT_MENU = false;
 
 export const Canvas: React.FC<CanvasProps> = React.memo(({ className }) => {
     const { 
