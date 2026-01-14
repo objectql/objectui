@@ -1,8 +1,6 @@
-# Object UI
-
 <div align="center">
 
-![Object UI Logo](./docs/public/logo.svg)
+# Object UI
 
 **The Universal Schema-Driven UI Engine**
 
