@@ -32,4 +32,13 @@ export default defineConfig({
       },
     },
   },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: [],
+    // Ensure dependencies are resolved properly for tests
+    deps: {
+      inline: ['@object-ui/core', '@object-ui/react'],
+    },
+  },
 });
