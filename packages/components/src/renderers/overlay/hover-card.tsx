@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { HoverCardSchema } from '@object-ui/types';
 import { 
   HoverCard, 
   HoverCardTrigger, 
@@ -7,7 +8,7 @@ import {
 import { renderChildren } from '../../lib/utils';
 
 ComponentRegistry.register('hover-card', 
-  ({ schema, className, ...props }) => (
+  ({ schema, className, ...props }: { schema: HoverCardSchema; className?: string; [key: string]: any }) => (
     <HoverCard openDelay={schema.openDelay} closeDelay={schema.closeDelay} {...props}>
       <HoverCardTrigger asChild>
         {renderChildren(schema.trigger)}

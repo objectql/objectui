@@ -1,5 +1,6 @@
 // table.tsx implementation
 import { ComponentRegistry } from '@object-ui/core';
+import type { TableSchema } from '@object-ui/types';
 import { 
   Table, 
   TableHeader, 

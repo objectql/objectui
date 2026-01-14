@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { ContextMenuSchema } from '@object-ui/types';
 import { 
   ContextMenu, 
   ContextMenuTrigger, 

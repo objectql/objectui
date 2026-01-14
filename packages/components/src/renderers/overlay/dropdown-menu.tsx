@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { DropdownMenuSchema } from '@object-ui/types';
 import { 
   DropdownMenu, 
   DropdownMenuTrigger, 

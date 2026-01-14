@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { TooltipSchema } from '@object-ui/types';
 import { 
   TooltipProvider,
   Tooltip, 
@@ -12,7 +13,7 @@ import { renderChildren } from '../../lib/utils';
 // Wrapping here is safer for isolated usage.
 
 ComponentRegistry.register('tooltip', 
-  ({ schema, className, ...props }) => (
+  ({ schema, className, ...props }: { schema: TooltipSchema; className?: string; [key: string]: any }) => (
     <TooltipProvider delayDuration={schema.delayDuration}>
       <Tooltip {...props}>
         <TooltipTrigger asChild>

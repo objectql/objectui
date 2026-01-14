@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { PopoverSchema } from '@object-ui/types';
 import { 
   Popover, 
   PopoverTrigger, 
@@ -7,7 +8,7 @@ import {
 import { renderChildren } from '../../lib/utils';
 
 ComponentRegistry.register('popover', 
-  ({ schema, className, ...props }) => (
+  ({ schema, className, ...props }: { schema: PopoverSchema; className?: string; [key: string]: any }) => (
     <Popover modal={schema.modal} defaultOpen={schema.defaultOpen} {...props}>
       <PopoverTrigger asChild>
         {renderChildren(schema.trigger)}

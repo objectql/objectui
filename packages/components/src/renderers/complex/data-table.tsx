@@ -1,6 +1,7 @@
 // Enterprise-level DataTable Component (Airtable-like)
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { ComponentRegistry } from '@object-ui/core';
+import type { DataTableSchema } from '@object-ui/types';
 import { 
   Table, 
   TableHeader, 

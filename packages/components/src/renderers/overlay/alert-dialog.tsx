@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { AlertDialogSchema } from '@object-ui/types';
 import { 
   AlertDialog, 
   AlertDialogTrigger, 
@@ -13,7 +14,7 @@ import {
 import { renderChildren } from '../../lib/utils';
 
 ComponentRegistry.register('alert-dialog', 
-  ({ schema, className, ...props }) => (
+  ({ schema, className, ...props }: { schema: AlertDialogSchema; className?: string; [key: string]: any }) => (
     <AlertDialog defaultOpen={schema.defaultOpen} {...props}>
       <AlertDialogTrigger asChild>
         {renderChildren(schema.trigger)}

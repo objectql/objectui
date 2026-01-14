@@ -1,8 +1,9 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { DivSchema } from '@object-ui/types';
 import { renderChildren } from '../../lib/utils';
 
 ComponentRegistry.register('div', 
-  ({ schema, className, ...props }) => (
+  ({ schema, className, ...props }: { schema: DivSchema; className?: string; [key: string]: any }) => (
     <div className={className} {...props}>
       {renderChildren(schema.body)}
     </div>

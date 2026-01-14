@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { MarkdownSchema } from '@object-ui/types';
 import { Markdown } from '@/ui';
 
 /**
@@ -23,7 +24,7 @@ import { Markdown } from '@/ui';
  * - Tailwind CSS prose styling
  */
 ComponentRegistry.register('markdown', 
-  ({ schema, className, ...props }) => (
+  ({ schema, className, ...props }: { schema: MarkdownSchema; className?: string; [key: string]: any }) => (
     <Markdown 
       content={schema.content || ''} 
       className={className}

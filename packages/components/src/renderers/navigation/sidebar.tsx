@@ -1,4 +1,5 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { SidebarSchema } from '@object-ui/types';
 import { renderChildren } from '../../lib/utils';
 import {
   SidebarProvider,

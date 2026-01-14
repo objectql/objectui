@@ -1,9 +1,10 @@
 import { ComponentRegistry } from '@object-ui/core';
+import type { KanbanSchema } from '@object-ui/types';
 import { KanbanBoard, type KanbanColumn, type KanbanCard } from '@/ui';
 import React from 'react';
 
 ComponentRegistry.register('kanban', 
-  ({ schema, className, ...props }) => {
+  ({ schema, className, ...props }: { schema: KanbanSchema; className?: string; [key: string]: any }) => {
     return (
       <KanbanBoard 
         columns={schema.columns || []}
