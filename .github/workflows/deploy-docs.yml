@@ -59,7 +59,7 @@ jobs:
         run: pnpm docs:build
 
       - name: Build Studio (Playground)
-        run: pnpm --filter @apps/playground build
+        run: pnpm --filter @apps/playground... build
         env:
           NODE_ENV: production
 
