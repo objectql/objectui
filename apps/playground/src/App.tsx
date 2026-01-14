@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { SchemaRenderer } from '@object-ui/react';
+import { SchemaNode } from '@object-ui/core';
 import '@object-ui/components';
 import { examples, exampleCategories, ExampleKey } from './data/examples';
 import { Monitor, Tablet, Smartphone, Copy, Check, Code2 } from 'lucide-react';
@@ -13,9 +14,9 @@ export default function Playground() {
   const initialCode = examples['dashboard'];
   const [code, setCode] = useState(initialCode);
   
-  const [schema, setSchema] = useState<unknown>(() => {
+  const [schema, setSchema] = useState<SchemaNode | null>(() => {
     try {
-      return JSON.parse(initialCode);
+      return JSON.parse(initialCode) as SchemaNode;
     } catch {
       return null;
     }
@@ -28,7 +29,7 @@ export default function Playground() {
   const updateCode = (newCode: string) => {
     setCode(newCode);
     try {
-      const parsed = JSON.parse(newCode);
+      const parsed = JSON.parse(newCode) as SchemaNode;
       setSchema(parsed);
       setJsonError(null);
     } catch (e) {
