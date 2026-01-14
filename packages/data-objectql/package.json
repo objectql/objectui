@@ -40,7 +40,9 @@
     "directory": "packages/data-objectql"
   },
   "dependencies": {
-    "@object-ui/types": "workspace:*"
+    "@object-ui/types": "workspace:*",
+    "@objectql/sdk": "^1.8.2",
+    "@objectql/types": "^1.8.2"
   },
   "devDependencies": {
     "typescript": "^5.0.0",

@@ -430,6 +430,12 @@ importers:
       '@object-ui/types':
         specifier: workspace:*
         version: link:../types
+      '@objectql/sdk':
+        specifier: ^1.8.2
+        version: 1.8.2
+      '@objectql/types':
+        specifier: ^1.8.2
+        version: 1.8.2
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1415,6 +1421,12 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@objectql/sdk@1.8.2':
+    resolution: {integrity: sha512-dIjb9FabsXq4T9mDSa9BXqTR37Ufc5U+vfSDYx9jpsxMhVphRlDd1a3HruQvmYUY6r+opk7rgnJC0k3mq5vAlg==}
+
+  '@objectql/types@1.8.2':
+    resolution: {integrity: sha512-0anwrPbHLjoruZEAM/d/lB0WC264ZlQRCIEzdblbarGKjJT7CzBAjizJ1mLwpXOZpUDyD2W6o5TIQ7XMPhPUIg==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -5619,6 +5631,12 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
+
+  '@objectql/sdk@1.8.2':
+    dependencies:
+      '@objectql/types': 1.8.2
+
+  '@objectql/types@1.8.2': {}
 
   '@pkgjs/parseargs@0.11.0':
     optional: true

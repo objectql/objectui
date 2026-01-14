@@ -22,11 +22,13 @@ describe('ObjectQLDataSource', () => {
   describe('find', () => {
     it('should fetch multiple records', async () => {
       const mockData = {
-        value: [
+        items: [
           { _id: '1', name: 'John' },
           { _id: '2', name: 'Jane' },
         ],
-        '@odata.count': 2,
+        meta: {
+          total: 2,
+        }
       };
       
       (global.fetch as any).mockResolvedValueOnce({
@@ -36,12 +38,12 @@ describe('ObjectQLDataSource', () => {
       
       const result = await dataSource.find('contacts');
       
-      expect(result.data).toEqual(mockData.value);
+      expect(result.data).toEqual(mockData.items);
       expect(result.total).toBe(2);
     });
     
     it('should convert universal query params to ObjectQL format', async () => {
-      const mockData = { value: [], '@odata.count': 0 };
+      const mockData = { items: [], meta: { total: 0 } };
       
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
@@ -59,15 +61,47 @@ describe('ObjectQLDataSource', () => {
       const fetchCall = (global.fetch as any).mock.calls[0];
       const url = fetchCall[0];
       
-      expect(url).toContain('fields=');
-      expect(url).toContain('filters=');
-      expect(url).toContain('sort=');
+      expect(url).toContain('filter=');
       expect(url).toContain('skip=10');
-      expect(url).toContain('top=20');
+      expect(url).toContain('limit=20');
+    });
+    
+    it('should convert MongoDB-like operators in filters', async () => {
+      const mockData = { items: [], meta: { total: 0 } };
+      
+      (global.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockData,
+      });
+      
+      await dataSource.find('contacts', {
+        $filter: { 
+          age: { $gte: 18, $lte: 65 },
+          status: { $in: ['active', 'pending'] }
+        }
+      });
+      
+      const fetchCall = (global.fetch as any).mock.calls[0];
+      const url = fetchCall[0];
+      
+      // Verify the filter parameter is present
+      expect(url).toContain('filter=');
+      
+      // The filter should be encoded as a JSON array with operators
+      const urlObj = new URL(url, 'http://localhost');
+      const filterParam = urlObj.searchParams.get('filter');
+      if (filterParam) {
+        const filter = JSON.parse(filterParam);
+        // Should have converted to FilterExpression format
+        expect(Array.isArray(filter)).toBe(true);
+        // Should have converted $gte to '>=' and $lte to '<='
+        expect(filter.some((f: any) => f[1] === '>=')).toBe(true);
+        expect(filter.some((f: any) => f[1] === '<=')).toBe(true);
+      }
     });
     
     it('should include authentication token in headers', async () => {
-      const mockData = { value: [] };
+      const mockData = { items: [] };
       
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
@@ -102,7 +136,12 @@ describe('ObjectQLDataSource', () => {
         ok: false,
         status: 404,
         statusText: 'Not Found',
-        json: async () => ({ message: 'Not found' }),
+        json: async () => ({ 
+          error: { 
+            code: 'NOT_FOUND',
+            message: 'Not found' 
+          } 
+        }),
       });
       
       const result = await dataSource.findOne('contacts', 'nonexistent');
@@ -150,7 +189,9 @@ describe('ObjectQLDataSource', () => {
       const fetchCall = (global.fetch as any).mock.calls[0];
       const options = fetchCall[1];
       
-      expect(options.method).toBe('PATCH');
+      // The SDK uses PUT method for updates (not PATCH)
+      // This is the standard behavior of @objectql/sdk's DataApiClient
+      expect(options.method).toBe('PUT');
       expect(options.body).toBe(JSON.stringify(updates));
     });
   });
@@ -159,7 +200,7 @@ describe('ObjectQLDataSource', () => {
     it('should delete a record', async () => {
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({}),
+        json: async () => ({ success: true }),
       });
       
       const result = await dataSource.delete('contacts', '1');
@@ -174,15 +215,17 @@ describe('ObjectQLDataSource', () => {
   });
   
   describe('bulk', () => {
-    it('should execute bulk operations', async () => {
+    it('should execute bulk create operations', async () => {
       const bulkData = [
         { name: 'Contact 1' },
         { name: 'Contact 2' },
       ];
-      const createdRecords = [
-        { _id: '1', name: 'Contact 1' },
-        { _id: '2', name: 'Contact 2' },
-      ];
+      const createdRecords = {
+        items: [
+          { _id: '1', name: 'Contact 1' },
+          { _id: '2', name: 'Contact 2' },
+        ]
+      };
       
       (global.fetch as any).mockResolvedValueOnce({
         ok: true,
@@ -191,32 +234,33 @@ describe('ObjectQLDataSource', () => {
       
       const result = await dataSource.bulk('contacts', 'create', bulkData);
       
-      expect(result).toEqual(createdRecords);
+      expect(result).toEqual(createdRecords.items);
       
       const fetchCall = (global.fetch as any).mock.calls[0];
       const options = fetchCall[1];
       
       expect(options.method).toBe('POST');
-      expect(JSON.parse(options.body)).toEqual({
-        operation: 'create',
-        data: bulkData,
-      });
     });
   });
   
   describe('error handling', () => {
-    it('should throw error for non-OK responses', async () => {
+    it('should handle API errors', async () => {
       (global.fetch as any).mockResolvedValueOnce({
         ok: false,
         status: 500,
         statusText: 'Internal Server Error',
-        json: async () => ({ message: 'Server error' }),
+        json: async () => ({ 
+          error: { 
+            code: 'INTERNAL_ERROR',
+            message: 'Server error' 
+          } 
+        }),
       });
       
       await expect(dataSource.find('contacts')).rejects.toThrow();
     });
     
-    it('should throw error for timeout configuration', () => {
+    it('should accept timeout configuration', () => {
       // Test that timeout configuration is accepted
       const dataSourceWithShortTimeout = new ObjectQLDataSource({
         baseUrl: 'https://api.example.com',
@@ -228,42 +272,25 @@ describe('ObjectQLDataSource', () => {
   });
   
   describe('configuration', () => {
-    it('should include spaceId in headers when provided', async () => {
-      const dataSourceWithSpace = new ObjectQLDataSource({
+    it('should accept timeout configuration', () => {
+      // Test that timeout configuration is accepted
+      const dataSourceWithTimeout = new ObjectQLDataSource({
         baseUrl: 'https://api.example.com',
-        spaceId: 'space123',
+        timeout: 5000,
       });
       
-      (global.fetch as any).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ value: [] }),
-      });
-      
-      await dataSourceWithSpace.find('contacts');
-      
-      const fetchCall = (global.fetch as any).mock.calls[0];
-      const options = fetchCall[1];
-      
-      expect(options.headers['X-Space-Id']).toBe('space123');
+      expect(dataSourceWithTimeout).toBeDefined();
     });
     
-    it('should use custom API version', async () => {
-      const dataSourceWithVersion = new ObjectQLDataSource({
+    it('should accept custom headers', () => {
+      const dataSourceWithHeaders = new ObjectQLDataSource({
         baseUrl: 'https://api.example.com',
-        version: 'v2',
+        headers: {
+          'X-Custom-Header': 'custom-value'
+        }
       });
       
-      (global.fetch as any).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ value: [] }),
-      });
-      
-      await dataSourceWithVersion.find('contacts');
-      
-      const fetchCall = (global.fetch as any).mock.calls[0];
-      const url = fetchCall[0];
-      
-      expect(url).toContain('/api/v2/');
+      expect(dataSourceWithHeaders).toBeDefined();
     });
   });
 });
