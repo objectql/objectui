@@ -98,7 +98,6 @@ ComponentRegistry.register('form',
         
         // Log errors for debugging (dev environment only)
         // process may not be defined in all environments
-        // @ts-ignore
         if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') {
           console.error('Form submission error:', error);
         }
