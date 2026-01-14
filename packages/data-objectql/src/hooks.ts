@@ -78,7 +78,7 @@ export interface UseObjectQLMutationOptions {
 export function useObjectQL(options: UseObjectQLOptions): ObjectQLDataSource {
   return useMemo(
     () => new ObjectQLDataSource(options.config),
-    [options.config.baseUrl, options.config.token, options.config.spaceId]
+    [options.config.baseUrl, options.config.token]
   );
 }
 
