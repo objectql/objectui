@@ -30,6 +30,8 @@ export interface DesignerContextValue {
   updateNode: (id: string, updates: Partial<SchemaNode>) => void;
   removeNode: (id: string) => void;
   moveNode: (nodeId: string, targetParentId: string | null, targetIndex: number) => void;
+  moveNodeUp: (id: string) => void;
+  moveNodeDown: (id: string) => void;
   copyNode: (id: string) => void;
   cutNode: (id: string) => void;
   duplicateNode: (id: string) => void;
@@ -156,6 +158,35 @@ const findNodeById = (node: SchemaNode, id: string): SchemaNode | null => {
         }
     } else if (node.body && typeof node.body === 'object') {
         return findNodeById(node.body as SchemaNode, id);
+    }
+    
+    return null;
+};
+
+// Find Parent and Index of a node
+const findParentAndIndex = (
+    root: SchemaNode, 
+    targetId: string, 
+    parent: SchemaNode | null = null
+): { parent: SchemaNode | null; index: number } | null => {
+    if (root.id === targetId) {
+        return parent ? { parent, index: -1 } : null;
+    }
+    
+    if (Array.isArray(root.body)) {
+        for (let i = 0; i < root.body.length; i++) {
+            const child = root.body[i];
+            if (child.id === targetId) {
+                return { parent: root, index: i };
+            }
+            const found = findParentAndIndex(child, targetId, root);
+            if (found) return found;
+        }
+    } else if (root.body && typeof root.body === 'object') {
+        if ((root.body as SchemaNode).id === targetId) {
+            return { parent: root, index: 0 };
+        }
+        return findParentAndIndex(root.body as SchemaNode, targetId, root);
     }
     
     return null;
@@ -297,6 +328,29 @@ export const DesignerProvider: React.FC<DesignerProviderProps> = ({
     });
   }, [addToHistory]);
 
+  // Move Node Up/Down within same parent
+  const moveNodeUp = useCallback((id: string) => {
+    const parentInfo = findParentAndIndex(schema, id);
+    if (!parentInfo || !parentInfo.parent || parentInfo.index <= 0) return;
+    
+    // Move to index - 1 (up)
+    moveNode(id, parentInfo.parent.id || null, parentInfo.index - 1);
+  }, [schema, moveNode]);
+
+  const moveNodeDown = useCallback((id: string) => {
+    const parentInfo = findParentAndIndex(schema, id);
+    if (!parentInfo || !parentInfo.parent) return;
+    
+    const siblings = Array.isArray(parentInfo.parent.body) 
+      ? parentInfo.parent.body 
+      : parentInfo.parent.body ? [parentInfo.parent.body] : [];
+    
+    if (parentInfo.index >= siblings.length - 1) return;
+    
+    // Move to index + 1 (down)
+    moveNode(id, parentInfo.parent.id || null, parentInfo.index + 1);
+  }, [schema, moveNode]);
+
   // Undo/Redo functions
   const undo = useCallback(() => {
     if (historyIndex > 0) {
@@ -377,6 +431,8 @@ export const DesignerProvider: React.FC<DesignerProviderProps> = ({
       updateNode,
       removeNode,
       moveNode,
+      moveNodeUp,
+      moveNodeDown,
       copyNode,
       cutNode,
       duplicateNode,
