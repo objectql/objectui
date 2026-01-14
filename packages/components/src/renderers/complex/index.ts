@@ -5,5 +5,6 @@ import './scroll-area';
 import './resizable';
 import './scroll-area';
 import './table';
+import './data-table';
 import './timeline';
 import './calendar-view';
