@@ -121,6 +121,18 @@ export default defineConfig({
             { text: 'Calendar View', link: '/components/calendar-view' }
           ]
         }
+      ],
+      
+      '/plugins/': [
+        {
+          text: 'Official Plugins',
+          items: [
+            { text: 'Plugin Editor', link: '/plugins/plugin-editor' },
+            { text: 'Plugin Charts', link: '/plugins/plugin-charts' },
+            { text: 'Plugin Kanban', link: '/plugins/plugin-kanban' },
+            { text: 'Plugin Markdown', link: '/plugins/plugin-markdown' }
+          ]
+        }
       ]
     },
 

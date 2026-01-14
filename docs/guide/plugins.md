@@ -14,217 +14,57 @@ Plugins are lazy-loaded component packages that:
 
 ## Official Plugins
 
-### @object-ui/plugin-editor
+Object UI provides four official plugins for common use cases:
+
+### [@object-ui/plugin-editor](../plugins/plugin-editor.md)
 
 Code editor component powered by Monaco Editor (VS Code's editor).
 
-**Installation:**
-```bash
-npm install @object-ui/plugin-editor
-```
-
-**Usage:**
-```tsx
-// Import once in your app entry point
-import '@object-ui/plugin-editor'
-
-// Use in schemas
-const schema = {
-  type: 'code-editor',
-  value: 'console.log("Hello, World!");',
-  language: 'javascript',
-  theme: 'vs-dark',
-  height: '400px'
-}
-```
-
-**Features:**
 - Syntax highlighting for 100+ languages
 - IntelliSense and code completion
-- Find and replace
 - Multiple themes
-- Lazy-loaded (~20 KB initial, Monaco loads on-demand)
+- Lazy-loaded (~20 KB)
 
-**Schema:**
-```typescript
-{
-  type: 'code-editor',
-  value?: string,              // Code content
-  language?: string,           // Programming language
-  theme?: 'vs-dark' | 'light', // Editor theme
-  height?: string,             // Height (e.g., '400px')
-  readOnly?: boolean,          // Read-only mode
-  className?: string           // Tailwind classes
-}
-```
-
-[View full documentation →](https://github.com/objectstack-ai/objectui/tree/main/packages/plugin-editor)
+[Read full documentation →](../plugins/plugin-editor.md)
 
 ---
 
-### @object-ui/plugin-charts
+### [@object-ui/plugin-charts](../plugins/plugin-charts.md)
 
 Data visualization components powered by Recharts.
 
-**Installation:**
-```bash
-npm install @object-ui/plugin-charts
-```
-
-**Usage:**
-```tsx
-// Import once in your app entry point
-import '@object-ui/plugin-charts'
-
-// Use in schemas
-const schema = {
-  type: 'chart-bar',
-  data: [
-    { name: 'Jan', value: 400 },
-    { name: 'Feb', value: 300 },
-    { name: 'Mar', value: 600 }
-  ],
-  dataKey: 'value',
-  xAxisKey: 'name',
-  height: 400
-}
-```
-
-**Features:**
 - Bar, line, area, and pie charts
 - Responsive design
-- Customizable colors and styles
-- Lazy-loaded (~540 KB loads only when rendered)
+- Customizable colors
+- Lazy-loaded (~540 KB)
 
-**Schema:**
-```typescript
-{
-  type: 'chart-bar',
-  data?: Array<Record<string, any>>,  // Chart data
-  dataKey?: string,                    // Y-axis data key
-  xAxisKey?: string,                   // X-axis label key
-  height?: number,                     // Chart height
-  color?: string,                      // Bar color
-  className?: string                   // Tailwind classes
-}
-```
-
-[View full documentation →](https://github.com/objectstack-ai/objectui/tree/main/packages/plugin-charts)
+[Read full documentation →](../plugins/plugin-charts.md)
 
 ---
 
-### @object-ui/plugin-kanban
+### [@object-ui/plugin-kanban](../plugins/plugin-kanban.md)
 
 Kanban board component with drag-and-drop powered by @dnd-kit.
 
-**Installation:**
-```bash
-npm install @object-ui/plugin-kanban
-```
-
-**Usage:**
-```tsx
-// Import once in your app entry point
-import '@object-ui/plugin-kanban'
-
-// Use in schemas
-const schema = {
-  type: 'kanban',
-  columns: [
-    {
-      id: 'todo',
-      title: 'To Do',
-      cards: [
-        { id: '1', title: 'Task 1', description: 'Do something' }
-      ]
-    },
-    {
-      id: 'done',
-      title: 'Done',
-      cards: []
-    }
-  ],
-  onCardMove: (cardId, fromCol, toCol, index) => {
-    console.log(`Card ${cardId} moved`)
-  }
-}
-```
-
-**Features:**
 - Drag and drop cards between columns
 - Column limits (WIP limits)
 - Card badges for status/priority
-- Keyboard navigation
-- Lazy-loaded (~100-150 KB loads only when rendered)
+- Lazy-loaded (~100-150 KB)
 
-**Schema:**
-```typescript
-{
-  type: 'kanban',
-  columns?: KanbanColumn[],
-  onCardMove?: (cardId, fromColumnId, toColumnId, newIndex) => void,
-  className?: string
-}
-
-interface KanbanColumn {
-  id: string
-  title: string
-  cards: KanbanCard[]
-  limit?: number              // Max cards allowed
-}
-
-interface KanbanCard {
-  id: string
-  title: string
-  description?: string
-  badges?: Array<{
-    label: string
-    variant?: 'default' | 'secondary' | 'destructive' | 'outline'
-  }>
-}
-```
-
-[View full documentation →](https://github.com/objectstack-ai/objectui/tree/main/packages/plugin-kanban)
+[Read full documentation →](../plugins/plugin-kanban.md)
 
 ---
 
-### @object-ui/plugin-markdown
+### [@object-ui/plugin-markdown](../plugins/plugin-markdown.md)
 
 Markdown renderer with GitHub Flavored Markdown support.
 
-**Installation:**
-```bash
-npm install @object-ui/plugin-markdown
-```
-
-**Usage:**
-```tsx
-// Import once in your app entry point
-import '@object-ui/plugin-markdown'
-
-// Use in schemas
-const schema = {
-  type: 'markdown',
-  content: '# Hello World\n\nThis is **markdown** text with [links](https://example.com).'
-}
-```
-
-**Features:**
-- GitHub Flavored Markdown (tables, task lists, strikethrough)
-- XSS protection (sanitized output)
+- GitHub Flavored Markdown
+- XSS protection
 - Code syntax highlighting
-- Lazy-loaded (~100-200 KB loads only when rendered)
+- Lazy-loaded (~100-200 KB)
 
-**Schema:**
-```typescript
-{
-  type: 'markdown',
-  content?: string,    // Markdown content
-  className?: string   // Tailwind classes
-}
-```
-
-[View full documentation →](https://github.com/objectstack-ai/objectui/tree/main/packages/plugin-markdown)
+[Read full documentation →](../plugins/plugin-markdown.md)
 
 ---
 
