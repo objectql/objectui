@@ -403,11 +403,19 @@ export const DesignerProvider: React.FC<DesignerProviderProps> = ({
     if (node) {
       // Create a deep copy without the ID
       const { id: originalId, ...nodeWithoutId } = node;
-      // Add it as a sibling (paste to the same parent)
-      // We need to find the parent to paste into
-      pasteNode(id);
+      setClipboard(nodeWithoutId as SchemaNode);
+      
+      // Find the parent to paste into
+      const parentInfo = findParentAndIndex(schema, id);
+      if (parentInfo && parentInfo.parent) {
+        // Paste to the same parent at the next index
+        addNode(parentInfo.parent.id || null, nodeWithoutId as SchemaNode, parentInfo.index + 1);
+      } else {
+        // If no parent found, paste to root
+        addNode(schema.id || null, nodeWithoutId as SchemaNode);
+      }
     }
-  }, [schema, pasteNode]);
+  }, [schema, addNode]);
 
   const canPaste = clipboard !== null;
 
