@@ -9,26 +9,34 @@ type ViewportSize = 'desktop' | 'tablet' | 'mobile';
 export default function Playground() {
   const [selectedExample, setSelectedExample] = useState<ExampleKey>('dashboard');
   const [code, setCode] = useState(examples['dashboard']);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [schema, setSchema] = useState<any>(null);
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [viewportSize, setViewportSize] = useState<ViewportSize>('desktop');
   const [copied, setCopied] = useState(false);
 
-  // Real-time JSON parsing
-  useEffect(() => {
+  const updateSchema = (newCode: string) => {
     try {
-      const parsed = JSON.parse(code);
+      const parsed = JSON.parse(newCode);
       setSchema(parsed);
       setJsonError(null);
     } catch (e) {
       setJsonError((e as Error).message);
       // Keep previous schema on error
     }
-  }, [code]);
+  };
+
+  // Initial parse usage
+  useEffect(() => {
+    updateSchema(code);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount
 
   const handleExampleChange = (key: ExampleKey) => {
     setSelectedExample(key);
-    setCode(examples[key]);
+    const newCode = examples[key];
+    setCode(newCode);
+    updateSchema(newCode);
   };
 
   const handleCopySchema = async () => {
@@ -118,7 +126,11 @@ export default function Playground() {
         <div className="flex-1 overflow-hidden">
           <textarea
             value={code}
-            onChange={(e) => setCode(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              setCode(val);
+              updateSchema(val);
+            }}
             className="w-full h-full p-4 font-mono text-sm resize-none focus:outline-none border-0 bg-background"
             spellCheck={false}
             style={{ 

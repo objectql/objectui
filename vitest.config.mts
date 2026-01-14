@@ -25,7 +25,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@object-ui/protocol': path.resolve(__dirname, './packages/protocol/src'),
+      '@object-ui/protocol': path.resolve(__dirname, './packages/core/src'),
       '@object-ui/engine': path.resolve(__dirname, './packages/engine/src'),
       '@object-ui/renderer': path.resolve(__dirname, './packages/renderer/src'),
       '@object-ui/ui': path.resolve(__dirname, './packages/ui/src'),
