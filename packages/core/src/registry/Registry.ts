@@ -11,6 +11,7 @@ export type ComponentInput = {
   enum?: string[] | { label: string; value: any }[];
   description?: string;
   advanced?: boolean;
+  inputType?: string;
 };
 
 export type ComponentMeta = {
