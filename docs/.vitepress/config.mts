@@ -42,7 +42,9 @@ export default defineConfig({
           text: 'Core Concepts',
           items: [
             { text: 'Schema Rendering', link: '/guide/schema-rendering' },
+            { text: 'Components', link: '/guide/components' },
             { text: 'Component Registry', link: '/guide/component-registry' },
+            { text: 'Plugins', link: '/guide/plugins' },
             { text: 'Expression System', link: '/guide/expressions' }
           ]
         },
@@ -116,6 +118,18 @@ export default defineConfig({
           items: [
             { text: 'Form Component', link: '/components/form' },
             { text: 'Calendar View', link: '/components/calendar-view' }
+          ]
+        }
+      ],
+      
+      '/plugins/': [
+        {
+          text: 'Official Plugins',
+          items: [
+            { text: 'Plugin Editor', link: '/plugins/plugin-editor' },
+            { text: 'Plugin Charts', link: '/plugins/plugin-charts' },
+            { text: 'Plugin Kanban', link: '/plugins/plugin-kanban' },
+            { text: 'Plugin Markdown', link: '/plugins/plugin-markdown' }
           ]
         }
       ]
