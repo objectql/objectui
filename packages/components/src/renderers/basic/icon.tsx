@@ -9,7 +9,6 @@ ComponentRegistry.register('icon',
   },
   {
     label: 'Icon',
-    type: 'basic',
     inputs: [
       { name: 'name', type: 'string', label: 'Icon Name' },
       { name: 'className', type: 'string', label: 'CSS Class' }
