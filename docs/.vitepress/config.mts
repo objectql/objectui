@@ -13,6 +13,7 @@ export default defineConfig({
     
     nav: [
       { text: 'Home', link: '/' },
+      { text: 'Studio', link: '/studio/', target: '_self' },
       { text: 'Guide', link: '/guide/introduction' },
       { text: 'Roadmap', link: '/ROADMAP' },
       { text: 'Protocol', link: '/protocol/overview' },
@@ -26,7 +27,8 @@ export default defineConfig({
           items: [
             { text: 'Introduction', link: '/guide/introduction' },
             { text: 'Quick Start', link: '/guide/quick-start' },
-            { text: 'Installation', link: '/guide/installation' }
+            { text: 'Installation', link: '/guide/installation' },
+            { text: 'Visual Studio', link: '/guide/studio' }
           ]
         },
         {
