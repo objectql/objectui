@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { SchemaRenderer } from '@object-ui/react';
 import { ComponentRegistry } from '@object-ui/core';
 import { useDesigner } from '../context/DesignerContext';
+import { ContextMenu } from './ContextMenu';
 import { cn } from '@object-ui/components';
 import { MousePointer2 } from 'lucide-react';
 
@@ -29,6 +30,7 @@ export const Canvas: React.FC<CanvasProps> = React.memo(({ className }) => {
     } = useDesigner();
 
     const [scale, setScale] = useState(1);
+    const [contextMenu, setContextMenu] = useState<{ x: number; y: number; nodeId: string } | null>(null);
     const canvasRef = React.useRef<HTMLDivElement>(null);
     
     // Memoize canvas width calculation
@@ -42,6 +44,9 @@ export const Canvas: React.FC<CanvasProps> = React.memo(({ className }) => {
     }, [viewportMode]);
 
     const handleClick = useCallback((e: React.MouseEvent) => {
+        // Close context menu if open
+        setContextMenu(null);
+        
         // Find closest element with data-obj-id
         const target = (e.target as Element).closest('[data-obj-id]');
         if (target) {
@@ -53,6 +58,24 @@ export const Canvas: React.FC<CanvasProps> = React.memo(({ className }) => {
             setSelectedNodeId(null);
         }
     }, [setSelectedNodeId]);
+    
+    const handleContextMenu = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        
+        // Find closest element with data-obj-id
+        const target = (e.target as Element).closest('[data-obj-id]');
+        if (target) {
+            const id = target.getAttribute('data-obj-id');
+            if (id && id !== schema.id) { // Don't show context menu for root
+                setContextMenu({
+                    x: e.clientX,
+                    y: e.clientY,
+                    nodeId: id
+                });
+                setSelectedNodeId(id);
+            }
+        }
+    }, [schema.id, setSelectedNodeId]);
 
     const handleDragOver = useCallback((e: React.DragEvent) => {
         if (!draggingType && !draggingNodeId) return;
@@ -288,6 +311,7 @@ export const Canvas: React.FC<CanvasProps> = React.memo(({ className }) => {
                 ref={canvasRef}
                 className="flex-1 overflow-auto p-12 relative flex justify-center"
                 onClick={handleClick}
+                onContextMenu={handleContextMenu}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
@@ -343,6 +367,13 @@ export const Canvas: React.FC<CanvasProps> = React.memo(({ className }) => {
                     </div>
                 )}
             </div>
+            
+            {/* Context Menu */}
+            <ContextMenu
+                position={contextMenu ? { x: contextMenu.x, y: contextMenu.y } : null}
+                targetNodeId={contextMenu?.nodeId || null}
+                onClose={() => setContextMenu(null)}
+            />
         </div>
     );
 });
