@@ -157,22 +157,32 @@ objectui serve app.schema.json --host 0.0.0.0 --port 3001
 
 ## Adding Routing to Your Application
 
-By default, the CLI generates a single-page application. To add routing capabilities, you'll need to manually set up React Router in your generated application.
+The CLI supports two approaches for routing: **file-system based routing** (recommended, Next.js-style) and manual React Router setup.
 
-### Step 1: Install React Router
+### Approach 1: File-System Based Routing (Recommended)
 
-Navigate to your `.objectui-tmp` directory after running `objectui serve`:
+Organize your schema files in a `pages/` directory structure, and the CLI will automatically generate routes based on the folder hierarchy.
 
-```bash
-cd .objectui-tmp
-npm install react-router-dom
+#### Directory Structure
+
+Create a `pages/` directory with your schema files:
+
+```
+my-app/
+├── pages/
+│   ├── index.schema.json        → /
+│   ├── about.schema.json         → /about
+│   ├── blog/
+│   │   ├── index.schema.json    → /blog
+│   │   └── [id].schema.json     → /blog/:id
+│   └── users/
+│       └── [userId].schema.json → /users/:userId
+└── app.schema.json (optional layout)
 ```
 
-### Step 2: Create Multiple Schema Files
+#### Example Page Schemas
 
-Create separate schema files for each route:
-
-**home.schema.json:**
+**pages/index.schema.json:**
 ```json
 {
   "type": "div",
@@ -188,7 +198,7 @@ Create separate schema files for each route:
 }
 ```
 
-**about.schema.json:**
+**pages/about.schema.json:**
 ```json
 {
   "type": "div",
@@ -204,7 +214,84 @@ Create separate schema files for each route:
 }
 ```
 
-### Step 3: Modify App.tsx
+**pages/blog/[id].schema.json** (Dynamic route):
+```json
+{
+  "type": "div",
+  "className": "p-8",
+  "body": {
+    "type": "card",
+    "title": "Blog Post",
+    "body": {
+      "type": "text",
+      "content": "Blog post ID: ${params.id}"
+    }
+  }
+}
+```
+
+#### Running with File-System Routing
+
+When you have a `pages/` directory, the CLI automatically detects it and sets up routing:
+
+```bash
+objectui serve
+```
+
+The serve command will:
+1. Detect the `pages/` directory
+2. Automatically install `react-router-dom`
+3. Generate route configuration based on file structure
+4. Set up the application with all routes
+
+#### Route Mapping Rules
+
+- `pages/index.schema.json` → `/`
+- `pages/about.schema.json` → `/about`
+- `pages/blog/index.schema.json` → `/blog`
+- `pages/blog/[id].schema.json` → `/blog/:id` (dynamic parameter)
+- `pages/users/[userId]/posts/[postId].schema.json` → `/users/:userId/posts/:postId`
+
+#### Navigation Between Pages
+
+Use the button component with `href` to navigate:
+
+```json
+{
+  "type": "button",
+  "label": "Go to About",
+  "href": "/about"
+}
+```
+
+Or use link components:
+
+```json
+{
+  "type": "link",
+  "href": "/blog/123",
+  "children": "Read Blog Post"
+}
+```
+
+### Approach 2: Manual React Router Setup
+
+For more control, you can manually set up React Router in the generated application.
+
+#### Step 1: Install React Router
+
+Navigate to your `.objectui-tmp` directory after running `objectui serve`:
+
+```bash
+cd .objectui-tmp
+npm install react-router-dom
+```
+
+#### Step 2: Create Multiple Schema Files
+
+Create separate schema files for each route.
+
+#### Step 3: Modify App.tsx
 
 Update the generated `src/App.tsx` in `.objectui-tmp/src/App.tsx`:
 
@@ -270,7 +357,68 @@ You can also define navigation in your main schema using button click handlers:
 }
 ```
 
-**Note:** Full schema-based routing support is planned for a future release. Currently, routing requires manual React Router setup in the generated code.
+## Layouts and Nested Routes
+
+### Root Layout
+
+Create an `app.schema.json` file to define a layout that wraps all pages:
+
+```json
+{
+  "type": "div",
+  "className": "min-h-screen",
+  "body": [
+    {
+      "type": "div",
+      "className": "border-b bg-background",
+      "body": {
+        "type": "div",
+        "className": "container mx-auto px-6 py-4",
+        "body": [
+          {
+            "type": "link",
+            "href": "/",
+            "className": "mr-4",
+            "children": "Home"
+          },
+          {
+            "type": "link",
+            "href": "/about",
+            "className": "mr-4",
+            "children": "About"
+          },
+          {
+            "type": "link",
+            "href": "/blog",
+            "children": "Blog"
+          }
+        ]
+      }
+    },
+    {
+      "type": "div",
+      "className": "container mx-auto",
+      "body": "{{outlet}}"
+    }
+  ]
+}
+```
+
+The `{{outlet}}` placeholder is where page content will be rendered.
+
+### Nested Layouts
+
+Create `_layout.schema.json` files in subdirectories for nested layouts:
+
+```
+pages/
+├── blog/
+│   ├── _layout.schema.json    → Layout for all /blog routes
+│   ├── index.schema.json       → /blog
+│   └── [id].schema.json        → /blog/:id
+```
+
+**Note:** File-system based routing with automatic route generation is planned for a future release. The documentation above describes the intended behavior.
 
 ## FAQ
 
