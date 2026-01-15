@@ -121,7 +121,85 @@ Creates GitHub releases and publishes packages.
 
 **Note**: npm publishing is currently disabled. Uncomment the publish step when ready.
 
-### 8. Stale Issues & PRs
+### 8. Changeset Release (Automated)
+
+**File**: `changeset-release.yml`  
+**Triggers**: Push to `main` branch
+
+Automated version management and package publishing using Changesets.
+
+**What It Does**:
+1. Detects changesets in merged PRs
+2. Creates/updates a "Version Packages" PR that:
+   - Bumps package versions based on changesets
+   - Updates CHANGELOG.md files
+   - Removes consumed changeset files
+3. When the Version PR is merged:
+   - Publishes updated packages to npm
+   - Creates GitHub releases with tags
+
+**How It Works**:
+
+```mermaid
+graph LR
+    A[PR with changeset merged] --> B[Workflow runs]
+    B --> C{Changesets exist?}
+    C -->|Yes| D[Create/Update Version PR]
+    C -->|No| E[Skip]
+    D --> F[Version PR merged]
+    F --> G[Publish to npm]
+    G --> H[Create GitHub Release]
+```
+
+**Developer Workflow**:
+1. Create PR with code changes
+2. Run `pnpm changeset` to create a changeset file
+3. Commit changeset file with your PR
+4. When PR is merged, automation takes over
+5. Review and merge the automated "Version Packages" PR
+6. Packages are published automatically
+
+**Benefits**:
+- No manual version number editing
+- Automatic changelog generation
+- Coordinated releases across packages
+- Clear versioning based on semantic versioning
+- Prevents accidental version conflicts
+
+**Required Setup**:
+- `NPM_TOKEN` secret must be configured in repository settings
+- Changesets should be included in all PRs with package changes
+
+**Note**: See [CONTRIBUTING.md](../CONTRIBUTING.md#versioning-and-releases) for details on creating changesets.
+
+### 9. Changeset Check
+
+**File**: `changeset-check.yml`  
+**Triggers**: Pull Requests (opened, synchronized, labeled)
+
+Ensures PRs that modify packages include a changeset.
+
+**What It Does**:
+- Checks if PR modifies any files in `packages/`
+- Verifies a changeset file exists (`.changeset/*.md`)
+- Fails the check if changeset is missing
+- Can be skipped with `skip-changeset` or `dependencies` label
+
+**When to Skip**:
+- Documentation-only changes
+- Changes to examples or apps
+- Test-only updates
+- Automated dependency updates (Dependabot)
+
+**How to Pass**:
+1. Run `pnpm changeset` locally
+2. Follow the prompts to create a changeset
+3. Commit the generated `.changeset/*.md` file
+4. OR add `skip-changeset` label if not needed
+
+This workflow helps maintain consistent versioning and comprehensive changelogs.
+
+### 10. Stale Issues & PRs
 
 **File**: `stale.yml`  
 **Triggers**: Daily schedule, Manual workflow dispatch
@@ -134,7 +212,7 @@ Manages stale issues and pull requests.
 - Exempt labels: `pinned`, `security`, `critical`, `bug`, `enhancement`
 - Can be reopened if activity resumes
 
-### 9. Dependabot Auto-merge
+### 11. Dependabot Auto-merge
 
 **File**: `dependabot-auto-merge.yml`  
 **Configuration**: `dependabot.yml`  
@@ -153,7 +231,7 @@ Automatically manages dependency updates.
 - Groups related dependencies
 - Limits to 10 open PRs
 
-### 10. Auto Changelog
+### 12. Auto Changelog
 
 **File**: `changelog.yml`  
 **Triggers**: Release published, Manual workflow dispatch
