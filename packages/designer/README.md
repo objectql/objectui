@@ -1,6 +1,14 @@
 # @object-ui/designer
 
-A professional drag-and-drop visual editor to generate Object UI schemas with advanced features including **component resizing**.
+A professional drag-and-drop visual editor to generate Object UI schemas with advanced features including **component resizing** and **specialized designers**.
+
+## 🎯 Specialized Designers
+
+Object UI Designer now includes three specialized designer modes optimized for different use cases:
+
+- **General Designer** - The original all-purpose designer with all component types
+- **Form Designer** (专用对象表单设计器) - Purpose-built for creating forms with validation and field controls
+- **Page Layout Designer** (页面布局设计器) - Optimized for building page structures with sections, headers, and grids
 
 ## Features
 
@@ -68,7 +76,9 @@ pnpm add @object-ui/designer @object-ui/react @object-ui/components
 
 ## Usage
 
-### Basic Example
+### General Designer (All Components)
+
+The default designer with access to all component types:
 
 ```tsx
 import { Designer } from '@object-ui/designer';
@@ -90,6 +100,68 @@ function App() {
   );
 }
 ```
+
+### Form Designer (专用对象表单设计器)
+
+A specialized designer optimized for creating forms with form-specific components:
+
+```tsx
+import { FormDesigner } from '@object-ui/designer';
+import { useState } from 'react';
+import type { SchemaNode } from '@object-ui/core';
+
+function App() {
+  const [formSchema, setFormSchema] = useState<SchemaNode>({
+    type: 'form',
+    className: 'p-8 max-w-2xl mx-auto',
+    body: []
+  });
+  
+  return (
+    <FormDesigner 
+      initialSchema={formSchema} 
+      onSchemaChange={setFormSchema}
+    />
+  );
+}
+```
+
+**Features:**
+- Form-specific component palette (text inputs, email, password, number, checkboxes, selects, etc.)
+- Form validation preview
+- Quick access to common form field types
+- Form submission configuration
+
+### Page Layout Designer (页面布局设计器)
+
+A specialized designer optimized for building page layouts and structures:
+
+```tsx
+import { PageLayoutDesigner } from '@object-ui/designer';
+import { useState } from 'react';
+import type { SchemaNode } from '@object-ui/core';
+
+function App() {
+  const [pageSchema, setPageSchema] = useState<SchemaNode>({
+    type: 'div',
+    className: 'min-h-screen bg-white',
+    body: []
+  });
+  
+  return (
+    <PageLayoutDesigner 
+      initialSchema={pageSchema} 
+      onSchemaChange={setPageSchema}
+    />
+  );
+}
+```
+
+**Features:**
+- Layout-focused component palette (header, footer, main, aside, sections, grids, columns)
+- Responsive viewport preview (desktop/tablet/mobile)
+- Grid overlay toggle for precise alignment
+- Layout-specific property controls
 
 ### With Initial Schema
 
