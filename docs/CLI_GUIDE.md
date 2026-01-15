@@ -159,9 +159,9 @@ objectui serve app.schema.json --host 0.0.0.0 --port 3001
 
 The CLI supports two approaches for routing: **file-system based routing** (recommended, Next.js-style) and manual React Router setup.
 
-### Approach 1: File-System Based Routing (Recommended)
+### Approach 1: File-System Based Routing (Recommended) ✅
 
-Organize your schema files in a `pages/` directory structure, and the CLI will automatically generate routes based on the folder hierarchy.
+The CLI automatically detects a `pages/` directory and generates routes based on the folder hierarchy.
 
 #### Directory Structure
 
@@ -177,7 +177,7 @@ my-app/
 │   │   └── [id].schema.json     → /blog/:id
 │   └── users/
 │       └── [userId].schema.json → /users/:userId
-└── app.schema.json (optional layout)
+└── app.schema.json (optional, reserved for future layout support)
 ```
 
 #### Example Page Schemas
@@ -244,6 +244,17 @@ The serve command will:
 3. Generate route configuration based on file structure
 4. Set up the application with all routes
 
+You'll see output like:
+```
+📁 Detected pages/ directory - using file-system routing
+✓ Found 5 route(s)
+  / → pages/index.schema.json
+  /about → pages/about.schema.json
+  /blog → pages/blog/index.schema.json
+  /blog/:id → pages/blog/[id].schema.json
+  /users/:userId → pages/users/[userId].schema.json
+```
+
 #### Route Mapping Rules
 
 - `pages/index.schema.json` → `/`
@@ -254,25 +265,23 @@ The serve command will:
 
 #### Navigation Between Pages
 
-Use the button component with `href` to navigate:
+Use link components or buttons with navigation:
 
 ```json
 {
-  "type": "button",
-  "label": "Go to About",
-  "href": "/about"
+  "type": "div",
+  "className": "flex gap-4",
+  "body": [
+    {
+      "type": "button",
+      "label": "Go to About",
+      "onClick": "() => window.location.href='/about'"
+    }
+  ]
 }
 ```
 
-Or use link components:
-
-```json
-{
-  "type": "link",
-  "href": "/blog/123",
-  "children": "Read Blog Post"
-}
-```
+**Note:** For now, navigation is done through standard links. Schema-level navigation helpers are planned for a future release.
 
 ### Approach 2: Manual React Router Setup
 
@@ -359,66 +368,7 @@ You can also define navigation in your main schema using button click handlers:
 
 ## Layouts and Nested Routes
 
-### Root Layout
-
-Create an `app.schema.json` file to define a layout that wraps all pages:
-
-```json
-{
-  "type": "div",
-  "className": "min-h-screen",
-  "body": [
-    {
-      "type": "div",
-      "className": "border-b bg-background",
-      "body": {
-        "type": "div",
-        "className": "container mx-auto px-6 py-4",
-        "body": [
-          {
-            "type": "link",
-            "href": "/",
-            "className": "mr-4",
-            "children": "Home"
-          },
-          {
-            "type": "link",
-            "href": "/about",
-            "className": "mr-4",
-            "children": "About"
-          },
-          {
-            "type": "link",
-            "href": "/blog",
-            "children": "Blog"
-          }
-        ]
-      }
-    },
-    {
-      "type": "div",
-      "className": "container mx-auto",
-      "body": "{{outlet}}"
-    }
-  ]
-}
-```
-
-The `{{outlet}}` placeholder is where page content will be rendered.
-
-### Nested Layouts
-
-Create `_layout.schema.json` files in subdirectories for nested layouts:
-
-```
-pages/
-├── blog/
-│   ├── _layout.schema.json    → Layout for all /blog routes
-│   ├── index.schema.json       → /blog
-│   └── [id].schema.json        → /blog/:id
-```
-
-**Note:** File-system based routing with automatic route generation is planned for a future release. The documentation above describes the intended behavior.
+**Note:** Layout support with `app.schema.json` and `_layout.schema.json` is planned for a future release. Currently, all routing is handled at the page level.
 
 ## FAQ
 
