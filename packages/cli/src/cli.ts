@@ -6,6 +6,8 @@ import { init } from './commands/init.js';
 import { dev } from './commands/dev.js';
 import { buildApp } from './commands/build.js';
 import { start } from './commands/start.js';
+import { lint } from './commands/lint.js';
+import { test } from './commands/test.js';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -96,6 +98,34 @@ program
       await init(name, options);
     } catch (error) {
       console.error(chalk.red('错误 Error:'), error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('lint')
+  .description('Lint the generated application code')
+  .option('--fix', 'Automatically fix linting issues')
+  .action(async (options) => {
+    try {
+      await lint(options);
+    } catch (error) {
+      console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('test')
+  .description('Run tests for the application')
+  .option('-w, --watch', 'Run tests in watch mode')
+  .option('-c, --coverage', 'Generate test coverage report')
+  .option('--ui', 'Run tests with Vitest UI')
+  .action(async (options) => {
+    try {
+      await test(options);
+    } catch (error) {
+      console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
       process.exit(1);
     }
   });

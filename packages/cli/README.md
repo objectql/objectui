@@ -100,6 +100,38 @@ objectui serve my-schema.json --port 8080
 - `-p, --port <port>` - Port to run the server on (default: `3000`)
 - `-h, --host <host>` - Host to bind the server to (default: `localhost`)
 
+### `objectui lint`
+
+Lint the generated application code using ESLint.
+
+```bash
+objectui lint
+objectui lint --fix
+```
+
+**Options:**
+- `--fix` - Automatically fix linting issues
+
+**Note:** Run `objectui dev` first to generate the application before linting.
+
+### `objectui test`
+
+Run tests for the application using Vitest.
+
+```bash
+objectui test
+objectui test --watch
+objectui test --coverage
+objectui test --ui
+```
+
+**Options:**
+- `-w, --watch` - Run tests in watch mode
+- `-c, --coverage` - Generate test coverage report
+- `--ui` - Run tests with Vitest UI
+
+**Note:** Run `objectui dev` first to generate the application before testing.
+
 ## Quick Start
 
 1. Create a new application:
@@ -113,12 +145,22 @@ objectui serve my-schema.json --port 8080
    objectui dev app.json
    ```
 
-3. Build for production:
+3. Lint your code (optional):
+   ```bash
+   objectui lint
+   ```
+
+4. Run tests (optional):
+   ```bash
+   objectui test
+   ```
+
+5. Build for production:
    ```bash
    objectui build app.json
    ```
 
-4. Serve the production build:
+6. Serve the production build:
    ```bash
    objectui start
    ```
