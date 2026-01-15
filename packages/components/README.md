@@ -22,6 +22,19 @@ npm install @object-ui/components @object-ui/react @object-ui/core
 - `react-dom` ^18.0.0 || ^19.0.0
 - `tailwindcss` ^3.0.0
 
+**Additional Dependencies:**
+
+All UI component dependencies are externalized to keep the bundle size small (~43KB gzipped). You'll need to install them separately:
+
+```bash
+npm install @radix-ui/react-accordion @radix-ui/react-alert-dialog @radix-ui/react-checkbox \
+  @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-label @radix-ui/react-popover \
+  @radix-ui/react-select @radix-ui/react-separator @radix-ui/react-slider @radix-ui/react-switch \
+  @radix-ui/react-tabs @radix-ui/react-toast lucide-react class-variance-authority clsx tailwind-merge
+```
+
+Or if you're only using specific components, install only what you need.
+
 ## Setup
 
 ### 1. Configure Tailwind
@@ -133,6 +146,19 @@ function MyComponent() {
 - `breadcrumb` - Breadcrumb navigation
 
 ## Customization
+
+### Bundle Size Optimization
+
+The package is optimized for tree-shaking and minimal bundle size:
+
+- **Core bundle**: ~43KB gzipped (ESM)
+- **Dependencies externalized**: All Radix UI and other dependencies are peer dependencies
+- **Tree-shakeable**: Modern bundlers will only include the components you use
+
+**Tips for smaller bundles:**
+1. Use modern bundlers (Vite, Webpack 5+, Rollup) that support tree-shaking
+2. Import components directly when possible
+3. Only install the peer dependencies you need
 
 ### Override Styles
 
