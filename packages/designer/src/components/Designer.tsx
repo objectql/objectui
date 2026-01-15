@@ -1,115 +1,66 @@
-import React, { useEffect } from 'react';
-import { DesignerProvider } from '../context/DesignerContext';
-import { LeftSidebar } from './LeftSidebar';
-import { Canvas } from './Canvas';
-import { PropertyPanel } from './PropertyPanel';
-import { useDesigner } from '../context/DesignerContext';
+/**
+ * Unified Designer Component
+ * 
+ * This is the main designer entry point that supports three modes:
+ * - 'form': Specialized form designer
+ * - 'layout': Page layout designer  
+ * - 'general': Full-featured general designer (default)
+ */
+
+import React from 'react';
 import type { SchemaNode } from '@object-ui/core';
+import type { DesignerMode } from '../types/designer-modes';
+import { FormDesigner } from './FormDesigner';
+import { LayoutDesigner } from './LayoutDesigner';
+import { GeneralDesigner, GeneralDesignerContent } from './GeneralDesigner';
+import { DesignerProvider } from '../context/DesignerContext';
 
 interface DesignerProps {
   initialSchema?: SchemaNode;
   onSchemaChange?: (schema: SchemaNode) => void;
+  /**
+   * Designer mode - determines which specialized designer to use
+   * @default 'general'
+   */
+  mode?: DesignerMode;
 }
 
-
+/**
+ * Legacy export for backward compatibility
+ * @deprecated Use GeneralDesignerContent or specify mode prop
+ */
 export const DesignerContent: React.FC = () => {
-  const { 
-    undo, 
-    redo, 
-    copyNode,
-    cutNode,
-    duplicateNode,
-    pasteNode, 
-    removeNode, 
-    selectedNodeId, 
-    canUndo, 
-    canRedo
-  } = useDesigner();
-  
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Check if we're in an editable element
-      const target = e.target as HTMLElement;
-      const isEditing = 
-        target.tagName === 'INPUT' || 
-        target.tagName === 'TEXTAREA' || 
-        target.tagName === 'SELECT' ||
-        target.isContentEditable;
-
-      // Undo: Ctrl+Z / Cmd+Z
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey && canUndo) {
-        e.preventDefault();
-        undo();
-      }
-      // Redo: Ctrl+Y / Cmd+Shift+Z
-      else if (((e.ctrlKey || e.metaKey) && e.key === 'y') || ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'z')) {
-        if (canRedo) {
-          e.preventDefault();
-          redo();
-        }
-      }
-      // Copy: Ctrl+C / Cmd+C (only when not editing)
-      else if ((e.ctrlKey || e.metaKey) && e.key === 'c' && !isEditing && selectedNodeId) {
-        e.preventDefault();
-        copyNode(selectedNodeId);
-      }
-      // Cut: Ctrl+X / Cmd+X (only when not editing)
-      else if ((e.ctrlKey || e.metaKey) && e.key === 'x' && !isEditing && selectedNodeId) {
-        e.preventDefault();
-        cutNode(selectedNodeId);
-      }
-      // Paste: Ctrl+V / Cmd+V (only when not editing)
-      else if ((e.ctrlKey || e.metaKey) && e.key === 'v' && !isEditing) {
-        e.preventDefault();
-        pasteNode(selectedNodeId);
-      }
-      // Duplicate: Ctrl+D / Cmd+D (only when not editing)
-      else if ((e.ctrlKey || e.metaKey) && e.key === 'd' && !isEditing && selectedNodeId) {
-        e.preventDefault();
-        duplicateNode(selectedNodeId);
-      }
-      // Delete: Delete / Backspace (only when not editing)
-      else if ((e.key === 'Delete' || e.key === 'Backspace') && !isEditing && selectedNodeId) {
-        e.preventDefault();
-        removeNode(selectedNodeId);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, copyNode, cutNode, duplicateNode, pasteNode, removeNode, selectedNodeId, canUndo, canRedo]);
-
-  return (
-    <div className="h-full flex flex-col bg-white text-gray-900 font-sans">
-      {/* <Toolbar /> removed, moved to parent */}
-      
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Sidebar - Combined Component Palette and Tree */}
-        {/* Responsive: w-72 on desktop, w-64 on tablet (md:), hidden on mobile with toggle option */}
-        <div className="w-64 md:w-72 flex-shrink-0 z-10 shadow-[1px_0_5px_rgba(0,0,0,0.03)] h-full">
-           <LeftSidebar className="h-full border-r-0" />
-        </div>
-        
-        {/* Main Canvas Area */}
-        <div className="flex-1 relative bg-gray-100 z-0 min-w-0">
-           <Canvas className="h-full w-full" />
-        </div>
-        
-        {/* Right Sidebar - Property Panel */}
-        {/* Responsive: w-80 on desktop, w-72 on tablet (md:), can be toggled on small tablets */}
-        <div className="w-72 md:w-80 flex-shrink-0 z-10 shadow-[-1px_0_5px_rgba(0,0,0,0.03)] h-full">
-           <PropertyPanel className="h-full border-l-0 shadow-none border-l custom-scrollbar" />
-        </div>
-      </div>
-    </div>
-  );
+  return <GeneralDesignerContent />;
 };
 
-export const Designer: React.FC<DesignerProps> = ({ initialSchema, onSchemaChange }) => {
-  return (
-    <DesignerProvider initialSchema={initialSchema} onSchemaChange={onSchemaChange}>
-      <DesignerContent />
-    </DesignerProvider>
-  );
+/**
+ * Main Designer component with mode support
+ * 
+ * @example
+ * ```tsx
+ * // Form designer
+ * <Designer mode="form" initialSchema={formSchema} />
+ * 
+ * // Layout designer
+ * <Designer mode="layout" initialSchema={layoutSchema} />
+ * 
+ * // General designer (default)
+ * <Designer initialSchema={schema} />
+ * ```
+ */
+export const Designer: React.FC<DesignerProps> = ({ 
+  initialSchema, 
+  onSchemaChange,
+  mode = 'general'
+}) => {
+  // Route to the appropriate specialized designer based on mode
+  switch (mode) {
+    case 'form':
+      return <FormDesigner initialSchema={initialSchema} onSchemaChange={onSchemaChange} />;
+    case 'layout':
+      return <LayoutDesigner initialSchema={initialSchema} onSchemaChange={onSchemaChange} />;
+    case 'general':
+    default:
+      return <GeneralDesigner initialSchema={initialSchema} onSchemaChange={onSchemaChange} />;
+  }
 };
