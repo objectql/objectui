@@ -23,7 +23,19 @@ export default defineConfig({
       fileName: 'index',
     },
     rollupOptions: {
-      external: ['react', 'react-dom', '@object-ui/components', '@object-ui/core', '@object-ui/react'],
+      external: [
+        'react',
+        'react-dom',
+        'react/jsx-runtime',
+        '@object-ui/components',
+        '@object-ui/core',
+        '@object-ui/react',
+        '@object-ui/types',
+        // Externalize markdown dependencies to keep bundle size small
+        'react-markdown',
+        'remark-gfm',
+        'rehype-sanitize',
+      ],
       output: {
         globals: {
           react: 'React',
@@ -31,6 +43,7 @@ export default defineConfig({
           '@object-ui/components': 'ObjectUIComponents',
           '@object-ui/core': 'ObjectUICore',
           '@object-ui/react': 'ObjectUIReact',
+          'react-markdown': 'ReactMarkdown',
         },
       },
     },

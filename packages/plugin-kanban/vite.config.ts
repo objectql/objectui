@@ -23,7 +23,17 @@ export default defineConfig({
       fileName: 'index',
     },
     rollupOptions: {
-      external: ['react', 'react-dom', '@object-ui/components', '@object-ui/core', '@object-ui/react'],
+      external: [
+        'react',
+        'react-dom',
+        'react/jsx-runtime',
+        '@object-ui/components',
+        '@object-ui/core',
+        '@object-ui/react',
+        '@object-ui/types',
+        // Externalize dnd-kit to keep bundle size small
+        /^@dnd-kit\/.*/,
+      ],
       output: {
         globals: {
           react: 'React',
