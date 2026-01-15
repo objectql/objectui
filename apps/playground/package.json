@@ -19,6 +19,7 @@
     "@object-ui/plugin-kanban": "workspace:*",
     "@object-ui/plugin-markdown": "workspace:*",
     "@object-ui/react": "workspace:*",
+    "@vercel/kv": "^3.0.0",
     "lucide-react": "^0.469.0",
     "next": "^15.1.6",
     "react": "^18.3.1",
