@@ -338,6 +338,67 @@ Add these badges to show workflow status:
 3. Update documentation
 4. Monitor first few runs after changes
 
+## Automatic Lockfile Merge Resolution
+
+### Overview
+
+The repository is configured to automatically resolve merge conflicts in `pnpm-lock.yaml` using a custom Git merge driver. This prevents manual intervention when lockfile conflicts occur during branch merges or automated workflows.
+
+### How It Works
+
+**Repository Configuration** (`.gitattributes`):
+```
+pnpm-lock.yaml merge=pnpm-merge
+```
+
+This tells Git to use the `pnpm-merge` driver when merging `pnpm-lock.yaml` files.
+
+**Workflow Configuration** (Applied in CI workflows):
+```yaml
+- name: Configure Git merge driver for pnpm-lock.yaml
+  run: |
+    # Configure custom merge driver for pnpm-lock.yaml
+    # This allows Git to automatically resolve lockfile conflicts by regenerating it
+    git config merge.pnpm-merge.name "pnpm-lock.yaml merge driver"
+    git config merge.pnpm-merge.driver "pnpm install --no-frozen-lockfile"
+```
+
+### When It's Used
+
+This configuration is active in the following workflows:
+- **Changeset Release** (`changeset-release.yml`): Handles lockfile updates during version bumping
+- **Auto Changelog** (`changelog.yml`): Prevents conflicts during automated changelog updates
+
+### Adding to New Workflows
+
+If you create a workflow that performs git merge operations or might encounter lockfile conflicts, add the configuration step **after checkout** and **before any merge operation**:
+
+```yaml
+steps:
+  - name: Checkout code
+    uses: actions/checkout@v4
+    with:
+      fetch-depth: 0
+
+  - name: Configure Git merge driver for pnpm-lock.yaml
+    run: |
+      git config merge.pnpm-merge.name "pnpm-lock.yaml merge driver"
+      git config merge.pnpm-merge.driver "pnpm install --no-frozen-lockfile"
+
+  # ... rest of your workflow steps including merge operations
+```
+
+### Benefits
+
+- **Fully Automated**: No manual intervention needed for lockfile conflicts
+- **Clean Repository**: Configuration is temporary (CI-only), doesn't modify repository files
+- **Reliable**: Uses pnpm's built-in dependency resolution to regenerate lockfiles
+- **Consistent**: Ensures lockfiles are always in sync with package.json changes
+
+### Local Development
+
+For local development, contributors can configure the same merge driver by following the instructions in [CONTRIBUTING.md](../CONTRIBUTING.md).
+
 ## Future Enhancements
 
 Potential workflow additions:
