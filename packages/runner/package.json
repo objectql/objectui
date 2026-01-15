@@ -1,7 +1,8 @@
 {
-  "name": "example-vite-react",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@object-ui/runner",
+  "private": false,
+  "version": "0.1.0",
+  "description": "Universal Object UI Application Runner",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,10 +14,13 @@
     "@object-ui/core": "workspace:*",
     "@object-ui/react": "workspace:*",
     "@object-ui/types": "workspace:*",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.0",
+    "lucide-react": "^0.562.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "clsx": "^2.1.0",
-    "tailwind-merge": "^2.2.1"
+    "tailwind-merge": "^2.2.1",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

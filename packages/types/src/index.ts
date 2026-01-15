@@ -245,7 +245,7 @@ export type {
   ExpressionContext,
   ExpressionSchema,
   APISchema,
-} from './api';
+} from './api-types';
 
 // ============================================================================
 // Union Types - Discriminated Unions for All Schemas

@@ -14,8 +14,11 @@
     "docs"
   ],
   "scripts": {
-    "dev": "pnpm --filter prototype dev",
-    "start": "pnpm --filter prototype dev",
+    "dev": "pnpm --filter @object-ui/runner dev",
+    "dev:dashboard": "node scripts/start-app.mjs examples/dashboard",
+    "dev:crm": "node scripts/start-app.mjs examples/crm-app",
+    "start:app": "node scripts/start-app.mjs",
+    "start": "pnpm dev",
     "build": "pnpm --filter './packages/*' -r build && pnpm --filter './examples/*' -r build",
     "pretest": "pnpm --filter @object-ui/types build && pnpm --filter @object-ui/core build && pnpm --filter @object-ui/react build && pnpm --filter @object-ui/components build",
     "test": "vitest run",

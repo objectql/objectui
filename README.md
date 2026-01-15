@@ -17,29 +17,67 @@
 
 </div>
 
----
+## 🚀 Just JSON
 
-## What is Object UI?
+No React code required. Run any folder containing an `app.json` or `pages/*.json` file:
 
-Object UI is a **modern, lightweight, schema-driven UI engine** that transforms JSON configurations into beautiful, performant React interfaces. Build enterprise-grade applications without writing repetitive UI code.
+```bash
+# Run the CRM Example
+pnpm dev:crm
 
-```json
-{
-  "type": "form",
-  "title": "Contact Us",
-  "body": [
-    { "type": "input", "name": "email", "label": "Your Email", "required": true },
-    { "type": "textarea", "name": "message", "label": "Message" }
-  ],
-  "actions": [
-    { "type": "submit", "label": "Send Message", "level": "primary" }
-  ]
-}
+# Run the Dashboard Example
+pnpm dev:dashboard
+
+# Run any custom folder
+pnpm start:app ./my-app-folder
 ```
 
-That's it! This JSON creates a complete, accessible, and beautiful form.
+---
 
-## ✨ Features
+## 🚀 Quick Start (Development Mode)
+
+Since this package is not yet published to NPM, here is how to play with the source code:
+
+1.  **Clone & Install**
+
+    ```bash
+    git clone https://github.com/objectql/objectui.git
+    cd objectui
+    pnpm install
+    # Build the core engine
+    pnpm build 
+    ```
+
+2.  **Run Examples**
+
+    We have pre-configured commands to run the JSON examples directly from the source.
+
+    *   **Run Dashboard Example:**
+        ```bash
+        pnpm dev
+        # Opens http://localhost:3000
+        ```
+
+    *   **Run CRM Example (Routing Demo):**
+        ```bash
+        pnpm dev:crm
+        # Opens http://localhost:3001
+        ```
+
+3.  **Edit & Reload**
+
+    Open `examples/dashboard/app.json` or `examples/crm-app/pages/index.json`. 
+    Any change you make to the JSON files will be instantly reflected in the browser.
+
+## 📦 For React Developers
+
+Install the core packages to use `<SchemaRenderer>` inside your Next.js or Vite app.
+
+```bash
+npm install @object-ui/react @object-ui/components
+```
+
+See [React Integration Guide](examples/framework-react) for details.
 
 ### 🎨 **Beautiful by Default**
 - Professional designs using **Tailwind CSS** and **Shadcn/UI**
