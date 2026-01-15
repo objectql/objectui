@@ -52,7 +52,8 @@ jobs:
               # Calculate sizes for main bundle files
               for file in "$pkg"/*.js; do
                 if [ -f "$file" ] && [ ! -f "${file}.map" ]; then
-                  size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null || echo "0")
+                  # Use portable method to get file size
+                  size=$(wc -c < "$file")
                   size_kb=$(awk "BEGIN {printf \"%.2f\", $size/1024}")
                   
                   # Estimate gzipped size
