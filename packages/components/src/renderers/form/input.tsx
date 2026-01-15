@@ -1,39 +1,65 @@
+import React from 'react';
 import { ComponentRegistry } from '@object-ui/core';
 import type { InputSchema } from '@object-ui/types';
 import { Input, Label } from '@/ui';
+import { cn } from '@/lib/utils';
 
 ComponentRegistry.register('input', 
-  ({ schema, className, ...props }: { schema: InputSchema; className?: string; [key: string]: any }) => (
-    <div className={`grid w-full max-w-sm items-center gap-1.5 ${schema.wrapperClass || ''}`}>
-      {schema.label && <Label htmlFor={schema.id}>{schema.label}</Label>}
-      <Input 
-        type={schema.inputType || 'text'} 
-        id={schema.id} 
-        placeholder={schema.placeholder} 
-        className={className} 
-        {...props} 
-      />
-    </div>
-  ),
+  ({ schema, className, onChange, value, ...props }: { schema: InputSchema; className?: string; onChange?: (val: any) => void; value?: any; [key: string]: any }) => {
+    
+    // Handle change for both raw inputs and form-bound inputs
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (onChange) {
+        onChange(e.target.value);
+      }
+    };
+
+    return (
+      <div className={cn("grid w-full items-center gap-1.5", schema.wrapperClass)}>
+        {schema.label && <Label htmlFor={schema.id} className={cn(schema.required && "text-destructive after:content-['*'] after:ml-0.5")}>{schema.label}</Label>}
+        <Input 
+          type={schema.inputType || 'text'} 
+          id={schema.id} 
+          name={schema.name}
+          placeholder={schema.placeholder} 
+          className={className}
+          required={schema.required}
+          disabled={schema.disabled}
+          readOnly={schema.readOnly}
+          value={value ?? schema.value ?? ''} // Controlled if value provided
+          defaultValue={value === undefined ? schema.defaultValue : undefined}
+          onChange={handleChange}
+          min={schema.min}
+          max={schema.max}
+          step={schema.step}
+          maxLength={schema.maxLength}
+          pattern={schema.pattern}
+          {...props} 
+        />
+        {schema.description && <p className="text-sm text-muted-foreground">{schema.description}</p>}
+        {schema.error && <p className="text-sm font-medium text-destructive">{schema.error}</p>}
+      </div>
+    );
+  },
   {
     label: 'Input Field',
     inputs: [
-      { name: 'label', type: 'string', label: 'Label', required: true },
+      { name: 'label', type: 'string', label: 'Label' },
+      { name: 'name', type: 'string', label: 'Field Name' },
       { name: 'placeholder', type: 'string', label: 'Placeholder' },
       { 
         name: 'inputType', 
         type: 'enum', 
         label: 'Type',
-        enum: ['text', 'email', 'password', 'number', 'tel', 'url'],
+        enum: ['text', 'email', 'password', 'number', 'tel', 'url', 'date', 'time', 'datetime-local'],
         defaultValue: 'text'
       },
-      { name: 'id', type: 'string', label: 'ID', required: true }
+      { name: 'required', type: 'boolean', label: 'Required' },
+      { name: 'disabled', type: 'boolean', label: 'Disabled' },
+      { name: 'description', type: 'string', label: 'Description' }
     ],
     defaultProps: {
-      label: 'Label',
-      placeholder: 'Enter text...',
-      inputType: 'text',
-      id: 'input-field' // Will be made unique by designer's ensureNodeIds
+      inputType: 'text'
     }
   }
 );

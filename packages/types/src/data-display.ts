@@ -225,6 +225,10 @@ export interface TableSchema extends BaseSchema {
    */
   data: any[];
   /**
+   * Table footer content
+   */
+  footer?: SchemaNode | SchemaNode[] | string;
+  /**
    * Whether table has hover effect
    * @default true
    */

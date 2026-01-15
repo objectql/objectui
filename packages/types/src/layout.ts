@@ -220,9 +220,13 @@ export interface CardSchema extends BaseSchema {
    */
   header?: SchemaNode | SchemaNode[];
   /**
-   * Card body/content
+   * Card body/content (Legacy, use children)
    */
-  content?: SchemaNode | SchemaNode[];
+  body?: SchemaNode | SchemaNode[];
+  /**
+   * Child components
+   */
+  children?: SchemaNode | SchemaNode[];
   /**
    * Card footer content
    */
@@ -336,6 +340,15 @@ export interface ResizableSchema extends BaseSchema {
    * @default 'horizontal'
    */
   direction?: 'horizontal' | 'vertical';
+  /**
+   * Minimum Height
+   */
+  minHeight?: string | number;
+  /**
+   * Show resize handle
+   * @default true
+   */
+  withHandle?: boolean;
   /**
    * Resizable panels
    */

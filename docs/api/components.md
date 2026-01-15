@@ -18,98 +18,20 @@ import { registerDefaultRenderers } from '@object-ui/components'
 registerDefaultRenderers()
 ```
 
-Or register individual components:
+## Component Reference
 
-```tsx
-import { Button, Input, Form } from '@object-ui/components'
-import { registerRenderer } from '@object-ui/react'
+Detailed documentation for each component category:
 
-registerRenderer('button', Button)
-registerRenderer('input', Input)
-registerRenderer('form', Form)
-```
+*   [Layout Components](../components/layout.md) (Grid, Card, Container, etc.)
+*   [Basic Components](../components/basic.md) (Text, Image, Icon, HTML)
+*   [Form Components](../components/form.md) (Input, Select, Checkbox, Form, etc.)
+*   [Data Display](../components/data-display.md) (Table, List, Tag, Tree, etc.)
+*   [Navigation](../components/navigation.md) (Button, Link, Menu, etc.)
+*   [Feedback](../components/feedback.md) (Alert, Progress, Toast, etc.)
+*   [Overlay](../components/overlay.md) (Dialog, Drawer, Tooltip, etc.)
 
-## Component List
+## Plugins
 
-### Form Components
-
-- `input` - Text input field
-- `textarea` - Multi-line text input
-- `select` - Dropdown select
-- `checkbox` - Checkbox input
-- `radio` - Radio button
-- `date-picker` - Date selection
-- `file-upload` - File upload
-
-### Data Display
-
-- `table` - Data table with sorting/pagination
-- `list` - List view
-- `card` - Card container
-- `tree` - Tree view
-
-### Layout
-
-- `grid` - Grid layout
-- `flex` - Flexbox layout
-- `container` - Container wrapper
-- `tabs` - Tab navigation
-
-### Feedback
-
-- `alert` - Alert messages
-- `toast` - Toast notifications
-- `dialog` - Modal dialog
-- `loading` - Loading indicators
-
-## Customization
-
-### Styling
-
-All components accept Tailwind classes:
-
-```json
-{
-  "type": "button",
-  "className": "bg-blue-500 hover:bg-blue-700 text-white"
-}
-```
-
-### Extending Components
-
-Create custom components:
-
-```tsx
-import { Button } from '@object-ui/components'
-
-function CustomButton(props) {
-  return (
-    <Button
-      {...props}
-      className={`custom-styles ${props.className}`}
-    />
-  )
-}
-
-registerRenderer('custom-button', CustomButton)
-```
-
-## Theming
-
-Apply themes to all components:
-
-```tsx
-import { ThemeProvider } from '@object-ui/components'
-
-<ThemeProvider theme="dark">
-  <SchemaRenderer schema={schema} />
-</ThemeProvider>
-```
-
-## API Reference
-
-Full component API documentation coming soon.
-
-For now, see:
-- [GitHub Repository](https://github.com/objectql/objectui/tree/main/packages/components)
-- [Storybook](https://storybook.objectui.org) (coming soon)
+*   [Charts](../components/charts.md) (Bar, Line, Pie, etc.)
+*   [Kanban](../components/kanban.md) (Board View)
+*   [Markdown](../components/markdown.md) (Rich Text)

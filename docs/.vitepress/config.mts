@@ -14,7 +14,7 @@ export default defineConfig({
     
     nav: [
       { text: 'Guide', link: '/guide/introduction' },
-      { text: 'Components', link: '/components/form' },
+      { text: 'Components', link: '/components/' },
       { 
         text: 'Reference',
         items: [
@@ -118,10 +118,40 @@ export default defineConfig({
       
       '/components/': [
         {
-          text: 'Component Examples',
+          text: 'Overview',
           items: [
-            { text: 'Form Component', link: '/components/form' },
+            { text: 'Component Index', link: '/components/' }
+          ]
+        },
+        {
+          text: 'General',
+          items: [
+            { text: 'Basic Components', link: '/components/basic' },
+            { text: 'Layout Components', link: '/components/layout' }
+          ]
+        },
+        {
+          text: 'Data Entry',
+          items: [
+            { text: 'Form Components', link: '/components/form' }
+          ]
+        },
+        {
+          text: 'Data Display',
+          items: [
+            { text: 'Data Display', link: '/components/data-display' },
+            { text: 'Charts', link: '/components/charts' },
+            { text: 'Kanban', link: '/components/kanban' },
             { text: 'Calendar View', link: '/components/calendar-view' }
+          ]
+        },
+        {
+          text: 'Interaction',
+          items: [
+            { text: 'Navigation', link: '/components/navigation' },
+            { text: 'Feedback', link: '/components/feedback' },
+            { text: 'Overlay', link: '/components/overlay' },
+            { text: 'Markdown', link: '/components/markdown' }
           ]
         }
       ],
