@@ -364,20 +364,16 @@ export default {
 
 // Helper function to check if a file is a supported schema file
 function isSupportedSchemaFile(filename: string): boolean {
-  return filename.endsWith('.schema.json') || 
-         filename.endsWith('.page.json') ||
-         filename.endsWith('.schema.yml') ||
-         filename.endsWith('.schema.yaml') ||
-         filename.endsWith('.page.yml') ||
-         filename.endsWith('.page.yaml');
+  return filename.endsWith('.json') || 
+         filename.endsWith('.yml') ||
+         filename.endsWith('.yaml');
 }
 
 // Helper function to extract the base filename without extension
 function getBaseFileName(filename: string): string {
   // Remove supported extensions
   return filename
-    .replace(/\.schema\.(json|yml|yaml)$/, '')
-    .replace(/\.page\.(json|yml|yaml)$/, '');
+    .replace(/\.(json|yml|yaml)$/, '');
 }
 
 // Helper function to parse schema file (JSON or YAML)

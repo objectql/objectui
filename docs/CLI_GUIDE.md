@@ -170,27 +170,25 @@ Create a `pages/` directory with your schema files:
 ```
 my-app/
 ├── pages/
-│   ├── index.schema.json        → /
-│   ├── about.page.json          → /about
+│   ├── index.json           → /
+│   ├── about.json           → /about
 │   ├── blog/
-│   │   ├── index.page.yml       → /blog
-│   │   └── [id].schema.yaml     → /blog/:id
+│   │   ├── index.yml        → /blog
+│   │   └── [id].yaml        → /blog/:id
 │   └── users/
-│       └── [userId].page.json   → /users/:userId
-└── app.schema.json (optional, reserved for future layout support)
+│       └── [userId].json    → /users/:userId
+└── app.layout.json (optional, reserved for future layout support)
 ```
 
 **Supported File Extensions:**
-- `.schema.json` - JSON schema file
-- `.page.json` - Alternative JSON format
-- `.schema.yml` / `.schema.yaml` - YAML schema file
-- `.page.yml` / `.page.yaml` - Alternative YAML format
+- `.json` - JSON format
+- `.yml` / `.yaml` - YAML format
 
-All formats are equivalent - use whichever you prefer. YAML files are parsed automatically.
+Use any extension you prefer. YAML files are parsed automatically. The simple extension naming allows for future specialized file types (`.menu.json`, `.layout.json`, etc.).
 
 #### Example Page Schemas
 
-**pages/index.schema.json:**
+**pages/index.json:**
 ```json
 {
   "type": "div",
@@ -206,7 +204,7 @@ All formats are equivalent - use whichever you prefer. YAML files are parsed aut
 }
 ```
 
-**pages/about.page.yml (YAML format):**
+**pages/about.yml (YAML format):**
 ```yaml
 type: div
 className: p-8
@@ -218,7 +216,7 @@ body:
     content: Learn more about us!
 ```
 
-**pages/about.schema.json:**
+**pages/about.json:**
 ```json
 {
   "type": "div",
@@ -234,7 +232,7 @@ body:
 }
 ```
 
-**pages/blog/[id].schema.json** (Dynamic route):
+**pages/blog/[id].json** (Dynamic route):
 ```json
 {
   "type": "div",
@@ -268,19 +266,19 @@ You'll see output like:
 ```
 📁 Detected pages/ directory - using file-system routing
 ✓ Found 5 route(s)
-  / → pages/index.schema.json
-  /about → pages/about.schema.json
-  /blog → pages/blog/index.schema.json
-  /blog/:id → pages/blog/[id].schema.json
+  / → pages/index.json
+  /about → pages/about.json
+  /blog → pages/blog/index.json
+  /blog/:id → pages/blog/[id].json
   /users/:userId → pages/users/[userId].schema.json
 ```
 
 #### Route Mapping Rules
 
-- `pages/index.schema.json` → `/`
-- `pages/about.schema.json` → `/about`
-- `pages/blog/index.schema.json` → `/blog`
-- `pages/blog/[id].schema.json` → `/blog/:id` (dynamic parameter)
+- `pages/index.json` → `/`
+- `pages/about.json` → `/about`
+- `pages/blog/index.json` → `/blog`
+- `pages/blog/[id].json` → `/blog/:id` (dynamic parameter)
 - `pages/users/[userId]/posts/[postId].schema.json` → `/users/:userId/posts/:postId`
 
 #### Navigation Between Pages
