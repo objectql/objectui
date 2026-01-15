@@ -36,12 +36,14 @@
     "vite": "^5.0.0",
     "@vitejs/plugin-react": "^4.2.1",
     "express": "^4.21.2",
+    "js-yaml": "^4.1.0",
     "@object-ui/react": "workspace:*",
     "@object-ui/components": "workspace:*"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^24.10.8",
+    "@types/js-yaml": "^4.0.9",
     "tsup": "^8.0.0",
     "typescript": "^5.0.0"
   }

@@ -171,14 +171,22 @@ Create a `pages/` directory with your schema files:
 my-app/
 ├── pages/
 │   ├── index.schema.json        → /
-│   ├── about.schema.json         → /about
+│   ├── about.page.json          → /about
 │   ├── blog/
-│   │   ├── index.schema.json    → /blog
-│   │   └── [id].schema.json     → /blog/:id
+│   │   ├── index.page.yml       → /blog
+│   │   └── [id].schema.yaml     → /blog/:id
 │   └── users/
-│       └── [userId].schema.json → /users/:userId
+│       └── [userId].page.json   → /users/:userId
 └── app.schema.json (optional, reserved for future layout support)
 ```
+
+**Supported File Extensions:**
+- `.schema.json` - JSON schema file
+- `.page.json` - Alternative JSON format
+- `.schema.yml` / `.schema.yaml` - YAML schema file
+- `.page.yml` / `.page.yaml` - Alternative YAML format
+
+All formats are equivalent - use whichever you prefer. YAML files are parsed automatically.
 
 #### Example Page Schemas
 
@@ -196,6 +204,18 @@ my-app/
     }
   }
 }
+```
+
+**pages/about.page.yml (YAML format):**
+```yaml
+type: div
+className: p-8
+body:
+  type: card
+  title: About Page
+  body:
+    type: text
+    content: Learn more about us!
 ```
 
 **pages/about.schema.json:**

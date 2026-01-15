@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, statSync } from 'fs';
 import { join, resolve, relative, basename, dirname } from 'path';
 import chalk from 'chalk';
+import * as yaml from 'js-yaml';
 
 interface ServeOptions {
   port: string;
@@ -55,10 +56,9 @@ export async function serve(schemaPath: string, options: ServeOptions) {
 
     // Read and validate schema
     try {
-      const schemaContent = readFileSync(fullSchemaPath, 'utf-8');
-      schema = JSON.parse(schemaContent);
+      schema = parseSchemaFile(fullSchemaPath);
     } catch (error) {
-      throw new Error(`Invalid JSON in schema file: ${error instanceof Error ? error.message : error}`);
+      throw new Error(`Invalid schema file: ${error instanceof Error ? error.message : error}`);
     }
   }
 
@@ -362,6 +362,37 @@ export default {
   writeFileSync(join(tmpDir, 'tsconfig.json'), JSON.stringify(tsconfig, null, 2));
 }
 
+// Helper function to check if a file is a supported schema file
+function isSupportedSchemaFile(filename: string): boolean {
+  return filename.endsWith('.schema.json') || 
+         filename.endsWith('.page.json') ||
+         filename.endsWith('.schema.yml') ||
+         filename.endsWith('.schema.yaml') ||
+         filename.endsWith('.page.yml') ||
+         filename.endsWith('.page.yaml');
+}
+
+// Helper function to extract the base filename without extension
+function getBaseFileName(filename: string): string {
+  // Remove supported extensions
+  return filename
+    .replace(/\.schema\.(json|yml|yaml)$/, '')
+    .replace(/\.page\.(json|yml|yaml)$/, '');
+}
+
+// Helper function to parse schema file (JSON or YAML)
+function parseSchemaFile(filePath: string): any {
+  const content = readFileSync(filePath, 'utf-8');
+  
+  if (filePath.endsWith('.json')) {
+    return JSON.parse(content);
+  } else if (filePath.endsWith('.yml') || filePath.endsWith('.yaml')) {
+    return yaml.load(content);
+  }
+  
+  throw new Error(`Unsupported file format: ${filePath}`);
+}
+
 function scanPagesDirectory(pagesDir: string): RouteInfo[] {
   const routes: RouteInfo[] = [];
   
@@ -376,15 +407,15 @@ function scanPagesDirectory(pagesDir: string): RouteInfo[] {
         // Recursively scan subdirectories
         const newPrefix = routePrefix + '/' + entry;
         scanDir(fullPath, newPrefix);
-      } else if (entry.endsWith('.schema.json')) {
+      } else if (isSupportedSchemaFile(entry)) {
         // Process schema file
-        const fileName = basename(entry, '.schema.json');
+        const fileName = getBaseFileName(entry);
         let routePath: string;
         let isDynamic = false;
         let paramName: string | undefined;
         
         if (fileName === 'index') {
-          // index.schema.json maps to the directory path
+          // index.schema.json or index.page.json maps to the directory path
           routePath = routePrefix || '/';
         } else if (fileName.startsWith('[') && fileName.endsWith(']')) {
           // Dynamic route: [id].schema.json -> /:id
@@ -398,8 +429,7 @@ function scanPagesDirectory(pagesDir: string): RouteInfo[] {
         
         // Read and parse schema
         try {
-          const schemaContent = readFileSync(fullPath, 'utf-8');
-          const schema = JSON.parse(schemaContent);
+          const schema = parseSchemaFile(fullPath);
           
           routes.push({
             path: routePath,
@@ -409,7 +439,7 @@ function scanPagesDirectory(pagesDir: string): RouteInfo[] {
             paramName,
           });
         } catch (error) {
-          console.warn(chalk.yellow(`⚠ Warning: Failed to parse ${fullPath}`));
+          console.warn(chalk.yellow(`⚠ Warning: Failed to parse ${fullPath}: ${error instanceof Error ? error.message : error}`));
         }
       }
     }
