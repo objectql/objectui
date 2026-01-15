@@ -172,7 +172,34 @@ graph LR
 
 **Note**: See [CONTRIBUTING.md](../CONTRIBUTING.md#versioning-and-releases) for details on creating changesets.
 
-### 9. Stale Issues & PRs
+### 9. Changeset Check
+
+**File**: `changeset-check.yml`  
+**Triggers**: Pull Requests (opened, synchronized, labeled)
+
+Ensures PRs that modify packages include a changeset.
+
+**What It Does**:
+- Checks if PR modifies any files in `packages/`
+- Verifies a changeset file exists (`.changeset/*.md`)
+- Fails the check if changeset is missing
+- Can be skipped with `skip-changeset` or `dependencies` label
+
+**When to Skip**:
+- Documentation-only changes
+- Changes to examples or apps
+- Test-only updates
+- Automated dependency updates (Dependabot)
+
+**How to Pass**:
+1. Run `pnpm changeset` locally
+2. Follow the prompts to create a changeset
+3. Commit the generated `.changeset/*.md` file
+4. OR add `skip-changeset` label if not needed
+
+This workflow helps maintain consistent versioning and comprehensive changelogs.
+
+### 10. Stale Issues & PRs
 
 **File**: `stale.yml`  
 **Triggers**: Daily schedule, Manual workflow dispatch
@@ -185,7 +212,7 @@ Manages stale issues and pull requests.
 - Exempt labels: `pinned`, `security`, `critical`, `bug`, `enhancement`
 - Can be reopened if activity resumes
 
-### 10. Dependabot Auto-merge
+### 11. Dependabot Auto-merge
 
 **File**: `dependabot-auto-merge.yml`  
 **Configuration**: `dependabot.yml`  
@@ -204,7 +231,7 @@ Automatically manages dependency updates.
 - Groups related dependencies
 - Limits to 10 open PRs
 
-### 11. Auto Changelog
+### 12. Auto Changelog
 
 **File**: `changelog.yml`  
 **Triggers**: Release published, Manual workflow dispatch
