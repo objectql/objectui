@@ -98,7 +98,9 @@ export const Home = () => {
               >
                 <CategoryIcon name={category} />
                 {category}
-                <span className="text-xs text-muted-foreground">
+                <span
+                  className={`text-xs ${activeCategory === category ? 'text-primary' : 'text-muted-foreground'}`}
+                >
                   ({exampleCategories[category as keyof typeof exampleCategories].length})
                 </span>
               </button>
