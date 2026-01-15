@@ -2,7 +2,38 @@
 
 ## Introduction
 
-Object UI CLI is a command-line tool that allows you to quickly build and run applications using JSON schema files.
+Object UI CLI is a runtime environment that treats **JSON as Source Code**. 
+
+It allows you to build, run, and deploy complete enterprise applications using **only JSON file structures**, eliminating the need for React component code, boilerplates, or build configurations.
+
+## Project Philosophy: "Just JSON"
+
+A standard Object UI project contains no `.tsx` or `src` folders. It is simply a collection of schema definition files.
+
+### Project Structure Types
+
+#### 1. Single-File App (`app.json`)
+The simplest form. A single JSON file defines the entire application.
+
+```bash
+my-tool/
+└── app.json  # Defines the root Schema
+```
+
+#### 2. Multi-Page Enterprise App (`pages/`)
+For complex applications. The folder structure automatically determines the routing (File-System Routing).
+
+```bash
+my-crm/
+├── pages/
+│   ├── index.json        # Route: /
+│   ├── login.json        # Route: /login
+│   ├── customers/
+│   │   ├── index.json    # Route: /customers
+│   │   └── [id].json     # Route: /customers/:id (Dynamic)
+│   └── settings.json     # Route: /settings
+└── assets/               # Images and static files
+```
 
 ## Installation
 
@@ -10,478 +41,152 @@ Object UI CLI is a command-line tool that allows you to quickly build and run ap
 # Install globally
 npm install -g @object-ui/cli
 
-# Or using pnpm
-pnpm add -g @object-ui/cli
-
-# Or use with npx (no installation required)
-npx @object-ui/cli --help
+# Run without installing
+npx @object-ui/cli serve
 ```
 
-## Quick Start
+## Commands
 
-### 1. Create a New Application
+### `init` - Create Project
+
+Creates a new folder with the standard JSON structure.
 
 ```bash
-# Use default template (dashboard)
-objectui init my-app
-
-# Use specific template
-objectui init my-app --template form
-
-# Create in current directory
-objectui init . --template simple
+objectui init my-app --template dashboard
 ```
 
-**Available Templates:**
-- `dashboard` - Complete dashboard interface (default)
-- `form` - Form example
-- `simple` - Simple starter template
+### `serve` - Development Server
 
-### 2. Start Development Server
+Starts the local development engine. It watches your JSON files and Hot Reloads (HMR) the UI instantly.
 
 ```bash
-# Navigate to app directory
-cd my-app
-
-# Start server
-objectui serve app.json
-
-# Custom port
-objectui serve app.json --port 8080
-
-# Specify host
-objectui serve app.json --host 0.0.0.0
-```
-
-### 3. Edit Schema
-
-Open the `app.json` file and modify the JSON content to see real-time updates in your application.
-
-## Command Reference
-
-### `objectui init [name]`
-
-Create a new Object UI application.
-
-**Arguments:**
-- `[name]` - Application name (optional, default: `my-app`)
-
-**Options:**
-- `-t, --template <template>` - Template to use: `simple`, `form`, or `dashboard` (default: `dashboard`)
-
-**Examples:**
-```bash
-objectui init blog --template dashboard
-objectui init form-app --template form
-objectui init . --template simple
-```
-
-### `objectui serve [schema]`
-
-Start a development server to render your JSON schema.
-
-**Arguments:**
-- `[schema]` - Path to JSON schema file (optional, default: `app.json`)
-
-**Options:**
-- `-p, --port <port>` - Server port (default: `3000`)
-- `-h, --host <host>` - Server host (default: `localhost`)
-
-**Examples:**
-```bash
+# Run the current folder (Auto-detects pages/ or app.json)
 objectui serve
-objectui serve my-schema.json
-objectui serve app.json --port 8080
-objectui serve app.json --host 0.0.0.0 --port 3001
+
+# Run on a specific port
+objectui serve --port 8080
+```
+
+### `build` - Production Build
+
+Compiles your JSON files into a static Single Page Application (SPA) - standard HTML/CSS/JS ready for deployment.
+
+```bash
+objectui build
+# Output: ./dist (Deployable to Vercel, Netlify, or Nginx)
+```
+
+## Routing System
+
+Object UI implements **File-System Routing**. You do not configure a router; you simply create files in the `pages/` directory.
+
+### Static Routes
+
+| File Path | URL Path |
+| :--- | :--- |
+| `pages/index.json` | `/` |
+| `pages/about.json` | `/about` |
+| `pages/dashboard/settings.json` | `/dashboard/settings` |
+
+### Dynamic Routes
+
+Use square brackets `[]` in filenames to define dynamic URL parameters.
+
+| File Path | URL Path | Parameter Access |
+| :--- | :--- | :--- |
+| `pages/users/[id].json` | `/users/123` | `${params.id}` = 123 |
+| `pages/blog/[slug].json` | `/blog/hello-world` | `${params.slug}` = "hello-world" |
+
+### Using Parameters in Schema
+
+You can access route parameters directly in your JSON properties using the expression syntax:
+
+```json
+{
+  "type": "page",
+  "title": "User Profile",
+  "body": {
+    "type": "text",
+    "value": "Currently viewing user ID: ${params.id}"
+  }
+}
 ```
 
 ## Schema Examples
 
-### Simple Example
+### 1. Minimal Application (`app.json`)
 
 ```json
 {
-  "type": "div",
-  "className": "min-h-screen flex items-center justify-center",
-  "body": {
-    "type": "card",
-    "title": "Welcome to Object UI",
-    "body": {
-      "type": "text",
-      "content": "Start building your application!"
-    }
-  }
+  "type": "page",
+  "title": "Hello World",
+  "className": "flex items-center justify-center h-screen",
+  "body": "Welcome to Object UI"
 }
 ```
 
-### Form Example
+### 2. Dashboard Page (`pages/dashboard.json`)
 
 ```json
 {
-  "type": "div",
-  "className": "min-h-screen flex items-center justify-center p-4",
-  "body": {
-    "type": "card",
-    "className": "w-full max-w-md",
-    "title": "Contact Us",
-    "body": {
-      "type": "div",
-      "className": "p-6 space-y-4",
-      "body": [
-        {
-          "type": "input",
-          "label": "Name",
-          "placeholder": "Enter your name"
-        },
-        {
-          "type": "input",
-          "label": "Email",
-          "inputType": "email",
-          "placeholder": "your@email.com"
-        },
-        {
-          "type": "textarea",
-          "label": "Message",
-          "placeholder": "Enter your message"
-        },
-        {
-          "type": "button",
-          "label": "Submit",
-          "className": "w-full"
-        }
-      ]
-    }
-  }
-}
-```
-
-## Adding Routing to Your Application
-
-The CLI supports two approaches for routing: **file-system based routing** (recommended, Next.js-style) and manual React Router setup.
-
-### Approach 1: File-System Based Routing (Recommended) ✅
-
-The CLI automatically detects a `pages/` directory and generates routes based on the folder hierarchy.
-
-#### Directory Structure
-
-Create a `pages/` directory with your schema files:
-
-```
-my-app/
-├── pages/
-│   ├── index.json           → /
-│   ├── about.json           → /about
-│   ├── blog/
-│   │   ├── index.yml        → /blog
-│   │   └── [id].yaml        → /blog/:id
-│   └── users/
-│       └── [userId].json    → /users/:userId
-└── app.layout.json (optional, reserved for future layout support)
-```
-
-**Supported File Extensions:**
-- `.json` - JSON format
-- `.yml` / `.yaml` - YAML format
-
-Use any extension you prefer. YAML files are parsed automatically. The simple extension naming allows for future specialized file types (`.menu.json`, `.layout.json`, etc.).
-
-#### Example Page Schemas
-
-**pages/index.json:**
-```json
-{
-  "type": "div",
-  "className": "p-8",
-  "body": {
-    "type": "card",
-    "title": "Home Page",
-    "body": {
-      "type": "text",
-      "content": "Welcome to the home page!"
-    }
-  }
-}
-```
-
-**pages/about.yml (YAML format):**
-```yaml
-type: div
-className: p-8
-body:
-  type: card
-  title: About Page
-  body:
-    type: text
-    content: Learn more about us!
-```
-
-**pages/about.json:**
-```json
-{
-  "type": "div",
-  "className": "p-8",
-  "body": {
-    "type": "card",
-    "title": "About Page",
-    "body": {
-      "type": "text",
-      "content": "Learn more about us!"
-    }
-  }
-}
-```
-
-**pages/blog/[id].json** (Dynamic route):
-```json
-{
-  "type": "div",
-  "className": "p-8",
-  "body": {
-    "type": "card",
-    "title": "Blog Post",
-    "body": {
-      "type": "text",
-      "content": "Blog post ID: ${params.id}"
-    }
-  }
-}
-```
-
-#### Running with File-System Routing
-
-When you have a `pages/` directory, the CLI automatically detects it and sets up routing:
-
-```bash
-objectui serve
-```
-
-The serve command will:
-1. Detect the `pages/` directory
-2. Automatically install `react-router-dom`
-3. Generate route configuration based on file structure
-4. Set up the application with all routes
-
-You'll see output like:
-```
-📁 Detected pages/ directory - using file-system routing
-✓ Found 5 route(s)
-  / → pages/index.json
-  /about → pages/about.json
-  /blog → pages/blog/index.json
-  /blog/:id → pages/blog/[id].json
-  /users/:userId → pages/users/[userId].schema.json
-```
-
-#### Route Mapping Rules
-
-- `pages/index.json` → `/`
-- `pages/about.json` → `/about`
-- `pages/blog/index.json` → `/blog`
-- `pages/blog/[id].json` → `/blog/:id` (dynamic parameter)
-- `pages/users/[userId]/posts/[postId].schema.json` → `/users/:userId/posts/:postId`
-
-#### Navigation Between Pages
-
-Use link components or buttons with navigation:
-
-```json
-{
-  "type": "div",
-  "className": "flex gap-4",
+  "type": "page",
+  "title": "Analytics Dashboard",
+  "className": "bg-slate-50 p-6 min-h-screen",
   "body": [
     {
-      "type": "button",
-      "label": "Go to About",
-      "onClick": "() => window.location.href='/about'"
-    }
-  ]
-}
-```
-
-**Note:** For now, navigation is done through standard links. Schema-level navigation helpers are planned for a future release.
-
-### Approach 2: Manual React Router Setup
-
-For more control, you can manually set up React Router in the generated application.
-
-#### Step 1: Install React Router
-
-Navigate to your `.objectui-tmp` directory after running `objectui serve`:
-
-```bash
-cd .objectui-tmp
-npm install react-router-dom
-```
-
-#### Step 2: Create Multiple Schema Files
-
-Create separate schema files for each route.
-
-#### Step 3: Modify App.tsx
-
-Update the generated `src/App.tsx` in `.objectui-tmp/src/App.tsx`:
-
-```tsx
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import { SchemaRenderer } from '@object-ui/react';
-import '@object-ui/components';
-import homeSchema from './schemas/home.schema.json';
-import aboutSchema from './schemas/about.schema.json';
-
-function App() {
-  return (
-    <BrowserRouter>
-      <nav className="bg-gray-100 p-4">
-        <Link to="/" className="mr-4">Home</Link>
-        <Link to="/about">About</Link>
-      </nav>
-      
-      <Routes>
-        <Route path="/" element={<SchemaRenderer schema={homeSchema} />} />
-        <Route path="/about" element={<SchemaRenderer schema={aboutSchema} />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
-
-export default App;
-```
-
-### Alternative: Schema-Based Navigation
-
-You can also define navigation in your main schema using button click handlers:
-
-```json
-{
-  "type": "div",
-  "className": "min-h-screen",
-  "body": [
-    {
-      "type": "div",
-      "className": "bg-gray-100 p-4 flex gap-4",
-      "body": [
-        {
-          "type": "button",
-          "label": "Home",
-          "variant": "ghost",
-          "onClick": "navigate('/')"
-        },
-        {
-          "type": "button",
-          "label": "About",
-          "variant": "ghost",
-          "onClick": "navigate('/about')"
-        }
-      ]
+      "type": "header",
+      "title": "Business Overview",
+      "className": "mb-6"
     },
     {
-      "type": "div",
-      "className": "p-8",
-      "body": "<!-- Page content here -->"
+      "type": "grid",
+      "columns": 3,
+      "gap": 4,
+      "children": [
+        {
+          "type": "card",
+          "title": "Revenue",
+          "body": "$12,450"
+        },
+        {
+          "type": "card",
+          "title": "Active Users",
+          "body": "1,234"
+        },
+        {
+          "type": "card",
+          "title": "Growth",
+          "body": "+24%"
+        }
+      ]
     }
   ]
 }
 ```
 
-## Layouts and Nested Routes
+## Navigation
 
-**Note:** Layout support with `app.json` and `_layout.json` is planned for a future release. Currently, all routing is handled at the page level.
-
-## Running Example Projects
-
-The Object UI repository includes ready-to-use examples that demonstrate various UI patterns and features. You can run them directly using the CLI:
-
-### Available Examples
-
-1. **Basic Form** - Contact form with validation
-   ```bash
-   objectui serve examples/basic-form/app.json
-   ```
-
-2. **Dashboard** - Analytics dashboard with metrics and activity feeds
-   ```bash
-   objectui serve examples/dashboard/app.json
-   ```
-
-3. **Data Display** - User profiles, task lists, progress bars, and badges
-   ```bash
-   objectui serve examples/data-display/app.json
-   ```
-
-4. **Landing Page** - Complete marketing page with hero section and CTAs
-   ```bash
-   objectui serve examples/landing-page/app.json
-   ```
-
-5. **CLI Demo** - Bilingual form demonstration
-   ```bash
-   objectui serve examples/cli-demo/app.schema.json
-   ```
-
-### Exploring Examples
-
-Each example includes:
-- `app.json` - The JSON schema definition
-- `README.md` - Detailed documentation and customization guide
-- `.gitignore` - Git ignore configuration
-
-To explore an example:
-
-```bash
-# Clone the repository
-git clone https://github.com/objectql/objectui.git
-cd objectui/examples
-
-# View available examples
-ls -la
-
-# Run an example
-objectui serve basic-form/app.json
-```
-
-Then open http://localhost:3000 in your browser and start editing the `app.json` file to see live updates!
-
-For more details, see the [Examples README](https://github.com/objectql/objectui/tree/main/examples).
-
-## FAQ
-
-### 1. How to customize styles?
-
-Object UI uses Tailwind CSS. You can add Tailwind classes to any component's `className` property:
+To navigate between pages without writing code, use the `navigate` helper in `onClick` events.
 
 ```json
 {
   "type": "button",
-  "label": "Button",
-  "className": "bg-blue-500 hover:bg-blue-600 text-white"
+  "label": "Go to User Settings",
+  "onClick": "navigate('/settings')"
 }
 ```
 
-### 2. How to use data binding?
+## FAQ
 
-Use the `${expression}` syntax:
+### 1. Can I use custom React components?
+In a "Just JSON" project, you are limited to the standard component library provided by Object UI. To use custom React components, you would need to eject to a standard Vite React project structure.
+
+### 2. How do I style components?
+Use standard Tailwind CSS classes in the `className` property. The CLI includes a pre-packaged Tailwind runtime.
 
 ```json
 {
-  "type": "text",
-  "content": "Welcome, ${user.name}!"
+  "type": "button",
+  "className": "bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6"
 }
 ```
-
-### 3. What components are supported?
-
-See the complete component list:
-- [Component Documentation](https://www.objectui.org/docs/api/components)
-- [Protocol Specification](https://www.objectui.org/docs/protocol/overview)
-
-## Learn More
-
-- [Official Website](https://www.objectui.org)
-- [Documentation](https://www.objectui.org/docs)
-- [GitHub Repository](https://github.com/objectql/objectui)
-- [Examples](https://github.com/objectql/objectui/tree/main/examples)
-
-## License
-
-MIT

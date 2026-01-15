@@ -1,0 +1,29 @@
+{
+  "type": "page",
+  "title": "Customer Detail",
+  "className": "p-8 max-w-4xl mx-auto",
+  "body": [
+    {
+      "type": "button",
+      "label": "← Back to List",
+      "variant": "link",
+      "className": "mb-4 pl-0",
+      "onClick": "navigate('/customers')"
+    },
+    {
+      "type": "header",
+      "title": "Customer Profile: ${params.id}",
+      "className": "mb-6 pb-4 border-b"
+    },
+    {
+      "type": "form",
+      "objectApiName": "customers",
+      "recordId": "${params.id}", 
+      "className": "space-y-6",
+      "fields": [
+        { "type": "input", "name": "name", "label": "Company Name", "readOnly": true },
+        { "type": "input", "name": "email", "label": "Contact Email", "readOnly": true }
+      ]
+    }
+  ]
+}

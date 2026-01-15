@@ -1,0 +1,29 @@
+{
+  "type": "page",
+  "title": "CRM Home",
+  "className": "flex h-screen items-center justify-center bg-slate-100",
+  "body": {
+    "type": "card",
+    "className": "w-full max-w-md p-6 text-center shadow-lg",
+    "title": "Welcome to Object CRM",
+    "description": "Select a module to continue",
+    "body": {
+      "type": "div",
+      "className": "grid grid-cols-2 gap-4 mt-6",
+      "body": [
+        {
+          "type": "button",
+          "label": "View Customers",
+          "className": "h-24 flex-col gap-2 bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200",
+          "onClick": "navigate('/customers')"
+        },
+        {
+          "type": "button",
+          "label": "System Settings",
+          "className": "h-24 flex-col gap-2 bg-slate-50 text-slate-700 hover:bg-slate-100 border-slate-200",
+          "onClick": "navigate('/settings')"
+        }
+      ]
+    }
+  }
+}
