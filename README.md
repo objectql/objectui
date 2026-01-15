@@ -129,7 +129,7 @@ Your app will be running at http://localhost:3000! 🎉
 
 Just edit `app.schema.json` to build your UI - no React code needed.
 
-[📖 CLI Documentation](./docs/CLI_GUIDE.md) | [🇨🇳 中文文档](./docs/CLI_GUIDE.md#chinese)
+[📖 CLI Documentation](./docs/CLI_GUIDE.md)
 
 ### Option 2: Using as a Library
 
