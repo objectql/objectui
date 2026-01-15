@@ -3,7 +3,8 @@ import { defineConfig } from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Object UI",
-  description: "The Modular Interface Engine for the Enterprise",
+  // Updated to match System Prompt identity
+  description: "A Universal, Schema-Driven UI Engine built on React, Tailwind, and Shadcn UI.",
   base: '/',
   ignoreDeadLinks: true,
   
@@ -12,19 +13,17 @@ export default defineConfig({
     logo: '/logo.svg',
     
     nav: [
-      { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/introduction' },
+      { text: 'Components', link: '/components/form' },
       { 
-        text: 'Documentation',
+        text: 'Reference',
         items: [
-          { text: '📚 Documentation Index', link: '/DOCUMENTATION_INDEX' },
-          { text: 'Protocol Specs', link: '/protocol/overview' },
+          { text: 'Protocol Specs (@object-ui/types)', link: '/protocol/overview' },
           { text: 'API Reference', link: '/api/core' },
-          { text: 'Technical Specs', link: '/spec/architecture' },
-          { text: 'Components', link: '/components/form' }
+          { text: 'Architecture', link: '/spec/architecture' }
         ]
       },
-      { text: 'Roadmap', link: '/ROADMAP' }
+      { text: 'GitHub', link: 'https://github.com/objectql/objectui' }
     ],
 
     sidebar: {
@@ -42,14 +41,14 @@ export default defineConfig({
           text: 'Core Concepts',
           items: [
             { text: 'Schema Rendering', link: '/guide/schema-rendering' },
-            { text: 'Components', link: '/guide/components' },
             { text: 'Component Registry', link: '/guide/component-registry' },
-            { text: 'Plugins', link: '/guide/plugins' },
-            { text: 'Expression System', link: '/guide/expressions' }
+            { text: 'Data Connectivity', link: '/guide/data-source' },
+            { text: 'Plugin System', link: '/guide/plugins' },
+            { text: 'Expression Engine', link: '/guide/expressions' }
           ]
         },
         {
-          text: 'Architecture',
+          text: 'Architecture & Performance',
           items: [
             { text: 'Architecture Overview', link: '/spec/architecture' },
             { text: 'Project Structure', link: '/spec/project-structure' },
@@ -63,7 +62,7 @@ export default defineConfig({
           text: 'Protocol Specifications',
           items: [
             { text: 'Overview', link: '/protocol/overview' },
-            { text: '📊 Implementation Status', link: '/protocol/implementation-status' }
+            { text: 'Implementation Status', link: '/protocol/implementation-status' }
           ]
         },
         {
@@ -101,10 +100,15 @@ export default defineConfig({
         {
           text: 'Technical Specifications',
           items: [
-            { text: 'Architecture', link: '/spec/architecture' },
+            { text: 'Architecture Overview', link: '/spec/architecture' },
             { text: 'Project Structure', link: '/spec/project-structure' },
-            { text: 'Schema Rendering', link: '/spec/schema-rendering' },
-            { text: 'Component System', link: '/spec/component' },
+            { text: 'Schema Rendering Flow', link: '/spec/schema-rendering' },
+            { text: 'Component System', link: '/spec/component' }
+          ]
+        },
+        {
+          text: 'Component Implementation',
+          items: [
             { text: 'Base Components', link: '/spec/base-components' },
             { text: 'Component Library', link: '/spec/component-library' },
             { text: 'Component Packages', link: '/spec/component-package' }
@@ -126,10 +130,10 @@ export default defineConfig({
         {
           text: 'Official Plugins',
           items: [
-            { text: 'Plugin Editor', link: '/plugins/plugin-editor' },
-            { text: 'Plugin Charts', link: '/plugins/plugin-charts' },
-            { text: 'Plugin Kanban', link: '/plugins/plugin-kanban' },
-            { text: 'Plugin Markdown', link: '/plugins/plugin-markdown' }
+            { text: 'Plugin: Editor', link: '/plugins/plugin-editor' },
+            { text: 'Plugin: Charts', link: '/plugins/plugin-charts' },
+            { text: 'Plugin: Kanban', link: '/plugins/plugin-kanban' },
+            { text: 'Plugin: Markdown', link: '/plugins/plugin-markdown' }
           ]
         }
       ]

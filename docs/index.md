@@ -2,130 +2,60 @@
 layout: home
 
 hero:
-  name: "Object UI"
-  text: "The Modular Interface Engine"
-  tagline: From JSON to world-class UI in minutes
-  image:
-    src: /logo.svg
-    alt: Object UI
+  name: Object UI
+  text: The Universal UI Engine
+  tagline: Build Enterprise Interfaces with JSON. Render with React, Style with Tailwind.
   actions:
     - theme: brand
-      text: Get Started
+      text: Quick Start
       link: /guide/introduction
     - theme: alt
-      text: GitHub
-      link: https://github.com/objectql/objectui
+      text: Architecture
+      link: /spec/architecture
 
 features:
-  - icon: ⚡
-    title: Blazing Fast
-    details: Built on React 18+ with automatic optimizations. 3x faster page loads and 6x smaller bundles than traditional low-code platforms.
-  
-  - icon: 🎨
-    title: Beautiful by Default
-    details: Professional designs out of the box with Tailwind CSS and Shadcn/UI. Light/dark themes and full customization support.
-  
-  - icon: �️
-    title: Visual Designer
-    details: Drag-and-drop editor to build UIs visually. Real-time preview, property panels, and instant JSON export.
-  
-  - icon: 🚀
-    title: Schema Driven
-    details: Define your UI in JSON. No deep expertise in React, design systems, or CSS required.
-  
-  - icon: 🤖
-    title: AI Powered
-    details: Natural language to UI generation. Describe what you want and let AI create the schema.
-  
-  - icon: 🌍
-    title: Cross Platform
-    details: One schema works everywhere - web, mobile, desktop. Build once, run anywhere.
+  - title: 🎨 Tailwind Native
+    details: Fully stylable using standard Utility Classes. No hidden styles or CSS modules. Merge styles via `className`.
+  - title: 🔌 Backend Agnostic
+    details: Connect to Rest, GraphQL, or Local Data. Universal `DataSource` interface allows usage with any API.
+  - title: 🧱 Shadcn Compatible
+    details: Built on Radix UI primitives. The rendered output looks and feels like hand-coded Shadcn components.
+  - title: ⚡️ Lazy Loaded Plugins
+    details: Heavy components (Monaco, Recharts) are loaded only when rendered, keeping your bundle ultra-light.
 ---
 
-## Quick Example
+# The Shift to Schema-Driven UI
+
+Object UI decouples the **Protocol** (JSON Schema) from the **Implementation** (React Components), allowing you to build complex enterprise apps faster without sacrificing control.
+
+## How it works
+
+### 1. Define Protocol (JSON)
+You define the *what*, not the *how*. Standard Tailwind classes apply directly.
 
 ```json
 {
   "type": "form",
-  "title": "Contact Us",
-  "body": [
+  "className": "space-y-4 border p-4 rounded-lg", 
+  "fields": [
     {
       "type": "input",
       "name": "email",
-      "label": "Your Email",
-      "required": true
-    },
-    {
-      "type": "textarea",
-      "name": "message",
-      "label": "Message"
-    }
-  ],
-  "actions": [
-    {
-      "type": "submit",
-      "label": "Send Message",
-      "level": "primary"
+      "label": "Email Address",
+      "className": "bg-slate-50" 
     }
   ]
 }
 ```
 
-That's it! This JSON automatically creates a beautiful, accessible, and functional contact form.
+### 2. Render Component (React)
+The engine transforms generic JSON into polished **Shadcn UI** components.
 
-## 🎨 Visual Designer
-
-<div class="tip custom-block" style="border-color: #6366f1;">
-  <p class="custom-block-title" style="color: #6366f1;">✨ Object UI Designer</p>
-  <p>Object UI includes a visual designer package that allows you to build UIs with a drag-and-drop interface, live preview, and instant JSON export. Perfect for prototyping and learning!</p>
-  <p style="margin-top: 12px;">See the <code>@object-ui/designer</code> package for more information.</p>
+```tsx
+<div className="space-y-4 border p-4 rounded-lg">
+  <div className="flex flex-col gap-2 bg-slate-50">
+    <Label>Email Address</Label>
+    <Input name="email" />
+  </div>
 </div>
-
-## Why Object UI?
-
-<div class="tip custom-block">
-  <p><strong>From JSON to World-Class UI</strong></p>
-  <p>Building beautiful, performant, and accessible interfaces shouldn't require deep expertise in design systems, state management, or CSS. With Object UI, you describe what you want in JSON, and we handle the rest.</p>
-</div>
-
-### Built for Speed
-
-- **3x faster** first contentful paint
-- **6x smaller** bundle sizes  
-- **Zero runtime** CSS overhead
-
-### Modern Stack
-
-- React 18+ with concurrent features
-- Tailwind CSS for styling
-- Shadcn/UI components
-- TypeScript strict mode
-
-### Production Ready
-
-- WCAG 2.1 AA accessible
-- 85%+ test coverage
-- Enterprise security
-- 99.9% uptime
-
-## Getting Started
-
-<div class="info custom-block">
-  <p>Object UI is currently in preview. The Q1 2026 release will be production-ready.</p>
-</div>
-
-```bash
-# Install the packages
-npm install @object-ui/react @object-ui/components
-
-# Start building
-import { SchemaRenderer } from '@object-ui/react'
 ```
-
-[Read the full guide →](/guide/introduction)
-
-## Community
-
-- ⭐ [Star on GitHub](https://github.com/objectql/objectui)
-- 📧 [Email us](mailto:hello@objectui.org)
-- 🐛 [Report issues](https://github.com/objectql/objectui/issues)

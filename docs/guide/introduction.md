@@ -1,6 +1,41 @@
 # Introduction
 
-Welcome to Object UI! This guide will help you understand what Object UI is, why it exists, and how it can help you build better interfaces faster.
+Object UI is a **Universal, Schema-Driven UI Engine** designed for modern enterprise applications.
+
+Unlike other low-code renderers (Amis, Formily), Object UI is built specifically for the **React + Tailwind + Shadcn** ecosystem.
+
+## Core Philosophy
+
+### 1. Protocol Agnostic (The Universal Adapter)
+We do not assume you are using any specific backend. 
+*   **The Input:** Pure JSON Schema (`@object-ui/types`).
+*   **The Data:** Abstract `DataSource` interface.
+*   **The Output:** Standard React Components.
+
+### 2. Separation of Concerns (The 5-Layer Model)
+
+Our monorepo structure ensures strict decoupling:
+
+| Layer | Package | Description |
+| :--- | :--- | :--- |
+| **1. Protocol** | `@object-ui/types` | **Pure JSON Types.** No logic. Zero dependencies. Defines `interface InputSchema`. |
+| **2. Engine** | `@object-ui/core` | **Logic Kernel.** State management, Validation, Registry, and Events. |
+| **3. Framework** | `@object-ui/react` | **React Bridge.** Hooks like `useRenderer` and Context Providers. |
+| **4. Components** | `@object-ui/components` | **Visual Layer.** Impementations using Shadcn UI & Tailwind. |
+| **5. Adapters** | `@object-ui/data-*` | **Connectivity.** Connectors for REST, GraphQL, etc. |
+
+### 3. Tailwind First
+We believe "Low Code" shouldn't mean "Ugly Code" or "Hard to Style". 
+Every component in the schema accepts a standard `className` prop, which is merged using `cn()` (tailwind-merge). You have full control over margins, padding, colors, and layouts directly from the JSON.
+
+## Comparison
+
+| Feature | Object UI | Amis | Formily |
+| :--- | :--- | :--- | :--- |
+| **Tech Stack** | React + Tailwind | React + Custom CSS | React + Reactive |
+| **Styling** | Utility Classes | CSS Classes / Themes | CSS Modules |
+| **Bundle Size** | Light (Modular) | Heavy (All-in-one) | Medium |
+| **Data Source** | Universal Interface | Built-in Fetcher | Observable State |
 
 ## What is Object UI?
 

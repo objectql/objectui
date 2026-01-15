@@ -1,16 +1,19 @@
 # Lazy-Loaded Plugins Architecture
 
-This document explains how Object UI implements lazy-loaded plugins to optimize bundle size.
+This document details the architecture for lazy-loading heavy components (like code editors or charts) in Object UI to optimize the application bundle size.
 
 ## Overview
 
-Object UI supports heavy components (like Monaco Editor and Recharts) as separate plugin packages that are lazy-loaded on demand. This keeps the main application bundle small while still providing powerful functionality.
+Object UI encapsulates heavy dependencies into separate plugin packages. The architecture ensures that these dependencies are only downloaded by the browser when the specific component is actually rendered on the screen.
 
-## Architecture
+## Architecture Evolution
 
-### Traditional Approach (Bad ❌)
+### 1. Traditional Approach (Bad ❌)
+
+Directly importing heavy libraries causes them to be included in the main bundle, slowing down the initial load for all users, even those who never use the component.
+
 ```typescript
-// This loads Monaco Editor immediately, even if never used
+// The heavy library is bundled immediately
 import Editor from '@monaco-editor/react';
 
 function CodeEditor() {
@@ -18,9 +21,12 @@ function CodeEditor() {
 }
 ```
 
-### Lazy Loading - Host App Responsibility (Not Ideal ⚠️)
+### 2. Host-Side Lazy Loading (Not Ideal ⚠️)
+
+Forcing the application developer to handle lazy loading leaks implementation details and creates repetitive boilerplate code.
+
 ```typescript
-// Forces every app to implement lazy loading
+// Forces every consumer to implement Suspense logic manually
 const CodeEditor = React.lazy(() => import('./CodeEditor'));
 
 function App() {
@@ -32,24 +38,32 @@ function App() {
 }
 ```
 
-### Internal Lazy Loading (Best ✅)
+### 3. Internal Lazy Loading (Best ✅)
+
+The plugin package handles lazy loading internally. Consumers import it normally, but the browser only fetches the heavy code when needed.
+
 ```typescript
-// The plugin handles lazy loading internally
+// Import the plugin to register it
 import '@object-ui/plugin-editor';
 
-// Monaco is NOT loaded yet
-// It only loads when a code-editor component is rendered
+// The heavy specific code is NOT loaded yet.
+// It will be fetched automatically ONLY when this schema is rendered:
 const schema = { type: 'code-editor', value: '...' };
 ```
 
 ## Implementation Pattern
 
-Each plugin package follows this structure:
+Every plugin package follows a strict separation of concerns to ensure code splitting works correctly.
 
 ### 1. Heavy Implementation File (`XxxImpl.tsx`)
+
+This file contains the actual heavy dependencies.
+
 ```typescript
 // packages/plugin-editor/src/MonacoImpl.tsx
-import Editor from '@monaco-editor/react'; // Heavy import
+// 🔴 Heavy dependencies are isolated here. 
+// This file becomes a separate chunk during build.
+import Editor from '@monaco-editor/react'; 
 
 export default function MonacoImpl(props) {
   return <Editor {...props} />;
@@ -57,12 +71,16 @@ export default function MonacoImpl(props) {
 ```
 
 ### 2. Lazy Wrapper (`index.tsx`)
+
+The entry point uses `React.lazy` and `Suspense` to wrap the implementation. This is the only file that gets included in the initial bundle.
+
 ```typescript
 // packages/plugin-editor/src/index.tsx
 import React, { Suspense } from 'react';
+import { ComponentRegistry } from '@object-ui/core'; 
 import { Skeleton } from '@object-ui/components';
 
-// Lazy load the implementation
+// 🟢 Lazy load the implementation file
 const LazyMonacoEditor = React.lazy(() => import('./MonacoImpl'));
 
 export const CodeEditorRenderer = (props) => (
@@ -71,41 +89,40 @@ export const CodeEditorRenderer = (props) => (
   </Suspense>
 );
 
-// Auto-register with ComponentRegistry
+// Register directly with the core engine
 ComponentRegistry.register('code-editor', CodeEditorRenderer);
 
-// Export for manual integration
+// Export for manual integration if needed
 export const editorComponents = {
   'code-editor': CodeEditorRenderer
 };
 ```
 
 ### 3. Type Definitions (`types.ts`)
+
+Types are owned by the plugin to maintain decoupling.
+
 ```typescript
 // packages/plugin-editor/src/types.ts
 import type { BaseSchema } from '@object-ui/types';
 
 /**
  * Code Editor component schema.
- * These types are self-contained within the plugin package.
+ * Defined locally to avoid polluting the core package.
  */
 export interface CodeEditorSchema extends BaseSchema {
   type: 'code-editor';
   value?: string;
   language?: string;
   theme?: 'vs-dark' | 'light';
-  height?: string;
-  readOnly?: boolean;
-  onChange?: (value: string | undefined) => void;
+  // ... specific props
 }
 ```
 
-**Key Points:**
-- Plugin types are defined in the plugin package, not in `@object-ui/types`
-- This allows third-party developers to create plugins without modifying core packages
-- Types are exported from the plugin's main entry point for consumers to use
-
 ### 4. Build Configuration (`vite.config.ts`)
+
+Configure Rollup/Vite to correctly bundle the library while externalizing core dependencies.
+
 ```typescript
 export default defineConfig({
   build: {
@@ -114,189 +131,50 @@ export default defineConfig({
       name: 'ObjectUIPluginEditor',
     },
     rollupOptions: {
-      // Externalize dependencies
+      // Ensure core libraries and React are not bundled into the plugin
       external: ['react', 'react-dom', '@object-ui/components', '@object-ui/core'],
     },
   },
 });
 ```
 
-## Type System Design
+## Type System Strategy
 
 ### Plugin-Owned Types (✅ Recommended)
 
-Each plugin package owns its type definitions:
+Each plugin package is responsible for exporting its own interfaces. This allows plugins to evolve independently of the core framework.
 
 ```typescript
-// In @object-ui/plugin-editor
-export interface CodeEditorSchema extends BaseSchema {
-  type: 'code-editor';
-  // ... plugin-specific properties
-}
-```
-
-**Benefits:**
-- **Decoupling**: Third-party developers don't need to modify core packages
-- **Independent Versioning**: Plugins can evolve their schemas independently
-- **Self-Contained**: Each plugin is a complete, standalone package
-
-**Usage:**
-```typescript
-// Application code
 import type { CodeEditorSchema } from '@object-ui/plugin-editor';
-import type { BarChartSchema } from '@object-ui/plugin-charts';
-
-const editor: CodeEditorSchema = { type: 'code-editor', value: '...' };
-const chart: BarChartSchema = { type: 'chart-bar', data: [...] };
 ```
 
-### Platform-Owned Types (❌ Not Recommended for Plugins)
+### Platform-Owned Types (❌ Avoid)
 
-Defining plugin types in `@object-ui/types` creates tight coupling:
-
-```typescript
-// In @object-ui/types (DON'T DO THIS for plugins)
-export interface CodeEditorSchema extends BaseSchema {
-  type: 'code-editor';
-  // ...
-}
-```
-
-**Problems:**
-- Third-party developers must submit PRs to core package
-- Creates version coupling between plugins and platform
-- Violates the plugin architecture principle
+Defining plugin types in `@object-ui/types` creates tight coupling and forces core updates for every plugin change.
 
 ## Bundle Analysis
 
-### Plugin-Editor Build Output
-```
-dist/index.js                 0.19 kB │ gzip:   0.15 kB
-dist/MonacoImpl-DCiwKyYW.js  19.42 kB │ gzip:   5.89 kB
-dist/index-CpP31686.js       22.42 kB │ gzip:   6.74 kB
-dist/index.umd.cjs           30.37 kB │ gzip:  10.88 kB
-```
+The build output demonstrates the separation:
 
-### Plugin-Charts Build Output
-```
-dist/index.js                 0.19 kB │ gzip:   0.15 kB
-dist/index-JeMjZMU4.js       22.38 kB │ gzip:   6.69 kB
-dist/ChartImpl-BJBP1UnW.js  541.17 kB │ gzip: 136.04 kB
-dist/index.umd.cjs          393.20 kB │ gzip: 118.97 kB
-```
+*   **`dist/index.js`**: Lightweight wrapper (~1-2kb).
+*   **`dist/MonacoImpl-xxxx.js`**: Heavy chunk (only loaded on demand).
 
-### Application Build Output
-When an application imports both plugins, the chunks are preserved:
-```
-dist/assets/MonacoImpl-DCiwKyYW-D65z0X-D.js     15.26 kB │ gzip:   5.25 kB
-dist/assets/ChartImpl-BJBP1UnW-DO38vX_d.js     348.10 kB │ gzip: 104.54 kB
-dist/assets/index-CyDHUpwF.js                2,212.33 kB │ gzip: 561.16 kB
-```
+When an application uses the plugin, Vite's bundler respects this split, preserving the heavy chunk as a separate file in the final `dist/assets` folder.
 
-Notice that:
-- `MonacoImpl` and `ChartImpl` are separate chunks
-- They are NOT included in the main `index.js` bundle
-- They will only be fetched when the components are rendered
+## Creating a New Plugin
 
-## Creating New Lazy-Loaded Plugins
-
-1. **Create the package structure**:
-```bash
-mkdir -p packages/plugin-yourfeature/src
-```
-
-2. **Create the heavy implementation** (`HeavyImpl.tsx`):
-```typescript
-import HeavyLibrary from 'heavy-library';
-
-export default function HeavyImpl(props) {
-  return <HeavyLibrary {...props} />;
-}
-```
-
-3. **Create the lazy wrapper** (`index.tsx`):
-```typescript
-import React, { Suspense } from 'react';
-import { ComponentRegistry } from '@object-ui/core';
-import { Skeleton } from '@object-ui/components';
-
-const LazyComponent = React.lazy(() => import('./HeavyImpl'));
-
-export const YourRenderer = (props) => (
-  <Suspense fallback={<Skeleton />}>
-    <LazyComponent {...props} />
-  </Suspense>
-);
-
-ComponentRegistry.register('your-component', YourRenderer);
-
-export const yourComponents = {
-  'your-component': YourRenderer
-};
-```
-
-4. **Configure build** (`vite.config.ts`):
-```typescript
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-
-export default defineConfig({
-  plugins: [react()],
-  build: {
-    lib: {
-      entry: resolve(__dirname, 'src/index.tsx'),
-      name: 'ObjectUIPluginYourFeature',
-    },
-    rollupOptions: {
-      external: ['react', 'react-dom', '@object-ui/components', '@object-ui/core'],
-    },
-  },
-});
-```
-
-5. **Use in the app**:
-```typescript
-// app/src/App.tsx
-import '@object-ui/plugin-yourfeature';
-
-// Now use it in schemas
-const schema = { type: 'your-component', ... };
-```
-
-## Benefits
-
-1. **Smaller Initial Bundle**: Heavy libraries are not included in the main bundle
-2. **Faster Page Loads**: Initial page load only includes essential code
-3. **Better UX**: Components show loading skeletons while chunks download
-4. **Zero Configuration for Users**: The plugin handles all lazy loading internally
-5. **Automatic Code Splitting**: Vite automatically splits the code at build time
+1.  **Structure**: Create `packages/plugin-yourfeature`.
+2.  **Isolate**: Put heavy code in a default exported file (e.g., `HeavyImpl.tsx`).
+3.  **Wrap**: Create a wrapper in `index.tsx` using `React.lazy(() => import('./HeavyImpl'))`.
+4.  **Register**: Call `ComponentRegistry.register` in the wrapper.
+5.  **Build**: Set up `vite.config.ts` to externalize `@object-ui/core` and `@object-ui/components`.
 
 ## Verification
 
-You can verify lazy loading works by:
+To verify lazy loading works in your application:
 
-1. **Build an application that uses the plugins**:
-```bash
-cd examples/prototype  # or any app that uses the plugins
-pnpm build
-ls -lh dist/assets/ | grep -E "(Monaco|Chart)"
-```
-
-2. **Check for separate chunks**:
-```
-MonacoImpl-xxx.js  (~15-20 KB)
-ChartImpl-xxx.js   (~350-540 KB)
-```
-
-3. **Test in browser**:
-- Open DevTools → Network tab
-- Load a page WITHOUT the plugin components
-- The Monaco/Chart chunks should NOT be loaded
-- Navigate to a page WITH the plugin components
-- The chunks should NOW be loaded
-
-## References
-
-- React.lazy() documentation: https://react.dev/reference/react/lazy
-- Vite code splitting: https://vitejs.dev/guide/features.html#code-splitting
-- Rollup chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+1.  Run `pnpm build` in your app.
+2.  Inspect `dist/assets`. You should see separate files for the plugin implementations (e.g., `MonacoImpl-....js`).
+3.  Open the app in a browser with the **Network** tab open.
+4.  Navigate to a page *without* the plugin component. The heavy chunk should **not** load.
+5.  Navigate to a page *with* the component. The heavy chunk should load immediately.
