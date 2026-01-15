@@ -34,6 +34,13 @@ jobs:
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Configure Git merge driver for pnpm-lock.yaml
+        run: |
+          # Configure custom merge driver for pnpm-lock.yaml
+          # This allows Git to automatically resolve lockfile conflicts by regenerating it
+          git config merge.pnpm-merge.name "pnpm-lock.yaml merge driver"
+          git config merge.pnpm-merge.driver "pnpm install --no-frozen-lockfile"
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
