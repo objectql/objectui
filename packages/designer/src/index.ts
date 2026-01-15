@@ -9,6 +9,7 @@ export { GeneralDesigner, GeneralDesignerContent } from './components/GeneralDes
 // Context and Hooks
 export { DesignerProvider, useDesigner } from './context/DesignerContext';
 export type { DesignerContextValue, ViewportMode, ResizingState } from './context/DesignerContext';
+export { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 
 // Designer Mode Types
 export type { DesignerMode, DesignerConfig, FormDesignerConfig, LayoutDesignerConfig } from './types/designer-modes';

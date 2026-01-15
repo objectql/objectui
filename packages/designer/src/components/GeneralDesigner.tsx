@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { DesignerProvider } from '../context/DesignerContext';
 import { LeftSidebar } from './LeftSidebar';
 import { Canvas } from './Canvas';
 import { PropertyPanel } from './PropertyPanel';
 import { useDesigner } from '../context/DesignerContext';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import type { SchemaNode } from '@object-ui/core';
 
 interface GeneralDesignerProps {
@@ -26,59 +27,19 @@ export const GeneralDesignerContent: React.FC = () => {
     canRedo
   } = useDesigner();
   
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Check if we're in an editable element
-      const target = e.target as HTMLElement;
-      const isEditing = 
-        target.tagName === 'INPUT' || 
-        target.tagName === 'TEXTAREA' || 
-        target.tagName === 'SELECT' ||
-        target.isContentEditable;
-
-      // Undo: Ctrl+Z / Cmd+Z
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey && canUndo) {
-        e.preventDefault();
-        undo();
-      }
-      // Redo: Ctrl+Y / Cmd+Shift+Z
-      else if (((e.ctrlKey || e.metaKey) && e.key === 'y') || ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'z')) {
-        if (canRedo) {
-          e.preventDefault();
-          redo();
-        }
-      }
-      // Copy: Ctrl+C / Cmd+C (only when not editing)
-      else if ((e.ctrlKey || e.metaKey) && e.key === 'c' && !isEditing && selectedNodeId) {
-        e.preventDefault();
-        copyNode(selectedNodeId);
-      }
-      // Cut: Ctrl+X / Cmd+X (only when not editing)
-      else if ((e.ctrlKey || e.metaKey) && e.key === 'x' && !isEditing && selectedNodeId) {
-        e.preventDefault();
-        cutNode(selectedNodeId);
-      }
-      // Paste: Ctrl+V / Cmd+V (only when not editing)
-      else if ((e.ctrlKey || e.metaKey) && e.key === 'v' && !isEditing) {
-        e.preventDefault();
-        pasteNode(selectedNodeId);
-      }
-      // Duplicate: Ctrl+D / Cmd+D (only when not editing)
-      else if ((e.ctrlKey || e.metaKey) && e.key === 'd' && !isEditing && selectedNodeId) {
-        e.preventDefault();
-        duplicateNode(selectedNodeId);
-      }
-      // Delete: Delete / Backspace (only when not editing)
-      else if ((e.key === 'Delete' || e.key === 'Backspace') && !isEditing && selectedNodeId) {
-        e.preventDefault();
-        removeNode(selectedNodeId);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, copyNode, cutNode, duplicateNode, pasteNode, removeNode, selectedNodeId, canUndo, canRedo]);
+  // Use shared keyboard shortcuts hook
+  useKeyboardShortcuts({
+    undo,
+    redo,
+    copyNode,
+    cutNode,
+    duplicateNode,
+    pasteNode,
+    removeNode,
+    selectedNodeId,
+    canUndo,
+    canRedo,
+  });
 
   return (
     <div className="h-full flex flex-col bg-white text-gray-900 font-sans">
