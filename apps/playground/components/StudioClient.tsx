@@ -1,5 +1,12 @@
 'use client';
 
+// Import components registry and plugins
+import '@object-ui/components';
+import '@object-ui/plugin-editor';
+import '@object-ui/plugin-charts';
+import '@object-ui/plugin-markdown';
+import '@object-ui/plugin-kanban';
+
 import { useState, useEffect, Component, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { SchemaRenderer } from '@object-ui/react';
@@ -21,7 +28,6 @@ import {
     Share2
 } from 'lucide-react';
 import { toast } from 'sonner';
-import '@object-ui/components';
 import { examples, ExampleKey } from '@/lib/data/examples';
 import { designStorage } from '@/lib/designStorage';
 

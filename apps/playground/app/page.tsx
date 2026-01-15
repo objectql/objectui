@@ -106,21 +106,27 @@ export default function Home() {
 
         {/* Example Gallery */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {exampleCategories[activeCategory as keyof typeof exampleCategories]?.map((example) => (
-            <button
-              key={example.id}
-              onClick={() => router.push(`/studio/${example.id}`)}
-              className="group bg-card hover:bg-muted/50 border border-border rounded-lg p-4 text-left transition-all hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="font-semibold text-base group-hover:text-primary transition-colors">
-                  {example.title}
-                </h3>
-                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-              </div>
-              <p className="text-sm text-muted-foreground line-clamp-2">{example.description}</p>
-            </button>
-          ))}
+          {exampleCategories[activeCategory as keyof typeof exampleCategories]?.map((key) => {
+            const title = key.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            
+            return (
+              <button
+                key={key}
+                onClick={() => router.push(`/studio/${key}`)}
+                className="group bg-card hover:bg-muted/50 border border-border rounded-lg p-4 text-left transition-all hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="font-semibold text-base group-hover:text-primary transition-colors">
+                    {title}
+                  </h3>
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                </div>
+                <p className="text-sm text-muted-foreground line-clamp-2">
+                  Explore {title.toLowerCase()} example
+                </p>
+              </button>
+            );
+          })}
         </div>
       </main>
     </div>
