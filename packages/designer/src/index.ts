@@ -1,13 +1,24 @@
 // Main Designer Component
 export { Designer, DesignerContent } from './components/Designer';
 
+// Specialized Designers
+export { FormDesigner } from './components/FormDesigner';
+export { LayoutDesigner } from './components/LayoutDesigner';
+export { CanvasDesigner } from './components/CanvasDesigner';
+export { GeneralDesigner, GeneralDesignerContent } from './components/GeneralDesigner';
+
 // Context and Hooks
 export { DesignerProvider, useDesigner } from './context/DesignerContext';
 export type { DesignerContextValue, ViewportMode, ResizingState } from './context/DesignerContext';
+export { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+
+// Designer Mode Types
+export type { DesignerMode, DesignerConfig, FormDesignerConfig, LayoutDesignerConfig, CanvasDesignerConfig } from './types/designer-modes';
 
 // Individual Components (for custom layouts)
 export { Canvas } from './components/Canvas';
 export { ComponentPalette } from './components/ComponentPalette';
+export { FilteredComponentPalette } from './components/FilteredComponentPalette';
 export { PropertyPanel } from './components/PropertyPanel';
 export { Toolbar } from './components/Toolbar';
 export { ComponentTree } from './components/ComponentTree';

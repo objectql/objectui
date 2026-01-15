@@ -1,6 +1,24 @@
 # @object-ui/designer
 
-A professional drag-and-drop visual editor to generate Object UI schemas with advanced features including **component resizing**.
+A professional drag-and-drop visual editor to generate Object UI schemas with advanced features including **component resizing** and **specialized designer modes**.
+
+## 🎯 Specialized Designer Modes
+
+The designer now supports three specialized modes optimized for different use cases:
+
+- **Form Designer** (`mode="form"`): Optimized for building forms with field validation and layouts
+- **Layout Designer** (`mode="layout"`): Optimized for designing page structures and layouts
+- **General Designer** (`mode="general"` or default): Full-featured designer with all components
+
+See [SPECIALIZED_DESIGNERS.md](./SPECIALIZED_DESIGNERS.md) for detailed information about each mode.
+
+### Quick Mode Comparison
+
+| Mode | Best For | Component Count | Complexity |
+|------|----------|----------------|------------|
+| Form | Contact forms, data entry | ~15 | Low |
+| Layout | Page structures, dashboards | ~15 | Medium |
+| General | Everything | 30+ | High |
 
 ## Features
 
@@ -68,7 +86,7 @@ pnpm add @object-ui/designer @object-ui/react @object-ui/components
 
 ## Usage
 
-### Basic Example
+### Basic Example (General Designer)
 
 ```tsx
 import { Designer } from '@object-ui/designer';
@@ -88,6 +106,37 @@ function App() {
       onSchemaChange={setSchema}
     />
   );
+}
+```
+
+### Using Specialized Designer Modes
+
+```tsx
+import { Designer } from '@object-ui/designer';
+
+// Form Designer - for building forms
+function FormBuilderApp() {
+  return <Designer mode="form" />;
+}
+
+// Layout Designer - for page layouts
+function LayoutBuilderApp() {
+  return <Designer mode="layout" />;
+}
+
+// General Designer - for everything (default)
+function GeneralBuilderApp() {
+  return <Designer mode="general" />;
+}
+```
+
+Or use dedicated components:
+
+```tsx
+import { FormDesigner, LayoutDesigner, GeneralDesigner } from '@object-ui/designer';
+
+function App() {
+  return <FormDesigner />;  // or <LayoutDesigner /> or <GeneralDesigner />
 }
 ```
 
