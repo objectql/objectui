@@ -494,60 +494,131 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 
       const layoutCode = `
 import { Link, useLocation } from 'react-router-dom';
-import { cn } from '@object-ui/components'; 
+import * as LucideIcons from 'lucide-react';
+import { 
+  cn,
+  SidebarProvider,
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarRail,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
+  SidebarInset,
+  SidebarTrigger,
+  Separator,
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent
+} from '@object-ui/components'; 
+
+const DynamicIcon = ({ name, className }) => {
+  // @ts-ignore
+  const Icon = LucideIcons[name];
+  if (!Icon) return null;
+  return <Icon className={className} />;
+};
 
 const AppLayout = ({ app, children }) => {
   const location = useLocation();
   const menu = app.menu || [];
-
+  
   return (
-    <div className="flex h-screen bg-background">
-      {/* Sidebar */}
-      <aside className="w-64 border-r bg-muted/30 flex flex-col">
-        <div className="h-14 flex items-center px-6 font-bold border-b">
-          {app.title || 'App'}
-        </div>
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          {menu.map((item, idx) => (
-            <div key={idx}>
-              {item.path ? (
-                <Link 
-                  to={item.path} 
-                  className={cn(
-                    "flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-muted hover:text-foreground transition-colors",
-                    location.pathname === item.path ? "bg-primary text-primary-foreground hover:bg-primary/90" : "text-muted-foreground"
-                  )}
-                >
-                  {item.label}
-                </Link>
-              ) : (
-                <div className="px-2 py-2 text-sm font-semibold text-foreground/70 mt-4 mb-1">
-                  {item.label}
-                </div>
-              )}
-              {/* Simple nested support */}
-              {item.children?.map((child, cIdx) => (
-                 <Link 
-                  key={cIdx}
-                  to={child.path} 
-                  className={cn(
-                    "flex items-center pl-6 pr-2 py-1.5 text-sm rounded-md hover:bg-muted hover:text-foreground transition-colors",
-                    location.pathname === child.path ? "text-primary font-medium" : "text-muted-foreground"
-                  )}
-                >
-                  {child.label}
-                </Link>
-              ))}
-            </div>
-          ))}
-        </nav>
-      </aside>
+    <SidebarProvider>
+      <Sidebar collapsible="icon">
+        <SidebarHeader>
+           <div className="flex items-center gap-2 px-2 py-2">
+             <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+               {app.logo && <DynamicIcon name={app.logo} className="size-4" />}
+               {!app.logo && <span className="text-xl font-bold">O</span>}
+             </div>
+             <div className="grid flex-1 text-left text-sm leading-tight">
+               <span className="truncate font-semibold">{app.title || "Object UI"}</span>
+               <span className="truncate text-xs">Showcase</span>
+             </div>
+           </div>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarMenu>
+              {menu.map((item, idx) => {
+                 // Collapsible Item (Children present)
+                 if (item.children && item.children.length > 0) {
+                   const isActive = item.children.some(child => child.path === location.pathname);
+                   return (
+                     <Collapsible key={idx} asChild defaultOpen={isActive} className="group/collapsible">
+                       <SidebarMenuItem>
+                         <CollapsibleTrigger asChild>
+                           <SidebarMenuButton tooltip={item.label}>
+                             {item.icon && <DynamicIcon name={item.icon} />}
+                             <span>{item.label}</span>
+                             <DynamicIcon name="ChevronRight" className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                           </SidebarMenuButton>
+                         </CollapsibleTrigger>
+                         <CollapsibleContent>
+                           <SidebarMenuSub>
+                             {item.children.map((child, cIdx) => (
+                               <SidebarMenuSubItem key={cIdx}>
+                                 <SidebarMenuSubButton asChild isActive={location.pathname === child.path}>
+                                   <Link to={child.path || '#'}>
+                                      <span>{child.label}</span>
+                                   </Link>
+                                 </SidebarMenuSubButton>
+                               </SidebarMenuSubItem>
+                             ))}
+                           </SidebarMenuSub>
+                         </CollapsibleContent>
+                       </SidebarMenuItem>
+                     </Collapsible>
+                   );
+                 }
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto">
-        {children}
-      </main>
-    </div>
+                 // Single Item
+                 if (item.path) {
+                   return (
+                     <SidebarMenuItem key={idx}>
+                       <SidebarMenuButton asChild isActive={location.pathname === item.path} tooltip={item.label}>
+                         <Link to={item.path}>
+                           {item.icon && <DynamicIcon name={item.icon} />}
+                           <span>{item.label}</span>
+                         </Link>
+                       </SidebarMenuButton>
+                     </SidebarMenuItem>
+                   );
+                 }
+                 return null;
+              })}
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter>
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+      
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <div className="flex flex-1 items-center justify-between">
+              <span className="font-medium">{app.title}</span>
+            </div>
+        </header>
+        <div className="flex-1 flex flex-col min-h-0 bg-muted/20 p-4">
+          <div className="mx-auto max-w-full w-full">
+            {children}
+          </div>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 };
 
@@ -650,7 +721,7 @@ export default App;`;
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased min-h-screen;
   }
 }`;
 

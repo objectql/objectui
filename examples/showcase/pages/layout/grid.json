@@ -45,22 +45,34 @@
                   {
                     "type": "div",
                     "className": "h-24 bg-card border rounded shadow-sm flex items-center justify-center text-muted-foreground",
-                    "children": { "type": "text", "value": "1" }
+                    "children": {
+                      "type": "text",
+                      "value": "1"
+                    }
                   },
                   {
                     "type": "div",
                     "className": "h-24 bg-secondary/50 border rounded shadow-sm flex items-center justify-center text-secondary-foreground",
-                    "children": { "type": "text", "value": "2" }
+                    "children": {
+                      "type": "text",
+                      "value": "2"
+                    }
                   },
                   {
                     "type": "div",
                     "className": "h-24 bg-primary/10 border rounded shadow-sm flex items-center justify-center text-primary",
-                    "children": { "type": "text", "value": "3" }
+                    "children": {
+                      "type": "text",
+                      "value": "3"
+                    }
                   },
                   {
                     "type": "div",
                     "className": "h-24 bg-muted border rounded shadow-sm flex items-center justify-center text-muted-foreground",
-                    "children": { "type": "text", "value": "4" }
+                    "children": {
+                      "type": "text",
+                      "value": "4"
+                    }
                   }
                 ]
               }
@@ -69,5 +81,6 @@
         }
       ]
     }
-  ]
+  ],
+  "icon": "Grid"
 }

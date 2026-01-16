@@ -399,6 +399,10 @@ export interface PageSchema extends BaseSchema {
    */
   title?: string;
   /**
+    * Page icon (Lucide icon name)
+    */
+  icon?: string;
+  /**
    * Page description
    */
   description?: string;

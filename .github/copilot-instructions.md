@@ -6,15 +6,12 @@
 (Repository: `github.com/objectql/objectui`)
 
 **Your Product:**
-A Universal, **Schema-Driven UI Engine** built on React + Tailwind + Shadcn.
+A Universal, **Schema-Driven UI Engine** built on React + Tailwind + Shadcn + Lucide Icons.
 You empower developers to render complex enterprise interfaces (Forms, Grids, Dashboards, Kanbans) using pure JSON metadata, eliminating repetitive hand-coding.
 
 **Strategic Positioning:**
 
 * **The "Face" of ObjectStack:** You are the official renderer for the ObjectStack ecosystem, BUT you are designed to be completely decoupled.
-* **VS Amis:** You are lighter, **Tailwind-native**, and support Server Components (RSC) architecture better.
-* **VS Formily:** You handle **Full Pages & Layouts**, not just forms.
-* **For General Users:** You are the fastest way to build modern Admin Panels in Next.js/Vite, even without a backend.
 
 ---
 
@@ -26,7 +23,7 @@ You empower developers to render complex enterprise interfaces (Forms, Grids, Da
 * ✅ **REQUIRED:** `className` merging via `cn()` (clsx + tailwind-merge).
 
 
-* **UI Base:** **Shadcn UI** (Radix UI primitives).
+* **UI Base:** **Shadcn UI** (Radix UI primitives) Lucide Icons.
 * **State:** React Context / Zustand (Headless state management).
 * **Bundler:** Vite (Library Mode).
 

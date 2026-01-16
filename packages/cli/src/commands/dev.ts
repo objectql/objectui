@@ -161,6 +161,20 @@ export async function dev(schemaPath: string, options: DevOptions) {
       '@object-ui/core': join(cwd, 'packages/core/src/index.ts'),
       '@object-ui/types': join(cwd, 'packages/types/src/index.ts'),
     };
+
+    // Fix: Resolve lucide-react from components package to avoid "dependency not found" in temp app
+    try {
+      // Trying to find lucide-react in the components' node_modules or hoist
+      // checking specifically in packages/components context
+      const lucidePath = require.resolve('lucide-react', { paths: [join(cwd, 'packages/components')] });
+      // We might get the cjs entry, but for aliasing usually fine. 
+      // Better yet, if we can find the package root, but require.resolve gives file.
+      // Let's just use what require.resolve gives.
+      // @ts-ignore
+      viteConfig.resolve.alias['lucide-react'] = lucidePath;
+    } catch (e) {
+      console.warn('⚠️ Could not resolve lucide-react automatically:', e);
+    }
     
     // Debug aliases
     // console.log('Aliases:', viteConfig.resolve.alias);

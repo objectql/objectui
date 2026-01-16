@@ -14,107 +14,107 @@
       "label": "Basic",
       "icon": "Box",
       "children": [
-        { "label": "Div", "path": "/basic/div" },
-        { "label": "Text", "path": "/basic/text" },
-        { "label": "HTML", "path": "/basic/html" },
-        { "label": "Icon", "path": "/basic/icon" },
-        { "label": "Image", "path": "/basic/image" },
-        { "label": "Separator", "path": "/basic/separator" }
+        { "label": "Div", "path": "/basic/div", "icon": "Square" },
+        { "label": "Text", "path": "/basic/text", "icon": "Type" },
+        { "label": "HTML", "path": "/basic/html", "icon": "Code" },
+        { "label": "Icon", "path": "/basic/icon", "icon": "Stars" },
+        { "label": "Image", "path": "/basic/image", "icon": "Image" },
+        { "label": "Separator", "path": "/basic/separator", "icon": "Minus" }
       ]
     },
     {
       "label": "Layout",
       "icon": "Layout",
       "children": [
-        { "label": "Flex", "path": "/layout/flex" },
-        { "label": "Grid", "path": "/layout/grid" },
-        { "label": "Stack", "path": "/layout/stack" },
-        { "label": "Card", "path": "/layout/card" },
-        { "label": "Container", "path": "/layout/container" },
-        { "label": "Tabs", "path": "/layout/tabs" },
-        { "label": "Header Bar", "path": "/layout/header-bar" },
-        { "label": "Sidebar", "path": "/layout/sidebar" }
+        { "label": "Flex", "path": "/layout/flex", "icon": "StretchHorizontal" },
+        { "label": "Grid", "path": "/layout/grid", "icon": "Grid" },
+        { "label": "Stack", "path": "/layout/stack", "icon": "Layers" },
+        { "label": "Card", "path": "/layout/card", "icon": "PanelTop" },
+        { "label": "Container", "path": "/layout/container", "icon": "Box" },
+        { "label": "Tabs", "path": "/layout/tabs", "icon": "GalleryHorizontal" },
+        { "label": "Header Bar", "path": "/layout/header-bar", "icon": "PanelTop" },
+        { "label": "Sidebar", "path": "/layout/sidebar", "icon": "PanelLeft" }
       ]
     },
     {
       "label": "Form",
       "icon": "FormInput",
       "children": [
-        { "label": "Button", "path": "/form/button" },
-        { "label": "Input", "path": "/form/input" },
-        { "label": "Textarea", "path": "/form/textarea" },
-        { "label": "Select", "path": "/form/select" },
-        { "label": "Checkbox", "path": "/form/checkbox" },
-        { "label": "Radio Group", "path": "/form/radio-group" },
-        { "label": "Switch", "path": "/form/switch" },
-        { "label": "Slider", "path": "/form/slider" },
-        { "label": "Date Picker", "path": "/form/date-picker" },
-        { "label": "Calendar", "path": "/form/calendar" },
-        { "label": "Input OTP", "path": "/form/input-otp" },
-        { "label": "Toggle", "path": "/form/toggle" },
-        { "label": "File Upload", "path": "/form/file-upload" }
+        { "label": "Button", "path": "/form/button", "icon": "MousePointerClick" },
+        { "label": "Input", "path": "/form/input", "icon": "TextCursor" },
+        { "label": "Textarea", "path": "/form/textarea", "icon": "FileText" },
+        { "label": "Select", "path": "/form/select", "icon": "List" },
+        { "label": "Checkbox", "path": "/form/checkbox", "icon": "CheckSquare" },
+        { "label": "Radio Group", "path": "/form/radio-group", "icon": "CircleDot" },
+        { "label": "Switch", "path": "/form/switch", "icon": "ToggleLeft" },
+        { "label": "Slider", "path": "/form/slider", "icon": "SlidersHorizontal" },
+        { "label": "Date Picker", "path": "/form/date-picker", "icon": "Calendar" },
+        { "label": "Calendar", "path": "/form/calendar", "icon": "CalendarDays" },
+        { "label": "Input OTP", "path": "/form/input-otp", "icon": "Hash" },
+        { "label": "Toggle", "path": "/form/toggle", "icon": "ToggleLeft" },
+        { "label": "File Upload", "path": "/form/file-upload", "icon": "UploadCloud" }
       ]
     },
     {
       "label": "Data Display",
       "icon": "Table",
       "children": [
-        { "label": "List", "path": "/data-display/list" },
-        { "label": "Table", "path": "/data-display/table" },
-        { "label": "Avatar", "path": "/data-display/avatar" },
-        { "label": "Badge", "path": "/data-display/badge" },
-        { "label": "Alert", "path": "/data-display/alert" },
-        { "label": "Statistic", "path": "/data-display/statistic" },
-        { "label": "Tree View", "path": "/data-display/tree-view" }
+        { "label": "List", "path": "/data-display/list", "icon": "List" },
+        { "label": "Table", "path": "/data-display/table", "icon": "Table" },
+        { "label": "Avatar", "path": "/data-display/avatar", "icon": "User" },
+        { "label": "Badge", "path": "/data-display/badge", "icon": "Tag" },
+        { "label": "Alert", "path": "/data-display/alert", "icon": "AlertCircle" },
+        { "label": "Statistic", "path": "/data-display/statistic", "icon": "TrendingUp" },
+        { "label": "Tree View", "path": "/data-display/tree-view", "icon": "Network" }
       ]
     },
     {
       "label": "Feedback",
       "icon": "Bell",
       "children": [
-        { "label": "Toaster", "path": "/feedback/toaster" },
-        { "label": "Progress", "path": "/feedback/progress" },
-        { "label": "Loading", "path": "/feedback/loading" },
-        { "label": "Skeleton", "path": "/feedback/skeleton" }
+        { "label": "Toaster", "path": "/feedback/toaster", "icon": "MessageSquare" },
+        { "label": "Progress", "path": "/feedback/progress", "icon": "Loader2" },
+        { "label": "Loading", "path": "/feedback/loading", "icon": "Loader" },
+        { "label": "Skeleton", "path": "/feedback/skeleton", "icon": "Ghost" }
       ]
     },
     {
       "label": "Overlay",
       "icon": "Layers",
       "children": [
-        { "label": "Dialog", "path": "/overlay/dialog" },
-        { "label": "Sheet", "path": "/overlay/sheet" },
-        { "label": "Drawer", "path": "/overlay/drawer" },
-        { "label": "Popover", "path": "/overlay/popover" },
-        { "label": "Tooltip", "path": "/overlay/tooltip" },
-        { "label": "Hover Card", "path": "/overlay/hover-card" },
-        { "label": "Alert Dialog", "path": "/overlay/alert-dialog" },
-        { "label": "Dropdown Menu", "path": "/overlay/dropdown-menu" },
-        { "label": "Context Menu", "path": "/overlay/context-menu" }
+        { "label": "Dialog", "path": "/overlay/dialog", "icon": "MessageSquare" },
+        { "label": "Sheet", "path": "/overlay/sheet", "icon": "Sidebar" },
+        { "label": "Drawer", "path": "/overlay/drawer", "icon": "PanelBottom" },
+        { "label": "Popover", "path": "/overlay/popover", "icon": "MessageCircle" },
+        { "label": "Tooltip", "path": "/overlay/tooltip", "icon": "MessageSquare" },
+        { "label": "Hover Card", "path": "/overlay/hover-card", "icon": "CreditCard" },
+        { "label": "Alert Dialog", "path": "/overlay/alert-dialog", "icon": "AlertTriangle" },
+        { "label": "Dropdown Menu", "path": "/overlay/dropdown-menu", "icon": "Menu" },
+        { "label": "Context Menu", "path": "/overlay/context-menu", "icon": "MousePointer" }
       ]
     },
     {
       "label": "Disclosure",
       "icon": "ChevronRight",
       "children": [
-        { "label": "Accordion", "path": "/disclosure/accordion" },
-        { "label": "Collapsible", "path": "/disclosure/collapsible" }
+        { "label": "Accordion", "path": "/disclosure/accordion", "icon": "ListCollapse" },
+        { "label": "Collapsible", "path": "/disclosure/collapsible", "icon": "ChevronsUpDown" }
       ]
     },
     {
       "label": "Complex",
       "icon": "Cpu",
       "children": [
-        { "label": "Data Table", "path": "/complex/data-table" },
-        { "label": "Kanban", "path": "/complex/kanban" },
-        { "label": "Filter Builder", "path": "/complex/filter-builder" },
-        { "label": "Calendar View", "path": "/complex/calendar-view" },
-        { "label": "Timeline", "path": "/complex/timeline" },
-        { "label": "Charts", "path": "/complex/charts" },
-        { "label": "Carousel", "path": "/complex/carousel" },
-        { "label": "Resizable", "path": "/complex/resizable" },
-        { "label": "Scroll Area", "path": "/complex/scroll-area" },
-        { "label": "Chatbot", "path": "/complex/chatbot" }
+        { "label": "Data Table", "path": "/complex/data-table", "icon": "Table" },
+        { "label": "Kanban", "path": "/complex/kanban", "icon": "Kanban" },
+        { "label": "Filter Builder", "path": "/complex/filter-builder", "icon": "Filter" },
+        { "label": "Calendar View", "path": "/complex/calendar-view", "icon": "Calendar" },
+        { "label": "Timeline", "path": "/complex/timeline", "icon": "GitCommit" },
+        { "label": "Charts", "path": "/complex/charts", "icon": "BarChart" },
+        { "label": "Carousel", "path": "/complex/carousel", "icon": "GalleryHorizontal" },
+        { "label": "Resizable", "path": "/complex/resizable", "icon": "MoveHorizontal" },
+        { "label": "Scroll Area", "path": "/complex/scroll-area", "icon": "Scroll" },
+        { "label": "Chatbot", "path": "/complex/chatbot", "icon": "Bot" }
       ]
     }
   ],
