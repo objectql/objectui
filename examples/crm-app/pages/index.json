@@ -50,7 +50,9 @@
           "body": [
             {
               "type": "grid",
-              "columns": { "xs": 1, "sm": 2, "lg": 4 },
+              "columns": 1,
+              "mdColumns": 2,
+              "lgColumns": 4,
               "gap": 4,
               "className": "mb-4",
               "children": [
@@ -154,7 +156,8 @@
             },
             {
               "type": "grid",
-              "columns": { "xs": 1, "lg": 7 },
+              "columns": 1,
+              "lgColumns": 7,
               "gap": 4,
               "children": [
                 {
