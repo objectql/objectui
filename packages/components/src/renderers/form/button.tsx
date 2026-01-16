@@ -2,9 +2,10 @@ import { ComponentRegistry } from '@object-ui/core';
 import type { ButtonSchema } from '@object-ui/types';
 import { Button } from '../../ui';
 import { renderChildren } from '../../lib/utils';
+import { forwardRef } from 'react';
 
-ComponentRegistry.register('button', 
-  ({ schema, ...props }: { schema: ButtonSchema; [key: string]: any }) => {
+const ButtonRenderer = forwardRef<HTMLButtonElement, { schema: ButtonSchema; [key: string]: any }>(
+  ({ schema, ...props }, ref) => {
     // Extract designer-related props
     const { 
         'data-obj-id': dataObjId, 
@@ -15,6 +16,7 @@ ComponentRegistry.register('button',
 
     return (
     <Button 
+        ref={ref}
         variant={schema.variant} 
         size={schema.size} 
         className={schema.className} 
@@ -25,7 +27,11 @@ ComponentRegistry.register('button',
       {schema.label || renderChildren(schema.body)}
     </Button>
   );
-  },
+  }
+);
+ButtonRenderer.displayName = 'ButtonRenderer';
+
+ComponentRegistry.register('button', ButtonRenderer,
   {
     label: 'Button',
     inputs: [

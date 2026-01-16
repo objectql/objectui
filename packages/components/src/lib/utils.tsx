@@ -10,8 +10,13 @@ export function cn(...inputs: ClassValue[]) {
 export function renderChildren(children: any): React.ReactNode {
   if (!children) return null;
   if (Array.isArray(children)) {
+    if (children.length === 0) return null;
+    // Unwrap single child to support Radix UI 'asChild' pattern which expects a single ReactElement, not an array
+    if (children.length === 1) {
+      return <SchemaRenderer schema={children[0]} />; 
+    }
     return children.map((child, index) => (
-      <SchemaRenderer key={index} schema={child} />
+      <SchemaRenderer key={child.id || index} schema={child} />
     ));
   }
   return <SchemaRenderer schema={children} />;
