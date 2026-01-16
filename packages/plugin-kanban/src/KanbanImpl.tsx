@@ -61,11 +61,11 @@ function SortableCard({ card }: { card: KanbanCard }) {
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <Card className="mb-2 cursor-grab active:cursor-grabbing">
+      <Card className="mb-2 cursor-grab active:cursor-grabbing border-slate-800 bg-slate-950/60 hover:border-cyan-500/40 hover:shadow-lg hover:shadow-cyan-900/10 transition-all duration-300 group">
         <CardHeader className="p-4">
-          <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
+          <CardTitle className="text-sm font-medium font-mono tracking-tight text-slate-200 group-hover:text-cyan-400 transition-colors">{card.title}</CardTitle>
           {card.description && (
-            <CardDescription className="text-xs">
+            <CardDescription className="text-xs text-slate-500 font-mono">
               {card.description}
             </CardDescription>
           )}
@@ -107,15 +107,15 @@ function KanbanColumn({
     <div
       ref={setNodeRef}
       className={cn(
-        "flex flex-col w-80 flex-shrink-0 rounded-lg border bg-muted/50",
+        "flex flex-col w-80 flex-shrink-0 rounded-lg border border-slate-800 bg-slate-950/20 backdrop-blur-sm shadow-xl",
         column.className
       )}
     >
-      <div className="p-4 border-b bg-background/95">
+      <div className="p-4 border-b border-cyan-900/20 bg-slate-900/40">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-sm">{column.title}</h3>
+          <h3 className="font-mono text-sm font-semibold tracking-wider text-cyan-400/90 uppercase">{column.title}</h3>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">
+            <span className="font-mono text-xs text-cyan-700/70">
               {safeCards.length}
               {column.limit && ` / ${column.limit}`}
             </span>

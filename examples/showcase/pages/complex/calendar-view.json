@@ -17,7 +17,7 @@
             },
             {
               "type": "text",
-              "value": "Examples of the Calendar View component.",
+              "value": "Full sized calendar.",
               "className": "text-lg text-muted-foreground"
             }
           ]
@@ -32,21 +32,15 @@
           "children": [
             {
               "type": "text",
-              "value": "Default",
-              "className": "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              "value": "Schedule",
+              "className": "text-sm font-medium leading-none"
             },
             {
               "type": "card",
-              "className": "p-6 flex items-center justify-center min-h-[150px] bg-background/50 border shadow-sm",
+              "className": "p-0 overflow-hidden border shadow-sm",
               "children": {
-                "type": "card",
-                "className": "p-6",
-                "children": [
-                  {
-                    "type": "text",
-                    "value": "TODO: Implement Calendar View examples"
-                  }
-                ]
+                "type": "calendar-view",
+                "className": "h-[600px] border rounded-md"
               }
             }
           ]

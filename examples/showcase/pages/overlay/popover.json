@@ -50,7 +50,7 @@
                 "content": [
                   {
                     "type": "div",
-                    "className": "grid gap-4",
+                    "className": "grid gap-4 p-2",
                     "children": [
                       {
                         "type": "div",

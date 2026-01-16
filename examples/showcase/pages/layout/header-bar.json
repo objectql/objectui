@@ -1,6 +1,6 @@
 {
   "type": "page",
-  "title": "Stack - Object UI",
+  "title": "Header Bar - Object UI",
   "body": [
     {
       "type": "div",
@@ -12,12 +12,12 @@
           "children": [
             {
               "type": "text",
-              "value": "Stack",
+              "value": "Header Bar",
               "className": "text-3xl font-bold tracking-tight"
             },
             {
               "type": "text",
-              "value": "Vertical layout stack (Flex Column shortcut).",
+              "value": "Top navigation bar.",
               "className": "text-lg text-muted-foreground"
             }
           ]
@@ -32,43 +32,38 @@
           "children": [
             {
               "type": "text",
-              "value": "Stack Gap",
-              "className": "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              "value": "Header",
+              "className": "text-sm font-medium leading-none"
             },
             {
               "type": "card",
-              "className": "p-6 flex items-center justify-center min-h-[150px] bg-background/50 border shadow-sm",
+              "className": "p-0 overflow-hidden border shadow-sm",
               "children": {
-                "type": "stack",
-                "className": "gap-4 w-full max-w-xs",
+                "type": "div",
+                "className": "border rounded-md overflow-hidden",
                 "children": [
                   {
-                    "type": "div",
-                    "className": "p-4 border rounded bg-muted",
-                    "children": [
+                    "type": "header-bar",
+                    "crumbs": [
                       {
-                        "type": "text",
-                        "value": "Item 1"
+                        "label": "Home",
+                        "href": "/"
+                      },
+                      {
+                        "label": "Components"
+                      },
+                      {
+                        "label": "Header Bar"
                       }
                     ]
                   },
                   {
                     "type": "div",
-                    "className": "p-4 border rounded bg-muted",
+                    "className": "p-8 text-center bg-muted/50 h-32 flex items-center justify-center",
                     "children": [
                       {
                         "type": "text",
-                        "value": "Item 2"
-                      }
-                    ]
-                  },
-                  {
-                    "type": "div",
-                    "className": "p-4 border rounded bg-muted",
-                    "children": [
-                      {
-                        "type": "text",
-                        "value": "Item 3"
+                        "value": "Page Content"
                       }
                     ]
                   }

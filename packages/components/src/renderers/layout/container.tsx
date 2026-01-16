@@ -2,9 +2,10 @@ import { ComponentRegistry } from '@object-ui/core';
 import type { ContainerSchema } from '@object-ui/types';
 import { renderChildren } from '../../lib/utils';
 import { cn } from '../../lib/utils';
+import { forwardRef } from 'react';
 
-ComponentRegistry.register('container', 
-  ({ schema, className, ...props }: { schema: ContainerSchema; className?: string; [key: string]: any }) => {
+const ContainerRenderer = forwardRef<HTMLDivElement, { schema: ContainerSchema; className?: string; [key: string]: any }>(
+  ({ schema, className, ...props }, ref) => {
     const maxWidth = (schema.maxWidth || 'xl') as any;
     const padding = schema.padding || 4;
     const centered = schema.centered !== false; // Default to true
@@ -53,17 +54,20 @@ ComponentRegistry.register('container',
 
     return (
       <div 
+        ref={ref}
         className={containerClass} 
         {...containerProps}
         // Apply designer props
-        data-obj-id={dataObjId}
-        data-obj-type={dataObjType}
-        style={style}
+        {...{ 'data-obj-id': dataObjId, 'data-obj-type': dataObjType, style }}
       >
         {schema.children && renderChildren(schema.children)}
       </div>
     );
-  },
+  }
+);
+
+ComponentRegistry.register('container', 
+  ContainerRenderer,
   {
     label: 'Container',
     inputs: [

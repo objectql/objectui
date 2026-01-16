@@ -17,7 +17,7 @@
             },
             {
               "type": "text",
-              "value": "Examples of the Carousel component.",
+              "value": "Slideshow.",
               "className": "text-lg text-muted-foreground"
             }
           ]
@@ -32,19 +32,48 @@
           "children": [
             {
               "type": "text",
-              "value": "Default",
+              "value": "Images",
               "className": "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             },
             {
               "type": "card",
               "className": "p-6 flex items-center justify-center min-h-[150px] bg-background/50 border shadow-sm",
               "children": {
-                "type": "card",
-                "className": "p-6",
+                "type": "carousel",
+                "className": "w-full max-w-xs",
                 "children": [
                   {
-                    "type": "text",
-                    "value": "TODO: Implement Carousel examples"
+                    "type": "card",
+                    "className": "p-6 flex items-center justify-center aspect-square",
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "1",
+                        "className": "text-4xl"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "card",
+                    "className": "p-6 flex items-center justify-center aspect-square",
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "2",
+                        "className": "text-4xl"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "card",
+                    "className": "p-6 flex items-center justify-center aspect-square",
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "3",
+                        "className": "text-4xl"
+                      }
+                    ]
                   }
                 ]
               }

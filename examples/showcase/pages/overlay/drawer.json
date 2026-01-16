@@ -17,7 +17,7 @@
             },
             {
               "type": "text",
-              "value": "Examples of the Drawer component.",
+              "value": "Pull-up drawer (mobile optimized).",
               "className": "text-lg text-muted-foreground"
             }
           ]
@@ -32,19 +32,44 @@
           "children": [
             {
               "type": "text",
-              "value": "Default",
+              "value": "Open Drawer",
               "className": "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             },
             {
               "type": "card",
               "className": "p-6 flex items-center justify-center min-h-[150px] bg-background/50 border shadow-sm",
               "children": {
-                "type": "card",
-                "className": "p-6",
-                "children": [
+                "type": "drawer",
+                "trigger": [
                   {
-                    "type": "text",
-                    "value": "TODO: Implement Drawer examples"
+                    "type": "button",
+                    "label": "Open Drawer",
+                    "variant": "outline"
+                  }
+                ],
+                "title": "Move Goal",
+                "description": "Set your daily activity goal.",
+                "content": [
+                  {
+                    "type": "div",
+                    "className": "p-4 flex justify-center",
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": "Chart or controls go here"
+                      }
+                    ]
+                  }
+                ],
+                "footer": [
+                  {
+                    "type": "button",
+                    "label": "Submit"
+                  },
+                  {
+                    "type": "button",
+                    "label": "Cancel",
+                    "variant": "outline"
                   }
                 ]
               }

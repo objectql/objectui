@@ -17,7 +17,7 @@
             },
             {
               "type": "text",
-              "value": "Examples of the Tree View component.",
+              "value": "Hierarchical list.",
               "className": "text-lg text-muted-foreground"
             }
           ]
@@ -32,19 +32,47 @@
           "children": [
             {
               "type": "text",
-              "value": "Default",
+              "value": "File System",
               "className": "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             },
             {
               "type": "card",
               "className": "p-6 flex items-center justify-center min-h-[150px] bg-background/50 border shadow-sm",
               "children": {
-                "type": "card",
-                "className": "p-6",
-                "children": [
+                "type": "tree-view",
+                "className": "w-64 border rounded-md p-2",
+                "data": [
                   {
-                    "type": "text",
-                    "value": "TODO: Implement Tree View examples"
+                    "id": "1",
+                    "label": "Documents",
+                    "children": [
+                      {
+                        "id": "1-1",
+                        "label": "Work",
+                        "children": [
+                          {
+                            "id": "1-1-1",
+                            "label": "Project A"
+                          },
+                          {
+                            "id": "1-1-2",
+                            "label": "Project B"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "1-2",
+                        "label": "Home"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "2",
+                    "label": "Images"
+                  },
+                  {
+                    "id": "3",
+                    "label": "System"
                   }
                 ]
               }

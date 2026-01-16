@@ -17,7 +17,7 @@
             },
             {
               "type": "text",
-              "value": "Examples of the Toggle component.",
+              "value": "Toggle button.",
               "className": "text-lg text-muted-foreground"
             }
           ]
@@ -32,21 +32,16 @@
           "children": [
             {
               "type": "text",
-              "value": "Default",
+              "value": "Toggle",
               "className": "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             },
             {
               "type": "card",
               "className": "p-6 flex items-center justify-center min-h-[150px] bg-background/50 border shadow-sm",
               "children": {
-                "type": "card",
-                "className": "p-6",
-                "children": [
-                  {
-                    "type": "text",
-                    "value": "TODO: Implement Toggle examples"
-                  }
-                ]
+                "type": "toggle",
+                "icon": "bold",
+                "aria-label": "Toggle bold"
               }
             }
           ]

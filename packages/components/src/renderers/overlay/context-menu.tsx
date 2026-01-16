@@ -43,19 +43,24 @@ const renderContextMenuItems = (items: any[]) => {
 };
 
 ComponentRegistry.register('context-menu', 
-  ({ schema, className, ...props }: { schema: ContextMenuSchema; className?: string; [key: string]: any }) => (
+  ({ schema, className, ...props }: { schema: ContextMenuSchema; className?: string; [key: string]: any }) => {
+    // Determine classes
+    const triggerClass = schema.triggerClassName || className || (schema.className as string) || "h-[150px] w-[300px] border border-dashed text-sm flex items-center justify-center";
+    const contentClass = schema.contentClassName;
+
+    return (
     <ContextMenu modal={schema.modal} {...props}>
       <ContextMenuTrigger asChild>
           {/* Usually a Right Click area */}
-          <div className={schema.triggerClassName || "h-[150px] w-[300px] border border-dashed text-sm flex items-center justify-center"}>
-             {renderChildren(schema.trigger || { type: 'span', children: "Right click here" })}
+          <div className={triggerClass}>
+             {renderChildren(schema.trigger || { type: 'text', value: "Right click here" })}
           </div>
       </ContextMenuTrigger>
-      <ContextMenuContent className={className}>
+      <ContextMenuContent className={contentClass}>
          {renderContextMenuItems(schema.items)}
       </ContextMenuContent>
     </ContextMenu>
-  ),
+  )},
   {
     label: 'Context Menu',
     inputs: [

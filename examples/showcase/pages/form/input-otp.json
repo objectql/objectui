@@ -17,7 +17,7 @@
             },
             {
               "type": "text",
-              "value": "Examples of the Input OTP component.",
+              "value": "One-time password input.",
               "className": "text-lg text-muted-foreground"
             }
           ]
@@ -32,19 +32,24 @@
           "children": [
             {
               "type": "text",
-              "value": "Default",
+              "value": "One-Time Password",
               "className": "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             },
             {
               "type": "card",
               "className": "p-6 flex items-center justify-center min-h-[150px] bg-background/50 border shadow-sm",
               "children": {
-                "type": "card",
-                "className": "p-6",
+                "type": "div",
+                "className": "space-y-4",
                 "children": [
                   {
                     "type": "text",
-                    "value": "TODO: Implement Input OTP examples"
+                    "value": "Enter your one-time password.",
+                    "className": "text-sm text-muted-foreground"
+                  },
+                  {
+                    "type": "input-otp",
+                    "maxLength": 6
                   }
                 ]
               }

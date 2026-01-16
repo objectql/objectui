@@ -128,7 +128,7 @@ export interface ContainerSchema extends BaseSchema {
    * Max width constraint
    * @default 'lg'
    */
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full' | false;
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl' | 'full' | 'screen' | false;
   /**
    * Center the container
    * @default true
@@ -178,6 +178,13 @@ export interface FlexSchema extends BaseSchema {
    * Child components
    */
   children?: SchemaNode | SchemaNode[];
+}
+
+/**
+ * Stack layout component (Vertical Flex shortcut)
+ */
+export interface StackSchema extends Omit<FlexSchema, 'type'> {
+  type: 'stack';
 }
 
 /**

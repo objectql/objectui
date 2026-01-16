@@ -17,7 +17,7 @@
             },
             {
               "type": "text",
-              "value": "Examples of the Chatbot component.",
+              "value": "Conversational interface.",
               "className": "text-lg text-muted-foreground"
             }
           ]
@@ -32,21 +32,15 @@
           "children": [
             {
               "type": "text",
-              "value": "Default",
-              "className": "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              "value": "Assistant",
+              "className": "text-sm font-medium leading-none"
             },
             {
               "type": "card",
-              "className": "p-6 flex items-center justify-center min-h-[150px] bg-background/50 border shadow-sm",
+              "className": "p-0 overflow-hidden border shadow-sm",
               "children": {
-                "type": "card",
-                "className": "p-6",
-                "children": [
-                  {
-                    "type": "text",
-                    "value": "TODO: Implement Chatbot examples"
-                  }
-                ]
+                "type": "chatbot",
+                "className": "h-[500px] border rounded-md"
               }
             }
           ]

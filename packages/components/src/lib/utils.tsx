@@ -9,6 +9,9 @@ export function cn(...inputs: ClassValue[]) {
 
 export function renderChildren(children: any): React.ReactNode {
   if (!children) return null;
+  if (typeof children === 'string' || typeof children === 'number') {
+    return children;
+  }
   if (Array.isArray(children)) {
     if (children.length === 0) return null;
     // Unwrap single child to support Radix UI 'asChild' pattern which expects a single ReactElement, not an array

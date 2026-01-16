@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const path = require('path');
 
@@ -51,8 +50,22 @@ const preview = (title, ...content) => ({
     ]
 });
 
+// Helper for Component Preview Card (Block display usually for complex components)
+const blockPreview = (title, ...content) => ({
+    type: "div",
+    className: "grid gap-4",
+    children: [
+        { type: "text", value: title, className: "text-sm font-medium leading-none" },
+        { 
+            type: "card", 
+            className: "p-0 overflow-hidden border shadow-sm",
+            children: content.length === 1 ? content[0] : { type: "div", className: "w-full", children: content }
+        }
+    ]
+});
+
 const TEMPLATES = {
-    // Basic
+    // --- Basic ---
     'div': () => page("Div", "A fundamental container component.",
         preview("Basic Container", 
             { type: "div", className: "p-4 bg-muted rounded-md border", children: [{ type: "text", value: "This is a div container" }] }
@@ -77,6 +90,11 @@ const TEMPLATES = {
                 { type: "text", value: "Small: Lorem ipsum dolor sit amet.", className: "text-sm font-medium leading-none" },
                 { type: "text", value: "Muted: Lorem ipsum dolor sit amet.", className: "text-sm text-muted-foreground" },
             ]}
+        )
+    ),
+    'html': () => page("HTML", "Render raw HTML safely.",
+        preview("Rich Text",
+            { type: "html", html: "<p>This is <strong>bold</strong> and <em>italic</em> text rendered via HTML.</p><ul><li>List Item 1</li><li>List Item 2</li></ul>", className: "p-4 border rounded-md" }
         )
     ),
     'icon': () => page("Icon", "Lucide icons implementation.",
@@ -116,7 +134,7 @@ const TEMPLATES = {
          )
     ),
 
-    // Layout
+    // --- Layout ---
     'flex': () => page("Flex", "One-dimensional layout.",
         preview("Flex Row",
             { type: "flex", className: "gap-4", children: [
@@ -142,6 +160,22 @@ const TEMPLATES = {
              ]}
         )
     ),
+    'stack': () => page("Stack", "Vertical layout stack (Flex Column shortcut).",
+         preview("Stack Gap",
+              { type: "stack", className: "gap-4 w-full max-w-xs", children: [
+                  { type: "div", className: "p-4 border rounded bg-muted", children: [{ type: "text", value: "Item 1" }] },
+                  { type: "div", className: "p-4 border rounded bg-muted", children: [{ type: "text", value: "Item 2" }] },
+                  { type: "div", className: "p-4 border rounded bg-muted", children: [{ type: "text", value: "Item 3" }] }
+              ]}
+         )
+    ),
+    'container': () => page("Container", "Centered content container.",
+         preview("Centered Text",
+             { type: "container", className: "bg-muted p-4 py-10 text-center", children: [
+                 { type: "text", value: "This content is centered in a container.", className: "text-lg font-medium" }
+             ]}
+         )
+    ),
     'card': () => page("Card", "Displays a card with header, content, and footer.",
         preview("Simple Card",
             { type: "card", title: "Create project", description: "Deploy your new project in one-click.", className: "w-[350px]", 
@@ -165,8 +199,43 @@ const TEMPLATES = {
             ]}
         )
     ),
+    'header-bar': () => page("Header Bar", "Top navigation bar.",
+        blockPreview("Header",
+            { type: "div", className: "border rounded-md overflow-hidden", children: [
+                { type: "header-bar", crumbs: [{ label: "Home", href: "/" }, { label: "Components" }, { label: "Header Bar" }] },
+                { type: "div", className: "p-8 text-center bg-muted/50 h-32 flex items-center justify-center", children: [{ type: "text", value: "Page Content" }] }
+            ]}
+        )
+    ),
+    'sidebar': () => page("Sidebar", "Responsive sidebar navigation.",
+        blockPreview("Sidebar Provider Example",
+             { type: "div", className: "h-[500px] border rounded-md overflow-hidden flex", children: [
+                 { type: "sidebar-provider", 
+                   className: "w-full h-full",
+                   body: [
+                       { type: "sidebar", body: [
+                           { type: "sidebar-header", body: [{type: "text", value: "My App", className: "font-bold px-4 py-2"}] },
+                           { type: "sidebar-content", body: [
+                               { type: "sidebar-group", label: "Plaform", body: [
+                                   { type: "sidebar-menu", body: [
+                                       { type: "sidebar-menu-item", body: [{ type: "sidebar-menu-button", active: true, body: [{ type: "text", value: "Dashboard" }] }] },
+                                       { type: "sidebar-menu-item", body: [{ type: "sidebar-menu-button", body: [{ type: "text", value: "Settings" }] }] }
+                                   ]}
+                               ]}
+                           ]},
+                           { type: "sidebar-footer", body: [{type: "div", className: "p-4", children: [{type: "text", value: "User"}] }] }
+                       ]},
+                       { type: "sidebar-inset", body: [
+                           { type: "header-bar", crumbs: [{label: "Dashboard"}] },
+                           { type: "div", className: "p-4", children: [{type: "text", value: "Main Content Area"}] }
+                       ]}
+                   ]
+                 }
+             ]}
+        )
+    ),
 
-    // Forms
+    // --- Forms ---
     'button': () => page("Button", "Trigger actions.",
         preview("Variants",
             { type: "div", className: "flex flex-wrap gap-4", children: [
@@ -226,6 +295,15 @@ const TEMPLATES = {
              ]}
          )
     ),
+    'radio-group': () => page("Radio Group", "Single selection from a set.",
+         preview("Notify me about...",
+             { type: "radio-group", defaultValue: "all", className: "grid gap-2", items: [
+                 { value: "all", label: "All new messages" },
+                 { value: "mentions", label: "Direct messages and mentions" },
+                 { value: "none", label: "Nothing" }
+             ]}
+         )
+    ),
     'switch': () => page("Switch", "Toggle state.",
          preview("Airplane Mode",
              { type: "div", className: "flex items-center space-x-2", children: [
@@ -246,13 +324,36 @@ const TEMPLATES = {
              { type: "div", className: "max-w-xs", children: [{ type: "date-picker" }] }
          )
     ),
+    'calendar': () => page("Calendar", "Inline calendar.",
+         preview("Calendar",
+             { type: "calendar", className: "rounded-md border shadow" }
+         )
+    ),
+    'input-otp': () => page("Input OTP", "One-time password input.",
+         preview("One-Time Password",
+             { type: "div", className: "space-y-4", children: [
+                 { type: "text", value: "Enter your one-time password.", className: "text-sm text-muted-foreground" },
+                 { type: "input-otp", maxLength: 6 }
+             ]}
+         )
+    ),
     'textarea': () => page("Textarea", "Multiline text input.",
          preview("Bio",
              { type: "textarea", placeholder: "Type your message here.", className: "max-w-md", label: "Description", description: "Your message will be copied to the support team." }
          )
     ),
+    'toggle': () => page("Toggle", "Toggle button.",
+         preview("Toggle",
+             { type: "toggle", icon: "bold", "aria-label": "Toggle bold" }
+         )
+    ),
+     'file-upload': () => page("File Upload", "Upload files.",
+         preview("Upload",
+             { type: "file-upload", className: "max-w-sm" }
+         )
+    ),
 
-    // Data Display
+    // --- Data Display ---
     'table': () => page("Table", "Tabular data display.",
         preview("Users",
             { type: "table", 
@@ -268,9 +369,7 @@ const TEMPLATES = {
                   { invoice: "INV002", status: "Pending", method: "PayPal", amount: "$150.00" },
                   { invoice: "INV003", status: "Unpaid", method: "Bank Transfer", amount: "$350.00" },
                   { invoice: "INV004", status: "Paid", method: "Credit Card", amount: "$450.00" },
-                  { invoice: "INV005", status: "Paid", method: "PayPal", amount: "$550.00" },
-                  { invoice: "INV006", status: "Pending", method: "Bank Transfer", amount: "$200.00" },
-                  { invoice: "INV007", status: "Unpaid", method: "Credit Card", amount: "$300.00" }
+                  { invoice: "INV005", status: "Paid", method: "PayPal", amount: "$550.00" }
               ]
             }
         )
@@ -306,8 +405,69 @@ const TEMPLATES = {
             ]}
         )
     ),
+    'statistic': () => page("Statistic", "Display statistics.",
+         preview("Key Metrics",
+             { type: "flex", className: "gap-8", children: [
+                 { type: "statistic", label: "Total Revenue", value: "$45,231.89", trend: "up" },
+                 { type: "statistic", label: "Subscriptions", value: "+2350", trend: "down" },
+                 { type: "statistic", label: "Active Now", value: "+573", trend: "neutral" }
+             ]}
+         )
+    ),
+    'tree-view': () => page("Tree View", "Hierarchical list.",
+         preview("File System",
+             { type: "tree-view", className: "w-64 border rounded-md p-2", data: [
+                 { id: "1", label: "Documents", children: [
+                     { id: "1-1", label: "Work", children: [{id: "1-1-1", label: "Project A"}, {id: "1-1-2", label: "Project B"}] },
+                     { id: "1-2", label: "Home" }
+                 ]},
+                 { id: "2", label: "Images" },
+                 { id: "3", label: "System" }
+             ]}
+         )
+    ),
 
-    // Overlay
+    // --- Feedback ---
+    'progress': () => page("Progress", "Displays an indicator showing the completion progress of a task.",
+         preview("Example",
+             { type: "div", className: "w-full max-w-md space-y-4", children: [
+                 { type: "progress", value: 33 },
+                 { type: "progress", value: 80, className: "h-2" }
+             ]}
+         )
+    ),
+    'loading': () => page("Loading", "Spinner indicators.",
+         preview("Sizes",
+             { type: "div", className: "flex gap-8 items-center", children: [
+                 { type: "loading", size: "sm" },
+                 { type: "loading", size: "md" },
+                 { type: "loading", size: "lg" }
+             ]}
+         ),
+         preview("With Text",
+             { type: "loading", text: "Loading data...", size: "md" }
+         )
+    ),
+    'skeleton': () => page("Skeleton", "Loading placeholder.",
+         preview("Card Loading",
+             { type: "div", className: "flex flex-col space-y-3", children: [
+                 { type: "skeleton", className: "h-[125px] w-[250px] rounded-xl" },
+                 { type: "div", className: "space-y-2", children: [
+                     { type: "skeleton", className: "h-4 w-[250px]" },
+                     { type: "skeleton", className: "h-4 w-[200px]" }
+                 ]}
+             ]}
+         )
+    ),
+    'toaster': () => page("Toaster", "Toast notifications.",
+         preview("Action",
+             { type: "button", label: "Show Toast", variant: "outline", 
+               onClick: "toast({ title: 'Scheduled: Catch up', description: 'Friday, February 10, 2023 at 5:57 PM' })" 
+             } 
+         )
+    ),
+
+    // --- Overlay ---
     'dialog': () => page("Dialog", "Modal window.",
         preview("Edit Profile",
             { 
@@ -322,6 +482,18 @@ const TEMPLATES = {
                 footer: [{ type: "button", label: "Save Changes" }]
             }
         )
+    ),
+    'alert-dialog': () => page("Alert Dialog", "Critical confirmation modal.",
+         preview("Delete Account",
+             { 
+                 type: "alert-dialog", 
+                 trigger: [{ type: "button", label: "Delete Account", variant: "destructive" }],
+                 title: "Are you absolutely sure?",
+                 description: "This action cannot be undone. This will permanently delete your account and remove your data from our servers.",
+                 action: { label: "Continue", className: "bg-red-600 hover:bg-red-700" },
+                 cancel: { label: "Cancel" }
+             }
+         )
     ),
     'sheet': () => page("Sheet", "Side drawer.",
         preview("Right Sheet",
@@ -339,12 +511,24 @@ const TEMPLATES = {
             }
         )
     ),
+    'drawer': () => page("Drawer", "Pull-up drawer (mobile optimized).",
+         preview("Open Drawer",
+             { 
+                 type: "drawer", 
+                 trigger: [{ type: "button", label: "Open Drawer", variant: "outline" }],
+                 title: "Move Goal",
+                 description: "Set your daily activity goal.",
+                 content: [{ type: "div", className: "p-4 flex justify-center", children: [{ type: "text", value: "Chart or controls go here" }] }],
+                 footer: [{ type: "button", label: "Submit" }, { type: "button", label: "Cancel", variant: "outline" }]
+             }
+         )
+    ),
     'popover': () => page("Popover", "Floating content.",
          preview("Settings",
              { 
                  type: "popover", 
                  trigger: [{ type: "button", label: "Open Popover", variant: "outline" }], 
-                 content: [{ type: "div", className: "grid gap-4", children: [
+                 content: [{ type: "div", className: "grid gap-4 p-2", children: [
                      { type: "div", className: "space-y-2", children: [{ type: "text", value: "Dimensions", className: "font-medium leading-none" }, { type: "text", value: "Set the dimensions for the layer.", className: "text-sm text-muted-foreground" }]},
                      { type: "div", className: "grid gap-2", children: [
                          { type: "div", className: "grid grid-cols-3 items-center gap-4", children: [{ type: "label", value: "Width" }, { type: "input", value: "100%", className: "col-span-2 h-8" }]},
@@ -359,17 +543,60 @@ const TEMPLATES = {
              { type: "tooltip", content: "Add to library", trigger: [{ type: "button", label: "Hover", variant: "outline" }] }
          )
     ),
-
-    // Complex / Charts
-    'charts': () => page("Charts", "Data visualizations.",
-        preview("Bar Chart",
-             { type: "bar-chart", className: "h-[300px]", 
-               data: [{name: "Jan", total: 100}, {name: "Feb", total: 150}, {name: "Mar", total: 200}, {name: "Apr", total: 180}], 
-               index: "name", categories: ["total"], colors: ["neutral"] }
-        )
+    'hover-card': () => page("Hover Card", "Preview content on hover.",
+         preview("Next.js",
+             { 
+                 type: "hover-card", 
+                 trigger: [{ type: "button", label: "@nextjs", variant: "link" }],
+                 content: [{ type: "div", className: "flex justify-between space-x-4", children: [
+                     { type: "avatar", fallback: "VC", src: "https://github.com/vercel.png" },
+                     { type: "div", className: "space-y-1", children: [
+                         { type: "text", value: "Vercel", className: "text-sm font-semibold" },
+                         { type: "text", value: "The React Framework for the Web", className: "text-sm" },
+                         { type: "div", className: "flex items-center pt-2", children: [{ type: "icon", name: "calendar-days", className: "mr-2 h-4 w-4 opacity-70" }, { type: "text", value: "Joined December 2021", className: "text-xs text-muted-foreground" }]}
+                     ]}
+                 ]}] 
+             }
+         )
     ),
-    
-    // Disclosure
+    'dropdown-menu': () => page("Dropdown Menu", "Menu to the user.",
+         preview("Options",
+             { 
+                 type: "dropdown-menu",
+                 trigger: [{ type: "button", label: "Open Menu", variant: "outline" }],
+                 items: [
+                     { label: "My Account", type: "label" },
+                     { type: "separator" },
+                     { label: "Profile", shortcut: "⇧⌘P" },
+                     { label: "Billing", shortcut: "⌘B" },
+                     { label: "Settings", shortcut: "⌘S" },
+                     { label: "Keyboard shortcuts", shortcut: "⌘K" },
+                     { type: "separator" },
+                     { label: "Team", subItems: [{ label: "Invite users" }, { label: "New Team" }] },
+                     { type: "separator" },
+                     { label: "Log out", shortcut: "⇧⌘Q" }
+                 ]
+             }
+         )
+    ),
+    'context-menu': () => page("Context Menu", "Right-click menu.",
+         preview("Right click here",
+             { 
+                 type: "context-menu",
+                 className: "flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm",
+                 trigger: [{ type: "text", value: "Right click here" }],
+                 items: [
+                     { label: "Back", shortcut: "⌘[" },
+                     { label: "Forward", shortcut: "⌘]" },
+                     { label: "Reload", shortcut: "⌘R" },
+                     { type: "separator" },
+                     { label: "Save As", shortcut: "⇧⌘S" }
+                 ]
+             }
+         )
+    ),
+
+    // --- Disclosure ---
     'accordion': () => page("Accordion", "Vertically stacked set of interactive headings.",
          preview("FAQ",
              { type: "div", className: "w-full max-w-md", children: [
@@ -381,14 +608,112 @@ const TEMPLATES = {
              ]}
          )
     ),
-    
-    // Feedback
-    'progress': () => page("Progress", "Displays an indicator showing the completion progress of a task.",
+    'collapsible': () => page("Collapsible", "Expand/collapse content.",
          preview("Example",
-             { type: "div", className: "w-full max-w-md space-y-4", children: [
-                 { type: "progress", value: 33 },
-                 { type: "progress", value: 80, className: "h-2" }
+             { type: "collapsible", title: "@peduarte starred 3 repositories", className: "w-[350px] space-y-2", children: [
+                 { type: "div", className: "rounded-md border px-4 py-3 font-mono text-sm", children: [{ type: "text", value: "@radix-ui/primitives" }] },
+                 { type: "div", className: "rounded-md border px-4 py-3 font-mono text-sm", children: [{ type: "text", value: "@radix-ui/colors" }] },
+                 { type: "div", className: "rounded-md border px-4 py-3 font-mono text-sm", children: [{ type: "text", value: "@stitches/react" }] }
              ]}
+         )
+    ),
+
+    // --- Complex / Charts ---
+    'charts': () => page("Charts", "Data visualizations.",
+        blockPreview("Bar Chart",
+             { type: "bar-chart", className: "h-[350px] w-full", 
+               data: [{name: "Jan", total: 100}, {name: "Feb", total: 150}, {name: "Mar", total: 200}, {name: "Apr", total: 180}], 
+               index: "name", categories: ["total"], colors: ["neutral"] }
+        ),
+        blockPreview("Line Chart",
+             { type: "line-chart", className: "h-[350px] w-full", 
+               data: [{name: "Jan", "2023": 100, "2024": 120}, {name: "Feb", "2023": 130, "2024": 140}, {name: "Mar", "2023": 150, "2024": 180}], 
+               index: "name", categories: ["2023", "2024"] }
+        )
+    ),
+    'data-table': () => page("Data Table", "Advanced table with sorting and filtering.",
+         blockPreview("Payments",
+             { type: "data-table", 
+               columns: [
+                   { accessorKey: "status", header: "Status" },
+                   { accessorKey: "email", header: "Email" },
+                   { accessorKey: "amount", header: "Amount" }
+               ],
+               data: [
+                   { id: "1", amount: 100, status: "pending", email: "m@example.com" },
+                   { id: "2", amount: 200, status: "processing", email: "a@example.com" },
+                   { id: "3", amount: 300, status: "success", email: "b@example.com" }
+               ]
+             }
+         )
+    ),
+    'kanban': () => page("Kanban", "Drag and drop board.",
+         blockPreview("Project Board",
+             { type: "kanban", className: "h-[500px]", 
+               columns: [{id: "todo", title: "To Do"}, {id: "in-progress", title: "In Progress"}, {id: "done", title: "Done"}],
+               data: [
+                   { id: "c1", title: "Research", columnId: "todo" },
+                   { id: "c2", title: "Design", columnId: "in-progress" },
+                   { id: "c3", title: "Development", columnId: "in-progress" },
+                   { id: "c4", title: "Testing", columnId: "done" }
+               ],
+               groupBy: "columnId"
+             }
+         )
+    ),
+    'filter-builder': () => page("Filter Builder", "Complex query builder.",
+        blockPreview("Filters",
+             { type: "filter-builder", name: "myFilter", fields: [
+                 { value: "name", label: "Name", type: "text" },
+                 { value: "price", label: "Price", type: "number" },
+                 { value: "status", label: "Status", type: "select", options: [{label: "Active", value: "active"}, {label: "Inactive", value: "inactive"}] }
+             ]}
+        )
+    ),
+    'calendar-view': () => page("Calendar View", "Full sized calendar.",
+         blockPreview("Schedule",
+             { type: "calendar-view", className: "h-[600px] border rounded-md" }
+         )
+    ),
+    'timeline': () => page("Timeline", "Events over time.",
+         preview("Activity",
+             { type: "timeline", items: [
+                 { title: "Commit", description: "First commit", time: "2 hours ago" },
+                 { title: "Review", description: "Code review", time: "1 hour ago" },
+                 { title: "Deploy", description: "Deployed to production", time: "Just now" }
+             ]}
+         )
+    ),
+    'carousel': () => page("Carousel", "Slideshow.",
+         preview("Images",
+             { type: "carousel", className: "w-full max-w-xs", children: [
+                 { type: "card", className: "p-6 flex items-center justify-center aspect-square", children: [{ type: "text", value: "1", className: "text-4xl" }] },
+                 { type: "card", className: "p-6 flex items-center justify-center aspect-square", children: [{ type: "text", value: "2", className: "text-4xl" }] },
+                 { type: "card", className: "p-6 flex items-center justify-center aspect-square", children: [{ type: "text", value: "3", className: "text-4xl" }] }
+             ]}
+         )
+    ),
+    'resizable': () => page("Resizable", "Resizable panels.",
+         blockPreview("Panels",
+             { type: "resizable", direction: "horizontal", className: "min-h-[200px] max-w-md rounded-lg border", items: [
+                 { size: 50, content: { type: "div", className: "flex h-full items-center justify-center p-6", children: [{ type: "text", value: "One" }] } },
+                 { size: 50, content: { type: "div", className: "flex h-full items-center justify-center p-6", children: [{ type: "text", value: "Two" }] } }
+             ]}
+         )
+    ),
+    'scroll-area': () => page("Scroll Area", "Custom scrollbar container.",
+         preview("Tags",
+             { type: "scroll-area", className: "h-72 w-48 rounded-md border", children: [
+                 { type: "div", className: "p-4", children: [
+                     { type: "text", value: "Tags", className: "mb-4 text-sm font-medium leading-none" },
+                     { type: "div", className: "gap-2 flex flex-col", children: Array.from({ length: 50 }).map((_, i) => ({ type: "div", className: "text-sm", children: [{ type: "div", className: "h-px bg-muted my-2" }, { type: "text", value: `Tag ${i+1}` }] })) }
+                 ]}
+             ]}
+         )
+    ),
+    'chatbot': () => page("Chatbot", "Conversational interface.",
+         blockPreview("Assistant",
+             { type: "chatbot", className: "h-[500px] border rounded-md" }
          )
     )
 };

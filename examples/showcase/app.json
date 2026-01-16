@@ -16,6 +16,7 @@
       "children": [
         { "label": "Div", "path": "/basic/div" },
         { "label": "Text", "path": "/basic/text" },
+        { "label": "HTML", "path": "/basic/html" },
         { "label": "Icon", "path": "/basic/icon" },
         { "label": "Image", "path": "/basic/image" },
         { "label": "Separator", "path": "/basic/separator" }
@@ -30,7 +31,9 @@
         { "label": "Stack", "path": "/layout/stack" },
         { "label": "Card", "path": "/layout/card" },
         { "label": "Container", "path": "/layout/container" },
-        { "label": "Tabs", "path": "/layout/tabs" }
+        { "label": "Tabs", "path": "/layout/tabs" },
+        { "label": "Header Bar", "path": "/layout/header-bar" },
+        { "label": "Sidebar", "path": "/layout/sidebar" }
       ]
     },
     {
@@ -57,6 +60,7 @@
       "icon": "Table",
       "children": [
         { "label": "List", "path": "/data-display/list" },
+        { "label": "Table", "path": "/data-display/table" },
         { "label": "Avatar", "path": "/data-display/avatar" },
         { "label": "Badge", "path": "/data-display/badge" },
         { "label": "Alert", "path": "/data-display/alert" },
@@ -70,6 +74,7 @@
       "children": [
         { "label": "Toaster", "path": "/feedback/toaster" },
         { "label": "Progress", "path": "/feedback/progress" },
+        { "label": "Loading", "path": "/feedback/loading" },
         { "label": "Skeleton", "path": "/feedback/skeleton" }
       ]
     },
@@ -102,6 +107,7 @@
       "children": [
         { "label": "Data Table", "path": "/complex/data-table" },
         { "label": "Kanban", "path": "/complex/kanban" },
+        { "label": "Filter Builder", "path": "/complex/filter-builder" },
         { "label": "Calendar View", "path": "/complex/calendar-view" },
         { "label": "Timeline", "path": "/complex/timeline" },
         { "label": "Charts", "path": "/complex/charts" },

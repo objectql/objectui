@@ -1,9 +1,10 @@
 import { ComponentRegistry } from '@object-ui/core';
 import type { SpanSchema } from '@object-ui/types';
 import { renderChildren } from '../../lib/utils';
+import { forwardRef } from 'react';
 
-ComponentRegistry.register('span', 
-  ({ schema, className, ...props }: { schema: SpanSchema; className?: string; [key: string]: any }) => {
+const SpanRenderer = forwardRef<HTMLSpanElement, { schema: SpanSchema; className?: string; [key: string]: any }>(
+  ({ schema, className, ...props }, ref) => {
     // Extract designer-related props
     const { 
         'data-obj-id': dataObjId, 
@@ -14,6 +15,7 @@ ComponentRegistry.register('span',
     
     return (
     <span 
+        ref={ref}
         className={className} 
         {...spanProps}
         // Apply designer props
@@ -22,7 +24,11 @@ ComponentRegistry.register('span',
       {renderChildren(schema.body)}
     </span>
   );
-  },
+  }
+);
+
+ComponentRegistry.register('span', 
+  SpanRenderer,
   {
     label: 'Inline Container',
     inputs: [

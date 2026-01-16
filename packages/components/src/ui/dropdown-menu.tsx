@@ -141,38 +141,37 @@ function DropdownMenuRadioItem({
   )
 }
 
-function DropdownMenuLabel({
-  className,
-  inset,
-  ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Label> & {
-  inset?: boolean
-}) {
-  return (
-    <DropdownMenuPrimitive.Label
-      data-slot="dropdown-menu-label"
-      data-inset={inset}
-      className={cn(
-        "px-2 py-1.5 text-sm font-medium data-[inset]:pl-8",
-        className
-      )}
-      {...props}
-    />
-  )
-}
+const DropdownMenuLabel = React.forwardRef<
+  React.ElementRef<typeof DropdownMenuPrimitive.Label>,
+  React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Label> & {
+    inset?: boolean
+  }
+>(({ className, inset, ...props }, ref) => (
+  <DropdownMenuPrimitive.Label
+    ref={ref}
+    data-slot="dropdown-menu-label"
+    data-inset={inset}
+    className={cn(
+      "px-2 py-1.5 text-sm font-medium data-[inset]:pl-8",
+      className
+    )}
+    {...props}
+  />
+))
+DropdownMenuLabel.displayName = DropdownMenuPrimitive.Label.displayName
 
-function DropdownMenuSeparator({
-  className,
-  ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Separator>) {
-  return (
-    <DropdownMenuPrimitive.Separator
-      data-slot="dropdown-menu-separator"
-      className={cn("bg-border -mx-1 my-1 h-px", className)}
-      {...props}
-    />
-  )
-}
+const DropdownMenuSeparator = React.forwardRef<
+  React.ElementRef<typeof DropdownMenuPrimitive.Separator>,
+  React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Separator>
+>(({ className, ...props }, ref) => (
+  <DropdownMenuPrimitive.Separator
+    ref={ref}
+    data-slot="dropdown-menu-separator"
+    className={cn("bg-border -mx-1 my-1 h-px", className)}
+    {...props}
+  />
+))
+DropdownMenuSeparator.displayName = DropdownMenuPrimitive.Separator.displayName
 
 function DropdownMenuShortcut({
   className,

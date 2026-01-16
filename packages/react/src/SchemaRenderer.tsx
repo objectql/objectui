@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import { SchemaNode, ComponentRegistry } from '@object-ui/core';
 
-export const SchemaRenderer = forwardRef<any, { schema: SchemaNode }>(({ schema }, ref) => {
+export const SchemaRenderer = forwardRef<any, { schema: SchemaNode } & Record<string, any>>(({ schema, ...props }, ref) => {
   if (!schema) return null;
   // If schema is just a string, render it as text
   if (typeof schema === 'string') return <>{schema}</>;
@@ -24,7 +24,8 @@ export const SchemaRenderer = forwardRef<any, { schema: SchemaNode }>(({ schema 
     className: schema.className,
     'data-obj-id': schema.id,
     'data-obj-type': schema.type,
-    ref
+    ref,
+    ...props
   });
 });
 SchemaRenderer.displayName = 'SchemaRenderer';

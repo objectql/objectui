@@ -1,11 +1,12 @@
 import { ComponentRegistry } from '@object-ui/core';
-import type { FlexSchema } from '@object-ui/types'; // TODO: Create StackSchema if needed, but FlexSchema is usually compatible
+import type { StackSchema } from '@object-ui/types';
 import { renderChildren } from '../../lib/utils';
 import { cn } from '../../lib/utils';
+import { forwardRef } from 'react';
 
 // Stack is essentially a Flex container that defaults to column direction
-ComponentRegistry.register('stack', 
-  ({ schema, className, ...props }: { schema: FlexSchema; className?: string; [key: string]: any }) => {
+const StackRenderer = forwardRef<HTMLDivElement, { schema: StackSchema; className?: string; [key: string]: any }>(
+  ({ schema, className, ...props }, ref) => {
     // Default to column for Stack
     const direction = schema.direction || 'col';
     const justify = schema.justify || 'start';
@@ -58,17 +59,20 @@ ComponentRegistry.register('stack',
 
     return (
       <div 
+        ref={ref}
         className={stackClass} 
         {...stackProps}
         // Apply designer props
-        data-obj-id={dataObjId}
-        data-obj-type={dataObjType}
-        style={style}
+        {...{ 'data-obj-id': dataObjId, 'data-obj-type': dataObjType, style }}
       >
         {schema.children && renderChildren(schema.children)}
       </div>
     );
-  },
+  }
+);
+
+ComponentRegistry.register('stack', 
+  StackRenderer,
   {
     label: 'Stack',
     inputs: [

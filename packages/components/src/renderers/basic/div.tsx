@@ -1,9 +1,10 @@
 import { ComponentRegistry } from '@object-ui/core';
 import type { DivSchema } from '@object-ui/types';
 import { renderChildren } from '../../lib/utils';
+import { forwardRef } from 'react';
 
-ComponentRegistry.register('div', 
-  ({ schema, className, ...props }: { schema: DivSchema; className?: string; [key: string]: any }) => {
+const DivRenderer = forwardRef<HTMLDivElement, { schema: DivSchema; className?: string; [key: string]: any }>(
+  ({ schema, className, ...props }, ref) => {
     // Extract designer-related props
     const { 
         'data-obj-id': dataObjId, 
@@ -14,6 +15,7 @@ ComponentRegistry.register('div',
     
     return (
     <div 
+        ref={ref}
         className={className} 
         {...divProps}
         // Apply designer props
@@ -22,7 +24,11 @@ ComponentRegistry.register('div',
       {renderChildren(schema.children || schema.body)}
     </div>
   );
-  },
+  }
+);
+
+ComponentRegistry.register('div', 
+  DivRenderer,
   {
     label: 'Container',
     inputs: [

@@ -9,9 +9,10 @@ import {
   CardContent,
   CardFooter
 } from '../../ui';
+import { forwardRef } from 'react';
 
-ComponentRegistry.register('card', 
-  ({ schema, className, ...props }: { schema: CardSchema; className?: string; [key: string]: any }) => {
+const CardRenderer = forwardRef<HTMLDivElement, { schema: CardSchema; className?: string; [key: string]: any }>(
+  ({ schema, className, ...props }, ref) => {
     // Extract designer-related props
     const { 
         'data-obj-id': dataObjId, 
@@ -22,22 +23,28 @@ ComponentRegistry.register('card',
 
     return (
     <Card 
+        ref={ref}
         className={className} 
         {...cardProps}
         // Apply designer props
         {...{ 'data-obj-id': dataObjId, 'data-obj-type': dataObjType, style }}
     >
-      {(schema.title || schema.description) && (
+      {(schema.title || schema.description || schema.header) && (
         <CardHeader>
           {schema.title && <CardTitle>{schema.title}</CardTitle>}
           {schema.description && <CardDescription>{schema.description}</CardDescription>}
+          {schema.header && renderChildren(schema.header)}
         </CardHeader>
       )}
       {(schema.children || schema.body) && <CardContent>{renderChildren(schema.children || schema.body)}</CardContent>}
-      {schema.footer && <CardFooter>{renderChildren(schema.footer)}</CardFooter>}
+      {schema.footer && <CardFooter className="flex justify-between">{renderChildren(schema.footer)}</CardFooter>}
     </Card>
     );
-  },
+  }
+);
+
+ComponentRegistry.register('card', 
+  CardRenderer,
   {
     label: 'Card',
     inputs: [

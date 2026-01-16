@@ -17,7 +17,7 @@
             },
             {
               "type": "text",
-              "value": "Examples of the Radio Group component.",
+              "value": "Single selection from a set.",
               "className": "text-lg text-muted-foreground"
             }
           ]
@@ -32,19 +32,28 @@
           "children": [
             {
               "type": "text",
-              "value": "Default",
+              "value": "Notify me about...",
               "className": "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             },
             {
               "type": "card",
               "className": "p-6 flex items-center justify-center min-h-[150px] bg-background/50 border shadow-sm",
               "children": {
-                "type": "card",
-                "className": "p-6",
-                "children": [
+                "type": "radio-group",
+                "defaultValue": "all",
+                "className": "grid gap-2",
+                "items": [
                   {
-                    "type": "text",
-                    "value": "TODO: Implement Radio Group examples"
+                    "value": "all",
+                    "label": "All new messages"
+                  },
+                  {
+                    "value": "mentions",
+                    "label": "Direct messages and mentions"
+                  },
+                  {
+                    "value": "none",
+                    "label": "Nothing"
                   }
                 ]
               }

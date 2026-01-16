@@ -17,7 +17,7 @@
             },
             {
               "type": "text",
-              "value": "Examples of the Resizable component.",
+              "value": "Resizable panels.",
               "className": "text-lg text-muted-foreground"
             }
           ]
@@ -32,19 +32,42 @@
           "children": [
             {
               "type": "text",
-              "value": "Default",
-              "className": "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              "value": "Panels",
+              "className": "text-sm font-medium leading-none"
             },
             {
               "type": "card",
-              "className": "p-6 flex items-center justify-center min-h-[150px] bg-background/50 border shadow-sm",
+              "className": "p-0 overflow-hidden border shadow-sm",
               "children": {
-                "type": "card",
-                "className": "p-6",
-                "children": [
+                "type": "resizable",
+                "direction": "horizontal",
+                "className": "min-h-[200px] max-w-md rounded-lg border",
+                "items": [
                   {
-                    "type": "text",
-                    "value": "TODO: Implement Resizable examples"
+                    "size": 50,
+                    "content": {
+                      "type": "div",
+                      "className": "flex h-full items-center justify-center p-6",
+                      "children": [
+                        {
+                          "type": "text",
+                          "value": "One"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "size": 50,
+                    "content": {
+                      "type": "div",
+                      "className": "flex h-full items-center justify-center p-6",
+                      "children": [
+                        {
+                          "type": "text",
+                          "value": "Two"
+                        }
+                      ]
+                    }
                   }
                 ]
               }

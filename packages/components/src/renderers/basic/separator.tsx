@@ -1,9 +1,10 @@
 import { ComponentRegistry } from '@object-ui/core';
 import type { SeparatorSchema } from '@object-ui/types';
 import { Separator } from '../../ui';
+import { forwardRef } from 'react';
 
-ComponentRegistry.register('separator', 
-  ({ schema, className, ...props }: { schema: SeparatorSchema; className?: string; [key: string]: any }) => {
+const SeparatorRenderer = forwardRef<HTMLDivElement, { schema: SeparatorSchema; className?: string; [key: string]: any }>(
+  ({ schema, className, ...props }, ref) => {
     // Extract designer-related props
     const { 
         'data-obj-id': dataObjId, 
@@ -14,6 +15,7 @@ ComponentRegistry.register('separator',
     
     return (
     <Separator 
+        ref={ref}
         orientation={schema.orientation} 
         className={className} 
         {...separatorProps}
@@ -21,7 +23,11 @@ ComponentRegistry.register('separator',
         {...{ 'data-obj-id': dataObjId, 'data-obj-type': dataObjType, style }}
     />
   );
-  },
+  }
+);
+
+ComponentRegistry.register('separator', 
+  SeparatorRenderer,
   {
     label: 'Separator',
     inputs: [

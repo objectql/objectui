@@ -1,6 +1,6 @@
 {
   "type": "page",
-  "title": "Data Table - Object UI",
+  "title": "Filter Builder - Object UI",
   "body": [
     {
       "type": "div",
@@ -12,12 +12,12 @@
           "children": [
             {
               "type": "text",
-              "value": "Data Table",
+              "value": "Filter Builder",
               "className": "text-3xl font-bold tracking-tight"
             },
             {
               "type": "text",
-              "value": "Advanced table with sorting and filtering.",
+              "value": "Complex query builder.",
               "className": "text-lg text-muted-foreground"
             }
           ]
@@ -32,46 +32,40 @@
           "children": [
             {
               "type": "text",
-              "value": "Payments",
+              "value": "Filters",
               "className": "text-sm font-medium leading-none"
             },
             {
               "type": "card",
               "className": "p-0 overflow-hidden border shadow-sm",
               "children": {
-                "type": "data-table",
-                "columns": [
+                "type": "filter-builder",
+                "name": "myFilter",
+                "fields": [
                   {
-                    "accessorKey": "status",
-                    "header": "Status"
+                    "value": "name",
+                    "label": "Name",
+                    "type": "text"
                   },
                   {
-                    "accessorKey": "email",
-                    "header": "Email"
+                    "value": "price",
+                    "label": "Price",
+                    "type": "number"
                   },
                   {
-                    "accessorKey": "amount",
-                    "header": "Amount"
-                  }
-                ],
-                "data": [
-                  {
-                    "id": "1",
-                    "amount": 100,
-                    "status": "pending",
-                    "email": "m@example.com"
-                  },
-                  {
-                    "id": "2",
-                    "amount": 200,
-                    "status": "processing",
-                    "email": "a@example.com"
-                  },
-                  {
-                    "id": "3",
-                    "amount": 300,
-                    "status": "success",
-                    "email": "b@example.com"
+                    "value": "status",
+                    "label": "Status",
+                    "type": "select",
+                    "options": [
+                      {
+                        "label": "Active",
+                        "value": "active"
+                      },
+                      {
+                        "label": "Inactive",
+                        "value": "inactive"
+                      }
+                    ]
                   }
                 ]
               }

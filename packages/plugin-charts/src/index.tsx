@@ -54,7 +54,7 @@ ComponentRegistry.register(
       { name: 'dataKey', type: 'string', label: 'Data Key', defaultValue: 'value' },
       { name: 'xAxisKey', type: 'string', label: 'X-Axis Key', defaultValue: 'name' },
       { name: 'height', type: 'number', label: 'Height', defaultValue: 400 },
-      { name: 'color', type: 'color', label: 'Color', defaultValue: '#8884d8' },
+      { name: 'color', type: 'color', label: 'Color', defaultValue: '#06b6d4' },
     ],
     defaultProps: {
       data: [
@@ -67,7 +67,7 @@ ComponentRegistry.register(
       dataKey: 'value',
       xAxisKey: 'name',
       height: 400,
-      color: '#8884d8',
+      color: '#06b6d4',
     },
   }
 );

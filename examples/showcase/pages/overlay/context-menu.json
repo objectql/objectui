@@ -17,7 +17,7 @@
             },
             {
               "type": "text",
-              "value": "Examples of the Context Menu component.",
+              "value": "Right-click menu.",
               "className": "text-lg text-muted-foreground"
             }
           ]
@@ -32,19 +32,40 @@
           "children": [
             {
               "type": "text",
-              "value": "Default",
+              "value": "Right click here",
               "className": "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             },
             {
               "type": "card",
               "className": "p-6 flex items-center justify-center min-h-[150px] bg-background/50 border shadow-sm",
               "children": {
-                "type": "card",
-                "className": "p-6",
-                "children": [
+                "type": "context-menu",
+                "className": "flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm",
+                "trigger": [
                   {
                     "type": "text",
-                    "value": "TODO: Implement Context Menu examples"
+                    "value": "Right click here"
+                  }
+                ],
+                "items": [
+                  {
+                    "label": "Back",
+                    "shortcut": "⌘["
+                  },
+                  {
+                    "label": "Forward",
+                    "shortcut": "⌘]"
+                  },
+                  {
+                    "label": "Reload",
+                    "shortcut": "⌘R"
+                  },
+                  {
+                    "type": "separator"
+                  },
+                  {
+                    "label": "Save As",
+                    "shortcut": "⇧⌘S"
                   }
                 ]
               }
