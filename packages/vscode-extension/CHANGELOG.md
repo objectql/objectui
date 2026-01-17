@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @object-ui/types@0.3.0
+  - @object-ui/core@0.2.2
+
 ## 0.1.1
 
 ### Patch Changes

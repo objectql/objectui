@@ -1,6 +1,6 @@
-# @object-ui/plugin-markdown
+# @object-ui/runner
 
-## 0.2.2
+## 0.1.1
 
 ### Patch Changes
 
@@ -23,20 +23,5 @@
   - @object-ui/core@0.2.2
   - @object-ui/react@0.2.2
   - @object-ui/components@0.2.2
-
-## 0.2.1
-
-### Patch Changes
-
-- Patch release: Add automated changeset workflow and CI/CD improvements
-
-  This release includes infrastructure improvements:
-  - Added changeset-based version management
-  - Enhanced CI/CD workflows with GitHub Actions
-  - Improved documentation for contributing and releasing
-
-- Updated dependencies
-  - @object-ui/types@0.2.1
-  - @object-ui/core@0.2.1
-  - @object-ui/react@0.2.1
-  - @object-ui/components@0.2.1
+  - @object-ui/plugin-charts@0.2.2
+  - @object-ui/plugin-kanban@0.2.2
