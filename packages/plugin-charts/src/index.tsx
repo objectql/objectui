@@ -67,6 +67,7 @@ ComponentRegistry.register(
       dataKey: 'value',
       xAxisKey: 'name',
       height: 400,
+      color: '#8884d8',
     },
   }
 );
