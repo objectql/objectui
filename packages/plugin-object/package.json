@@ -1,7 +1,7 @@
 {
-  "name": "@object-ui/data-object",
+  "name": "@object-ui/plugin-object",
   "version": "0.1.0",
-  "description": "ObjectQL-specific components for Object UI - Object Table and Object Form",
+  "description": "ObjectQL plugin for Object UI - Object Table and Object Form components",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -31,7 +31,8 @@
     "objectql",
     "object-table",
     "object-form",
-    "data-components",
+    "plugin",
+    "components",
     "typescript"
   ],
   "author": "Object UI Team",
@@ -39,7 +40,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/objectstack-ai/objectui.git",
-    "directory": "packages/data-object"
+    "directory": "packages/plugin-object"
   },
   "dependencies": {
     "@object-ui/types": "workspace:*",

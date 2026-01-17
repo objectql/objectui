@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **New Package**: `@object-ui/data-object` - ObjectQL-specific components for automatic table and form generation
+- **New Plugin**: `@object-ui/plugin-object` - ObjectQL plugin for automatic table and form generation
   - `ObjectTable`: Auto-generates tables from ObjectQL object schemas
   - `ObjectForm`: Auto-generates forms from ObjectQL object schemas with create/edit/view modes
   - Full TypeScript support with comprehensive type definitions
@@ -18,8 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated `@objectql/sdk` from ^1.8.3 to ^1.9.1 in `@object-ui/data-objectql`
-- Updated `@objectql/types` from ^1.8.3 to ^1.9.1 in `@object-ui/data-objectql`
+- Updated `@objectql/sdk` from ^1.8.3 to ^1.9.1
+- Updated `@objectql/types` from ^1.8.3 to ^1.9.1
 
 ---
 

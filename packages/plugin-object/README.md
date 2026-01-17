@@ -1,6 +1,6 @@
-# @object-ui/data-object
+# @object-ui/plugin-object
 
-ObjectQL-specific components for Object UI, providing seamless integration with ObjectQL backends.
+ObjectQL plugin for Object UI, providing seamless integration with ObjectQL backends through auto-generated components.
 
 ## Features
 
@@ -10,7 +10,7 @@ ObjectQL-specific components for Object UI, providing seamless integration with 
 ## Installation
 
 ```bash
-npm install @object-ui/data-object @object-ui/data-objectql
+npm install @object-ui/plugin-object @object-ui/data-objectql
 ```
 
 ## Usage

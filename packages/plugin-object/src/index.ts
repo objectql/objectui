@@ -1,7 +1,7 @@
 /**
- * @object-ui/data-object
+ * @object-ui/plugin-object
  * 
- * ObjectQL-specific components for Object UI.
+ * ObjectQL plugin for Object UI.
  * Provides seamless integration with ObjectQL backends through smart components
  * that automatically generate UI from ObjectQL object schemas.
  * 

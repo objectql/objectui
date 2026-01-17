@@ -1,10 +1,10 @@
-# @object-ui/data-object
+# @object-ui/plugin-object
 
 ## 0.1.0 (2026-01-17)
 
 ### Features
 
-* **New Package**: Created `@object-ui/data-object` package for ObjectQL-specific components
+* **New Plugin**: Created `@object-ui/plugin-object` plugin for ObjectQL-specific components
 * **ObjectTable**: Added ObjectTable component that automatically generates tables from ObjectQL object schemas
   * Auto-fetches object metadata from ObjectQL
   * Auto-generates columns based on field definitions
