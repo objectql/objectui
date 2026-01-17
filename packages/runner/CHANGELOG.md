@@ -1,5 +1,11 @@
 # @object-ui/runner
 
+## 0.3.0
+
+### Minor Changes
+
+- Unified version across all packages to 0.3.0 for consistent versioning
+
 ## 0.1.1
 
 ### Patch Changes

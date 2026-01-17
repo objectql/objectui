@@ -1,5 +1,11 @@
 # @object-ui/components
 
+## 0.3.0
+
+### Minor Changes
+
+- Unified version across all packages to 0.3.0 for consistent versioning
+
 ## 0.2.2
 
 ### Patch Changes
