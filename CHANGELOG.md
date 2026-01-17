@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **New Plugin**: `@object-ui/plugin-object` - ObjectQL plugin for automatic table and form generation
+  - `ObjectTable`: Auto-generates tables from ObjectQL object schemas
+  - `ObjectForm`: Auto-generates forms from ObjectQL object schemas with create/edit/view modes
+  - Full TypeScript support with comprehensive type definitions
+- **Type Definitions**: Added `ObjectTableSchema` and `ObjectFormSchema` to `@object-ui/types`
+- **ObjectQL Integration**: Enhanced `ObjectQLDataSource` with `getObjectSchema()` method using MetadataApiClient
+
+### Changed
+
+- Updated `@objectql/sdk` from ^1.8.3 to ^1.9.1
+- Updated `@objectql/types` from ^1.8.3 to ^1.9.1
+
+---
+
 ## [0.2.1] - 2026-01-15
 
 ### Changed
