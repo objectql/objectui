@@ -16,7 +16,7 @@
  * @packageDocumentation
  */
 
-import type { UIComponent, SchemaNode as SpecSchemaNode } from '@objectstack/spec';
+import type { UIComponent } from '@objectstack/spec';
 
 /**
  * Base schema interface that all component schemas extend.
@@ -38,19 +38,6 @@ import type { UIComponent, SchemaNode as SpecSchemaNode } from '@objectstack/spe
  * ```
  */
 export interface BaseSchema extends UIComponent {
-  /**
-   * Component type identifier. Determines which renderer to use.
-   * Inherited from UIComponent but documented here for clarity.
-   * @example 'input', 'button', 'form', 'grid'
-   */
-  type: string;
-
-  /**
-   * Unique identifier for the component instance.
-   * Used for state management, event handling, and React keys.
-   */
-  id?: string;
-
   /**
    * Human-readable name for the component.
    * Used for form field names, labels, and debugging.
@@ -170,7 +157,8 @@ export interface BaseSchema extends UIComponent {
  * A schema node can be a full schema object or a primitive value.
  * This union type supports both structured components and simple content.
  * 
- * Re-exported from @objectstack/spec for convenience.
+ * Note: This uses BaseSchema (instead of UIComponent from spec) to provide
+ * ObjectUI-specific type narrowing and to include ObjectUI extensions in the type system.
  * 
  * @example
  * ```typescript
