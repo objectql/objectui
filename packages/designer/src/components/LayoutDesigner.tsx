@@ -1,4 +1,12 @@
 /**
+ * ObjectUI
+ * Copyright (c) 2024-present ObjectStack Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
  * LayoutDesigner - Specialized designer for creating page layouts
  * 
  * This component provides a focused interface for designing page layouts with:
