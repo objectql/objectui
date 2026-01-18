@@ -118,10 +118,8 @@ The following components are defined in `@object-ui/types/data-display`:
 {
   "type": "badge",
   "id": "status-badge",
-  "props": {
-    "label": "New",
-    "variant": "default"
-  }
+  "label": "New",
+  "variant": "default"
 }
 ```
 
@@ -206,6 +204,31 @@ When creating or using components:
 6. ✅ **SHOULD** support `children` for composable components
 7. ✅ **SHOULD** support `id` for unique identification
 8. ✅ **MAY** use ObjectUI extensions (className, visibleOn, etc.)
+
+### Property Placement Guide
+
+**Component-specific properties** → Top level:
+```json
+{
+  "type": "alert",
+  "title": "Welcome",        // ✅ Component-specific
+  "variant": "default",      // ✅ Component-specific
+  "dismissible": true        // ✅ Component-specific
+}
+```
+
+**Standard HTML/ARIA attributes** → props object:
+```json
+{
+  "type": "alert",
+  "title": "Welcome",
+  "props": {
+    "role": "alert",         // ✅ HTML attribute
+    "aria-live": "polite",   // ✅ ARIA attribute
+    "data-testid": "alert"   // ✅ Data attribute
+  }
+}
+```
 
 ## Related Packages
 
