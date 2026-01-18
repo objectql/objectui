@@ -1,3 +1,11 @@
+/**
+ * ObjectUI
+ * Copyright (c) 2024-present ObjectStack Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 // Enterprise-level DataTable Component (Airtable-like)
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { ComponentRegistry } from '@object-ui/core';
