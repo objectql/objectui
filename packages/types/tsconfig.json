@@ -7,7 +7,10 @@
     "declarationMap": true,
     "composite": true,
     "noEmit": false,
-    "lib": ["ES2020", "DOM"]
+    "lib": ["ES2020", "DOM"],
+    // Override paths from root tsconfig to use node_modules resolution
+    // This ensures @objectstack/spec is resolved from workspace dependency
+    "paths": {}
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts", "examples"]
