@@ -306,5 +306,5 @@ Stop writing repetitive UI code. Start building with ObjectUI.
 <div style="display: flex; gap: 1rem; margin-top: 2rem;">
   <a href="/protocol/overview" style="padding: 0.75rem 1.5rem; background: #3b82f6; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">Read the Spec</a>
   <a href="/components/" style="padding: 0.75rem 1.5rem; border: 1px solid #3b82f6; color: #3b82f6; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">View Component Gallery</a>
-  <a href="/guide/quick-start" style="padding: 0.75rem 1.5rem; border: 1px solid #6b7280; color: #6b7280; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">Quick Start →</a>
+  <a href="/getting-started/quick-start" style="padding: 0.75rem 1.5rem; border: 1px solid #6b7280; color: #6b7280; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">Quick Start →</a>
 </div>

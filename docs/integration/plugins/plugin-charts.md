@@ -221,6 +221,6 @@ const chartSchema: BarChartSchema = {
 
 ## Related Documentation
 
-- [Plugin System Overview](../guide/plugins.md)
+- [Plugin System Overview](/concepts/plugins.md)
 - [Lazy-Loaded Plugins Architecture](../lazy-loaded-plugins.md)
 - [Package README](https://github.com/objectstack-ai/objectui/tree/main/packages/plugin-charts)
