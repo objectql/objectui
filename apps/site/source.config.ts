@@ -4,7 +4,13 @@ import { z } from 'zod';
 export const { docs, meta } = defineDocs({
   dir: '../../docs',
   root: '../../docs',
-  files: ['**/*.{md,mdx}', '!**/node_modules/**'],
+  files: [
+    '**/*.{md,mdx}', 
+    '!**/node_modules/**', 
+    '!**/.vitepress/**',
+    '!**/dist/**',
+    '!**/.*/**', // ignore dotfiles/folders generally
+  ],
 });
 
 export const blog = defineCollections({
