@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
+import { Logo } from './components/Logo';
 
 export default function HomePage() {
   return (
     <HomeLayout
       nav={{
-        title: 'Object UI',
+        title: <Logo />,
         url: '/',
       }}
       githubUrl="https://github.com/objectstack-ai/objectui"
