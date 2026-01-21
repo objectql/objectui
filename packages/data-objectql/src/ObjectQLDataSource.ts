@@ -13,7 +13,7 @@
  * with ObjectQL API backends. It implements the universal DataSource interface
  * from @object-ui/types to provide seamless data access.
  * 
- * This adapter uses the official @objectql/sdk package for all API communication.
+ * This adapter uses the official @objectstack/client package for all API communication.
  * 
  * @module data-objectql
  * @packageDocumentation
