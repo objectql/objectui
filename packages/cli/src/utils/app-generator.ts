@@ -152,6 +152,7 @@ import '@object-ui/plugin-charts';
 import '@object-ui/plugin-editor';
 import '@object-ui/plugin-kanban';
 import '@object-ui/plugin-markdown';
+import '@object-ui/plugin-object';
 
 const schema = ${JSON.stringify(schema, null, 2)};
 
@@ -778,6 +779,7 @@ import '@object-ui/plugin-charts';
 import '@object-ui/plugin-editor';
 import '@object-ui/plugin-kanban';
 import '@object-ui/plugin-markdown';
+import '@object-ui/plugin-object';
 ${schemaImports.join('\n')}
 ${layoutImport}
 
