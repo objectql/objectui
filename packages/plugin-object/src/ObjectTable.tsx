@@ -13,7 +13,7 @@
  * It integrates with ObjectQL's schema system to generate columns and handle CRUD operations.
  */
 
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import type { ObjectTableSchema, TableColumn, TableSchema } from '@object-ui/types';
 import type { ObjectQLDataSource } from '@object-ui/data-objectql';
 import { SchemaRenderer } from '@object-ui/react';
