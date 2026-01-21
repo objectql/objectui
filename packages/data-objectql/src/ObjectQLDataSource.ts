@@ -187,8 +187,8 @@ export class ObjectQLDataSource<T = any> implements DataSource<T> {
    * @returns FilterNode AST array or simple object for flat key-value filters
    * 
    * @example
-   * // Simple filter
-   * { status: 'active' } => { status: 'active' }
+   * // Simple filter - converted to AST
+   * { status: 'active' } => ['status', '=', 'active']
    * 
    * // Complex filter with operators
    * { age: { $gte: 18 } } => ['age', '>=', 18]

@@ -192,8 +192,8 @@ export class ObjectStackAdapter<T = any> implements DataSource<T> {
    * @returns FilterNode AST array or simple object for flat key-value filters
    * 
    * @example
-   * // Simple filter
-   * { status: 'active' } => { status: 'active' }
+   * // Simple filter - converted to AST
+   * { status: 'active' } => ['status', '=', 'active']
    * 
    * // Complex filter with operators
    * { age: { $gte: 18 } } => ['age', '>=', 18]
@@ -214,7 +214,7 @@ export class ObjectStackAdapter<T = any> implements DataSource<T> {
         for (const [operator, operatorValue] of Object.entries(value)) {
           const astOperator = this.convertOperatorToAST(operator);
           if (astOperator) {
-            if (operator === '$in' || operator === '$notin') {
+            if (operator === '$in' || operator === '$nin' || operator === '$notin') {
               // For 'in' and 'notin', value should be an array
               conditions.push([field, astOperator, operatorValue]);
             } else if (operator === '$between') {
