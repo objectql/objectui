@@ -4,6 +4,7 @@
   "description": "VSCode extension for Object UI - Schema-driven UI development with IntelliSense, validation, and live preview",
   "version": "0.3.0",
   "publisher": "objectui",
+  "private": true,
   "icon": "icon.svg",
   "engines": {
     "vscode": "^1.85.0"
