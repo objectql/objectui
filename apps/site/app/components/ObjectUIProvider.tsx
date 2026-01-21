@@ -1,13 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
-import { registerDefaultRenderers } from '@object-ui/components';
+// Import components to trigger registration
+import '@object-ui/components';
 
 export function ObjectUIProvider({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    // Register all default ObjectUI components
-    registerDefaultRenderers();
-  }, []);
-
+  // Components are auto-registered on import
   return <>{children}</>;
 }
