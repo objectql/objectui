@@ -235,7 +235,7 @@ export class ObjectQLDataSource<T = any> implements DataSource<T> {
       if (params?.$select && response) {
         const filtered: any = {};
         for (const field of params.$select) {
-          if (field in response) {
+          if (response && typeof response === 'object' && field in response) {
             filtered[field] = (response as any)[field];
           }
         }
@@ -245,7 +245,8 @@ export class ObjectQLDataSource<T = any> implements DataSource<T> {
       return response ? (response as T) : null;
     } catch (err: any) {
       // Return null for not found errors
-      if (err.code === 'NOT_FOUND' || err.status === 404) {
+      // ObjectStack client throws with different error format
+      if (err.message?.includes('404') || err.status === 404) {
         return null;
       }
       
