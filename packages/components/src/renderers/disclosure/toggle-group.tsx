@@ -21,7 +21,7 @@ ComponentRegistry.register('toggle-group',
     
     return (
       <ToggleGroup 
-        type={schema.type || 'single'}
+        type={schema.selectionType || 'single'}
         variant={schema.variant}
         size={schema.size}
         value={schema.value}
@@ -41,11 +41,11 @@ ComponentRegistry.register('toggle-group',
     label: 'Toggle Group',
     inputs: [
       { 
-        name: 'type', 
+        name: 'selectionType', 
         type: 'enum', 
         enum: ['single', 'multiple'], 
         defaultValue: 'single',
-        label: 'Type'
+        label: 'Selection Type'
       },
       { 
         name: 'variant', 
@@ -64,7 +64,7 @@ ComponentRegistry.register('toggle-group',
       { name: 'className', type: 'string', label: 'CSS Class' }
     ],
     defaultProps: {
-      type: 'single',
+      selectionType: 'single',
       variant: 'default',
       size: 'default',
       items: [

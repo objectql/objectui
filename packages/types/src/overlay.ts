@@ -412,6 +412,31 @@ export interface ContextMenuSchema extends BaseSchema {
 }
 
 /**
+ * Menubar menu
+ */
+export interface MenubarMenu {
+  /**
+   * Menu label
+   */
+  label: string;
+  /**
+   * Menu items
+   */
+  items: MenuItem[];
+}
+
+/**
+ * Menubar component
+ */
+export interface MenubarSchema extends BaseSchema {
+  type: 'menubar';
+  /**
+   * Menubar menus
+   */
+  menus?: MenubarMenu[];
+}
+
+/**
  * Union type of all overlay schemas
  */
 export type OverlaySchema =
@@ -423,4 +448,5 @@ export type OverlaySchema =
   | TooltipSchema
   | HoverCardSchema
   | DropdownMenuSchema
-  | ContextMenuSchema;
+  | ContextMenuSchema
+  | MenubarSchema;

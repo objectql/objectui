@@ -610,6 +610,51 @@ export interface TimelineSchema extends BaseSchema {
 }
 
 /**
+ * Breadcrumb item
+ */
+export interface BreadcrumbItem {
+  /**
+   * Item label
+   */
+  label: string;
+  /**
+   * Item href/link
+   */
+  href?: string;
+}
+
+/**
+ * Breadcrumb component
+ */
+export interface BreadcrumbSchema extends BaseSchema {
+  type: 'breadcrumb';
+  /**
+   * Breadcrumb items
+   */
+  items: BreadcrumbItem[];
+  /**
+   * Separator character
+   * @default '/'
+   */
+  separator?: string;
+}
+
+/**
+ * Keyboard key component
+ */
+export interface KbdSchema extends BaseSchema {
+  type: 'kbd';
+  /**
+   * Key label (single key)
+   */
+  label?: string;
+  /**
+   * Key labels (multiple keys)
+   */
+  keys?: string | string[];
+}
+
+/**
  * Union type of all data display schemas
  */
 export type DataDisplaySchema =
@@ -624,7 +669,9 @@ export type DataDisplaySchema =
   | ChartSchema
   | TimelineSchema
   | HtmlSchema
-  | StatisticSchema;
+  | StatisticSchema
+  | BreadcrumbSchema
+  | KbdSchema;
 
 /**
  * Raw HTML component

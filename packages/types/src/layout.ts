@@ -397,6 +397,34 @@ export interface ResizablePanel {
 }
 
 /**
+ * Aspect ratio component
+ */
+export interface AspectRatioSchema extends BaseSchema {
+  type: 'aspect-ratio';
+  /**
+   * Aspect ratio (width / height)
+   * @default 16/9
+   */
+  ratio?: number;
+  /**
+   * Image URL to display
+   */
+  image?: string;
+  /**
+   * Image alt text
+   */
+  alt?: string;
+  /**
+   * Child components (alternative to image)
+   */
+  body?: SchemaNode | SchemaNode[];
+  /**
+   * Child components (alternative syntax)
+   */
+  children?: SchemaNode | SchemaNode[];
+}
+
+/**
  * Page layout component
  * Top-level container for a page route
  */
@@ -442,19 +470,6 @@ export type LayoutSchema =
   | TabsSchema
   | ScrollAreaSchema
   | ResizableSchema
+  | AspectRatioSchema
   | PageSchema;
 
-/**
- * Page container component
- */
-export interface PageSchema extends BaseSchema {
-  type: 'page';
-  /**
-   * Page title
-   */
-  title?: string;
-  /**
-   * Child components
-   */
-  children?: SchemaNode | SchemaNode[];
-}

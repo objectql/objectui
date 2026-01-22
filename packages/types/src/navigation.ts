@@ -207,7 +207,11 @@ export interface PaginationSchema extends BaseSchema {
   /**
    * Current page (1-indexed)
    */
-  page: number;
+  currentPage?: number;
+  /**
+   * Legacy page property
+   */
+  page?: number;
   /**
    * Total number of pages
    */
@@ -234,10 +238,105 @@ export interface PaginationSchema extends BaseSchema {
 }
 
 /**
+ * Navigation menu item
+ */
+export interface NavigationMenuItem {
+  /**
+   * Item label
+   */
+  label: string;
+  /**
+   * Item href/link
+   */
+  href?: string;
+  /**
+   * Item description
+   */
+  description?: string;
+  /**
+   * Item icon
+   */
+  icon?: string;
+  /**
+   * Child items
+   */
+  children?: NavigationMenuItem[];
+}
+
+/**
+ * Navigation menu component
+ */
+export interface NavigationMenuSchema extends BaseSchema {
+  type: 'navigation-menu';
+  /**
+   * Navigation menu items
+   */
+  items?: NavigationMenuItem[];
+  /**
+   * Navigation menu orientation
+   * @default 'horizontal'
+   */
+  orientation?: 'horizontal' | 'vertical';
+}
+
+/**
+ * Button group button
+ */
+export interface ButtonGroupButton {
+  /**
+   * Button label
+   */
+  label: string;
+  /**
+   * Button variant
+   */
+  variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link';
+  /**
+   * Button size
+   */
+  size?: 'default' | 'sm' | 'lg' | 'icon';
+  /**
+   * Whether button is disabled
+   */
+  disabled?: boolean;
+  /**
+   * Click handler
+   */
+  onClick?: () => void;
+  /**
+   * Button CSS class
+   */
+  className?: string;
+}
+
+/**
+ * Button group component
+ */
+export interface ButtonGroupSchema extends BaseSchema {
+  type: 'button-group';
+  /**
+   * Button group buttons
+   */
+  buttons?: ButtonGroupButton[];
+  /**
+   * Default button variant
+   * @default 'default'
+   */
+  variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link';
+  /**
+   * Default button size
+   * @default 'default'
+   */
+  size?: 'default' | 'sm' | 'lg' | 'icon';
+}
+
+/**
  * Union type of all navigation schemas
  */
 export type NavigationSchema =
   | HeaderBarSchema
   | SidebarSchema
   | BreadcrumbSchema
-  | PaginationSchema;
+  | PaginationSchema
+  | NavigationMenuSchema
+  | ButtonGroupSchema;

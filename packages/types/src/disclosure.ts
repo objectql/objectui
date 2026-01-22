@@ -114,8 +114,73 @@ export interface CollapsibleSchema extends BaseSchema {
 }
 
 /**
+ * Toggle group item
+ */
+export interface ToggleGroupItem {
+  /**
+   * Item value
+   */
+  value: string;
+  /**
+   * Item label
+   */
+  label: string;
+  /**
+   * Item icon
+   */
+  icon?: string;
+  /**
+   * Whether item is disabled
+   */
+  disabled?: boolean;
+}
+
+/**
+ * Toggle group component
+ */
+export interface ToggleGroupSchema extends BaseSchema {
+  type: 'toggle-group';
+  /**
+   * Toggle group selection mode
+   * @default 'single'
+   */
+  selectionType?: 'single' | 'multiple';
+  /**
+   * Toggle group variant
+   * @default 'default'
+   */
+  variant?: 'default' | 'outline';
+  /**
+   * Toggle group size
+   * @default 'default'
+   */
+  size?: 'default' | 'sm' | 'lg';
+  /**
+   * Toggle group items
+   */
+  items?: ToggleGroupItem[];
+  /**
+   * Default selected value(s)
+   */
+  defaultValue?: string | string[];
+  /**
+   * Controlled selected value(s)
+   */
+  value?: string | string[];
+  /**
+   * Whether toggle group is disabled
+   */
+  disabled?: boolean;
+  /**
+   * Change handler
+   */
+  onValueChange?: (value: string | string[]) => void;
+}
+
+/**
  * Union type of all disclosure schemas
  */
 export type DisclosureSchema =
   | AccordionSchema
-  | CollapsibleSchema;
+  | CollapsibleSchema
+  | ToggleGroupSchema;
