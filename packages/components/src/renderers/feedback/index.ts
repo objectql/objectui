@@ -10,3 +10,7 @@ import './progress';
 import './skeleton';
 import './toaster';
 import './loading';
+import './toast';
+import './spinner';
+import './empty';
+import './sonner';

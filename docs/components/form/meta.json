@@ -5,12 +5,15 @@
     "input",
     "textarea",
     "select",
+    "combobox",
     "checkbox",
     "radio-group",
     "switch",
     "slider",
     "label",
     "date-picker",
-    "input-otp"
+    "input-otp",
+    "command",
+    "form"
   ]
 }

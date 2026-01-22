@@ -3,6 +3,7 @@
   "pages": [
     "accordion",
     "collapsible",
-    "toggle"
+    "toggle",
+    "toggle-group"
   ]
 }

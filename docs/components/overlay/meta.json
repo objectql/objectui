@@ -9,6 +9,7 @@
     "sheet",
     "hover-card",
     "context-menu",
-    "dropdown-menu"
+    "dropdown-menu",
+    "menubar"
   ]
 }

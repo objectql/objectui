@@ -8,3 +8,4 @@
 
 import './accordion';
 import './collapsible';
+import './toggle-group';

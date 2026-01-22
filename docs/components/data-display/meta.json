@@ -5,8 +5,10 @@
     "avatar",
     "alert",
     "list",
+    "breadcrumb",
     "calendar",
     "carousel",
+    "kbd",
     "timeline"
   ]
 }

@@ -14,5 +14,6 @@ import './stack';
 import './container';
 import './page';
 import './semantic';
+import './aspect-ratio';
 
 
