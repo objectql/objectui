@@ -2,6 +2,8 @@
 title: "Plugin Editor"
 ---
 
+import { InteractiveDemo } from '@/app/components/InteractiveDemo';
+
 Code editor component powered by Monaco Editor (VS Code's editor).
 
 ## Installation
@@ -9,6 +11,45 @@ Code editor component powered by Monaco Editor (VS Code's editor).
 ```bash
 npm install @object-ui/plugin-editor
 ```
+
+## Interactive Examples
+
+<InteractiveDemo
+  schema={{
+    type: "code-editor",
+    value: "function greet(name) {\n  console.log(`Hello, ${name}!`);\n  return `Welcome, ${name}`;\n}\n\ngreet('Developer');",
+    language: "javascript",
+    theme: "vs-dark",
+    height: "300px"
+  }}
+  title="JavaScript Editor"
+  description="Full-featured Monaco editor with syntax highlighting"
+/>
+
+<InteractiveDemo
+  schema={{
+    type: "code-editor",
+    value: "def calculate_fibonacci(n):\n    if n <= 1:\n        return n\n    return calculate_fibonacci(n-1) + calculate_fibonacci(n-2)\n\n# Calculate first 10 Fibonacci numbers\nfor i in range(10):\n    print(f'F({i}) = {calculate_fibonacci(i)}')",
+    language: "python",
+    theme: "vs-dark",
+    height: "300px"
+  }}
+  title="Python Editor"
+  description="Support for 100+ programming languages"
+/>
+
+<InteractiveDemo
+  schema={{
+    type: "code-editor",
+    value: '{\n  "name": "objectui-demo",\n  "version": "1.0.0",\n  "description": "Interactive demo",\n  "main": "index.js",\n  "dependencies": {\n    "@object-ui/core": "latest",\n    "@object-ui/react": "latest"\n  }\n}',
+    language: "json",
+    theme: "vs-dark",
+    height: "300px",
+    readOnly: true
+  }}
+  title="Read-only JSON Viewer"
+  description="Perfect for displaying code snippets"
+/>
 
 ## Usage
 
