@@ -107,7 +107,7 @@ export const ObjectTable: React.FC<ObjectTableProps> = ({
     const fetchObjectSchema = async () => {
       try {
         if (!dataSource) {
-          throw new Error('DataSource is required when not using inline data');
+          throw new Error('DataSource is required when using ObjectQL schema fetching (inline data not provided)');
         }
         const schemaData = await dataSource.getObjectSchema(schema.objectName);
         setObjectSchema(schemaData);
@@ -119,10 +119,10 @@ export const ObjectTable: React.FC<ObjectTableProps> = ({
 
     // Skip fetching schema if we have inline data and custom columns
     if (hasInlineData && schema.columns) {
-      // Use a minimal schema for inline data
+      // Use a minimal schema for inline data with type safety
       setObjectSchema({
         name: schema.objectName,
-        fields: {},
+        fields: {} as Record<string, any>,
       });
     } else if (schema.objectName && !hasInlineData && dataSource) {
       fetchObjectSchema();
@@ -269,7 +269,7 @@ export const ObjectTable: React.FC<ObjectTableProps> = ({
     
     if (!schema.objectName) return;
     if (!dataSource) {
-      setError(new Error('DataSource is required when not using inline data'));
+      setError(new Error('DataSource is required for remote data fetching (inline data not provided)'));
       setLoading(false);
       return;
     }
