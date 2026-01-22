@@ -1,3 +1,8 @@
+---
+title: "Contributing to ObjectUI"
+description: "Guidelines and instructions for contributing to the ObjectUI project"
+---
+
 # Contributing to Object UI
 
 Thank you for your interest in contributing to Object UI! This document provides guidelines and instructions for contributing to the project.

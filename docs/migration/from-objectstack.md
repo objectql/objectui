@@ -1,3 +1,8 @@
+---
+title: "Migration Guide: ObjectStack Integration"
+description: "Guide for migrating to the ObjectStack-integrated version of ObjectUI"
+---
+
 # Migration Guide: ObjectStack Integration
 
 This guide helps you migrate to the new ObjectStack-integrated version of ObjectUI.
