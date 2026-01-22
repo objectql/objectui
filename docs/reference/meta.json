@@ -1,8 +1,22 @@
 {
-  "title": "Reference",
+  "title": "Advanced",
   "pages": [
-    "components",
-    "protocol",
-    "api"
+    "---API Reference",
+    "api/core",
+    "api/react",
+    "api/components",
+    "api/designer",
+    "---Protocol",
+    "protocol/overview",
+    "protocol/page",
+    "protocol/form",
+    "protocol/view",
+    "protocol/crud",
+    "protocol/menu",
+    "protocol/app",
+    "protocol/report",
+    "protocol/object",
+    "---Ecosystem",
+    "ecosystem"
   ]
 }
