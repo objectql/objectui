@@ -12,3 +12,5 @@ import './alert';
 import './list';
 import './tree-view';
 import './statistic';
+import './breadcrumb';
+import './kbd';

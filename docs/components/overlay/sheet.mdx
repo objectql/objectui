@@ -1,0 +1,66 @@
+---
+title: "Sheet"
+description: "Slide-in panel from the edge of the screen"
+---
+
+import { ComponentDemo, DemoGrid } from '@/app/components/ComponentDemo';
+
+The Sheet component displays content in a panel that slides in from the edge of the screen.
+
+## Basic Usage
+
+<ComponentDemo
+  schema={{
+    type: 'sheet',
+    trigger: {
+      type: 'button',
+      label: 'Open Sheet'
+    },
+    title: 'Sheet Title',
+    description: 'Sheet description goes here.',
+    content: {
+      type: 'text',
+      value: 'Sheet content'
+    }
+  }}
+  title="Basic Sheet"
+/>
+
+## Sides
+
+<DemoGrid>
+  <ComponentDemo
+    schema={{
+      type: 'sheet',
+      side: 'left',
+      trigger: { type: 'button', label: 'Left' },
+      title: 'Left Sheet',
+      content: { type: 'text', value: 'Content' }
+    }}
+    title="Left Side"
+  />
+  <ComponentDemo
+    schema={{
+      type: 'sheet',
+      side: 'right',
+      trigger: { type: 'button', label: 'Right' },
+      title: 'Right Sheet',
+      content: { type: 'text', value: 'Content' }
+    }}
+    title="Right Side"
+  />
+</DemoGrid>
+
+## Schema
+
+```typescript
+interface SheetSchema {
+  type: 'sheet';
+  trigger: ComponentSchema;       // Trigger component
+  title?: string;                 // Sheet title
+  description?: string;           // Sheet description
+  content: ComponentSchema;       // Sheet content
+  side?: 'left' | 'right' | 'top' | 'bottom';
+  className?: string;
+}
+```

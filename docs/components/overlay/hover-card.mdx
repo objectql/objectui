@@ -1,0 +1,64 @@
+---
+title: "Hover Card"
+description: "Display rich content in a popup when hovering over a trigger"
+---
+
+import { ComponentDemo, DemoGrid } from '@/app/components/ComponentDemo';
+
+The Hover Card component displays rich content when hovering over an element.
+
+## Basic Usage
+
+<ComponentDemo
+  schema={{
+    type: 'hover-card',
+    trigger: {
+      type: 'text',
+      value: 'Hover over me'
+    },
+    content: {
+      type: 'text',
+      value: 'This is the hover card content'
+    }
+  }}
+  title="Basic Hover Card"
+/>
+
+## With Rich Content
+
+<ComponentDemo
+  schema={{
+    type: 'hover-card',
+    trigger: {
+      type: 'text',
+      value: '@username',
+      className: 'font-semibold cursor-pointer'
+    },
+    content: {
+      type: 'flex',
+      direction: 'column',
+      gap: 2,
+      children: [
+        { type: 'text', value: 'John Doe', className: 'font-bold' },
+        { type: 'text', value: 'Software Developer', className: 'text-sm text-muted-foreground' },
+        { type: 'text', value: 'Building amazing things with code.' }
+      ]
+    }
+  }}
+  title="User Profile Card"
+/>
+
+## Schema
+
+```typescript
+interface HoverCardSchema {
+  type: 'hover-card';
+  trigger: ComponentSchema;       // Trigger element
+  content: ComponentSchema;       // Card content
+  side?: 'top' | 'right' | 'bottom' | 'left';
+  align?: 'start' | 'center' | 'end';
+  openDelay?: number;             // Delay before opening (ms)
+  closeDelay?: number;            // Delay before closing (ms)
+  className?: string;
+}
+```

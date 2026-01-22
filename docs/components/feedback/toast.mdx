@@ -1,0 +1,139 @@
+---
+title: "Toast"
+description: "Brief notification messages that appear temporarily"
+---
+
+import { ComponentDemo, DemoGrid } from '@/app/components/ComponentDemo';
+
+The Toast component displays brief notifications to users that appear temporarily and then disappear.
+
+## Basic Usage
+
+<ComponentDemo
+  schema={{
+    type: 'button',
+    label: 'Show Toast',
+    onClick: {
+      action: 'toast',
+      title: 'Success',
+      description: 'Your changes have been saved.'
+    }
+  }}
+  title="Basic Toast"
+/>
+
+## Variants
+
+<DemoGrid>
+  <ComponentDemo
+    schema={{
+      type: 'button',
+      label: 'Default Toast',
+      onClick: {
+        action: 'toast',
+        title: 'Notification',
+        description: 'This is a default toast message.'
+      }
+    }}
+    title="Default"
+  />
+  <ComponentDemo
+    schema={{
+      type: 'button',
+      label: 'Destructive Toast',
+      variant: 'destructive',
+      onClick: {
+        action: 'toast',
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Something went wrong.'
+      }
+    }}
+    title="Destructive"
+  />
+</DemoGrid>
+
+## With Action
+
+<ComponentDemo
+  schema={{
+    type: 'button',
+    label: 'Show Toast with Action',
+    onClick: {
+      action: 'toast',
+      title: 'Update Available',
+      description: 'A new version is available.',
+      actionLabel: 'Update Now'
+    }
+  }}
+  title="Toast with Action"
+/>
+
+## Schema
+
+```typescript
+interface ToastSchema {
+  type: 'toast';
+  title?: string;                // Toast title
+  description?: string;           // Toast message
+  variant?: 'default' | 'destructive';
+  
+  // Action
+  actionLabel?: string;           // Action button label
+  onAction?: string | ActionConfig;
+  
+  // Timing
+  duration?: number;              // Auto-dismiss time in ms
+}
+```
+
+## Examples
+
+### Success Message
+
+<ComponentDemo
+  schema={{
+    type: 'button',
+    label: 'Save',
+    onClick: {
+      action: 'toast',
+      title: 'Saved Successfully',
+      description: 'Your changes have been saved.',
+      duration: 3000
+    }
+  }}
+  title="Success Toast"
+/>
+
+### Error Message
+
+<ComponentDemo
+  schema={{
+    type: 'button',
+    label: 'Submit',
+    variant: 'destructive',
+    onClick: {
+      action: 'toast',
+      variant: 'destructive',
+      title: 'Submission Failed',
+      description: 'Please check your input and try again.'
+    }
+  }}
+  title="Error Toast"
+/>
+
+### With Undo Action
+
+<ComponentDemo
+  schema={{
+    type: 'button',
+    label: 'Delete Item',
+    onClick: {
+      action: 'toast',
+      title: 'Item Deleted',
+      description: 'The item has been removed.',
+      actionLabel: 'Undo'
+    }
+  }}
+  title="Toast with Undo"
+/>

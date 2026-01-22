@@ -1,0 +1,123 @@
+---
+title: "Alert Dialog"
+description: "A modal dialog that interrupts the user with important content and expects a response"
+---
+
+import { ComponentDemo, DemoGrid } from '@/app/components/ComponentDemo';
+
+The Alert Dialog component is used to interrupt the user with important content and require a confirmation before proceeding.
+
+## Basic Usage
+
+<ComponentDemo
+  schema={{
+    type: 'alert-dialog',
+    title: 'Are you sure?',
+    description: 'This action cannot be undone.',
+    trigger: {
+      type: 'button',
+      label: 'Delete Account'
+    },
+    actions: [
+      {
+        type: 'button',
+        label: 'Cancel',
+        variant: 'outline'
+      },
+      {
+        type: 'button',
+        label: 'Continue',
+        variant: 'destructive'
+      }
+    ]
+  }}
+  title="Basic Alert Dialog"
+/>
+
+## Variants
+
+<DemoGrid>
+  <ComponentDemo
+    schema={{
+      type: 'alert-dialog',
+      title: 'Confirm Deletion',
+      description: 'This will permanently delete your account and all associated data.',
+      trigger: {
+        type: 'button',
+        label: 'Delete',
+        variant: 'destructive'
+      },
+      actions: [
+        { type: 'button', label: 'Cancel' },
+        { type: 'button', label: 'Delete', variant: 'destructive' }
+      ]
+    }}
+    title="Destructive Action"
+  />
+  <ComponentDemo
+    schema={{
+      type: 'alert-dialog',
+      title: 'Save Changes?',
+      description: 'You have unsaved changes. Do you want to save them before leaving?',
+      trigger: {
+        type: 'button',
+        label: 'Close',
+        variant: 'outline'
+      },
+      actions: [
+        { type: 'button', label: "Don't Save", variant: 'ghost' },
+        { type: 'button', label: 'Save', variant: 'default' }
+      ]
+    }}
+    title="Confirmation Dialog"
+  />
+</DemoGrid>
+
+## Schema
+
+```typescript
+interface AlertDialogSchema {
+  type: 'alert-dialog';
+  title: string;                // Dialog title
+  description: string;           // Dialog description
+  
+  // Trigger
+  trigger: ComponentSchema;      // Component that triggers the dialog
+  
+  // Actions
+  actions?: ComponentSchema[];   // Action buttons
+  
+  // Styling
+  className?: string;
+}
+```
+
+## Examples
+
+### With Custom Actions
+
+<ComponentDemo
+  schema={{
+    type: 'alert-dialog',
+    title: 'Confirm Action',
+    description: 'Are you sure you want to proceed with this action?',
+    trigger: {
+      type: 'button',
+      label: 'Proceed',
+      variant: 'default'
+    },
+    actions: [
+      {
+        type: 'button',
+        label: 'Go Back',
+        variant: 'outline'
+      },
+      {
+        type: 'button',
+        label: 'Yes, Continue',
+        variant: 'default'
+      }
+    ]
+  }}
+  title="Custom Actions"
+/>

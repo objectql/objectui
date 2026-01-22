@@ -1,0 +1,81 @@
+---
+title: "Toggle Group"
+description: "A group of toggle buttons where one or more can be selected"
+---
+
+import { ComponentDemo, DemoGrid } from '@/app/components/ComponentDemo';
+
+The Toggle Group component allows users to toggle between multiple options.
+
+## Basic Usage
+
+<ComponentDemo
+  schema={{
+    type: 'toggle-group',
+    selectionType: 'single',
+    items: [
+      { value: 'left', label: 'Left' },
+      { value: 'center', label: 'Center' },
+      { value: 'right', label: 'Right' }
+    ]
+  }}
+  title="Single Selection"
+/>
+
+## Multiple Selection
+
+<ComponentDemo
+  schema={{
+    type: 'toggle-group',
+    selectionType: 'multiple',
+    items: [
+      { value: 'bold', label: 'Bold' },
+      { value: 'italic', label: 'Italic' },
+      { value: 'underline', label: 'Underline' }
+    ]
+  }}
+  title="Multiple Selection"
+/>
+
+## With Labels
+
+<ComponentDemo
+  schema={{
+    type: 'toggle-group',
+    type: 'single',
+    items: [
+      { value: 'list', icon: 'list', label: 'List' },
+      { value: 'grid', icon: 'grid', label: 'Grid' },
+      { value: 'table', icon: 'table', label: 'Table' }
+    ]
+  }}
+  title="With Labels"
+/>
+
+## Schema
+
+```typescript
+interface ToggleGroupItem {
+  value: string;
+  icon?: string;
+  label?: string;
+}
+
+interface ToggleGroupSchema {
+  type: 'toggle-group';
+  type: 'single' | 'multiple';    // Selection mode
+  items: ToggleGroupItem[];       // Toggle items
+  value?: string | string[];      // Selected value(s)
+  variant?: 'default' | 'outline';
+  size?: 'sm' | 'default' | 'lg';
+  
+  // Events
+  onValueChange?: string | ActionConfig;
+  
+  // States
+  disabled?: boolean;
+  
+  // Styling
+  className?: string;
+}
+```

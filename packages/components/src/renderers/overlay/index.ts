@@ -15,3 +15,4 @@ import './drawer';
 import './hover-card';
 import './dropdown-menu';
 import './context-menu';
+import './menubar';

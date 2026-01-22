@@ -1,0 +1,67 @@
+---
+title: "Label"
+description: "Text label for form elements"
+---
+
+import { ComponentDemo, DemoGrid } from '@/app/components/ComponentDemo';
+
+The Label component renders accessible labels for form fields.
+
+## Basic Usage
+
+<ComponentDemo
+  schema={{
+    type: 'flex',
+    direction: 'column',
+    gap: 2,
+    children: [
+      {
+        type: 'label',
+        text: 'Email',
+        htmlFor: 'email'
+      },
+      {
+        type: 'input',
+        id: 'email',
+        placeholder: 'Enter your email'
+      }
+    ]
+  }}
+  title="Form Label"
+/>
+
+## Required Field
+
+<ComponentDemo
+  schema={{
+    type: 'flex',
+    direction: 'column',
+    gap: 2,
+    children: [
+      {
+        type: 'label',
+        text: 'Password',
+        required: true,
+        htmlFor: 'password'
+      },
+      {
+        type: 'input',
+        id: 'password',
+        type: 'password'
+      }
+    ]
+  }}
+  title="Required Label"
+/>
+
+## Schema
+
+```typescript
+interface LabelSchema {
+  type: 'label';
+  text: string;                   // Label text
+  htmlFor?: string;               // Associated input ID
+  required?: boolean;             // Show required indicator
+  className?: string;
+}
+```

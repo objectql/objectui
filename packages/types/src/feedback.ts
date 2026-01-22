@@ -168,6 +168,69 @@ export interface ToasterSchema extends BaseSchema {
 }
 
 /**
+ * Spinner component
+ */
+export interface SpinnerSchema extends BaseSchema {
+  type: 'spinner';
+  /**
+   * Spinner size
+   * @default 'md'
+   */
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+}
+
+/**
+ * Empty state component
+ */
+export interface EmptySchema extends BaseSchema {
+  type: 'empty';
+  /**
+   * Empty state title
+   */
+  title?: string;
+  /**
+   * Empty state description
+   */
+  description?: string;
+  /**
+   * Icon to display
+   */
+  icon?: string;
+}
+
+/**
+ * Sonner toast component (using sonner library)
+ */
+export interface SonnerSchema extends BaseSchema {
+  type: 'sonner';
+  /**
+   * Toast message/title
+   */
+  message?: string;
+  /**
+   * Toast title (alias for message)
+   */
+  title?: string;
+  /**
+   * Toast description
+   */
+  description?: string;
+  /**
+   * Toast variant
+   * @default 'default'
+   */
+  variant?: 'default' | 'success' | 'error' | 'warning' | 'info';
+  /**
+   * Button label to trigger toast
+   */
+  buttonLabel?: string;
+  /**
+   * Button variant
+   */
+  buttonVariant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link';
+}
+
+/**
  * Union type of all feedback schemas
  */
 export type FeedbackSchema =
@@ -175,4 +238,7 @@ export type FeedbackSchema =
   | ProgressSchema
   | SkeletonSchema
   | ToastSchema
-  | ToasterSchema;
+  | ToasterSchema
+  | SpinnerSchema
+  | EmptySchema
+  | SonnerSchema;

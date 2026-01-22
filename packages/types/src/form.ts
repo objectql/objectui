@@ -941,6 +941,126 @@ export interface LabelSchema extends BaseSchema {
 }
 
 /**
+ * Combobox option
+ */
+export interface ComboboxOption {
+  /**
+   * Option value
+   */
+  value: string;
+  /**
+   * Option label (displayed to user)
+   */
+  label: string;
+  /**
+   * Whether option is disabled
+   */
+  disabled?: boolean;
+}
+
+/**
+ * Combobox component (searchable select)
+ */
+export interface ComboboxSchema extends BaseSchema {
+  type: 'combobox';
+  /**
+   * Field name for form submission
+   */
+  name?: string;
+  /**
+   * Combobox label
+   */
+  label?: string;
+  /**
+   * Placeholder text
+   */
+  placeholder?: string;
+  /**
+   * Combobox options
+   */
+  options?: ComboboxOption[];
+  /**
+   * Default selected value
+   */
+  defaultValue?: string;
+  /**
+   * Controlled value
+   */
+  value?: string;
+  /**
+   * Whether field is disabled
+   */
+  disabled?: boolean;
+  /**
+   * Help text or description
+   */
+  description?: string;
+  /**
+   * Error message
+   */
+  error?: string;
+  /**
+   * Change handler
+   */
+  onChange?: (value: string) => void;
+}
+
+/**
+ * Command menu item
+ */
+export interface CommandItem {
+  /**
+   * Item value
+   */
+  value: string;
+  /**
+   * Item label (displayed to user)
+   */
+  label: string;
+  /**
+   * Item icon
+   */
+  icon?: string;
+}
+
+/**
+ * Command menu group
+ */
+export interface CommandGroup {
+  /**
+   * Group heading
+   */
+  heading?: string;
+  /**
+   * Group items
+   */
+  items: CommandItem[];
+}
+
+/**
+ * Command component (command palette)
+ */
+export interface CommandSchema extends BaseSchema {
+  type: 'command';
+  /**
+   * Placeholder text
+   */
+  placeholder?: string;
+  /**
+   * Empty state text
+   */
+  emptyText?: string;
+  /**
+   * Command groups
+   */
+  groups?: CommandGroup[];
+  /**
+   * Change handler
+   */
+  onChange?: (value: string) => void;
+}
+
+/**
  * Union type of all form schemas
  */
 export type FormComponentSchema =
@@ -958,5 +1078,7 @@ export type FormComponentSchema =
   | CalendarSchema
   | InputOTPSchema
   | FormSchema
-  | LabelSchema;
+  | LabelSchema
+  | ComboboxSchema
+  | CommandSchema;
 

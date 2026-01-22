@@ -22,3 +22,5 @@ import './input-otp';
 import './calendar';
 import './date-picker';
 import './file-upload';
+import './combobox';
+import './command';

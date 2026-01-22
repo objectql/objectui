@@ -1,0 +1,77 @@
+/**
+ * ObjectUI
+ * Copyright (c) 2024-present ObjectStack Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+import { ComponentRegistry } from '@object-ui/core';
+import type { ToggleGroupSchema } from '@object-ui/types';
+import { ToggleGroup, ToggleGroupItem } from '../../ui/toggle-group';
+
+ComponentRegistry.register('toggle-group', 
+  ({ schema, ...props }: { schema: ToggleGroupSchema; [key: string]: any }) => {
+    const { 
+        'data-obj-id': dataObjId, 
+        'data-obj-type': dataObjType,
+        style,
+        ...toggleGroupProps
+    } = props;
+    
+    return (
+      <ToggleGroup 
+        type={schema.selectionType || 'single'}
+        variant={schema.variant}
+        size={schema.size}
+        value={schema.value}
+        className={schema.className} 
+        {...toggleGroupProps}
+        {...{ 'data-obj-id': dataObjId, 'data-obj-type': dataObjType, style }}
+      >
+        {schema.items?.map((item, idx) => (
+          <ToggleGroupItem key={idx} value={item.value} aria-label={item.label}>
+            {item.label}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
+    );
+  },
+  {
+    label: 'Toggle Group',
+    inputs: [
+      { 
+        name: 'selectionType', 
+        type: 'enum', 
+        enum: ['single', 'multiple'], 
+        defaultValue: 'single',
+        label: 'Selection Type'
+      },
+      { 
+        name: 'variant', 
+        type: 'enum', 
+        enum: ['default', 'outline'], 
+        defaultValue: 'default',
+        label: 'Variant'
+      },
+      { 
+        name: 'size', 
+        type: 'enum', 
+        enum: ['default', 'sm', 'lg'], 
+        defaultValue: 'default',
+        label: 'Size'
+      },
+      { name: 'className', type: 'string', label: 'CSS Class' }
+    ],
+    defaultProps: {
+      selectionType: 'single',
+      variant: 'default',
+      size: 'default',
+      items: [
+        { value: 'bold', label: 'Bold' },
+        { value: 'italic', label: 'Italic' },
+        { value: 'underline', label: 'Underline' }
+      ]
+    }
+  }
+);
