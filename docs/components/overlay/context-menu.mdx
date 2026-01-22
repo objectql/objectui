@@ -1,0 +1,49 @@
+---
+title: "Context Menu"
+description: "Display a menu on right-click or long-press"
+---
+
+import { ComponentDemo, DemoGrid } from '@/app/components/ComponentDemo';
+
+The Context Menu component displays a menu when right-clicking on an element.
+
+## Basic Usage
+
+<ComponentDemo
+  schema={{
+    type: 'context-menu',
+    trigger: {
+      type: 'card',
+      content: 'Right-click here',
+      className: 'p-8 text-center border-dashed'
+    },
+    items: [
+      { label: 'Copy', value: 'copy', icon: 'copy' },
+      { label: 'Cut', value: 'cut', icon: 'scissors' },
+      { label: 'Paste', value: 'paste', icon: 'clipboard' },
+      { type: 'separator' },
+      { label: 'Delete', value: 'delete', icon: 'trash' }
+    ]
+  }}
+  title="Basic Context Menu"
+/>
+
+## Schema
+
+```typescript
+interface ContextMenuItem {
+  label?: string;
+  value?: string;
+  icon?: string;
+  type?: 'separator';
+  disabled?: boolean;
+}
+
+interface ContextMenuSchema {
+  type: 'context-menu';
+  trigger: ComponentSchema;       // Trigger element
+  items: ContextMenuItem[];       // Menu items
+  onSelect?: string | ActionConfig;
+  className?: string;
+}
+```

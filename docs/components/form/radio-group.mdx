@@ -1,0 +1,164 @@
+---
+title: "Radio Group"
+description: "A set of checkable buttons where only one can be selected at a time"
+---
+
+import { ComponentDemo, DemoGrid } from '@/app/components/ComponentDemo';
+
+The Radio Group component allows users to select one option from a set of mutually exclusive options.
+
+## Basic Usage
+
+<ComponentDemo
+  schema={{
+    type: 'radio-group',
+    options: [
+      { value: 'option1', label: 'Option 1' },
+      { value: 'option2', label: 'Option 2' },
+      { value: 'option3', label: 'Option 3' }
+    ]
+  }}
+  title="Basic Radio Group"
+/>
+
+## With Default Value
+
+<ComponentDemo
+  schema={{
+    type: 'radio-group',
+    value: 'option2',
+    options: [
+      { value: 'option1', label: 'Option 1' },
+      { value: 'option2', label: 'Option 2' },
+      { value: 'option3', label: 'Option 3' }
+    ]
+  }}
+  title="With Default Selection"
+/>
+
+## Layout Options
+
+<DemoGrid>
+  <ComponentDemo
+    schema={{
+      type: 'radio-group',
+      direction: 'vertical',
+      options: [
+        { value: 'sm', label: 'Small' },
+        { value: 'md', label: 'Medium' },
+        { value: 'lg', label: 'Large' }
+      ]
+    }}
+    title="Vertical Layout"
+  />
+  <ComponentDemo
+    schema={{
+      type: 'radio-group',
+      direction: 'horizontal',
+      options: [
+        { value: 'sm', label: 'Small' },
+        { value: 'md', label: 'Medium' },
+        { value: 'lg', label: 'Large' }
+      ]
+    }}
+    title="Horizontal Layout"
+  />
+</DemoGrid>
+
+## States
+
+<DemoGrid>
+  <ComponentDemo
+    schema={{
+      type: 'radio-group',
+      disabled: true,
+      options: [
+        { value: 'option1', label: 'Option 1' },
+        { value: 'option2', label: 'Option 2' }
+      ]
+    }}
+    title="Disabled"
+  />
+  <ComponentDemo
+    schema={{
+      type: 'radio-group',
+      options: [
+        { value: 'option1', label: 'Option 1' },
+        { value: 'option2', label: 'Option 2', disabled: true },
+        { value: 'option3', label: 'Option 3' }
+      ]
+    }}
+    title="Individual Disabled"
+  />
+</DemoGrid>
+
+## Schema
+
+```typescript
+interface RadioOption {
+  value: string;
+  label: string;
+  disabled?: boolean;
+}
+
+interface RadioGroupSchema {
+  type: 'radio-group';
+  options: RadioOption[];         // Available options
+  value?: string;                 // Selected value
+  
+  // Layout
+  direction?: 'vertical' | 'horizontal';
+  
+  // Events
+  onValueChange?: string | ActionConfig;
+  
+  // States
+  disabled?: boolean;
+  
+  // Styling
+  className?: string;
+}
+```
+
+## Examples
+
+### In a Form
+
+<ComponentDemo
+  schema={{
+    type: 'flex',
+    direction: 'column',
+    gap: 4,
+    children: [
+      {
+        type: 'label',
+        text: 'Notification Preference'
+      },
+      {
+        type: 'radio-group',
+        value: 'email',
+        options: [
+          { value: 'email', label: 'Email notifications' },
+          { value: 'sms', label: 'SMS notifications' },
+          { value: 'none', label: 'No notifications' }
+        ]
+      }
+    ]
+  }}
+  title="Form Field"
+/>
+
+### With Descriptions
+
+<ComponentDemo
+  schema={{
+    type: 'radio-group',
+    value: 'free',
+    options: [
+      { value: 'free', label: 'Free', description: 'Basic features for personal use' },
+      { value: 'pro', label: 'Pro', description: 'Advanced features for professionals' },
+      { value: 'enterprise', label: 'Enterprise', description: 'Full suite for teams' }
+    ]
+  }}
+  title="With Descriptions"
+/>

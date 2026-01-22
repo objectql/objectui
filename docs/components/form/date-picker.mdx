@@ -1,0 +1,119 @@
+---
+title: "Date Picker"
+description: "Input for selecting dates with a calendar popup"
+---
+
+import { ComponentDemo, DemoGrid } from '@/app/components/ComponentDemo';
+
+The Date Picker component allows users to select a date from a calendar interface.
+
+## Basic Usage
+
+<ComponentDemo
+  schema={{
+    type: 'date-picker',
+    placeholder: 'Pick a date'
+  }}
+  title="Basic Date Picker"
+/>
+
+## With Default Date
+
+<ComponentDemo
+  schema={{
+    type: 'date-picker',
+    placeholder: 'Pick a date',
+    value: '2024-01-15'
+  }}
+  title="With Default Value"
+/>
+
+## States
+
+<DemoGrid>
+  <ComponentDemo
+    schema={{
+      type: 'date-picker',
+      placeholder: 'Pick a date',
+      disabled: true
+    }}
+    title="Disabled"
+  />
+  <ComponentDemo
+    schema={{
+      type: 'date-picker',
+      placeholder: 'Pick a date',
+      className: 'w-full'
+    }}
+    title="Full Width"
+  />
+</DemoGrid>
+
+## Schema
+
+```typescript
+interface DatePickerSchema {
+  type: 'date-picker';
+  value?: string | Date;          // Selected date (ISO string or Date)
+  placeholder?: string;           // Placeholder text
+  
+  // Events
+  onDateChange?: string | ActionConfig;
+  
+  // States
+  disabled?: boolean;
+  
+  // Styling
+  className?: string;
+}
+```
+
+## Examples
+
+### In a Form
+
+<ComponentDemo
+  schema={{
+    type: 'flex',
+    direction: 'column',
+    gap: 4,
+    children: [
+      {
+        type: 'label',
+        text: 'Birth Date',
+        htmlFor: 'birthdate'
+      },
+      {
+        type: 'date-picker',
+        id: 'birthdate',
+        placeholder: 'Select your birth date'
+      }
+    ]
+  }}
+  title="Form Field"
+/>
+
+### Date Range
+
+<ComponentDemo
+  schema={{
+    type: 'flex',
+    gap: 2,
+    align: 'center',
+    children: [
+      {
+        type: 'date-picker',
+        placeholder: 'Start date'
+      },
+      {
+        type: 'text',
+        value: 'to'
+      },
+      {
+        type: 'date-picker',
+        placeholder: 'End date'
+      }
+    ]
+  }}
+  title="Date Range Selector"
+/>

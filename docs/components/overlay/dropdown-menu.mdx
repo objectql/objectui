@@ -1,0 +1,71 @@
+---
+title: "Dropdown Menu"
+description: "Display a menu of actions or options triggered by a button"
+---
+
+import { ComponentDemo, DemoGrid } from '@/app/components/ComponentDemo';
+
+The Dropdown Menu component displays a list of actions or options when triggered.
+
+## Basic Usage
+
+<ComponentDemo
+  schema={{
+    type: 'dropdown-menu',
+    trigger: {
+      type: 'button',
+      label: 'Open Menu'
+    },
+    items: [
+      { label: 'Profile', value: 'profile' },
+      { label: 'Settings', value: 'settings' },
+      { type: 'separator' },
+      { label: 'Logout', value: 'logout' }
+    ]
+  }}
+  title="Basic Dropdown Menu"
+/>
+
+## With Icons
+
+<ComponentDemo
+  schema={{
+    type: 'dropdown-menu',
+    trigger: {
+      type: 'button',
+      label: 'Actions',
+      icon: 'more-horizontal'
+    },
+    items: [
+      { label: 'Edit', value: 'edit', icon: 'edit' },
+      { label: 'Copy', value: 'copy', icon: 'copy' },
+      { label: 'Delete', value: 'delete', icon: 'trash', variant: 'destructive' }
+    ]
+  }}
+  title="With Icons"
+/>
+
+## Schema
+
+```typescript
+interface DropdownMenuItem {
+  label?: string;
+  value?: string;
+  icon?: string;
+  variant?: 'default' | 'destructive';
+  type?: 'separator';
+  disabled?: boolean;
+}
+
+interface DropdownMenuSchema {
+  type: 'dropdown-menu';
+  trigger: ComponentSchema;       // Trigger component
+  items: DropdownMenuItem[];      // Menu items
+  
+  // Events
+  onSelect?: string | ActionConfig;
+  
+  // Styling
+  className?: string;
+}
+```

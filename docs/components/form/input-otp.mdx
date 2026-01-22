@@ -1,0 +1,98 @@
+---
+title: "Input OTP"
+description: "One-time password input with auto-focus"
+---
+
+import { ComponentDemo, DemoGrid } from '@/app/components/ComponentDemo';
+
+The Input OTP component provides a secure way to enter one-time passwords or verification codes.
+
+## Basic Usage
+
+<ComponentDemo
+  schema={{
+    type: 'input-otp',
+    length: 6
+  }}
+  title="6-Digit OTP"
+/>
+
+## With Separator
+
+<ComponentDemo
+  schema={{
+    type: 'input-otp',
+    length: 6,
+    separator: true
+  }}
+  title="With Visual Separator"
+/>
+
+## Different Lengths
+
+<DemoGrid>
+  <ComponentDemo
+    schema={{
+      type: 'input-otp',
+      length: 4
+    }}
+    title="4-Digit"
+  />
+  <ComponentDemo
+    schema={{
+      type: 'input-otp',
+      length: 8
+    }}
+    title="8-Digit"
+  />
+</DemoGrid>
+
+## Schema
+
+```typescript
+interface InputOTPSchema {
+  type: 'input-otp';
+  length: number;                 // Number of digits
+  value?: string;                 // Current value
+  separator?: boolean;            // Show visual separator
+  
+  // Events
+  onChange?: string | ActionConfig;
+  onComplete?: string | ActionConfig;
+  
+  // States
+  disabled?: boolean;
+  
+  // Styling
+  className?: string;
+}
+```
+
+## Examples
+
+### In a Form
+
+<ComponentDemo
+  schema={{
+    type: 'flex',
+    direction: 'column',
+    gap: 4,
+    children: [
+      {
+        type: 'label',
+        text: 'Enter verification code'
+      },
+      {
+        type: 'input-otp',
+        length: 6,
+        separator: true
+      },
+      {
+        type: 'text',
+        value: 'We sent a code to your email',
+        className: 'text-sm text-muted-foreground'
+      }
+    ]
+  }}
+  title="Verification Form"
+/>
