@@ -314,25 +314,47 @@ Implement CSP headers:
 
 ```html
 <!-- In your HTML or via HTTP headers -->
+<!-- Use nonce-based CSP for inline scripts/styles -->
 <meta http-equiv="Content-Security-Policy" 
       content="default-src 'self'; 
-               script-src 'self' 'unsafe-inline'; 
-               style-src 'self' 'unsafe-inline'; 
+               script-src 'self' 'nonce-{random-nonce}'; 
+               style-src 'self' 'nonce-{random-nonce}'; 
                img-src 'self' data: https:; 
                font-src 'self' data:;">
 ```
 
-Or via HTTP header:
+Or via HTTP header with nonce:
 ```javascript
-// Express
+// Express - Generate a unique nonce per request
+app.use((req, res, next) => {
+  const nonce = crypto.randomBytes(16).toString('base64');
+  res.locals.nonce = nonce;
+  res.setHeader(
+    'Content-Security-Policy',
+    `default-src 'self'; script-src 'self' 'nonce-${nonce}'; style-src 'self' 'nonce-${nonce}'`
+  );
+  next();
+});
+
+// Then use the nonce in your inline scripts/styles:
+// <script nonce="${nonce}">...</script>
+// <style nonce="${nonce}">...</style>
+```
+
+**Alternative: Hash-based CSP** (for static inline content):
+```javascript
+// Calculate hash of your inline script/style
+// Then include in CSP
 app.use((req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline'"
+    "default-src 'self'; script-src 'self' 'sha256-{hash-of-script}'; style-src 'self'"
   );
   next();
 });
 ```
+
+**Note**: Avoid using `'unsafe-inline'` as it significantly weakens XSS protection. Use nonces or hashes instead.
 
 ## Dependency Security
 
