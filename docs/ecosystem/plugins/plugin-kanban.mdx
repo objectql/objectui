@@ -2,6 +2,8 @@
 title: "Plugin Kanban"
 ---
 
+import { InteractiveDemo } from '@/app/components/InteractiveDemo';
+
 Kanban board component with drag-and-drop powered by @dnd-kit.
 
 ## Installation
@@ -9,6 +11,96 @@ Kanban board component with drag-and-drop powered by @dnd-kit.
 ```bash
 npm install @object-ui/plugin-kanban
 ```
+
+## Interactive Examples
+
+<InteractiveDemo
+  schema={{
+    type: "kanban",
+    columns: [
+      {
+        id: "todo",
+        title: "To Do",
+        cards: [
+          { id: "1", title: "Design new feature", description: "Create mockups and wireframes" },
+          { id: "2", title: "Write documentation", description: "Update API docs" }
+        ]
+      },
+      {
+        id: "inprogress",
+        title: "In Progress",
+        cards: [
+          { id: "3", title: "Implement feature", description: "Code the new component", badges: [{ label: "High Priority", variant: "destructive" }] }
+        ]
+      },
+      {
+        id: "done",
+        title: "Done",
+        cards: [
+          { id: "4", title: "Setup project", description: "Initialize repository" }
+        ]
+      }
+    ]
+  }}
+  title="Basic Kanban Board"
+  description="Drag and drop cards between columns"
+/>
+
+<InteractiveDemo
+  schema={{
+    type: "kanban",
+    columns: [
+      {
+        id: "backlog",
+        title: "Backlog",
+        cards: [
+          { 
+            id: "1", 
+            title: "User Authentication", 
+            description: "Implement OAuth2.0",
+            badges: [
+              { label: "Backend", variant: "secondary" },
+              { label: "High", variant: "destructive" }
+            ]
+          },
+          { 
+            id: "2", 
+            title: "Dark Mode", 
+            description: "Add theme switcher",
+            badges: [{ label: "UI", variant: "outline" }]
+          }
+        ]
+      },
+      {
+        id: "wip",
+        title: "Work In Progress",
+        limit: 3,
+        cards: [
+          { 
+            id: "3", 
+            title: "API Integration", 
+            description: "Connect to backend services",
+            badges: [{ label: "In Progress", variant: "default" }]
+          }
+        ]
+      },
+      {
+        id: "review",
+        title: "Code Review",
+        cards: []
+      },
+      {
+        id: "completed",
+        title: "Completed",
+        cards: [
+          { id: "4", title: "Project Setup", description: "Repository initialized" }
+        ]
+      }
+    ]
+  }}
+  title="Advanced Kanban with Badges and Limits"
+  description="Features WIP limits and card badges for status/priority"
+/>
 
 ## Usage
 

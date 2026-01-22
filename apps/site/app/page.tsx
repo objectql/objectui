@@ -248,7 +248,6 @@ export default function HomePage() {
               { icon: "📝", title: "Forms", desc: "Complex multi-step forms" },
               { icon: "📄", title: "CMS", desc: "Content management systems" },
               { icon: "🔧", title: "Internal Tools", desc: "Business applications" },
-              { icon: "🎨", title: "Prototypes", desc: "Rapid UI prototyping" }
             ].map((useCase) => (
               <div key={useCase.title} className="rounded-xl border border-fd-border bg-fd-card p-6">
                 <div className="text-4xl mb-3">{useCase.icon}</div>
@@ -260,6 +259,18 @@ export default function HomePage() {
                 </p>
               </div>
             ))}
+            <Link 
+              href="/docs/guide/interactive-demos"
+              className="rounded-xl border border-fd-border bg-fd-card p-6 transition-all hover:shadow-lg hover:border-fd-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-primary focus-visible:ring-offset-2"
+            >
+              <div className="text-4xl mb-3">✨</div>
+              <h3 className="text-lg font-semibold text-fd-foreground mb-1">
+                Interactive Examples
+              </h3>
+              <p className="text-fd-muted-foreground text-sm">
+                Explore 30+ components with live demos
+              </p>
+            </Link>
           </div>
         </div>
       </section>

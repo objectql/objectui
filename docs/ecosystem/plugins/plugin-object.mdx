@@ -2,6 +2,8 @@
 title: "Plugin Object"
 ---
 
+import { InteractiveDemo } from '@/app/components/InteractiveDemo';
+
 ObjectQL integration plugin providing smart components for CRUD operations.
 
 ## Installation
@@ -13,6 +15,102 @@ npm install @object-ui/plugin-object @object-ui/data-objectql
 ## Overview
 
 The Object plugin provides seamless integration with ObjectQL backends through smart components that automatically generate UI from ObjectQL object schemas. It's the official plugin for building data-driven applications with ObjectUI.
+
+## Interactive Examples
+
+<InteractiveDemo
+  schema={{
+    type: "object-table",
+    objectName: "users",
+    columns: [
+      { key: "name", label: "Name" },
+      { key: "email", label: "Email" },
+      { key: "role", label: "Role" },
+      { key: "status", label: "Status" }
+    ],
+    data: [
+      { id: 1, name: "Alice Johnson", email: "alice@example.com", role: "Admin", status: "Active" },
+      { id: 2, name: "Bob Smith", email: "bob@example.com", role: "User", status: "Active" },
+      { id: 3, name: "Carol White", email: "carol@example.com", role: "User", status: "Inactive" }
+    ],
+    pageSize: 10,
+    searchable: true,
+    selectable: true
+  }}
+  title="ObjectTable Component"
+  description="Auto-generated table with sorting, filtering, and pagination"
+/>
+
+<InteractiveDemo
+  schema={{
+    type: "object-form",
+    objectName: "user",
+    fields: [
+      { 
+        name: "name", 
+        label: "Full Name", 
+        type: "text", 
+        required: true,
+        placeholder: "Enter full name"
+      },
+      { 
+        name: "email", 
+        label: "Email Address", 
+        type: "email", 
+        required: true,
+        placeholder: "user@example.com"
+      },
+      { 
+        name: "role", 
+        label: "Role", 
+        type: "select",
+        options: ["Admin", "User", "Guest"],
+        required: true
+      },
+      { 
+        name: "status", 
+        label: "Status", 
+        type: "select",
+        options: ["Active", "Inactive"],
+        defaultValue: "Active"
+      }
+    ],
+    submitLabel: "Create User"
+  }}
+  title="ObjectForm Component"
+  description="Smart form with validation and schema integration"
+/>
+
+<InteractiveDemo
+  schema={{
+    type: "stack",
+    gap: 4,
+    children: [
+      {
+        type: "text",
+        content: "Object View provides complete CRUD interface",
+        className: "text-lg font-semibold"
+      },
+      {
+        type: "card",
+        children: [
+          {
+            type: "stack",
+            gap: 2,
+            children: [
+              { type: "text", content: "User Details", className: "font-semibold" },
+              { type: "text", content: "Name: John Doe" },
+              { type: "text", content: "Email: john@example.com" },
+              { type: "text", content: "Role: Administrator" }
+            ]
+          }
+        ]
+      }
+    ]
+  }}
+  title="ObjectView Component"
+  description="Complete CRUD views with list, detail, and edit modes"
+/>
 
 ## Features
 

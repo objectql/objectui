@@ -2,6 +2,8 @@
 title: "Plugin Charts"
 ---
 
+import { InteractiveDemo } from '@/app/components/InteractiveDemo';
+
 Data visualization components powered by Recharts.
 
 ## Installation
@@ -9,6 +11,66 @@ Data visualization components powered by Recharts.
 ```bash
 npm install @object-ui/plugin-charts
 ```
+
+## Interactive Examples
+
+<InteractiveDemo
+  schema={{
+    type: "bar-chart",
+    data: [
+      { name: "Jan", value: 400 },
+      { name: "Feb", value: 300 },
+      { name: "Mar", value: 600 },
+      { name: "Apr", value: 800 },
+      { name: "May", value: 500 },
+      { name: "Jun", value: 700 }
+    ],
+    dataKey: "value",
+    xAxisKey: "name",
+    height: 300,
+    color: "#8884d8"
+  }}
+  title="Bar Chart"
+  description="Display data as vertical bars"
+/>
+
+<InteractiveDemo
+  schema={{
+    type: "line-chart",
+    data: [
+      { month: "Jan", revenue: 4000, expenses: 2400 },
+      { month: "Feb", revenue: 3000, expenses: 1398 },
+      { month: "Mar", revenue: 6000, expenses: 3800 },
+      { month: "Apr", revenue: 8000, expenses: 3908 },
+      { month: "May", revenue: 5000, expenses: 4800 },
+      { month: "Jun", revenue: 7000, expenses: 3800 }
+    ],
+    lines: [
+      { dataKey: "revenue", stroke: "#8884d8", name: "Revenue" },
+      { dataKey: "expenses", stroke: "#82ca9d", name: "Expenses" }
+    ],
+    xAxisKey: "month",
+    height: 300
+  }}
+  title="Multi-Line Chart"
+  description="Compare multiple metrics over time"
+/>
+
+<InteractiveDemo
+  schema={{
+    type: "pie-chart",
+    data: [
+      { name: "Desktop", value: 45, fill: "#8884d8" },
+      { name: "Mobile", value: 35, fill: "#82ca9d" },
+      { name: "Tablet", value: 20, fill: "#ffc658" }
+    ],
+    dataKey: "value",
+    nameKey: "name",
+    height: 300
+  }}
+  title="Pie Chart"
+  description="Show proportional data distribution"
+/>
 
 ## Usage
 
@@ -57,7 +119,7 @@ const schema = {
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| `data` | Array<Record<string, any>> | `[]` | Array of data objects to visualize |
+| `data` | Array of objects | `[]` | Array of data objects to visualize |
 | `dataKey` | string | `'value'` | Key in data objects for Y-axis values |
 | `xAxisKey` | string | `'name'` | Key in data objects for X-axis labels |
 | `height` | number | `400` | Chart height in pixels |

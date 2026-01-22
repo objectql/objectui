@@ -2,6 +2,8 @@
 title: "Plugin Markdown"
 ---
 
+import { InteractiveDemo } from '@/app/components/InteractiveDemo';
+
 Markdown renderer with GitHub Flavored Markdown support.
 
 ## Installation
@@ -24,6 +26,35 @@ const schema = {
   content: '# Hello World\n\nThis is **markdown** text with [links](https://example.com).'
 }
 ```
+
+## Interactive Examples
+
+<InteractiveDemo
+  schema={{
+    type: "markdown",
+    content: "# Hello Markdown\n\nThis is **bold** text and this is *italic* text.\n\nYou can also add [links](https://objectui.dev) and more!"
+  }}
+  title="Basic Markdown"
+  description="Simple markdown text with formatting"
+/>
+
+<InteractiveDemo
+  schema={{
+    type: "markdown",
+    content: "## Task List\n\n- [x] Completed task\n- [ ] Pending task\n- [ ] Another pending task\n\n## Code Block\n\n```javascript\nfunction greet(name) {\n  console.log(`Hello, ${name}!`);\n}\n```"
+  }}
+  title="Advanced Features"
+  description="Task lists and code blocks with syntax highlighting"
+/>
+
+<InteractiveDemo
+  schema={{
+    type: "markdown",
+    content: "| Feature | Supported | Notes |\n|---------|-----------|-------|\n| Tables | ✅ | GitHub Flavored |\n| Task Lists | ✅ | Interactive |\n| Code Highlight | ✅ | Auto-detect |\n| XSS Protection | ✅ | Sanitized |"
+  }}
+  title="Markdown Tables"
+  description="Beautiful table rendering"
+/>
 
 ## Features
 
