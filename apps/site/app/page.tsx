@@ -243,39 +243,34 @@ export default function HomePage() {
           
           <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { icon: "📊", title: "Dashboards", desc: "Data visualization and analytics", link: null },
-              { icon: "⚙️", title: "Admin Panels", desc: "Complete CRUD interfaces", link: null },
-              { icon: "📝", title: "Forms", desc: "Complex multi-step forms", link: null },
-              { icon: "📄", title: "CMS", desc: "Content management systems", link: null },
-              { icon: "🔧", title: "Internal Tools", desc: "Business applications", link: null },
-              { icon: "✨", title: "Interactive Examples", desc: "Explore 30+ components with live demos", link: "/docs/guide/interactive-demos" }
+              { icon: "📊", title: "Dashboards", desc: "Data visualization and analytics" },
+              { icon: "⚙️", title: "Admin Panels", desc: "Complete CRUD interfaces" },
+              { icon: "📝", title: "Forms", desc: "Complex multi-step forms" },
+              { icon: "📄", title: "CMS", desc: "Content management systems" },
+              { icon: "🔧", title: "Internal Tools", desc: "Business applications" },
             ].map((useCase) => (
-              useCase.link ? (
-                <Link 
-                  key={useCase.title} 
-                  href={useCase.link}
-                  className="rounded-xl border border-fd-border bg-fd-card p-6 transition-all hover:shadow-lg hover:border-fd-primary/50"
-                >
-                  <div className="text-4xl mb-3">{useCase.icon}</div>
-                  <h3 className="text-lg font-semibold text-fd-foreground mb-1">
-                    {useCase.title}
-                  </h3>
-                  <p className="text-fd-muted-foreground text-sm">
-                    {useCase.desc}
-                  </p>
-                </Link>
-              ) : (
-                <div key={useCase.title} className="rounded-xl border border-fd-border bg-fd-card p-6">
-                  <div className="text-4xl mb-3">{useCase.icon}</div>
-                  <h3 className="text-lg font-semibold text-fd-foreground mb-1">
-                    {useCase.title}
-                  </h3>
-                  <p className="text-fd-muted-foreground text-sm">
-                    {useCase.desc}
-                  </p>
-                </div>
-              )
+              <div key={useCase.title} className="rounded-xl border border-fd-border bg-fd-card p-6">
+                <div className="text-4xl mb-3">{useCase.icon}</div>
+                <h3 className="text-lg font-semibold text-fd-foreground mb-1">
+                  {useCase.title}
+                </h3>
+                <p className="text-fd-muted-foreground text-sm">
+                  {useCase.desc}
+                </p>
+              </div>
             ))}
+            <Link 
+              href="/docs/guide/interactive-demos"
+              className="rounded-xl border border-fd-border bg-fd-card p-6 transition-all hover:shadow-lg hover:border-fd-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-primary focus-visible:ring-offset-2"
+            >
+              <div className="text-4xl mb-3">✨</div>
+              <h3 className="text-lg font-semibold text-fd-foreground mb-1">
+                Interactive Examples
+              </h3>
+              <p className="text-fd-muted-foreground text-sm">
+                Explore 30+ components with live demos
+              </p>
+            </Link>
           </div>
         </div>
       </section>
