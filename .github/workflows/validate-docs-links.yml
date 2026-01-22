@@ -1,0 +1,73 @@
+name: Validate Documentation Links
+
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'scripts/validate-docs-links.mjs'
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - 'scripts/validate-docs-links.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate-links:
+    name: Validate Documentation Links
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Validate documentation links
+        id: validate
+        run: |
+          node scripts/validate-docs-links.mjs
+        continue-on-error: true
+
+      - name: Comment on PR (Success)
+        if: steps.validate.outcome == 'success' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const message = `✅ **Documentation Links Validation Passed**\n\nAll internal links in the documentation are valid!`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+
+      - name: Comment on PR (Failure)
+        if: steps.validate.outcome == 'failure' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const message = `❌ **Documentation Links Validation Failed**\n\n` +
+              `Some internal links in the documentation are broken. Please run \`pnpm validate:links\` locally to see details and fix the issues.\n\n` +
+              `Common issues:\n` +
+              `- Using \`/docs/\` prefix in links (fumadocs baseUrl is already \`/docs\`, so links should start with \`/\`)\n` +
+              `- Incorrect paths (e.g., \`/spec/\` should be \`/architecture/\`, \`/api/\` should be \`/reference/api/\`)\n` +
+              `- Links to non-existent files or routes`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+
+      - name: Fail if validation failed
+        if: steps.validate.outcome == 'failure'
+        run: exit 1

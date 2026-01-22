@@ -30,6 +30,7 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "lint": "pnpm -r lint",
+    "validate:links": "node scripts/validate-docs-links.mjs",
     "cli": "node packages/cli/dist/cli.js",
     "objectui": "node packages/cli/dist/cli.js",
     "doctor": "node packages/cli/dist/cli.js doctor",

@@ -400,14 +400,14 @@ Our repository includes several automated GitHub workflows that will run when yo
 
 ### Writing Documentation
 
-We use VitePress for documentation. All docs are in `docs/`.
+We use fumadocs for documentation. All docs are in `docs/`.
 
 ```bash
 # Start docs dev server
-pnpm docs:dev
+pnpm site:dev
 
 # Build docs
-pnpm docs:build
+pnpm site:build
 ```
 
 ### Documentation Guidelines
@@ -418,6 +418,54 @@ pnpm docs:build
 - Use TypeScript for code examples
 - Add practical, real-world examples
 - Link to related documentation
+
+### Documentation Link Conventions
+
+**IMPORTANT**: When adding internal links in documentation, follow these conventions to avoid 404 errors:
+
+#### ✅ Correct Link Patterns
+
+```markdown
+<!-- Correct - links start with / but do NOT include /docs/ -->
+[Quick Start](/guide/quick-start)
+[Components](/components)
+[API Reference](/reference/api/core)
+[Protocol Specs](/reference/protocol/overview)
+[Architecture](/architecture/component)
+```
+
+#### ❌ Incorrect Link Patterns
+
+```markdown
+<!-- Wrong - includes /docs/ prefix -->
+[Quick Start](/docs/guide/quick-start)  <!-- ❌ -->
+[Components](/docs/components)          <!-- ❌ -->
+
+<!-- Wrong - incorrect paths -->
+[API Reference](/api/core)              <!-- ❌ Should be /reference/api/core -->
+[Spec](/spec/component)                 <!-- ❌ Should be /architecture/component -->
+[Protocol](/protocol/form)              <!-- ❌ Should be /reference/protocol/form -->
+```
+
+#### Why?
+
+Fumadocs already configures the base URL as `/docs` in the routing system. Adding `/docs/` to your links creates invalid paths like `/docs/docs/guide/quick-start`.
+
+#### Validating Links
+
+Before submitting documentation changes, validate all internal links:
+
+```bash
+# Validate all documentation links
+pnpm validate:links
+```
+
+This will check:
+- Links don't contain `/docs/` prefix
+- Links point to existing files and routes
+- Suggestions for fixing common issues
+
+The validation runs automatically on PRs that modify documentation files.
 
 See [Documentation Guide](./docs/README.md) for details.
 
