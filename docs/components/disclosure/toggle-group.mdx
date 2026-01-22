@@ -12,11 +12,11 @@ The Toggle Group component allows users to toggle between multiple options.
 <ComponentDemo
   schema={{
     type: 'toggle-group',
-    type: 'single',
+    selectionType: 'single',
     items: [
-      { value: 'left', icon: 'align-left' },
-      { value: 'center', icon: 'align-center' },
-      { value: 'right', icon: 'align-right' }
+      { value: 'left', label: 'Left' },
+      { value: 'center', label: 'Center' },
+      { value: 'right', label: 'Right' }
     ]
   }}
   title="Single Selection"
@@ -27,11 +27,11 @@ The Toggle Group component allows users to toggle between multiple options.
 <ComponentDemo
   schema={{
     type: 'toggle-group',
-    type: 'multiple',
+    selectionType: 'multiple',
     items: [
-      { value: 'bold', icon: 'bold' },
-      { value: 'italic', icon: 'italic' },
-      { value: 'underline', icon: 'underline' }
+      { value: 'bold', label: 'Bold' },
+      { value: 'italic', label: 'Italic' },
+      { value: 'underline', label: 'Underline' }
     ]
   }}
   title="Multiple Selection"

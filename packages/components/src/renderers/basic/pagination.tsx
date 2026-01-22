@@ -19,7 +19,7 @@ ComponentRegistry.register('pagination',
         ...paginationProps
     } = props;
     
-    const currentPage = schema.currentPage || 1;
+    const currentPage = schema.currentPage || schema.page || 1;
     const totalPages = schema.totalPages || 1;
     const showEllipsis = totalPages > 7;
     
