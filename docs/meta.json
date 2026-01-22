@@ -9,6 +9,10 @@
       "url": "/components"
     },
     {
+      "title": "Plugins",
+      "url": "/plugins"
+    },
+    {
       "title": "Concepts",
       "url": "/concepts"
     },
@@ -24,6 +28,7 @@
   "pages": [
     "guide",
     "components",
+    "plugins",
     "concepts",
     "reference",
     "ecosystem",

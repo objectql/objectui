@@ -3,7 +3,6 @@
   "pages": [
     "objectql",
     "api",
-    "plugins",
     "deployment"
   ]
 }
