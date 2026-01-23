@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { SchemaRenderer } from '@object-ui/react';
 import type { SchemaNode } from '@object-ui/core';
 import dynamic from 'next/dynamic';
@@ -215,6 +215,20 @@ export default function PlaygroundPage() {
   const [editorValue, setEditorValue] = useState(JSON.stringify(DEFAULT_SCHEMA, null, 2));
   const [error, setError] = useState<string | null>(null);
   const [selectedExample, setSelectedExample] = useState<keyof typeof EXAMPLE_SCHEMAS>('basic');
+  const [editorTheme, setEditorTheme] = useState<'vs-dark' | 'light'>('vs-dark');
+
+  // Detect system theme
+  React.useEffect(() => {
+    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setEditorTheme(darkModeQuery.matches ? 'vs-dark' : 'light');
+    
+    const handleChange = (e: MediaQueryListEvent) => {
+      setEditorTheme(e.matches ? 'vs-dark' : 'light');
+    };
+    
+    darkModeQuery.addEventListener('change', handleChange);
+    return () => darkModeQuery.removeEventListener('change', handleChange);
+  }, []);
 
   const handleEditorChange = (value: string | undefined) => {
     if (!value) return;
@@ -289,7 +303,7 @@ export default function PlaygroundPage() {
               defaultLanguage="json"
               value={editorValue}
               onChange={handleEditorChange}
-              theme="vs-dark"
+              theme={editorTheme}
               options={{
                 minimap: { enabled: false },
                 fontSize: 14,
