@@ -1,0 +1,10 @@
+{
+  "title": "Guide",
+  "pages": [
+    "schema-rendering",
+    "expressions",
+    "data-source",
+    "component-registry",
+    "plugins"
+  ]
+}
