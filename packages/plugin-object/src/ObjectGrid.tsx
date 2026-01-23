@@ -19,14 +19,14 @@
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import type { ObjectTableSchema, TableColumn, DataSource, FieldMetadata } from '@object-ui/types';
+import type { ObjectGridSchema, TableColumn, DataSource, FieldMetadata } from '@object-ui/types';
 import { getCellRenderer } from './field-renderers';
 
 export interface ObjectGridProps {
   /**
    * The schema configuration for the grid
    */
-  schema: ObjectTableSchema;
+  schema: ObjectGridSchema;
   
   /**
    * Data source for fetching data

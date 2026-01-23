@@ -173,6 +173,19 @@ export function SelectCellRenderer({ value, field }: CellRendererProps): React.R
   
   if (!value) return <span>-</span>;
   
+  // Color mapping for Tailwind CSS (to avoid dynamic class names)
+  const colorClasses: Record<string, { bg: string; text: string }> = {
+    gray: { bg: 'bg-gray-100', text: 'text-gray-800' },
+    red: { bg: 'bg-red-100', text: 'text-red-800' },
+    orange: { bg: 'bg-orange-100', text: 'text-orange-800' },
+    yellow: { bg: 'bg-yellow-100', text: 'text-yellow-800' },
+    green: { bg: 'bg-green-100', text: 'text-green-800' },
+    blue: { bg: 'bg-blue-100', text: 'text-blue-800' },
+    indigo: { bg: 'bg-indigo-100', text: 'text-indigo-800' },
+    purple: { bg: 'bg-purple-100', text: 'text-purple-800' },
+    pink: { bg: 'bg-pink-100', text: 'text-pink-800' },
+  };
+  
   // Handle multiple values
   if (Array.isArray(value)) {
     return (
@@ -181,11 +194,12 @@ export function SelectCellRenderer({ value, field }: CellRendererProps): React.R
           const option = options.find(opt => opt.value === val);
           const label = option?.label || val;
           const color = option?.color || 'gray';
+          const classes = colorClasses[color] || colorClasses.gray;
           
           return (
             <span
               key={idx}
-              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-${color}-100 text-${color}-800`}
+              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${classes.bg} ${classes.text}`}
             >
               {label}
             </span>
@@ -199,10 +213,11 @@ export function SelectCellRenderer({ value, field }: CellRendererProps): React.R
   const option = options.find(opt => opt.value === value);
   const label = option?.label || value;
   const color = option?.color || 'blue';
+  const classes = colorClasses[color] || colorClasses.blue;
   
   return (
     <span
-      className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-${color}-100 text-${color}-800`}
+      className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${classes.bg} ${classes.text}`}
     >
       {label}
     </span>

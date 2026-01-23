@@ -87,13 +87,42 @@ export interface BaseFieldMetadata {
   /**
    * Conditional visibility expression
    */
-  visible_on?: any;
+  visible_on?: VisibilityCondition;
   
   /**
    * Custom validation function or rules
    */
-  validate?: any;
+  validate?: ValidationFunction | ValidationRule;
 }
+
+/**
+ * Visibility condition type
+ */
+export type VisibilityCondition = {
+  field: string;
+  operator?: '=' | '!=' | '>' | '>=' | '<' | '<=' | 'in';
+  value?: any;
+  and?: VisibilityCondition[];
+  or?: VisibilityCondition[];
+};
+
+/**
+ * Validation function type
+ */
+export type ValidationFunction = (value: any) => boolean | string | Promise<boolean | string>;
+
+/**
+ * Validation rule type
+ */
+export type ValidationRule = {
+  required?: boolean | string;
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+  pattern?: string | RegExp;
+  custom?: ValidationFunction;
+};
 
 /**
  * Text field metadata
