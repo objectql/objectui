@@ -1,0 +1,30 @@
+name: Check Links
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check links with Lychee
+        uses: lycheeverse/lychee-action@v1
+        with:
+          # Scan all markdown files in docs directory and README
+          args: |
+            --verbose
+            --no-progress
+            --config lychee.toml
+            'docs/**/*.md'
+            'docs/**/*.mdx'
+            'README.md'
+          # Fail the action on broken links
+          fail: true
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}

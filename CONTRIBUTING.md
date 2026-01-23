@@ -400,14 +400,14 @@ Our repository includes several automated GitHub workflows that will run when yo
 
 ### Writing Documentation
 
-We use VitePress for documentation. All docs are in `docs/`.
+We use fumadocs for documentation. All docs are in `docs/`.
 
 ```bash
 # Start docs dev server
-pnpm docs:dev
+pnpm site:dev
 
 # Build docs
-pnpm docs:build
+pnpm site:build
 ```
 
 ### Documentation Guidelines
@@ -418,6 +418,42 @@ pnpm docs:build
 - Use TypeScript for code examples
 - Add practical, real-world examples
 - Link to related documentation
+
+### Documentation Link Conventions
+
+**IMPORTANT**: When adding internal links in documentation, follow these conventions to avoid 404 errors:
+
+#### ✅ Correct Link Patterns
+
+```markdown
+<!-- Correct - internal documentation links MUST include /docs/ prefix -->
+[Quick Start](/docs/guide/quick-start)
+[Components](/docs/components)
+[API Reference](/docs/reference/api/core)
+[Protocol Specs](/docs/reference/protocol/overview)
+[Architecture](/docs/architecture/component)
+```
+
+#### ❌ Incorrect Link Patterns
+
+```markdown
+<!-- Wrong - missing /docs/ prefix -->
+[Quick Start](/guide/quick-start)       <!-- ❌ Should be /docs/guide/quick-start -->
+[Components](/components)               <!-- ❌ Should be /docs/components -->
+
+<!-- Wrong - incorrect paths -->
+[API Reference](/api/core)              <!-- ❌ Should be /docs/reference/api/core -->
+[Spec](/spec/component)                 <!-- ❌ Should be /docs/architecture/component -->
+[Protocol](/protocol/form)              <!-- ❌ Should be /docs/reference/protocol/form -->
+```
+
+#### Why?
+
+Fumadocs is configured with `baseUrl: '/docs'`, which means all documentation pages are served under the `/docs` route in Next.js. Internal links must include the `/docs/` prefix to match the actual URL structure where the pages are accessible.
+
+#### Validating Links
+
+Link validation runs automatically via GitHub Actions on all PRs using lychee-action. This checks for broken internal and external links.
 
 See [Documentation Guide](./docs/README.md) for details.
 
