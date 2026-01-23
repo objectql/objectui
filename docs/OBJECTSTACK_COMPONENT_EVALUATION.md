@@ -12,11 +12,30 @@
 
 ### 关键发现
 
-- ✅ **已实现76个渲染器组件**，涵盖8大类别
+- ✅ **平台基础组件**: 已实现76个渲染器，涵盖8大类别（通用UI组件）
+- 📝 **对象组件**: 规划10个核心组件（Q2 2026），基于Object定义自动生成UI
 - ✅ **集成60个Shadcn UI基础组件**作为底层原语
-- 🚧 **协议支持程度**: View (100%), Form (100%), CRUD (80%), Object (规划中)
-- 📊 **组件覆盖率**: 基础功能100%，高级功能85%
+- 🚧 **协议支持程度**: View (100%), Form (100%), Object (0%, Q2规划)
+- 📊 **组件覆盖率**: 平台基础组件100%，对象组件0%
 - 🎯 **代码质量**: 平均每个渲染器80-150行，保持精简
+
+### 双组件系统架构
+
+ObjectUI采用**两套独立但互补的组件系统**：
+
+#### 1. 平台基础组件（Platform Basic Components）
+- **定位**: 通用UI组件，适合灵活自定义场景
+- **数据源**: 任意API、静态数据、手动定义Schema
+- **优势**: 高度灵活、完全可控、学习成本低
+- **示例**: `data-table`, `form`, `list`, `card`
+- **当前状态**: 76个组件 ✅
+
+#### 2. 对象组件（Object Components）
+- **定位**: 基于ObjectStack Object定义自动生成UI
+- **数据源**: Object定义（.object.yml文件）驱动
+- **优势**: 零配置CRUD、自动关系处理、类型安全、维护性强
+- **示例**: `object-table`, `object-form`, `object-list`
+- **当前状态**: 0个组件，Q2 2026规划 📝
 
 ---
 
@@ -60,11 +79,70 @@ ObjectUI采用清晰的三层组件架构：
 - **Shadcn组件** = 纯UI展示，接受props控制
 - **ObjectUI渲染器** = Schema解释器，连接数据源，处理业务逻辑
 
+### 1.3 双组件系统架构
+
+**重要**: ObjectUI包含**两套独立但互补的组件系统**：
+
+#### 系统A: 平台基础组件（76个，已实现）
+
+**特征**:
+- 通用UI组件，不依赖Object定义
+- Schema手动定义（columns, fields等）
+- 高度灵活，适合自定义场景
+- 数据源：任意API、静态数据
+
+**示例**:
+```json
+{
+  "type": "data-table",
+  "api": "/api/users",
+  "columns": [
+    { "name": "id", "label": "ID" },
+    { "name": "name", "label": "姓名" },
+    { "name": "email", "label": "邮箱" }
+  ]
+}
+```
+
+**组件列表**: `data-table`, `form`, `list`, `card`, `button`等（本文档第2章详述）
+
+#### 系统B: 对象组件（10个，Q2 2026规划）
+
+**特征**:
+- 基于ObjectStack Object定义自动生成UI
+- 零配置CRUD（从Object.fields自动生成）
+- 智能处理关系字段（lookup/master-detail）
+- 数据源：Object定义 + ObjectQL
+
+**示例**:
+```json
+{
+  "type": "object-table",
+  "object": "user"
+  // 自动从user.object.yml生成所有列、验证、关系字段处理
+}
+```
+
+**组件列表**: `object-table`, `object-form`, `object-list`等（本文档第5.2章详述）
+
+#### 对比总结
+
+| 维度 | 平台基础组件 | 对象组件 |
+|------|------------|---------|
+| **数据源** | 任意API/数据 | Object定义 |
+| **Schema** | 手动定义 | 自动生成 |
+| **灵活性** | 高（完全自定义） | 中（约束于Object） |
+| **开发速度** | 中（需手动配置） | 快（零配置） |
+| **维护性** | Schema需同步维护 | Object改变UI自动更新 |
+| **适用场景** | 自定义仪表盘、复杂交互 | 标准CRUD、快速原型 |
+
 ---
 
-## 2. 已实现组件清单
+## 2. 平台基础组件清单（已实现）
 
-### 2.1 按类别分类 (76个渲染器)
+**说明**: 以下76个组件为通用UI组件，不依赖Object定义，适合灵活自定义场景。
+
+### 2.1 按类别分类 (76个)
 
 #### 📦 基础组件 (Basic) - 10个
 基础HTML元素的Schema包装。
@@ -467,18 +545,67 @@ export function InputRenderer({ schema }: RendererProps<InputSchema>) {
 | **Affix** | 🟢 低 | 固定定位 | 1天 |
 | **BackTop** | 🟢 低 | 回到顶部 | 0.5天 |
 
-### 5.2 ObjectStack特有组件需求
+### 5.2 对象组件需求（Q2 2026新增）
 
-基于ObjectStack协议，需新增：
+**说明**: 对象组件是全新的组件系统，基于ObjectStack Object协议，从Object定义自动生成UI。
+
+#### 核心对象组件（6个）
+
+| 组件名 | Schema type | 说明 | 对应平台组件 |
+|--------|------------|------|--------------|
+| **ObjectTable** | `object-table` | 从Object定义自动生成数据表 | `data-table` |
+| **ObjectForm** | `object-form` | 从Object定义自动生成表单 | `form` |
+| **ObjectDetail** | `object-detail` | 从Object定义自动生成详情页 | `page` + `form` (readonly) |
+| **ObjectList** | `object-list` | 从Object定义自动生成列表 | `list` |
+| **ObjectCard** | `object-card` | 从Object定义自动生成卡片 | `card` |
+| **ObjectView** | `object-view` | 通用Object视图容器 | - |
+
+**工作量**: 6个组件 × 3周 = 18周（Q2 2026）
+
+#### 辅助对象组件（4个）
+
+| 组件名 | Schema type | 说明 |
+|--------|------------|------|
+| **ObjectField** | `object-field` | 字段渲染器（根据Object字段类型自动选择组件） |
+| **ObjectRelationship** | `object-relationship` | 关系字段选择器（lookup/master-detail智能处理） |
+| **ObjectActions** | `object-actions` | 对象操作按钮组（基于Object.actions生成） |
+| **ObjectFilter** | `object-filter` | 对象筛选器（基于Object.fields生成） |
+
+**工作量**: 4个组件 × 2周 = 8周（Q2 2026）
+
+#### 对象组件 vs 平台组件示例
+
+**场景**: 显示用户列表
+
+```json
+// 方式1：平台基础组件（灵活但需手动配置）
+{
+  "type": "data-table",
+  "api": "/api/users",
+  "columns": [
+    { "name": "id", "label": "ID", "type": "text" },
+    { "name": "name", "label": "姓名", "type": "text", "sortable": true },
+    { "name": "email", "label": "邮箱", "type": "text" },
+    { "name": "department_id", "label": "部门ID", "type": "text" }
+  ]
+}
+
+// 方式2：对象组件（自动但需Object定义）
+{
+  "type": "object-table",
+  "object": "user"
+  // 自动从user.object.yml生成：
+  // - 所有字段列
+  // - lookup字段显示关联对象的displayField（如department.name而不是ID）
+  // - 字段验证规则
+  // - 字段级权限控制
+}
+```
+
+#### 其他ObjectStack协议组件
 
 | 组件 | 协议 | 优先级 | 说明 |
 |------|------|--------|------|
-| **ObjectForm** | Object | 🔴 高 | 基于Object定义自动生成表单 |
-| **ObjectList** | Object | 🔴 高 | 基于Object定义自动生成列表 |
-| **ObjectField** | Object | 🔴 高 | 根据字段类型动态渲染 |
-| **ObjectRelationship** | Object | 🟡 中 | 关系字段选择器 (lookup/master-detail) |
-| **RecordLink** | Object | 🟡 中 | 记录链接/导航 |
-| **RecordHistory** | Object | 🟢 低 | 变更历史时间线 |
 | **AppLauncher** | App | 🟡 中 | 应用启动器 |
 | **GlobalSearch** | App | 🔴 高 | 全局搜索 |
 | **ReportViewer** | Report | 🟢 低 | 报表查看器 |
@@ -518,22 +645,34 @@ export function InputRenderer({ schema }: RendererProps<InputSchema>) {
 
 ### 6.2 Q2 2026 (4-6月) - Object协议实现
 
-**目标**: 实现ObjectStack Object协议核心组件
+**目标**: 实现ObjectStack Object协议核心组件（对象组件系统）
 
-| 任务 | 时间 | 依赖 |
-|------|------|------|
-| Object Schema解析器 | 2周 | @object-ui/core |
-| ObjectForm自动生成 | 3周 | Object Schema |
-| ObjectList自动生成 | 3周 | Object Schema |
-| ObjectField动态渲染 | 2周 | Object Schema |
-| ObjectRelationship | 2周 | Object Schema |
-| 代码编辑器集成 | 1周 | - |
-| 导入向导 | 2周 | - |
+| 任务 | 时间 | 类型 | 依赖 |
+|------|------|------|------|
+| Object Schema解析器 | 2周 | 基础设施 | @object-ui/core |
+| **ObjectTable** | 3周 | 对象组件 | Object Schema |
+| **ObjectForm** | 3周 | 对象组件 | Object Schema |
+| **ObjectDetail** | 2周 | 对象组件 | Object Schema |
+| **ObjectList** | 2周 | 对象组件 | Object Schema |
+| **ObjectCard** | 2周 | 对象组件 | Object Schema |
+| **ObjectView** | 2周 | 对象组件 | Object Schema |
+| **ObjectField** | 2周 | 对象组件 | Object Schema |
+| **ObjectRelationship** | 2周 | 对象组件 | Object Schema |
+| **ObjectActions** | 1周 | 对象组件 | Object Schema |
+| **ObjectFilter** | 1周 | 对象组件 | Object Schema |
+| 平台组件补齐 | 4周 | 平台组件 | - |
 
 **里程碑**:
-- ✅ 支持从Object定义自动生成UI
-- ✅ 支持lookup和master-detail关系
+- ✅ 对象组件系统：10个核心组件
+- ✅ 支持从Object定义自动生成UI（零配置CRUD）
+- ✅ 支持lookup和master-detail关系字段
 - ✅ 支持所有ObjectQL字段类型
+- ✅ 平台基础组件：84个（+8个补齐）
+
+**组件数量**:
+- 平台基础组件：76 → 84个
+- 对象组件：0 → 10个
+- **总计：76 → 94个**
 
 ### 6.3 Q3 2026 (7-9月) - 高级特性
 
@@ -552,13 +691,18 @@ export function InputRenderer({ schema }: RendererProps<InputSchema>) {
 
 **目标**: 完善开发工具和插件系统
 
-| 任务 | 时间 |
-|------|------|
-| VSCode扩展增强 | 4周 |
-| Schema可视化设计器 | 6周 |
-| 主题编辑器 | 2周 |
-| 组件市场 | 4周 |
-| AI Schema生成 | 持续 |
+| 任务 | 时间 | 说明 |
+|------|------|------|
+| VSCode扩展增强 | 4周 | 对象组件智能提示 |
+| Schema可视化设计器 | 6周 | 支持平台组件+对象组件 |
+| 主题编辑器 | 2周 | 统一主题系统 |
+| 组件市场 | 4周 | 社区组件分享 |
+| AI Schema生成 | 持续 | AI辅助生成Schema和Object |
+
+**组件数量**:
+- 平台基础组件：~100个
+- 对象组件：~20个
+- **总计：~120个**
 
 ---
 
@@ -691,14 +835,16 @@ export function InputRenderer({ schema }: RendererProps<InputSchema>) {
 ### 9.4 成功指标
 
 **Q2 2026目标**:
-- ✅ 组件数量达到90+
-- ✅ Object协议实现度100%
-- ✅ 性能基准: data-table 1000行 < 200ms
-- ✅ 测试覆盖率 > 85%
+- ✅ 平台基础组件: 84个
+- ✅ 对象组件: 10个（**总计94个**）
+- ✅ Object协议实现度80%
+- ✅ 性能基准: data-table 1000行 < 500ms
+- ✅ 测试覆盖率 > 75%
 - ✅ NPM周下载量 > 1000
 
 **Q4 2026目标**:
-- ✅ 组件数量达到120+
+- ✅ 平台基础组件: ~100个
+- ✅ 对象组件: ~20个（**总计~120个**）
 - ✅ 所有核心协议100%实现
 - ✅ 移动端组件套件完整
 - ✅ VSCode扩展DAU > 500
