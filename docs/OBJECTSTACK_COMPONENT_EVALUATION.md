@@ -475,8 +475,8 @@ export function InputRenderer({ schema }: RendererProps<InputSchema>) {
 |------|------|--------|------|
 | **ObjectForm** | Object | 🔴 高 | 基于Object定义自动生成表单 |
 | **ObjectList** | Object | 🔴 高 | 基于Object定义自动生成列表 |
-| **FieldRenderer** | Object | 🔴 高 | 根据字段类型动态渲染 |
-| **RelationshipPicker** | Object | 🟡 中 | 关系字段选择器 (lookup/master-detail) |
+| **ObjectField** | Object | 🔴 高 | 根据字段类型动态渲染 |
+| **ObjectRelationship** | Object | 🟡 中 | 关系字段选择器 (lookup/master-detail) |
 | **RecordLink** | Object | 🟡 中 | 记录链接/导航 |
 | **RecordHistory** | Object | 🟢 低 | 变更历史时间线 |
 | **AppLauncher** | App | 🟡 中 | 应用启动器 |
@@ -525,8 +525,8 @@ export function InputRenderer({ schema }: RendererProps<InputSchema>) {
 | Object Schema解析器 | 2周 | @object-ui/core |
 | ObjectForm自动生成 | 3周 | Object Schema |
 | ObjectList自动生成 | 3周 | Object Schema |
-| FieldRenderer动态渲染 | 2周 | Object Schema |
-| RelationshipPicker | 2周 | Object Schema |
+| ObjectField动态渲染 | 2周 | Object Schema |
+| ObjectRelationship | 2周 | Object Schema |
 | 代码编辑器集成 | 1周 | - |
 | 导入向导 | 2周 | - |
 

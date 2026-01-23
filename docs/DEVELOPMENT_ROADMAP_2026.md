@@ -288,7 +288,7 @@ const formSchema = generateFormFromObject(objectDef);
 **Lookup关系示例**:
 ```json
 {
-  "type": "relationship-picker",
+  "type": "object-relationship",
   "name": "account_id",
   "label": "所属账户",
   "relationshipType": "lookup",

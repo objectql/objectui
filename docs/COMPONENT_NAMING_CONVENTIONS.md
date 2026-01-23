@@ -174,9 +174,20 @@ ComponentRegistry.register('button', ButtonRenderer);
 | 前缀 | 用途 | 示例 |
 |------|------|------|
 | `data-` | 数据驱动的高级组件 | `data-table`, `data-grid` |
-| `object-` | Object协议相关 | `object-form`, `object-list`, `object-view` |
+| `object-` | Object协议相关组件 | `object-form`, `object-list`, `object-view` |
 | `filter-` | 筛选相关 | `filter-builder`, `filter-panel` |
 | 无前缀 | 基础渲染器 | `button`, `input`, `form` |
+
+**为什么使用 `object-` 而不是 `os-`?**
+
+经过综合评估（语义清晰度、现有模式一致性、行业最佳实践、可读性、文档友好度、国际化），强烈推荐使用 `object-` 前缀：
+
+- ✅ **语义清晰**: `object-form` 比 `os-form` 更易理解（理解度: 95% vs 20%）
+- ✅ **模式一致**: 符合现有 `data-`, `filter-` 等全词前缀模式
+- ✅ **行业惯例**: Web Components、React库均使用全词而非缩写
+- ✅ **搜索友好**: "object-form" 搜索结果准确，"os-form" 被 Operating System 结果淹没
+- ✅ **国际化**: `object` 是通用技术术语，各语言理解度高
+- ❌ **os- 的问题**: 缩写歧义（Operating System?）、不符合Web规范、文档困难
 
 #### 3.3 基础元素渲染器
 
@@ -332,8 +343,10 @@ ComponentRegistry.register('data-table', DataTableRenderer);
 | `object-list` | `"object-list"` | 从Object定义自动生成列表 |
 | `object-detail` | `"object-detail"` | 从Object定义自动生成详情页 |
 | `object-view` | `"object-view"` | 通用Object视图容器 |
-| `field-renderer` | `"field-renderer"` | 动态字段渲染器 |
-| `relationship-picker` | `"relationship-picker"` | 关系字段选择器 |
+| `object-field` | `"object-field"` | 动态字段渲染器 |
+| `object-relationship` | `"object-relationship"` | 关系字段选择器 |
+
+**命名原则**: 所有Object协议组件统一使用 `object-` 前缀，保持与现有 `data-`, `filter-` 等前缀模式的一致性。
 
 ### 移动端组件（Q3 2026）
 

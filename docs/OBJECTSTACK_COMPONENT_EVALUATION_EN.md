@@ -105,8 +105,8 @@ This document provides a comprehensive evaluation of ObjectUI's frontend compone
 #### ObjectStack-Specific Components (Q2 2026)
 - **ObjectForm**: Auto-generate forms from Object definitions
 - **ObjectList**: Auto-generate lists from Object definitions
-- **FieldRenderer**: Dynamic field type rendering
-- **RelationshipPicker**: Lookup/master-detail field selector
+- **ObjectField**: Dynamic field type rendering
+- **ObjectRelationship**: Lookup/master-detail field selector
 
 ---
 
