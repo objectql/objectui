@@ -453,19 +453,7 @@ Fumadocs is configured with `baseUrl: '/docs'`, which means all documentation pa
 
 #### Validating Links
 
-Before submitting documentation changes, validate all internal links:
-
-```bash
-# Validate all documentation links
-pnpm validate:links
-```
-
-This will check:
-- Links point to existing files and routes
-- Links use correct path structure with /docs/ prefix
-- Suggestions for fixing common issues
-
-The validation runs automatically on PRs that modify documentation files.
+Link validation runs automatically via GitHub Actions on all PRs using lychee-action. This checks for broken internal and external links.
 
 See [Documentation Guide](./docs/README.md) for details.
 
