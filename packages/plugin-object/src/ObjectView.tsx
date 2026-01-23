@@ -14,8 +14,7 @@
  */
 
 import React, { useEffect, useState, useCallback } from 'react';
-import type { ObjectViewSchema, ObjectTableSchema, ObjectFormSchema } from '@object-ui/types';
-import type { ObjectQLDataSource } from '@object-ui/data-objectql';
+import type { ObjectViewSchema, ObjectTableSchema, ObjectFormSchema, DataSource } from '@object-ui/types';
 import { ObjectTable } from './ObjectTable';
 import { ObjectForm } from './ObjectForm';
 import {
@@ -41,9 +40,9 @@ export interface ObjectViewProps {
   schema: ObjectViewSchema;
   
   /**
-   * ObjectQL data source
+   * Data source (ObjectQL or ObjectStack adapter)
    */
-  dataSource: ObjectQLDataSource;
+  dataSource: DataSource;
   
   /**
    * Additional CSS class
@@ -68,7 +67,7 @@ type FormMode = 'create' | 'edit' | 'view';
  *     showSearch: true,
  *     showFilters: true
  *   }}
- *   dataSource={objectQLDataSource}
+ *   dataSource={dataSource}
  * />
  * ```
  */
@@ -85,12 +84,15 @@ export const ObjectView: React.FC<ObjectViewProps> = ({
   const [showFilters, setShowFilters] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Fetch object schema from ObjectQL
+  // Fetch object schema from ObjectQL/ObjectStack
   useEffect(() => {
     const fetchObjectSchema = async () => {
       try {
-        const schemaData = await dataSource.getObjectSchema(schema.objectName);
-        setObjectSchema(schemaData);
+        // Check if the data source supports schema fetching
+        if (dataSource.getObjectSchema) {
+          const schemaData = await dataSource.getObjectSchema(schema.objectName);
+          setObjectSchema(schemaData);
+        }
       } catch (err) {
         console.error('Failed to fetch object schema:', err);
       }

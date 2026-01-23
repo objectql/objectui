@@ -14,8 +14,7 @@
  */
 
 import React, { useEffect, useState, useCallback } from 'react';
-import type { ObjectFormSchema, FormField, FormSchema } from '@object-ui/types';
-import type { ObjectQLDataSource } from '@object-ui/data-objectql';
+import type { ObjectFormSchema, FormField, FormSchema, DataSource } from '@object-ui/types';
 import { SchemaRenderer } from '@object-ui/react';
 
 export interface ObjectFormProps {
@@ -25,10 +24,10 @@ export interface ObjectFormProps {
   schema: ObjectFormSchema;
   
   /**
-   * ObjectQL data source
+   * Data source (ObjectQL or ObjectStack adapter)
    * Optional when using inline field definitions (customFields or fields array with field objects)
    */
-  dataSource?: ObjectQLDataSource;
+  dataSource?: DataSource;
   
   /**
    * Additional CSS class
@@ -50,7 +49,7 @@ export interface ObjectFormProps {
  *     mode: 'create',
  *     fields: ['name', 'email', 'status']
  *   }}
- *   dataSource={objectQLDataSource}
+ *   dataSource={dataSource}
  * />
  * ```
  */
@@ -75,15 +74,24 @@ export const ObjectForm: React.FC<ObjectFormProps> = ({
     }
   }, [hasInlineFields, schema.initialData, schema.initialValues]);
 
-  // Fetch object schema from ObjectQL (skip if using inline fields)
+  // Fetch object schema from ObjectQL/ObjectStack (skip if using inline fields)
   useEffect(() => {
     const fetchObjectSchema = async () => {
       try {
         if (!dataSource) {
           throw new Error('DataSource is required when using ObjectQL schema fetching (inline fields not provided)');
         }
-        const schemaData = await dataSource.getObjectSchema(schema.objectName);
-        setObjectSchema(schemaData);
+        // Check if the data source supports schema fetching
+        if (dataSource.getObjectSchema) {
+          const schemaData = await dataSource.getObjectSchema(schema.objectName);
+          setObjectSchema(schemaData);
+        } else {
+          // If schema fetching is not supported, use a minimal schema
+          setObjectSchema({
+            name: schema.objectName,
+            fields: {} as Record<string, any>,
+          });
+        }
       } catch (err) {
         console.error('Failed to fetch object schema:', err);
         setError(err as Error);

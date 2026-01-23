@@ -193,6 +193,16 @@ export interface DataSource<T = any> {
    * @returns Promise resolving to operation result
    */
   bulk?(resource: string, operation: 'create' | 'update' | 'delete', data: Partial<T>[]): Promise<T[]>;
+
+  /**
+   * Get object schema/metadata (optional).
+   * Used by ObjectQL-aware components to auto-generate UI from object metadata.
+   * Supported by ObjectQL and ObjectStack adapters.
+   * 
+   * @param objectName - Object name
+   * @returns Promise resolving to the object schema
+   */
+  getObjectSchema?(objectName: string): Promise<any>;
 }
 
 /**
