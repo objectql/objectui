@@ -1,6 +1,14 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+/* Scan sources for Tailwind classes */
+@source './src/**/*.{ts,tsx}';
+@source '../../packages/components/src/**/*.{ts,tsx}';
+@source '../../packages/react/src/**/*.{ts,tsx}';
+@source '../../packages/plugin-kanban/src/**/*.{ts,tsx}';
+@source '../../packages/plugin-charts/src/**/*.{ts,tsx}';
+
+/* Tailwind plugin for animations */
+@plugin 'tailwindcss-animate';
 
 @layer base {
   :root {
