@@ -7,7 +7,7 @@
  */
 
 /**
- * ObjectTable Tests - @objectstack/spec view.zod Alignment
+ * ObjectGrid Tests - @objectstack/spec view.zod Alignment
  * 
  * Tests for new features aligned with @objectstack/spec view.zod schema:
  * - ViewDataSchema (object/api/value providers)
@@ -18,8 +18,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import { ObjectTable } from '../ObjectTable';
-import type { ObjectTableSchema, DataSource } from '@object-ui/types';
+import { ObjectGrid } from '../ObjectGrid';
+import type { ObjectGridSchema, DataSource } from '@object-ui/types';
 
 // Mock SchemaRenderer
 vi.mock('@object-ui/react', () => ({
@@ -36,7 +36,7 @@ vi.mock('@object-ui/react', () => ({
   ),
 }));
 
-describe('ObjectTable - view.zod Alignment', () => {
+describe('ObjectGrid - view.zod Alignment', () => {
   let mockDataSource: DataSource;
 
   beforeEach(() => {
@@ -66,8 +66,8 @@ describe('ObjectTable - view.zod Alignment', () => {
 
   describe('ViewDataSchema Support', () => {
     it('should support provider: "value" with inline items', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         data: {
           provider: 'value',
@@ -79,7 +79,7 @@ describe('ObjectTable - view.zod Alignment', () => {
         columns: ['name', 'email'],
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(screen.getByTestId('schema-renderer')).toBeInTheDocument();
@@ -91,8 +91,8 @@ describe('ObjectTable - view.zod Alignment', () => {
     });
 
     it('should support provider: "object" with object name', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users', // legacy field for backward compatibility
         data: {
           provider: 'object',
@@ -101,7 +101,7 @@ describe('ObjectTable - view.zod Alignment', () => {
         columns: ['name', 'email'],
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(mockDataSource.getObjectSchema).toHaveBeenCalledWith('users');
@@ -110,8 +110,8 @@ describe('ObjectTable - view.zod Alignment', () => {
     });
 
     it('should support legacy staticData field', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         staticData: [
           { name: 'Charlie', email: 'charlie@example.com' },
@@ -119,7 +119,7 @@ describe('ObjectTable - view.zod Alignment', () => {
         columns: ['name', 'email'],
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(screen.getByTestId('schema-renderer')).toBeInTheDocument();
@@ -132,8 +132,8 @@ describe('ObjectTable - view.zod Alignment', () => {
 
   describe('Enhanced ListColumn Configuration', () => {
     it('should support ListColumn objects with enhanced properties', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         data: {
           provider: 'value',
@@ -157,7 +157,7 @@ describe('ObjectTable - view.zod Alignment', () => {
         ],
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(screen.getByTestId('schema-renderer')).toBeInTheDocument();
@@ -167,8 +167,8 @@ describe('ObjectTable - view.zod Alignment', () => {
     });
 
     it('should support simple string array columns', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         data: {
           provider: 'value',
@@ -177,7 +177,7 @@ describe('ObjectTable - view.zod Alignment', () => {
         columns: ['name', 'email'],
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(screen.getByTestId('schema-renderer')).toBeInTheDocument();
@@ -189,14 +189,14 @@ describe('ObjectTable - view.zod Alignment', () => {
 
   describe('SelectionConfig', () => {
     it('should support selection.type = "none"', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         data: { provider: 'value', items: [] },
         selection: { type: 'none' },
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(screen.getByTestId('schema-renderer')).toBeInTheDocument();
@@ -206,14 +206,14 @@ describe('ObjectTable - view.zod Alignment', () => {
     });
 
     it('should support selection.type = "single"', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         data: { provider: 'value', items: [] },
         selection: { type: 'single' },
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(screen.getByTestId('schema-renderer')).toBeInTheDocument();
@@ -223,14 +223,14 @@ describe('ObjectTable - view.zod Alignment', () => {
     });
 
     it('should support selection.type = "multiple"', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         data: { provider: 'value', items: [] },
         selection: { type: 'multiple' },
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(screen.getByTestId('schema-renderer')).toBeInTheDocument();
@@ -240,14 +240,14 @@ describe('ObjectTable - view.zod Alignment', () => {
     });
 
     it('should maintain backward compatibility with legacy selectable', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         data: { provider: 'value', items: [] },
         selectable: 'multiple',
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(screen.getByTestId('schema-renderer')).toBeInTheDocument();
@@ -259,14 +259,14 @@ describe('ObjectTable - view.zod Alignment', () => {
 
   describe('PaginationConfig', () => {
     it('should support pagination.pageSize', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         data: { provider: 'value', items: [] },
         pagination: { pageSize: 25 },
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(screen.getByTestId('schema-renderer')).toBeInTheDocument();
@@ -276,14 +276,14 @@ describe('ObjectTable - view.zod Alignment', () => {
     });
 
     it('should maintain backward compatibility with legacy pageSize', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         data: { provider: 'value', items: [] },
         pageSize: 50,
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(screen.getByTestId('schema-renderer')).toBeInTheDocument();
@@ -295,8 +295,8 @@ describe('ObjectTable - view.zod Alignment', () => {
 
   describe('Sort Configuration', () => {
     it('should support new array-based sort format', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         sort: [
           { field: 'name', order: 'asc' },
@@ -304,7 +304,7 @@ describe('ObjectTable - view.zod Alignment', () => {
         ],
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(mockDataSource.find).toHaveBeenCalledWith(
@@ -317,13 +317,13 @@ describe('ObjectTable - view.zod Alignment', () => {
     });
 
     it('should support legacy string sort format', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         sort: 'name desc',
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(mockDataSource.find).toHaveBeenCalledWith(
@@ -336,13 +336,13 @@ describe('ObjectTable - view.zod Alignment', () => {
     });
 
     it('should maintain backward compatibility with defaultSort', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         defaultSort: { field: 'email', order: 'asc' },
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(mockDataSource.find).toHaveBeenCalledWith(
@@ -357,13 +357,13 @@ describe('ObjectTable - view.zod Alignment', () => {
 
   describe('Filter Configuration', () => {
     it('should support new array-based filter format', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         filter: [{ field: 'status', operator: 'eq', value: 'active' }],
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(mockDataSource.find).toHaveBeenCalledWith(
@@ -376,13 +376,13 @@ describe('ObjectTable - view.zod Alignment', () => {
     });
 
     it('should maintain backward compatibility with defaultFilters', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         defaultFilters: { status: 'active' },
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(mockDataSource.find).toHaveBeenCalledWith(
@@ -397,14 +397,14 @@ describe('ObjectTable - view.zod Alignment', () => {
 
   describe('Search Configuration', () => {
     it('should enable search when searchableFields is provided', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         data: { provider: 'value', items: [] },
         searchableFields: ['name', 'email'],
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(screen.getByTestId('schema-renderer')).toBeInTheDocument();
@@ -414,14 +414,14 @@ describe('ObjectTable - view.zod Alignment', () => {
     });
 
     it('should disable search when searchableFields is empty', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         data: { provider: 'value', items: [] },
         searchableFields: [],
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(screen.getByTestId('schema-renderer')).toBeInTheDocument();
@@ -431,14 +431,14 @@ describe('ObjectTable - view.zod Alignment', () => {
     });
 
     it('should maintain backward compatibility with showSearch', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         data: { provider: 'value', items: [] },
         showSearch: false,
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(screen.getByTestId('schema-renderer')).toBeInTheDocument();
@@ -450,14 +450,14 @@ describe('ObjectTable - view.zod Alignment', () => {
 
   describe('Label and Name Fields', () => {
     it('should use label for table caption', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         label: 'User Management',
         data: { provider: 'value', items: [] },
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(screen.getByTestId('schema-renderer')).toBeInTheDocument();
@@ -467,14 +467,14 @@ describe('ObjectTable - view.zod Alignment', () => {
     });
 
     it('should fallback to title when label is not provided', async () => {
-      const schema: ObjectTableSchema = {
-        type: 'object-table',
+      const schema: ObjectGridSchema = {
+        type: 'object-grid',
         objectName: 'users',
         title: 'Users Table',
         data: { provider: 'value', items: [] },
       };
 
-      render(<ObjectTable schema={schema} dataSource={mockDataSource} />);
+      render(<ObjectGrid schema={schema} dataSource={mockDataSource} />);
 
       await waitFor(() => {
         expect(screen.getByTestId('schema-renderer')).toBeInTheDocument();

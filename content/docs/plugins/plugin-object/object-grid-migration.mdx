@@ -1,13 +1,13 @@
 ---
-title: "ObjectTable Migration Guide - view.zod Alignment"
-description: "Guide for migrating ObjectTable schemas to align with @objectstack/spec view.zod"
+title: "ObjectGrid Migration Guide - view.zod Alignment"
+description: "Guide for migrating ObjectGrid schemas to align with @objectstack/spec view.zod"
 ---
 
-# ObjectTable Migration Guide
+# ObjectGrid Migration Guide
 
 ## Overview
 
-ObjectTable has been refactored to align with the `@objectstack/spec` view.zod schema while maintaining **full backward compatibility** with existing code. This guide explains the new features and shows how to gradually adopt them.
+ObjectGrid has been refactored to align with the `@objectstack/spec` view.zod schema while maintaining **full backward compatibility** with existing code. This guide explains the new features and shows how to gradually adopt them.
 
 ## Key Changes
 
@@ -19,7 +19,7 @@ ObjectTable has been refactored to align with the `@objectstack/spec` view.zod s
 ```tsx
 // NEW: Explicit object provider
 {
-  type: 'object-table',
+  type: 'object-grid',
   objectName: 'users',
   data: {
     provider: 'object',
@@ -29,7 +29,7 @@ ObjectTable has been refactored to align with the `@objectstack/spec` view.zod s
 
 // LEGACY: Still supported
 {
-  type: 'object-table',
+  type: 'object-grid',
   objectName: 'users'
   // Implicitly uses object provider
 }
@@ -39,7 +39,7 @@ ObjectTable has been refactored to align with the `@objectstack/spec` view.zod s
 ```tsx
 // NEW: Explicit value provider
 {
-  type: 'object-table',
+  type: 'object-grid',
   objectName: 'users',
   data: {
     provider: 'value',
@@ -52,7 +52,7 @@ ObjectTable has been refactored to align with the `@objectstack/spec` view.zod s
 
 // LEGACY: Still supported
 {
-  type: 'object-table',
+  type: 'object-grid',
   objectName: 'users',
   staticData: [
     { name: 'Alice', email: 'alice@example.com' }
@@ -64,7 +64,7 @@ ObjectTable has been refactored to align with the `@objectstack/spec` view.zod s
 ```tsx
 // NEW: Custom API provider
 {
-  type: 'object-table',
+  type: 'object-grid',
   objectName: 'users',
   data: {
     provider: 'api',
@@ -270,14 +270,14 @@ Adopt new features incrementally as you update your code:
 ```tsx
 // Before
 {
-  type: 'object-table',
+  type: 'object-grid',
   objectName: 'users',
   staticData: [...]
 }
 
 // After
 {
-  type: 'object-table',
+  type: 'object-grid',
   objectName: 'users',
   data: {
     provider: 'value',
@@ -341,9 +341,9 @@ Adopt new features incrementally as you update your code:
 
 ### Before (Legacy Schema)
 ```tsx
-<ObjectTable
+<ObjectGrid
   schema={{
-    type: 'object-table',
+    type: 'object-grid',
     objectName: 'contacts',
     title: 'Contact Management',
     fields: ['fullName', 'email', 'phone', 'status'],
@@ -369,9 +369,9 @@ Adopt new features incrementally as you update your code:
 
 ### After (Modern Schema)
 ```tsx
-<ObjectTable
+<ObjectGrid
   schema={{
-    type: 'object-table',
+    type: 'object-grid',
     objectName: 'contacts',
     label: 'Contact Management',
     data: {
@@ -412,7 +412,7 @@ Import the new types for better type safety:
 
 ```tsx
 import type { 
-  ObjectTableSchema,
+  ObjectGridSchema,
   ViewData,
   ListColumn,
   SelectionConfig,
@@ -420,8 +420,8 @@ import type {
   SortConfig
 } from '@object-ui/types';
 
-const schema: ObjectTableSchema = {
-  type: 'object-table',
+const schema: ObjectGridSchema = {
+  type: 'object-grid',
   objectName: 'users',
   data: {
     provider: 'object',
@@ -450,5 +450,5 @@ const schema: ObjectTableSchema = {
 - Migration is optional but recommended for new code
 
 For questions or issues, please refer to:
-- [ObjectTable Documentation](/docs/plugins/plugin-object/object-table)
+- [ObjectGrid Documentation](/docs/plugins/plugin-object/object-grid)
 - [GitHub Issues](https://github.com/objectstack-ai/objectui/issues)
