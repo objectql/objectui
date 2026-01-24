@@ -34,7 +34,7 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
   methods,
   disabled = false,
 }) => {
-  const { register, formState: { errors }, watch } = methods;
+  const { register, formState: { errors } } = methods;
   
   // Determine the widget type
   const widgetType = field.widget || 'text';
@@ -44,18 +44,8 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
   // Handle conditional visibility
   // Note: visibleOn expression evaluation is not yet implemented
   // Fields are always visible unless explicitly hidden
-  const shouldShow = React.useMemo(() => {
-    // Skip if explicitly hidden
-    if (field.hidden) {
-      return false;
-    }
-    
-    // TODO: Implement expression evaluation for visibleOn
-    // For now, all non-hidden fields are visible
-    return true;
-  }, [field.hidden]);
-
-  if (!shouldShow) {
+  // Skip if explicitly hidden
+  if (field.hidden) {
     return null;
   }
 

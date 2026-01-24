@@ -121,6 +121,22 @@ interface FormSectionRendererProps {
   disabled?: boolean;
 }
 
+// Grid column classes for different column counts
+const GRID_COLS = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-1 md:grid-cols-2',
+  3: 'grid-cols-1 md:grid-cols-3',
+  4: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
+} as const;
+
+// Column span classes
+const COL_SPAN = {
+  1: 'col-span-1',
+  2: 'col-span-2',
+  3: 'col-span-3',
+  4: 'col-span-4',
+} as const;
+
 /**
  * Renders a form section with grid layout
  */
@@ -132,12 +148,7 @@ const FormSectionRenderer: React.FC<FormSectionRendererProps> = ({
   const [isCollapsed, setIsCollapsed] = React.useState(section.collapsed || false);
 
   // Determine grid columns based on section.columns
-  const gridCols = {
-    1: 'grid-cols-1',
-    2: 'grid-cols-1 md:grid-cols-2',
-    3: 'grid-cols-1 md:grid-cols-3',
-    4: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
-  }[section.columns || 1];
+  const gridCols = GRID_COLS[section.columns || 1];
 
   const handleToggleCollapse = () => {
     if (section.collapsible) {
@@ -177,12 +188,7 @@ const FormSectionRenderer: React.FC<FormSectionRendererProps> = ({
 
             // Calculate colSpan for grid
             const colSpan = fieldConfig.colSpan || 1;
-            const colSpanClass = {
-              1: 'col-span-1',
-              2: 'col-span-2',
-              3: 'col-span-3',
-              4: 'col-span-4',
-            }[Math.min(colSpan, section.columns || 1)];
+            const colSpanClass = COL_SPAN[Math.min(colSpan, section.columns || 1) as keyof typeof COL_SPAN];
 
             return (
               <div key={`${fieldName}-${index}`} className={colSpanClass}>

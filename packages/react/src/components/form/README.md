@@ -9,7 +9,7 @@ The `FormRenderer` component is a React component that renders forms based on th
 - ✅ **Collapsible sections**: Organize forms with collapsible sections
 - ✅ **Field validation**: Built-in validation using `react-hook-form` and `zod`
 - ✅ **Multiple field types**: Text, Number, Checkbox, Textarea, Select, Date, DateTime, Time
-- ✅ **Conditional fields**: Show/hide fields based on conditions
+- ⏳ **Conditional fields**: Show/hide fields based on conditions (planned)
 - ✅ **Column spanning**: Fields can span multiple columns
 - ✅ **Help text**: Display helpful descriptions for fields
 - ✅ **Required fields**: Mark fields as required with validation
