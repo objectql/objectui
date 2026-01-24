@@ -20,10 +20,7 @@ import React from 'react';
 import { ComponentRegistry } from '@object-ui/core';
 
 export { ObjectTable } from './ObjectTable';
-export type { ObjectTableProps } from './ObjectTable';
-
-export { ObjectGrid } from './ObjectGrid';
-export type { ObjectGridProps } from './ObjectGrid';
+export type { ObjectTableProps, ObjectTableOrGridSchema } from './ObjectTable';
 
 export { ObjectForm } from './ObjectForm';
 export type { ObjectFormProps } from './ObjectForm';
@@ -56,6 +53,7 @@ export type { CellRendererProps } from './field-renderers';
 // Re-export related types from @object-ui/types
 export type {
   ObjectTableSchema,
+  ObjectGridSchema,
   ObjectFormSchema,
   ObjectViewSchema,
   ObjectQLComponentSchema,
@@ -93,6 +91,20 @@ ComponentRegistry.register('object-table', ObjectTableRenderer, {
   ],
 });
 
+// Register object-grid to use the same ObjectTable component (merged functionality)
+ComponentRegistry.register('object-grid', ObjectTableRenderer, {
+  label: 'Object Grid',
+  category: 'plugin',
+  inputs: [
+    { name: 'objectName', type: 'string', label: 'Object Name', required: true },
+    { name: 'columns', type: 'array', label: 'Columns' },
+    { name: 'editable', type: 'boolean', label: 'Editable', defaultValue: false },
+    { name: 'keyboardNavigation', type: 'boolean', label: 'Keyboard Navigation', defaultValue: true },
+    { name: 'frozenColumns', type: 'number', label: 'Frozen Columns', defaultValue: 0 },
+    { name: 'resizableColumns', type: 'boolean', label: 'Resizable Columns', defaultValue: false },
+  ],
+});
+
 ComponentRegistry.register('object-form', ObjectFormRenderer, {
   label: 'Object Form',
   category: 'plugin',
@@ -116,6 +128,7 @@ ComponentRegistry.register('object-view', ObjectViewRenderer, {
 // Export for manual use
 export const objectComponents = {
   'object-table': ObjectTableRenderer,
+  'object-grid': ObjectTableRenderer, // object-grid now uses ObjectTable
   'object-form': ObjectFormRenderer,
   'object-view': ObjectViewRenderer,
 };
