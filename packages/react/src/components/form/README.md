@@ -7,9 +7,10 @@ The `FormRenderer` component is a React component that renders forms based on th
 - ✅ **Schema-driven**: Define forms using JSON schema from `@objectstack/spec`
 - ✅ **Multi-column layouts**: Support for 1-4 column grid layouts
 - ✅ **Collapsible sections**: Organize forms with collapsible sections
-- ✅ **Field validation**: Built-in validation using `react-hook-form` and `zod`
+- ✅ **Form state management**: Built-in state management using `react-hook-form`
 - ✅ **Multiple field types**: Text, Number, Checkbox, Textarea, Select, Date, DateTime, Time
 - ⏳ **Conditional fields**: Show/hide fields based on conditions (planned)
+- ⏳ **Schema validation**: Zod validation support (planned)
 - ✅ **Column spanning**: Fields can span multiple columns
 - ✅ **Help text**: Display helpful descriptions for fields
 - ✅ **Required fields**: Mark fields as required with validation
@@ -19,13 +20,13 @@ The `FormRenderer` component is a React component that renders forms based on th
 The FormRenderer component is part of the `@object-ui/react` package:
 
 ```bash
-npm install @object-ui/react @objectstack/spec react-hook-form zod
+npm install @object-ui/react @objectstack/spec react-hook-form
 ```
 
 Or with pnpm:
 
 ```bash
-pnpm add @object-ui/react @objectstack/spec react-hook-form zod
+pnpm add @object-ui/react @objectstack/spec react-hook-form
 ```
 
 ## Basic Usage
@@ -165,7 +166,7 @@ The `FieldFactory` component supports the following widget types:
 
 - **Conditional Visibility**: The `visibleOn` and `dependsOn` properties are not yet implemented. Fields are visible by default unless explicitly marked as `hidden`.
 - **Select Options**: The select widget is a basic implementation without options support. Options will need to be passed via an extended schema or external configuration in a future version.
-- **Validation**: While react-hook-form is integrated, advanced Zod schema validation is not yet implemented. Only basic required field validation is supported.
+- **Validation**: Currently only basic required field validation is supported via react-hook-form. Advanced Zod schema validation is planned for future releases.
 
 These features are planned for future releases.
 
@@ -253,7 +254,6 @@ const schema: FormView = {
 The FormRenderer is built on top of:
 
 - **react-hook-form**: For form state management and validation
-- **zod**: For schema validation
 - **@objectstack/spec**: For schema definitions
 
 ## Customization
