@@ -9,7 +9,7 @@
 import React, { useMemo, useRef, useCallback } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import type { ColDef, GridOptions, GridReadyEvent, CellClickedEvent, RowClickedEvent, SelectionChangedEvent, CellValueChangedEvent, StatusPanelDef } from 'ag-grid-community';
-import type { AgGridCallbacks, ExportConfig, StatusBarConfig } from './types';
+import type { AgGridCallbacks, ExportConfig, StatusBarConfig, ColumnConfig } from './types';
 
 export interface AgGridImplProps {
   rowData?: any[];
@@ -30,6 +30,9 @@ export interface AgGridImplProps {
   exportConfig?: ExportConfig;
   statusBar?: StatusBarConfig;
   callbacks?: AgGridCallbacks;
+  columnConfig?: ColumnConfig;
+  enableRangeSelection?: boolean;
+  enableCharts?: boolean;
 }
 
 /**
@@ -55,6 +58,9 @@ export default function AgGridImpl({
   exportConfig,
   statusBar,
   callbacks,
+  columnConfig,
+  enableRangeSelection = false,
+  enableCharts = false,
 }: AgGridImplProps) {
   const gridRef = useRef<any>(null);
 
@@ -128,13 +134,32 @@ export default function AgGridImpl({
 
   // Make columns editable if global editable flag is set
   const processedColumnDefs = useMemo(() => {
-    if (!editable) return columnDefs;
+    if (!columnDefs) return [];
     
-    return columnDefs.map(col => ({
-      ...col,
-      editable: col.editable !== undefined ? col.editable : true,
-    }));
-  }, [columnDefs, editable]);
+    return columnDefs.map(col => {
+      const processed: ColDef = { ...col };
+      
+      // Apply editable setting
+      if (editable && col.editable !== false) {
+        processed.editable = true;
+      }
+      
+      // Apply column config defaults
+      if (columnConfig) {
+        if (columnConfig.resizable !== undefined && col.resizable === undefined) {
+          processed.resizable = columnConfig.resizable;
+        }
+        if (columnConfig.sortable !== undefined && col.sortable === undefined) {
+          processed.sortable = columnConfig.sortable;
+        }
+        if (columnConfig.filterable !== undefined && col.filter === undefined) {
+          processed.filter = columnConfig.filterable;
+        }
+      }
+      
+      return processed;
+    });
+  }, [columnDefs, editable, columnConfig]);
 
   // Merge grid options with props
   const mergedGridOptions: GridOptions = useMemo(() => ({
@@ -148,6 +173,8 @@ export default function AgGridImpl({
     singleClickEdit,
     stopEditingWhenCellsLoseFocus,
     statusBar: statusPanels ? { statusPanels } : undefined,
+    enableRangeSelection,
+    enableCharts,
     // Default options for better UX
     suppressCellFocus: !editable,
     enableCellTextSelection: true,
@@ -169,6 +196,8 @@ export default function AgGridImpl({
     singleClickEdit,
     stopEditingWhenCellsLoseFocus,
     statusPanels,
+    enableRangeSelection,
+    enableCharts,
     editable,
     handleCellClicked,
     handleRowClicked,

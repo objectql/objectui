@@ -41,6 +41,17 @@ export interface StatusBarConfig {
 }
 
 /**
+ * Column configuration enhancements
+ */
+export interface ColumnConfig {
+  autoSize?: boolean;
+  resizable?: boolean;
+  sortable?: boolean;
+  filterable?: boolean;
+  groupable?: boolean;
+}
+
+/**
  * AG Grid schema for ObjectUI
  */
 export interface AgGridSchema {
@@ -75,6 +86,11 @@ export interface AgGridSchema {
   
   // Status bar
   statusBar?: StatusBarConfig;
+  
+  // Column features
+  columnConfig?: ColumnConfig;
+  enableRangeSelection?: boolean;
+  enableCharts?: boolean;
   
   // Event callbacks
   callbacks?: AgGridCallbacks;

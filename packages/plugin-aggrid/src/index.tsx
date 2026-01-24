@@ -19,7 +19,7 @@ import 'ag-grid-community/styles/ag-theme-balham.css';
 import 'ag-grid-community/styles/ag-theme-material.css';
 
 // Export types for external use
-export type { AgGridSchema, SimpleColumnDef, AgGridCallbacks, ExportConfig, StatusBarConfig } from './types';
+export type { AgGridSchema, SimpleColumnDef, AgGridCallbacks, ExportConfig, StatusBarConfig, ColumnConfig } from './types';
 
 // 🚀 Lazy load the implementation file
 // This ensures AG Grid is only loaded when the component is actually rendered
@@ -47,6 +47,9 @@ export interface AgGridRendererProps {
     exportConfig?: any;
     statusBar?: any;
     callbacks?: any;
+    columnConfig?: any;
+    enableRangeSelection?: boolean;
+    enableCharts?: boolean;
   };
 }
 
@@ -76,6 +79,9 @@ export const AgGridRenderer: React.FC<AgGridRendererProps> = ({ schema }) => {
         exportConfig={schema.exportConfig}
         statusBar={schema.statusBar}
         callbacks={schema.callbacks}
+        columnConfig={schema.columnConfig}
+        enableRangeSelection={schema.enableRangeSelection}
+        enableCharts={schema.enableCharts}
       />
     </Suspense>
   );
@@ -201,6 +207,29 @@ ComponentRegistry.register(
         type: 'code', 
         label: 'Event Callbacks (JSON)',
         description: 'Event handlers for cell clicks, selection changes, etc.',
+        advanced: true
+      },
+      { 
+        name: 'columnConfig', 
+        type: 'code', 
+        label: 'Column Config (JSON)',
+        description: 'Global column settings: { resizable: true, sortable: true, filterable: true }',
+        advanced: true
+      },
+      { 
+        name: 'enableRangeSelection', 
+        type: 'boolean', 
+        label: 'Enable Range Selection',
+        defaultValue: false,
+        description: 'Allow selecting ranges of cells (like Excel)',
+        advanced: true
+      },
+      { 
+        name: 'enableCharts', 
+        type: 'boolean', 
+        label: 'Enable Charts',
+        defaultValue: false,
+        description: 'Enable integrated charting (requires AG Grid Enterprise)',
         advanced: true
       },
       { 

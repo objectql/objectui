@@ -8,8 +8,10 @@
 - **CSV Export**: Built-in export functionality with configurable options
 - **Event Callbacks**: Support for `onCellClicked`, `onRowClicked`, `onSelectionChanged`, `onCellValueChanged`, and `onExport` callbacks
 - **Status Bar**: Display aggregations (count, sum, avg, min, max) at the bottom of the grid
-- **Enhanced TypeScript Types**: Added `AgGridCallbacks`, `ExportConfig`, and `StatusBarConfig` types
-- **Improved API**: Extended schema with editing, export, and status bar configuration
+- **Column Configuration**: Global column settings with `columnConfig` for resizable, sortable, and filterable columns
+- **Range Selection**: Enable Excel-like range selection with `enableRangeSelection`
+- **Enhanced TypeScript Types**: Added `AgGridCallbacks`, `ExportConfig`, `StatusBarConfig`, and `ColumnConfig` types
+- **Improved API**: Extended schema with editing, export, status bar, and column configuration
 
 ## 0.3.0
 

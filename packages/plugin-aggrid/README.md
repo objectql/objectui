@@ -74,7 +74,8 @@ import type {
   SimpleColumnDef, 
   AgGridCallbacks,
   ExportConfig,
-  StatusBarConfig
+  StatusBarConfig,
+  ColumnConfig
 } from '@object-ui/plugin-aggrid';
 
 const schema: AgGridSchema = {
@@ -91,6 +92,11 @@ const schema: AgGridSchema = {
   exportConfig: {
     enabled: true,
     fileName: 'cars.csv'
+  },
+  columnConfig: {
+    resizable: true,
+    sortable: true,
+    filterable: true
   },
   callbacks: {
     onCellValueChanged: (event) => {
@@ -148,6 +154,15 @@ const schema: AgGridSchema = {
     onCellValueChanged?: (event) => void,       // Cell value change handler
     onExport?: (data, format) => void           // Export handler
   },
+  
+  // Column Configuration
+  columnConfig?: {
+    resizable?: boolean,                        // Make all columns resizable
+    sortable?: boolean,                         // Make all columns sortable
+    filterable?: boolean,                       // Make all columns filterable
+  },
+  enableRangeSelection?: boolean,               // Enable Excel-like range selection (default: false)
+  enableCharts?: boolean,                       // Enable integrated charts (requires Enterprise, default: false)
   
   // Advanced
   gridOptions?: GridOptions,                    // Advanced AG Grid options
@@ -301,6 +316,43 @@ const schema = {
       // Save changes to backend
       saveToBackend(event.data);
     }
+  }
+};
+```
+
+## Column Configuration
+
+Apply global settings to all columns:
+
+```typescript
+const schema = {
+  type: 'aggrid',
+  rowData: [...],
+  columnDefs: [...],
+  columnConfig: {
+    resizable: true,      // All columns resizable by default
+    sortable: true,       // All columns sortable by default
+    filterable: true,     // All columns filterable by default
+  },
+  enableRangeSelection: true  // Excel-like range selection
+};
+```
+
+You can override these defaults on individual columns:
+
+```typescript
+const schema = {
+  type: 'aggrid',
+  rowData: [...],
+  columnDefs: [
+    { field: 'id', headerName: 'ID', sortable: false }, // Override: not sortable
+    { field: 'name', headerName: 'Name' },              // Uses defaults
+    { field: 'email', headerName: 'Email' }             // Uses defaults
+  ],
+  columnConfig: {
+    resizable: true,
+    sortable: true,
+    filterable: true
   }
 };
 ```
