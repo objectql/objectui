@@ -211,6 +211,248 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
         />
       );
 
+    case 'currency':
+      return renderField(
+        <div className="relative">
+          <span className="absolute left-3 top-2 text-gray-500">$</span>
+          <input
+            id={fieldName}
+            type="number"
+            placeholder={field.placeholder}
+            disabled={disabled}
+            step="0.01"
+            className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            {...register(fieldName, {
+              required: field.required ? `${field.label || fieldName} is required` : false,
+              valueAsNumber: true,
+            })}
+          />
+        </div>
+      );
+
+    case 'percent':
+      return renderField(
+        <div className="relative">
+          <input
+            id={fieldName}
+            type="number"
+            placeholder={field.placeholder}
+            disabled={disabled}
+            step="0.01"
+            min="0"
+            max="100"
+            className="w-full pr-8 pl-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            {...register(fieldName, {
+              required: field.required ? `${field.label || fieldName} is required` : false,
+              valueAsNumber: true,
+            })}
+          />
+          <span className="absolute right-3 top-2 text-gray-500">%</span>
+        </div>
+      );
+
+    case 'phone':
+      return renderField(
+        <input
+          id={fieldName}
+          type="tel"
+          placeholder={field.placeholder || '+1 (555) 000-0000'}
+          disabled={disabled}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          {...register(fieldName, {
+            required: field.required ? `${field.label || fieldName} is required` : false,
+          })}
+        />
+      );
+
+    case 'markdown':
+      return renderField(
+        <textarea
+          id={fieldName}
+          placeholder={field.placeholder || 'Enter markdown text...'}
+          disabled={disabled}
+          rows={8}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed font-mono"
+          {...register(fieldName, {
+            required: field.required ? `${field.label || fieldName} is required` : false,
+          })}
+        />
+      );
+
+    case 'html':
+      return renderField(
+        <textarea
+          id={fieldName}
+          placeholder={field.placeholder || 'Enter HTML...'}
+          disabled={disabled}
+          rows={8}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed font-mono"
+          {...register(fieldName, {
+            required: field.required ? `${field.label || fieldName} is required` : false,
+          })}
+        />
+      );
+
+    case 'file':
+      return renderField(
+        <input
+          id={fieldName}
+          type="file"
+          disabled={disabled}
+          multiple={field.multiple}
+          accept={field.accept?.join(',')}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+          {...register(fieldName, {
+            required: field.required ? `${field.label || fieldName} is required` : false,
+          })}
+        />
+      );
+
+    case 'image':
+      return renderField(
+        <input
+          id={fieldName}
+          type="file"
+          disabled={disabled}
+          multiple={field.multiple}
+          accept={field.accept?.join(',') || 'image/*'}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+          {...register(fieldName, {
+            required: field.required ? `${field.label || fieldName} is required` : false,
+          })}
+        />
+      );
+
+    case 'location':
+      return renderField(
+        <div className="space-y-2">
+          <input
+            id={`${fieldName}-lat`}
+            type="number"
+            placeholder="Latitude"
+            disabled={disabled}
+            step="any"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            {...register(`${fieldName}.lat`, {
+              required: field.required ? 'Latitude is required' : false,
+              valueAsNumber: true,
+            })}
+          />
+          <input
+            id={`${fieldName}-lng`}
+            type="number"
+            placeholder="Longitude"
+            disabled={disabled}
+            step="any"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            {...register(`${fieldName}.lng`, {
+              required: field.required ? 'Longitude is required' : false,
+              valueAsNumber: true,
+            })}
+          />
+        </div>
+      );
+
+    case 'lookup':
+    case 'master_detail':
+      return renderField(
+        <select
+          id={fieldName}
+          disabled={disabled}
+          multiple={field.multiple}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          {...register(fieldName, {
+            required: field.required ? `${field.label || fieldName} is required` : false,
+          })}
+        >
+          <option value="">{field.placeholder || 'Select an option'}</option>
+          {field.options?.map((option) => (
+            <option key={option.value} value={option.value} disabled={option.disabled}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      );
+
+    case 'user':
+    case 'owner':
+      return renderField(
+        <select
+          id={fieldName}
+          disabled={disabled}
+          multiple={field.multiple}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          {...register(fieldName, {
+            required: field.required ? `${field.label || fieldName} is required` : false,
+          })}
+        >
+          <option value="">{field.placeholder || 'Select user'}</option>
+          {field.options?.map((option) => (
+            <option key={option.value} value={option.value} disabled={option.disabled}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      );
+
+    case 'formula':
+    case 'summary':
+    case 'auto_number':
+      // Read-only computed fields - display as disabled text input
+      return renderField(
+        <input
+          id={fieldName}
+          type="text"
+          disabled={true}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 cursor-not-allowed text-gray-600"
+          {...register(fieldName)}
+        />
+      );
+
+    case 'object':
+      return renderField(
+        <textarea
+          id={fieldName}
+          placeholder={field.placeholder || 'Enter JSON object...'}
+          disabled={disabled}
+          rows={6}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed font-mono text-sm"
+          {...register(fieldName, {
+            required: field.required ? `${field.label || fieldName} is required` : false,
+            validate: (value) => {
+              if (!value) return true;
+              try {
+                JSON.parse(value);
+                return true;
+              } catch (e) {
+                return 'Invalid JSON format';
+              }
+            },
+          })}
+        />
+      );
+
+    case 'vector':
+      // Vector fields are typically read-only or require specialized input
+      return renderField(
+        <input
+          id={fieldName}
+          type="text"
+          placeholder={field.placeholder || 'Vector data (read-only)'}
+          disabled={true}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 cursor-not-allowed text-gray-600"
+          {...register(fieldName)}
+        />
+      );
+
+    case 'grid':
+      // Grid fields require complex table/grid editor - placeholder for now
+      return renderField(
+        <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600">
+          <p className="text-sm">Grid editor not yet implemented</p>
+        </div>
+      );
+
     default:
       // Default to text input
       return renderField(
