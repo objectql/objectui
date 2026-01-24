@@ -24,6 +24,10 @@ import type { FormField } from './form';
  * ObjectTable Schema
  * A specialized table component that automatically fetches and displays data from ObjectQL objects.
  * It reads the object schema from ObjectQL and generates columns automatically.
+ * 
+ * Supports two modes:
+ * - Traditional table mode: CRUD operations with search, filters, pagination
+ * - Grid mode: Spreadsheet-like inline editing with keyboard navigation (set editable: true)
  */
 export interface ObjectTableSchema extends BaseSchema {
   type: 'object-table';
@@ -155,6 +159,34 @@ export interface ObjectTableSchema extends BaseSchema {
    * Custom batch actions
    */
   batchActions?: string[];
+  
+  /**
+   * Enable inline cell editing (Grid mode)
+   * When true, cells become editable on double-click or Enter key
+   * @default false
+   */
+  editable?: boolean;
+  
+  /**
+   * Enable keyboard navigation (Grid mode)
+   * Arrow keys, Tab, Enter for cell navigation
+   * @default true when editable is true
+   */
+  keyboardNavigation?: boolean;
+  
+  /**
+   * Enable column resizing
+   * Allows users to drag column borders to resize
+   * @default false
+   */
+  resizableColumns?: boolean;
+  
+  /**
+   * Number of columns to freeze (left-pin)
+   * Useful for keeping certain columns visible while scrolling
+   * @default 0
+   */
+  frozenColumns?: number;
   
   /**
    * Custom CSS class

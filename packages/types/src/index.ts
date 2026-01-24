@@ -263,6 +263,44 @@ export type {
 } from './objectql';
 
 // ============================================================================
+// Field Types - ObjectQL Field Type System
+// ============================================================================
+export type {
+  BaseFieldMetadata,
+  TextFieldMetadata,
+  TextareaFieldMetadata,
+  MarkdownFieldMetadata,
+  HtmlFieldMetadata,
+  NumberFieldMetadata,
+  CurrencyFieldMetadata,
+  PercentFieldMetadata,
+  BooleanFieldMetadata,
+  DateFieldMetadata,
+  DateTimeFieldMetadata,
+  TimeFieldMetadata,
+  SelectFieldMetadata,
+  SelectOptionMetadata,
+  EmailFieldMetadata,
+  PhoneFieldMetadata,
+  UrlFieldMetadata,
+  PasswordFieldMetadata,
+  FileFieldMetadata,
+  FileMetadata,
+  ImageFieldMetadata,
+  LocationFieldMetadata,
+  LookupFieldMetadata,
+  FormulaFieldMetadata,
+  SummaryFieldMetadata,
+  AutoNumberFieldMetadata,
+  UserFieldMetadata,
+  ObjectFieldMetadata,
+  VectorFieldMetadata,
+  GridFieldMetadata,
+  FieldMetadata,
+  ObjectSchemaMetadata,
+} from './field-types';
+
+// ============================================================================
 // API and Events - API Integration and Event Handling
 // ============================================================================
 export type {

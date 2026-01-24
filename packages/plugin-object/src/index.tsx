@@ -28,6 +28,28 @@ export type { ObjectFormProps } from './ObjectForm';
 export { ObjectView } from './ObjectView';
 export type { ObjectViewProps } from './ObjectView';
 
+// Export field renderers for customization
+export {
+  getCellRenderer,
+  TextCellRenderer,
+  NumberCellRenderer,
+  CurrencyCellRenderer,
+  PercentCellRenderer,
+  BooleanCellRenderer,
+  DateCellRenderer,
+  DateTimeCellRenderer,
+  SelectCellRenderer,
+  EmailCellRenderer,
+  UrlCellRenderer,
+  PhoneCellRenderer,
+  FileCellRenderer,
+  ImageCellRenderer,
+  LookupCellRenderer,
+  FormulaCellRenderer,
+  UserCellRenderer,
+} from './field-renderers';
+export type { CellRendererProps } from './field-renderers';
+
 // Re-export related types from @object-ui/types
 export type {
   ObjectTableSchema,
@@ -65,6 +87,10 @@ ComponentRegistry.register('object-table', ObjectTableRenderer, {
     { name: 'columns', type: 'array', label: 'Columns' },
     { name: 'searchable', type: 'boolean', label: 'Searchable', defaultValue: true },
     { name: 'selectable', type: 'boolean', label: 'Selectable', defaultValue: false },
+    { name: 'editable', type: 'boolean', label: 'Editable (Grid Mode)', defaultValue: false },
+    { name: 'keyboardNavigation', type: 'boolean', label: 'Keyboard Navigation', defaultValue: true },
+    { name: 'frozenColumns', type: 'number', label: 'Frozen Columns', defaultValue: 0 },
+    { name: 'resizableColumns', type: 'boolean', label: 'Resizable Columns', defaultValue: false },
   ],
 });
 
