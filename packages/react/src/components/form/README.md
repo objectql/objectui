@@ -154,10 +154,20 @@ The `FieldFactory` component supports the following widget types:
 - `number`, `integer`, `float` - Number input
 - `checkbox`, `boolean` - Checkbox
 - `textarea` - Textarea
-- `select`, `dropdown` - Select dropdown
+- `select`, `dropdown` - Select dropdown (basic implementation, options support planned)
 - `date` - Date picker
 - `datetime`, `datetime-local` - DateTime picker
 - `time` - Time picker
+
+## Known Limitations
+
+### Version 0.1.0
+
+- **Conditional Visibility**: The `visibleOn` and `dependsOn` properties are not yet implemented. Fields are visible by default unless explicitly marked as `hidden`.
+- **Select Options**: The select widget is a basic implementation without options support. Options will need to be passed via an extended schema or external configuration in a future version.
+- **Validation**: While react-hook-form is integrated, advanced Zod schema validation is not yet implemented. Only basic required field validation is supported.
+
+These features are planned for future releases.
 
 ## Examples
 

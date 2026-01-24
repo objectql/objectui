@@ -8,9 +8,7 @@
 
 import React from 'react';
 import { useForm, FormProvider, UseFormReturn } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import type { FormView, FormSection } from '@objectstack/spec/ui';
-import { z } from 'zod';
 import { FieldFactory } from './FieldFactory';
 
 export interface FormRendererProps {

@@ -42,21 +42,18 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
   const error = errors[fieldName];
 
   // Handle conditional visibility
+  // Note: visibleOn expression evaluation is not yet implemented
+  // Fields are always visible unless explicitly hidden
   const shouldShow = React.useMemo(() => {
-    if (field.visibleOn) {
-      // Evaluate visibility expression
-      // For now, simple implementation - can be enhanced
-      try {
-        const formData = watch();
-        // Simple expression evaluation: "fieldName == 'value'"
-        // This is a placeholder - real implementation would use a proper expression evaluator
-        return true;
-      } catch (e) {
-        return true;
-      }
+    // Skip if explicitly hidden
+    if (field.hidden) {
+      return false;
     }
+    
+    // TODO: Implement expression evaluation for visibleOn
+    // For now, all non-hidden fields are visible
     return true;
-  }, [field.visibleOn, watch]);
+  }, [field.hidden]);
 
   if (!shouldShow) {
     return null;
@@ -164,7 +161,9 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
 
     case 'select':
     case 'dropdown':
-      // For select, we'd need options - this is a basic implementation
+      // Note: This is a basic implementation without options support
+      // To properly support select fields, options would need to be passed
+      // via an extended FormField schema or external configuration
       return renderField(
         <select
           id={fieldName}
@@ -175,7 +174,7 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
           })}
         >
           <option value="">{field.placeholder || 'Select an option'}</option>
-          {/* Options would be populated from field configuration */}
+          {/* TODO: Add options support - requires extending FormField schema or external options provider */}
         </select>
       );
 
