@@ -160,6 +160,72 @@ Common action types: `navigate`, `toast`, `reload`, `close`.
 
 ## Example: Contact Form
 
+<InteractiveDemo
+  schema={{
+    type: "object-form",
+    objectName: "contacts",
+    mode: "create",
+    title: "New Contact",
+    customFields: [
+      {
+        name: "first_name",
+        type: "text",
+        label: "First Name",
+        required: true,
+        placeholder: "John"
+      },
+      {
+        name: "last_name",
+        type: "text",
+        label: "Last Name",
+        required: true,
+        placeholder: "Doe"
+      },
+      {
+        name: "email",
+        type: "email",
+        label: "Email",
+        required: true,
+        placeholder: "john.doe@example.com"
+      },
+      {
+        name: "phone",
+        type: "phone",
+        label: "Phone",
+        placeholder: "+1 (555) 123-4567"
+      },
+      {
+        name: "company",
+        type: "text",
+        label: "Company",
+        placeholder: "Acme Inc"
+      },
+      {
+        name: "title",
+        type: "text",
+        label: "Job Title",
+        placeholder: "Sales Manager"
+      },
+      {
+        name: "status",
+        type: "select",
+        label: "Status",
+        options: [
+          { value: "active", label: "Active", color: "green" },
+          { value: "inactive", label: "Inactive", color: "gray" }
+        ],
+        defaultValue: "active"
+      }
+    ],
+    submitText: "Create Contact",
+    showCancel: true
+  }}
+  title="Contact Form Example"
+  description="Simple contact creation form"
+/>
+
+Here's the full JSON schema in a page context:
+
 ```json
 {
   "type": "page",
@@ -205,7 +271,83 @@ Common action types: `navigate`, `toast`, `reload`, `close`.
 
 ### Custom Field Layout
 
-Control the layout and grouping of form fields:
+Control the layout and grouping of form fields with groups:
+
+<InteractiveDemo
+  schema={{
+    type: "object-form",
+    objectName: "user",
+    mode: "create",
+    title: "User Registration",
+    customFields: [
+      {
+        name: "first_name",
+        type: "text",
+        label: "First Name",
+        required: true
+      },
+      {
+        name: "last_name",
+        type: "text",
+        label: "Last Name",
+        required: true
+      },
+      {
+        name: "email",
+        type: "email",
+        label: "Email",
+        required: true
+      },
+      {
+        name: "phone",
+        type: "phone",
+        label: "Phone"
+      },
+      {
+        name: "username",
+        type: "text",
+        label: "Username",
+        required: true
+      },
+      {
+        name: "role",
+        type: "select",
+        label: "Role",
+        options: [
+          { value: "admin", label: "Admin", color: "red" },
+          { value: "user", label: "User", color: "blue" },
+          { value: "guest", label: "Guest", color: "gray" }
+        ],
+        defaultValue: "user"
+      },
+      {
+        name: "status",
+        type: "select",
+        label: "Status",
+        options: [
+          { value: "active", label: "Active", color: "green" },
+          { value: "inactive", label: "Inactive", color: "gray" }
+        ],
+        defaultValue: "active"
+      }
+    ],
+    groups: [
+      {
+        title: "Personal Information",
+        fields: ["first_name", "last_name", "email", "phone"]
+      },
+      {
+        title: "Account Settings",
+        fields: ["username", "role", "status"]
+      }
+    ],
+    submitText: "Create User"
+  }}
+  title="Grouped Form Fields"
+  description="Form with field groups for better organization"
+/>
+
+JSON schema with field groups:
 
 ```json
 {
@@ -228,7 +370,55 @@ Control the layout and grouping of form fields:
 
 ### Conditional Fields
 
-Show or hide fields based on other field values:
+Show or hide fields based on other field values using the `visible_on` property:
+
+<InteractiveDemo
+  schema={{
+    type: "object-form",
+    objectName: "product",
+    mode: "create",
+    title: "Product Setup",
+    customFields: [
+      {
+        name: "name",
+        type: "text",
+        label: "Product Name",
+        required: true
+      },
+      {
+        name: "type",
+        type: "select",
+        label: "Product Type",
+        options: [
+          { value: "one-time", label: "One-time Purchase", color: "blue" },
+          { value: "subscription", label: "Subscription", color: "purple" }
+        ],
+        required: true
+      },
+      {
+        name: "price",
+        type: "currency",
+        label: "Price",
+        currency: "USD",
+        required: true
+      },
+      {
+        name: "subscription_interval",
+        type: "select",
+        label: "Billing Interval",
+        options: [
+          { value: "monthly", label: "Monthly", color: "green" },
+          { value: "yearly", label: "Yearly", color: "blue" }
+        ]
+      }
+    ],
+    submitText: "Create Product"
+  }}
+  title="Conditional Field Example"
+  description="Subscription interval field would show/hide based on product type"
+/>
+
+JSON schema with conditional visibility:
 
 ```json
 {
@@ -246,20 +436,34 @@ Show or hide fields based on other field values:
 
 ### Form Validation
 
-Add custom validation rules:
+Add custom validation rules at the field level using the `validate` property:
 
 ```json
 {
   "type": "object-form",
   "objectName": "user",
   "mode": "create",
-  "fields": ["email", "password", "confirm_password"],
-  "validation": {
-    "confirm_password": {
-      "match": "password",
-      "message": "Passwords must match"
+  "customFields": [
+    {
+      "name": "email",
+      "type": "email",
+      "label": "Email",
+      "required": true
+    },
+    {
+      "name": "password",
+      "type": "password",
+      "label": "Password",
+      "required": true,
+      "min_length": 8
+    },
+    {
+      "name": "confirm_password",
+      "type": "password",
+      "label": "Confirm Password",
+      "required": true
     }
-  }
+  ]
 }
 ```
 
