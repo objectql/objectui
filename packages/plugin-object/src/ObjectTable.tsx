@@ -11,7 +11,7 @@
  * 
  * A specialized table component built on top of data-table.
  * Auto-generates columns from ObjectQL schema with type-aware rendering.
- * Supports both object-table and object-grid (inline editing) modes.
+ * Supports traditional table mode and grid mode (with editable: true).
  */
 
 import React, { useEffect, useState, useCallback } from 'react';

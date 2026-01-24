@@ -10,7 +10,7 @@
  * @object-ui/types - Field Type Definitions
  * 
  * Comprehensive field type system for ObjectQL protocol.
- * Defines all field types supported in ObjectGrid and ObjectForm components.
+ * Defines all field types supported in ObjectTable and ObjectForm components.
  * 
  * @module field-types
  * @packageDocumentation

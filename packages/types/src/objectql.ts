@@ -30,7 +30,7 @@ import type { FormField } from './form';
  * - Grid mode: Spreadsheet-like inline editing with keyboard navigation (set editable: true)
  */
 export interface ObjectTableSchema extends BaseSchema {
-  type: 'object-table' | 'object-grid';
+  type: 'object-table';
   
   /**
    * ObjectQL object name (e.g., 'users', 'accounts', 'contacts')
@@ -191,27 +191,6 @@ export interface ObjectTableSchema extends BaseSchema {
   /**
    * Custom CSS class
    */
-  className?: string;
-}
-
-/**
- * ObjectGrid Schema
- * @deprecated Use ObjectTableSchema with editable: true instead
- * This type is kept for backward compatibility
- */
-export interface ObjectGridSchema extends BaseSchema {
-  type: 'object-grid';
-  objectName: string;
-  title?: string;
-  fields?: string[];
-  columns?: TableColumn[];
-  data?: any[];
-  editable?: boolean;
-  keyboardNavigation?: boolean;
-  resizableColumns?: boolean;
-  frozenColumns?: number;
-  selectable?: boolean | 'single' | 'multiple';
-  pageSize?: number;
   className?: string;
 }
 
@@ -463,6 +442,5 @@ export interface ObjectViewSchema extends BaseSchema {
  */
 export type ObjectQLComponentSchema =
   | ObjectTableSchema
-  | ObjectGridSchema
   | ObjectFormSchema
   | ObjectViewSchema;

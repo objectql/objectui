@@ -257,7 +257,6 @@ export type {
 // ============================================================================
 export type {
   ObjectTableSchema,
-  ObjectGridSchema,
   ObjectFormSchema,
   ObjectViewSchema,
   ObjectQLComponentSchema,

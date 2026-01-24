@@ -10,11 +10,11 @@ A specialized table component that automatically fetches and displays data from 
 
 ## Overview
 
-ObjectTable is a single unified component that supports:
+ObjectTable is a unified component that supports:
 - **Traditional Table Mode**: CRUD operations with search, filters, and pagination (default)
 - **Grid Mode**: Spreadsheet-like inline editing with keyboard navigation (set `editable: true`)
 
-Both modes use the same `object-table` schema type and inherit all data-table features: sorting, filtering, pagination, row selection, CSV export, column resizing, and reordering.
+Inherits all data-table features: sorting, filtering, pagination, row selection, CSV export, column resizing, and reordering.
 
 ## Interactive Demo
 
@@ -132,14 +132,12 @@ ObjectTable automatically uses specialized renderers based on field types:
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| `type` | `'object-table'` \| `'object-grid'`* | Required | Component type |
+| `type` | `'object-table'` | Required | Component type |
 | `objectName` | string | Required | Name of the ObjectQL object |
 | `fields` | string[] | All fields | Fields to display as columns |
 | `data` | any[] | - | Inline data (optional) |
 | `pageSize` | number | `10` | Rows per page |
 | `selectable` | boolean \| `'single'` \| `'multiple'` | `false` | Row selection mode |
-
-*Note: Both `object-table` and `object-grid` types are supported for backward compatibility, but they now use the same unified implementation.
 
 ### Traditional Table Properties
 
@@ -221,22 +219,6 @@ When `editable` and `keyboardNavigation` are enabled:
     updateProduct(rowIndex, columnKey, newValue);
   }}
 />
-```
-
-## Migration
-
-### From ObjectGrid (deprecated type)
-
-The `object-grid` type is still supported but deprecated. For new code, use `object-table` with `editable: true`:
-
-**Before:**
-```tsx
-<ObjectTable schema={{ type: 'object-grid', editable: true, ... }} />
-```
-
-**After (recommended):**
-```tsx
-<ObjectTable schema={{ type: 'object-table', editable: true, ... }} />
 ```
 
 ## Related Components

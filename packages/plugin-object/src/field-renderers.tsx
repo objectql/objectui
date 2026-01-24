@@ -7,7 +7,7 @@
  */
 
 /**
- * Field Renderers for ObjectGrid and ObjectForm
+ * Field Renderers for ObjectTable and ObjectForm
  * 
  * Provides specialized rendering functions for different field types.
  * Implements both Cell View (read mode) and Form Control (edit mode) for each field type.

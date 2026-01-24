@@ -53,7 +53,6 @@ export type { CellRendererProps } from './field-renderers';
 // Re-export related types from @object-ui/types
 export type {
   ObjectTableSchema,
-  ObjectGridSchema,
   ObjectFormSchema,
   ObjectViewSchema,
   ObjectQLComponentSchema,
@@ -88,17 +87,7 @@ ComponentRegistry.register('object-table', ObjectTableRenderer, {
     { name: 'columns', type: 'array', label: 'Columns' },
     { name: 'searchable', type: 'boolean', label: 'Searchable', defaultValue: true },
     { name: 'selectable', type: 'boolean', label: 'Selectable', defaultValue: false },
-  ],
-});
-
-// Register object-grid to use the same ObjectTable component (merged functionality)
-ComponentRegistry.register('object-grid', ObjectTableRenderer, {
-  label: 'Object Grid',
-  category: 'plugin',
-  inputs: [
-    { name: 'objectName', type: 'string', label: 'Object Name', required: true },
-    { name: 'columns', type: 'array', label: 'Columns' },
-    { name: 'editable', type: 'boolean', label: 'Editable', defaultValue: false },
+    { name: 'editable', type: 'boolean', label: 'Editable (Grid Mode)', defaultValue: false },
     { name: 'keyboardNavigation', type: 'boolean', label: 'Keyboard Navigation', defaultValue: true },
     { name: 'frozenColumns', type: 'number', label: 'Frozen Columns', defaultValue: 0 },
     { name: 'resizableColumns', type: 'boolean', label: 'Resizable Columns', defaultValue: false },
@@ -128,7 +117,6 @@ ComponentRegistry.register('object-view', ObjectViewRenderer, {
 // Export for manual use
 export const objectComponents = {
   'object-table': ObjectTableRenderer,
-  'object-grid': ObjectTableRenderer, // object-grid now uses ObjectTable
   'object-form': ObjectFormRenderer,
   'object-view': ObjectViewRenderer,
 };
