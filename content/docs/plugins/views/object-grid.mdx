@@ -17,7 +17,7 @@ ObjectGrid implements the grid view type from @objectstack/spec ListView schema:
 
 Inherits all data-table features: sorting, filtering, pagination, row selection, CSV export, column resizing, and reordering.
 
-> **✨ New in v0.3**: ObjectGrid (formerly ObjectTable) now aligns with @objectstack/spec view.zod grid type. See the [Migration Guide](/docs/plugins/plugin-object/object-grid-migration) for details.
+> **✨ New in v0.3**: ObjectGrid (formerly ObjectTable) now aligns with @objectstack/spec view.zod grid type. See the [Migration Guide](/docs/plugins/views/object-grid-migration) for details.
 
 ## Interactive Demo
 
@@ -283,7 +283,7 @@ Inherits all data-table features: sorting, filtering, pagination, row selection,
 ## Traditional Mode - Basic Usage
 
 ```tsx
-import { ObjectGrid } from '@object-ui/plugin-object';
+import { ObjectGrid } from '@object-ui/views';
 
 function UsersTable() {
   return (
@@ -400,7 +400,7 @@ For backward compatibility, these legacy properties are still supported:
 | `resizableColumns` | boolean | `resizable` | Legacy resizing toggle |
 | `title` | string | `label` | Legacy table caption |
 
-See the [Migration Guide](/docs/plugins/plugin-object/object-grid-migration) for details on adopting new properties.
+See the [Migration Guide](/docs/plugins/views/object-grid-migration) for details on adopting new properties.
 
 ### ViewData Schema
 
@@ -749,6 +749,6 @@ When `editable` and `keyboardNavigation` are enabled:
 
 ## Related Components
 
-- [ObjectForm](/docs/plugins/plugin-object/object-form) - Create and edit records
-- [ObjectView](/docs/plugins/plugin-object/object-view) - Complete CRUD interface
+- [ObjectForm](/docs/plugins/views/object-form) - Create and edit records
+- [ObjectView](/docs/plugins/views/object-view) - Complete CRUD interface
 - [Data Table](/docs/components/complex/data-table) - Base table component
