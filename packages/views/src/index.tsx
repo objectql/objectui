@@ -65,16 +65,57 @@ import { ObjectView } from './ObjectView';
 
 // Create renderer wrappers for ComponentRegistry
 const ObjectGridRenderer: React.FC<{ schema: any }> = ({ schema }) => {
-  // For now, render without dataSource since it requires ObjectQL setup
-  // This allows the component to at least render in documentation
+  // Check if schema has inline data (staticData or data.items)
+  const hasInlineData = schema.staticData || (schema.data?.provider === 'value' && schema.data?.items);
+  
+  // If no inline data and no dataSource will be provided, show placeholder
+  if (!hasInlineData) {
+    return (
+      <div className="p-4 border border-amber-300 bg-amber-50 rounded-md">
+        <p className="text-amber-800 text-sm">
+          ObjectGrid requires either <code className="bg-amber-100 px-1 rounded">staticData</code> or a configured dataSource
+        </p>
+      </div>
+    );
+  }
+  
+  // For documentation with inline data, render without dataSource
   return <ObjectGrid schema={schema} dataSource={null as any} />;
 };
 
 const ObjectFormRenderer: React.FC<{ schema: any }> = ({ schema }) => {
+  // Check if schema has inline data
+  const hasInlineData = schema.staticData || (schema.data?.provider === 'value' && schema.data?.items);
+  
+  // If no inline data and no dataSource will be provided, show placeholder
+  if (!hasInlineData) {
+    return (
+      <div className="p-4 border border-amber-300 bg-amber-50 rounded-md">
+        <p className="text-amber-800 text-sm">
+          ObjectForm requires either <code className="bg-amber-100 px-1 rounded">staticData</code> or a configured dataSource
+        </p>
+      </div>
+    );
+  }
+  
   return <ObjectForm schema={schema} dataSource={null as any} />;
 };
 
 const ObjectViewRenderer: React.FC<{ schema: any }> = ({ schema }) => {
+  // Check if schema has inline data
+  const hasInlineData = schema.staticData || (schema.data?.provider === 'value' && schema.data?.items);
+  
+  // If no inline data and no dataSource will be provided, show placeholder
+  if (!hasInlineData) {
+    return (
+      <div className="p-4 border border-amber-300 bg-amber-50 rounded-md">
+        <p className="text-amber-800 text-sm">
+          ObjectView requires either <code className="bg-amber-100 px-1 rounded">staticData</code> or a configured dataSource
+        </p>
+      </div>
+    );
+  }
+  
   return <ObjectView schema={schema} dataSource={null as any} />;
 };
 
