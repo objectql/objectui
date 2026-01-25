@@ -31,7 +31,9 @@ Inherits all data-table features: sorting, filtering, pagination, row selection,
       { id: 1, name: "Alice Johnson", email: "alice@example.com", role: "Admin", status: "Active" },
       { id: 2, name: "Bob Smith", email: "bob@example.com", role: "User", status: "Active" },
       { id: 3, name: "Carol White", email: "carol@example.com", role: "Manager", status: "Inactive" },
-      { id: 4, name: "David Brown", email: "david@example.com", role: "User", status: "Active" }
+      { id: 4, name: "David Brown", email: "david@example.com", role: "User", status: "Active" },
+      { id: 5, name: "Emma Wilson", email: "emma@example.com", role: "Editor", status: "Active" },
+      { id: 6, name: "Frank Miller", email: "frank@example.com", role: "User", status: "Active" }
     ],
     pageSize: 10,
     showSearch: true,
@@ -44,6 +46,238 @@ Inherits all data-table features: sorting, filtering, pagination, row selection,
   }}
   title="ObjectGrid - Traditional Mode"
   description="Auto-generated columns with type-aware rendering and CRUD operations"
+/>
+
+## Selection Modes
+
+<InteractiveDemo
+  title="Selection Configuration"
+  description="Compare different row selection modes"
+  examples={[
+    {
+      label: "No Selection",
+      description: "Read-only table without row selection",
+      schema: {
+        type: "object-grid",
+        objectName: "products",
+        fields: ["name", "category", "price", "stock"],
+        data: [
+          { id: 1, name: "Laptop Pro", category: "Electronics", price: "$1,299", stock: 45 },
+          { id: 2, name: "Wireless Mouse", category: "Accessories", price: "$29", stock: 120 },
+          { id: 3, name: "USB-C Cable", category: "Accessories", price: "$15", stock: 200 }
+        ],
+        selectable: false,
+        pageSize: 10
+      }
+    },
+    {
+      label: "Single Selection",
+      description: "Select one row at a time",
+      schema: {
+        type: "object-grid",
+        objectName: "products",
+        fields: ["name", "category", "price", "stock"],
+        data: [
+          { id: 1, name: "Laptop Pro", category: "Electronics", price: "$1,299", stock: 45 },
+          { id: 2, name: "Wireless Mouse", category: "Accessories", price: "$29", stock: 120 },
+          { id: 3, name: "USB-C Cable", category: "Accessories", price: "$15", stock: 200 }
+        ],
+        selectable: "single",
+        pageSize: 10
+      }
+    },
+    {
+      label: "Multiple Selection",
+      description: "Select multiple rows with checkboxes",
+      schema: {
+        type: "object-grid",
+        objectName: "products",
+        fields: ["name", "category", "price", "stock"],
+        data: [
+          { id: 1, name: "Laptop Pro", category: "Electronics", price: "$1,299", stock: 45 },
+          { id: 2, name: "Wireless Mouse", category: "Accessories", price: "$29", stock: 120 },
+          { id: 3, name: "USB-C Cable", category: "Accessories", price: "$15", stock: 200 }
+        ],
+        selectable: "multiple",
+        pageSize: 10
+      }
+    }
+  ]}
+/>
+
+## Column Configuration
+
+<InteractiveDemo
+  title="Advanced Column Features"
+  description="Customize column appearance, alignment, and behavior"
+  examples={[
+    {
+      label: "Column Width & Alignment",
+      description: "Set custom widths and text alignment",
+      schema: {
+        type: "object-grid",
+        objectName: "sales",
+        columns: [
+          { field: "id", label: "ID", width: 60, align: "center" },
+          { field: "product", label: "Product Name", width: 200, align: "left" },
+          { field: "revenue", label: "Revenue", width: 120, align: "right" },
+          { field: "growth", label: "Growth", width: 100, align: "center" }
+        ],
+        data: [
+          { id: 1, product: "Laptop Pro", revenue: "$58,455", growth: "+12%" },
+          { id: 2, product: "Wireless Mouse", revenue: "$3,480", growth: "+8%" },
+          { id: 3, product: "Monitor 27\"", revenue: "$11,970", growth: "+15%" }
+        ],
+        pageSize: 10
+      }
+    },
+    {
+      label: "Sortable Columns",
+      description: "Enable/disable sorting per column",
+      schema: {
+        type: "object-grid",
+        objectName: "inventory",
+        columns: [
+          { field: "sku", label: "SKU", sortable: false },
+          { field: "name", label: "Product", sortable: true },
+          { field: "stock", label: "Stock", sortable: true },
+          { field: "status", label: "Status", sortable: false }
+        ],
+        data: [
+          { sku: "PRD-001", name: "Laptop Pro", stock: 45, status: "In Stock" },
+          { sku: "PRD-002", name: "Wireless Mouse", stock: 120, status: "In Stock" },
+          { sku: "PRD-003", name: "Monitor", stock: 5, status: "Low Stock" },
+          { sku: "PRD-004", name: "Keyboard", stock: 0, status: "Out of Stock" }
+        ],
+        pageSize: 10
+      }
+    }
+  ]}
+/>
+
+## Pagination Options
+
+<InteractiveDemo
+  title="Pagination Configurations"
+  description="Different ways to handle large datasets"
+  examples={[
+    {
+      label: "Standard Pagination",
+      description: "Navigate with page size selector",
+      schema: {
+        type: "object-grid",
+        objectName: "orders",
+        fields: ["orderId", "customer", "amount", "date"],
+        data: [
+          { orderId: "ORD-001", customer: "Alice Johnson", amount: "$1,299", date: "2024-01-20" },
+          { orderId: "ORD-002", customer: "Bob Smith", amount: "$299", date: "2024-01-19" },
+          { orderId: "ORD-003", customer: "Carol White", amount: "$599", date: "2024-01-18" },
+          { orderId: "ORD-004", customer: "David Brown", amount: "$899", date: "2024-01-17" },
+          { orderId: "ORD-005", customer: "Emma Wilson", amount: "$1,499", date: "2024-01-16" },
+          { orderId: "ORD-006", customer: "Frank Miller", amount: "$399", date: "2024-01-15" }
+        ],
+        showPagination: true,
+        pageSize: 3
+      }
+    },
+    {
+      label: "No Pagination",
+      description: "Show all rows at once",
+      schema: {
+        type: "object-grid",
+        objectName: "summary",
+        fields: ["month", "revenue", "orders"],
+        data: [
+          { month: "January", revenue: "$124,500", orders: 842 },
+          { month: "February", revenue: "$135,200", orders: 923 },
+          { month: "March", revenue: "$148,900", orders: 1015 }
+        ],
+        showPagination: false
+      }
+    }
+  ]}
+/>
+
+## Search and Filtering
+
+<ComponentDemo
+  schema={{
+    type: "object-grid",
+    objectName: "contacts",
+    title: "Contact Directory",
+    fields: ["name", "email", "department", "phone", "status"],
+    data: [
+      { id: 1, name: "Alice Johnson", email: "alice@company.com", department: "Engineering", phone: "+1-555-0101", status: "Active" },
+      { id: 2, name: "Bob Smith", email: "bob@company.com", department: "Sales", phone: "+1-555-0102", status: "Active" },
+      { id: 3, name: "Carol White", email: "carol@company.com", department: "Marketing", phone: "+1-555-0103", status: "Inactive" },
+      { id: 4, name: "David Brown", email: "david@company.com", department: "Engineering", phone: "+1-555-0104", status: "Active" },
+      { id: 5, name: "Emma Wilson", email: "emma@company.com", department: "HR", phone: "+1-555-0105", status: "Active" },
+      { id: 6, name: "Frank Miller", email: "frank@company.com", department: "Sales", phone: "+1-555-0106", status: "Active" },
+      { id: 7, name: "Grace Chen", email: "grace@company.com", department: "Design", phone: "+1-555-0107", status: "Active" },
+      { id: 8, name: "Henry Kim", email: "henry@company.com", department: "Engineering", phone: "+1-555-0108", status: "Inactive" }
+    ],
+    showSearch: true,
+    searchableFields: ["name", "email", "department"],
+    pageSize: 5,
+    operations: {
+      export: true
+    }
+  }}
+  title="Real-time Search"
+  description="Search across name, email, and department fields"
+/>
+
+## Inline Editing Mode
+
+<ComponentDemo
+  schema={{
+    type: "object-grid",
+    objectName: "inventory",
+    title: "Inventory Management",
+    fields: ["sku", "name", "quantity", "price", "status"],
+    data: [
+      { id: 1, sku: "PRD-001", name: "Laptop Pro", quantity: 45, price: "$1,299", status: "In Stock" },
+      { id: 2, sku: "PRD-002", name: "Wireless Mouse", quantity: 120, price: "$29", status: "In Stock" },
+      { id: 3, sku: "PRD-003", name: "Monitor 27\"", quantity: 30, price: "$399", status: "In Stock" },
+      { id: 4, sku: "PRD-004", name: "USB-C Cable", quantity: 200, price: "$15", status: "In Stock" },
+      { id: 5, sku: "PRD-005", name: "Keyboard", quantity: 5, price: "$79", status: "Low Stock" }
+    ],
+    editable: true,
+    keyboardNavigation: true,
+    frozenColumns: 1,
+    resizableColumns: true,
+    pageSize: 10
+  }}
+  title="Spreadsheet-like Editing"
+  description="Enable inline editing with keyboard navigation and frozen columns"
+/>
+
+## Data Type Rendering
+
+<ComponentDemo
+  schema={{
+    type: "object-grid",
+    objectName: "employees",
+    title: "Employee Directory",
+    columns: [
+      { field: "name", label: "Name", type: "text" },
+      { field: "email", label: "Email", type: "email" },
+      { field: "joinDate", label: "Join Date", type: "date" },
+      { field: "salary", label: "Salary", type: "currency", align: "right" },
+      { field: "isActive", label: "Active", type: "boolean", align: "center" },
+      { field: "department", label: "Department", type: "select" }
+    ],
+    data: [
+      { id: 1, name: "Alice Johnson", email: "alice@company.com", joinDate: "2022-03-15", salary: 95000, isActive: true, department: "Engineering" },
+      { id: 2, name: "Bob Smith", email: "bob@company.com", joinDate: "2021-07-22", salary: 87000, isActive: true, department: "Sales" },
+      { id: 3, name: "Carol White", email: "carol@company.com", joinDate: "2023-01-10", salary: 92000, isActive: false, department: "Marketing" },
+      { id: 4, name: "David Brown", email: "david@company.com", joinDate: "2020-11-05", salary: 105000, isActive: true, department: "Engineering" }
+    ],
+    pageSize: 10,
+    showSearch: true
+  }}
+  title="Type-Aware Field Rendering"
+  description="Automatic rendering based on field types: text, email, date, currency, boolean, and select"
 />
 
 ## Traditional Mode - Basic Usage
@@ -320,6 +554,198 @@ When `editable` and `keyboardNavigation` are enabled:
   }}
 />
 ```
+
+## Real-World Examples
+
+### E-commerce Product Catalog
+
+<ComponentDemo
+  schema={{
+    type: "object-grid",
+    objectName: "products",
+    title: "Product Catalog",
+    columns: [
+      { field: "sku", label: "SKU", width: 100 },
+      { field: "name", label: "Product Name", width: 200 },
+      { field: "category", label: "Category", width: 120 },
+      { field: "price", label: "Price", width: 100, align: "right" },
+      { field: "stock", label: "Stock", width: 80, align: "center" },
+      { field: "status", label: "Status", width: 120 }
+    ],
+    data: [
+      { id: 1, sku: "LAP-001", name: "UltraBook Pro 15", category: "Laptops", price: "$1,299", stock: 45, status: "In Stock" },
+      { id: 2, sku: "MOU-001", name: "Wireless Ergonomic Mouse", category: "Accessories", price: "$29", stock: 120, status: "In Stock" },
+      { id: 3, sku: "MON-001", name: "4K Monitor 27\"", category: "Displays", price: "$399", stock: 30, status: "In Stock" },
+      { id: 4, sku: "KEY-001", name: "Mechanical Keyboard RGB", category: "Accessories", price: "$79", stock: 5, status: "Low Stock" },
+      { id: 5, sku: "CAB-001", name: "USB-C Charging Cable", category: "Cables", price: "$15", stock: 200, status: "In Stock" },
+      { id: 6, sku: "WEB-001", name: "HD Webcam 1080p", category: "Accessories", price: "$99", stock: 0, status: "Out of Stock" },
+      { id: 7, sku: "HEA-001", name: "Noise Cancelling Headphones", category: "Audio", price: "$249", stock: 65, status: "In Stock" },
+      { id: 8, sku: "TAB-001", name: "Graphics Tablet", category: "Peripherals", price: "$189", stock: 25, status: "In Stock" }
+    ],
+    showSearch: true,
+    selectable: "multiple",
+    pageSize: 5,
+    showPagination: true,
+    operations: {
+      update: true,
+      delete: true,
+      export: true
+    }
+  }}
+  title="Product Inventory Management"
+  description="Complete product catalog with search, filtering, and bulk operations"
+/>
+
+### CRM Customer Management
+
+<ComponentDemo
+  schema={{
+    type: "object-grid",
+    objectName: "customers",
+    title: "Customer Relationship Management",
+    columns: [
+      { field: "company", label: "Company", width: 180 },
+      { field: "contact", label: "Contact Person", width: 150 },
+      { field: "email", label: "Email", width: 200 },
+      { field: "phone", label: "Phone", width: 130 },
+      { field: "value", label: "Lifetime Value", width: 130, align: "right" },
+      { field: "tier", label: "Tier", width: 100 }
+    ],
+    data: [
+      { id: 1, company: "Acme Corp", contact: "Alice Johnson", email: "alice@acme.com", phone: "+1-555-0101", value: "$125,000", tier: "Gold" },
+      { id: 2, company: "TechStart Inc", contact: "Bob Smith", email: "bob@techstart.com", phone: "+1-555-0102", value: "$89,500", tier: "Silver" },
+      { id: 3, company: "Global Solutions", contact: "Carol White", email: "carol@global.com", phone: "+1-555-0103", value: "$256,000", tier: "Platinum" },
+      { id: 4, company: "Innovate Labs", contact: "David Brown", email: "david@innovate.com", phone: "+1-555-0104", value: "$45,200", tier: "Bronze" },
+      { id: 5, company: "CloudFirst", contact: "Emma Wilson", email: "emma@cloudfirst.com", phone: "+1-555-0105", value: "$178,900", tier: "Gold" },
+      { id: 6, company: "DataDrive", contact: "Frank Miller", email: "frank@datadrive.com", phone: "+1-555-0106", value: "$92,300", tier: "Silver" }
+    ],
+    showSearch: true,
+    searchableFields: ["company", "contact", "email"],
+    selectable: "single",
+    pageSize: 5,
+    defaultSort: {
+      field: "value",
+      order: "desc"
+    },
+    operations: {
+      update: true,
+      export: true
+    }
+  }}
+  title="CRM Dashboard"
+  description="Manage customer relationships with tiered segmentation and value tracking"
+/>
+
+### Project Task Tracker
+
+<ComponentDemo
+  schema={{
+    type: "object-grid",
+    objectName: "tasks",
+    title: "Project Tasks",
+    columns: [
+      { field: "taskId", label: "ID", width: 80 },
+      { field: "title", label: "Task Title", width: 250 },
+      { field: "assignee", label: "Assigned To", width: 140 },
+      { field: "priority", label: "Priority", width: 100, align: "center" },
+      { field: "status", label: "Status", width: 120 },
+      { field: "dueDate", label: "Due Date", width: 110 }
+    ],
+    data: [
+      { id: 1, taskId: "TSK-101", title: "Implement user authentication", assignee: "Alice Johnson", priority: "High", status: "In Progress", dueDate: "2024-02-15" },
+      { id: 2, taskId: "TSK-102", title: "Design landing page mockup", assignee: "Bob Smith", priority: "Medium", status: "Completed", dueDate: "2024-02-10" },
+      { id: 3, taskId: "TSK-103", title: "Fix responsive layout bugs", assignee: "Carol White", priority: "High", status: "In Progress", dueDate: "2024-02-12" },
+      { id: 4, taskId: "TSK-104", title: "Write API documentation", assignee: "David Brown", priority: "Low", status: "Not Started", dueDate: "2024-02-20" },
+      { id: 5, taskId: "TSK-105", title: "Optimize database queries", assignee: "Emma Wilson", priority: "High", status: "In Progress", dueDate: "2024-02-14" },
+      { id: 6, taskId: "TSK-106", title: "Update user guide", assignee: "Frank Miller", priority: "Low", status: "Not Started", dueDate: "2024-02-25" },
+      { id: 7, taskId: "TSK-107", title: "Add export to PDF feature", assignee: "Alice Johnson", priority: "Medium", status: "Completed", dueDate: "2024-02-08" }
+    ],
+    showSearch: true,
+    selectable: "multiple",
+    pageSize: 5,
+    defaultSort: {
+      field: "priority",
+      order: "desc"
+    },
+    operations: {
+      update: true,
+      delete: true
+    }
+  }}
+  title="Task Management"
+  description="Track project tasks with priority levels and status updates"
+/>
+
+### Financial Transactions
+
+<ComponentDemo
+  schema={{
+    type: "object-grid",
+    objectName: "transactions",
+    title: "Recent Transactions",
+    columns: [
+      { field: "transactionId", label: "Transaction ID", width: 130 },
+      { field: "date", label: "Date", width: 110 },
+      { field: "description", label: "Description", width: 200 },
+      { field: "category", label: "Category", width: 120 },
+      { field: "amount", label: "Amount", width: 120, align: "right" },
+      { field: "status", label: "Status", width: 100 }
+    ],
+    data: [
+      { id: 1, transactionId: "TXN-2024-001", date: "2024-01-25", description: "Office supplies purchase", category: "Expenses", amount: "-$234.50", status: "Completed" },
+      { id: 2, transactionId: "TXN-2024-002", date: "2024-01-24", description: "Client payment received", category: "Income", amount: "+$5,000.00", status: "Completed" },
+      { id: 3, transactionId: "TXN-2024-003", date: "2024-01-23", description: "Software subscription", category: "Expenses", amount: "-$99.00", status: "Completed" },
+      { id: 4, transactionId: "TXN-2024-004", date: "2024-01-22", description: "Marketing campaign", category: "Expenses", amount: "-$1,250.00", status: "Pending" },
+      { id: 5, transactionId: "TXN-2024-005", date: "2024-01-21", description: "Product sales", category: "Income", amount: "+$3,450.00", status: "Completed" },
+      { id: 6, transactionId: "TXN-2024-006", date: "2024-01-20", description: "Equipment rental", category: "Expenses", amount: "-$450.00", status: "Completed" }
+    ],
+    showSearch: true,
+    pageSize: 5,
+    showPagination: true,
+    operations: {
+      export: true
+    }
+  }}
+  title="Transaction Log"
+  description="Monitor financial transactions with categorization and status tracking"
+/>
+
+### Sales Performance Dashboard
+
+<ComponentDemo
+  schema={{
+    type: "object-grid",
+    objectName: "sales",
+    title: "Sales Team Performance",
+    columns: [
+      { field: "rep", label: "Sales Rep", width: 150 },
+      { field: "region", label: "Region", width: 120 },
+      { field: "deals", label: "Deals Closed", width: 120, align: "center" },
+      { field: "revenue", label: "Revenue", width: 130, align: "right" },
+      { field: "target", label: "Target", width: 130, align: "right" },
+      { field: "achievement", label: "Achievement", width: 120, align: "center" }
+    ],
+    data: [
+      { id: 1, rep: "Alice Johnson", region: "North America", deals: 42, revenue: "$523,000", target: "$500,000", achievement: "105%" },
+      { id: 2, rep: "Bob Smith", region: "Europe", deals: 38, revenue: "$456,000", target: "$450,000", achievement: "101%" },
+      { id: 3, rep: "Carol White", region: "Asia Pacific", deals: 51, revenue: "$678,000", target: "$600,000", achievement: "113%" },
+      { id: 4, rep: "David Brown", region: "Latin America", deals: 29, revenue: "$342,000", target: "$400,000", achievement: "86%" },
+      { id: 5, rep: "Emma Wilson", region: "North America", deals: 45, revenue: "$589,000", target: "$500,000", achievement: "118%" },
+      { id: 6, rep: "Frank Miller", region: "Europe", deals: 33, revenue: "$412,000", target: "$450,000", achievement: "92%" }
+    ],
+    showPagination: false,
+    selectable: false,
+    defaultSort: {
+      field: "achievement",
+      order: "desc"
+    },
+    operations: {
+      export: true
+    }
+  }}
+  title="Sales Metrics"
+  description="Track sales performance across regions with target achievement rates"
+/>
 
 ## Related Components
 
