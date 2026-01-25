@@ -23,7 +23,7 @@ Kanban board with drag-and-drop functionality
 ### [Markdown Plugin](/docs/plugins/plugin-markdown)
 Markdown renderer with GitHub Flavored Markdown support
 
-### [Views (Core Package)](/docs/plugins/views)
+### [Views (Core Package)](/docs/views)
 Advanced object data management and visualization
 
 ## Official Plugins
@@ -98,7 +98,7 @@ npm install @object-ui/plugin-markdown
 
 ### Views (Core Package)
 
-**[@object-ui/views](/docs/plugins/views)** - Core views package for advanced object data management and visualization.
+**[@object-ui/views](/docs/views)** - Core views package for advanced object data management and visualization.
 
 - Object data rendering
 - Complex data structures support
@@ -109,7 +109,7 @@ npm install @object-ui/plugin-markdown
 npm install @object-ui/views
 ```
 
-[Read full documentation →](/docs/plugins/views)
+[Read full documentation →](/docs/views)
 
 ---
 

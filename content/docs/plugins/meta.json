@@ -5,7 +5,6 @@
     "plugin-charts",
     "plugin-editor",
     "plugin-kanban",
-    "plugin-markdown",
-    "views"
+    "plugin-markdown"
   ]
 }

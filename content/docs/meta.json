@@ -2,6 +2,7 @@
   "pages": [
     "guide",
     "components",
+    "views",
     "plugins"
   ]
 }
