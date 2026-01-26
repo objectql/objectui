@@ -439,10 +439,31 @@ export function UserCellRenderer({ value }: CellRendererProps): React.ReactEleme
 }
 
 /**
+ * Field Registry
+ * Stores mapping between field types and their renderers.
+ */
+const fieldRegistry = new Map<string, React.FC<CellRendererProps>>();
+
+/**
+ * Register a custom field renderer
+ * @param type Field type (e.g. 'text', 'location', 'my-custom-type')
+ * @param renderer React component to render the field
+ */
+export function registerFieldRenderer(type: string, renderer: React.FC<CellRendererProps>) {
+  fieldRegistry.set(type, renderer);
+}
+
+/**
  * Get the appropriate cell renderer for a field type
  */
 export function getCellRenderer(fieldType: string): React.FC<CellRendererProps> {
-  const rendererMap: Record<string, React.FC<CellRendererProps>> = {
+  // 1. Try exact match in registry
+  if (fieldRegistry.has(fieldType)) {
+    return fieldRegistry.get(fieldType)!;
+  }
+  
+  // 2. Fallback to standard mappings if not overridden
+  const standardMap: Record<string, React.FC<CellRendererProps>> = {
     text: TextCellRenderer,
     textarea: TextCellRenderer,
     markdown: TextCellRenderer,
@@ -455,27 +476,37 @@ export function getCellRenderer(fieldType: string): React.FC<CellRendererProps> 
     datetime: DateTimeCellRenderer,
     time: TextCellRenderer,
     select: SelectCellRenderer,
+    lookup: SelectCellRenderer, // Default fallback
+    master_detail: SelectCellRenderer, // Default fallback
     email: EmailCellRenderer,
     url: UrlCellRenderer,
     phone: PhoneCellRenderer,
     file: FileCellRenderer,
     image: ImageCellRenderer,
-    lookup: LookupCellRenderer,
-    master_detail: LookupCellRenderer,
     formula: FormulaCellRenderer,
     summary: FormulaCellRenderer,
     auto_number: TextCellRenderer,
     user: UserCellRenderer,
     owner: UserCellRenderer,
     password: () => <span>••••••</span>,
-    location: TextCellRenderer,
+    location: TextCellRenderer, // Default fallback
     object: () => <span className="text-gray-500 italic">[Object]</span>,
     vector: () => <span className="text-gray-500 italic">[Vector]</span>,
     grid: () => <span className="text-gray-500 italic">[Grid]</span>,
   };
-  
-  return rendererMap[fieldType] || TextCellRenderer;
+
+  // 3. Register standard renderers implicitly if not present
+  // This ensures that if we call registerFieldRenderer('text', Custom), it works,
+  // but if we don't, we get the standard one.
+  return standardMap[fieldType] || TextCellRenderer;
 }
+
+// Register standard renderers immediately
+registerFieldRenderer('lookup', LookupCellRenderer);
+registerFieldRenderer('master_detail', LookupCellRenderer);
+registerFieldRenderer('select', SelectCellRenderer);
+
+
 
 /**
  * Map field type to form component type
