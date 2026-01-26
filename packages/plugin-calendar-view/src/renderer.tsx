@@ -101,10 +101,14 @@ ComponentRegistry.register('calendar-view',
       }
     }, [onAction, schema]);
 
+    const validView = (schema.view && ['month', 'week', 'day'].includes(schema.view)) 
+      ? (schema.view as "month" | "week" | "day")
+      : 'month';
+
     return (
       <CalendarView
-        events={events as any[]}
-        view={(schema.view as any) || 'month'}
+        events={events}
+        view={validView}
         currentDate={schema.currentDate ? new Date(schema.currentDate) : undefined}
         onEventClick={handleEventClick}
         onDateClick={schema.allowCreate || schema.onDateClick ? handleDateClick : undefined}

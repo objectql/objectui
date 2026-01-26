@@ -502,5 +502,5 @@ function DayView({ date, events, onEventClick }: DayViewProps) {
 
 export { CalendarView }
 
-// Export renderer to register the component with ObjectUI
+// Export renderer for ObjectUI schema integration
 export * from './renderer';
