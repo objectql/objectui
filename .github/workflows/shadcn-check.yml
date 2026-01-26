@@ -1,0 +1,114 @@
+name: Check Shadcn Components
+
+on:
+  # Run weekly on Mondays at 9:00 AM UTC
+  schedule:
+    - cron: '0 9 * * 1'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  check-components:
+    name: Check for Shadcn Component Updates
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Analyze components (offline)
+        id: analyze
+        run: |
+          echo "Running offline component analysis..."
+          pnpm shadcn:analyze > analysis.txt
+          cat analysis.txt
+        continue-on-error: true
+      
+      - name: Check component status (online)
+        id: check
+        run: |
+          echo "Checking component status against Shadcn registry..."
+          pnpm shadcn:check > check.txt
+          cat check.txt
+        continue-on-error: true
+      
+      - name: Upload analysis results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shadcn-analysis
+          path: |
+            analysis.txt
+            check.txt
+          retention-days: 30
+      
+      - name: Create issue if components are outdated
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            let body = '## Shadcn Components Status Report\n\n';
+            body += 'The weekly component sync check has detected issues or updates.\n\n';
+            
+            if (fs.existsSync('analysis.txt')) {
+              const analysis = fs.readFileSync('analysis.txt', 'utf8');
+              body += '### Offline Analysis\n\n';
+              body += '```\n' + analysis.substring(0, 5000) + '\n```\n\n';
+            }
+            
+            if (fs.existsSync('check.txt')) {
+              const check = fs.readFileSync('check.txt', 'utf8');
+              body += '### Online Check Results\n\n';
+              body += '```\n' + check.substring(0, 5000) + '\n```\n\n';
+            }
+            
+            body += '### Next Steps\n\n';
+            body += '1. Review the analysis results above\n';
+            body += '2. Run `pnpm shadcn:analyze` locally for detailed information\n';
+            body += '3. Update components as needed with `pnpm shadcn:update <component>`\n';
+            body += '4. See [SHADCN_SYNC.md](../blob/main/docs/SHADCN_SYNC.md) for detailed guide\n\n';
+            body += '> This issue was automatically created by the Shadcn Components Check workflow.\n';
+            
+            // Check if there's already an open issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'shadcn-sync',
+            });
+            
+            if (issues.data.length > 0) {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues.data[0].number,
+                body: '## Updated Check Results\n\n' + body,
+              });
+            } else {
+              // Create new issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'Shadcn Components Need Review',
+                body: body,
+                labels: ['maintenance', 'shadcn-sync', 'dependencies'],
+              });
+            }

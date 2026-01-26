@@ -6,10 +6,28 @@ Standard UI component library for Object UI, built with Shadcn UI + Tailwind CSS
 
 - 🎨 **Tailwind Native** - Built entirely with Tailwind CSS utility classes
 - 🧩 **Shadcn UI** - Based on Radix UI primitives for accessibility
-- 📦 **50+ Components** - Complete set of UI components
+- 📦 **60+ Components** - Complete set of UI components (46 from Shadcn + 14 custom)
 - ♿ **Accessible** - WCAG compliant components
 - 🎯 **Type-Safe** - Full TypeScript support
 - 🔌 **Extensible** - Easy to customize and extend
+- 🔄 **Sync Tools** - Scripts to keep components updated with latest Shadcn
+
+## Keeping Components Updated
+
+ObjectUI provides tools to sync components with the latest Shadcn UI versions:
+
+```bash
+# Analyze components (offline)
+pnpm shadcn:analyze
+
+# Check for updates (online)
+pnpm shadcn:check
+
+# Update a component
+pnpm shadcn:update button --backup
+```
+
+**📚 See [SHADCN_SYNC.md](../../docs/SHADCN_SYNC.md) for the complete guide.**
 
 ## Installation
 
