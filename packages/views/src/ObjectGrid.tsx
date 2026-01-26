@@ -74,10 +74,10 @@ function getDataConfig(schema: ObjectGridSchema): ViewData | null {
 function normalizeColumns(
   columns: string[] | ListColumn[] | undefined
 ): ListColumn[] | string[] | undefined {
-  if (!columns) return undefined;
+  if (!columns || columns.length === 0) return undefined;
   
   // Already in ListColumn format - check for null and object type
-  if (columns.length > 0 && columns[0] && typeof columns[0] === 'object') {
+  if (columns[0] !== null && columns[0] !== undefined && typeof columns[0] === 'object') {
     return columns as ListColumn[];
   }
   
@@ -147,21 +147,25 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
     
     if (cols) {
       // If columns are already ListColumn objects, convert them to data-table format
-      if (cols.length > 0 && typeof cols[0] === 'object') {
-        return (cols as ListColumn[]).map((col) => ({
-          header: col.label || col.field.charAt(0).toUpperCase() + col.field.slice(1).replace(/_/g, ' '),
-          accessorKey: col.field,
-          ...(col.width && { width: col.width }),
-          ...(col.align && { align: col.align }),
-          sortable: col.sortable !== false,
-        }));
+      if (cols.length > 0 && cols[0] !== null && cols[0] !== undefined && typeof cols[0] === 'object') {
+        return (cols as ListColumn[])
+          .filter((col) => col && col.field) // Filter out invalid column objects
+          .map((col) => ({
+            header: col.label || col.field.charAt(0).toUpperCase() + col.field.slice(1).replace(/_/g, ' '),
+            accessorKey: col.field,
+            ...(col.width && { width: col.width }),
+            ...(col.align && { align: col.align }),
+            sortable: col.sortable !== false,
+          }));
       }
       
       // String array format - return as-is for now
-      return (cols as string[]).map((fieldName) => ({
-        header: fieldName.charAt(0).toUpperCase() + fieldName.slice(1).replace(/_/g, ' '),
-        accessorKey: fieldName,
-      }));
+      return (cols as string[])
+        .filter((fieldName) => fieldName && typeof fieldName === 'string') // Filter out invalid entries
+        .map((fieldName) => ({
+          header: fieldName.charAt(0).toUpperCase() + fieldName.slice(1).replace(/_/g, ' '),
+          accessorKey: fieldName,
+        }));
     }
 
     // Legacy support: use 'fields' if columns not provided
