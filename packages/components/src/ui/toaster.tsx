@@ -6,6 +6,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+/**
+ * @deprecated This component is part of the legacy Radix toast system.
+ * Please use the Sonner-based Toaster instead:
+ * 
+ * ```tsx
+ * import { Toaster } from '@object-ui/components';
+ * // This now exports the Sonner Toaster by default
+ * ```
+ * 
+ * See sonner.tsx for the recommended toast solution.
+ */
+
 "use client"
 
 import {

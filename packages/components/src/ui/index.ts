@@ -28,10 +28,12 @@ export * from './dialog';
 export * from './drawer';
 export * from './dropdown-menu';
 export * from './empty';
+/** @deprecated Use form.tsx components (FormField, FormItem, FormLabel, FormControl, FormMessage) instead */
 export * from './field';
 export * from './filter-builder';
 export * from './form';
 export * from './hover-card';
+/** @deprecated Use standard Tailwind flex utilities with Shadcn primitives instead */
 export * from './input-group';
 export * from './input-otp';
 export * from './input';
@@ -52,13 +54,20 @@ export * from './sheet';
 export * from './sidebar';
 export * from './skeleton';
 export * from './slider';
+/** 
+ * Sonner is the recommended toast solution for ObjectUI.
+ * @see https://ui.shadcn.com/docs/components/sonner
+ */
 export * from './sonner';
+export { Toaster } from './sonner';
 export * from './spinner';
 export * from './switch';
 export * from './table';
 export * from './tabs';
 export * from './textarea';
+/** @deprecated Use Sonner (sonner.tsx) for toast notifications instead */
 export * from './toast';
+/** @deprecated Use Sonner Toaster from sonner.tsx instead */
 export { Toaster as ToastNotifier } from './toaster';
 export * from './toggle-group';
 export * from './toggle';

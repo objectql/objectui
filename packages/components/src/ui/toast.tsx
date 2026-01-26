@@ -6,6 +6,31 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+/**
+ * @deprecated This Radix-based toast system is being phased out in favor of Sonner.
+ * 
+ * Please migrate to using Sonner for toast notifications:
+ * ```tsx
+ * import { toast } from 'sonner';
+ * 
+ * // Usage
+ * toast('Event has been created');
+ * toast.success('Event has been created');
+ * toast.error('Event creation failed');
+ * ```
+ * 
+ * For the toast container, use:
+ * ```tsx
+ * import { Toaster } from '@object-ui/components';
+ * 
+ * // In your app root
+ * <Toaster />
+ * ```
+ * 
+ * This file will be maintained for backward compatibility but is not recommended
+ * for new implementations. See: https://ui.shadcn.com/docs/components/sonner
+ */
+
 import * as React from "react"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"

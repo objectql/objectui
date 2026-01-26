@@ -6,6 +6,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+/**
+ * @deprecated This custom field system is being phased out in favor of Shadcn's
+ * standard form components (FormField, FormItem, FormLabel, FormControl, FormMessage).
+ * 
+ * Please migrate to using the standard form.tsx components with react-hook-form:
+ * - Use `FormField` instead of `Field`
+ * - Use `FormLabel` instead of `FieldLabel`
+ * - Use `FormMessage` instead of `FieldError`
+ * - Use `FormDescription` instead of `FieldDescription`
+ * 
+ * For more information, see: https://ui.shadcn.com/docs/components/form
+ * 
+ * This file will be maintained for backward compatibility but is not recommended
+ * for new implementations.
+ */
+
 import { useMemo } from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 

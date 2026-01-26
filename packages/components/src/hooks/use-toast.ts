@@ -6,6 +6,28 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+/**
+ * @deprecated This hook is part of the legacy Radix toast system.
+ * Please use Sonner's toast function instead:
+ * 
+ * ```tsx
+ * import { toast } from 'sonner';
+ * 
+ * // Instead of:
+ * // const { toast } = useToast();
+ * // toast({ title: "Hello", description: "World" });
+ * 
+ * // Use:
+ * toast('Hello', { description: 'World' });
+ * toast.success('Success message');
+ * toast.error('Error message');
+ * toast.warning('Warning message');
+ * toast.info('Info message');
+ * ```
+ * 
+ * See: https://ui.shadcn.com/docs/components/sonner
+ */
+
 import * as React from "react"
 
 import type {

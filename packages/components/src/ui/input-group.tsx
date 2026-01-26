@@ -6,6 +6,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+/**
+ * @deprecated This custom input group wrapper is being phased out in favor of
+ * using standard Tailwind utility classes and Shadcn primitives directly.
+ * 
+ * For grouped inputs with addons, consider using:
+ * - Standard Input component with Tailwind flex utilities
+ * - Button components positioned with flex layout
+ * - Custom compositions using Shadcn primitives
+ * 
+ * This file will be maintained for backward compatibility but is not recommended
+ * for new implementations.
+ */
+
 "use client"
 
 import * as React from "react"
