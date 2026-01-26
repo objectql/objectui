@@ -51,7 +51,7 @@ Since this package is not yet published to NPM, here is how to play with the sou
 Install the core packages to use `<SchemaRenderer>` inside your Next.js or Vite app.
 
 ```bash
-npm install @object-ui/react @object-ui/components
+npm install @object-ui/react @object-ui/components @object-ui/data-objectstack
 ```
 
 ### 🎨 **Beautiful by Default**

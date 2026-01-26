@@ -8,7 +8,7 @@ Instead, the core engine communicates with your backend via a standardized `Data
 
 ## The Interface
 
-All data fetching logic is abstracted into this interface defined in `@object-ui/core`:
+All data fetching logic is abstracted into this interface defined in `@object-ui/types`:
 
 ```typescript
 export interface DataSource {
@@ -23,7 +23,29 @@ export interface DataSource {
   create(resource: string, data: any): Promise<any>;
   update(resource: string, id: string, data: any): Promise<any>;
   delete(resource: string, id: string): Promise<any>;
+  
+  /**
+   * Get object metadata (Important for smart components)
+   */
+  getObjectSchema(objectName: string): Promise<any>;
 }
+```
+
+## Available Adapters
+
+### ObjectStack Adapter (Official)
+For connecting to Steedos, Salesforce, or any ObjectStack-compatible backend.
+
+```bash
+npm install @object-ui/data-objectstack
+```
+
+```typescript
+import { createObjectStackAdapter } from '@object-ui/data-objectstack';
+
+const dataSource = createObjectStackAdapter({
+  baseUrl: 'https://api.your-instance.com'
+});
 ```
 
 ## Usage
@@ -53,7 +75,7 @@ function App() {
 If you have a proprietary backend, simply implement the interface:
 
 ```typescript
-import type { DataSource } from '@object-ui/core';
+import type { DataSource } from '@object-ui/types';
 
 class MyCustomDataSource implements DataSource {
   async find(resource, params) {

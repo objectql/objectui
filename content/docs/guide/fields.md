@@ -1,0 +1,108 @@
+---
+title: "Field Registry"
+---
+
+Object UI uses a **Field Registry** system to decouple the core engine from specific UI implementations of fields. This allows for rich extensibility and plugin support.
+
+## Concept
+
+The `@object-ui/fields` package serves as the "Universal Language" for rendering values. 
+
+When a component like `<ObjectGrid>` needs to render a `date` field, it doesn't import a DatePicker directly. Instead, it asks the registry:
+
+> *"Hey, give me the component responsible for rendering type 'date'."*
+
+This architecture allows you to:
+1.  **Override standard fields** (e.g. replace the native date picker with a fancy one).
+2.  **Add new field types** (e.g. add a `rating` or `signature` field).
+3.  **Keep bundles small** (heavy components like Code Editors are loaded only if their plugin is registered).
+
+## Usage
+
+### 1. Registering a Custom Field
+
+You can register a custom renderer globally, typically at your app's entry point.
+
+```tsx
+// src/setup.tsx
+import { registerFieldRenderer, type CellRendererProps } from '@object-ui/fields';
+
+const MyRatingField = ({ value, onChange }: CellRendererProps) => {
+  return (
+    <div className="rating">
+      {[1, 2, 3, 4, 5].map(star => (
+        <span 
+          key={star} 
+          onClick={() => onChange(star)}
+          style={{ color: star <= value ? 'gold' : 'grey' }}
+        >
+          ★
+        </span>
+      ))}
+    </div>
+  );
+};
+
+// Register it
+registerFieldRenderer('rating', MyRatingField);
+```
+
+### 2. Using in Schema
+
+Once registered, you can simply use the new type in your JSON schema.
+
+```json
+{
+  "type": "form",
+  "fields": [
+    {
+      "name": "customer_satisfaction",
+      "type": "rating", 
+      "label": "Satisfaction"
+    }
+  ]
+}
+```
+
+## Standard Fields
+
+Object UI comes with built-in support for the standard [ObjectStack Protocol](/protocol) types:
+
+| Type | Description |
+|---|---|
+| `text` | Single line text |
+| `textarea` | Multi-line text |
+| `number` | Numeric input |
+| `currency` | Currency formatting |
+| `percent` | Percentage values |
+| `date` | Date picker |
+| `datetime` | Date & Time picker |
+| `boolean` | Checkbox / Switch |
+| `select` | Dropdown |
+| `lookup` | Reference to another object |
+| `master_detail` | Parent-child relationship |
+
+## Using Renderers in Custom Components
+
+If you are building your own custom component (like a Kanban board card), you can leverage the registry to render fields without reinventing the wheel.
+
+```tsx
+import { getCellRenderer } from '@object-ui/fields';
+
+export const KanbanCard = ({ task }) => {
+  // Get the standard renderer for a 'user' type field
+  const UserRenderer = getCellRenderer('user');
+  
+  return (
+    <div className="card">
+      <h3>{task.name}</h3>
+      <div className="assignee">
+        <UserRenderer 
+          value={task.assignee} 
+          field={{ type: 'user' }} 
+        />
+      </div>
+    </div>
+  );
+};
+```
