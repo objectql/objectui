@@ -252,12 +252,14 @@
       "dependencies": ["button"]
     },
     "calendar-view": {
-      "description": "Custom ObjectUI component - Full calendar view",
-      "dependencies": ["calendar"]
+      "description": "Custom ObjectUI component - Full calendar view (moved to @object-ui/plugin-calendar-view)",
+      "dependencies": ["calendar"],
+      "movedToPlugin": "@object-ui/plugin-calendar-view"
     },
     "chatbot": {
-      "description": "Custom ObjectUI component - Chatbot interface",
-      "dependencies": ["card", "input", "button"]
+      "description": "Custom ObjectUI component - Chatbot interface (moved to @object-ui/plugin-chatbot)",
+      "dependencies": ["card", "input", "button"],
+      "movedToPlugin": "@object-ui/plugin-chatbot"
     },
     "combobox": {
       "description": "Custom ObjectUI component - Combo box (select + input)",
@@ -296,8 +298,9 @@
       "dependencies": []
     },
     "timeline": {
-      "description": "Custom ObjectUI component - Timeline component",
-      "dependencies": []
+      "description": "Custom ObjectUI component - Timeline component (moved to @object-ui/plugin-timeline)",
+      "dependencies": [],
+      "movedToPlugin": "@object-ui/plugin-timeline"
     },
     "toaster": {
       "description": "Custom ObjectUI component - Toast container",

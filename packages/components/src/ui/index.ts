@@ -16,7 +16,6 @@ export * from './breadcrumb';
 export * from './button-group';
 export * from './button';
 export * from './calendar';
-export * from './calendar-view';
 export * from './card';
 export * from './carousel';
 export * from './checkbox';
