@@ -7,7 +7,7 @@
  */
 
 import * as React from "react"
-import { cn } from "../lib/utils"
+import { cn } from "@object-ui/components"
 
 const Timeline = React.forwardRef<
   HTMLOListElement,
@@ -272,3 +272,6 @@ export {
   TimelineGanttBar,
   TimelineGanttBarContent,
 }
+
+// Export renderer to register the component with ObjectUI
+export * from './renderer';

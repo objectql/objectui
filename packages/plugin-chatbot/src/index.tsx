@@ -7,11 +7,8 @@
  */
 
 import * as React from "react"
-import { cn } from "../lib/utils"
-import { Button } from "./button"
-import { Input } from "./input"
-import { ScrollArea } from "./scroll-area"
-import { Avatar, AvatarFallback, AvatarImage } from "./avatar"
+import { cn } from "@object-ui/components"
+import { Button, Input, ScrollArea, Avatar, AvatarFallback, AvatarImage } from "@object-ui/components"
 import { Send } from "lucide-react"
 
 // Message type definition
@@ -246,3 +243,6 @@ const TypingIndicator = React.forwardRef<HTMLDivElement, TypingIndicatorProps>(
 TypingIndicator.displayName = "TypingIndicator"
 
 export { Chatbot, TypingIndicator }
+
+// Export renderer to register the component with ObjectUI
+export * from './renderer';
