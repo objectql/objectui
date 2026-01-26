@@ -8,7 +8,7 @@
 
 import { ComponentRegistry } from '@object-ui/core';
 import type { CalendarViewSchema, CalendarEvent } from '@object-ui/types';
-import { CalendarView } from '../../ui';
+import { CalendarView } from './index';
 import React from 'react';
 
 // Calendar View Renderer - Airtable-style calendar for displaying records as events
@@ -101,10 +101,14 @@ ComponentRegistry.register('calendar-view',
       }
     }, [onAction, schema]);
 
+    const validView = (schema.view && ['month', 'week', 'day'].includes(schema.view)) 
+      ? (schema.view as "month" | "week" | "day")
+      : 'month';
+
     return (
       <CalendarView
-        events={events as any[]}
-        view={(schema.view as any) || 'month'}
+        events={events}
+        view={validView}
         currentDate={schema.currentDate ? new Date(schema.currentDate) : undefined}
         onEventClick={handleEventClick}
         onDateClick={schema.allowCreate || schema.onDateClick ? handleDateClick : undefined}

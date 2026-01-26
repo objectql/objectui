@@ -10,15 +10,7 @@
 
 import * as React from "react"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
-import { cn } from "../lib/utils"
-import { Button } from "./button"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./select"
+import { cn, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@object-ui/components"
 
 const DEFAULT_EVENT_COLOR = "bg-blue-500 text-white"
 
@@ -509,3 +501,6 @@ function DayView({ date, events, onEventClick }: DayViewProps) {
 }
 
 export { CalendarView }
+
+// Export renderer for ObjectUI schema integration
+export * from './renderer';
