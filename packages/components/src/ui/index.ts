@@ -56,11 +56,10 @@ export * from './skeleton';
 export * from './slider';
 /** 
  * Sonner is the recommended toast solution for ObjectUI.
- * The Toaster export below is the Sonner Toaster component.
+ * When you import { Toaster } from '@object-ui/components', you get the Sonner Toaster (recommended).
+ * The legacy toast system is still available but deprecated.
  * @see https://ui.shadcn.com/docs/components/sonner
  */
-export * from './sonner';
-// Explicitly export Toaster from Sonner as the default Toaster
 export { Toaster } from './sonner';
 export * from './spinner';
 export * from './switch';
@@ -69,7 +68,11 @@ export * from './tabs';
 export * from './textarea';
 /** @deprecated Use Sonner (sonner.tsx) for toast notifications instead */
 export * from './toast';
-/** @deprecated Use Sonner Toaster from sonner.tsx instead. Import { Toaster } for the recommended component. */
+/** 
+ * @deprecated Use the Sonner-based Toaster instead. 
+ * Import { Toaster } from '@object-ui/components' to get the recommended Sonner Toaster.
+ * This ToastNotifier export is the legacy Radix-based toaster.
+ */
 export { Toaster as ToastNotifier } from './toaster';
 export * from './toggle-group';
 export * from './toggle';

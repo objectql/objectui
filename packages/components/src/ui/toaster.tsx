@@ -8,11 +8,14 @@
 
 /**
  * @deprecated This component is part of the legacy Radix toast system.
- * Please use the Sonner-based Toaster instead:
+ * Please use the Sonner-based Toaster instead by importing from the main package:
  * 
  * ```tsx
+ * // Recommended (gets Sonner Toaster)
  * import { Toaster } from '@object-ui/components';
- * // This now exports the Sonner Toaster by default
+ * 
+ * // NOT recommended (gets legacy Toaster)
+ * import { Toaster } from '@object-ui/components/ui/toaster';
  * ```
  * 
  * See sonner.tsx for the recommended toast solution.
