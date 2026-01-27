@@ -39,10 +39,14 @@ export function PluginLoader({ plugins, children }: PluginLoaderProps) {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadPlugins = async () => {
       // On server side, skip actual imports but mark as loaded to avoid hydration mismatch
       if (typeof window === 'undefined') {
-        setLoaded(true);
+        if (!cancelled) {
+          setLoaded(true);
+        }
         return;
       }
 
@@ -85,14 +89,22 @@ export function PluginLoader({ plugins, children }: PluginLoaderProps) {
         });
 
         await Promise.all(imports);
-        setLoaded(true);
+        if (!cancelled) {
+          setLoaded(true);
+        }
       } catch (error) {
         console.error('Failed to load plugins:', error);
-        setLoaded(true); // Still render children even if plugin loading fails
+        if (!cancelled) {
+          setLoaded(true); // Still render children even if plugin loading fails
+        }
       }
     };
 
     loadPlugins();
+
+    return () => {
+      cancelled = true;
+    };
   }, [plugins]);
 
   if (!loaded) {
