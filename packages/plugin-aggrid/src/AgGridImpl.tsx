@@ -223,7 +223,7 @@ export default function AgGridImpl({
   }, [columnDefs, editable, columnConfig]);
 
   // Merge grid options with props
-  const mergedGridOptions: GridOptions = useMemo(() => ({
+  const mergedGridOptions = useMemo(() => ({
     ...gridOptions,
     pagination,
     paginationPageSize,
