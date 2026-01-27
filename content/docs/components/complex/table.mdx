@@ -12,12 +12,12 @@ import { ComponentDemo, DemoGrid } from '@/app/components/ComponentDemo';
       type: "table",
       columns: [
             {
-                  key: "name",
-                  title: "Name"
+                  header: "Name",
+                  accessorKey: "name"
             },
             {
-                  key: "email",
-                  title: "Email"
+                  header: "Email",
+                  accessorKey: "email"
             }
       ],
       data: [
@@ -39,7 +39,7 @@ import { ComponentDemo, DemoGrid } from '@/app/components/ComponentDemo';
 ```typescript
 interface TableSchema {
   type: 'table';
-  columns: Array<{ key: string; title: string }>;
+  columns: Array<{ header: string; accessorKey: string }>;
   data: Record<string, any>[];
 }
 ```
