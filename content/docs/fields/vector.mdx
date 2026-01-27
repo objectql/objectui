@@ -11,13 +11,12 @@ The Vector Field component displays vector embeddings used in AI/ML applications
 
 <ComponentDemo
   schema={{
-    type: 'input',
-    inputType: 'text',
+    type: 'vector',
     name: 'embedding',
     label: 'Text Embedding',
-    value: '[0.1234, -0.5678, 0.9012...] (768D)',
-    readOnly: true,
-    description: 'Vector embedding with 768 dimensions'
+    dimensions: 768,
+    readonly: true,
+    value: [0.1234, -0.5678, 0.9012, 0.3456, -0.7890]
   }}
   title="Basic Vector Display"
 />
@@ -26,13 +25,12 @@ The Vector Field component displays vector embeddings used in AI/ML applications
 
 <ComponentDemo
   schema={{
-    type: 'input',
-    inputType: 'text',
+    type: 'vector',
     name: 'image_embedding',
     label: 'Image Embedding',
-    value: '[0.2345, -0.6789, 0.1234...] (1536D)',
-    readOnly: true,
-    description: 'High-dimensional vector (1536 dimensions)'
+    dimensions: 1536,
+    readonly: true,
+    value: Array(1536).fill(0).map(() => Math.random() * 2 - 1)
   }}
   title="High-Dimensional Vector"
 />

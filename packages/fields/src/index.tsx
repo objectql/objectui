@@ -742,6 +742,59 @@ import { ObjectField } from './widgets/ObjectField';
 import { VectorField } from './widgets/VectorField';
 import { GridField } from './widgets/GridField';
 
+// Create wrapper renderers for field widgets to work with ComponentDemo
+function createFieldRenderer(FieldWidget: React.ComponentType<any>) {
+  return function FieldRenderer({ schema, className, value: initialValue, ...props }: any) {
+    const [value, setValue] = React.useState(initialValue ?? schema.value ?? '');
+    
+    const field = {
+      name: schema.name || 'field',
+      label: schema.label,
+      type: schema.type,
+      placeholder: schema.placeholder,
+      required: schema.required,
+      readonly: schema.readonly || schema.readOnly,
+      help: schema.help,
+      description: schema.description,
+      defaultValue: schema.defaultValue || schema.value,
+      ...schema,
+    };
+
+    const handleChange = (newValue: any) => {
+      setValue(newValue);
+      if (props.onChange) {
+        props.onChange(newValue);
+      }
+    };
+
+    const readonly = schema.readonly || schema.readOnly || false;
+
+    return (
+      <div 
+        className="grid w-full items-center gap-1.5"
+        data-obj-id={schema.id}
+        data-obj-type={schema.type}
+      >
+        {schema.label && (
+          <label htmlFor={schema.id} className={schema.required ? "after:content-['*'] after:ml-0.5 after:text-red-500" : ""}>
+            {schema.label}
+          </label>
+        )}
+        <FieldWidget
+          value={value}
+          onChange={handleChange}
+          field={field}
+          readonly={readonly}
+          className={className}
+        />
+        {schema.description && (
+          <p className="text-sm text-gray-500">{schema.description}</p>
+        )}
+      </div>
+    );
+  };
+}
+
 export function registerFields() {
   // Basic fields
   ComponentRegistry.register('text', TextField);
@@ -750,8 +803,8 @@ export function registerFields() {
   ComponentRegistry.register('boolean', BooleanField);
   ComponentRegistry.register('select', SelectField);
   ComponentRegistry.register('date', DateField);
-  ComponentRegistry.register('datetime', DateTimeField);
-  ComponentRegistry.register('time', TimeField);
+  ComponentRegistry.register('datetime', createFieldRenderer(DateTimeField));
+  ComponentRegistry.register('time', createFieldRenderer(TimeField));
   
   // Contact fields
   ComponentRegistry.register('email', EmailField);
@@ -760,33 +813,33 @@ export function registerFields() {
   
   // Specialized fields
   ComponentRegistry.register('currency', CurrencyField);
-  ComponentRegistry.register('percent', PercentField);
-  ComponentRegistry.register('password', PasswordField);
+  ComponentRegistry.register('percent', createFieldRenderer(PercentField));
+  ComponentRegistry.register('password', createFieldRenderer(PasswordField));
   ComponentRegistry.register('markdown', RichTextField);
   ComponentRegistry.register('html', RichTextField);
   ComponentRegistry.register('lookup', LookupField);
   ComponentRegistry.register('master_detail', LookupField);
   
   // File fields
-  ComponentRegistry.register('file', FileField);
-  ComponentRegistry.register('image', ImageField);
+  ComponentRegistry.register('file', createFieldRenderer(FileField));
+  ComponentRegistry.register('image', createFieldRenderer(ImageField));
   
   // Location field
-  ComponentRegistry.register('location', LocationField);
+  ComponentRegistry.register('location', createFieldRenderer(LocationField));
   
   // Computed/Read-only fields
-  ComponentRegistry.register('formula', FormulaField);
-  ComponentRegistry.register('summary', SummaryField);
-  ComponentRegistry.register('auto_number', AutoNumberField);
+  ComponentRegistry.register('formula', createFieldRenderer(FormulaField));
+  ComponentRegistry.register('summary', createFieldRenderer(SummaryField));
+  ComponentRegistry.register('auto_number', createFieldRenderer(AutoNumberField));
   
   // User fields
-  ComponentRegistry.register('user', UserField);
-  ComponentRegistry.register('owner', UserField);
+  ComponentRegistry.register('user', createFieldRenderer(UserField));
+  ComponentRegistry.register('owner', createFieldRenderer(UserField));
   
   // Complex data types
-  ComponentRegistry.register('object', ObjectField);
-  ComponentRegistry.register('vector', VectorField);
-  ComponentRegistry.register('grid', GridField);
+  ComponentRegistry.register('object', createFieldRenderer(ObjectField));
+  ComponentRegistry.register('vector', createFieldRenderer(VectorField));
+  ComponentRegistry.register('grid', createFieldRenderer(GridField));
   
   // Register with field: prefix for explicit field widgets
   ComponentRegistry.register('field:text', TextField);

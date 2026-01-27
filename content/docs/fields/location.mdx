@@ -11,12 +11,10 @@ The Location Field component provides an input for geographic coordinates, stori
 
 <ComponentDemo
   schema={{
-    type: 'input',
-    inputType: 'text',
+    type: 'location',
     name: 'office_location',
     label: 'Office Location',
-    placeholder: 'latitude, longitude',
-    description: 'Enter coordinates as: 37.7749, -122.4194'
+    placeholder: 'latitude, longitude'
   }}
   title="Basic Location Field"
 />
@@ -25,12 +23,10 @@ The Location Field component provides an input for geographic coordinates, stori
 
 <ComponentDemo
   schema={{
-    type: 'input',
-    inputType: 'text',
+    type: 'location',
     name: 'store_location',
     label: 'Store Location',
-    value: '37.7749, -122.4194',
-    description: 'San Francisco coordinates'
+    value: { latitude: 37.7749, longitude: -122.4194 }
   }}
   title="San Francisco Coordinates"
 />
@@ -39,13 +35,11 @@ The Location Field component provides an input for geographic coordinates, stori
 
 <ComponentDemo
   schema={{
-    type: 'input',
-    inputType: 'text',
+    type: 'location',
     name: 'headquarters',
     label: 'Headquarters',
-    value: '40.7128, -74.0060',
-    readOnly: true,
-    description: 'New York City coordinates'
+    value: { latitude: 40.7128, longitude: -74.0060 },
+    readonly: true
   }}
   title="Read-Only Location"
 />

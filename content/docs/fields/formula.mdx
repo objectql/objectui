@@ -11,13 +11,12 @@ The Formula Field component displays computed values calculated from other field
 
 <ComponentDemo
   schema={{
-    type: 'input',
-    inputType: 'text',
+    type: 'formula',
     name: 'total',
     label: 'Total Amount',
-    value: '150.00',
-    readOnly: true,
-    description: 'Computed from quantity × price'
+    formula: 'quantity * price',
+    return_type: 'number',
+    readonly: true
   }}
   title="Numeric Formula"
 />
@@ -26,13 +25,13 @@ The Formula Field component displays computed values calculated from other field
 
 <ComponentDemo
   schema={{
-    type: 'input',
-    inputType: 'text',
+    type: 'formula',
     name: 'full_name',
     label: 'Full Name',
-    value: 'John Doe',
-    readOnly: true,
-    description: 'Computed from first_name + " " + last_name'
+    formula: 'first_name + " " + last_name',
+    return_type: 'text',
+    readonly: true,
+    value: 'John Doe'
   }}
   title="Text Concatenation"
 />
@@ -41,12 +40,12 @@ The Formula Field component displays computed values calculated from other field
 
 <ComponentDemo
   schema={{
-    type: 'input',
-    inputType: 'date',
+    type: 'formula',
     name: 'due_date',
     label: 'Due Date',
-    readOnly: true,
-    description: 'Computed from created_at + 30 days'
+    formula: 'created_at + 30 days',
+    return_type: 'date',
+    readonly: true
   }}
   title="Date Calculation"
 />
