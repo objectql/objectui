@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [0.3.1] - 2026-01-27
+
 ### Changed
 
 - **Package Restructure**: `@object-ui/plugin-object` has been upgraded to a core package and renamed to `@object-ui/views`
@@ -77,6 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Example applications in the examples directory
 - Complete documentation site with VitePress
 
+[0.3.1]: https://github.com/objectstack-ai/objectui/releases/tag/v0.3.1
 [0.3.0]: https://github.com/objectstack-ai/objectui/releases/tag/v0.3.0
 [0.2.1]: https://github.com/objectstack-ai/objectui/releases/tag/v0.2.1
 [0.2.0]: https://github.com/objectstack-ai/objectui/releases/tag/v0.2.0
