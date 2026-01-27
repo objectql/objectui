@@ -122,6 +122,21 @@ export class ActionRunner {
     const nav = action.navigate || action;
     const to = this.evaluator.evaluate(nav.to) as string;
 
+    // Validate URL to prevent javascript: or data: schemes
+    const isValidUrl = typeof to === 'string' && (
+      to.startsWith('http://') || 
+      to.startsWith('https://') || 
+      to.startsWith('/') || 
+      to.startsWith('./')
+    );
+
+    if (!isValidUrl) {
+      return {
+        success: false,
+        error: 'Invalid URL scheme. Only http://, https://, and relative URLs are allowed.'
+      };
+    }
+
     if (nav.external) {
       window.open(to, '_blank', 'noopener,noreferrer');
     } else {

@@ -28,7 +28,11 @@ export function TextAreaField({ value, onChange, field, readonly, errorMessage, 
         aria-invalid={!!errorMessage}
       />
       {maxLength && (
-        <div className="absolute bottom-2 right-2 text-xs text-gray-400">
+        <div 
+          className="absolute bottom-2 right-2 text-xs text-gray-400"
+          aria-live="polite"
+          aria-label={`Character count: ${(value || '').length} of ${maxLength}`}
+        >
           {(value || '').length}/{maxLength}
         </div>
       )}

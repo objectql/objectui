@@ -108,6 +108,7 @@ export function LookupField({ value, onChange, field, readonly }: FieldWidgetPro
                 onClick={() => handleRemove(opt?.value)}
                 className="ml-1 hover:text-destructive"
                 type="button"
+                aria-label={`Remove ${opt?.[displayField] || opt?.label}`}
               >
                 <X className="size-3" />
               </button>
