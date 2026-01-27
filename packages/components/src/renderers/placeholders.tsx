@@ -79,6 +79,7 @@ const PROTOCOL_COMPONENTS = [
   'field:json', 'field:address', 'field:location',
 
   // 12. Page Components
+  'page:header', 'page-header', // Added headers
   'page:footer', 'page:tabs', 'page:accordion', 'page:card', 'page:sidebar',
   'record:details', 'record:highlights', 'record:related_list', 'record:activity', 
   'record:chatter', 'record:path',

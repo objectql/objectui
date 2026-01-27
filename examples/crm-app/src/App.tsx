@@ -1,134 +1,36 @@
-import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Outlet, Link, useLocation } from 'react-router-dom';
+import { useEffect, useMemo } from 'react';
+import { BrowserRouter, Routes, Route, Outlet, Link, useLocation, useParams } from 'react-router-dom';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@object-ui/components';
 import { SchemaRendererProvider, SchemaRenderer, useRenderer } from '@object-ui/react';
 import { registerFields } from '@object-ui/fields';
 import { registerLayout } from '@object-ui/layout';
-import '@object-ui/plugin-dashboard'; // Auto-register dashboard
+import '@object-ui/plugin-dashboard'; 
 import { registerPlaceholders } from '@object-ui/components';
 import { SidebarNav } from './components/SidebarNav';
 
-// 1. Register components from packages (The "Controls Repository")
+// Data & Schemas
+import { mockData, getContact, getOpportunity } from './data';
+import { dashboardSchema } from './schemas/dashboard';
+import { contactListSchema, contactDetailSchema } from './schemas/contacts';
+import { opportunityListSchema } from './schemas/opportunities';
+
+// 1. Register components
 registerFields();
 registerLayout();
-registerPlaceholders(); // Register missing components as placeholders
+registerPlaceholders();
 
-// 2. Define Mock Data (In a real app, this comes from an API)
-const mockData = {
-  user: { name: "Demo User", role: "admin" },
-  stats: { revenue: 125000, leads: 45, deals: 12 },
-  contacts: [
-    { id: 1, name: "Alice Johnson", email: "alice@example.com", status: "Active" },
-    { id: 2, name: "Bob Smith", email: "bob@tech.com", status: "Lead" },
-    { id: 3, name: "Charlie Brown", email: "charlie@peanuts.com", status: "Customer" }
-  ]
-};
-
-// 3. Define Page Schemas (The "JSON Rendering")
-
-// Dashboard Page
-const dashboardSchema = {
-  type: "dashboard", // Changed from 'page' to 'dashboard'
-  props: { title: "Executive Dashboard" },
-  widgets: [
-    {
-      id: "w1",
-      component: {
-        type: "card",
-        props: { title: "Total Revenue" },
-        children: [{ type: "text", props: { value: "$125,000", className: "text-2xl font-bold" } }]
-      }
-    },
-    {
-       id: "w2",
-       component: {
-          type: "card",
-          props: { title: "Active Leads" },
-          children: [{ type: "text", props: { value: "45", className: "text-2xl font-bold" } }]
-       }
-    },
-    {
-       id: "w3",
-       component: {
-          type: "card",
-          props: { title: "Open Deals" },
-          children: [{ type: "text", props: { value: "12", className: "text-2xl font-bold" } }]
-       }
-    },
-    {
-      id: "w4",
-      layout: { w: 3, h: 2 },
-      title: "Recent Activity (Kanban Placeholder)",
-      component: {
-         type: "view:kanban", 
-         props: { 
-            columns: ["Todo", "In Progress", "Done"],
-            data: [{id: 1, title: "Task 1", status: "Todo"}]
-         } 
-      }
-    }
-  ]
-};
-
-// Contacts List Page
-const contactsSchema = {
-  type: "page",
-  props: { title: "Contacts" },
-  children: [
-    {
-      type: "page-header",
-      props: { 
-        title: "All Contacts", 
-        description: "Manage your customer relationships" 
-      },
-      children: [
-        { 
-          type: "action:button", 
-          props: { label: "Add Contact", variant: "default" },
-          events: { onClick: [{ action: "navigate", params: { url: "/contacts/new" } }] } 
-        }
-      ]
-    },
-    {
-      type: "card",
-      className: "mt-6",
-      children: [
-        {
-          type: "view:grid", 
-          bind: "contacts", 
-          props: {
-            columns: [
-              { key: "name", label: "Name" },
-              { key: "email", label: "Email" },
-              { key: "status", label: "Status" }
-            ]
-          }
-        }
-      ]
-    },
-    {
-        type: "view:map",
-        props: {
-            lat: 34.05,
-            lng: -118.25,
-            zoom: 10
-        },
-        className: "mt-4 h-64"
-    }
-  ]
-};
-
-// Layout Shell Component
+// Generic Layout Shell
 const Layout = () => {
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-gray-50 dark:bg-gray-900">
         <SidebarNav />
         <SidebarInset>
-          <div className="p-4">
-             <SidebarTrigger className="md:hidden" />
+          <div className="p-4 border-b bg-background flex items-center md:hidden">
+             <SidebarTrigger />
+             <span className="ml-2 font-semibold">CRM Demo</span>
           </div>
-          <main className="flex-1 overflow-y-auto p-4 md:p-8">
+          <main className="flex-1 overflow-y-auto w-full p-4 md:p-8">
             <Outlet />
           </main>
         </SidebarInset>
@@ -136,6 +38,22 @@ const Layout = () => {
     </SidebarProvider>
   );
 };
+
+// Generic Detail Page Loader
+const ContactDetailPage = () => {
+    const { id } = useParams();
+    const contact = getContact(id || "");
+    
+    if (!contact) return <div>Contact not found</div>;
+
+    // In a real app, SchemaRendererProvider would be at the App root, 
+    // but here we nest it to inject specific record data into the context
+    return (
+        <SchemaRendererProvider dataSource={contact} debug={true}>
+            <SchemaRenderer schema={contactDetailSchema} />
+        </SchemaRendererProvider>
+    );
+}
 
 function App() {
   return (
@@ -147,8 +65,15 @@ function App() {
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<SchemaRenderer schema={dashboardSchema} />} />
-            <Route path="contacts" element={<SchemaRenderer schema={contactsSchema} />} />
-            <Route path="opportunities" element={<div className="p-4">Opportunities Module (Coming Soon)</div>} />
+            
+            <Route path="contacts">
+                <Route index element={<SchemaRenderer schema={contactListSchema} />} />
+                <Route path=":id" element={<ContactDetailPage />} />
+            </Route>
+
+            <Route path="opportunities" element={<SchemaRenderer schema={opportunityListSchema} />} />
+            
+            <Route path="products" element={<div className="p-4">Products Module (Coming Soon)</div>} />
             <Route path="settings" element={<div className="p-4">Settings Module (Coming Soon)</div>} />
           </Route>
         </Routes>
@@ -158,3 +83,4 @@ function App() {
 }
 
 export default App;
+
