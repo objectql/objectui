@@ -17,9 +17,10 @@ npm install @object-ui/plugin-grid
 
 ## Interactive Examples
 
-<InteractiveDemo
+{/* Temporarily disabled due to data-table component bug */}
+{/* <InteractiveDemo
   schema={{
-    type: "grid",
+    type: "object-grid",
     columns: [
       { header: "ID", accessorKey: "id", width: 80 },
       { header: "Name", accessorKey: "name" },
@@ -33,12 +34,16 @@ npm install @object-ui/plugin-grid
       { id: 3, name: "Bob Johnson", email: "bob@example.com", role: "User", status: "Inactive" }
     ],
     sortable: true,
-    filterable: true,
-    pagination: true
+    filterable: false,
+    pagination: false
   }}
   title="Basic Data Grid"
   description="Grid with sorting, filtering, and pagination"
-/>
+/> */}
+
+:::note
+Interactive demo temporarily disabled due to a known issue with the data-table component. See the code examples below for usage.
+:::
 
 ## Features
 
