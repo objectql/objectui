@@ -39,11 +39,13 @@ export function PluginLoader({ plugins, children }: PluginLoaderProps) {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
     const loadPlugins = async () => {
+      // On server side, skip actual imports but mark as loaded to avoid hydration mismatch
+      if (typeof window === 'undefined') {
+        setLoaded(true);
+        return;
+      }
+
       try {
         // Dynamically import plugins based on the list
         const imports = plugins.map(async (plugin) => {
