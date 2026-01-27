@@ -11,7 +11,7 @@ import { ComponentRegistry } from '@object-ui/core';
 import { cn } from '../lib/utils';
 import { Box, FileQuestion } from 'lucide-react';
 
-export const PlaceholderRenderer = ({ schema, className, ...props }: any) => {
+export const PlaceholderRenderer = ({ schema, className }: any) => {
   const type = schema.type;
   const isView = type.startsWith('view:');
   const isWidget = type.startsWith('widget:');
