@@ -19,7 +19,7 @@ import {
 } from '../../ui/table';
 import { cn } from '../../lib/utils';
 
-export const SimpleTableRenderer = ({ schema, className, ..._props }: any) => {
+export const SimpleTableRenderer = ({ schema, className }: any) => {
   const data = useDataScope(schema.bind);
   const columns = schema.props?.columns || [];
 

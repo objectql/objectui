@@ -11,12 +11,75 @@ The Sidebar component provides a collapsible navigation sidebar for applications
 
 <ComponentDemo
   schema={{
-    type: 'sidebar',
-    items: [
-      { label: 'Dashboard', icon: 'home', href: '/' },
-      { label: 'Projects', icon: 'folder', href: '/projects' },
-      { label: 'Team', icon: 'users', href: '/team' },
-      { label: 'Settings', icon: 'settings', href: '/settings' }
+    type: 'sidebar-provider',
+    body: [
+      {
+        type: 'sidebar',
+        body: [
+          {
+            type: 'sidebar-content',
+            body: [
+              {
+                type: 'sidebar-group',
+                label: 'Menu',
+                body: [
+                  {
+                    type: 'sidebar-menu',
+                    body: [
+                      {
+                        type: 'sidebar-menu-item',
+                        body: [
+                          {
+                            type: 'sidebar-menu-button',
+                            body: [{ type: 'text', content: 'Dashboard' }]
+                          }
+                        ]
+                      },
+                      {
+                        type: 'sidebar-menu-item',
+                        body: [
+                          {
+                            type: 'sidebar-menu-button',
+                            body: [{ type: 'text', content: 'Projects' }]
+                          }
+                        ]
+                      },
+                      {
+                        type: 'sidebar-menu-item',
+                        body: [
+                          {
+                            type: 'sidebar-menu-button',
+                            body: [{ type: 'text', content: 'Team' }]
+                          }
+                        ]
+                      },
+                      {
+                        type: 'sidebar-menu-item',
+                        body: [
+                          {
+                            type: 'sidebar-menu-button',
+                            body: [{ type: 'text', content: 'Settings' }]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        type: 'sidebar-inset',
+        body: [
+          {
+            type: 'div',
+            className: 'p-4',
+            body: [{ type: 'text', content: 'Main content area' }]
+          }
+        ]
+      }
     ]
   }}
   title="Basic Sidebar"
@@ -26,20 +89,84 @@ The Sidebar component provides a collapsible navigation sidebar for applications
 
 <ComponentDemo
   schema={{
-    type: 'sidebar',
-    groups: [
+    type: 'sidebar-provider',
+    body: [
       {
-        title: 'Main',
-        items: [
-          { label: 'Dashboard', icon: 'home', href: '/' },
-          { label: 'Analytics', icon: 'bar-chart', href: '/analytics' }
+        type: 'sidebar',
+        body: [
+          {
+            type: 'sidebar-content',
+            body: [
+              {
+                type: 'sidebar-group',
+                label: 'Main',
+                body: [
+                  {
+                    type: 'sidebar-menu',
+                    body: [
+                      {
+                        type: 'sidebar-menu-item',
+                        body: [
+                          {
+                            type: 'sidebar-menu-button',
+                            body: [{ type: 'text', content: 'Dashboard' }]
+                          }
+                        ]
+                      },
+                      {
+                        type: 'sidebar-menu-item',
+                        body: [
+                          {
+                            type: 'sidebar-menu-button',
+                            body: [{ type: 'text', content: 'Analytics' }]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                type: 'sidebar-group',
+                label: 'Management',
+                body: [
+                  {
+                    type: 'sidebar-menu',
+                    body: [
+                      {
+                        type: 'sidebar-menu-item',
+                        body: [
+                          {
+                            type: 'sidebar-menu-button',
+                            body: [{ type: 'text', content: 'Projects' }]
+                          }
+                        ]
+                      },
+                      {
+                        type: 'sidebar-menu-item',
+                        body: [
+                          {
+                            type: 'sidebar-menu-button',
+                            body: [{ type: 'text', content: 'Team' }]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
         ]
       },
       {
-        title: 'Management',
-        items: [
-          { label: 'Projects', icon: 'folder', href: '/projects' },
-          { label: 'Team', icon: 'users', href: '/team' }
+        type: 'sidebar-inset',
+        body: [
+          {
+            type: 'div',
+            className: 'p-4',
+            body: [{ type: 'text', content: 'Main content area' }]
+          }
         ]
       }
     ]
@@ -51,13 +178,69 @@ The Sidebar component provides a collapsible navigation sidebar for applications
 
 <ComponentDemo
   schema={{
-    type: 'sidebar',
-    collapsible: true,
-    defaultCollapsed: false,
-    items: [
-      { label: 'Home', icon: 'home', href: '/' },
-      { label: 'Files', icon: 'folder', href: '/files' },
-      { label: 'Settings', icon: 'settings', href: '/settings' }
+    type: 'sidebar-provider',
+    body: [
+      {
+        type: 'sidebar',
+        collapsible: 'icon',
+        body: [
+          {
+            type: 'sidebar-content',
+            body: [
+              {
+                type: 'sidebar-group',
+                body: [
+                  {
+                    type: 'sidebar-menu',
+                    body: [
+                      {
+                        type: 'sidebar-menu-item',
+                        body: [
+                          {
+                            type: 'sidebar-menu-button',
+                            body: [{ type: 'text', content: 'Home' }]
+                          }
+                        ]
+                      },
+                      {
+                        type: 'sidebar-menu-item',
+                        body: [
+                          {
+                            type: 'sidebar-menu-button',
+                            body: [{ type: 'text', content: 'Files' }]
+                          }
+                        ]
+                      },
+                      {
+                        type: 'sidebar-menu-item',
+                        body: [
+                          {
+                            type: 'sidebar-menu-button',
+                            body: [{ type: 'text', content: 'Settings' }]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        type: 'sidebar-inset',
+        body: [
+          {
+            type: 'div',
+            className: 'p-4',
+            body: [
+              { type: 'sidebar-trigger' },
+              { type: 'text', content: 'Main content area' }
+            ]
+          }
+        ]
+      }
     ]
   }}
   title="Collapsible Sidebar"
@@ -97,12 +280,80 @@ interface SidebarSchema {
 
 <ComponentDemo
   schema={{
-    type: 'sidebar',
-    items: [
-      { label: 'Inbox', icon: 'inbox', href: '/inbox', badge: 12 },
-      { label: 'Drafts', icon: 'file-text', href: '/drafts', badge: 3 },
-      { label: 'Sent', icon: 'send', href: '/sent' },
-      { label: 'Trash', icon: 'trash', href: '/trash' }
+    type: 'sidebar-provider',
+    body: [
+      {
+        type: 'sidebar',
+        body: [
+          {
+            type: 'sidebar-content',
+            body: [
+              {
+                type: 'sidebar-group',
+                body: [
+                  {
+                    type: 'sidebar-menu',
+                    body: [
+                      {
+                        type: 'sidebar-menu-item',
+                        body: [
+                          {
+                            type: 'sidebar-menu-button',
+                            body: [
+                              { type: 'text', content: 'Inbox' },
+                              { type: 'badge', content: '12', className: 'ml-auto' }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        type: 'sidebar-menu-item',
+                        body: [
+                          {
+                            type: 'sidebar-menu-button',
+                            body: [
+                              { type: 'text', content: 'Drafts' },
+                              { type: 'badge', content: '3', className: 'ml-auto' }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        type: 'sidebar-menu-item',
+                        body: [
+                          {
+                            type: 'sidebar-menu-button',
+                            body: [{ type: 'text', content: 'Sent' }]
+                          }
+                        ]
+                      },
+                      {
+                        type: 'sidebar-menu-item',
+                        body: [
+                          {
+                            type: 'sidebar-menu-button',
+                            body: [{ type: 'text', content: 'Trash' }]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        type: 'sidebar-inset',
+        body: [
+          {
+            type: 'div',
+            className: 'p-4',
+            body: [{ type: 'text', content: 'Main content area' }]
+          }
+        ]
+      }
     ]
   }}
   title="Sidebar with Badges"
