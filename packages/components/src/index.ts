@@ -12,7 +12,8 @@ import './index.css';
 import './renderers'; 
 
 // Export utils
-export * from './lib/utils';
+export { cn } from './lib/utils';
+export { renderChildren } from './lib/utils';
 
 // Export raw Shadcn UI components
 export * from './ui';

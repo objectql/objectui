@@ -9,21 +9,24 @@
 import { ComponentRegistry } from '@object-ui/core';
 import type { DashboardSchema } from '@object-ui/types';
 import { SchemaRenderer } from '@object-ui/react';
+import { cn } from '@object-ui/components';
 import { forwardRef } from 'react';
-import { cn } from '../../lib/utils';
 
-const DashboardRenderer = forwardRef<HTMLDivElement, { schema: DashboardSchema; className?: string; [key: string]: any }>(
+export const DashboardRenderer = forwardRef<HTMLDivElement, { schema: DashboardSchema; className?: string; [key: string]: any }>(
   ({ schema, className, ...props }, ref) => {
     const columns = schema.columns || 3;
     const gap = schema.gap || 4;
 
+    // Use style to convert gap number to pixels or use tailwind classes if possible
+    // Here using inline style for grid gap which maps to 0.25rem * 4 * gap = gap rem
+    
     return (
       <div 
         ref={ref} 
         className={cn("grid", className)} 
         style={{
             gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-            gap: gap * 4 // Assuming tailwind scale
+            gap: `${gap * 0.25}rem`
         }}
         {...props}
       >
@@ -42,24 +45,5 @@ const DashboardRenderer = forwardRef<HTMLDivElement, { schema: DashboardSchema; 
         ))}
       </div>
     );
-  }
-);
-
-ComponentRegistry.register(
-  'dashboard',
-  DashboardRenderer,
-  {
-    label: 'Dashboard',
-    category: 'Complex',
-    icon: 'layout-dashboard',
-    inputs: [
-      { name: 'columns', type: 'number', label: 'Columns', defaultValue: 3 },
-      { name: 'gap', type: 'number', label: 'Gap', defaultValue: 4 },
-      { name: 'className', type: 'string', label: 'CSS Class' }
-    ],
-    defaultProps: {
-        columns: 3,
-        widgets: []
-    }
   }
 );
