@@ -22,9 +22,14 @@ export function PageHeader({
                     <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{title}</h1>
                     {description && <p className="text-sm text-muted-foreground">{description}</p>}
                 </div>
-                {action && <div className="flex items-center gap-2">{action}</div>}
+                {/* Render children (actions) in the top-right slot if available */}
+                {(action || children) && (
+                    <div className="flex items-center gap-2">
+                        {action}
+                        {children}
+                    </div>
+                )}
             </div>
-            {children}
         </div>
     );
 }

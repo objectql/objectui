@@ -24,6 +24,9 @@ export function registerLayout() {
       ]
   });
 
+  // Alias for protocol compliance
+  ComponentRegistry.register('page:header', PageHeader);
+
   ComponentRegistry.register('app-shell', AppShell, {
       label: 'App Shell',
       category: 'Layout',
