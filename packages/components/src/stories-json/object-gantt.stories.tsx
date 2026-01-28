@@ -3,7 +3,7 @@ import { SchemaRenderer } from '../SchemaRenderer';
 import type { BaseSchema } from '@object-ui/types';
 
 const meta = {
-  title: 'JSON/Plugins/Object Gantt',
+  title: 'Schema/Plugins/Object Gantt',
   component: SchemaRenderer,
   parameters: {
     layout: 'padded',
@@ -81,19 +81,19 @@ export const SimpleGantt: Story = {
     tasks: [
       {
         id: '1',
-        title: 'Q1 Goals',
+        title: 'Schema/Plugins/Q1 Goals',
         start: '2024-01-01',
         end: '2024-03-31'
       },
       {
         id: '2',
-        title: 'Q2 Goals',
+        title: 'Schema/Plugins/Q2 Goals',
         start: '2024-04-01',
         end: '2024-06-30'
       },
       {
         id: '3',
-        title: 'Q3 Goals',
+        title: 'Schema/Plugins/Q3 Goals',
         start: '2024-07-01',
         end: '2024-09-30'
       }

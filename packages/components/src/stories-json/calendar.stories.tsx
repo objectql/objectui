@@ -3,7 +3,7 @@ import { SchemaRenderer } from '../SchemaRenderer';
 import type { BaseSchema } from '@object-ui/types';
 
 const meta = {
-  title: 'JSON/Plugins/Calendar',
+  title: 'Schema/Data Display/Calendar',
   component: SchemaRenderer,
   parameters: {
     layout: 'padded',
@@ -26,14 +26,14 @@ export const CalendarView: Story = {
     events: [
       {
         id: '1',
-        title: 'Team Meeting',
+        title: 'Schema/Data Display/Team Meeting',
         start: new Date(new Date().getFullYear(), new Date().getMonth(), 15, 10, 0),
         end: new Date(new Date().getFullYear(), new Date().getMonth(), 15, 11, 0),
         color: '#3b82f6'
       },
       {
         id: '2',
-        title: 'Project Deadline',
+        title: 'Schema/Data Display/Project Deadline',
         start: new Date(new Date().getFullYear(), new Date().getMonth(), 20),
         end: new Date(new Date().getFullYear(), new Date().getMonth(), 20),
         allDay: true,
@@ -41,7 +41,7 @@ export const CalendarView: Story = {
       },
       {
         id: '3',
-        title: 'Client Presentation',
+        title: 'Schema/Data Display/Client Presentation',
         start: new Date(new Date().getFullYear(), new Date().getMonth(), 25, 14, 0),
         end: new Date(new Date().getFullYear(), new Date().getMonth(), 25, 16, 0),
         color: '#10b981'
@@ -59,21 +59,21 @@ export const MonthView: Story = {
     events: [
       {
         id: '1',
-        title: 'Sprint Planning',
+        title: 'Schema/Data Display/Sprint Planning',
         start: new Date(new Date().getFullYear(), new Date().getMonth(), 1, 9, 0),
         end: new Date(new Date().getFullYear(), new Date().getMonth(), 1, 10, 30),
         color: '#8b5cf6'
       },
       {
         id: '2',
-        title: 'Code Review',
+        title: 'Schema/Data Display/Code Review',
         start: new Date(new Date().getFullYear(), new Date().getMonth(), 5, 15, 0),
         end: new Date(new Date().getFullYear(), new Date().getMonth(), 5, 16, 0),
         color: '#3b82f6'
       },
       {
         id: '3',
-        title: 'Team Building',
+        title: 'Schema/Data Display/Team Building',
         start: new Date(new Date().getFullYear(), new Date().getMonth(), 10),
         end: new Date(new Date().getFullYear(), new Date().getMonth(), 10),
         allDay: true,

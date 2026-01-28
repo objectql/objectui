@@ -3,7 +3,7 @@ import { SchemaRenderer } from '../SchemaRenderer';
 import type { BaseSchema } from '@object-ui/types';
 
 const meta = {
-  title: 'JSON/Plugins/Kanban',
+  title: 'Schema/Plugins/Kanban',
   component: SchemaRenderer,
   parameters: {
     layout: 'padded',
@@ -26,11 +26,11 @@ export const Default: Story = {
     columns: [
       {
         id: 'todo',
-        title: 'To Do',
+        title: 'Schema/Plugins/To Do',
         cards: [
           {
             id: 'card-1',
-            title: 'Task 1',
+            title: 'Schema/Plugins/Task 1',
             description: 'This is the first task',
             badges: [
               { label: 'High Priority', variant: 'destructive' },
@@ -39,7 +39,7 @@ export const Default: Story = {
           },
           {
             id: 'card-2',
-            title: 'Task 2',
+            title: 'Schema/Plugins/Task 2',
             description: 'This is the second task',
             badges: [
               { label: 'Bug', variant: 'destructive' }
@@ -49,12 +49,12 @@ export const Default: Story = {
       },
       {
         id: 'in-progress',
-        title: 'In Progress',
+        title: 'Schema/Plugins/In Progress',
         limit: 3,
         cards: [
           {
             id: 'card-3',
-            title: 'Task 3',
+            title: 'Schema/Plugins/Task 3',
             description: 'Currently working on this',
             badges: [
               { label: 'In Progress', variant: 'default' }
@@ -64,11 +64,11 @@ export const Default: Story = {
       },
       {
         id: 'done',
-        title: 'Done',
+        title: 'Schema/Plugins/Done',
         cards: [
           {
             id: 'card-4',
-            title: 'Task 4',
+            title: 'Schema/Plugins/Task 4',
             description: 'This task is completed',
             badges: [
               { label: 'Completed', variant: 'outline' }
@@ -76,7 +76,7 @@ export const Default: Story = {
           },
           {
             id: 'card-5',
-            title: 'Task 5',
+            title: 'Schema/Plugins/Task 5',
             description: 'Another completed task',
             badges: [
               { label: 'Completed', variant: 'outline' }
@@ -96,11 +96,11 @@ export const ProjectManagement: Story = {
     columns: [
       {
         id: 'backlog',
-        title: 'Backlog',
+        title: 'Schema/Plugins/Backlog',
         cards: [
           {
             id: 'task-1',
-            title: 'Implement dark mode',
+            title: 'Schema/Plugins/Implement dark mode',
             description: 'Add support for dark theme across the application',
             badges: [
               { label: 'Enhancement', variant: 'default' },
@@ -109,7 +109,7 @@ export const ProjectManagement: Story = {
           },
           {
             id: 'task-2',
-            title: 'Performance optimization',
+            title: 'Schema/Plugins/Performance optimization',
             description: 'Optimize bundle size and loading time',
             badges: [
               { label: 'Performance', variant: 'default' }
@@ -119,12 +119,12 @@ export const ProjectManagement: Story = {
       },
       {
         id: 'in-progress',
-        title: 'In Progress',
+        title: 'Schema/Plugins/In Progress',
         limit: 2,
         cards: [
           {
             id: 'task-3',
-            title: 'User authentication',
+            title: 'Schema/Plugins/User authentication',
             description: 'Implement JWT-based authentication',
             badges: [
               { label: 'Feature', variant: 'default' },
@@ -135,11 +135,11 @@ export const ProjectManagement: Story = {
       },
       {
         id: 'review',
-        title: 'In Review',
+        title: 'Schema/Plugins/In Review',
         cards: [
           {
             id: 'task-4',
-            title: 'API integration',
+            title: 'Schema/Plugins/API integration',
             description: 'Connect to REST API endpoints',
             badges: [
               { label: 'Feature', variant: 'default' }
@@ -149,11 +149,11 @@ export const ProjectManagement: Story = {
       },
       {
         id: 'completed',
-        title: 'Completed',
+        title: 'Schema/Plugins/Completed',
         cards: [
           {
             id: 'task-5',
-            title: 'Initial setup',
+            title: 'Schema/Plugins/Initial setup',
             description: 'Project scaffolding and configuration',
             badges: [
               { label: 'Done', variant: 'outline' }

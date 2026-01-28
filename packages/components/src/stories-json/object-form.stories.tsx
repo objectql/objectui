@@ -3,7 +3,7 @@ import { SchemaRenderer } from '../SchemaRenderer';
 import type { BaseSchema } from '@object-ui/types';
 
 const meta = {
-  title: 'JSON/Plugins/Object Form',
+  title: 'Schema/Plugins/Object Form',
   component: SchemaRenderer,
   parameters: {
     layout: 'centered',
@@ -41,7 +41,7 @@ export const WithSections: Story = {
     objectName: 'Employee',
     sections: [
       {
-        title: 'Personal Information',
+        title: 'Schema/Plugins/Personal Information',
         fields: [
           { name: 'firstName', label: 'First Name', type: 'text', required: true },
           { name: 'lastName', label: 'Last Name', type: 'text', required: true },
@@ -49,7 +49,7 @@ export const WithSections: Story = {
         ]
       },
       {
-        title: 'Contact Details',
+        title: 'Schema/Plugins/Contact Details',
         fields: [
           { name: 'email', label: 'Email', type: 'email', required: true },
           { name: 'phone', label: 'Phone', type: 'tel' },

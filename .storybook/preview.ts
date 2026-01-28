@@ -28,7 +28,13 @@ const preview: Preview = {
     options: {
       storySort: {
         method: 'alphabetical',
-        order: ['Introduction', 'Guide', 'JSON', 'UI', 'Fields', 'Layout', 'Plugins'],
+        order: [
+          'Introduction', 
+          'Guide', 
+          'Primitives', 
+          'Schema', 
+          ['Actions', 'Inputs', 'Layout', 'Data Display', 'Navigation', 'Feedback', 'Plugins']
+        ],
       },
     },
     controls: {

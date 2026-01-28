@@ -3,7 +3,7 @@ import { SchemaRenderer } from '../SchemaRenderer';
 import type { BaseSchema } from '@object-ui/types';
 
 const meta = {
-  title: 'JSON/Plugins/Dashboard',
+  title: 'Schema/Plugins/Dashboard',
   component: SchemaRenderer,
   parameters: {
     layout: 'padded',
@@ -57,7 +57,7 @@ export const WithCards: Story = {
     children: [
       {
         type: 'card',
-        title: 'Sales Overview',
+        title: 'Schema/Plugins/Sales Overview',
         children: [
           { type: 'metric', label: 'Today', value: '$1,234' },
           { type: 'metric', label: 'This Week', value: '$8,456' },
@@ -66,7 +66,7 @@ export const WithCards: Story = {
       },
       {
         type: 'card',
-        title: 'User Metrics',
+        title: 'Schema/Plugins/User Metrics',
         children: [
           { type: 'metric', label: 'Online', value: '456' },
           { type: 'metric', label: 'New Today', value: '89' },

@@ -3,7 +3,7 @@ import { SchemaRenderer } from '../SchemaRenderer';
 import type { BaseSchema } from '@object-ui/types';
 
 const meta = {
-  title: 'JSON/Plugins/Timeline',
+  title: 'Schema/Data Display/Timeline',
   component: SchemaRenderer,
   parameters: {
     layout: 'padded',
@@ -28,28 +28,28 @@ export const Vertical: Story = {
     items: [
       {
         time: '2024-01-15',
-        title: 'Project Started',
+        title: 'Schema/Data Display/Project Started',
         description: 'Kickoff meeting and initial planning',
         variant: 'success',
         icon: '🚀',
       },
       {
         time: '2024-02-01',
-        title: 'First Milestone',
+        title: 'Schema/Data Display/First Milestone',
         description: 'Completed initial design phase',
         variant: 'info',
         icon: '🎨',
       },
       {
         time: '2024-03-15',
-        title: 'Beta Release',
+        title: 'Schema/Data Display/Beta Release',
         description: 'Released beta version to testers',
         variant: 'warning',
         icon: '⚡',
       },
       {
         time: '2024-04-01',
-        title: 'Launch',
+        title: 'Schema/Data Display/Launch',
         description: 'Official product launch',
         variant: 'success',
         icon: '🎉',
@@ -67,25 +67,25 @@ export const Horizontal: Story = {
     items: [
       {
         time: '2024-01-01',
-        title: 'Q1',
+        title: 'Schema/Data Display/Q1',
         description: 'First quarter goals',
         variant: 'default',
       },
       {
         time: '2024-04-01',
-        title: 'Q2',
+        title: 'Schema/Data Display/Q2',
         description: 'Second quarter goals',
         variant: 'info',
       },
       {
         time: '2024-07-01',
-        title: 'Q3',
+        title: 'Schema/Data Display/Q3',
         description: 'Third quarter goals',
         variant: 'warning',
       },
       {
         time: '2024-10-01',
-        title: 'Q4',
+        title: 'Schema/Data Display/Q4',
         description: 'Fourth quarter goals',
         variant: 'success',
       },
@@ -106,13 +106,13 @@ export const Gantt: Story = {
         label: 'Backend Development',
         items: [
           {
-            title: 'API Design',
+            title: 'Schema/Data Display/API Design',
             startDate: '2024-01-01',
             endDate: '2024-01-31',
             variant: 'success',
           },
           {
-            title: 'Implementation',
+            title: 'Schema/Data Display/Implementation',
             startDate: '2024-02-01',
             endDate: '2024-03-31',
             variant: 'info',
@@ -123,13 +123,13 @@ export const Gantt: Story = {
         label: 'Frontend Development',
         items: [
           {
-            title: 'UI Design',
+            title: 'Schema/Data Display/UI Design',
             startDate: '2024-01-15',
             endDate: '2024-02-15',
             variant: 'warning',
           },
           {
-            title: 'Component Dev',
+            title: 'Schema/Data Display/Component Dev',
             startDate: '2024-02-15',
             endDate: '2024-04-15',
             variant: 'default',
@@ -140,7 +140,7 @@ export const Gantt: Story = {
         label: 'Testing',
         items: [
           {
-            title: 'QA Phase',
+            title: 'Schema/Data Display/QA Phase',
             startDate: '2024-03-01',
             endDate: '2024-04-30',
             variant: 'danger',
@@ -161,25 +161,25 @@ export const ProductRoadmap: Story = {
     items: [
       {
         time: '2024-01-01',
-        title: 'Phase 1: Foundation',
+        title: 'Schema/Data Display/Phase 1: Foundation',
         description: 'Core infrastructure and basic features',
         variant: 'success',
       },
       {
         time: '2024-03-01',
-        title: 'Phase 2: Enhancement',
+        title: 'Schema/Data Display/Phase 2: Enhancement',
         description: 'Advanced features and integrations',
         variant: 'info',
       },
       {
         time: '2024-06-01',
-        title: 'Phase 3: Optimization',
+        title: 'Schema/Data Display/Phase 3: Optimization',
         description: 'Performance improvements and scaling',
         variant: 'warning',
       },
       {
         time: '2024-09-01',
-        title: 'Phase 4: Enterprise',
+        title: 'Schema/Data Display/Phase 4: Enterprise',
         description: 'Enterprise features and support',
         variant: 'default',
       },
