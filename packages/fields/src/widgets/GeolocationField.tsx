@@ -1,0 +1,151 @@
+import React from 'react';
+import { Input, Button, Label } from '@object-ui/components';
+import { MapPin, Crosshair } from 'lucide-react';
+import { FieldWidgetProps } from './types';
+
+/**
+ * Geolocation data structure
+ */
+export interface GeolocationValue {
+  latitude?: number;
+  longitude?: number;
+  accuracy?: number;
+}
+
+/**
+ * Geolocation field widget - provides a location picker with coordinates
+ * Supports manual entry and browser geolocation API
+ */
+export function GeolocationField({ value, onChange, field, readonly, ...props }: FieldWidgetProps<GeolocationValue>) {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const location = value || {};
+
+  const handleFieldChange = (fieldName: keyof GeolocationValue, fieldValue: string) => {
+    onChange({
+      ...location,
+      [fieldName]: fieldValue ? Number(fieldValue) : undefined,
+    });
+  };
+
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      console.error('Geolocation is not supported by this browser');
+      return;
+    }
+
+    setIsLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        onChange({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+        });
+        setIsLoading(false);
+      },
+      (error) => {
+        console.error('Error getting location:', error.message);
+        setIsLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0,
+      }
+    );
+  };
+
+  const formatLocation = (loc: GeolocationValue): string => {
+    if (!loc.latitude || !loc.longitude) return '-';
+    return `${loc.latitude.toFixed(6)}, ${loc.longitude.toFixed(6)}`;
+  };
+
+  const openInMaps = () => {
+    if (!location.latitude || !location.longitude) return;
+    const url = `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
+    window.open(url, '_blank');
+  };
+
+  if (readonly) {
+    return (
+      <div className="flex items-center gap-2">
+        <MapPin className="w-4 h-4 text-muted-foreground" />
+        <span className="text-sm">{formatLocation(location)}</span>
+        {location.latitude && location.longitude && (
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            onClick={openInMaps}
+            className="p-0 h-auto"
+          >
+            View on map
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={getCurrentLocation}
+          disabled={readonly || isLoading}
+        >
+          <Crosshair className="w-4 h-4 mr-2" />
+          {isLoading ? 'Getting location...' : 'Use Current Location'}
+        </Button>
+        {location.latitude && location.longitude && (
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            onClick={openInMaps}
+          >
+            <MapPin className="w-4 h-4 mr-2" />
+            View on map
+          </Button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label htmlFor="latitude" className="text-xs">Latitude</Label>
+          <Input
+            id="latitude"
+            type="number"
+            value={location.latitude ?? ''}
+            onChange={(e) => handleFieldChange('latitude', e.target.value)}
+            placeholder="37.7749"
+            disabled={readonly}
+            step="any"
+            className={props.className}
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="longitude" className="text-xs">Longitude</Label>
+          <Input
+            id="longitude"
+            type="number"
+            value={location.longitude ?? ''}
+            onChange={(e) => handleFieldChange('longitude', e.target.value)}
+            placeholder="-122.4194"
+            disabled={readonly}
+            step="any"
+          />
+        </div>
+      </div>
+
+      {location.accuracy && (
+        <p className="text-xs text-muted-foreground">
+          Accuracy: ±{location.accuracy.toFixed(0)}m
+        </p>
+      )}
+    </div>
+  );
+}
