@@ -25,6 +25,12 @@ import '@object-ui/plugin-view';
 
 const preview: Preview = {
   parameters: {
+    options: {
+      storySort: {
+        method: 'alphabetical',
+        order: ['Introduction', 'Guide', 'JSON', 'UI', 'Fields', 'Layout', 'Plugins'],
+      },
+    },
     controls: {
       matchers: {
        color: /(background|color)$/i,
