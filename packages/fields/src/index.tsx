@@ -727,27 +727,123 @@ import { CurrencyField } from './widgets/CurrencyField';
 import { TextAreaField } from './widgets/TextAreaField';
 import { RichTextField } from './widgets/RichTextField';
 import { LookupField } from './widgets/LookupField';
+import { DateTimeField } from './widgets/DateTimeField';
+import { TimeField } from './widgets/TimeField';
+import { PercentField } from './widgets/PercentField';
+import { PasswordField } from './widgets/PasswordField';
+import { FileField } from './widgets/FileField';
+import { ImageField } from './widgets/ImageField';
+import { LocationField } from './widgets/LocationField';
+import { FormulaField } from './widgets/FormulaField';
+import { SummaryField } from './widgets/SummaryField';
+import { AutoNumberField } from './widgets/AutoNumberField';
+import { UserField } from './widgets/UserField';
+import { ObjectField } from './widgets/ObjectField';
+import { VectorField } from './widgets/VectorField';
+import { GridField } from './widgets/GridField';
+
+// Create wrapper renderers for field widgets to work with ComponentDemo
+function createFieldRenderer(FieldWidget: React.ComponentType<any>) {
+  const FieldRenderer: React.FC<any> = ({ schema, className, value: initialValue, ...props }) => {
+    const [value, setValue] = React.useState(initialValue ?? schema?.value ?? '');
+    
+    const field = {
+      name: schema?.name || 'field',
+      label: schema?.label,
+      type: schema?.type,
+      placeholder: schema?.placeholder,
+      required: schema?.required,
+      readonly: schema?.readonly || schema?.readOnly,
+      help: schema?.help,
+      description: schema?.description,
+      defaultValue: schema?.defaultValue || schema?.value,
+      ...schema,
+    };
+
+    const handleChange = React.useCallback((newValue: any) => {
+      setValue(newValue);
+      if (props.onChange) {
+        props.onChange(newValue);
+      }
+    }, [props]);
+
+    const readonly = schema?.readonly || schema?.readOnly || false;
+
+    return (
+      <div 
+        className="grid w-full items-center gap-1.5"
+        data-obj-id={schema?.id}
+        data-obj-type={schema?.type}
+      >
+        {schema?.label && (
+          <label htmlFor={schema.id} className={schema.required ? "after:content-['*'] after:ml-0.5 after:text-red-500" : ""}>
+            {schema.label}
+          </label>
+        )}
+        <FieldWidget
+          value={value}
+          onChange={handleChange}
+          field={field}
+          readonly={readonly}
+          className={className}
+        />
+        {schema?.description && (
+          <p className="text-sm text-gray-500">{schema.description}</p>
+        )}
+      </div>
+    );
+  };
+  
+  FieldRenderer.displayName = `FieldRenderer(${FieldWidget.displayName || FieldWidget.name || 'Component'})`;
+  
+  return FieldRenderer;
+}
 
 export function registerFields() {
-  // Basic fields
-  ComponentRegistry.register('text', TextField);
-  ComponentRegistry.register('textarea', TextAreaField);
-  ComponentRegistry.register('number', NumberField);
-  ComponentRegistry.register('boolean', BooleanField);
-  ComponentRegistry.register('select', SelectField);
-  ComponentRegistry.register('date', DateField);
+  // Basic fields - wrapped for documentation compatibility
+  ComponentRegistry.register('text', createFieldRenderer(TextField));
+  ComponentRegistry.register('textarea', createFieldRenderer(TextAreaField));
+  ComponentRegistry.register('number', createFieldRenderer(NumberField));
+  ComponentRegistry.register('boolean', createFieldRenderer(BooleanField));
+  ComponentRegistry.register('select', createFieldRenderer(SelectField));
+  ComponentRegistry.register('date', createFieldRenderer(DateField));
+  ComponentRegistry.register('datetime', createFieldRenderer(DateTimeField));
+  ComponentRegistry.register('time', createFieldRenderer(TimeField));
   
-  // Contact fields
-  ComponentRegistry.register('email', EmailField);
-  ComponentRegistry.register('phone', PhoneField);
-  ComponentRegistry.register('url', UrlField);
+  // Contact fields - wrapped for documentation compatibility
+  ComponentRegistry.register('email', createFieldRenderer(EmailField));
+  ComponentRegistry.register('phone', createFieldRenderer(PhoneField));
+  ComponentRegistry.register('url', createFieldRenderer(UrlField));
   
-  // Specialized fields
-  ComponentRegistry.register('currency', CurrencyField);
-  ComponentRegistry.register('markdown', RichTextField);
-  ComponentRegistry.register('html', RichTextField);
-  ComponentRegistry.register('lookup', LookupField);
-  ComponentRegistry.register('master_detail', LookupField);
+  // Specialized fields - wrapped for documentation compatibility
+  ComponentRegistry.register('currency', createFieldRenderer(CurrencyField));
+  ComponentRegistry.register('percent', createFieldRenderer(PercentField));
+  ComponentRegistry.register('password', createFieldRenderer(PasswordField));
+  ComponentRegistry.register('markdown', createFieldRenderer(RichTextField));
+  ComponentRegistry.register('html', createFieldRenderer(RichTextField));
+  ComponentRegistry.register('lookup', createFieldRenderer(LookupField));
+  ComponentRegistry.register('master_detail', createFieldRenderer(LookupField));
+  
+  // File fields
+  ComponentRegistry.register('file', createFieldRenderer(FileField));
+  ComponentRegistry.register('image', createFieldRenderer(ImageField));
+  
+  // Location field
+  ComponentRegistry.register('location', createFieldRenderer(LocationField));
+  
+  // Computed/Read-only fields
+  ComponentRegistry.register('formula', createFieldRenderer(FormulaField));
+  ComponentRegistry.register('summary', createFieldRenderer(SummaryField));
+  ComponentRegistry.register('auto_number', createFieldRenderer(AutoNumberField));
+  
+  // User fields
+  ComponentRegistry.register('user', createFieldRenderer(UserField));
+  ComponentRegistry.register('owner', createFieldRenderer(UserField));
+  
+  // Complex data types
+  ComponentRegistry.register('object', createFieldRenderer(ObjectField));
+  ComponentRegistry.register('vector', createFieldRenderer(VectorField));
+  ComponentRegistry.register('grid', createFieldRenderer(GridField));
   
   // Register with field: prefix for explicit field widgets
   ComponentRegistry.register('field:text', TextField);
@@ -757,7 +853,17 @@ export function registerFields() {
   ComponentRegistry.register('field:phone', PhoneField);
   ComponentRegistry.register('field:url', UrlField);
   ComponentRegistry.register('field:currency', CurrencyField);
+  ComponentRegistry.register('field:percent', PercentField);
+  ComponentRegistry.register('field:password', PasswordField);
+  ComponentRegistry.register('field:date', DateField);
+  ComponentRegistry.register('field:datetime', DateTimeField);
+  ComponentRegistry.register('field:time', TimeField);
   ComponentRegistry.register('field:lookup', LookupField);
+  ComponentRegistry.register('field:file', FileField);
+  ComponentRegistry.register('field:image', ImageField);
+  ComponentRegistry.register('field:location', LocationField);
+  ComponentRegistry.register('field:user', UserField);
+  ComponentRegistry.register('field:object', ObjectField);
 }
 
 export * from './widgets/types';
@@ -766,10 +872,24 @@ export * from './widgets/NumberField';
 export * from './widgets/BooleanField';
 export * from './widgets/SelectField';
 export * from './widgets/DateField';
+export * from './widgets/DateTimeField';
+export * from './widgets/TimeField';
 export * from './widgets/EmailField';
 export * from './widgets/PhoneField';
 export * from './widgets/UrlField';
 export * from './widgets/CurrencyField';
+export * from './widgets/PercentField';
+export * from './widgets/PasswordField';
 export * from './widgets/TextAreaField';
 export * from './widgets/RichTextField';
 export * from './widgets/LookupField';
+export * from './widgets/FileField';
+export * from './widgets/ImageField';
+export * from './widgets/LocationField';
+export * from './widgets/FormulaField';
+export * from './widgets/SummaryField';
+export * from './widgets/AutoNumberField';
+export * from './widgets/UserField';
+export * from './widgets/ObjectField';
+export * from './widgets/VectorField';
+export * from './widgets/GridField';
