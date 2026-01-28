@@ -15,7 +15,7 @@ const meta = {
     props: { control: "object" },
     children: { control: "object" }
   },
-} satisfies Meta<typeof SchemaRenderer>;
+} satisfies Meta<any>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

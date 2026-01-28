@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { SchemaRenderer } from '@object-ui/react';
+import { SidebarProvider } from '@object-ui/components';
 import type { SchemaNode } from '@object-ui/core';
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { CodeBlock, Pre } from 'fumadocs-ui/components/codeblock';
@@ -54,7 +55,11 @@ export function InteractiveDemo({
                     </div>
                   )}
                   <div className="p-6 bg-background">
-                    <SchemaRenderer schema={example.schema} />
+                    <SidebarProvider className="min-h-0 w-full" defaultOpen={false}>
+                      <div className="w-full">
+                        <SchemaRenderer schema={example.schema} />
+                      </div>
+                    </SidebarProvider>
                   </div>
                 </div>
               ))}
@@ -93,7 +98,11 @@ export function InteractiveDemo({
       <Tabs items={['Preview', 'Code']} defaultIndex={0}>
         <Tab value="Preview">
           <div className="border rounded-lg p-6 bg-background">
-            <SchemaRenderer schema={schema} />
+            <SidebarProvider className="min-h-0 w-full" defaultOpen={false}>
+              <div className="w-full">
+                <SchemaRenderer schema={schema} />
+              </div>
+            </SidebarProvider>
           </div>
         </Tab>
         <Tab value="Code">

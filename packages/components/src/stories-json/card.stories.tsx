@@ -13,7 +13,7 @@ const meta = {
     schema: { table: { disable: true } },
     children: { control: "object" }
   },
-} satisfies Meta<typeof SchemaRenderer>;
+} satisfies Meta<any>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
