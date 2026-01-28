@@ -8,7 +8,7 @@
 
 import { ComponentRegistry } from '@object-ui/core';
 import type { LoadingSchema } from '@object-ui/types';
-import { Spinner } from '../../ui';
+import { Spinner } from '@/custom';
 import { cn } from '../../lib/utils';
 
 ComponentRegistry.register('loading', 

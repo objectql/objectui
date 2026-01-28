@@ -20,6 +20,7 @@ export { registerPlaceholders } from './renderers/placeholders';
 
 // Export raw Shadcn UI components
 export * from './ui';
+export * from './custom';
 
 // Export an init function to ensure components are registered
 // This is a workaround for bundlers that might tree-shake side-effect imports

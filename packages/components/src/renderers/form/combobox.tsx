@@ -8,7 +8,7 @@
 
 import { ComponentRegistry } from '@object-ui/core';
 import type { ComboboxSchema } from '@object-ui/types';
-import { Combobox } from '../../ui';
+import { Combobox } from '@/custom';
 
 ComponentRegistry.register('combobox', 
   ({ schema, ...props }: { schema: ComboboxSchema; [key: string]: any }) => {
