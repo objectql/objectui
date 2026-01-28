@@ -5,6 +5,7 @@ import { SchemaRenderer } from '@object-ui/react';
 import type { SchemaNode } from '@object-ui/core';
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
 import { CodeBlock, Pre } from 'fumadocs-ui/components/codeblock';
+import { SidebarProvider } from '@object-ui/components';
 
 // Re-export SchemaNode type for use in MDX files
 export type { SchemaNode } from '@object-ui/core';
@@ -54,7 +55,9 @@ export function InteractiveDemo({
                     </div>
                   )}
                   <div className="p-6 bg-background">
-                    <SchemaRenderer schema={example.schema} />
+                    <SidebarProvider>
+                      <SchemaRenderer schema={example.schema} />
+                    </SidebarProvider>
                   </div>
                 </div>
               ))}
@@ -93,7 +96,9 @@ export function InteractiveDemo({
       <Tabs items={['Preview', 'Code']} defaultIndex={0}>
         <Tab value="Preview">
           <div className="border rounded-lg p-6 bg-background">
-            <SchemaRenderer schema={schema} />
+            <SidebarProvider>
+              <SchemaRenderer schema={schema} />
+            </SidebarProvider>
           </div>
         </Tab>
         <Tab value="Code">
