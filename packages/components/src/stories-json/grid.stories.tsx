@@ -2,19 +2,23 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { SchemaRenderer } from '@object-ui/react';
 import type { BaseSchema } from '@object-ui/types';
 
-const JSONRenderer = (args: BaseSchema) => <SchemaRenderer schema={args} />;
-
 const meta = {
-  title: 'Layout/Grid (JSON)',
-  component: JSONRenderer,
+  title: 'JSON/Grid',
+  component: SchemaRenderer,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],
-} satisfies Meta<typeof JSONRenderer>;
+  argTypes: {
+    schema: { table: { disable: true } }
+  }
+} satisfies Meta<typeof SchemaRenderer>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const renderStory = (args: any) => <SchemaRenderer schema={args as unknown as BaseSchema} />;
+
 export const TwoColumns: Story = {
+  render: renderStory,
   args: {
     type: 'grid',
     props: {
@@ -22,15 +26,16 @@ export const TwoColumns: Story = {
       gap: 4
     },
     children: [
-        { type: 'card', className: 'p-4 bg-muted', content: 'Column 1' },
-        { type: 'card', className: 'p-4 bg-muted', content: 'Column 2' },
-        { type: 'card', className: 'p-4 bg-muted', content: 'Column 3' },
-        { type: 'card', className: 'p-4 bg-muted', content: 'Column 4' }
+        { type: 'card', className: 'p-4 bg-gray-100', children: [{type:'text', content: 'Column 1'}] },
+        { type: 'card', className: 'p-4 bg-gray-100', children: [{type:'text', content: 'Column 2'}] },
+        { type: 'card', className: 'p-4 bg-gray-100', children: [{type:'text', content: 'Column 3'}] },
+        { type: 'card', className: 'p-4 bg-gray-100', children: [{type:'text', content: 'Column 4'}] }
     ]
-  },
+  } as any,
 };
 
 export const Responsive: Story = {
+    render: renderStory,
     args: {
       type: 'grid',
       props: {
@@ -42,10 +47,10 @@ export const Responsive: Story = {
         gap: 4
       },
       children: [
-          { type: 'card', className: 'p-4 bg-red-100', content: '1' },
-          { type: 'card', className: 'p-4 bg-blue-100', content: '2' },
-          { type: 'card', className: 'p-4 bg-green-100', content: '3' },
-          { type: 'card', className: 'p-4 bg-yellow-100', content: '4' }
+          { type: 'card', className: 'p-4 bg-red-100', children: [{type:'text', content: '1'}] },
+          { type: 'card', className: 'p-4 bg-blue-100', children: [{type:'text', content: '2'}] },
+          { type: 'card', className: 'p-4 bg-green-100', children: [{type:'text', content: '3'}] },
+          { type: 'card', className: 'p-4 bg-yellow-100', children: [{type:'text', content: '4'}] }
       ]
-    },
+    } as any,
   };

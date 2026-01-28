@@ -2,58 +2,47 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { SchemaRenderer } from '@object-ui/react';
 import type { BaseSchema } from '@object-ui/types';
 
-const JSONRenderer = (args: BaseSchema) => <SchemaRenderer schema={args} />;
-
 const meta = {
-  title: 'Basic/Card (JSON)',
-  component: JSONRenderer,
+  title: 'JSON/Card',
+  component: SchemaRenderer,
   parameters: {
     layout: 'padded',
   },
   tags: ['autodocs'],
   argTypes: {
-    type: { control: false },
-    props: { control: 'object' },
-    children: { control: 'object' },
+    schema: { table: { disable: true } },
+    children: { control: "object" }
   },
-} satisfies Meta<typeof JSONRenderer>;
+} satisfies Meta<typeof SchemaRenderer>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const renderStory = (args: any) => <SchemaRenderer schema={args as unknown as BaseSchema} />;
+
 export const Default: Story = {
+  render: renderStory,
   args: {
     type: 'card',
     className: "w-[350px]",
+    // Using high-level props supported by CardRenderer
+    title: "Create Project",
+    description: "Deploy your new project in one-click.",
+    // Main content (wrapped in CardContent by renderer)
     children: [
-        {
-            type: 'card-header',
+        { 
+            type: 'div', 
+            className: 'flex flex-col space-y-1.5',
             children: [
-                { type: 'card-title', content: 'Create Project' },
-                { type: 'card-description', content: 'Deploy your new project in one-click.' }
-            ]
-        },
-        {
-            type: 'card-content',
-            children: [
-                { 
-                    type: 'div', 
-                    className: 'flex flex-col space-y-1.5',
-                    children: [
-                        { type: 'label', content: 'Name', props: { htmlFor: 'name' } },
-                        { type: 'input', props: { id: 'name', placeholder: 'Name of your project' } }
-                    ]
-                }
-            ]
-        },
-        {
-            type: 'card-footer',
-            className: 'flex justify-between',
-            children: [
-                { type: 'button', props: { variant: 'outline' }, content: 'Cancel' },
-                { type: 'button', content: 'Deploy' }
+                { type: 'label', content: 'Name', props: { htmlFor: 'name' } },
+                { type: 'input', props: { id: 'name', placeholder: 'Name of your project' } }
             ]
         }
+    ],
+    // Footer content
+    footer: [
+        { type: 'button', props: { variant: 'outline' }, children: [{type:'text', content: 'Cancel'}] },
+        { type: 'button', children: [{type: 'text', content: 'Deploy'}] }
     ]
-  },
+  } as any,
 };

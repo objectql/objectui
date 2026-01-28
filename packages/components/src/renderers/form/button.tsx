@@ -32,7 +32,7 @@ const ButtonRenderer = forwardRef<HTMLButtonElement, { schema: ButtonSchema; [ke
         // Apply designer props
         {...{ 'data-obj-id': dataObjId, 'data-obj-type': dataObjType, style }}
     >
-      {schema.label || renderChildren(schema.body)}
+      {schema.label || renderChildren(schema.body || schema.children)}
     </Button>
   );
   }

@@ -2,54 +2,72 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { SchemaRenderer } from '@object-ui/react';
 import type { BaseSchema } from '@object-ui/types';
 
-// Wrapper component to render JSON schema
-const JSONRenderer = (args: BaseSchema) => {
-  return <SchemaRenderer schema={args} />;
-};
-
 const meta = {
-  title: 'Basic/Button (JSON)',
-  component: JSONRenderer,
+  title: 'JSON/Button',
+  component: SchemaRenderer,
   parameters: {
     layout: 'centered',
   },
   tags: ['autodocs'],
   argTypes: {
-    type: { control: false },
-    props: { control: 'object' },
-    children: { control: "object", table: { type: { summary: "object" } } },
+    schema: { table: { disable: true } },
+    type: { control: "text" },
+    props: { control: "object" },
+    children: { control: "object" }
   },
-} satisfies Meta<typeof JSONRenderer>;
+} satisfies Meta<typeof SchemaRenderer>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
+  render: (args) => {
+    // Treat args as the schema definition
+    return <SchemaRenderer schema={args as unknown as BaseSchema} />;
+  },
   args: {
     type: 'button',
     props: {
       variant: 'default',
     },
+    // Using children array as per spec
     children: [
         {
             type: 'text',
             content: 'Click Me (JSON)'
         }
     ]
-  },
+  } as any,
 };
 
 export const Outline: Story = {
-    args: {
-      type: 'button',
-      props: {
-        variant: 'outline',
-      },
-      children: [
-          {
-              type: 'text',
-              content: 'Outline'
-          }
-      ]
+  render: (args) => <SchemaRenderer schema={args as unknown as BaseSchema} />,
+  args: {
+    type: 'button',
+    props: {
+      variant: 'outline',
     },
-  };
+    children: [
+        {
+            type: 'text',
+            content: 'Outline Button'
+        }
+    ]
+  } as any,
+};
+
+export const Destructive: Story = {
+  render: (args) => <SchemaRenderer schema={args as unknown as BaseSchema} />,
+  args: {
+    type: 'button',
+    props: {
+        variant: 'destructive',
+    },
+    children: [
+        {
+            type: 'text',
+            content: 'Delete'
+        }
+    ]
+  } as any,
+};
