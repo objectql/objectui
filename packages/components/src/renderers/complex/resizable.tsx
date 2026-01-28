@@ -19,7 +19,7 @@ import { renderChildren } from '../../lib/utils';
 ComponentRegistry.register('resizable', 
   ({ schema, className, ...props }: { schema: ResizableSchema; className?: string; [key: string]: any }) => (
     <ResizablePanelGroup 
-        direction={schema.direction || 'horizontal'} 
+        orientation={(schema.direction || 'horizontal') as "horizontal" | "vertical"}
         className={className} 
         {...props}
         style={{ minHeight: schema.minHeight || '200px' }}
