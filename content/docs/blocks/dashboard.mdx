@@ -17,19 +17,20 @@ Display key metrics with trend indicators.
   title="Stats Cards Grid"
   description="Revenue and user statistics"
   schema={{
-    type: "div",
-    className: "grid gap-4 md:grid-cols-2 lg:grid-cols-4",
+    type: "grid",
+    gap: 4,
+    className: "md:grid-cols-2 lg:grid-cols-4",
     children: [
       {
         type: "card",
         children: [
           {
-            type: "div",
-            className: "p-6 space-y-2",
+            type: "stack",
+        spacing: 2,
             children: [
               {
-                type: "div",
-                className: "flex items-center justify-between",
+                type: "flex",
+        className: "items-center justify-between",
                 children: [
                   {
                     type: "text",
@@ -44,8 +45,8 @@ Display key metrics with trend indicators.
                 ]
               },
               {
-                type: "div",
-                className: "space-y-1",
+                type: "stack",
+        spacing: 1,
                 children: [
                   {
                     type: "text",
@@ -53,8 +54,8 @@ Display key metrics with trend indicators.
                     className: "text-2xl font-bold"
                   },
                   {
-                    type: "div",
-                    className: "flex items-center text-xs",
+                    type: "flex",
+        className: "items-center text-xs",
                     children: [
                       {
                         type: "icon",
@@ -78,12 +79,12 @@ Display key metrics with trend indicators.
         type: "card",
         children: [
           {
-            type: "div",
-            className: "p-6 space-y-2",
+            type: "stack",
+        spacing: 2,
             children: [
               {
-                type: "div",
-                className: "flex items-center justify-between",
+                type: "flex",
+        className: "items-center justify-between",
                 children: [
                   {
                     type: "text",
@@ -98,8 +99,8 @@ Display key metrics with trend indicators.
                 ]
               },
               {
-                type: "div",
-                className: "space-y-1",
+                type: "stack",
+        spacing: 1,
                 children: [
                   {
                     type: "text",
@@ -107,8 +108,8 @@ Display key metrics with trend indicators.
                     className: "text-2xl font-bold"
                   },
                   {
-                    type: "div",
-                    className: "flex items-center text-xs",
+                    type: "flex",
+        className: "items-center text-xs",
                     children: [
                       {
                         type: "icon",
@@ -132,12 +133,12 @@ Display key metrics with trend indicators.
         type: "card",
         children: [
           {
-            type: "div",
-            className: "p-6 space-y-2",
+            type: "stack",
+        spacing: 2,
             children: [
               {
-                type: "div",
-                className: "flex items-center justify-between",
+                type: "flex",
+        className: "items-center justify-between",
                 children: [
                   {
                     type: "text",
@@ -152,8 +153,8 @@ Display key metrics with trend indicators.
                 ]
               },
               {
-                type: "div",
-                className: "space-y-1",
+                type: "stack",
+        spacing: 1,
                 children: [
                   {
                     type: "text",
@@ -161,8 +162,8 @@ Display key metrics with trend indicators.
                     className: "text-2xl font-bold"
                   },
                   {
-                    type: "div",
-                    className: "flex items-center text-xs",
+                    type: "flex",
+        className: "items-center text-xs",
                     children: [
                       {
                         type: "icon",
@@ -186,12 +187,12 @@ Display key metrics with trend indicators.
         type: "card",
         children: [
           {
-            type: "div",
-            className: "p-6 space-y-2",
+            type: "stack",
+        spacing: 2,
             children: [
               {
-                type: "div",
-                className: "flex items-center justify-between",
+                type: "flex",
+        className: "items-center justify-between",
                 children: [
                   {
                     type: "text",
@@ -206,8 +207,8 @@ Display key metrics with trend indicators.
                 ]
               },
               {
-                type: "div",
-                className: "space-y-1",
+                type: "stack",
+        spacing: 1,
                 children: [
                   {
                     type: "text",
@@ -215,8 +216,8 @@ Display key metrics with trend indicators.
                     className: "text-2xl font-bold"
                   },
                   {
-                    type: "div",
-                    className: "flex items-center text-xs",
+                    type: "flex",
+        className: "items-center text-xs",
                     children: [
                       {
                         type: "icon",
@@ -252,12 +253,12 @@ Display recent user activities or transactions.
     className: "w-full max-w-2xl",
     children: [
       {
-        type: "div",
+        type: "container",
         className: "p-6",
         children: [
           {
-            type: "div",
-            className: "flex items-center justify-between mb-4",
+            type: "flex",
+        className: "items-center justify-between mb-4",
             children: [
               {
                 type: "text",
@@ -273,16 +274,16 @@ Display recent user activities or transactions.
             ]
           },
           {
-            type: "div",
-            className: "space-y-4",
+            type: "stack",
+        spacing: 4,
             children: [
               {
-                type: "div",
-                className: "flex items-center justify-between pb-4 border-b",
+                type: "flex",
+        className: "items-center justify-between pb-4 border-b",
                 children: [
                   {
-                    type: "div",
-                    className: "flex items-center space-x-4",
+                    type: "flex",
+        className: "items-center space-x-4",
                     children: [
                       {
                         type: "avatar",
@@ -290,7 +291,8 @@ Display recent user activities or transactions.
                         className: "h-9 w-9"
                       },
                       {
-                        type: "div",
+                        type: "stack",
+                        spacing: 2,
                         children: [
                           {
                             type: "text",
@@ -314,12 +316,12 @@ Display recent user activities or transactions.
                 ]
               },
               {
-                type: "div",
-                className: "flex items-center justify-between pb-4 border-b",
+                type: "flex",
+        className: "items-center justify-between pb-4 border-b",
                 children: [
                   {
-                    type: "div",
-                    className: "flex items-center space-x-4",
+                    type: "flex",
+        className: "items-center space-x-4",
                     children: [
                       {
                         type: "avatar",
@@ -327,7 +329,8 @@ Display recent user activities or transactions.
                         className: "h-9 w-9"
                       },
                       {
-                        type: "div",
+                        type: "stack",
+                        spacing: 2,
                         children: [
                           {
                             type: "text",
@@ -351,12 +354,12 @@ Display recent user activities or transactions.
                 ]
               },
               {
-                type: "div",
-                className: "flex items-center justify-between pb-4 border-b",
+                type: "flex",
+        className: "items-center justify-between pb-4 border-b",
                 children: [
                   {
-                    type: "div",
-                    className: "flex items-center space-x-4",
+                    type: "flex",
+        className: "items-center space-x-4",
                     children: [
                       {
                         type: "avatar",
@@ -364,7 +367,8 @@ Display recent user activities or transactions.
                         className: "h-9 w-9"
                       },
                       {
-                        type: "div",
+                        type: "stack",
+                        spacing: 2,
                         children: [
                           {
                             type: "text",
@@ -388,12 +392,12 @@ Display recent user activities or transactions.
                 ]
               },
               {
-                type: "div",
-                className: "flex items-center justify-between pb-4 border-b",
+                type: "flex",
+        className: "items-center justify-between pb-4 border-b",
                 children: [
                   {
-                    type: "div",
-                    className: "flex items-center space-x-4",
+                    type: "flex",
+        className: "items-center space-x-4",
                     children: [
                       {
                         type: "avatar",
@@ -401,7 +405,8 @@ Display recent user activities or transactions.
                         className: "h-9 w-9"
                       },
                       {
-                        type: "div",
+                        type: "stack",
+                        spacing: 2,
                         children: [
                           {
                             type: "text",
@@ -425,12 +430,12 @@ Display recent user activities or transactions.
                 ]
               },
               {
-                type: "div",
-                className: "flex items-center justify-between",
+                type: "flex",
+        className: "items-center justify-between",
                 children: [
                   {
-                    type: "div",
-                    className: "flex items-center space-x-4",
+                    type: "flex",
+        className: "items-center space-x-4",
                     children: [
                       {
                         type: "avatar",
@@ -438,7 +443,8 @@ Display recent user activities or transactions.
                         className: "h-9 w-9"
                       },
                       {
-                        type: "div",
+                        type: "stack",
+                        spacing: 2,
                         children: [
                           {
                             type: "text",
@@ -477,12 +483,12 @@ Complete dashboard layout with multiple sections.
   title="Dashboard Overview"
   description="Complete dashboard with stats and activity"
   schema={{
-    type: "div",
-    className: "space-y-6",
+    type: "stack",
+        spacing: 6,
     children: [
       {
-        type: "div",
-        className: "flex items-center justify-between",
+        type: "flex",
+        className: "items-center justify-between",
         children: [
           {
             type: "text",
@@ -498,14 +504,15 @@ Complete dashboard layout with multiple sections.
         ]
       },
       {
-        type: "div",
-        className: "grid gap-4 md:grid-cols-2 lg:grid-cols-4",
+        type: "grid",
+        gap: 4,
+        className: "md:grid-cols-2 lg:grid-cols-4",
         children: [
           {
             type: "card",
             children: [
               {
-                type: "div",
+                type: "container",
                 className: "p-4",
                 children: [
                   {
@@ -526,7 +533,7 @@ Complete dashboard layout with multiple sections.
             type: "card",
             children: [
               {
-                type: "div",
+                type: "container",
                 className: "p-4",
                 children: [
                   {
@@ -547,7 +554,7 @@ Complete dashboard layout with multiple sections.
             type: "card",
             children: [
               {
-                type: "div",
+                type: "container",
                 className: "p-4",
                 children: [
                   {
@@ -568,7 +575,7 @@ Complete dashboard layout with multiple sections.
             type: "card",
             children: [
               {
-                type: "div",
+                type: "container",
                 className: "p-4",
                 children: [
                   {
@@ -588,15 +595,16 @@ Complete dashboard layout with multiple sections.
         ]
       },
       {
-        type: "div",
-        className: "grid gap-4 md:grid-cols-2 lg:grid-cols-7",
+        type: "grid",
+        gap: 4,
+        className: "md:grid-cols-2 lg:grid-cols-7",
         children: [
           {
             type: "card",
             className: "lg:col-span-4",
             children: [
               {
-                type: "div",
+                type: "container",
                 className: "p-6",
                 children: [
                   {
@@ -605,8 +613,8 @@ Complete dashboard layout with multiple sections.
                     className: "text-lg font-semibold mb-4"
                   },
                   {
-                    type: "div",
-                    className: "h-[300px] flex items-center justify-center text-muted-foreground",
+                    type: "flex",
+                    className: "h-[300px] items-center justify-center text-muted-foreground",
                     children: [
                       {
                         type: "text",
@@ -623,7 +631,7 @@ Complete dashboard layout with multiple sections.
             className: "lg:col-span-3",
             children: [
               {
-                type: "div",
+                type: "container",
                 className: "p-6",
                 children: [
                   {
@@ -632,12 +640,12 @@ Complete dashboard layout with multiple sections.
                     className: "text-lg font-semibold mb-4"
                   },
                   {
-                    type: "div",
-                    className: "space-y-4",
+                    type: "stack",
+        spacing: 4,
                     children: [
                       {
-                        type: "div",
-                        className: "flex items-center",
+                        type: "flex",
+        className: "items-center",
                         children: [
                           {
                             type: "avatar",
@@ -645,8 +653,8 @@ Complete dashboard layout with multiple sections.
                             className: "h-9 w-9"
                           },
                           {
-                            type: "div",
-                            className: "ml-4 space-y-1",
+                            type: "stack",
+        spacing: 1,
                             children: [
                               {
                                 type: "text",

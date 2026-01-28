@@ -21,12 +21,13 @@ Simple contact form with name, email, and message fields.
     className: "w-full max-w-2xl mx-auto",
     children: [
       {
-        type: "div",
-        className: "p-6 space-y-6",
+        type: "stack",
+        spacing: 6,
+        className: "p-6",
         children: [
           {
-            type: "div",
-            className: "space-y-2",
+            type: "stack",
+            spacing: 2,
             children: [
               {
                 type: "text",
@@ -41,16 +42,17 @@ Simple contact form with name, email, and message fields.
             ]
           },
           {
-            type: "div",
-            className: "space-y-4",
+            type: "stack",
+            spacing: 4,
             children: [
               {
-                type: "div",
-                className: "grid grid-cols-2 gap-4",
+                type: "grid",
+                cols: 2,
+                gap: 4,
                 children: [
                   {
-                    type: "div",
-                    className: "space-y-2",
+                    type: "stack",
+                    spacing: 2,
                     children: [
                       {
                         type: "label",
@@ -67,8 +69,8 @@ Simple contact form with name, email, and message fields.
                     ]
                   },
                   {
-                    type: "div",
-                    className: "space-y-2",
+                    type: "stack",
+                    spacing: 2,
                     children: [
                       {
                         type: "label",
@@ -87,8 +89,8 @@ Simple contact form with name, email, and message fields.
                 ]
               },
               {
-                type: "div",
-                className: "space-y-2",
+                type: "stack",
+                spacing: 2,
                 children: [
                   {
                     type: "label",
@@ -106,8 +108,8 @@ Simple contact form with name, email, and message fields.
                 ]
               },
               {
-                type: "div",
-                className: "space-y-2",
+                type: "stack",
+                spacing: 2,
                 children: [
                   {
                     type: "label",
@@ -124,8 +126,8 @@ Simple contact form with name, email, and message fields.
                 ]
               },
               {
-                type: "div",
-                className: "space-y-2",
+                type: "stack",
+                spacing: 2,
                 children: [
                   {
                     type: "label",
@@ -164,12 +166,12 @@ User settings panel with various input types.
   title="Settings Form"
   description="User preferences and settings"
   schema={{
-    type: "div",
-    className: "w-full max-w-2xl mx-auto space-y-6",
+    type: "stack",
+        spacing: 6,
     children: [
       {
-        type: "div",
-        className: "space-y-2",
+        type: "stack",
+        spacing: 2,
         children: [
           {
             type: "text",
@@ -187,16 +189,16 @@ User settings panel with various input types.
         type: "card",
         children: [
           {
-            type: "div",
-            className: "p-6 space-y-6",
+            type: "stack",
+        spacing: 6,
             children: [
               {
-                type: "div",
-                className: "space-y-4",
+                type: "stack",
+        spacing: 4,
                 children: [
                   {
-                    type: "div",
-                    className: "space-y-2",
+                    type: "stack",
+        spacing: 2,
                     children: [
                       {
                         type: "text",
@@ -211,8 +213,8 @@ User settings panel with various input types.
                     ]
                   },
                   {
-                    type: "div",
-                    className: "space-y-2",
+                    type: "stack",
+        spacing: 2,
                     children: [
                       {
                         type: "label",
@@ -229,8 +231,8 @@ User settings panel with various input types.
                     ]
                   },
                   {
-                    type: "div",
-                    className: "space-y-2",
+                    type: "stack",
+        spacing: 2,
                     children: [
                       {
                         type: "label",
@@ -248,8 +250,8 @@ User settings panel with various input types.
                     ]
                   },
                   {
-                    type: "div",
-                    className: "space-y-2",
+                    type: "stack",
+        spacing: 2,
                     children: [
                       {
                         type: "label",
@@ -271,12 +273,12 @@ User settings panel with various input types.
                 type: "separator"
               },
               {
-                type: "div",
-                className: "space-y-4",
+                type: "stack",
+        spacing: 4,
                 children: [
                   {
-                    type: "div",
-                    className: "space-y-2",
+                    type: "stack",
+        spacing: 2,
                     children: [
                       {
                         type: "text",
@@ -291,11 +293,12 @@ User settings panel with various input types.
                     ]
                   },
                   {
-                    type: "div",
-                    className: "flex items-center justify-between",
+                    type: "flex",
+        className: "items-center justify-between",
                     children: [
                       {
-                        type: "div",
+                        type: "stack",
+                        spacing: 1,
                         children: [
                           {
                             type: "text",
@@ -318,11 +321,12 @@ User settings panel with various input types.
                     ]
                   },
                   {
-                    type: "div",
-                    className: "flex items-center justify-between",
+                    type: "flex",
+        className: "items-center justify-between",
                     children: [
                       {
-                        type: "div",
+                        type: "stack",
+                        spacing: 1,
                         children: [
                           {
                             type: "text",
@@ -344,8 +348,8 @@ User settings panel with various input types.
                     ]
                   },
                   {
-                    type: "div",
-                    className: "space-y-2",
+                    type: "stack",
+        spacing: 2,
                     children: [
                       {
                         type: "label",
@@ -369,8 +373,8 @@ User settings panel with various input types.
                 ]
               },
               {
-                type: "div",
-                className: "flex justify-end space-x-2",
+                type: "flex",
+        className: "justify-end space-x-2",
                 children: [
                   {
                     type: "button",
@@ -404,12 +408,13 @@ Simple newsletter subscription form.
     className: "w-full max-w-md mx-auto",
     children: [
       {
-        type: "div",
-        className: "p-6 space-y-4",
+        type: "stack",
+        spacing: 4,
         children: [
           {
-            type: "div",
-            className: "space-y-2 text-center",
+            type: "stack",
+        spacing: 2,
+        className: "text-center",
             children: [
               {
                 type: "icon",
@@ -429,8 +434,8 @@ Simple newsletter subscription form.
             ]
           },
           {
-            type: "div",
-            className: "space-y-2",
+            type: "stack",
+        spacing: 2,
             children: [
               {
                 type: "label",
@@ -448,8 +453,8 @@ Simple newsletter subscription form.
             ]
           },
           {
-            type: "div",
-            className: "flex items-start space-x-2",
+            type: "flex",
+        className: "items-start space-x-2",
             children: [
               {
                 type: "checkbox",
@@ -494,12 +499,12 @@ Payment details form with card information.
     className: "w-full max-w-md mx-auto",
     children: [
       {
-        type: "div",
-        className: "p-6 space-y-6",
+        type: "stack",
+        spacing: 6,
         children: [
           {
-            type: "div",
-            className: "space-y-2",
+            type: "stack",
+        spacing: 2,
             children: [
               {
                 type: "text",
@@ -514,12 +519,12 @@ Payment details form with card information.
             ]
           },
           {
-            type: "div",
-            className: "space-y-4",
+            type: "stack",
+        spacing: 4,
             children: [
               {
-                type: "div",
-                className: "space-y-2",
+                type: "stack",
+        spacing: 2,
                 children: [
                   {
                     type: "label",
@@ -536,8 +541,8 @@ Payment details form with card information.
                 ]
               },
               {
-                type: "div",
-                className: "space-y-2",
+                type: "stack",
+        spacing: 2,
                 children: [
                   {
                     type: "label",
@@ -554,12 +559,13 @@ Payment details form with card information.
                 ]
               },
               {
-                type: "div",
-                className: "grid grid-cols-3 gap-4",
+                type: "grid",
+        cols: 3,
+        gap: 4,
                 children: [
                   {
-                    type: "div",
-                    className: "col-span-2 space-y-2",
+                    type: "stack",
+        spacing: 2,
                     children: [
                       {
                         type: "label",
@@ -576,8 +582,8 @@ Payment details form with card information.
                     ]
                   },
                   {
-                    type: "div",
-                    className: "space-y-2",
+                    type: "stack",
+        spacing: 2,
                     children: [
                       {
                         type: "label",
@@ -599,8 +605,8 @@ Payment details form with card information.
                 type: "separator"
               },
               {
-                type: "div",
-                className: "space-y-2",
+                type: "stack",
+        spacing: 2,
                 children: [
                   {
                     type: "text",
@@ -608,12 +614,12 @@ Payment details form with card information.
                     className: "text-sm font-semibold"
                   },
                   {
-                    type: "div",
-                    className: "space-y-4",
+                    type: "stack",
+        spacing: 4,
                     children: [
                       {
-                        type: "div",
-                        className: "space-y-2",
+                        type: "stack",
+        spacing: 2,
                         children: [
                           {
                             type: "label",
@@ -634,8 +640,8 @@ Payment details form with card information.
                         ]
                       },
                       {
-                        type: "div",
-                        className: "space-y-2",
+                        type: "stack",
+        spacing: 2,
                         children: [
                           {
                             type: "label",
