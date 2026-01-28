@@ -22,8 +22,8 @@ export function baseOptions(): BaseLayoutProps {
         url: '/docs',
       },
       {
-        text: 'Playground',
-        url: '/playground',
+        text: 'Storybook',
+        url: 'https://storybook.objectui.org',
       },
       {
         text: 'GitHub',
