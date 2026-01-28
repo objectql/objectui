@@ -1,7 +1,7 @@
 import type { Preview } from '@storybook/react-vite'
-import '../src/index.css';
+import '../packages/components/src/index.css';
 import { ComponentRegistry } from '@object-ui/core';
-import * as components from '../src/index';
+import * as components from '../packages/components/src/index';
 
 // Register all base components for Storybook
 Object.values(components);
