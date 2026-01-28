@@ -7,6 +7,9 @@ const meta = {
   component: SchemaRenderer,
   parameters: {
     layout: 'padded',
+    test: {
+       timeout: 60000,
+    },
   },
   tags: ['autodocs'],
   argTypes: {

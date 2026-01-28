@@ -33,11 +33,21 @@ export const ScrollArea: Story = {
 
 export const HeaderBar: Story = {
     args: {
-        type: 'header-bar',
-        crumbs: [
-            { label: 'Application' },
-            { label: 'Dashboard', href: '/dashboard' },
-            { label: 'Analytics' }
+        type: 'sidebar-provider',
+        body: [
+            {
+                type: 'sidebar-inset',
+                children: [
+                    {
+                        type: 'header-bar',
+                        crumbs: [
+                            { label: 'Application' },
+                            { label: 'Dashboard', href: '/dashboard' },
+                            { label: 'Analytics' }
+                        ]
+                    }
+                ]
+            }
         ]
     } as any,
     render: (args) => <SchemaRenderer schema={args} />
