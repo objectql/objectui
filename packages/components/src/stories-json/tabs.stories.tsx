@@ -3,7 +3,7 @@ import { SchemaRenderer } from '../SchemaRenderer';
 import type { BaseSchema } from '@object-ui/types';
 
 const meta = {
-  title: 'Primitives/Navigation/Tabs',
+  title: 'Components/Tabs',
   component: SchemaRenderer,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],

@@ -3,7 +3,7 @@ import { SchemaRenderer } from '../SchemaRenderer';
 import type { BaseSchema } from '@object-ui/types';
 
 const meta = {
-  title: 'Primitives/Display/Badge',
+  title: 'Components/Badge',
   component: SchemaRenderer,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],

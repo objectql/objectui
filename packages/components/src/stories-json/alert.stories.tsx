@@ -3,7 +3,7 @@ import { SchemaRenderer } from '../SchemaRenderer';
 import type { BaseSchema } from '@object-ui/types';
 
 const meta = {
-  title: 'Primitives/Feedback/Alert',
+  title: 'Components/Alert',
   component: SchemaRenderer,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],

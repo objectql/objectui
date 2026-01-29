@@ -3,7 +3,7 @@ import { SchemaRenderer } from '../SchemaRenderer';
 import type { BaseSchema } from '@object-ui/types';
 
 const meta = {
-  title: 'Primitives/Layout/Aspect Ratio',
+  title: 'Components/Aspect Ratio',
   component: SchemaRenderer,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],

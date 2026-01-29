@@ -3,7 +3,7 @@ import { SchemaRenderer } from '../SchemaRenderer';
 import type { BaseSchema } from '@object-ui/types';
 
 const meta = {
-  title: 'Primitives/Layout/Card',
+  title: 'Components/Card',
   component: SchemaRenderer,
   parameters: {
     layout: 'padded',

@@ -3,7 +3,7 @@ import { SchemaRenderer } from '../SchemaRenderer';
 import type { BaseSchema } from '@object-ui/types';
 
 const meta = {
-  title: 'Primitives/Layout/Grid',
+  title: 'Components/Grid',
   component: SchemaRenderer,
   parameters: { layout: 'padded' },
   tags: ['autodocs'],

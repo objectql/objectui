@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { SchemaRenderer } from '../SchemaRenderer';
 
 const meta: Meta = {
-  title: 'Primitives/Forms/Extras',
+  title: 'Components/Form Extras',
   component: SchemaRenderer,
   tags: ['autodocs'],
   argTypes: {

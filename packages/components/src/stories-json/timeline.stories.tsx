@@ -3,7 +3,7 @@ import { SchemaRenderer } from '../SchemaRenderer';
 import type { BaseSchema } from '@object-ui/types';
 
 const meta = {
-  title: 'Primitives/Display/Timeline',
+  title: 'Components/Timeline',
   component: SchemaRenderer,
   parameters: {
     layout: 'padded',

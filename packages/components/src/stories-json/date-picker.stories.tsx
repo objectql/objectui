@@ -3,7 +3,7 @@ import { SchemaRenderer } from '../SchemaRenderer';
 import type { BaseSchema } from '@object-ui/types';
 
 const meta = {
-  title: 'Primitives/Forms/Date Picker',
+  title: 'Components/Date Picker',
   component: SchemaRenderer,
   parameters: { layout: 'centered' },
   tags: ['autodocs'],
