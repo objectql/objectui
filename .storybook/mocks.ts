@@ -18,4 +18,16 @@ export const handlers = [
     // - /api/v1/data/:object/:id (GET, PUT, DELETE)
     // - /api/v1/metadata/*
     // - /api/bootstrap
+    
+    // Handle /api/v1/index.json for ObjectStackClient.connect()
+    http.get('/api/v1/index.json', async () => {
+        return HttpResponse.json({
+            version: '1.0',
+            objects: ['contact', 'opportunity', 'account'],
+            endpoints: {
+                data: '/api/v1/data',
+                metadata: '/api/v1/metadata'
+            }
+        });
+    }),
 ];
