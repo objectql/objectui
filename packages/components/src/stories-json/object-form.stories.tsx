@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { SchemaRenderer, SchemaRendererProvider } from '@object-ui/react';
 import type { BaseSchema } from '@object-ui/types';
-import { createStorybookDataSource } from '../../../.storybook/datasource';
+import { createStorybookDataSource } from '@storybook-config/datasource';
 
 const meta = {
   title: 'Views/Object Form',
