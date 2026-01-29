@@ -63,14 +63,26 @@ export class ObjectStackAdapter<T = any> implements DataSource<T> {
     await this.connect();
 
     const queryOptions = this.convertQueryParams(params);
-    const result = await this.client.data.find<T>(resource, queryOptions);
+    const result: any = await this.client.data.find<T>(resource, queryOptions);
+
+    // Handle legacy/raw array response (e.g. from some mock servers or non-OData endpoints)
+    if (Array.isArray(result)) {
+      return {
+        data: result,
+        total: result.length,
+        page: 1,
+        pageSize: result.length,
+        hasMore: false,
+      };
+    }
 
     return {
-      data: result.value,
-      total: result.count,
-      page: params?.$skip ? Math.floor(params.$skip / (params.$top || 20)) + 1 : 1,
+      data: result.value || [],
+      total: result.count || (result.value ? result.value.length : 0),
+      // Calculate page number safely
+      page: params?.$skip && params.$top ? Math.floor(params.$skip / params.$top) + 1 : 1,
       pageSize: params?.$top,
-      hasMore: result.value.length === params?.$top,
+      hasMore: params?.$top ? (result.value?.length || 0) === params.$top : false,
     };
   }
 
