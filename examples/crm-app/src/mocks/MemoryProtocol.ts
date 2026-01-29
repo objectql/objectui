@@ -12,27 +12,27 @@ export class MemoryProtocol implements IObjectStackProtocol {
         this.objects = objects;
     }
 
-    async findData(object: string, params?: any): Promise<any[]> {
+    findData = async (object: string, params?: any): Promise<any[]> => {
         const items = this.data[object] || [];
         // Minimal mock filtering could go here
         return items;
     }
 
-    async getData(object: string, id: string): Promise<any> {
+    getData = async (object: string, id: string): Promise<any> => {
         const items = this.data[object] || [];
         const item = items.find((i: any) => i.id === id);
         if (!item) throw new Error(`Record not found: ${object} ${id}`);
         return item;
     }
 
-    async createData(object: string, data: any): Promise<any> {
+    createData = async (object: string, data: any): Promise<any> => {
         if (!this.data[object]) this.data[object] = [];
         const newItem = { id: Math.random().toString(36).substr(2, 9), ...data };
         this.data[object].push(newItem);
         return newItem;
     }
 
-    async updateData(object: string, id: string, data: any): Promise<any> {
+    updateData = async (object: string, id: string, data: any): Promise<any> => {
         const items = this.data[object] || [];
         const index = items.findIndex((i: any) => i.id === id);
         if (index === -1) throw new Error(`Record not found: ${object} ${id}`);
@@ -42,7 +42,7 @@ export class MemoryProtocol implements IObjectStackProtocol {
         return updated;
     }
 
-    async deleteData(object: string, id: string): Promise<any> {
+    deleteData = async (object: string, id: string): Promise<any> => {
         if (!this.data[object]) return { success: false };
         const initialLength = this.data[object].length;
         this.data[object] = this.data[object].filter((i: any) => i.id !== id);

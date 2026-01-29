@@ -7,6 +7,7 @@ import { MemoryProtocol } from './MemoryProtocol';
 // Initialize the mock server with our protocol definition
 // The JSON protocol def is insufficient for methods, so we wrap it or replace it with an implementation
 const memoryProtocol = new MemoryProtocol({}, (protocol as any).objects);
+console.log('[MockServer] Initializing with MemoryProtocol', memoryProtocol);
 ObjectStackServer.init(memoryProtocol as any);
 
 export const seedData = async () => {
