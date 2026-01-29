@@ -1,0 +1,22 @@
+{
+  "name": "@object-ui/example-crm",
+  "version": "0.1.0",
+  "description": "CRM Metadata Example using ObjectStack Protocol",
+  "private": true,
+  "main": "dist/objectstack.json",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./objectstack.config": "./objectstack.config.ts"
+  },
+  "scripts": {
+    "build": "objectstack compile objectstack.config.ts dist/objectstack.json"
+  },
+  "dependencies": {
+    "@objectstack/spec": "^0.6.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@objectstack/cli": "^0.6.1"
+  }
+}

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 
-import { startMockServer } from './mocks/runtime';
+import { startMockServer } from './mocks/browser';
 import { initClient } from './client';
 
 async function enableMocking() {

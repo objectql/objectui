@@ -266,6 +266,19 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  examples/crm:
+    dependencies:
+      '@objectstack/spec':
+        specifier: ^0.6.1
+        version: 0.6.1
+    devDependencies:
+      '@objectstack/cli':
+        specifier: ^0.6.1
+        version: 0.6.1(esbuild@0.27.2)
+      typescript:
+        specifier: ^5.0.0
+        version: 5.9.3
+
   examples/crm-app:
     dependencies:
       '@object-ui/components':
@@ -277,6 +290,9 @@ importers:
       '@object-ui/data-objectstack':
         specifier: workspace:*
         version: link:../../packages/data-objectstack
+      '@object-ui/example-crm':
+        specifier: workspace:*
+        version: link:../crm
       '@object-ui/fields':
         specifier: workspace:*
         version: link:../../packages/fields
