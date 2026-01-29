@@ -21,7 +21,7 @@
     "@object-ui/react": "workspace:*",
     "@object-ui/types": "workspace:*",
     "@object-ui/example-crm": "workspace:*",
-    "@objectstack/client": "^0.4.1",
+    "@objectstack/client": "^0.6.1",
     "@objectstack/core": "^0.6.1",
     "@objectstack/runtime": "^0.6.1",
     "clsx": "^2.1.1",

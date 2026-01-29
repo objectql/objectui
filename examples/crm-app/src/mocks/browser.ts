@@ -13,6 +13,12 @@ export async function startMockServer() {
   console.log('[MSW] Starting ObjectStack Runtime (Browser Mode)...');
   console.log('[MSW] Loaded Config:', crmConfig ? 'Found' : 'Missing', crmConfig?.apps?.length);
 
+  if (crmConfig && crmConfig.objects) {
+    console.log('[MSW] Objects in Config:', crmConfig.objects.map(o => o.name));
+  } else {
+    console.error('[MSW] No objects found in config!');
+  }
+
   const driver = new InMemoryDriver();
   kernel = new ObjectKernel();
 
@@ -29,9 +35,13 @@ export async function startMockServer() {
 
     kernel.use(new MSWPlugin({
         enableBrowser: true,
-        baseUrl: '/api/v1', // Use root to match client
+        baseUrl: '/api/v1', 
         logRequests: true,
         customHandlers: [
+            // Explicitly handle all metadata requests to prevent pass-through
+            http.get('/api/v1/metadata/*', async () => {
+                 return HttpResponse.json({});
+            }),
             http.get('/api/bootstrap', async () => {
                 const contacts = await driver.find('contact', { object: 'contact' });
                 const stats = { revenue: 125000, leads: 45, deals: 12 };

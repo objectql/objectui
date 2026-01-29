@@ -315,8 +315,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/types
       '@objectstack/client':
-        specifier: ^0.4.1
-        version: 0.4.1
+        specifier: ^0.6.1
+        version: 0.6.1
       '@objectstack/core':
         specifier: ^0.6.1
         version: 0.6.1

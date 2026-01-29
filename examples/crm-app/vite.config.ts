@@ -22,6 +22,7 @@ export default defineConfig(({ mode }) => ({
       '@object-ui/plugin-form': path.resolve(__dirname, '../../packages/plugin-form/src'),
       '@object-ui/plugin-grid': path.resolve(__dirname, '../../packages/plugin-grid/src'),
       '@object-ui/data-objectstack': path.resolve(__dirname, '../../packages/data-objectstack/src'),
+      '@object-ui/example-crm': path.resolve(__dirname, '../../examples/crm/src'),
     },
   },
   test: {
