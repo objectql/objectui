@@ -741,6 +741,17 @@ import { UserField } from './widgets/UserField';
 import { ObjectField } from './widgets/ObjectField';
 import { VectorField } from './widgets/VectorField';
 import { GridField } from './widgets/GridField';
+// New widgets according to @objectstack/spec
+import { ColorField } from './widgets/ColorField';
+import { SliderField } from './widgets/SliderField';
+import { RatingField } from './widgets/RatingField';
+import { CodeField } from './widgets/CodeField';
+import { AvatarField } from './widgets/AvatarField';
+import { AddressField } from './widgets/AddressField';
+import { GeolocationField } from './widgets/GeolocationField';
+import { SignatureField } from './widgets/SignatureField';
+import { QRCodeField } from './widgets/QRCodeField';
+import { MasterDetailField } from './widgets/MasterDetailField';
 
 // Create wrapper renderers for field widgets to work with ComponentDemo
 function createFieldRenderer(FieldWidget: React.ComponentType<any>) {
@@ -822,7 +833,7 @@ export function registerFields() {
   ComponentRegistry.register('markdown', createFieldRenderer(RichTextField));
   ComponentRegistry.register('html', createFieldRenderer(RichTextField));
   ComponentRegistry.register('lookup', createFieldRenderer(LookupField));
-  ComponentRegistry.register('master_detail', createFieldRenderer(LookupField));
+  ComponentRegistry.register('master_detail', createFieldRenderer(MasterDetailField));
   
   // File fields
   ComponentRegistry.register('file', createFieldRenderer(FileField));
@@ -845,6 +856,17 @@ export function registerFields() {
   ComponentRegistry.register('vector', createFieldRenderer(VectorField));
   ComponentRegistry.register('grid', createFieldRenderer(GridField));
   
+  // NEW: Additional field types from @objectstack/spec
+  ComponentRegistry.register('color', createFieldRenderer(ColorField));
+  ComponentRegistry.register('slider', createFieldRenderer(SliderField));
+  ComponentRegistry.register('rating', createFieldRenderer(RatingField));
+  ComponentRegistry.register('code', createFieldRenderer(CodeField));
+  ComponentRegistry.register('avatar', createFieldRenderer(AvatarField));
+  ComponentRegistry.register('address', createFieldRenderer(AddressField));
+  ComponentRegistry.register('geolocation', createFieldRenderer(GeolocationField));
+  ComponentRegistry.register('signature', createFieldRenderer(SignatureField));
+  ComponentRegistry.register('qrcode', createFieldRenderer(QRCodeField));
+  
   // Register with field: prefix for explicit field widgets
   ComponentRegistry.register('field:text', TextField);
   ComponentRegistry.register('field:textarea', TextAreaField);
@@ -864,6 +886,18 @@ export function registerFields() {
   ComponentRegistry.register('field:location', LocationField);
   ComponentRegistry.register('field:user', UserField);
   ComponentRegistry.register('field:object', ObjectField);
+  
+  // NEW: field: prefix registrations for new widgets
+  ComponentRegistry.register('field:color', ColorField);
+  ComponentRegistry.register('field:slider', SliderField);
+  ComponentRegistry.register('field:rating', RatingField);
+  ComponentRegistry.register('field:code', CodeField);
+  ComponentRegistry.register('field:avatar', AvatarField);
+  ComponentRegistry.register('field:address', AddressField);
+  ComponentRegistry.register('field:geolocation', GeolocationField);
+  ComponentRegistry.register('field:signature', SignatureField);
+  ComponentRegistry.register('field:qrcode', QRCodeField);
+  ComponentRegistry.register('field:master_detail', MasterDetailField);
 }
 
 export * from './widgets/types';
@@ -893,3 +927,14 @@ export * from './widgets/UserField';
 export * from './widgets/ObjectField';
 export * from './widgets/VectorField';
 export * from './widgets/GridField';
+// New widgets according to @objectstack/spec
+export * from './widgets/ColorField';
+export * from './widgets/SliderField';
+export * from './widgets/RatingField';
+export * from './widgets/CodeField';
+export * from './widgets/AvatarField';
+export * from './widgets/AddressField';
+export * from './widgets/GeolocationField';
+export * from './widgets/SignatureField';
+export * from './widgets/QRCodeField';
+export * from './widgets/MasterDetailField';
