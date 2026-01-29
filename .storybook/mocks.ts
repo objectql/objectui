@@ -17,5 +17,6 @@ export const handlers = [
     // - /api/v1/data/:object (GET, POST)
     // - /api/v1/data/:object/:id (GET, PUT, DELETE)
     // - /api/v1/metadata/*
+    // - /api/v1/index.json (for ObjectStackClient.connect())
     // - /api/bootstrap
 ];
