@@ -66,33 +66,33 @@ export async function startMockServer() {
   await kernel.bootstrap();
 
   // Seed Data
-  await initializeMockData(kernel);
+  await initializeMockData(kernel, driver);
   
   return kernel;
 }
 
 // Helper to seed data into the in-memory driver
-async function initializeMockData(kernel: ObjectKernel) {
+async function initializeMockData(kernel: ObjectKernel, driver: InMemoryDriver) {
     console.log('[MockServer] Initializing mock data (fresh)...');
-    const objectql = kernel.getService<any>('objectql');
+    // const objectql = kernel.getService<any>('objectql');
     
     try {
         // Seed User
         if (mockData.user) {
-            await objectql.insert('user', { ...mockData.user, id: 'current', _id: 'current' });
+            await driver.create('user', { ...mockData.user, id: 'current', _id: 'current' });
         }
 
         // Seed Contacts
         if (mockData.contacts) {
             for (const contact of mockData.contacts) {
-                await objectql.insert('contact', { ...contact, _id: contact.id });
+                await driver.create('contact', { ...contact, _id: contact.id });
             }
         }
 
         // Seed Opportunities
         if (mockData.opportunities) {
             for (const opp of mockData.opportunities) {
-                await objectql.insert('opportunity', { ...opp, _id: opp.id });
+                await driver.create('opportunity', { ...opp, _id: opp.id });
             }
         }
 
@@ -104,7 +104,7 @@ async function initializeMockData(kernel: ObjectKernel) {
         ];
 
         for (const acc of accounts) {
-            await objectql.insert('account', { ...acc, _id: acc.id });
+            await driver.create('account', { ...acc, _id: acc.id });
         }
 
         console.log('[MockServer] Data seeded successfully');
