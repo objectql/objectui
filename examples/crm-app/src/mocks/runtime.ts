@@ -73,6 +73,7 @@ export async function startMockServer() {
 
 // Helper to seed data into the in-memory driver
 async function seedData(kernel: ObjectKernel) {
+    console.log('[MockServer] Seeding data...');
     const session = { userId: 'system' };
     const objectql = kernel.getService<any>('objectql');
     
