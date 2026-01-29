@@ -34,5 +34,16 @@ export default tseslint.config({ ignores: ['**/dist', '**/.next', '**/node_modul
     ],
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+    '@typescript-eslint/no-empty-object-type': 'warn',
+    '@typescript-eslint/ban-ts-comment': 'warn',
+    // This rule checks for calling impure functions (like Math.random) during render
+    // eslint-plugin-react-hooks@7.x includes this purity check
+    'react-hooks/purity': 'warn',
   },
-}, storybook.configs["flat/recommended"]);
+}, ...storybook.configs["flat/recommended"], {
+  files: ['**/*.stories.{ts,tsx,js,jsx}'],
+  rules: {
+    // Disable the renderer packages rule as we're using @storybook/react in stories
+    'storybook/no-renderer-packages': 'off',
+  },
+});
