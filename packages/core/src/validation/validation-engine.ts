@@ -171,7 +171,7 @@ export class ValidationEngine {
 
       case 'phone':
         if (typeof value === 'string') {
-          const phoneRegex = /^[\d\s\-\+\(\)]+$/;
+          const phoneRegex = /^[\d\s\-+()]+$/;
           if (!phoneRegex.test(value)) {
             return message || 'Invalid phone number';
           }
