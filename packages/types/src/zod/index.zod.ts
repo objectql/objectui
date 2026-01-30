@@ -35,6 +35,15 @@
  */
 
 // ============================================================================
+// Application - Global Configuration
+// ============================================================================
+export {
+  AppSchema,
+  AppActionSchema,
+  MenuItemSchema as AppMenuItemSchema,
+} from './app.zod';
+
+// ============================================================================
 // Base Schema - Foundation
 // ============================================================================
 export {
@@ -241,10 +250,56 @@ export {
 } from './objectql.zod';
 
 // ============================================================================
+// Phase 2 Schemas - Theme, Reports, and Blocks
+// ============================================================================
+export {
+  ColorPaletteSchema,
+  TypographySchema,
+  SpacingScaleSchema,
+  BorderRadiusSchema,
+  ThemeModeSchema,
+  ThemeDefinitionSchema,
+  ThemeSchema,
+  ThemeSwitcherSchema,
+  ThemePreviewSchema,
+  ThemeComponentSchema,
+} from './theme.zod';
+
+export {
+  ReportExportFormatSchema,
+  ReportScheduleFrequencySchema,
+  ReportAggregationTypeSchema,
+  ReportFieldSchema,
+  ReportFilterSchema,
+  ReportGroupBySchema,
+  ReportSectionSchema,
+  ReportScheduleSchema,
+  ReportExportConfigSchema,
+  ReportSchema,
+  ReportBuilderSchema,
+  ReportViewerSchema,
+  ReportComponentSchema,
+} from './reports.zod';
+
+export {
+  BlockVariableSchema,
+  BlockSlotSchema,
+  BlockMetadataSchema,
+  BlockSchema,
+  BlockLibraryItemSchema,
+  BlockLibrarySchema,
+  BlockEditorSchema,
+  BlockInstanceSchema,
+  ComponentSchema,
+  BlockComponentSchema,
+} from './blocks.zod';
+
+// ============================================================================
 // Union Types - All Component Schemas
 // ============================================================================
 
 import { z } from 'zod';
+import { AppSchema } from './app.zod';
 import { LayoutSchema } from './layout.zod';
 import { FormComponentSchema } from './form.zod';
 import { DataDisplaySchema } from './data-display.zod';
@@ -254,12 +309,16 @@ import { OverlaySchema } from './overlay.zod';
 import { NavigationSchema } from './navigation.zod';
 import { ComplexSchema } from './complex.zod';
 import { ObjectQLComponentSchema } from './objectql.zod';
+import { ThemeComponentSchema } from './theme.zod';
+import { ReportComponentSchema } from './reports.zod';
+import { BlockComponentSchema } from './blocks.zod';
 
 /**
  * Union of all component schemas.
  * Use this for generic component rendering where the type is determined at runtime.
  */
 export const AnyComponentSchema = z.union([
+  AppSchema,
   LayoutSchema,
   FormComponentSchema,
   DataDisplaySchema,
@@ -269,6 +328,9 @@ export const AnyComponentSchema = z.union([
   NavigationSchema,
   ComplexSchema,
   ObjectQLComponentSchema,
+  ThemeComponentSchema,
+  ReportComponentSchema,
+  BlockComponentSchema,
 ]);
 
 /**
