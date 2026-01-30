@@ -59,6 +59,9 @@ const ensureMSWReady = async () => {
   if (!mswInitialized && mswInitPromise) {
     console.log('[Storybook] Waiting for MSW runtime to initialize...');
     await mswInitPromise;
+    // Give MSW service worker a moment to be fully ready
+    await new Promise(resolve => setTimeout(resolve, 100));
+    console.log('[Storybook] MSW Ready - Stories can now render');
   }
   return {};
 };

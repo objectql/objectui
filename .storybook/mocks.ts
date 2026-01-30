@@ -12,11 +12,23 @@ import { http, HttpResponse } from 'msw';
  */
 
 export const handlers = [
+    // Handle ObjectStack client connection endpoint
+    http.get('/api/v1/index.json', async () => {
+        console.log('[MSW Handlers] Intercepted /api/v1/index.json');
+        return HttpResponse.json({
+            version: '1.0',
+            objects: ['contact', 'opportunity', 'account'],
+            endpoints: {
+                data: '/api/v1/data',
+                metadata: '/api/v1/metadata'
+            }
+        });
+    }),
+    
     // Additional custom handlers can be added here for specific story needs
     // The ObjectStack MSW runtime already handles:
     // - /api/v1/data/:object (GET, POST)
     // - /api/v1/data/:object/:id (GET, PUT, DELETE)
     // - /api/v1/metadata/*
-    // - /api/v1/index.json (for ObjectStackClient.connect())
     // - /api/bootstrap
 ];
