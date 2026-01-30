@@ -431,3 +431,22 @@ export type {
   SchemaRegistry,
   ComponentType,
 } from './registry';
+
+// ============================================================================
+// ObjectStack Protocol Namespaces - Protocol Re-exports
+// ============================================================================
+/**
+ * Re-export ObjectStack Protocol namespaces for convenience.
+ * 
+ * This allows consumers to access the full ObjectStack protocol through
+ * @object-ui/types without needing to install @objectstack/spec separately.
+ * 
+ * @example
+ * ```typescript
+ * import { Data, UI, System, AI, API } from '@object-ui/types';
+ * 
+ * const field: Data.Field = { name: 'task_name', type: 'text' };
+ * const component: UI.Component = { type: 'button', label: 'Click me' };
+ * ```
+ */
+export type { Data, UI, System, AI, API, Auth, Hub, Automation, Permission, Shared } from '@objectstack/spec';
