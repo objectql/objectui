@@ -57,7 +57,8 @@ export const SchemaRenderer = forwardRef<any, { schema: SchemaNode } & Record<st
   // may not support refs. The SchemaRenderer itself can still receive refs for its own use.
   return React.createElement(Component, {
     schema: evaluatedSchema,
-    ...(evaluatedSchema.props || {}),
+    ...evaluatedSchema,  // Spread all schema properties as props
+    ...(evaluatedSchema.props || {}),  // Override with explicit props if provided
     className: evaluatedSchema.className,
     'data-obj-id': evaluatedSchema.id,
     'data-obj-type': evaluatedSchema.type,
