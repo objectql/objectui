@@ -22,7 +22,7 @@ describe('MSW Server Integration', () => {
     expect(driver).toBeDefined();
     
     // Check that initial data was loaded
-    const contacts = await driver!.find('contact', {});
+    const contacts = await driver!.find('contact', { object: 'contact' });
     expect(contacts).toHaveLength(3);
     expect(contacts[0].name).toBe('John Doe');
   });
@@ -35,7 +35,7 @@ describe('MSW Server Integration', () => {
       email: 'test@example.com',
       is_active: true,
       priority: 5
-    });
+    }) as any;
 
     expect(newContact.name).toBe('Test User');
     expect(newContact.email).toBe('test@example.com');

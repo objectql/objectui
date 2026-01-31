@@ -36,7 +36,7 @@ describe('ObjectForm with MSW Integration', () => {
     // Clean up created contacts after each test
     const driver = getDriver();
     if (driver) {
-      const contacts = await driver.find('contact', {});
+      const contacts = await driver.find('contact', { object: 'contact' });
       for (const contact of contacts) {
         if (contact.id && !['1', '2', '3'].includes(contact.id)) {
           await driver.delete('contact', contact.id);
@@ -260,7 +260,6 @@ describe('ObjectForm with MSW Integration', () => {
     });
 
     it('should handle update errors gracefully', async () => {
-      const user = userEvent.setup();
       const onError = vi.fn();
 
       render(
@@ -461,9 +460,9 @@ describe('ObjectForm with MSW Integration', () => {
       const createdId = createdContact.id;
 
       // Verify data is persisted by fetching it
-      const result = await client.data.findById('contact', createdId);
-      expect(result.value.name).toBe('Persist Test');
-      expect(result.value.email).toBe('persist@example.com');
+      const result = await client.data.get('contact', createdId);
+      expect(result.name).toBe('Persist Test');
+      expect(result.email).toBe('persist@example.com');
     });
   });
 });

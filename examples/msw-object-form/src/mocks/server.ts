@@ -84,7 +84,7 @@ export function getDriver(): InMemoryDriver | null {
  * Create MSW request handlers for ObjectStack API
  */
 function createHandlers(baseUrl: string, kernel: ObjectKernel) {
-  const protocol = kernel.getService('protocol');
+  const protocol = kernel.getService('protocol') as any;
   
   return [
     // Discovery endpoint

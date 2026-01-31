@@ -4,7 +4,7 @@
  * Adapter that connects ObjectForm to ObjectStack Client
  */
 
-import type { DataSource } from '@object-ui/types';
+import type { DataSource, QueryResult } from '@object-ui/types';
 import type { ObjectStackClient } from '@objectstack/client';
 
 export class ObjectStackDataSource implements DataSource {
@@ -12,31 +12,42 @@ export class ObjectStackDataSource implements DataSource {
 
   async getObjectSchema(objectName: string): Promise<any> {
     // Fetch object metadata from ObjectStack
-    const metadata = await this.client.metadata.getObject(objectName);
+    const metadata = await this.client.meta.getObject(objectName);
     return metadata;
   }
 
   async findOne(objectName: string, id: string): Promise<any> {
-    const result = await this.client.data.findById(objectName, id);
-    return result.value;
+    const result = await this.client.data.get(objectName, id);
+    return result;
   }
 
   async create(objectName: string, data: any): Promise<any> {
     const result = await this.client.data.create(objectName, data);
-    return result.value;
+    return result;
   }
 
   async update(objectName: string, id: string, data: any): Promise<any> {
     const result = await this.client.data.update(objectName, id, data);
-    return result.value;
+    return result;
   }
 
-  async delete(objectName: string, id: string): Promise<void> {
-    await this.client.data.delete(objectName, id);
+  async delete(objectName: string, id: string): Promise<boolean> {
+    const result = await this.client.data.delete(objectName, id);
+    return result.success;
   }
 
-  async find(objectName: string, options?: any): Promise<any[]> {
-    const result = await this.client.data.find(objectName, options);
-    return result.value;
+  async find(objectName: string, options?: any): Promise<QueryResult<any>> {
+    const result: any = await this.client.data.find(objectName, options || {});
+    
+    // Handle array response
+    if (Array.isArray(result)) {
+      return { data: result };
+    }
+    
+    // Handle ObjectStack response format
+    return {
+      data: result.value || result,
+      total: result.count,
+    };
   }
 }

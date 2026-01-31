@@ -111,7 +111,7 @@ describe('Dashboard MSW Integration', () => {
       const driver = getDriver();
       
       // Get actual data from server
-      const contacts = await driver!.find('contact', {});
+      const contacts = await driver!.find('contact', { object: 'contact' }) as any[];
       const activeContacts = contacts.filter(c => c.is_active);
 
       const schema: DashboardSchema = {
