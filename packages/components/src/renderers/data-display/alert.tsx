@@ -23,6 +23,7 @@ ComponentRegistry.register('alert',
     </Alert>
   ),
   {
+    namespace: 'ui',
     label: 'Alert',
     inputs: [
       { name: 'title', type: 'string', label: 'Title', required: true },

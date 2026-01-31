@@ -39,6 +39,7 @@ ComponentRegistry.register('toggle-group',
     );
   },
   {
+    namespace: 'ui',
     label: 'Toggle Group',
     inputs: [
       { 

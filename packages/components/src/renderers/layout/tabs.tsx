@@ -48,6 +48,7 @@ ComponentRegistry.register('tabs',
   );
   },
   {
+    namespace: 'ui',
     label: 'Tabs',
     inputs: [
       { name: 'defaultValue', type: 'string', label: 'Default Value', required: true },

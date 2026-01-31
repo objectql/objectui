@@ -165,6 +165,7 @@ ComponentRegistry.register('file-upload',
     );
   },
   {
+    namespace: 'ui',
     label: 'File Upload',
     inputs: [
       { name: 'label', type: 'string', label: 'Label' },

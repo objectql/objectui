@@ -34,6 +34,7 @@ ComponentRegistry.register('html',
     );
   },
   {
+    namespace: 'ui',
     label: 'HTML Content',
     inputs: [
       { name: 'html', type: 'string', label: 'HTML', description: 'Raw HTML content' }

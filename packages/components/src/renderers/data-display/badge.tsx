@@ -34,6 +34,7 @@ ComponentRegistry.register('badge',
   );
   },
   {
+    namespace: 'ui',
     label: 'Badge',
     inputs: [
       { name: 'label', type: 'string', label: 'Label' },

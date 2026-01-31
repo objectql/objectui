@@ -75,6 +75,7 @@ ComponentRegistry.register('statistic', StatisticRenderer, {
     { name: 'value', type: 'string', label: 'Value' },
     { name: 'description', type: 'string', label: 'Description' },
     { 
+   namespace: 'ui',
       name: 'trend', 
       type: 'enum', 
       enum: [

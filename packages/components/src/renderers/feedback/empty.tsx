@@ -35,6 +35,7 @@ ComponentRegistry.register('empty',
     );
   },
   {
+    namespace: 'ui',
     label: 'Empty',
     inputs: [
       { name: 'title', type: 'string', label: 'Title', defaultValue: 'No data' },

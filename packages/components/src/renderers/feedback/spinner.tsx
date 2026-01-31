@@ -36,6 +36,7 @@ ComponentRegistry.register('spinner',
     );
   },
   {
+    namespace: 'ui',
     label: 'Spinner',
     inputs: [
       { 

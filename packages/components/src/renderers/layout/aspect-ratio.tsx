@@ -36,6 +36,7 @@ ComponentRegistry.register('aspect-ratio',
     );
   },
   {
+    namespace: 'ui',
     label: 'Aspect Ratio',
     inputs: [
       { name: 'ratio', type: 'number', label: 'Ratio', defaultValue: 16/9 },

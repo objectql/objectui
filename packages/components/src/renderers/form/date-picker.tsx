@@ -66,6 +66,7 @@ ComponentRegistry.register('date-picker',
     );
   },
   {
+    namespace: 'ui',
     label: 'Date Picker',
     inputs: [
       { name: 'label', type: 'string', label: 'Label' },

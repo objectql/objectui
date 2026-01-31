@@ -68,6 +68,7 @@ ComponentRegistry.register('pagination',
     );
   },
   {
+    namespace: 'ui',
     label: 'Pagination',
     inputs: [
       { name: 'currentPage', type: 'number', label: 'Current Page', defaultValue: 1 },

@@ -27,6 +27,7 @@ ComponentRegistry.register('popover',
     </Popover>
   ),
   {
+    namespace: 'ui',
     label: 'Popover',
     inputs: [
       { name: 'modal', type: 'boolean', label: 'Modal' },

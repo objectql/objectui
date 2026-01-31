@@ -76,6 +76,7 @@ ComponentRegistry.register('flex',
     );
   },
   {
+    namespace: 'ui',
     label: 'Flex Layout',
     inputs: [
       { 

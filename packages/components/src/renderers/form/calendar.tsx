@@ -20,6 +20,7 @@ ComponentRegistry.register('calendar',
     />
   ),
   {
+    namespace: 'ui',
     label: 'Calendar',
     inputs: [
       { name: 'mode', type: 'enum', enum: ['default', 'single', 'multiple', 'range'], defaultValue: 'single', label: 'Mode' },

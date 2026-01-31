@@ -30,6 +30,7 @@ ComponentRegistry.register('sidebar-provider',
     <SidebarProvider {...props}>{renderChildren(schema.body)}</SidebarProvider>
   ),
   {
+    namespace: 'ui',
     label: 'Sidebar Provider',
     inputs: [
       { name: 'defaultOpen', type: 'boolean', label: 'Default Open', defaultValue: true }
@@ -49,6 +50,7 @@ ComponentRegistry.register('sidebar',
     <Sidebar {...props}>{renderChildren(schema.body)}</Sidebar>
   ),
   {
+    namespace: 'ui',
     label: 'Sidebar',
     inputs: [
       { name: 'collapsible', type: 'enum', enum: ['offcanvas', 'icon', 'none'], defaultValue: 'icon', label: 'Collapsible' },
@@ -102,6 +104,7 @@ ComponentRegistry.register('sidebar-group',
     </SidebarGroup>
   ),
   {
+    namespace: 'ui',
     label: 'Sidebar Group',
     inputs: [
       { name: 'label', type: 'string', label: 'Label' }
@@ -147,6 +150,7 @@ ComponentRegistry.register('sidebar-menu-button',
     </SidebarMenuButton>
   ),
   {
+    namespace: 'ui',
     label: 'Sidebar Menu Button',
     inputs: [
       { name: 'active', type: 'boolean', label: 'Active', defaultValue: false },
@@ -191,6 +195,7 @@ ComponentRegistry.register('sidebar-trigger',
     <SidebarTrigger className={className} {...props} />
   ),
   {
+    namespace: 'ui',
     label: 'Sidebar Trigger',
     inputs: [{ name: 'className', type: 'string', label: 'CSS Class' }]
   }

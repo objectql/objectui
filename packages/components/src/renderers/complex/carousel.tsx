@@ -41,6 +41,7 @@ ComponentRegistry.register('carousel',
     </Carousel>
   ),
   {
+    namespace: 'ui',
     label: 'Carousel',
     inputs: [
       { name: 'orientation', type: 'enum', enum: ['horizontal', 'vertical'], defaultValue: 'horizontal', label: 'Orientation' },

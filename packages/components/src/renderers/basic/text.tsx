@@ -40,6 +40,7 @@ ComponentRegistry.register('text',
     return <>{schema.content || schema.value}</>;
   },
   {
+    namespace: 'ui',
     label: 'Text',
     inputs: [
       { name: 'content', type: 'string', label: 'Content', required: true }

@@ -65,6 +65,7 @@ ComponentRegistry.register('dropdown-menu',
     </DropdownMenu>
   ),
   {
+    namespace: 'ui',
     label: 'Dropdown Menu',
     inputs: [
       { name: 'label', type: 'string', label: 'Menu Label' },

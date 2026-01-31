@@ -605,6 +605,7 @@ ComponentRegistry.register('data-table', DataTableRenderer, {
   inputs: [
     { name: 'caption', type: 'string', label: 'Caption' },
     {
+   namespace: 'ui',
       name: 'columns',
       type: 'array',
       label: 'Columns',

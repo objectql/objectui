@@ -38,6 +38,7 @@ ComponentRegistry.register('radio-group',
   );
   },
   {
+    namespace: 'ui',
     label: 'Radio Group',
     inputs: [
       { name: 'defaultValue', type: 'string', label: 'Default Value' },

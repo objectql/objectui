@@ -27,6 +27,7 @@ ComponentRegistry.register('collapsible',
     </Collapsible>
   ),
   {
+    namespace: 'ui',
     label: 'Collapsible',
     inputs: [
       { name: 'defaultOpen', type: 'boolean', label: 'Default Open' },

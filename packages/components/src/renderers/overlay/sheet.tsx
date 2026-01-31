@@ -40,6 +40,7 @@ ComponentRegistry.register('sheet',
     </Sheet>
   ),
   {
+    namespace: 'ui',
     label: 'Sheet',
     inputs: [
       { name: 'title', type: 'string', label: 'Title' },

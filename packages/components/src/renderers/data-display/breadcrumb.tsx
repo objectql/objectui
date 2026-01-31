@@ -44,6 +44,7 @@ ComponentRegistry.register('breadcrumb',
     );
   },
   {
+    namespace: 'ui',
     label: 'Breadcrumb',
     inputs: [
       { name: 'className', type: 'string', label: 'CSS Class' }

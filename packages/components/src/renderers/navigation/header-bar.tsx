@@ -44,6 +44,7 @@ ComponentRegistry.register('header-bar',
     </header>
   ),
   {
+    namespace: 'ui',
     label: 'Header Bar',
     inputs: [
        { name: 'crumbs', type: 'array', label: 'Breadcrumbs' }

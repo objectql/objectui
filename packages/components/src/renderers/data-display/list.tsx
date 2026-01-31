@@ -78,6 +78,7 @@ ComponentRegistry.register('list',
     );
   },
   {
+    namespace: 'ui',
     label: 'List',
     inputs: [
       { name: 'title', type: 'string', label: 'Title' },

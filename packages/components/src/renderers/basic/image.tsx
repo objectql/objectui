@@ -33,6 +33,7 @@ ComponentRegistry.register('image',
   );
   },
   {
+    namespace: 'ui',
     label: 'Image',
     icon: 'image',
     category: 'basic',

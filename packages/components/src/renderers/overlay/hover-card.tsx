@@ -27,6 +27,7 @@ ComponentRegistry.register('hover-card',
     </HoverCard>
   ),
   {
+    namespace: 'ui',
     label: 'Hover Card',
     inputs: [
        { name: 'openDelay', type: 'number', label: 'Open Delay' },
