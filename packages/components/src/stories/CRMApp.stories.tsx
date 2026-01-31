@@ -8,7 +8,10 @@ import {
     Users, 
     Settings, 
     FileText,
-    GalleryVerticalEnd
+    GalleryVerticalEnd,
+    Building2,
+    UserPlus,
+    TrendingUp
 } from 'lucide-react';
 
 /* --- MOCK DATA --- */
@@ -43,11 +46,41 @@ const CONTACTS_DATA = {
 
 const OPPORTUNITIES_DATA = {
     opportunities: [
-        { id: 101, name: "TechCorp License Renewal", amount: 50000, stage: "Negotiation", probability: "80%" },
-        { id: 102, name: "SalesInc New Deal", amount: 12000, stage: "Qualified", probability: "40%" },
-        { id: 103, name: "StartupHub Seed", amount: 5000, stage: "Closed Won", probability: "100%" },
-        { id: 104, name: "Enterprise Ltd Expansion", amount: 150000, stage: "Proposal", probability: "60%" }
+        { id: 101, name: "TechCorp License Renewal", amount: 50000, stage: "Negotiation", probability: "80%", closeDate: "2026-02-15", contact: "Alice Johnson" },
+        { id: 102, name: "SalesInc New Deal", amount: 12000, stage: "Qualified", probability: "40%", closeDate: "2026-03-01", contact: "Bob Smith" },
+        { id: 103, name: "StartupHub Seed", amount: 5000, stage: "Closed Won", probability: "100%", closeDate: "2026-01-20", contact: "Charlie Davis" },
+        { id: 104, name: "Enterprise Ltd Expansion", amount: 150000, stage: "Proposal", probability: "60%", closeDate: "2026-02-28", contact: "Dana Wilson" }
     ]
+};
+
+const ACCOUNTS_DATA = {
+    accounts: [
+        { id: 1, name: "TechCorp", industry: "Technology", revenue: 5000000, employees: 250, status: "Active" },
+        { id: 2, name: "SalesInc", industry: "Sales & Marketing", revenue: 1200000, employees: 50, status: "Active" },
+        { id: 3, name: "StartupHub", industry: "Venture Capital", revenue: 500000, employees: 15, status: "Lead" },
+        { id: 4, name: "Enterprise Ltd", industry: "Enterprise Software", revenue: 15000000, employees: 500, status: "Active" },
+        { id: 5, name: "Innovate LLC", industry: "Innovation", revenue: 3000000, employees: 100, status: "Active" }
+    ]
+};
+
+const CONTACT_DETAIL_DATA = {
+    id: 1,
+    name: "Alice Johnson",
+    company: "TechCorp",
+    email: "alice@techcorp.com",
+    status: "Active"
+};
+
+const OPPORTUNITY_DETAIL_DATA = {
+    id: 101,
+    name: "TechCorp License Renewal",
+    amount: 50000,
+    stage: "Negotiation",
+    probability: "80%",
+    closeDate: "2026-02-15",
+    contact: "Alice Johnson",
+    expectedRevenue: 40000,
+    daysToClose: 15
 };
 
 /* --- SCHEMAS --- */
@@ -79,10 +112,10 @@ const dashboardSchema = {
             type: "grid",
             props: { cols: 4, gap: 4, className: "mb-8 mt-2" },
             children: [
-                { type: "card", props: { title: "Total Revenue", description: "${data.revenueGrowth}" }, children: [{type: "text", content: "${data.revenue}", className: "text-2xl font-bold"}] },
-                { type: "card", props: { title: "Subscriptions", description: "${data.subGrowth}" }, children: [{type: "text", content: "${data.subscriptions}", className: "text-2xl font-bold"}] },
-                { type: "card", props: { title: "Sales", description: "${data.salesGrowth}" }, children: [{type: "text", content: "${data.sales}", className: "text-2xl font-bold"}] },
-                { type: "card", props: { title: "Active Now", description: "+201 since last hour" }, children: [{type: "text", content: "+573", className: "text-2xl font-bold"}] },
+                { type: "card", title: "Total Revenue", description: "${data.revenueGrowth}", children: [{type: "text", content: "${data.revenue}", className: "text-2xl font-bold"}] },
+                { type: "card", title: "Subscriptions", description: "${data.subGrowth}", children: [{type: "text", content: "${data.subscriptions}", className: "text-2xl font-bold"}] },
+                { type: "card", title: "Sales", description: "${data.salesGrowth}", children: [{type: "text", content: "${data.sales}", className: "text-2xl font-bold"}] },
+                { type: "card", title: "Active Now", description: "+201 since last hour", children: [{type: "text", content: "+573", className: "text-2xl font-bold"}] },
             ]
         },
         {
@@ -144,20 +177,28 @@ const contactsSchema = {
             ]
         },
         {
+            type: "div",
+            className: "flex gap-2 mt-4",
+            children: [
+                { type: "button", props: { variant: "outline", size: "sm", children: "All Contacts" } },
+                { type: "button", props: { variant: "ghost", size: "sm", children: "Active" } },
+                { type: "button", props: { variant: "ghost", size: "sm", children: "Inactive" } },
+                { type: "button", props: { variant: "ghost", size: "sm", children: "Leads" } }
+            ]
+        },
+        {
             type: "page:card",
-            className: "mt-6",
+            className: "mt-4",
             children: [
                 {
                     type: "view:grid",
-                    bind: "contacts",
-                    props: {
-                        columns: [
-                            { key: "name", label: "Name", type: "text" },
-                            { key: "company", label: "Company", type: "text" },
-                            { key: "email", label: "Email", type: "text" },
-                            { key: "status", label: "Status", type: "text" }
-                        ]
-                    }
+                    staticData: CONTACTS_DATA.contacts,
+                    columns: [
+                        { key: "name", label: "Name", type: "text" },
+                        { key: "company", label: "Company", type: "text" },
+                        { key: "email", label: "Email", type: "text" },
+                        { key: "status", label: "Status", type: "text" }
+                    ]
                 }
             ]
         }
@@ -170,7 +211,10 @@ const opportunitiesSchema = {
     children: [
         {
             type: "page:header",
-            props: { title: "Opportunities", description: "View and track sales deals." }
+            props: { title: "Opportunities", description: "View and track sales deals." },
+            children: [
+                { type: "button", props: { children: "New Opportunity", size: "sm" } }
+            ]
         },
         {
             type: "page:card",
@@ -178,15 +222,15 @@ const opportunitiesSchema = {
             children: [
                 {
                     type: "view:grid",
-                    bind: "opportunities",
-                    props: {
-                        columns: [
-                            { key: "name", label: "Deal Name", type: "text" },
-                            { key: "stage", label: "Stage", type: "text" },
-                            { key: "amount", label: "Amount ($)", type: "number" },
-                            { key: "probability", label: "Probability", type: "text" }
-                        ]
-                    }
+                    staticData: OPPORTUNITIES_DATA.opportunities,
+                    columns: [
+                        { key: "name", label: "Deal Name", type: "text" },
+                        { key: "contact", label: "Contact", type: "text" },
+                        { key: "stage", label: "Stage", type: "text" },
+                        { key: "amount", label: "Amount ($)", type: "number" },
+                        { key: "probability", label: "Probability", type: "text" },
+                        { key: "closeDate", label: "Close Date", type: "text" }
+                    ]
                 }
             ]
         }
@@ -255,6 +299,272 @@ const SETTINGS_DATA = {
     }
 };
 
+const accountsSchema = {
+    type: "page",
+    props: { title: "Accounts" },
+    children: [
+        {
+            type: "page:header",
+            props: { title: "Accounts", description: "Manage your business accounts and companies." },
+            children: [
+                { type: "button", props: { children: "New Account", size: "sm" } }
+            ]
+        },
+        {
+            type: "page:card",
+            className: "mt-6",
+            children: [
+                {
+                    type: "view:grid",
+                    staticData: ACCOUNTS_DATA.accounts,
+                    columns: [
+                        { key: "name", label: "Account Name", type: "text" },
+                        { key: "industry", label: "Industry", type: "text" },
+                        { key: "revenue", label: "Annual Revenue ($)", type: "number" },
+                        { key: "employees", label: "Employees", type: "number" },
+                        { key: "status", label: "Status", type: "text" }
+                    ]
+                }
+            ]
+        }
+    ]
+};
+
+const contactDetailSchema = {
+    type: "page",
+    props: { title: "Contact Details" },
+    children: [
+        {
+            type: "div",
+            className: "flex items-center justify-between mb-6",
+            children: [
+                {
+                    type: "page:header",
+                    props: { 
+                        title: "${data.name}", 
+                        description: "${data.company} • ${data.email}"
+                    },
+                    className: "mb-0"
+                },
+                {
+                    type: "div",
+                    className: "flex gap-2",
+                    children: [
+                        { type: "button", props: { variant: "outline", size: "sm", children: "Edit" } },
+                        { type: "button", props: { variant: "outline", size: "sm", children: "Delete" } }
+                    ]
+                }
+            ]
+        },
+        {
+            type: "grid",
+            props: { cols: 3, gap: 6 },
+            children: [
+                {
+                    type: "page:card",
+                    props: { title: "Contact Information", className: "col-span-2" },
+                    children: [
+                        {
+                            type: "div",
+                            className: "grid grid-cols-2 gap-4",
+                            children: [
+                                { type: "div", children: [
+                                    { type: "text", content: "Name", className: "text-sm font-medium text-muted-foreground block mb-1" },
+                                    { type: "text", content: "${data.name}", className: "text-base" }
+                                ]},
+                                { type: "div", children: [
+                                    { type: "text", content: "Email", className: "text-sm font-medium text-muted-foreground block mb-1" },
+                                    { type: "text", content: "${data.email}", className: "text-base" }
+                                ]},
+                                { type: "div", children: [
+                                    { type: "text", content: "Company", className: "text-sm font-medium text-muted-foreground block mb-1" },
+                                    { type: "text", content: "${data.company}", className: "text-base" }
+                                ]},
+                                { type: "div", children: [
+                                    { type: "text", content: "Status", className: "text-sm font-medium text-muted-foreground block mb-1" },
+                                    { type: "badge", props: { variant: "default" }, children: [{ type: "text", content: "${data.status}" }] }
+                                ]}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    type: "page:card",
+                    props: { title: "Quick Actions", className: "col-span-1" },
+                    children: [
+                        {
+                            type: "div",
+                            className: "flex flex-col gap-2",
+                            children: [
+                                { type: "button", props: { variant: "outline", className: "justify-start", children: "Send Email" } },
+                                { type: "button", props: { variant: "outline", className: "justify-start", children: "Schedule Call" } },
+                                { type: "button", props: { variant: "outline", className: "justify-start", children: "Create Task" } }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            type: "page:card",
+            props: { title: "Recent Activities", className: "mt-6" },
+            children: [
+                {
+                    type: "div",
+                    className: "space-y-3",
+                    children: [
+                        { type: "div", className: "flex items-start gap-3 py-2", children: [
+                            { type: "div", className: "h-2 w-2 rounded-full bg-blue-500 mt-2" },
+                            { type: "div", children: [
+                                { type: "text", content: "Email sent", className: "font-medium block" },
+                                { type: "text", content: "Sent product demo information", className: "text-sm text-muted-foreground block" },
+                                { type: "text", content: "2 hours ago", className: "text-xs text-muted-foreground block mt-1" }
+                            ]}
+                        ]},
+                        { type: "div", className: "flex items-start gap-3 py-2", children: [
+                            { type: "div", className: "h-2 w-2 rounded-full bg-green-500 mt-2" },
+                            { type: "div", children: [
+                                { type: "text", content: "Meeting completed", className: "font-medium block" },
+                                { type: "text", content: "Discussed Q1 requirements", className: "text-sm text-muted-foreground block" },
+                                { type: "text", content: "1 day ago", className: "text-xs text-muted-foreground block mt-1" }
+                            ]}
+                        ]},
+                        { type: "div", className: "flex items-start gap-3 py-2", children: [
+                            { type: "div", className: "h-2 w-2 rounded-full bg-gray-400 mt-2" },
+                            { type: "div", children: [
+                                { type: "text", content: "Contact created", className: "font-medium block" },
+                                { type: "text", content: "Added to CRM system", className: "text-sm text-muted-foreground block" },
+                                { type: "text", content: "3 days ago", className: "text-xs text-muted-foreground block mt-1" }
+                            ]}
+                        ]}
+                    ]
+                }
+            ]
+        }
+    ]
+};
+
+const opportunityDetailSchema = {
+    type: "page",
+    props: { title: "Opportunity Details" },
+    children: [
+        {
+            type: "div",
+            className: "flex items-center justify-between mb-6",
+            children: [
+                {
+                    type: "page:header",
+                    props: { 
+                        title: "${data.name}", 
+                        description: "Stage: ${data.stage} • Close Date: ${data.closeDate}"
+                    },
+                    className: "mb-0"
+                },
+                {
+                    type: "div",
+                    className: "flex gap-2",
+                    children: [
+                        { type: "button", props: { variant: "outline", size: "sm", children: "Edit" } },
+                        { type: "button", props: { size: "sm", children: "Mark as Won" } }
+                    ]
+                }
+            ]
+        },
+        {
+            type: "grid",
+            props: { cols: 4, gap: 4, className: "mb-6" },
+            children: [
+                { 
+                    type: "card", 
+                    title: "Deal Amount", 
+                    children: [{ type: "text", content: "$${data.amount}", className: "text-2xl font-bold" }] 
+                },
+                { 
+                    type: "card", 
+                    title: "Probability", 
+                    children: [{ type: "text", content: "${data.probability}", className: "text-2xl font-bold" }] 
+                },
+                { 
+                    type: "card", 
+                    title: "Expected Revenue", 
+                    children: [{ type: "text", content: "$${data.expectedRevenue}", className: "text-2xl font-bold" }] 
+                },
+                { 
+                    type: "card", 
+                    title: "Days to Close", 
+                    children: [{ type: "text", content: "${data.daysToClose}", className: "text-2xl font-bold" }] 
+                }
+            ]
+        },
+        {
+            type: "grid",
+            props: { cols: 3, gap: 6 },
+            children: [
+                {
+                    type: "page:card",
+                    props: { title: "Opportunity Details", className: "col-span-2" },
+                    children: [
+                        {
+                            type: "div",
+                            className: "grid grid-cols-2 gap-4",
+                            children: [
+                                { type: "div", children: [
+                                    { type: "text", content: "Deal Name", className: "text-sm font-medium text-muted-foreground block mb-1" },
+                                    { type: "text", content: "${data.name}", className: "text-base" }
+                                ]},
+                                { type: "div", children: [
+                                    { type: "text", content: "Contact", className: "text-sm font-medium text-muted-foreground block mb-1" },
+                                    { type: "text", content: "${data.contact}", className: "text-base" }
+                                ]},
+                                { type: "div", children: [
+                                    { type: "text", content: "Stage", className: "text-sm font-medium text-muted-foreground block mb-1" },
+                                    { type: "badge", props: { variant: "default" }, children: [{ type: "text", content: "${data.stage}" }] }
+                                ]},
+                                { type: "div", children: [
+                                    { type: "text", content: "Close Date", className: "text-sm font-medium text-muted-foreground block mb-1" },
+                                    { type: "text", content: "${data.closeDate}", className: "text-base" }
+                                ]}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    type: "page:card",
+                    props: { title: "Stage Progress", className: "col-span-1" },
+                    children: [
+                        {
+                            type: "div",
+                            className: "space-y-2",
+                            children: [
+                                { type: "div", className: "flex items-center justify-between", children: [
+                                    { type: "text", content: "Prospecting", className: "text-sm" },
+                                    { type: "text", content: "✓", className: "text-green-500" }
+                                ]},
+                                { type: "div", className: "flex items-center justify-between", children: [
+                                    { type: "text", content: "Qualified", className: "text-sm" },
+                                    { type: "text", content: "✓", className: "text-green-500" }
+                                ]},
+                                { type: "div", className: "flex items-center justify-between", children: [
+                                    { type: "text", content: "Proposal", className: "text-sm font-medium" },
+                                    { type: "text", content: "●", className: "text-blue-500" }
+                                ]},
+                                { type: "div", className: "flex items-center justify-between", children: [
+                                    { type: "text", content: "Negotiation", className: "text-sm text-muted-foreground" },
+                                    { type: "text", content: "○", className: "text-gray-300" }
+                                ]},
+                                { type: "div", className: "flex items-center justify-between", children: [
+                                    { type: "text", content: "Closed", className: "text-sm text-muted-foreground" },
+                                    { type: "text", content: "○", className: "text-gray-300" }
+                                ]}
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+};
+
 /* --- APP COMPONENT --- */
 
 const CRMStoryApp = () => {
@@ -266,8 +576,14 @@ const CRMStoryApp = () => {
                 return <SchemaRendererProvider dataSource={DASHBOARD_DATA}><SchemaRenderer schema={dashboardSchema} /></SchemaRendererProvider>;
             case "contacts":
                 return <SchemaRendererProvider dataSource={CONTACTS_DATA}><SchemaRenderer schema={contactsSchema} /></SchemaRendererProvider>;
+            case "contact-detail":
+                return <SchemaRendererProvider dataSource={CONTACT_DETAIL_DATA}><SchemaRenderer schema={contactDetailSchema} /></SchemaRendererProvider>;
+            case "accounts":
+                return <SchemaRendererProvider dataSource={ACCOUNTS_DATA}><SchemaRenderer schema={accountsSchema} /></SchemaRendererProvider>;
             case "opportunities":
                 return <SchemaRendererProvider dataSource={OPPORTUNITIES_DATA}><SchemaRenderer schema={opportunitiesSchema} /></SchemaRendererProvider>;
+            case "opportunity-detail":
+                return <SchemaRendererProvider dataSource={OPPORTUNITY_DETAIL_DATA}><SchemaRenderer schema={opportunityDetailSchema} /></SchemaRendererProvider>;
             case "settings":
                 return <SchemaRendererProvider dataSource={SETTINGS_DATA}><SchemaRenderer schema={settingsSchema} /></SchemaRendererProvider>;
             default:
@@ -316,11 +632,19 @@ const CRMStoryApp = () => {
                                     <span>Contacts</span>
                                 </SidebarMenuButton>
                                 <SidebarMenuButton 
+                                    isActive={activePage === "accounts"} 
+                                    onClick={() => setActivePage("accounts")}
+                                    tooltip="Accounts"
+                                >
+                                    <Building2 />
+                                    <span>Accounts</span>
+                                </SidebarMenuButton>
+                                <SidebarMenuButton 
                                     isActive={activePage === "opportunities"} 
                                     onClick={() => setActivePage("opportunities")}
                                     tooltip="Opportunities"
                                 >
-                                    <FileText />
+                                    <TrendingUp />
                                     <span>Opportunities</span>
                                 </SidebarMenuButton>
                                 <SidebarMenuButton 
@@ -330,6 +654,29 @@ const CRMStoryApp = () => {
                                 >
                                     <Settings />
                                     <span>Settings</span>
+                                </SidebarMenuButton>
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                    <SidebarGroup>
+                        <SidebarGroupLabel>Examples</SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                <SidebarMenuButton 
+                                    isActive={activePage === "contact-detail"} 
+                                    onClick={() => setActivePage("contact-detail")}
+                                    tooltip="Contact Detail View"
+                                >
+                                    <UserPlus />
+                                    <span>Contact Detail</span>
+                                </SidebarMenuButton>
+                                <SidebarMenuButton 
+                                    isActive={activePage === "opportunity-detail"} 
+                                    onClick={() => setActivePage("opportunity-detail")}
+                                    tooltip="Opportunity Detail View"
+                                >
+                                    <FileText />
+                                    <span>Deal Detail</span>
                                 </SidebarMenuButton>
                             </SidebarMenu>
                         </SidebarGroupContent>
