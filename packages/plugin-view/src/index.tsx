@@ -18,7 +18,9 @@ const ObjectViewRenderer: React.FC<{ schema: any }> = ({ schema }) => {
   return <ObjectView schema={schema} dataSource={null as any} />;
 };
 
-ComponentRegistry.register('object-view', ObjectViewRenderer);
+ComponentRegistry.register('object-view', ObjectViewRenderer, {
+  namespace: 'plugin-view'
+});
 
 // Simple View Renderer (Container)
 const SimpleViewRenderer: React.FC<any> = ({ schema, className, children, ...props }) => {
@@ -38,7 +40,8 @@ const SimpleViewRenderer: React.FC<any> = ({ schema, className, children, ...pro
   );
 };
 
-ComponentRegistry.register('view:simple', SimpleViewRenderer, {
+ComponentRegistry.register('simple', SimpleViewRenderer, {
+  namespace: 'view',
   label: 'Simple View',
   category: 'view'
 });
