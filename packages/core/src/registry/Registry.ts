@@ -92,6 +92,8 @@ export class Registry<T = any> {
     
     // Also register without namespace for backward compatibility
     // This allows "button" to work even when registered as "ui:button"
+    // Note: If multiple namespaced components share the same short name,
+    // the last registration wins for non-namespaced lookups
     if (meta?.namespace) {
       this.components.set(type, {
         type: fullType, // Keep reference to namespaced type

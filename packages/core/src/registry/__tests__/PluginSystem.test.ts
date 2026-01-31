@@ -28,6 +28,7 @@ describe('PluginSystem', () => {
       }
     };
 
+    // Use legacy mode (useScope: false) to test direct registry access
     await pluginSystem.loadPlugin(plugin, registry, false);
     
     expect(pluginSystem.isLoaded('test-plugin')).toBe(true);
@@ -201,6 +202,7 @@ describe('PluginSystem', () => {
       register: registerFn
     };
 
+    // Use legacy mode (useScope: false) to verify the raw Registry is passed
     await pluginSystem.loadPlugin(plugin, registry, false);
     
     expect(registerFn).toHaveBeenCalledWith(registry);
