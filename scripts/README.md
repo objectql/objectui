@@ -168,3 +168,61 @@ Update the test script when:
 - Updating design tokens
 
 Last updated: 2026-01-23
+
+---
+
+## Development Scripts
+
+### setup.sh
+
+**Purpose:** Automated development environment setup for new contributors
+
+**Usage:**
+```bash
+./scripts/setup.sh
+```
+
+**What it does:**
+1. ✅ Checks Node.js version (requires 20+)
+2. ✅ Installs/upgrades pnpm (requires 9+)
+3. ✅ Installs all dependencies
+4. ✅ Builds core packages in order
+5. ✅ Runs tests to verify setup
+6. ✅ Displays helpful next steps
+
+**First-time setup:**
+```bash
+git clone https://github.com/objectstack-ai/objectui.git
+cd objectui
+./scripts/setup.sh
+```
+
+After successful setup, you can start development:
+```bash
+pnpm dev
+```
+
+### component-analysis.js
+Analyzes Shadcn UI component usage and provides insights.
+
+### shadcn-sync.js
+Synchronizes Shadcn UI components with the latest versions.
+
+**Commands:**
+```bash
+# Check for updates
+pnpm shadcn:check
+
+# Update specific component
+pnpm shadcn:update
+
+# Update all components (with backup)
+pnpm shadcn:update-all
+
+# Show diff for component
+pnpm shadcn:diff
+
+# List all components
+pnpm shadcn:list
+```
+

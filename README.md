@@ -333,9 +333,21 @@ We welcome contributions! Please read our [Contributing Guide](./CONTRIBUTING.md
 ### For Developers
 
 - 📖 [Contributing Guide](./CONTRIBUTING.md) - How to contribute to the project
+- 🏗️ [Architecture Evaluation](./ARCHITECTURE_EVALUATION.md) - Comprehensive architecture analysis and improvement recommendations ([中文版](./ARCHITECTURE_EVALUATION.zh-CN.md))
 
 ### Development Setup
 
+**Quick Setup (Recommended):**
+```bash
+# Clone the repository
+git clone https://github.com/objectstack-ai/objectui.git
+cd objectui
+
+# Run automated setup script
+./scripts/setup.sh
+```
+
+**Manual Setup:**
 ```bash
 # Clone the repository
 git clone https://github.com/objectstack-ai/objectui.git
