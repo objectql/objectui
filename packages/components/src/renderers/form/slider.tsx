@@ -41,6 +41,7 @@ ComponentRegistry.register('slider',
   );
   },
   {
+    namespace: 'ui',
     label: 'Slider',
     inputs: [
       { name: 'defaultValue', type: 'array', label: 'Default Value', defaultValue: [50] },

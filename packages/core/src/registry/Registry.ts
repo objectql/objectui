@@ -26,7 +26,7 @@ export type ComponentMeta = {
   label?: string; // Display name in designer
   icon?: string; // Icon name or svg string
   category?: string; // Grouping category
-  namespace?: string; // Component namespace (e.g., 'ui', 'field', 'plugin-grid')
+  namespace?: string; // Component namespace (e.g., 'ui', 'plugin-grid', 'field')
   inputs?: ComponentInput[];
   defaultProps?: Record<string, any>; // Default props when dropped
   defaultChildren?: SchemaNode[]; // Default children when dropped
@@ -51,81 +51,147 @@ export type ComponentConfig<T = any> = ComponentMeta & {
 export class Registry<T = any> {
   private components = new Map<string, ComponentConfig<T>>();
 
+  /**
+   * Register a component with optional namespace support.
+   * If namespace is provided in meta, the component will be registered as "namespace:type".
+   * 
+   * @param type - Component type identifier
+   * @param component - Component renderer
+   * @param meta - Component metadata (including optional namespace)
+   * 
+   * @example
+   * // Register with namespace
+   * registry.register('button', ButtonComponent, { namespace: 'ui' });
+   * // Accessible as 'ui:button' or 'button' (fallback)
+   * 
+   * @example
+   * // Register without namespace (backward compatible)
+   * registry.register('button', ButtonComponent);
+   * // Accessible as 'button'
+   */
   register(type: string, component: ComponentRenderer<T>, meta?: ComponentMeta) {
-    // Construct the full type with namespace if provided
-    const namespace = meta?.namespace;
-    const fullType = namespace ? `${namespace}:${type}` : type;
+    const fullType = meta?.namespace ? `${meta.namespace}:${type}` : type;
     
-    // Warn if overwriting an existing registration
     if (this.components.has(fullType)) {
       // console.warn(`Component type "${fullType}" is already registered. Overwriting.`);
     }
-
-    // Deprecation warning for non-namespaced registrations
-    // (only for new registrations, not for backward compatibility lookups)
-    if (!namespace && typeof console !== 'undefined' && console.warn) {
-      console.warn(
-        `[ObjectUI] Registering component "${type}" without a namespace is deprecated. ` +
-        `Please provide a namespace via the meta.namespace option. ` +
-        `Example: ComponentRegistry.register('${type}', component, { namespace: 'ui' })`
-      );
-    }
     
-    const config: ComponentConfig<T> = {
+    this.components.set(fullType, {
       type: fullType,
       component,
       ...meta
-    };
+    });
     
-    // Store under the full namespaced type
-    this.components.set(fullType, config);
-    
-    // For backward compatibility, also store under the non-namespaced type
-    // if a namespace was provided (so 'button' works even when registered as 'ui:button')
-    if (namespace) {
-      this.components.set(type, config);
+    // Also register without namespace for backward compatibility
+    // This allows "button" to work even when registered as "ui:button"
+    if (meta?.namespace && !this.components.has(type)) {
+      this.components.set(type, {
+        type: fullType, // Keep reference to namespaced type
+        component,
+        ...meta
+      });
     }
   }
 
+  /**
+   * Get a component by type. Supports both namespaced and non-namespaced lookups.
+   * 
+   * @param type - Component type (e.g., 'button' or 'ui:button')
+   * @param namespace - Optional namespace for lookup priority
+   * @returns Component renderer or undefined
+   * 
+   * @example
+   * // Direct lookup
+   * registry.get('ui:button') // Gets ui:button
+   * 
+   * @example
+   * // Fallback lookup
+   * registry.get('button') // Gets first registered button
+   * 
+   * @example
+   * // Namespaced lookup with priority
+   * registry.get('button', 'ui') // Tries 'ui:button' first, then 'button'
+   */
   get(type: string, namespace?: string): ComponentRenderer<T> | undefined {
-    // If namespace is provided, only look in that namespace
+    // Try namespaced lookup first if namespace provided
     if (namespace) {
       const namespacedType = `${namespace}:${type}`;
-      return this.components.get(namespacedType)?.component;
+      const namespacedComponent = this.components.get(namespacedType);
+      if (namespacedComponent) {
+        return namespacedComponent.component;
+      }
     }
     
-    // No namespace provided - check non-namespaced lookup for backward compatibility
+    // Fallback to direct type lookup
     return this.components.get(type)?.component;
   }
 
+  /**
+   * Get component configuration by type with namespace support.
+   * 
+   * @param type - Component type (e.g., 'button' or 'ui:button')
+   * @param namespace - Optional namespace for lookup priority
+   * @returns Component configuration or undefined
+   */
   getConfig(type: string, namespace?: string): ComponentConfig<T> | undefined {
-    // If namespace is provided, only look in that namespace
+    // Try namespaced lookup first if namespace provided
     if (namespace) {
       const namespacedType = `${namespace}:${type}`;
-      return this.components.get(namespacedType);
+      const namespacedConfig = this.components.get(namespacedType);
+      if (namespacedConfig) {
+        return namespacedConfig;
+      }
     }
     
-    // No namespace provided - check non-namespaced lookup for backward compatibility
+    // Fallback to direct type lookup
     return this.components.get(type);
   }
 
+  /**
+   * Check if a component type is registered.
+   * 
+   * @param type - Component type (e.g., 'button' or 'ui:button')
+   * @param namespace - Optional namespace for lookup
+   * @returns True if component is registered
+   */
   has(type: string, namespace?: string): boolean {
-    // If namespace is provided, only check in that namespace
     if (namespace) {
       const namespacedType = `${namespace}:${type}`;
-      return this.components.has(namespacedType);
+      if (this.components.has(namespacedType)) {
+        return true;
+      }
     }
-    
-    // No namespace provided - check non-namespaced lookup for backward compatibility
     return this.components.has(type);
   }
   
+  /**
+   * Get all registered component types.
+   * 
+   * @returns Array of all component type identifiers
+   */
   getAllTypes(): string[] {
     return Array.from(this.components.keys());
   }
 
+  /**
+   * Get all registered component configurations.
+   * 
+   * @returns Array of all component configurations
+   */
   getAllConfigs(): ComponentConfig<T>[] {
     return Array.from(this.components.values());
+  }
+  
+  /**
+   * Get all components in a specific namespace.
+   * 
+   * @param namespace - Namespace to filter by
+   * @returns Array of component configurations in the namespace
+   */
+  getNamespaceComponents(namespace: string): ComponentConfig<T>[] {
+    return Array.from(this.components.values()).filter(
+      config => config.namespace === namespace
+    );
   }
 }
 

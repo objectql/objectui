@@ -810,6 +810,111 @@ function createFieldRenderer(FieldWidget: React.ComponentType<any>) {
   return FieldRenderer;
 }
 
+/**
+ * Field widget map for lazy loading
+ * Maps field type to widget component
+ */
+const fieldWidgetMap: Record<string, () => Promise<{ default: React.ComponentType<any> }>> = {
+  // Basic fields
+  'text': () => import('./widgets/TextField').then(m => ({ default: m.TextField })),
+  'textarea': () => import('./widgets/TextAreaField').then(m => ({ default: m.TextAreaField })),
+  'number': () => import('./widgets/NumberField').then(m => ({ default: m.NumberField })),
+  'boolean': () => import('./widgets/BooleanField').then(m => ({ default: m.BooleanField })),
+  'select': () => import('./widgets/SelectField').then(m => ({ default: m.SelectField })),
+  'date': () => import('./widgets/DateField').then(m => ({ default: m.DateField })),
+  'datetime': () => import('./widgets/DateTimeField').then(m => ({ default: m.DateTimeField })),
+  'time': () => import('./widgets/TimeField').then(m => ({ default: m.TimeField })),
+  
+  // Contact fields
+  'email': () => import('./widgets/EmailField').then(m => ({ default: m.EmailField })),
+  'phone': () => import('./widgets/PhoneField').then(m => ({ default: m.PhoneField })),
+  'url': () => import('./widgets/UrlField').then(m => ({ default: m.UrlField })),
+  
+  // Specialized fields
+  'currency': () => import('./widgets/CurrencyField').then(m => ({ default: m.CurrencyField })),
+  'percent': () => import('./widgets/PercentField').then(m => ({ default: m.PercentField })),
+  'password': () => import('./widgets/PasswordField').then(m => ({ default: m.PasswordField })),
+  'markdown': () => import('./widgets/RichTextField').then(m => ({ default: m.RichTextField })),
+  'html': () => import('./widgets/RichTextField').then(m => ({ default: m.RichTextField })),
+  'lookup': () => import('./widgets/LookupField').then(m => ({ default: m.LookupField })),
+  'master_detail': () => import('./widgets/MasterDetailField').then(m => ({ default: m.MasterDetailField })),
+  
+  // File fields
+  'file': () => import('./widgets/FileField').then(m => ({ default: m.FileField })),
+  'image': () => import('./widgets/ImageField').then(m => ({ default: m.ImageField })),
+  
+  // Location field
+  'location': () => import('./widgets/LocationField').then(m => ({ default: m.LocationField })),
+  
+  // Computed/Read-only fields
+  'formula': () => import('./widgets/FormulaField').then(m => ({ default: m.FormulaField })),
+  'summary': () => import('./widgets/SummaryField').then(m => ({ default: m.SummaryField })),
+  'auto_number': () => import('./widgets/AutoNumberField').then(m => ({ default: m.AutoNumberField })),
+  
+  // User fields
+  'user': () => import('./widgets/UserField').then(m => ({ default: m.UserField })),
+  'owner': () => import('./widgets/UserField').then(m => ({ default: m.UserField })),
+  
+  // Complex data types
+  'object': () => import('./widgets/ObjectField').then(m => ({ default: m.ObjectField })),
+  'vector': () => import('./widgets/VectorField').then(m => ({ default: m.VectorField })),
+  'grid': () => import('./widgets/GridField').then(m => ({ default: m.GridField })),
+  
+  // Additional field types from @objectstack/spec
+  'color': () => import('./widgets/ColorField').then(m => ({ default: m.ColorField })),
+  'slider': () => import('./widgets/SliderField').then(m => ({ default: m.SliderField })),
+  'rating': () => import('./widgets/RatingField').then(m => ({ default: m.RatingField })),
+  'code': () => import('./widgets/CodeField').then(m => ({ default: m.CodeField })),
+  'avatar': () => import('./widgets/AvatarField').then(m => ({ default: m.AvatarField })),
+  'address': () => import('./widgets/AddressField').then(m => ({ default: m.AddressField })),
+  'geolocation': () => import('./widgets/GeolocationField').then(m => ({ default: m.GeolocationField })),
+  'signature': () => import('./widgets/SignatureField').then(m => ({ default: m.SignatureField })),
+  'qrcode': () => import('./widgets/QRCodeField').then(m => ({ default: m.QRCodeField })),
+};
+
+/**
+ * Register a specific field type lazily
+ * @param fieldType - The field type to register (e.g., 'text', 'number')
+ * 
+ * @example
+ * // Register only the text field
+ * registerField('text');
+ */
+export function registerField(fieldType: string): void {
+  const loader = fieldWidgetMap[fieldType];
+  if (!loader) {
+    console.warn(`Unknown field type: ${fieldType}`);
+    return;
+  }
+  
+  // Create lazy component
+  const LazyFieldWidget = React.lazy(loader);
+  
+  // Register with field namespace
+  const renderer = createFieldRenderer(LazyFieldWidget);
+  ComponentRegistry.register(fieldType, renderer, { namespace: 'field' });
+}
+
+/**
+ * Register all field types (for backward compatibility)
+ * This function auto-registers all field widgets on import.
+ * 
+ * For better tree-shaking, use registerField() to register only needed fields.
+ * 
+ * @example
+ * // Register all fields at once
+ * registerAllFields();
+ */
+export function registerAllFields(): void {
+  Object.keys(fieldWidgetMap).forEach(fieldType => {
+    registerField(fieldType);
+  });
+}
+
+/**
+ * Legacy function - kept for backward compatibility
+ * @deprecated Use registerAllFields() instead
+ */
 export function registerFields() {
   // Basic fields - wrapped for documentation compatibility
   ComponentRegistry.register('text', createFieldRenderer(TextField), { namespace: 'field' });

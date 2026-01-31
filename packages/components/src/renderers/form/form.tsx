@@ -287,6 +287,7 @@ ComponentRegistry.register('form',
     );
   },
   {
+    namespace: 'ui',
     label: 'Form',
     inputs: [
       { 

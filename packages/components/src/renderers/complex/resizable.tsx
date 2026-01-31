@@ -35,6 +35,7 @@ ComponentRegistry.register('resizable',
     </ResizablePanelGroup>
   ),
   {
+    namespace: 'ui',
     label: 'Resizable Panel Group',
     inputs: [
       { name: 'direction', type: 'enum', enum: ['horizontal', 'vertical'], defaultValue: 'horizontal', label: 'Direction' },

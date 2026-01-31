@@ -32,6 +32,7 @@ ComponentRegistry.register('combobox',
   );
   },
   {
+    namespace: 'ui',
     label: 'Combobox',
     inputs: [
       { name: 'placeholder', type: 'string', label: 'Placeholder' },

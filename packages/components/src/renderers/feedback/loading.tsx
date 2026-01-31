@@ -50,6 +50,7 @@ ComponentRegistry.register('loading',
     );
   },
   {
+    namespace: 'ui',
     label: 'Loading',
     inputs: [
       { name: 'text', type: 'string', label: 'Loading Text' },

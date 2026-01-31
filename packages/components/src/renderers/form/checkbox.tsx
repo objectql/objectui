@@ -35,6 +35,7 @@ ComponentRegistry.register('checkbox',
   );
   },
   {
+    namespace: 'ui',
     label: 'Checkbox',
     inputs: [
       { name: 'label', type: 'string', label: 'Label', required: true },

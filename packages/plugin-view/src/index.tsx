@@ -40,8 +40,8 @@ const SimpleViewRenderer: React.FC<any> = ({ schema, className, children, ...pro
   );
 };
 
-ComponentRegistry.register('simple', SimpleViewRenderer, {
-  namespace: 'view',
+ComponentRegistry.register('view:simple', SimpleViewRenderer, {
+  namespace: 'plugin-view',
   label: 'Simple View',
   category: 'view'
 });

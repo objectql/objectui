@@ -49,6 +49,7 @@ ComponentRegistry.register('select',
   );
   },
   {
+    namespace: 'ui',
     label: 'Select',
     inputs: [
       { name: 'label', type: 'string', label: 'Label' },

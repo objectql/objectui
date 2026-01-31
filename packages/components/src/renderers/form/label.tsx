@@ -32,6 +32,7 @@ ComponentRegistry.register('label',
     );
   },
   {
+    namespace: 'ui',
     label: 'Label',
     inputs: [
       { name: 'text', type: 'string', label: 'Text', required: true },

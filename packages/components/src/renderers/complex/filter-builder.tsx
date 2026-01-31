@@ -39,6 +39,7 @@ ComponentRegistry.register('filter-builder',
     );
   },
   {
+    namespace: 'ui',
     label: 'Filter Builder',
     inputs: [
       { name: 'label', type: 'string', label: 'Label' },

@@ -214,10 +214,10 @@ export const chartComponents = {
 
 // Alias for CRM App compatibility
 ComponentRegistry.register(
-  'bar',
+  'chart:bar',
   ChartRenderer, // Use the smart renderer to handle Tremor-like props
   {
-    namespace: 'chart',
+    namespace: 'plugin-charts',
     label: 'Bar Chart (Alias)',
     category: 'plugin',
     defaultProps: { chartType: 'bar' }

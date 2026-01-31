@@ -38,6 +38,7 @@ ComponentRegistry.register('textarea',
     );
   },
   {
+    namespace: 'ui',
     label: 'Textarea',
     inputs: [
       { name: 'label', type: 'string', label: 'Label' },

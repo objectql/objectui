@@ -21,10 +21,13 @@ const ObjectGridRenderer: React.FC<{ schema: any }> = ({ schema }) => {
 };
 
 ComponentRegistry.register('object-grid', ObjectGridRenderer, {
-  namespace: 'plugin-grid'
+  namespace: 'plugin-grid',
+  label: 'Object Grid',
+  category: 'plugin'
 });
 
-// Alias for view:grid
+// Alias for view namespace - this allows using { type: 'view:grid' } in schemas
+// which is semantically meaningful for data display components
 ComponentRegistry.register('grid', ObjectGridRenderer, {
   namespace: 'view',
   label: 'Data Grid',

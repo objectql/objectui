@@ -124,6 +124,7 @@ ComponentRegistry.register('tree-view',
     );
   },
   {
+    namespace: 'ui',
     label: 'Tree View',
     inputs: [
       { name: 'title', type: 'string', label: 'Title' },

@@ -89,6 +89,7 @@ ComponentRegistry.register('input', InputRenderer, {
 ComponentRegistry.register('email', 
   (props: any) => <InputRenderer {...props} schema={{ ...props.schema, inputType: 'email' }} />,
   {
+    namespace: 'ui',
     label: 'Email Input',
     icon: 'mail', 
     inputs: [
@@ -105,6 +106,7 @@ ComponentRegistry.register('email',
 ComponentRegistry.register('password', 
   (props: any) => <InputRenderer {...props} schema={{ ...props.schema, inputType: 'password' }} />,
   {
+    namespace: 'ui',
     label: 'Password Input',
     icon: 'lock',
     inputs: [

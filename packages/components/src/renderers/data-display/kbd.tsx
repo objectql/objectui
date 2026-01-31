@@ -37,6 +37,7 @@ ComponentRegistry.register('kbd',
     );
   },
   {
+    namespace: 'ui',
     label: 'Keyboard Key',
     inputs: [
       { name: 'label', type: 'string', label: 'Label' },

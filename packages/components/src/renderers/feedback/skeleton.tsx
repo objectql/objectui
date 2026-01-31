@@ -15,6 +15,7 @@ ComponentRegistry.register('skeleton',
     <Skeleton className={className} {...props} style={{ width: schema.width, height: schema.height }} />
   ),
   {
+    namespace: 'ui',
     label: 'Skeleton',
     inputs: [
       { name: 'width', type: 'string', label: 'Width' },

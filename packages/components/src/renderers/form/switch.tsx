@@ -33,6 +33,7 @@ ComponentRegistry.register('switch',
   );
   },
   {
+    namespace: 'ui',
     label: 'Switch',
     inputs: [
       { name: 'label', type: 'string', label: 'Label', required: true },
