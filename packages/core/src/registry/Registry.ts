@@ -26,6 +26,7 @@ export type ComponentMeta = {
   label?: string; // Display name in designer
   icon?: string; // Icon name or svg string
   category?: string; // Grouping category
+  namespace?: string; // Component namespace (e.g., 'ui', 'field', 'plugin-grid')
   inputs?: ComponentInput[];
   defaultProps?: Record<string, any>; // Default props when dropped
   defaultChildren?: SchemaNode[]; // Default children when dropped
@@ -51,25 +52,70 @@ export class Registry<T = any> {
   private components = new Map<string, ComponentConfig<T>>();
 
   register(type: string, component: ComponentRenderer<T>, meta?: ComponentMeta) {
-    if (this.components.has(type)) {
-      // console.warn(`Component type "${type}" is already registered. Overwriting.`);
+    // Construct the full type with namespace if provided
+    const namespace = meta?.namespace;
+    const fullType = namespace ? `${namespace}:${type}` : type;
+    
+    // Warn if overwriting an existing registration
+    if (this.components.has(fullType)) {
+      // console.warn(`Component type "${fullType}" is already registered. Overwriting.`);
     }
-    this.components.set(type, {
-      type,
+
+    // Deprecation warning for non-namespaced registrations
+    // (only for new registrations, not for backward compatibility lookups)
+    if (!namespace && typeof console !== 'undefined' && console.warn) {
+      console.warn(
+        `[ObjectUI] Registering component "${type}" without a namespace is deprecated. ` +
+        `Please provide a namespace via the meta.namespace option. ` +
+        `Example: ComponentRegistry.register('${type}', component, { namespace: 'ui' })`
+      );
+    }
+    
+    this.components.set(fullType, {
+      type: fullType,
       component,
       ...meta
     });
   }
 
-  get(type: string): ComponentRenderer<T> | undefined {
+  get(type: string, namespace?: string): ComponentRenderer<T> | undefined {
+    // First try with namespace if provided
+    if (namespace) {
+      const namespacedType = `${namespace}:${type}`;
+      const component = this.components.get(namespacedType)?.component;
+      if (component) {
+        return component;
+      }
+    }
+    
+    // Fallback to non-namespaced lookup for backward compatibility
     return this.components.get(type)?.component;
   }
 
-  getConfig(type: string): ComponentConfig<T> | undefined {
+  getConfig(type: string, namespace?: string): ComponentConfig<T> | undefined {
+    // First try with namespace if provided
+    if (namespace) {
+      const namespacedType = `${namespace}:${type}`;
+      const config = this.components.get(namespacedType);
+      if (config) {
+        return config;
+      }
+    }
+    
+    // Fallback to non-namespaced lookup for backward compatibility
     return this.components.get(type);
   }
 
-  has(type: string): boolean {
+  has(type: string, namespace?: string): boolean {
+    // First try with namespace if provided
+    if (namespace) {
+      const namespacedType = `${namespace}:${type}`;
+      if (this.components.has(namespacedType)) {
+        return true;
+      }
+    }
+    
+    // Fallback to non-namespaced lookup for backward compatibility
     return this.components.has(type);
   }
   
