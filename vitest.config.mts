@@ -27,10 +27,10 @@ export default defineConfig({
       // Adjusted to reflect current coverage levels and prevent CI failures
       // Target: Gradually increase these as test coverage improves
       thresholds: {
-        lines: 60,
-        functions: 40,
-        branches: 35,
-        statements: 60,
+        lines: 63,
+        functions: 43,
+        branches: 40,
+        statements: 62,
       },
     },
   },

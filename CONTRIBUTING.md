@@ -182,7 +182,7 @@ describe('MyComponent', () => {
 - Write tests for all new features
 - Test user interactions, not implementation details
 - Use meaningful test descriptions
-- Maintain or improve code coverage (current thresholds: 60% lines, 40% functions, 35% branches, 60% statements)
+- Maintain or improve code coverage (current thresholds: 63% lines, 43% functions, 40% branches, 62% statements)
 - Aim to gradually increase coverage toward the long-term goal of 80%+ across all metrics
 - Test edge cases and error states
 
@@ -378,12 +378,12 @@ Our repository includes several automated GitHub workflows that will run when yo
 
 ##### Test Coverage Requirements
 The project enforces minimum test coverage thresholds to maintain code quality:
-- **Lines**: 60% (target: gradually increase to 80%)
-- **Functions**: 40% (target: gradually increase to 80%)
-- **Branches**: 35% (target: gradually increase to 75%)
-- **Statements**: 60% (target: gradually increase to 80%)
+- **Lines**: 63% (target: gradually increase to 80%)
+- **Functions**: 43% (target: gradually increase to 80%)
+- **Branches**: 40% (target: gradually increase to 75%)
+- **Statements**: 62% (target: gradually increase to 80%)
 
-These thresholds are intentionally set below our long-term goals to prevent CI failures while we improve test coverage. New code should aim for higher coverage than these minimums.
+These thresholds are intentionally set just below current coverage levels to prevent CI failures from minor fluctuations while we improve test coverage. New code should aim for higher coverage than these minimums.
 
 #### Security Scans
 - **CodeQL**: Scans for security vulnerabilities in code
