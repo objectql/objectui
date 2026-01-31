@@ -65,6 +65,11 @@
 │    Functions:  count_distinct, array_agg, string_agg                      │
 │    Files:      packages/types/src/data-protocol.ts                        │
 │                                                                             │
+│ ✅ App-Level Permissions - COMPLETE                                        │
+│    Status:     ✅ Fully Implemented                                        │
+│    Features:   homePageId, requiredPermissions in AppSchema               │
+│    Files:      packages/types/src/app.ts                                  │
+│                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -77,12 +82,6 @@
 │    Note:       Timeline plugin already exists                             │
 │    Effort:     Medium (1-2 weeks)                                         │
 │    Priority:   Optional - not blocking                                    │
-│                                                                             │
-│ ⚠️  App-Level Permissions (P2)                                             │
-│    Impact:     Security declarations                                      │
-│    Missing:    requiredPermissions, homePageId in AppSchema               │
-│    Effort:     Low (2-3 days)                                             │
-│    Priority:   Optional - can be added later                             │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 
