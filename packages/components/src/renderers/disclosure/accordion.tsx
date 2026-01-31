@@ -30,6 +30,7 @@ ComponentRegistry.register('accordion',
     </Accordion>
   ),
   {
+    namespace: 'ui',
     label: 'Accordion',
     inputs: [
       { name: 'accordionType', type: 'enum', enum: ['single', 'multiple'], defaultValue: 'single', label: 'Type' },

@@ -65,4 +65,6 @@ export const SimpleTableRenderer = ({ schema, className }: any) => {
   );
 };
 
-ComponentRegistry.register('table', SimpleTableRenderer);
+ComponentRegistry.register('table', SimpleTableRenderer, {
+  namespace: 'ui'
+});

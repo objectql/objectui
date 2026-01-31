@@ -70,6 +70,7 @@ ComponentRegistry.register('context-menu',
     </ContextMenu>
   )},
   {
+    namespace: 'ui',
     label: 'Context Menu',
     inputs: [
       { 

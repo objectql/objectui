@@ -42,6 +42,7 @@ ComponentRegistry.register('command',
   );
   },
   {
+    namespace: 'ui',
     label: 'Command',
     inputs: [
       { name: 'placeholder', type: 'string', label: 'Placeholder' },

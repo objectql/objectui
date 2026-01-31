@@ -41,6 +41,7 @@ ComponentRegistry.register('alert-dialog',
     </AlertDialog>
   ),
   {
+    namespace: 'ui',
     label: 'Alert Dialog',
     inputs: [
       { name: 'title', type: 'string', label: 'Title' },

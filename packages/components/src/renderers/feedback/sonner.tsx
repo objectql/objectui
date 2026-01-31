@@ -32,6 +32,7 @@ ComponentRegistry.register('sonner',
     );
   },
   {
+    namespace: 'ui',
     label: 'Sonner Toast',
     inputs: [
       { name: 'message', type: 'string', label: 'Message' },

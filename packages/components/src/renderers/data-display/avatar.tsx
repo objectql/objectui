@@ -22,6 +22,7 @@ ComponentRegistry.register('avatar',
     </Avatar>
   ),
   {
+    namespace: 'ui',
     label: 'Avatar',
     inputs: [
       { name: 'src', type: 'string', label: 'Image URL' },

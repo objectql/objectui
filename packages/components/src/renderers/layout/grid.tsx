@@ -97,6 +97,7 @@ ComponentRegistry.register('grid',
     );
   },
   {
+    namespace: 'ui',
     label: 'Grid Layout',
     inputs: [
       { 

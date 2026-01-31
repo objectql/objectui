@@ -24,6 +24,7 @@ ComponentRegistry.register('toggle',
     </Toggle>
   ),
   {
+    namespace: 'ui',
     label: 'Toggle',
     inputs: [
       { name: 'label', type: 'string', label: 'Label' },

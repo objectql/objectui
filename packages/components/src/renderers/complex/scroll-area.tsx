@@ -19,6 +19,7 @@ ComponentRegistry.register('scroll-area',
     </ScrollArea>
   ),
   {
+    namespace: 'ui',
     label: 'Scroll Area',
     inputs: [
       { name: 'height', type: 'string', label: 'Height (e.g. 200px)' },

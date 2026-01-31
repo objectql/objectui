@@ -38,6 +38,7 @@ ComponentRegistry.register('input-otp',
     );
   },
   {
+    namespace: 'ui',
     label: 'Input OTP',
     inputs: [
       { name: 'maxLength', type: 'number', label: 'Max Length', defaultValue: 6 },

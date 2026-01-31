@@ -54,6 +54,7 @@ ComponentRegistry.register('menubar',
     );
   },
   {
+    namespace: 'ui',
     label: 'Menubar',
     inputs: [
       { name: 'className', type: 'string', label: 'CSS Class' }

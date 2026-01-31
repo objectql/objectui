@@ -15,6 +15,7 @@ ComponentRegistry.register('progress',
     <Progress value={schema.value} className={className} {...props} />
   ),
   {
+    namespace: 'ui',
     label: 'Progress',
     inputs: [
       { name: 'value', type: 'number', label: 'Value', defaultValue: 0 },

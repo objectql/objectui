@@ -33,6 +33,7 @@ ComponentRegistry.register('toast',
     );
   },
   {
+    namespace: 'ui',
     label: 'Toast',
     inputs: [
       { name: 'title', type: 'string', label: 'Title' },

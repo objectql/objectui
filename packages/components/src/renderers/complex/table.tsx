@@ -59,6 +59,7 @@ ComponentRegistry.register('table',
     </Table>
   ),
   {
+    namespace: 'ui',
     label: 'Table',
     inputs: [
       { name: 'caption', type: 'string', label: 'Caption' },

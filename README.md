@@ -13,11 +13,39 @@
 [![React](https://img.shields.io/badge/React-18+-61dafb.svg)](https://reactjs.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.0+-38bdf8.svg)](https://tailwindcss.com/)
 
-[**Documentation**](https://www.objectui.org) | [**Quick Start**](#quick-start) 
+[**Documentation**](https://www.objectui.org) | [**Quick Start**](#quick-start) | [**Migration Guide**](./MIGRATION_GUIDE.md)
 
 </div>
 
 ---
+
+## 🎉 What's New in v0.4.0
+
+### Component Namespaces
+Organize components into namespaces to prevent naming conflicts:
+```typescript
+ComponentRegistry.register('button', ButtonComponent, {
+  namespace: 'ui'  // ✨ New: Prevent conflicts across plugins
+});
+```
+
+### Lazy Field Registration
+Load only the fields you need for 30-50% smaller bundles:
+```typescript
+import { registerField } from '@object-ui/fields';
+
+// Only load what you use
+registerField('text');
+registerField('number');
+// 70% smaller bundle size! 🚀
+```
+
+### Build Performance
+- **3-5x faster CI builds** with Turbo v2
+- **Parallel package builds** with intelligent caching
+- **Instant rebuilds** for unchanged packages
+
+👉 **[Read the Migration Guide](./MIGRATION_GUIDE.md)** for details and examples.
 
 ---
 

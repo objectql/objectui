@@ -34,6 +34,7 @@ ComponentRegistry.register('tooltip',
     </TooltipProvider>
   ),
   {
+    namespace: 'ui',
     label: 'Tooltip',
     inputs: [
       { name: 'delayDuration', type: 'number', label: 'Delay Duration', defaultValue: 700 },

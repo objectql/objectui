@@ -40,6 +40,7 @@ ComponentRegistry.register('dialog',
     </Dialog>
   ),
   {
+    namespace: 'ui',
     label: 'Dialog',
     inputs: [
       { name: 'title', type: 'string', label: 'Title' },
