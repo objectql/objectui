@@ -192,7 +192,7 @@ const contactsSchema = {
             children: [
                 {
                     type: "view:grid",
-                    bind: "contacts",
+                    staticData: CONTACTS_DATA.contacts,
                     columns: [
                         { key: "name", label: "Name", type: "text" },
                         { key: "company", label: "Company", type: "text" },
@@ -222,7 +222,7 @@ const opportunitiesSchema = {
             children: [
                 {
                     type: "view:grid",
-                    bind: "opportunities",
+                    staticData: OPPORTUNITIES_DATA.opportunities,
                     columns: [
                         { key: "name", label: "Deal Name", type: "text" },
                         { key: "contact", label: "Contact", type: "text" },
@@ -316,7 +316,7 @@ const accountsSchema = {
             children: [
                 {
                     type: "view:grid",
-                    bind: "accounts",
+                    staticData: ACCOUNTS_DATA.accounts,
                     columns: [
                         { key: "name", label: "Account Name", type: "text" },
                         { key: "industry", label: "Industry", type: "text" },
