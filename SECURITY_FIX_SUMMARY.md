@@ -31,6 +31,14 @@ Implemented a custom expression parser that:
   - Literals: `true`, `false`, `null`, numbers, strings
   - Escape sequences in strings
 
+**Known Limitations** (acceptable for validation use cases):
+- Single comparison operator per expression (no chaining like `a > b > c`)
+- Simple escape sequence handling (doesn't handle escaped backslashes)
+- Field names in bracket notation cannot contain escaped quotes
+- These limitations don't affect typical validation expressions and can be addressed if needed
+
+**Note**: For more complex expression requirements, the implementation can be extended or replaced with a dedicated library like JSONLogic or filtrex.
+
 ### 3. Code Quality Improvements
 - Added escape sequence handling for string literals
 - Separated strict (`===`) and loose (`==`) equality for backward compatibility

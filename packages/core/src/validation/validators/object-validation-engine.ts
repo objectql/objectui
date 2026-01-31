@@ -78,7 +78,7 @@ export interface ValidationExpressionEvaluator {
 }
 
 /**
- * Safe expression evaluator using a simple parser (no dynamic code execution)
+ * Simple expression evaluator using a simple parser (no dynamic code execution)
  * 
  * SECURITY: This implementation parses expressions into an AST and evaluates them
  * without using eval() or new Function(). It supports:
@@ -87,9 +87,16 @@ export interface ValidationExpressionEvaluator {
  * - Property access: record.field, record['field']
  * - Literals: true, false, null, numbers, strings
  * 
+ * LIMITATIONS:
+ * - Single comparison operator per expression (no chaining like a > b > c)
+ * - Simple escape sequence handling (doesn't handle escaped backslashes)
+ * - Field names in bracket notation cannot contain escaped quotes
+ * 
  * For more complex expressions, integrate a dedicated library like:
  * - JSONLogic (jsonlogic.com)
  * - filtrex
+ * 
+ * @see https://github.com/objectstack-ai/objectui/blob/main/SECURITY_FIX_SUMMARY.md
  */
 class SimpleExpressionEvaluator implements ValidationExpressionEvaluator {
   evaluate(expression: string, context: Record<string, any>): any {
