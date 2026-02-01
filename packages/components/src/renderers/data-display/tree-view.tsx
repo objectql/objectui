@@ -11,6 +11,7 @@ import type { TreeViewSchema, TreeNode } from '@object-ui/types';
 import { ChevronRight, ChevronDown, Folder, File, FolderOpen, CircuitBoard } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '../../lib/utils';
+import { useDataScope } from '@object-ui/react';
 
 const TreeNodeComponent = ({ 
   node, 
@@ -99,6 +100,10 @@ ComponentRegistry.register('tree-view',
       }
     };
 
+    // Support data binding
+    const boundData = useDataScope(schema.bind);
+    const nodes = boundData || schema.nodes || schema.data || [];
+
     return (
       <div className={cn(
           'relative border rounded-lg p-3 bg-card text-card-foreground',
@@ -112,7 +117,7 @@ ComponentRegistry.register('tree-view',
           </div>
         )}
         <div className="space-y-1">
-          {(schema.nodes || schema.data)?.map((node: TreeNode) => (
+          {nodes.map((node: TreeNode) => (
             <TreeNodeComponent
               key={node.id}
               node={node}

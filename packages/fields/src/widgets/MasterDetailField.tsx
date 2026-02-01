@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Badge } from '@object-ui/components';
+import { Button, Badge, cn } from '@object-ui/components';
 import { Plus, X, ExternalLink } from 'lucide-react';
 import { FieldWidgetProps } from './types';
 
@@ -19,9 +19,13 @@ export interface MasterDetailValue {
 export function MasterDetailField({ 
   value, 
   onChange, 
-  readonly
+  field,
+  readonly,
+  className,
+  ...props 
 }: FieldWidgetProps<MasterDetailValue[]>) {
   const items = value || [];
+  const config = field || (props as any).schema;
 
   const handleAdd = () => {
     // This would typically open a dialog to select/create related records
@@ -44,7 +48,7 @@ export function MasterDetailField({
 
   if (readonly) {
     return (
-      <div className="space-y-2">
+      <div className={cn("space-y-2", className)}>
         {items.length === 0 ? (
           <span className="text-sm text-muted-foreground">No related records</span>
         ) : (
@@ -73,7 +77,7 @@ export function MasterDetailField({
   }
 
   return (
-    <div className="space-y-3">
+    <div className={cn("space-y-3", className)}>
       <div className="space-y-2">
         {items.map((item) => (
           <div
@@ -98,7 +102,33 @@ export function MasterDetailField({
                 variant="ghost"
                 size="sm"
                 onClick={() => handleRemove(item.id)}
-                disabled={readonly || props.disabled}
+                disabled={props.disabled}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        ))}
+        {items.length === 0 && (
+          <div className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded bg-muted/20">
+            No related records
+          </div>
+        )}
+      </div>
+
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full"
+        onClick={handleAdd}
+        disabled={props.disabled}
+      >
+        <Plus className="w-4 h-4 mr-2" />
+        Add {config?.label || 'Record'}
+      </Button>
+    </div>
+  );
+}                disabled={readonly || props.disabled}
               >
                 <X className="w-4 h-4" />
               </Button>

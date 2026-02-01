@@ -1,5 +1,5 @@
 import React from 'react';
-import { Textarea } from '@object-ui/components';
+import { Textarea, cn } from '@object-ui/components';
 import { FieldWidgetProps } from './types';
 
 /**
@@ -14,7 +14,7 @@ export function CodeField({ value, onChange, field, readonly, ...props }: FieldW
 
   if (readonly) {
     return (
-      <pre className="text-sm bg-muted p-2 rounded overflow-x-auto border">
+      <pre className={cn("text-sm bg-muted p-2 rounded overflow-x-auto border", props.className)}>
         <code>{value || '-'}</code>
       </pre>
     );
@@ -26,7 +26,7 @@ export function CodeField({ value, onChange, field, readonly, ...props }: FieldW
       onChange={(e) => onChange(e.target.value)}
       placeholder={config?.placeholder || `// Write ${language} code here...`}
       disabled={readonly || props.disabled}
-      className={`font-mono text-sm ${props.className}`}
+      className={cn("font-mono text-sm", props.className)}
       rows={12}
       spellCheck={false}
     />
