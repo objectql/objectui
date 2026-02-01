@@ -56,6 +56,7 @@ export function CurrencyField({ value, onChange, field, readonly, errorMessage, 
         className={`pl-8 ${props.className || ''}`}
         step={Math.pow(10, -precision).toFixed(precision)}
         aria-invalid={!!errorMessage}
+        {...props}
       />
     </div>
   );

@@ -178,6 +178,8 @@ export const ObjectForm: React.FC<ObjectFormProps> = ({
           placeholder: field.placeholder,
           description: field.help || field.description,
           validation: buildValidationRules(field),
+          // Important: Pass the original field metadata so widgets can access properties like precision, currency, etc.
+          field: field, 
         };
 
         // Add field-specific properties

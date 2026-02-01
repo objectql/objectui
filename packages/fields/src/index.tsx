@@ -8,6 +8,7 @@
 
 import React from 'react';
 import type { FieldMetadata, SelectOptionMetadata } from '@object-ui/types';
+import { ComponentRegistry } from '@object-ui/core';
 import { Badge, Avatar, AvatarFallback, Button } from '@object-ui/components';
 import { Check, X } from 'lucide-react';
 
@@ -519,54 +520,49 @@ registerFieldRenderer('select', SelectCellRenderer);
 export function mapFieldTypeToFormType(fieldType: string): string {
   const typeMap: Record<string, string> = {
     // Text-based fields
-    text: 'input',
-    textarea: 'textarea',
-    markdown: 'textarea', // Markdown editor (fallback to textarea)
-    html: 'textarea', // Rich text editor (fallback to textarea)
+    text: 'field:text',
+    textarea: 'field:textarea',
+    markdown: 'field:markdown', // Markdown editor (fallback to textarea)
+    html: 'field:html', // Rich text editor (fallback to textarea)
     
     // Numeric fields
-    number: 'input',
-    currency: 'input',
-    percent: 'input',
+    number: 'field:number',
+    currency: 'field:currency',
+    percent: 'field:percent',
     
     // Date/Time fields
-    date: 'date-picker',
-    datetime: 'date-picker',
-    time: 'input', // Time picker (fallback to input with type="time")
+    date: 'field:date',
+    datetime: 'field:datetime',
+    time: 'field:time',
     
     // Boolean
-    boolean: 'switch',
+    boolean: 'field:boolean',
     
     // Selection fields
-    select: 'select',
-    lookup: 'select',
-    master_detail: 'select',
+    select: 'field:select',
+    lookup: 'field:lookup',
+    master_detail: 'field:master_detail',
     
     // Contact fields
-    email: 'input',
-    phone: 'input',
-    url: 'input',
+    email: 'field:email',
+    phone: 'field:phone',
+    url: 'field:url',
     
     // File fields
-    file: 'file-upload',
-    image: 'file-upload',
+    file: 'field:file',
+    image: 'field:image',
     
     // Special fields
-    password: 'input',
-    location: 'input', // Location/map field (fallback to input)
+    password: 'field:password',
+    location: 'field:location', // Location/map field (fallback to input)
     
     // Auto-generated/computed fields (typically read-only)
-    formula: 'input',
-    summary: 'input',
-    auto_number: 'input',
-    
-    // Complex data types
-    object: 'input', // JSON object (fallback to input)
-    vector: 'input', // Vector/embedding data (fallback to input)
-    grid: 'input', // Grid/table data (fallback to input)
+    formula: 'field:formula',
+    summary: 'field:summary',
+    auto_number: 'field:auto_number',
   };
 
-  return typeMap[fieldType] || 'input';
+  return typeMap[fieldType] || 'field:text';
 }
 
 /**
@@ -890,9 +886,8 @@ export function registerField(fieldType: string): void {
   // Create lazy component
   const LazyFieldWidget = React.lazy(loader);
   
-  // Register with field namespace
-  const renderer = createFieldRenderer(LazyFieldWidget);
-  ComponentRegistry.register(fieldType, renderer, { namespace: 'field' });
+  // Register with field namespace - NO WRAPPER to allow form renderer to control label/layout
+  ComponentRegistry.register(fieldType, LazyFieldWidget, { namespace: 'field' });
 }
 
 /**
@@ -1011,3 +1006,6 @@ export * from './widgets/GeolocationField';
 export * from './widgets/SignatureField';
 export * from './widgets/QRCodeField';
 export * from './widgets/MasterDetailField';
+
+// Initialize registry
+registerAllFields();

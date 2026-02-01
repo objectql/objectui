@@ -401,6 +401,16 @@ interface RenderFieldProps {
 }
 
 function renderFieldComponent(type: string, props: RenderFieldProps) {
+  // 1. Try to resolve specialized field widget from registry first
+  // We prioritize registry components (e.g., 'field.currency', 'field.date')
+  const RegisteredComponent = ComponentRegistry.get(type);
+
+  if (RegisteredComponent) {
+    // For specialized fields (e.g. fields package), they expect 'field' prop.
+    // Ensure we pass all props.
+    return <RegisteredComponent {...props} />;
+  }
+
   const { inputType, options = [], placeholder, ...fieldProps } = props;
 
   switch (type) {

@@ -31,6 +31,7 @@ export function TextField({ value, onChange, field, readonly, ...props }: FieldW
       placeholder={field.placeholder}
       disabled={readonly}
       className={props.className}
+      {...props}
     />
   );
 }

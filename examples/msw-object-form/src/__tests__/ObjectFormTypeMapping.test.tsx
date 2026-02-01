@@ -100,14 +100,20 @@ describe('ObjectForm Field Type Mapping', () => {
         const selectInWrapper = selectWrapper?.querySelector('button[role="combobox"]');
         expect(selectInWrapper).toBeInTheDocument();
 
-        // 6. Currency -> Input[type=number]
+        // 6. Currency -> CurrencyField (which has $ prefix)
+        // If CurrencyField is working, it renders a wrapping div with '$' span and Input[type=number]
         // Debug currency field rendering
         const currencyInput = container.querySelector('input[name="currency_field"]');
         if (!currencyInput) {
             console.log('Currency field not found in DOM:', document.body.innerHTML);
         }
         expect(currencyInput).toBeInTheDocument();
-        expect(currencyInput).toHaveAttribute('type', 'number');
+        expect(currencyInput).toHaveAttribute('type', 'number'); // CurrencyField uses number input
+
+        // Extended Verification: Check for CurrencyField specific UI
+        // CurrencyField adds a '$' or currency symbol span
+        const currencySymbol = screen.getByText('$');
+        expect(currencySymbol).toBeInTheDocument();
 
         // 7. Percent -> Input
         const percentInput = container.querySelector('input[name="percent_field"]');
