@@ -28,6 +28,27 @@ import { AlertCircle, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import React from 'react';
 
+// FormSchema properties that should not be spread onto the DOM element
+const FORM_SCHEMA_PROPS = [
+  'onSubmit',
+  'onChange',
+  'onCancel',
+  'fields',
+  'defaultValues',
+  'submitLabel',
+  'cancelLabel',
+  'showCancel',
+  'showSubmit',
+  'showActions',
+  'layout',
+  'columns',
+  'resetOnSubmit',
+  'validationMode',
+  'disabled',
+  'fieldContainerClass',
+  'children',
+] as const;
+
 // Form renderer component - Airtable-style feature-complete form
 ComponentRegistry.register('form',
   ({ schema, className, onAction, ...props }: { schema: FormSchema; className?: string; onAction?: (action: any) => void; [key: string]: any }) => {
@@ -174,27 +195,17 @@ ComponentRegistry.register('form',
     const { 
         'data-obj-id': dataObjId, 
         'data-obj-type': dataObjType,
-        style, 
-        // Exclude form schema properties that should not be passed to DOM
-        onSubmit: _excludeOnSubmit,
-        onChange: _excludeOnChange,
-        onCancel: _excludeOnCancel,
-        fields: _excludeFields,
-        defaultValues: _excludeDefaultValues,
-        submitLabel: _excludeSubmitLabel,
-        cancelLabel: _excludeCancelLabel,
-        showCancel: _excludeShowCancel,
-        showSubmit: _excludeShowSubmit,
-        showActions: _excludeShowActions,
-        layout: _excludeLayout,
-        columns: _excludeColumns,
-        resetOnSubmit: _excludeResetOnSubmit,
-        validationMode: _excludeValidationMode,
-        disabled: _excludeDisabled,
-        fieldContainerClass: _excludeFieldContainerClass,
-        children: _excludeChildren,
-        ...formProps 
+        style,
+        ...restProps
     } = props;
+    
+    // Filter out FormSchema properties that should not be passed to DOM
+    const formProps = Object.keys(restProps).reduce((acc, key) => {
+      if (!FORM_SCHEMA_PROPS.includes(key as any)) {
+        acc[key] = restProps[key];
+      }
+      return acc;
+    }, {} as Record<string, any>);
 
     return (
       <Form {...form}>
