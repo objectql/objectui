@@ -12,6 +12,7 @@ export default defineConfig({
     setupFiles: [path.resolve(__dirname, 'vitest.setup.ts')],
     exclude: ['**/node_modules/**', '**/dist/**', '**/cypress/**', '**/.{idea,git,cache,output,temp}/**'],
     passWithNoTests: true,
+    hookTimeout: 30000, // Increase hook timeout to 30s for complex module imports
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
