@@ -405,8 +405,13 @@ function renderFieldComponent(type: string, props: RenderFieldProps) {
 
   switch (type) {
     case 'input':
+      if (inputType === 'file') {
+        // File inputs cannot be controlled with value prop
+         const { value, ...fileProps } = fieldProps;
+         return <Input type="file" placeholder={placeholder} {...fileProps} />;
+      }
       return <Input type={inputType || 'text'} placeholder={placeholder} {...fieldProps} value={fieldProps.value ?? ''} />;
-    
+      
     case 'textarea':
       return <Textarea placeholder={placeholder} {...fieldProps} value={fieldProps.value ?? ''} />;
     

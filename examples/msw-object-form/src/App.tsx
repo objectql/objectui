@@ -125,7 +125,25 @@ export function App() {
                 objectName: 'contact',
                 mode: editingContact ? 'edit' : 'create',
                 recordId: editingContact?.id,
-                fields: ['name', 'email', 'phone', 'company', 'position', 'priority', 'is_active', 'notes'],
+                fields: [
+                  'name', 
+                  'email', 
+                  'phone', 
+                  'company', 
+                  'position',
+                  'priority',
+                  'salary',           // Added
+                  'commission_rate',  // Added
+                  'birthdate',        // Added
+                  'last_contacted',   // Added
+                  'available_time',   // Added
+                  'profile_url',      // Added
+                  'department',       // Added
+                  'resume',           // Added
+                  'avatar',           // Added
+                  'is_active', 
+                  'notes'
+                ],
                 layout: 'vertical',
                 columns: 1,
                 showSubmit: true,
