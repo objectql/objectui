@@ -12,7 +12,13 @@ export class ObjectStackDataSource implements DataSource {
 
   async getObjectSchema(objectName: string): Promise<any> {
     // Fetch object metadata from ObjectStack
-    const metadata = await this.client.meta.getObject(objectName);
+    const metadata: any = await this.client.meta.getObject(objectName);
+    
+    // Unwrap 'item' property if present (API response wrapper)
+    if (metadata && metadata.item) {
+      return metadata.item;
+    }
+    
     return metadata;
   }
 

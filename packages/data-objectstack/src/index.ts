@@ -327,7 +327,13 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
     try {
       // Use cache with automatic fetching
       const schema = await this.metadataCache.get(objectName, async () => {
-        const result = await this.client.meta.getObject(objectName);
+        const result: any = await this.client.meta.getObject(objectName);
+        
+        // Unwrap 'item' property if present (common API response wrapper)
+        if (result && result.item) {
+          return result.item;
+        }
+
         return result;
       });
       
