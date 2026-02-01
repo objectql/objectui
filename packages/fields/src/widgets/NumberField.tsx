@@ -8,7 +8,7 @@ export function NumberField({ value, onChange, field, readonly, ...props }: Fiel
     return <span className="text-sm">{value ?? '-'}</span>;
   }
 
-  const precision = (field as unknown as NumberFieldMetadata).precision;
+  const precision = (field as unknown as NumberFieldMetadata)?.precision;
 
   return (
     <Input
@@ -18,7 +18,7 @@ export function NumberField({ value, onChange, field, readonly, ...props }: Fiel
         const val = e.target.value;
         onChange(val === '' ? (null as any) : Number(val));
       }}
-      placeholder={field.placeholder}
+      placeholder={field?.placeholder}
       disabled={readonly}
       step={precision ? Math.pow(10, -precision) : 'any'}
       className={props.className}

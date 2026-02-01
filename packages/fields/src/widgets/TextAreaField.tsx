@@ -11,7 +11,7 @@ export function TextAreaField({ value, onChange, field, readonly, errorMessage, 
     );
   }
 
-  const textareaField = field as any;
+  const textareaField = (field || (props as any).schema) as any;
   const rows = textareaField?.rows || 4;
   const maxLength = textareaField?.max_length;
 
@@ -20,7 +20,7 @@ export function TextAreaField({ value, onChange, field, readonly, errorMessage, 
       <Textarea
         value={value || ''}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={field.placeholder}
+        placeholder={textareaField?.placeholder}
         disabled={readonly}
         rows={rows}
         maxLength={maxLength}

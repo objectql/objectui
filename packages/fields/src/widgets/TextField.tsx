@@ -4,19 +4,21 @@ import { TextareaFieldMetadata } from '@object-ui/types';
 import { FieldWidgetProps } from './types';
 
 export function TextField({ value, onChange, field, readonly, ...props }: FieldWidgetProps<string>) {
+  const fieldData = field || (props as any).schema;
+
   if (readonly) {
     return <span className="text-sm">{value || '-'}</span>;
   }
 
   // Cast for rows property
-  const rows = (field as unknown as TextareaFieldMetadata)?.rows;
+  const rows = (fieldData as unknown as TextareaFieldMetadata)?.rows;
 
   if (rows && rows > 1) {
     return (
       <Textarea
         value={value || ''}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={field?.placeholder}
+        placeholder={fieldData?.placeholder}
         disabled={readonly}
         className={props.className}
       />
@@ -25,10 +27,10 @@ export function TextField({ value, onChange, field, readonly, ...props }: FieldW
 
   return (
     <Input
-      type={field?.type === 'password' ? 'password' : 'text'}
+      type={fieldData?.type === 'password' ? 'password' : 'text'}
       value={value || ''}
       onChange={(e) => onChange(e.target.value)}
-      placeholder={field.placeholder}
+      placeholder={fieldData?.placeholder}
       disabled={readonly}
       className={props.className}
       {...props}

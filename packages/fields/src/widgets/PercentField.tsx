@@ -4,7 +4,7 @@ import { FieldWidgetProps } from './types';
 
 export function PercentField({ value, onChange, field, readonly, errorMessage, ...props }: FieldWidgetProps<number>) {
   const percentField = field as any;
-  const precision = percentField.precision ?? 2;
+  const precision = percentField?.precision ?? 2;
 
   if (readonly) {
     if (value == null) return <span className="text-sm">-</span>;
@@ -34,7 +34,7 @@ export function PercentField({ value, onChange, field, readonly, errorMessage, .
         type="number"
         value={displayValue}
         onChange={handleChange}
-        placeholder={field.placeholder || '0'}
+        placeholder={field?.placeholder || '0'}
         disabled={readonly}
         className={`pr-8 ${props.className || ''}`}
         step={Math.pow(10, -precision).toFixed(precision)}
