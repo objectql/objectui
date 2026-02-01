@@ -171,38 +171,32 @@ ComponentRegistry.register('form',
       ? cn('grid gap-4', gridColsClass)
       : 'space-y-4';
 
-    // Extract designer-related props and exclude form-specific schema props
-    const { 
-        'data-obj-id': dataObjId, 
-        'data-obj-type': dataObjType,
-        style,
-        // Exclude all schema properties that should not be passed to HTML form element
-        onSubmit: _excludeOnSubmit,
-        onChange: _excludeOnChange,
-        onCancel: _excludeOnCancel,
-        fields: _excludeFields,
-        defaultValues: _excludeDefaultValues,
-        submitLabel: _excludeSubmitLabel,
-        cancelLabel: _excludeCancelLabel,
-        showCancel: _excludeShowCancel,
-        showSubmit: _excludeShowSubmit,
-        showActions: _excludeShowActions,
-        layout: _excludeLayout,
-        columns: _excludeColumns,
-        resetOnSubmit: _excludeResetOnSubmit,
-        validationMode: _excludeValidationMode,
-        fieldContainerClass: _excludeFieldContainerClass,
-        disabled: _excludeDisabled,
-        schema: _excludeSchema,
-        ...formProps 
-    } = props;
+    // Extract only HTML-valid form attributes from props
+    // Allow: data-*, aria-*, id, name, autoComplete, etc.
+    // Exclude: All form schema properties
+    const htmlFormProps: Record<string, any> = {};
+    for (const [key, value] of Object.entries(props)) {
+      // Allow data-* and aria-* attributes
+      if (key.startsWith('data-') || key.startsWith('aria-')) {
+        htmlFormProps[key] = value;
+      }
+      // Allow standard HTML form attributes
+      else if (['id', 'name', 'autoComplete', 'autoFocus', 'role', 'title', 'lang', 'dir'].includes(key)) {
+        htmlFormProps[key] = value;
+      }
+      // Exclude all other props (especially schema properties like onSubmit, fields, etc.)
+    }
+    
+    const dataObjId = props['data-obj-id'];
+    const dataObjType = props['data-obj-type'];
+    const style = props.style;
 
     return (
       <Form {...form}>
         <form 
             onSubmit={handleSubmit} 
             className={className} 
-            {...formProps}
+            {...htmlFormProps}
             // Apply designer props
             data-obj-id={dataObjId}
             data-obj-type={dataObjType}
