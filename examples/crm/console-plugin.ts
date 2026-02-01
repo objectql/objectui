@@ -1,6 +1,11 @@
 
 import { serveStatic } from '@hono/node-server/serve-static';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export class ConsolePlugin {
     name = 'com.objectstack.server.console';
@@ -24,9 +29,9 @@ export class ConsolePlugin {
             
             ctx.logger.info('Registering Console UI at /console');
             
-            // Path relative to where server.ts is run (examples/crm)
-            // apps is ../../apps
-            const consoleDist = path.resolve(process.cwd(), '../../apps/console/dist');
+            // Path relative to this file (examples/crm/console-plugin.ts)
+            // ../../apps/console/dist
+            const consoleDist = path.resolve(__dirname, '../../apps/console/dist');
             
             // Serve static resources (JS, CSS, etc)
             // Hono serveStatic will look for the file in root

@@ -12,8 +12,10 @@ import { startMockServer } from './mocks/browser';
 
 // Start MSW before rendering the app
 async function bootstrap() {
-  // Initialize Mock Service Worker
-  await startMockServer();
+  // Initialize Mock Service Worker if enabled
+  if (import.meta.env.VITE_USE_MOCK_SERVER !== 'false') {
+    await startMockServer();
+  }
 
   // Render the React app
   ReactDOM.createRoot(document.getElementById('root')!).render(
