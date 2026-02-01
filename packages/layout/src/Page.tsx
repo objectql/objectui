@@ -3,6 +3,7 @@ import React from 'react';
 import { SchemaRenderer } from '@object-ui/react';
 import { PageSchema, SchemaNode } from '@object-ui/types';
 import { PageHeader } from './PageHeader';
+import { cn } from '@object-ui/components';
 
 // Helper to ensure children is always an array
 const getChildren = (children?: SchemaNode[] | SchemaNode): SchemaNode[] => {
@@ -11,11 +12,15 @@ const getChildren = (children?: SchemaNode[] | SchemaNode): SchemaNode[] => {
   return [children];
 };
 
-export function Page({ schema, ...props }: { schema: PageSchema } & any) {
+export function Page({ schema, className, style, id, ...props }: { schema: PageSchema; className?: string; style?: React.CSSProperties; id?: string } & any) {
   const children = getChildren(schema.children);
 
   return (
-    <div className="flex flex-col h-full space-y-4">
+    <div 
+      id={id || schema.id}
+      className={cn("flex flex-col h-full space-y-4", className)} 
+      style={style}
+    >
       <PageHeader 
         title={schema.title} 
         description={schema.description} 

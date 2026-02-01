@@ -1,5 +1,6 @@
 import React from 'react';
 import { FieldWidgetProps } from './types';
+import { cn } from '@object-ui/components';
 
 /**
  * GridField - Sub-table/grid data display
@@ -16,7 +17,7 @@ export function GridField({ value, field, readonly, ...props }: FieldWidgetProps
 
   if (readonly) {
     return (
-      <div className={`text-sm ${props.className || ''}`}>
+      <div className={cn("text-sm", props.className)}>
         <span className="text-gray-700">{value.length} rows</span>
       </div>
     );
@@ -24,7 +25,7 @@ export function GridField({ value, field, readonly, ...props }: FieldWidgetProps
 
   // Simple read-only table view
   return (
-    <div className={`border border-gray-200 rounded-md overflow-hidden ${props.className || ''}`}>
+    <div className={cn("border border-gray-200 rounded-md overflow-hidden", props.className)}>
       <div className="overflow-auto max-h-60">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">

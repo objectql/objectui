@@ -278,6 +278,9 @@ ComponentRegistry.register('form',
                           {/* Render the actual field component based on type */}
                           {renderFieldComponent(type, {
                             ...fieldProps,
+                            // specialized fields needs raw metadata, but we should traverse down if it exists
+                            // field is the field configuration loop variable
+                            field: (field as any).field || field, 
                             ...formField,
                             inputType: fieldProps.inputType,
                             options: fieldProps.options,
