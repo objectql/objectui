@@ -28,9 +28,9 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@object-ui/types": "workspace:*",
     "@object-ui/core": "workspace:*",
-    "@objectstack/client": "^0.8.0"
+    "@object-ui/types": "workspace:*",
+    "@objectstack/client": "^0.8.2"
   },
   "devDependencies": {
     "tsup": "^8.0.1",

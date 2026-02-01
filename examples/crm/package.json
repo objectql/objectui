@@ -14,10 +14,10 @@
     "start": "tsx server.ts"
   },
   "dependencies": {
-    "@objectstack/spec": "^0.8.0"
+    "@objectstack/spec": "^0.8.2"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "@objectstack/cli": "^0.8.0"
+    "@objectstack/cli": "^0.8.2",
+    "typescript": "^5.0.0"
   }
 }
