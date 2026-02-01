@@ -1,20 +1,85 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
 import { ObjectStackClient } from '@objectstack/client';
 import { AppShell, SidebarNav } from '@object-ui/layout';
 import { ObjectGrid } from '@object-ui/plugin-grid';
 import { ObjectForm } from '@object-ui/plugin-form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Button } from '@object-ui/components';
 import { ObjectStackDataSource } from './dataSource';
-import { LayoutDashboard, Users, Settings, Plus } from 'lucide-react';
-import appConfig from '../objectstack.config';
+import { LayoutDashboard, Users, Plus, Database } from 'lucide-react';
+
+import crmConfig from '@object-ui/example-crm/objectstack.config';
+import todoConfig from '@object-ui/example-todo/objectstack.config';
+
+const APPS: any = {
+  crm: { ...crmConfig, name: 'crm', label: 'CRM App' },
+  todo: { ...todoConfig, name: 'todo', label: 'Todo App' }
+};
+
+function ObjectView({ dataSource, config, onEdit }: any) {
+    const { objectName } = useParams();
+    const [refreshKey, setRefreshKey] = useState(0);
+    const objectDef = config.objects.find((o: any) => o.name === objectName);
+
+    if (!objectDef) return <div>Object {objectName} not found</div>;
+
+    // Generate columns from fields if not specified (simple auto-generation)
+    // Handle both array fields and object fields definitions
+    const normalizedFields = Array.isArray(objectDef.fields) 
+        ? objectDef.fields 
+        : Object.entries(objectDef.fields || {}).map(([key, value]: [string, any]) => ({ name: key, ...value }));
+
+    const columns = normalizedFields.map((f: any) => ({
+        field: f.name,
+        label: f.label || f.name,
+        width: 150
+    })).slice(0, 8); // Limit to 8 columns for demo
+
+    return (
+        <div className="h-full flex flex-col gap-4">
+             <div className="flex justify-between items-center bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                 <div>
+                    <h1 className="text-xl font-bold text-slate-900">{objectDef.label}</h1>
+                    <p className="text-slate-500 text-sm">{objectDef.description || 'Manage your records'}</p>
+                 </div>
+                 <Button onClick={() => onEdit(null)} className="bg-blue-600 hover:bg-blue-700">
+                    <Plus className="mr-2 h-4 w-4" /> New {objectDef.label}
+                 </Button>
+             </div>
+
+             <div className="flex-1 bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden p-4">
+                <ObjectGrid
+                    key={`${objectName}-${refreshKey}`}
+                    schema={{
+                        type: 'object-grid',
+                        objectName: objectDef.name,
+                        filterable: true,
+                        columns: columns,
+                    }}
+                    dataSource={dataSource}
+                    onEdit={onEdit}
+                    onDelete={async (record: any) => {
+                        if (confirm(`Delete record?`)) {
+                            await dataSource.delete(objectName, record.id);
+                            setRefreshKey(k => k + 1);
+                        }
+                    }}
+                    className="h-full"
+                />
+             </div>
+        </div>
+    );
+}
 
 function AppContent() {
   const [client, setClient] = useState<ObjectStackClient | null>(null);
   const [dataSource, setDataSource] = useState<ObjectStackDataSource | null>(null);
+  const [activeAppKey, setActiveAppKey] = useState<string>('crm');
+  
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<any>(null);
-  const [refreshKey, setRefreshKey] = useState(0);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     initializeClient();
@@ -32,10 +97,20 @@ function AppContent() {
     }
   }
 
-  const handleCreate = () => {
-    setEditingRecord(null);
-    setIsDialogOpen(true);
-  };
+  const activeConfig = APPS[activeAppKey];
+  const currentObjectDef = activeConfig.objects.find((o: any) => location.pathname === `/${o.name}`);
+
+  // Sidebar items from active app objects
+  const sidebarItems = useMemo(() => {
+      // Filter out objects that might not be top-level or are internal if needed
+      return [
+          ...activeConfig.objects.map((obj: any) => ({
+              title: obj.label,
+              href: `/${obj.name}`,
+              icon: obj.name === 'contact' ? Users : Database
+          }))
+      ];
+  }, [activeConfig]);
 
   const handleEdit = (record: any) => {
     setEditingRecord(record);
@@ -44,25 +119,30 @@ function AppContent() {
 
   if (!client || !dataSource) return <div className="flex items-center justify-center h-screen">Loading ObjectStack...</div>;
 
-  const contactsObject = appConfig.objects?.find(o => o.name === 'contact') || appConfig.objects?.[0];
-
-  if (!contactsObject) return <div className="p-4">No object definition found in configuration.</div>;
-
   return (
     <AppShell
       sidebar={
         <SidebarNav 
-          title="ObjectUI CRM"
-          items={[
-            { title: 'Dashboard', href: '/', icon: LayoutDashboard },
-            { title: 'Contacts', href: '/contacts', icon: Users },
-            { title: 'Settings', href: '/settings', icon: Settings }
-          ]}
+          title={activeConfig.label}
+          items={sidebarItems}
         />
       }
       navbar={
          <div className="flex items-center justify-between w-full">
-            <h2 className="text-lg font-semibold">CRM Workspace</h2>
+            <div className="flex items-center gap-4">
+                <h2 className="text-lg font-semibold">Workspace</h2>
+                <select 
+                    className="border rounded px-2 py-1 text-sm bg-white"
+                    value={activeAppKey} 
+                    onChange={(e) => {
+                        setActiveAppKey(e.target.value);
+                        navigate('/');
+                    }}
+                >
+                    <option value="crm">CRM App</option>
+                    <option value="todo">Todo App</option>
+                </select>
+            </div>
             <div className="flex gap-2">
                  <Button variant="outline" size="sm">Help</Button>
             </div>
@@ -70,83 +150,40 @@ function AppContent() {
       }
     >
       <Routes>
-        <Route path="/" element={<Navigate to="/contacts" replace />} />
-        <Route path="/contacts" element={
-          <div className="h-full flex flex-col gap-4">
-             <div className="flex justify-between items-center bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                 <div>
-                    <h1 className="text-xl font-bold text-slate-900">{contactsObject.label}</h1>
-                    <p className="text-slate-500 text-sm">Manage all your contacts in one place</p>
-                 </div>
-                 <Button onClick={handleCreate} className="bg-blue-600 hover:bg-blue-700">
-                    <Plus className="mr-2 h-4 w-4" /> New {contactsObject.label}
-                 </Button>
-             </div>
-
-             <div className="flex-1 bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden p-4">
-                <ObjectGrid
-                    key={refreshKey}
-                    schema={{
-                    type: 'object-grid',
-                    objectName: contactsObject.name,
-                    filterable: true,
-                    searchableFields: ['name', 'email', 'company'],
-                    columns: [
-                        { field: 'name', label: 'Name', width: 200, fixed: 'left' },
-                        { field: 'email', label: 'Email', width: 220 },
-                        { field: 'phone', label: 'Phone', width: 150 },
-                        { field: 'company', label: 'Company', width: 180 },
-                        { field: 'department', label: 'Department', width: 150 },
-                        { field: 'priority', label: 'Priority', width: 100 },
-                        { field: 'salary', label: 'Salary', width: 120 },
-                        { field: 'is_active', label: 'Active', width: 100 },
-                    ]
-                    }}
-                    dataSource={dataSource}
-                    onEdit={handleEdit}
-                    onDelete={async (record) => {
-                        if (confirm(`Delete ${record.name}?`)) {
-                            await dataSource.delete(contactsObject.name, record.id);
-                            setRefreshKey(k => k + 1);
-                        }
-                    }}
-                    className="h-full"
-                />
-             </div>
-          </div>
+        <Route path="/" element={<Navigate to={`/${activeConfig.objects[0]?.name || ''}`} replace />} />
+        <Route path="/:objectName" element={
+            <ObjectView dataSource={dataSource} config={activeConfig} onEdit={handleEdit} />
         } />
-        <Route path="*" element={<div>Page not found</div>} />
       </Routes>
 
        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className="sm:max-w-3xl max-h-[90vh] flex flex-col p-0 gap-0">
              <DialogHeader className="p-6 pb-2 border-b border-slate-100">
-                <DialogTitle>{editingRecord ? 'Edit' : 'Create'} {contactsObject.label}</DialogTitle>
+                <DialogTitle>{editingRecord ? 'Edit' : 'Create'} {currentObjectDef?.label}</DialogTitle>
                 <DialogDescription>Fill out the details below.</DialogDescription>
              </DialogHeader>
              <div className="flex-1 overflow-y-auto p-6">
-                <ObjectForm
-                    schema={{
-                    type: 'object-form',
-                    objectName: contactsObject.name,
-                    mode: editingRecord ? 'edit' : 'create',
-                    recordId: editingRecord?.id,
-                    layout: 'vertical',
-                    columns: 2,
-                    fields: [
-                        'name', 'email', 'phone', 'company', 
-                        'department', 'priority', 'salary', 'commission_rate',
-                        'birthdate', 'available_time', 'is_active', 'notes',
-                        'profile_url', 'avatar'
-                    ],
-                    onSuccess: () => { setIsDialogOpen(false); setRefreshKey(k => k + 1); },
-                    onCancel: () => setIsDialogOpen(false),
-                    showSubmit: true,
-                    showCancel: true,
-                    submitText: editingRecord ? 'Save Changes' : 'Create Record'
-                    }}
-                    dataSource={dataSource}
-                />
+                {currentObjectDef && (
+                    <ObjectForm
+                        key={editingRecord?.id || 'new'}
+                        schema={{
+                            type: 'object-form',
+                            objectName: currentObjectDef.name,
+                            mode: editingRecord ? 'edit' : 'create',
+                            recordId: editingRecord?.id,
+                            layout: 'vertical',
+                            columns: 1,
+                            fields: Array.isArray(currentObjectDef.fields) 
+                                ? currentObjectDef.fields.map((f: any) => f.name)
+                                : Object.keys(currentObjectDef.fields || {}),
+                            onSuccess: () => { setIsDialogOpen(false); navigate(location.pathname); }, 
+                            onCancel: () => setIsDialogOpen(false),
+                            showSubmit: true,
+                            showCancel: true,
+                        }}
+                        dataSource={dataSource}
+                    />
+                )}
              </div>
           </DialogContent>
        </Dialog>
