@@ -1,40 +1,40 @@
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useParams, useLocation } from 'react-router-dom';
-import { useState, useEffect, useMemo } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useParams, useLocation, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { ObjectStackClient } from '@objectstack/client';
-import { AppShell, SidebarNav } from '@object-ui/layout';
+import { AppShell } from '@object-ui/layout';
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@object-ui/components';
 import { ObjectGrid } from '@object-ui/plugin-grid';
 import { ObjectForm } from '@object-ui/plugin-form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Button } from '@object-ui/components';
 import { ObjectStackDataSource } from './dataSource';
-import { LayoutDashboard, Users, Plus, Database, Settings } from 'lucide-react';
-
+import { LayoutDashboard, Users, Plus, Database, CheckSquare, Activity, Briefcase, FileText } from 'lucide-react';
 import appConfig from '../objectstack.config';
 
-const APPS: any = {
-  // Filter objects based on source config (heuristic: contacts->crm, todo->todo)
-  crm: { 
-    ...appConfig, 
-    name: 'crm', 
-    label: 'CRM App',
-    objects: appConfig.objects?.filter((o: any) => ['account', 'contact', 'opportunity'].includes(o.name)) || []
-  },
-  todo: { 
-    ...appConfig, 
-    name: 'todo', 
-    label: 'Todo App',
-    objects: appConfig.objects?.filter((o: any) => ['todo_task'].includes(o.name)) || [] 
-  }
+// Icon Map for dynamic icons
+const ICONS: Record<string, any> = {
+  'dashboard': LayoutDashboard,
+  'users': Users,
+  'user': Users,
+  'check-square': CheckSquare,
+  'activity': Activity,
+  'briefcase': Briefcase,
+  'file-text': FileText,
+  'database': Database,
 };
 
-function ObjectView({ dataSource, config, onEdit }: any) {
+function getIcon(name?: string) {
+  if (!name) return Database;
+  return ICONS[name] || Database;
+}
+
+function ObjectView({ dataSource, objects, onEdit }: any) {
     const { objectName } = useParams();
     const [refreshKey, setRefreshKey] = useState(0);
-    const objectDef = config.objects.find((o: any) => o.name === objectName);
+    const objectDef = objects.find((o: any) => o.name === objectName);
 
     if (!objectDef) return <div>Object {objectName} not found</div>;
 
-    // Generate columns from fields if not specified (simple auto-generation)
-    // Handle both array fields and object fields definitions
+    // Generate columns from fields if not specified
     const normalizedFields = Array.isArray(objectDef.fields) 
         ? objectDef.fields 
         : Object.entries(objectDef.fields || {}).map(([key, value]: [string, any]) => ({ name: key, ...value }));
@@ -43,7 +43,7 @@ function ObjectView({ dataSource, config, onEdit }: any) {
         field: f.name,
         label: f.label || f.name,
         width: 150
-    })).slice(0, 8); // Limit to 8 columns for demo
+    })).slice(0, 8); 
 
     return (
         <div className="h-full flex flex-col gap-4">
@@ -81,10 +81,73 @@ function ObjectView({ dataSource, config, onEdit }: any) {
     );
 }
 
+// Recursive Navigation Item Renderer
+function NavigationItemRenderer({ item }: { item: any }) {
+    const Icon = getIcon(item.icon);
+    const location = useLocation();
+
+    if (item.type === 'group') {
+        return (
+            <SidebarGroup>
+                <SidebarGroupLabel>{item.label}</SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                        {item.children?.map((child: any) => (
+                            <NavigationItemRenderer key={child.id} item={child} />
+                        ))}
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
+        );
+    }
+
+    // Default object/page items
+    const href = item.type === 'object' ? `/${item.objectName}` : (item.path || '#');
+    const isActive = location.pathname === href;
+
+    return (
+        <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive}>
+                <Link to={href}>
+                    <Icon className="mr-2 h-4 w-4" />
+                    <span>{item.label}</span>
+                </Link>
+            </SidebarMenuButton>
+        </SidebarMenuItem>
+    );
+}
+
+function NavigationTree({ items }: { items: any[] }) {
+    // If top level items are mixed (groups and non-groups), wrap non-groups in a generic group or render directly
+    const hasGroups = items.some(i => i.type === 'group');
+
+    if (hasGroups) {
+        return (
+            <>
+                {items.map(item => <NavigationItemRenderer key={item.id} item={item} />)}
+            </>
+        );
+    }
+
+    // Flat list (create a default group)
+    return (
+        <SidebarGroup>
+            <SidebarGroupContent>
+                <SidebarMenu>
+                    {items.map(item => <NavigationItemRenderer key={item.id} item={item} />)}
+                </SidebarMenu>
+            </SidebarGroupContent>
+        </SidebarGroup>
+    );
+}
+
 function AppContent() {
   const [client, setClient] = useState<ObjectStackClient | null>(null);
   const [dataSource, setDataSource] = useState<ObjectStackDataSource | null>(null);
-  const [activeAppKey, setActiveAppKey] = useState<string>('crm');
+  
+  // App Selection
+  const apps = appConfig.apps || [];
+  const [activeAppName, setActiveAppName] = useState<string>(apps[0]?.name || 'default');
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<any>(null);
@@ -107,20 +170,11 @@ function AppContent() {
     }
   }
 
-  const activeConfig = APPS[activeAppKey];
-  const currentObjectDef = activeConfig.objects.find((o: any) => location.pathname === `/${o.name}`);
-
-  // Sidebar items from active app objects
-  const sidebarItems = useMemo(() => {
-      // Filter out objects that might not be top-level or are internal if needed
-      return [
-          ...activeConfig.objects.map((obj: any) => ({
-              title: obj.label,
-              href: `/${obj.name}`,
-              icon: obj.name === 'contact' ? Users : Database
-          }))
-      ];
-  }, [activeConfig]);
+  const activeApp = apps.find((a: any) => a.name === activeAppName) || apps[0];
+  const allObjects = appConfig.objects || [];
+  
+  // Find current object definition for Dialog
+  const currentObjectDef = allObjects.find((o: any) => location.pathname === `/${o.name}`);
 
   const handleEdit = (record: any) => {
     setEditingRecord(record);
@@ -128,29 +182,35 @@ function AppContent() {
   };
 
   if (!client || !dataSource) return <div className="flex items-center justify-center h-screen">Loading ObjectStack...</div>;
+  if (!activeApp) return <div className="p-4">No Apps configured.</div>;
 
   return (
     <AppShell
       sidebar={
-        <SidebarNav 
-          title={activeConfig.label}
-          items={sidebarItems}
-        />
+        <Sidebar collapsible="icon">
+             <SidebarContent>
+                 <div className="p-2 font-semibold text-xs text-slate-500 uppercase tracking-wider pl-4 mt-2">
+                     {activeApp.label}
+                 </div>
+                 <NavigationTree items={activeApp.navigation || []} />
+             </SidebarContent>
+        </Sidebar>
       }
       navbar={
          <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-4">
-                <h2 className="text-lg font-semibold">Workspace</h2>
+                <h2 className="text-lg font-semibold">ObjectUI Workspace</h2>
                 <select 
                     className="border rounded px-2 py-1 text-sm bg-white"
-                    value={activeAppKey} 
+                    value={activeAppName} 
                     onChange={(e) => {
-                        setActiveAppKey(e.target.value);
+                        setActiveAppName(e.target.value);
                         navigate('/');
                     }}
                 >
-                    <option value="crm">CRM App</option>
-                    <option value="todo">Todo App</option>
+                    {apps.map((app: any) => (
+                        <option key={app.name} value={app.name}>{app.label}</option>
+                    ))}
                 </select>
             </div>
             <div className="flex gap-2">
@@ -160,9 +220,12 @@ function AppContent() {
       }
     >
       <Routes>
-        <Route path="/" element={<Navigate to={`/${activeConfig.objects[0]?.name || ''}`} replace />} />
+        <Route path="/" element={
+            /* Redirect to first navigable object in the active app */
+            <Navigate to={findFirstRoute(activeApp.navigation)} replace />
+        } />
         <Route path="/:objectName" element={
-            <ObjectView dataSource={dataSource} config={activeConfig} onEdit={handleEdit} />
+            <ObjectView dataSource={dataSource} objects={allObjects} onEdit={handleEdit} />
         } />
       </Routes>
 
@@ -199,6 +262,20 @@ function AppContent() {
        </Dialog>
     </AppShell>
   );
+}
+
+// Helper to find first valid route in navigation tree
+function findFirstRoute(items: any[]): string {
+    if (!items || items.length === 0) return '/';
+    for (const item of items) {
+        if (item.type === 'object') return `/${item.objectName}`;
+        if (item.type === 'page') return item.path;
+        if (item.type === 'group' && item.children) {
+            const childRoute = findFirstRoute(item.children); // Recurse
+            if (childRoute !== '/') return childRoute;
+        }
+    }
+    return '/';
 }
 
 export function App() {
