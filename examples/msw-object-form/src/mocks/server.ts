@@ -10,6 +10,7 @@ import { ObjectQLPlugin } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
+// @ts-expect-error - Config file not in src directory
 import appConfig from '../../objectstack.config';
 
 let kernel: ObjectKernel | null = null;
@@ -84,7 +85,7 @@ export function getDriver(): InMemoryDriver | null {
  * Create MSW request handlers for ObjectStack API
  */
 function createHandlers(baseUrl: string, kernel: ObjectKernel) {
-  const protocol = kernel.getService('protocol');
+  const protocol = kernel.getService('protocol') as any;
   
   return [
     // Discovery endpoint

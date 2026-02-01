@@ -26,11 +26,11 @@ class MockDataSource implements DataSource {
     }
   };
 
-  async getObjectSchema(objectName: string): Promise<any> {
+  async getObjectSchema(_objectName: string): Promise<any> {
     return this.mockObject;
   }
 
-  async findOne(objectName: string, id: string): Promise<any> {
+  async findOne(_objectName: string, id: string): Promise<any> {
     return {
       id,
       name: 'John Doe',
@@ -43,20 +43,21 @@ class MockDataSource implements DataSource {
     };
   }
 
-  async create(objectName: string, data: any): Promise<any> {
+  async create(_objectName: string, data: any): Promise<any> {
     return { ...data, id: 'new-id' };
   }
 
-  async update(objectName: string, id: string, data: any): Promise<any> {
+  async update(_objectName: string, id: string, data: any): Promise<any> {
     return { ...data, id };
   }
 
-  async delete(objectName: string, id: string): Promise<void> {
+  async delete(_objectName: string, _id: string): Promise<boolean> {
     // Mock delete
+    return true;
   }
 
-  async find(objectName: string, options?: any): Promise<any[]> {
-    return [];
+  async find(_objectName: string, _options?: any): Promise<{ data: any[] }> {
+    return { data: [] };
   }
 }
 

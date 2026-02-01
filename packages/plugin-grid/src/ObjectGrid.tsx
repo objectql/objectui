@@ -155,7 +155,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
         }
         
         // For object provider, get the object name
-        const objectName = dataConfig?.provider === 'object' 
+        const objectName = dataConfig?.provider === 'object' && 'object' in dataConfig
           ? dataConfig.object 
           : schema.objectName;
           
@@ -259,7 +259,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
     setLoading(true);
     try {
       // Get object name from data config or schema
-      const objectName = dataConfig?.provider === 'object' 
+      const objectName = dataConfig?.provider === 'object' && 'object' in dataConfig
         ? dataConfig.object 
         : schema.objectName;
         
@@ -363,7 +363,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
               </DropdownMenuItem>
             )}
             {operations?.delete && onDelete && (
-              <DropdownMenuItem variant="destructive" onClick={() => onDelete(row)}>
+              <DropdownMenuItem onClick={() => onDelete(row)}>
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete
               </DropdownMenuItem>

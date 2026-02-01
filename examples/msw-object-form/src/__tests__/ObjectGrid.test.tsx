@@ -6,18 +6,21 @@
 
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
+import { ObjectStackClient } from '@objectstack/client';
 import { ObjectGrid } from '@object-ui/plugin-grid';
 import { startMockServer, stopMockServer } from '../mocks/server';
 import { ObjectStackDataSource } from '../dataSource';
 
 describe('ObjectGrid MSW Integration', () => {
+  let client: ObjectStackClient;
   let dataSource: ObjectStackDataSource;
 
   beforeAll(async () => {
     await startMockServer();
-    dataSource = new ObjectStackDataSource();
+    client = new ObjectStackClient({ baseUrl: 'http://localhost:3000' });
+    await client.connect();
+    dataSource = new ObjectStackDataSource(client);
   });
 
   afterAll(() => {
@@ -194,7 +197,7 @@ describe('ObjectGrid MSW Integration', () => {
 
   describe('Data Loading', () => {
     it('should show loading state initially', async () => {
-      const { container } = render(
+      render(
         <ObjectGrid
           schema={{
             type: 'object-grid',

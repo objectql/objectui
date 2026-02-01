@@ -5,10 +5,10 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { SchemaRenderer } from '@object-ui/react';
-import type { AppSchema, PageSchema } from '@object-ui/types';
+import type { AppSchema } from '@object-ui/types';
 import { startMockServer, stopMockServer } from '../mocks/server';
 
 describe('Server-Driven Definitions', () => {
@@ -332,7 +332,7 @@ describe('Server-Driven Definitions', () => {
       };
 
       expect(dynamicSchema.children[1].objectName).toBe('contact');
-      expect(dynamicSchema.children[1].data.provider).toBe('object');
+      expect(dynamicSchema.children[1].data?.provider).toBe('object');
     });
 
     it('should support conditional rendering based on server data', () => {
