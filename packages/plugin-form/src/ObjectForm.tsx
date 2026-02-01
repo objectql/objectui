@@ -193,12 +193,21 @@ export const ObjectForm: React.FC<ObjectFormProps> = ({
           formField.step = field.precision ? Math.pow(10, -field.precision) : undefined;
         }
 
+        if (field.type === 'date') {
+          formField.inputType = 'date';
+        }
+
+        if (field.type === 'datetime') {
+          formField.inputType = 'datetime-local';
+        }
+
         if (field.type === 'text' || field.type === 'textarea' || field.type === 'markdown' || field.type === 'html') {
           formField.maxLength = field.max_length;
           formField.minLength = field.min_length;
         }
 
         if (field.type === 'file' || field.type === 'image') {
+          formField.inputType = 'file';
           formField.multiple = field.multiple;
           formField.accept = field.accept ? field.accept.join(',') : undefined;
           // Add validation hints for file size and dimensions

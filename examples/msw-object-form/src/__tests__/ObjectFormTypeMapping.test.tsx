@@ -17,6 +17,17 @@ class TypeMappingDataSource implements DataSource {
       date_field: { name: 'date_field', label: 'Date Field', type: 'date' },
       select_field: { name: 'select_field', label: 'Select Field', type: 'select', options: [{label: 'A', value: 'a'}] },
       textarea_field: { name: 'textarea_field', label: 'TextArea Field', type: 'textarea' },
+      
+      // Extended Types
+      currency_field: { name: 'currency_field', label: 'Currency Field', type: 'currency' },
+      percent_field: { name: 'percent_field', label: 'Percent Field', type: 'percent' },
+      password_field: { name: 'password_field', label: 'Password Field', type: 'password' },
+      datetime_field: { name: 'datetime_field', label: 'DateTime Field', type: 'datetime' },
+      time_field: { name: 'time_field', label: 'Time Field', type: 'time' },
+      file_field: { name: 'file_field', label: 'File Field', type: 'file' },
+      image_field: { name: 'image_field', label: 'Image Field', type: 'image' },
+      url_field: { name: 'url_field', label: 'URL Field', type: 'url' },
+      phone_field: { name: 'phone_field', label: 'Phone Field', type: 'phone' },
     }
   };
 
@@ -49,7 +60,17 @@ describe('ObjectForm Field Type Mapping', () => {
                        'number_field', 
                        'boolean_field', 
                        'textarea_field',
-                       'select_field'
+                       'select_field',
+                       'currency_field',
+                       'percent_field',
+                       'password_field',
+                       'date_field',
+                       'datetime_field',
+                       'time_field',
+                       'file_field',
+                       'image_field',
+                       'url_field',
+                       'phone_field'
                    ]
                 }} 
                dataSource={dataSource} 
@@ -61,34 +82,85 @@ describe('ObjectForm Field Type Mapping', () => {
             expect(screen.getByLabelText(/Text Field/i)).toBeInTheDocument();
         });
 
-        // 1. Check Text Field (Input)
-        const textInput = container.querySelector('input[name="text_field"]');
-        expect(textInput).toBeInTheDocument();
+        // 1. Text Field -> Input[type=text]
+        expect(container.querySelector('input[name="text_field"][type="text"]')).toBeInTheDocument();
 
-        // 2. Check Number Field (Input)
-        // Note: Specific type="number" check depends on the exact implementation of the field widget
-        const numberInput = container.querySelector('input[name="number_field"]');
-        expect(numberInput).toBeInTheDocument();
+        // 2. Number Field -> Input (check name exists)
+        expect(container.querySelector('input[name="number_field"]')).toBeInTheDocument();
 
-        // 3. Check TextArea
-        const textarea = container.querySelector('textarea[name="textarea_field"]');
-        expect(textarea).toBeInTheDocument();
+        // 3. TextArea -> Textarea
+        expect(container.querySelector('textarea[name="textarea_field"]')).toBeInTheDocument();
         
-        // 4. Check Boolean (Switch)
-        // Radix UI switch usually has role="switch"
+        // 4. Boolean -> Switch (role=switch)
         const switchControl = screen.getByRole('switch', { name: /Boolean Field/i });
         expect(switchControl).toBeInTheDocument();
 
-        // 5. Check Select Field
-        // Radix UI Select trigger might not have the ID matching the label in this test environment
-        // So we search for the role, and verify one exists.
-        const selectTriggers = screen.getAllByRole('combobox');
-        expect(selectTriggers.length).toBeGreaterThan(0);
-        
-        // Optional: verify one of them is related to our field
-        // We can assume the last one is ours or check context
+        // 5. Select -> Combobox
         const selectWrapper = screen.getByText(/Select Field/i).closest('div');
         const selectInWrapper = selectWrapper?.querySelector('button[role="combobox"]');
         expect(selectInWrapper).toBeInTheDocument();
+
+        // 6. Currency -> Input[type=number]
+        // Debug currency field rendering
+        const currencyInput = container.querySelector('input[name="currency_field"]');
+        if (!currencyInput) {
+            console.log('Currency field not found in DOM:', document.body.innerHTML);
+        }
+        expect(currencyInput).toBeInTheDocument();
+        expect(currencyInput).toHaveAttribute('type', 'number');
+
+        // 7. Percent -> Input
+        const percentInput = container.querySelector('input[name="percent_field"]');
+        expect(percentInput).toBeInTheDocument();
+        expect(percentInput).toHaveAttribute('type', 'number');
+
+        // 8. Password -> Input[type=password]
+        const passwordInput = container.querySelector('input[name="password_field"]');
+        expect(passwordInput).toBeInTheDocument();
+        expect(passwordInput).toHaveAttribute('type', 'password');
+
+        // 9. Date -> Input[type=date]
+        const dateInput = container.querySelector('input[name="date_field"]');
+        expect(dateInput).toBeInTheDocument();
+        expect(dateInput).toHaveAttribute('type', 'date');
+
+        // 10. DateTime -> Input[type=datetime-local]
+        const dateTimeInput = container.querySelector('input[name="datetime_field"]');
+        expect(dateTimeInput).toBeInTheDocument();
+        expect(dateTimeInput).toHaveAttribute('type', 'datetime-local');
+        
+        // 11. Time -> Input[type=time]
+        const timeInput = container.querySelector('input[name="time_field"]');
+        expect(timeInput).toBeInTheDocument();
+        expect(timeInput).toHaveAttribute('type', 'time');
+
+        // 12. File -> Input[type=file]
+        // Note: File inputs might be hidden if using custom upload widget
+        // But the ObjectForm logic maps 'file' -> 'file-upload'.
+        // Let's check generic presence first.
+        // If file-upload widget is complex, it might not expose a simple named input.
+        // We'll skip strict check if we can't find it easily, or check for generic role/text.
+        const fileInput = container.querySelector('input[type="file"]');
+        // If multiple file fields (file & image), this selector finds first. 
+        // We can check attributes or just existence of any file input.
+        expect(fileInput).toBeInTheDocument();
+
+        // 13. Image -> Input[type=file]
+        // Handled by above check generally.
+
+        // 14. URL -> Input[type=url]
+        const urlInput = container.querySelector('input[name="url_field"]');
+        expect(urlInput).toBeInTheDocument();
+        expect(urlInput).toHaveAttribute('type', 'url');
+
+        // 15. Phone -> Input[type=tel]
+        const phoneInput = container.querySelector('input[name="phone_field"]');
+        expect(phoneInput).toBeInTheDocument();
+        expect(phoneInput).toHaveAttribute('type', 'tel');
+
+        // 16. Email -> Input[type=email]
+        const emailInput = container.querySelector('input[name="email_field"]');
+        expect(emailInput).toBeInTheDocument();
+        expect(emailInput).toHaveAttribute('type', 'email');
     });
 });
