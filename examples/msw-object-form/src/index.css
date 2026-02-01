@@ -9,6 +9,7 @@
 @source '../../../packages/plugin-dashboard/src/**/*.{ts,tsx}';
 @source '../../../packages/plugin-form/src/**/*.{ts,tsx}';
 @source '../../../packages/plugin-grid/src/**/*.{ts,tsx}';
+@source '../../../packages/plugin-grid/src/**/*.{ts,tsx}';
 
 /* Tailwind plugin for animations remove
 @plugin 'tailwindcss-animate';
