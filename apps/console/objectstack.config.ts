@@ -1,7 +1,15 @@
 import { defineConfig } from './src/config';
+import { MSWPlugin } from '@objectstack/plugin-msw';
+import { ObjectQLPlugin } from '@objectstack/objectql';
+import ConsolePluginConfig from '@object-ui/console';
 import crmConfig from '@object-ui/example-crm/objectstack.config';
 import todoConfig from '@object-ui/example-todo/objectstack.config';
 import kitchenSinkConfig from '@object-ui/example-kitchen-sink/objectstack.config';
+
+const FixedConsolePlugin = {
+    ...ConsolePluginConfig,
+    init: () => {}
+};
 
 export default defineConfig({
   // ============================================================================
@@ -38,7 +46,9 @@ export default defineConfig({
   // ============================================================================
   
   plugins: [
-    '@objectstack/plugin-msw' // In core config
+    new ObjectQLPlugin(),
+    new MSWPlugin(),
+    FixedConsolePlugin
   ],
 
   // ============================================================================

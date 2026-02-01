@@ -32,7 +32,9 @@
       "@object-ui/ui": ["packages/ui/src"],
       "@object-ui/ui/*": ["packages/ui/src/*"],
       "@object-ui/renderer": ["packages/renderer/src"],
-      "@object-ui/renderer/*": ["packages/renderer/src/*"]
+      "@object-ui/renderer/*": ["packages/renderer/src/*"],
+      "@objectstack/plugin-msw": ["node_modules/@objectstack/plugin-msw/src/index.ts"],
+      "@objectstack/objectql": ["node_modules/@objectstack/objectql/src/index.ts"]
     }
   },
   "include": ["packages", "examples", "apps"]
