@@ -17,9 +17,18 @@ export const PageRenderer: React.FC<{ schema: PageSchema; className?: string; [k
   className,
   ...props 
 }) => {
-  // Support both body (legacy/playground) and children
-  const content = schema.body || schema.children;
-  const nodes = Array.isArray(content) ? content : (content ? [content] : []);
+  // Support regions (spec compliant), body (legacy), and children
+  let nodes: any[] = [];
+  
+  if (schema.regions && schema.regions.length > 0) {
+    // If regions are present, flatten their components into the main flow
+    // Ideally, we might want a grid layout here, but linear stacking works for simple single-region pages
+    nodes = schema.regions.flatMap(r => r.components || []);
+  } else {
+    // Fallback to direct children/body
+    const content = schema.body || schema.children;
+    nodes = Array.isArray(content) ? content : (content ? [content] : []);
+  }
 
   // Extract designer-related props
   const { 
@@ -68,7 +77,7 @@ export const PageRenderer: React.FC<{ schema: PageSchema; className?: string; [k
   );
 };
 
-const pageMeta = {
+const pageMeta: any = {
   namespace: 'ui',
   label: 'Page',
   icon: 'Layout',
@@ -80,7 +89,6 @@ const pageMeta = {
       name: 'body', 
       type: 'array', 
       label: 'Content',
-      // @ts-expect-error - itemType is experimental/extended metadata
       itemType: 'component' 
     }
   ]
