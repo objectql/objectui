@@ -68,24 +68,27 @@ export const PageRenderer: React.FC<{ schema: PageSchema; className?: string; [k
   );
 };
 
-ComponentRegistry.register(
-  'page',
-  PageRenderer,
-  {
-    namespace: 'ui',
-    label: 'Page',
-    icon: 'Layout',
-    category: 'layout',
-    inputs: [
-      { name: 'title', type: 'string', label: 'Title' },
-      { name: 'description', type: 'string', label: 'Description' },
-      { 
-        name: 'body', 
-        type: 'array', 
-        label: 'Content',
-        // @ts-expect-error - itemType is experimental/extended metadata
-        itemType: 'component' 
-      }
-    ]
-  }
-);
+const pageMeta = {
+  namespace: 'ui',
+  label: 'Page',
+  icon: 'Layout',
+  category: 'layout',
+  inputs: [
+    { name: 'title', type: 'string', label: 'Title' },
+    { name: 'description', type: 'string', label: 'Description' },
+    { 
+      name: 'body', 
+      type: 'array', 
+      label: 'Content',
+      // @ts-expect-error - itemType is experimental/extended metadata
+      itemType: 'component' 
+    }
+  ]
+};
+
+ComponentRegistry.register('page', PageRenderer, pageMeta);
+ComponentRegistry.register('app', PageRenderer, { ...pageMeta, label: 'App Page' });
+ComponentRegistry.register('utility', PageRenderer, { ...pageMeta, label: 'Utility Page' });
+ComponentRegistry.register('home', PageRenderer, { ...pageMeta, label: 'Home Page' });
+ComponentRegistry.register('record', PageRenderer, { ...pageMeta, label: 'Record Page' });
+
