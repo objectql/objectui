@@ -13,11 +13,13 @@ import { config as crmConfig } from '@object-ui/example-crm';
 import { http, HttpResponse } from 'msw';
 
 let kernel: ObjectKernel | null = null;
+let mswPlugin: MSWPlugin | null = null;
 
 export async function startMockServer() {
   if (kernel) return kernel;
 
   console.log('[Storybook MSW] Starting ObjectStack Runtime (Browser Mode)...');
+
   console.log('[Storybook MSW] Loaded Config:', crmConfig ? 'Found' : 'Missing', crmConfig?.apps?.length);
 
   if (crmConfig && crmConfig.objects) {
@@ -40,8 +42,8 @@ export async function startMockServer() {
         console.error('❌ CRM Config is missing! Skipping AppPlugin.');
     }
 
-    kernel.use(new MSWPlugin({
-        enableBrowser: true,
+    mswPlugin = new MSWPlugin({
+        enableBrowser: false, // Disable auto-start, let msw-storybook-addon handle it
         baseUrl: '/api/v1', 
         logRequests: true,
         customHandlers: [
@@ -70,7 +72,9 @@ export async function startMockServer() {
                 });
             })
         ]
-    }));
+    });
+
+    kernel.use(mswPlugin);
     
     console.log('[Storybook MSW] Bootstrapping kernel...');
     await kernel.bootstrap();
@@ -103,6 +107,10 @@ async function initializeMockData(driver: InMemoryDriver) {
             }
         }
     }
+}
+
+export function getHandlers() {
+    return mswPlugin?.getHandlers() || [];
 }
 
 export { kernel };

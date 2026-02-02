@@ -178,10 +178,11 @@ describe('Complex Renderers - Display Issue Detection', () => {
     it('should render scrollable area', () => {
       const { container } = renderComponent({
         type: 'scroll-area',
-        content: [{ type: 'text', content: 'Scrollable content' }],
+        children: [{ type: 'text', content: 'Scrollable content' }],
       });
 
       // ScrollArea renders content
+
       expect(container.textContent).toContain('Scrollable content');
     });
   });

@@ -1,8 +1,9 @@
-import type { Preview } from '@storybook/react-vite'
+import type { Preview, LoaderFunction } from '@storybook/react-vite'
 import { initialize, mswLoader } from 'msw-storybook-addon';
 import { handlers } from './mocks';
-import { startMockServer } from './msw-browser';
+import { startMockServer, getHandlers } from './msw-browser';
 import '../packages/components/src/index.css';
+
 import { ComponentRegistry } from '@object-ui/core';
 import * as components from '../packages/components/src/index';
 
@@ -11,16 +12,45 @@ initialize({
   onUnhandledRequest: 'bypass'
 });
 
-// Start MSW runtime with ObjectStack kernel
-// This must be called during Storybook initialization
-if (typeof window !== 'undefined') {
-  startMockServer().catch(err => {
-    console.error('Failed to start MSW runtime:', err);
-  });
-}
+// Custom loader to ensure ObjectStack kernel is ready and handlers are active
+const objectStackLoader: LoaderFunction = async (context) => {
+  // Ensure kernel is started
+  if (typeof window !== 'undefined') {
+    await startMockServer().catch(err => {
+      console.error('Failed to start MSW runtime:', err);
+    });
+  }
+
+  // Get dynamic handlers from the ObjectStack kernel
+  const kernelHandlers = getHandlers();
+  
+  // Inject kernel handlers into parameters for mswLoader to pick up.
+  // We prepend them so specific story handlers can override them if needed,
+  // OR we append them if we want kernel to be fallback.
+  // Generally, specific mocks should win, so kernel handlers should be 'after' or 'fallback'.
+  // But msw-storybook-addon applies handlers in order.
+  
+  // If we assume MSW standard: first matching handler wins.
+  // So specific story handlers (from parameters.msw.handlers) should come FIRST.
+  // Kernel handlers (generic) should come LAST.
+  
+  const existingHandlers = context.parameters.msw?.handlers || [];
+  
+  // Careful: existingHandlers might be a single handler or array.
+  const existingArray = Array.isArray(existingHandlers) ? existingHandlers : [existingHandlers].filter(Boolean);
+  
+  context.parameters.msw = {
+    ...context.parameters.msw,
+    handlers: [...existingArray, ...kernelHandlers]
+  };
+
+  // Now run the standard mswLoader which will use the updated parameters
+  return mswLoader(context);
+};
 
 // Register all base components for Storybook
 Object.values(components);
+
 
 // Import and register all plugin components for Storybook
 // This ensures plugin components are available for the plugin stories
@@ -42,7 +72,7 @@ import '@object-ui/layout';
 import '@object-ui/fields';
 
 const preview: Preview = {
-  loaders: [mswLoader],
+  loaders: [objectStackLoader],
   parameters: {
     msw: {
        handlers: handlers
