@@ -19,7 +19,14 @@ export const SchemaRenderer = forwardRef<any, { schema: SchemaNode } & Record<st
     if (!schema || typeof schema === 'string') return schema;
 
     const evaluator = new ExpressionEvaluator({ data: dataSource });
+    // Shallow copy
     const newSchema = { ...schema };
+
+    // COMPAT: Hoist 'properties' up to schema level
+    // This allows support for strict configs that wrap all props in 'properties'
+    if (newSchema.properties) {
+        Object.assign(newSchema, newSchema.properties);
+    }
 
     // Evaluate 'content' (common in Text, Button)
     if (typeof newSchema.content === 'string') {
