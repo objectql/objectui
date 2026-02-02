@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { ObjectGrid } from '@object-ui/plugin-grid';
 import { Button } from '@object-ui/components';
 import { Plus } from 'lucide-react';
 
 export function ObjectView({ dataSource, objects, onEdit }: any) {
     const { objectName } = useParams();
+    const [searchParams] = useSearchParams();
+    const viewName = searchParams.get('view');
     const [refreshKey, setRefreshKey] = useState(0);
     const objectDef = objects.find((o: any) => o.name === objectName);
 
@@ -35,7 +37,9 @@ export function ObjectView({ dataSource, objects, onEdit }: any) {
              <div className="flex justify-between items-start">
                  <div className="space-y-1">
                     <h1 className="text-2xl font-bold tracking-tight text-slate-900">{objectDef.label}</h1>
-                    <p className="text-slate-500 text-sm">{objectDef.description || 'Manage your records'}</p>
+                    <p className="text-slate-500 text-sm">
+                        {viewName ? `View: ${viewName}` : (objectDef.description || 'Manage your records')}
+                    </p>
                  </div>
                  <div className="flex gap-2">
                     <Button onClick={() => onEdit(null)} className="shadow-none">

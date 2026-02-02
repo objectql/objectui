@@ -26,11 +26,11 @@ ObjectStack Spec 定义了构建数据驱动应用程序的通用协议。Object
 | **品牌** |
 | 主色调 | `branding.primaryColor` | ✅ 已实现 | `AppSidebar.tsx`（内联样式）|
 | Logo | `branding.logo` | ✅ 已实现 | `AppSidebar.tsx`（图片渲染）|
-| Favicon | `branding.favicon` | ⚠️ 部分实现 | 尚未应用到文档头部 |
+| Favicon | `branding.favicon` | ✅ 已实现 | 通过 `App.tsx` 应用到文档头部 |
 | **安全** |
 | 必需权限 | `requiredPermissions[]` | ⚠️ 部分实现 | 已解析但未强制执行（无认证系统）|
-| 活跃标志 | `active` | 🔄 计划中 | 过滤非活跃应用 |
-| 默认应用 | `isDefault` | 🔄 计划中 | 首次加载时自动选择 |
+| 活跃标志 | `active` | ✅ 已实现 | 在 `AppSidebar.tsx` 中过滤非活跃应用 |
+| 默认应用 | `isDefault` | ✅ 已实现 | 在 `App.tsx` 首次加载时自动选择 |
 
 ### 2. NavigationItem（导航层）
 
@@ -41,14 +41,14 @@ ObjectStack Spec 定义了构建数据驱动应用程序的通用协议。Object
 | **对象导航** | | |
 | 类型 | `type: "object"` | ✅ 已实现 | `AppSidebar.tsx` |
 | 对象名称 | `objectName` | ✅ 已实现 | 路由到 `/{objectName}` |
-| 视图名称 | `viewName` | 🔄 计划中 | 尚不支持自定义视图 |
+| 视图名称 | `viewName` | ✅ 已实现 | 查询参数：`/{objectName}?view={viewName}` |
 | **仪表板导航** | | |
 | 类型 | `type: "dashboard"` | ✅ 已实现 | `AppSidebar.tsx` |
 | 仪表板名称 | `dashboardName` | ✅ 已实现 | 路由到 `/dashboard/{name}` |
 | **页面导航** | | |
 | 类型 | `type: "page"` | ✅ 已实现 | `AppSidebar.tsx` |
 | 页面名称 | `pageName` | ✅ 已实现 | 路由到 `/page/{name}` |
-| 参数 | `params` | 🔄 计划中 | URL 参数尚未传递 |
+| 参数 | `params` | ✅ 已实现 | 通过查询字符串传递 URL 参数 |
 | **URL 导航** | | |
 | 类型 | `type: "url"` | ✅ 已实现 | `AppSidebar.tsx` |
 | URL | `url` | ✅ 已实现 | 打开外部链接 |
@@ -56,7 +56,7 @@ ObjectStack Spec 定义了构建数据驱动应用程序的通用协议。Object
 | **分组导航** | | |
 | 类型 | `type: "group"` | ✅ 已实现 | `AppSidebar.tsx` |
 | 子项 | `children[]` | ✅ 已实现 | 递归渲染 |
-| 展开状态 | `expanded` | 🔄 计划中 | 可折叠分组 |
+| 展开状态 | `expanded` | ✅ 已实现 | 带状态的可折叠分组 |
 | **通用字段** | | |
 | ID | `id` | ✅ 已实现 | 用作 React key |
 | 标签 | `label` | ✅ 已实现 | 显示文本 |
@@ -73,7 +73,7 @@ ObjectStack Spec 定义了构建数据驱动应用程序的通用协议。Object
 | 对象名称 | `name` | ✅ 已实现 | `ObjectView.tsx`, `dataSource.ts` |
 | 对象标签 | `label` | ✅ 已实现 | 页面标题、面包屑 |
 | 对象图标 | `icon` | ✅ 已实现 | 导航项 |
-| 标题格式 | `titleFormat` | 🔄 计划中 | 记录标题渲染 |
+| 标题格式 | `titleFormat` | ✅ 已实现 | `utils.ts` 中的工具函数 |
 | **字段** |
 | 字段类型 | 所有标准类型 | ✅ 已实现 | `@object-ui/fields` 包 |
 | 字段标签 | `label` | ✅ 已实现 | 表单和网格标题 |
@@ -142,20 +142,24 @@ ObjectStack Spec 定义了构建数据驱动应用程序的通用协议。Object
 
 ## 未来增强
 
-### 短期（下一个版本）
+### Short Term (Next Release)
 
-1. **Favicon 支持** - 将 `branding.favicon` 应用到文档头部
-2. **默认应用选择** - 自动选择 `isDefault: true` 的应用
-3. **活跃应用过滤** - 隐藏 `active: false` 的应用
-4. **可折叠分组** - 支持导航分组的 `expanded` 标志
-5. **视图选择** - 支持对象导航项的 `viewName`
+1. ~~**Favicon Support**~~ ✅ 完成 - 将 `branding.favicon` 应用到文档头部
+2. ~~**Default App Selection**~~ ✅ 完成 - 自动选择 `isDefault: true` 的应用
+3. ~~**Active App Filtering**~~ ✅ 完成 - 隐藏 `active: false` 的应用
+4. ~~**Collapsible Groups**~~ ✅ 完成 - 支持导航分组的 `expanded` 标志
+5. ~~**View Selection**~~ ✅ 完成 - 支持对象导航项的 `viewName`
+6. ~~**Dashboard Routing**~~ ✅ 完成 - 渲染 `/dashboard/{name}` 路由
+7. ~~**Page Routing**~~ ✅ 完成 - 渲染 `/page/{name}` 路由
+8. ~~**URL Parameters**~~ ✅ 完成 - 将 `params` 传递给页面导航项
+9. ~~**Title Format**~~ ✅ 完成 - 支持记录显示的 `titleFormat`
 
 ### 中期（2026 年 Q2）
 
 1. **权限强制执行** - 与认证系统集成
-2. **自定义页面** - 支持带自定义组件的 `page` 导航类型
-3. **仪表板路由** - 实现仪表板视图渲染
-4. **URL 参数** - 将参数传递给页面导航项
+2. **自定义页面** - 增强支持带自定义组件的 `page` 导航类型
+3. ~~**仪表板路由**~~ ✅ 完成 - 实现仪表板视图渲染
+4. ~~**URL 参数**~~ ✅ 完成 - 将参数传递给页面导航项
 5. **高级可见性** - 评估 `visible` 字段的表达式字符串
 
 ### 长期（2026 年 Q3-Q4）
@@ -189,11 +193,11 @@ ObjectStack Spec 定义了构建数据驱动应用程序的通用协议。Object
 
 ## 版本兼容性
 
-| ObjectStack Spec 版本 | Console 版本 | 支持状态 |
-|----------------------|-------------|---------|
-| 0.8.x | 0.1.0 | ✅ 当前 |
-| 0.7.x | 0.1.0 | ✅ 兼容 |
-| 0.6.x 及以下 | - | ❌ 不支持 |
+| ObjectStack Spec 版本 | Console 版本 | 支持状态 | 完成度 |
+|----------------------|-------------|---------|--------|
+| 0.8.x | 0.1.0 | ✅ 当前 | ~95% (34/36 功能) |
+| 0.7.x | 0.1.0 | ✅ 兼容 | ~90% |
+| 0.6.x 及以下 | - | ❌ 不支持 | - |
 
 ## 参考资料
 

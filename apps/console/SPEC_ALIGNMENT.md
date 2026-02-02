@@ -26,11 +26,11 @@ The `AppSchema` defines the structure and behavior of applications in ObjectStac
 | **Branding** |
 | Primary Color | `branding.primaryColor` | ✅ Implemented | `AppSidebar.tsx` (inline styles) |
 | Logo | `branding.logo` | ✅ Implemented | `AppSidebar.tsx` (image rendering) |
-| Favicon | `branding.favicon` | ⚠️ Partial | Not yet applied to document head |
+| Favicon | `branding.favicon` | ✅ Implemented | Applied to document head via `App.tsx` |
 | **Security** |
 | Required Permissions | `requiredPermissions[]` | ⚠️ Partial | Parsed but not enforced (no auth system) |
-| Active Flag | `active` | 🔄 Planned | Filter inactive apps |
-| Default App | `isDefault` | 🔄 Planned | Auto-select on first load |
+| Active Flag | `active` | ✅ Implemented | Filter inactive apps in `AppSidebar.tsx` |
+| Default App | `isDefault` | ✅ Implemented | Auto-select on first load in `App.tsx` |
 
 ### 2. NavigationItem (Navigation Layer)
 
@@ -41,14 +41,14 @@ The spec supports multiple navigation item types for flexible menu structures.
 | **Object Navigation** | | |
 | Type | `type: "object"` | ✅ Implemented | `AppSidebar.tsx` |
 | Object Name | `objectName` | ✅ Implemented | Routes to `/{objectName}` |
-| View Name | `viewName` | 🔄 Planned | Custom views not yet supported |
+| View Name | `viewName` | ✅ Implemented | Query parameter: `/{objectName}?view={viewName}` |
 | **Dashboard Navigation** | | |
 | Type | `type: "dashboard"` | ✅ Implemented | `AppSidebar.tsx` |
 | Dashboard Name | `dashboardName` | ✅ Implemented | Routes to `/dashboard/{name}` |
 | **Page Navigation** | | |
 | Type | `type: "page"` | ✅ Implemented | `AppSidebar.tsx` |
 | Page Name | `pageName` | ✅ Implemented | Routes to `/page/{name}` |
-| Parameters | `params` | 🔄 Planned | URL params not yet passed |
+| Parameters | `params` | ✅ Implemented | URL params passed via query string |
 | **URL Navigation** | | |
 | Type | `type: "url"` | ✅ Implemented | `AppSidebar.tsx` |
 | URL | `url` | ✅ Implemented | Opens external links |
@@ -56,7 +56,7 @@ The spec supports multiple navigation item types for flexible menu structures.
 | **Group Navigation** | | |
 | Type | `type: "group"` | ✅ Implemented | `AppSidebar.tsx` |
 | Children | `children[]` | ✅ Implemented | Recursive rendering |
-| Expanded | `expanded` | 🔄 Planned | Collapsible groups |
+| Expanded | `expanded` | ✅ Implemented | Collapsible groups with state |
 | **Common Fields** | | |
 | ID | `id` | ✅ Implemented | Used as React key |
 | Label | `label` | ✅ Implemented | Display text |
@@ -73,7 +73,7 @@ Objects define the data model and CRUD operations.
 | Object Name | `name` | ✅ Implemented | `ObjectView.tsx`, `dataSource.ts` |
 | Object Label | `label` | ✅ Implemented | Page headers, breadcrumbs |
 | Object Icon | `icon` | ✅ Implemented | Navigation items |
-| Title Format | `titleFormat` | 🔄 Planned | Record title rendering |
+| Title Format | `titleFormat` | ✅ Implemented | Utility functions in `utils.ts` |
 | **Fields** |
 | Field Types | All standard types | ✅ Implemented | `@object-ui/fields` package |
 | Field Labels | `label` | ✅ Implemented | Form and grid headers |
@@ -144,18 +144,22 @@ Initial data population for apps.
 
 ### Short Term (Next Release)
 
-1. **Favicon Support** - Apply `branding.favicon` to document head
-2. **Default App Selection** - Auto-select app with `isDefault: true`
-3. **Active App Filtering** - Hide apps with `active: false`
-4. **Collapsible Groups** - Support `expanded` flag on navigation groups
-5. **View Selection** - Support `viewName` for object navigation items
+1. ~~**Favicon Support**~~ ✅ Complete - Apply `branding.favicon` to document head
+2. ~~**Default App Selection**~~ ✅ Complete - Auto-select app with `isDefault: true`
+3. ~~**Active App Filtering**~~ ✅ Complete - Hide apps with `active: false`
+4. ~~**Collapsible Groups**~~ ✅ Complete - Support `expanded` flag on navigation groups
+5. ~~**View Selection**~~ ✅ Complete - Support `viewName` for object navigation items
+6. ~~**Dashboard Routing**~~ ✅ Complete - Render `/dashboard/{name}` routes
+7. ~~**Page Routing**~~ ✅ Complete - Render `/page/{name}` routes
+8. ~~**URL Parameters**~~ ✅ Complete - Pass `params` to page navigation items
+9. ~~**Title Format**~~ ✅ Complete - Support `titleFormat` for record display
 
 ### Medium Term (Q2 2026)
 
 1. **Permission Enforcement** - Integrate with authentication system
-2. **Custom Pages** - Support `page` navigation type with custom components
-3. **Dashboard Routing** - Implement dashboard view rendering
-4. **URL Parameters** - Pass params to page navigation items
+2. **Custom Pages** - Enhanced support for `page` navigation type with custom components
+3. ~~**Dashboard Routing**~~ ✅ Complete - Implement dashboard view rendering
+4. ~~**URL Parameters**~~ ✅ Complete - Pass params to page navigation items
 5. **Advanced Visibility** - Evaluate expression strings for `visible` field
 
 ### Long Term (Q3-Q4 2026)
@@ -189,11 +193,11 @@ Initial data population for apps.
 
 ## Version Compatibility
 
-| ObjectStack Spec Version | Console Version | Support Status |
-|-------------------------|-----------------|----------------|
-| 0.8.x | 0.1.0 | ✅ Current |
-| 0.7.x | 0.1.0 | ✅ Compatible |
-| 0.6.x and below | - | ❌ Not supported |
+| ObjectStack Spec Version | Console Version | Support Status | Completion |
+|-------------------------|-----------------|----------------|------------|
+| 0.8.x | 0.1.0 | ✅ Current | ~95% (34/36 features) |
+| 0.7.x | 0.1.0 | ✅ Compatible | ~90% |
+| 0.6.x and below | - | ❌ Not supported | - |
 
 ## References
 
