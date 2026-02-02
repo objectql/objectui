@@ -1,16 +1,15 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { ObjectStackClient } from '@objectstack/client';
-import { AppShell } from '@object-ui/layout';
 import { ObjectForm } from '@object-ui/plugin-form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@object-ui/components';
 import { ObjectStackDataSource } from './dataSource';
 import appConfig from '../objectstack.config';
 
-// New Components
-import { AppSidebar } from './components/AppSidebar';
+// Components
+import { ConsoleLayout } from './components/ConsoleLayout';
+import { LoadingScreen } from './components/LoadingScreen';
 import { ObjectView } from './components/ObjectView';
-import { AppHeader } from './components/AppHeader';
 import { DashboardView } from './components/DashboardView';
 import { PageView } from './components/PageView';
 
@@ -24,7 +23,6 @@ function AppContent() {
   const apps = appConfig.apps || [];
   
   // Determine active app based on URL or default
-  // Filter active apps and find default app
   const activeApps = apps.filter((a: any) => a.active !== false);
   const defaultApp = activeApps.find((a: any) => a.isDefault === true) || activeApps[0];
   const [activeAppName, setActiveAppName] = useState<string>(defaultApp?.name || 'default');
@@ -91,20 +89,15 @@ function AppContent() {
       }
   };
 
-  if (!client || !dataSource) return <div className="flex items-center justify-center h-screen text-muted-foreground animate-pulse">Initializing ObjectStack Console...</div>;
-  if (!activeApp) return <div className="p-4">No Apps configured.</div>;
+  if (!client || !dataSource) return <LoadingScreen />;
+  if (!activeApp) return <div className="p-4 flex items-center justify-center h-screen">No Apps configured.</div>;
 
   return (
-    <AppShell
-      sidebar={
-         <AppSidebar 
-            activeAppName={activeAppName} 
-            onAppChange={handleAppChange} 
-         />
-      }
-      navbar={
-          <AppHeader appName={activeApp.label} objects={allObjects} />
-      }
+    <ConsoleLayout
+        activeAppName={activeAppName}
+        activeApp={activeApp}
+        onAppChange={handleAppChange}
+        objects={allObjects}
     >
       <Routes>
         <Route path="/" element={
@@ -156,7 +149,7 @@ function AppContent() {
              </div>
           </DialogContent>
        </Dialog>
-    </AppShell>
+    </ConsoleLayout>
   );
 }
 
