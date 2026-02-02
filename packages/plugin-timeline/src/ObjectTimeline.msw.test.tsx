@@ -60,7 +60,7 @@ describe('ObjectTimeline with MSW', () => {
 
         render(
             <ObjectTimeline 
-                // @ts-ignore
+                // @ts-expect-error - Mock schema type mismatch with TimelineSchema
                 schema={schema}
                 dataSource={adapter}
             />
