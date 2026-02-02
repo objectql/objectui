@@ -47,8 +47,8 @@ export async function startMockServer() {
         baseUrl: '/api/v1', 
         logRequests: true,
         customHandlers: [
-            // Handle /api/v1/index.json for ObjectStackClient.connect()
-            http.get('/api/v1/index.json', async () => {
+            // Handle /api/v1 for ObjectStackClient.connect()
+            http.get('/api/v1', async () => {
                 return HttpResponse.json({
                     version: '1.0',
                     objects: ['contact', 'opportunity', 'account'],
@@ -58,9 +58,15 @@ export async function startMockServer() {
                     }
                 });
             }),
-            // Explicitly handle all metadata requests to prevent pass-through
-            http.get('/api/v1/metadata/*', async () => {
-                 return HttpResponse.json({});
+            http.get('/api/v1/', async () => {
+                return HttpResponse.json({
+                    version: '1.0',
+                    objects: ['contact', 'opportunity', 'account'],
+                    endpoints: {
+                        data: '/api/v1/data',
+                        metadata: '/api/v1/metadata'
+                    }
+                });
             }),
             http.get('/api/bootstrap', async () => {
                 const contacts = await driver.find('contact', { object: 'contact' });
