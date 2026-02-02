@@ -13,7 +13,7 @@ import { ObjectView } from './components/ObjectView';
 import { DashboardView } from './components/DashboardView';
 import { PageView } from './components/PageView';
 
-function AppContent() {
+export function AppContent() {
   const [client, setClient] = useState<ObjectStackClient | null>(null);
   const [dataSource, setDataSource] = useState<ObjectStackDataSource | null>(null);
   
