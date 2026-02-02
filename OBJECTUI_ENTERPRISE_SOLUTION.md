@@ -1,4 +1,3 @@
-# ObjectUI 企业级前端界面完整解决方案
 # ObjectUI Enterprise Frontend Solution
 
 **Version:** 1.0  
@@ -7,33 +6,33 @@
 
 ---
 
-## 目录 | Table of Contents
+## Table of Contents
 
-1. [概述 | Overview](#概述--overview)
-2. [架构分析 | Architecture Analysis](#架构分析--architecture-analysis)
-3. [软件包扫描报告 | Package Scan Report](#软件包扫描报告--package-scan-report)
-4. [Spec 标准协议对齐分析 | Spec Protocol Alignment](#spec-标准协议对齐分析--spec-protocol-alignment)
-5. [企业级功能矩阵 | Enterprise Feature Matrix](#企业级功能矩阵--enterprise-feature-matrix)
-6. [快速搭建方案 | Rapid Development Solution](#快速搭建方案--rapid-development-solution)
-7. [开发计划 | Development Roadmap](#开发计划--development-roadmap)
-8. [最佳实践 | Best Practices](#最佳实践--best-practices)
+1. [Overview](#overview)
+2. [Architecture Analysis](#architecture-analysis)
+3. [Package Scan Report](#package-scan-report)
+4. [Spec Protocol Alignment](#spec-protocol-alignment)
+5. [Enterprise Feature Matrix](#enterprise-feature-matrix)
+6. [Rapid Development Solution](#rapid-development-solution)
+7. [Development Roadmap](#development-roadmap)
+8. [Best Practices](#best-practices)
 
 ---
 
-## 概述 | Overview
+## Overview
 
-### 项目定位 | Project Positioning
+### Project Positioning
 
-ObjectUI 是一个**通用的、服务端驱动的 UI 引擎**（Universal Server-Driven UI Engine），基于 React + Tailwind CSS + Shadcn/UI 构建，能够通过 JSON 元数据快速构建企业级前端界面。
+ObjectUI is a **Universal Server-Driven UI (SDUI) Engine** built on React + Tailwind CSS + Shadcn/UI that enables rapid construction of enterprise-level frontend interfaces through JSON metadata.
 
-**核心优势：**
-- ✅ **零代码到企业级 UI**：JSON 配置即可生成专业界面
-- ✅ **对标 ObjectStack Spec v0.8.2**：完整协议实现
-- ✅ **Shadcn/UI + Tailwind**：设计系统级别的组件质量
-- ✅ **TypeScript 严格模式**：类型安全的开发体验
-- ✅ **模块化架构**：按需加载，bundle 体积优化 30-50%
+**Core Advantages:**
+- ✅ **Zero-Code to Enterprise UI**: Generate professional interfaces with JSON configuration
+- ✅ **Aligned with ObjectStack Spec v0.8.2**: Complete protocol implementation
+- ✅ **Shadcn/UI + Tailwind**: Design system-level component quality
+- ✅ **TypeScript Strict Mode**: Type-safe development experience
+- ✅ **Modular Architecture**: On-demand loading, bundle optimization 30-50%
 
-### 技术栈概览 | Tech Stack Overview
+### Tech Stack Overview
 
 ```
 ┌─────────────────────────────────────────────────────────┐
