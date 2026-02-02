@@ -266,8 +266,17 @@ function NavigationItemRenderer({ item }: { item: any }) {
     
     if (item.type === 'object') {
         href = `/${item.objectName}`;
+        // Add view parameter if specified
+        if (item.viewName) {
+            href += `?view=${item.viewName}`;
+        }
     } else if (item.type === 'page') {
         href = item.pageName ? `/page/${item.pageName}` : '#';
+        // Add URL parameters if specified
+        if (item.params) {
+            const params = new URLSearchParams(item.params);
+            href += `?${params.toString()}`;
+        }
     } else if (item.type === 'dashboard') {
         href = item.dashboardName ? `/dashboard/${item.dashboardName}` : '#';
     } else if (item.type === 'url') {
