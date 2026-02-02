@@ -275,3 +275,27 @@ export {
 
 // Export renderer to register the component with ObjectUI
 export * from './renderer';
+
+// Export ObjectTimeline
+export { ObjectTimeline } from './ObjectTimeline';
+export type { ObjectTimelineProps } from './ObjectTimeline';
+
+import { ComponentRegistry } from '@object-ui/core';
+import { ObjectTimeline } from './ObjectTimeline';
+import { useSchemaContext } from '@object-ui/react';
+
+// Register object-timeline component
+const ObjectTimelineRenderer: React.FC<{ schema: any }> = ({ schema }) => {
+  const { dataSource } = useSchemaContext();
+  return <ObjectTimeline schema={schema} dataSource={dataSource} />;
+};
+
+ComponentRegistry.register('object-timeline', ObjectTimelineRenderer, {
+  namespace: 'plugin-timeline',
+  label: 'Object Timeline',
+  category: 'plugin',
+  inputs: [
+    { name: 'objectName', type: 'string', label: 'Object Name', required: true },
+    { name: 'variant', type: 'enum', enum: ['vertical', 'horizontal', 'gantt'], defaultValue: 'vertical' },
+  ]
+});

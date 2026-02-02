@@ -8,6 +8,7 @@
 
 import React from 'react';
 import { ComponentRegistry } from '@object-ui/core';
+import { useSchemaContext } from '@object-ui/react';
 import { ObjectGantt } from './ObjectGantt';
 import type { ObjectGanttProps } from './ObjectGantt';
 
@@ -16,7 +17,8 @@ export type { ObjectGanttProps };
 
 // Register component
 const ObjectGanttRenderer: React.FC<{ schema: any }> = ({ schema }) => {
-  return <ObjectGantt schema={schema} dataSource={null as any} />;
+  const { dataSource } = useSchemaContext();
+  return <ObjectGantt schema={schema} dataSource={dataSource} />;
 };
 
 ComponentRegistry.register('object-gantt', ObjectGanttRenderer, {

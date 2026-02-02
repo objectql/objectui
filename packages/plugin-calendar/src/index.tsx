@@ -8,6 +8,7 @@
 
 import React from 'react';
 import { ComponentRegistry } from '@object-ui/core';
+import { useSchemaContext } from '@object-ui/react';
 import { ObjectCalendar } from './ObjectCalendar';
 import type { ObjectCalendarProps } from './ObjectCalendar';
 
@@ -24,7 +25,8 @@ import './calendar-view-renderer';
 
 // Register object-calendar component
 const ObjectCalendarRenderer: React.FC<{ schema: any }> = ({ schema }) => {
-  return <ObjectCalendar schema={schema} dataSource={null as any} />;
+  const { dataSource } = useSchemaContext();
+  return <ObjectCalendar schema={schema} dataSource={dataSource} />;
 };
 
 ComponentRegistry.register('object-calendar', ObjectCalendarRenderer, {
