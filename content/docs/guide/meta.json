@@ -13,6 +13,10 @@
     "fields",
     "component-registry",
     "plugins",
-    "schema-overview"
+    "schema-overview",
+    "custom-components",
+    "plugin-development",
+    "performance",
+    "security"
   ]
 }
