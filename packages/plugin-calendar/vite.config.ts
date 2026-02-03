@@ -12,6 +12,12 @@ import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
 
 export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./test/setup.ts'],
+    css: true,
+  },
   plugins: [
     react(),
     dts({
@@ -46,10 +52,5 @@ export default defineConfig({
         },
       },
     },
-  },
-  test: {
-    passWithNoTests: true,
-    globals: true,
-    environment: 'jsdom',
   },
 });
