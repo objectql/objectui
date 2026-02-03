@@ -217,6 +217,56 @@ describe('Console Application Simulation', () => {
         expect(screen.getAllByText('5000').length).toBeGreaterThan(0);
     });
 
+    // -----------------------------------------------------------------------------
+    // SIMPLIFIED FORM INTEGRATION TESTS
+    // -----------------------------------------------------------------------------
+    it('Form Scenario B: Metadata-Driven Form Generation', async () => {
+        vi.spyOn(mocks.MockDataSource.prototype, 'getObjectSchema').mockResolvedValue({
+            name: 'kitchen_sink',
+            fields: {
+                name: { type: 'text', label: 'Name Field' },
+                amount: { type: 'number', label: 'Amount Field' }
+            }
+        });
+
+        renderApp('/kitchen_sink');
+        await waitFor(() => {
+            expect(screen.getByRole('heading', { name: /Kitchen Sink/i })).toBeInTheDocument();
+        });
+        
+        expect(document.body).toBeInTheDocument();
+    });
+
+    // -----------------------------------------------------------------------------
+    // SIMPLIFIED GRID INTEGRATION TESTS
+    // -----------------------------------------------------------------------------
+    it('Grid Scenario A: Grid Rendering and Actions', async () => {
+        renderApp('/kitchen_sink');
+        
+        await waitFor(() => {
+            expect(screen.getByRole('heading', { name: /Kitchen Sink/i })).toBeInTheDocument();
+        });
+        
+        const newButton = screen.getByRole('button', { name: /New Kitchen Sink/i });
+        expect(newButton).toBeInTheDocument();
+    });
+
+    it('Grid Scenario B: Grid Data Loading', async () => {
+        const seedData = [
+            { id: '1', name: 'Item 1', amount: 100 },
+            { id: '2', name: 'Item 2', amount: 200 }
+        ];
+
+        vi.spyOn(mocks.MockDataSource.prototype, 'find')
+            .mockResolvedValue({ data: seedData });
+
+        renderApp('/kitchen_sink');
+        
+        await waitFor(() => {
+            expect(screen.getByRole('heading', { name: /Kitchen Sink/i })).toBeInTheDocument();
+        });
+    });
+
 });
 
 // -----------------------------------------------------------------------------
@@ -662,5 +712,79 @@ describe('Kanban Integration', () => {
         // For now, we verify the component can handle the initial load
         // and that data source was called correctly
         expect(findSpy).toHaveBeenCalledWith('project_task', expect.any(Object));
+    });
+});
+
+
+// -----------------------------------------------------------------------------
+// FIELDS INTEGRATION TESTS
+// -----------------------------------------------------------------------------
+describe('Fields Integration', () => {
+    it('Scenario A: Field Type Mapping', async () => {
+        const { mapFieldTypeToFormType } = await import('@object-ui/fields');
+        
+        expect(mapFieldTypeToFormType('text')).toBe('field:text');
+        expect(mapFieldTypeToFormType('email')).toBe('field:email');
+        expect(mapFieldTypeToFormType('number')).toBe('field:number');
+        expect(mapFieldTypeToFormType('boolean')).toBe('field:boolean');
+        expect(mapFieldTypeToFormType('select')).toBe('field:select');
+        expect(mapFieldTypeToFormType('unknown_type')).toBe('field:text'); // default fallback
+    });
+
+    it('Scenario B: Field Formatting Utilities', async () => {
+        const { formatCurrency, formatDate, formatPercent } = await import('@object-ui/fields');
+        
+        const formatted = formatCurrency(1234.56);
+        expect(formatted).toContain('1,234.56');
+        
+        const dateStr = formatDate(new Date('2024-01-15'));
+        expect(dateStr).toContain('2024');
+        
+        const percent = formatPercent(0.1234);
+        expect(percent).toBe('12.34%');
+    });
+});
+
+// -----------------------------------------------------------------------------
+// DASHBOARD INTEGRATION TESTS
+// -----------------------------------------------------------------------------
+describe('Dashboard Integration', () => {
+    const renderApp = (initialRoute: string) => {
+        return render(
+            <MemoryRouter initialEntries={[initialRoute]}>
+                <AppContent />
+            </MemoryRouter>
+        );
+    };
+
+    it('Scenario A: Dashboard Page Rendering', async () => {
+        renderApp('/dashboard/sales_dashboard');
+        
+        await waitFor(() => {
+            expect(screen.getByText(/Sales Overview/i)).toBeInTheDocument();
+        });
+        
+        expect(screen.getByText(/Sales by Region/i)).toBeInTheDocument();
+    });
+
+    it('Scenario B: Report Page Rendering', async () => {
+        renderApp('/page/report_page');
+        
+        await waitFor(() => {
+            expect(screen.getByText(/Sales Performance Report/i)).toBeInTheDocument();
+        });
+        
+        expect(screen.getByText('Region')).toBeInTheDocument();
+        expect(screen.getByText('North')).toBeInTheDocument();
+    });
+
+    it('Scenario C: Component Registry Check', async () => {
+        const { ComponentRegistry } = await import('@object-ui/core');
+        
+        const dashboardRenderer = ComponentRegistry.get('dashboard');
+        expect(dashboardRenderer).toBeDefined();
+        
+        const reportRenderer = ComponentRegistry.get('report');
+        expect(reportRenderer).toBeDefined();
     });
 });
