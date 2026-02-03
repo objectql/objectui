@@ -82,10 +82,100 @@ export default defineStack({
       name: 'crm_dashboard',
       label: 'CRM Overview',
       widgets: [
+        // --- KPI Row ---
+        {
+          type: 'metric',
+          component: {
+            type: 'metric',
+            label: 'Total Revenue',
+            value: '$1,245,000',
+            trend: { value: 12.5, direction: 'up', label: 'vs last month' },
+            icon: 'DollarSign'
+          },
+          layout: { x: 0, y: 0, w: 1, h: 1 }
+        },
+        {
+          type: 'metric',
+          component: {
+            type: 'metric',
+            label: 'Active Deals',
+            value: '45',
+            trend: { value: 2.1, direction: 'down', label: 'vs last month' },
+            icon: 'Briefcase'
+          },
+          layout: { x: 1, y: 0, w: 1, h: 1 }
+        },
+        {
+          type: 'metric',
+          component: {
+            type: 'metric',
+            label: 'Win Rate',
+            value: '68%',
+            trend: { value: 4.3, direction: 'up', label: 'vs last month' },
+            icon: 'Trophy'
+          },
+          layout: { x: 2, y: 0, w: 1, h: 1 }
+        },
+        {
+          type: 'metric',
+          component: {
+            type: 'metric',
+            label: 'Avg Deal Size',
+            value: '$24,000',
+            trend: { value: 1.2, direction: 'up', label: 'vs last month' },
+            icon: 'BarChart3'
+          },
+          layout: { x: 3, y: 0, w: 1, h: 1 }
+        },
+
+        // --- Row 2: Charts ---
+        {
+            title: 'Revenue Trends',
+            type: 'area', 
+            layout: { x: 0, y: 1, w: 3, h: 2 },
+            options: {
+                xField: 'month',
+                yField: 'revenue'
+            },
+            // @ts-ignore
+            data: {
+                provider: 'value',
+                items: [
+                   { month: 'Jan', revenue: 45000 },
+                   { month: 'Feb', revenue: 52000 },
+                   { month: 'Mar', revenue: 48000 },
+                   { month: 'Apr', revenue: 61000 },
+                   { month: 'May', revenue: 55000 },
+                   { month: 'Jun', revenue: 67000 },
+                   { month: 'Jul', revenue: 72000 }
+                ]
+            }
+        },
+        {
+            title: 'Lead Source',
+            type: 'donut',
+            layout: { x: 3, y: 1, w: 1, h: 2 },
+            options: {
+                xField: 'source',
+                yField: 'value'
+            },
+            // @ts-ignore
+            data: {
+                provider: 'value',
+                items: [
+                    { source: 'Website', value: 45 },
+                    { source: 'Referral', value: 25 },
+                    { source: 'Partner', value: 20 },
+                    { source: 'Ads', value: 10 }
+                ]
+            }
+        },
+
+        // --- Row 3: More Charts ---
         {
             title: 'Pipeline by Stage',
             type: 'bar',
-            layout: { x: 0, y: 0, w: 2, h: 2 },
+            layout: { x: 0, y: 3, w: 2, h: 2 },
             options: {
                 xField: 'stage',
                 yField: 'amount'
@@ -103,44 +193,47 @@ export default defineStack({
             }
         },
         {
+            title: 'Top Products',
+            type: 'bar',
+            layout: { x: 2, y: 3, w: 2, h: 2 },
+            options: {
+                xField: 'name',
+                yField: 'sales'
+            },
+            // @ts-ignore
+            data: {
+                provider: 'value',
+                items: [
+                    { name: 'Enterprise License', sales: 450 },
+                    { name: 'Pro Subscription', sales: 320 },
+                    { name: 'Basic Plan', sales: 210 },
+                    { name: 'Consulting Hours', sales: 150 }
+                ]
+            }
+        },
+
+        // --- Row 4: Table ---
+        {
             title: 'Recent Opportunities',
             type: 'table',
-            layout: { x: 2, y: 0, w: 2, h: 2 },
+            layout: { x: 0, y: 5, w: 4, h: 2 },
             options: {
                 columns: [
                     { header: 'Opportunity Name', accessorKey: 'name' }, 
                     { header: 'Amount', accessorKey: 'amount' }, 
-                    { header: 'Stage', accessorKey: 'stage' }
+                    { header: 'Stage', accessorKey: 'stage' },
+                    { header: 'Close Date', accessorKey: 'date' }
                 ]
             },
             // @ts-ignore
             data: {
                 provider: 'value',
                 items: [
-                   { name: 'TechCorp License', amount: '$50,000', stage: 'Proposal' },
-                   { name: 'Software Inc Pilot', amount: '$5,000', stage: 'Closed Won' },
-                   { name: 'Consulting Q2', amount: '$12,000', stage: 'Negotiation' },
-                   { name: 'Global Widget Deal', amount: '$85,000', stage: 'Qualification' },
-                   { name: 'Startup Bundle', amount: '$2,500', stage: 'Prospecting' }
-                ]
-            }
-        },
-        {
-            title: 'Revenue Trends',
-            type: 'line',
-            layout: { x: 0, y: 2, w: 4, h: 2 },
-            options: {
-                xField: 'month',
-                yField: 'revenue'
-            },
-            // @ts-ignore
-            data: {
-                provider: 'value',
-                items: [
-                   { month: 'Jan', revenue: 45000 },
-                   { month: 'Feb', revenue: 52000 },
-                   { month: 'Mar', revenue: 48000 },
-                   { month: 'Apr', revenue: 61000 }
+                   { name: 'TechCorp License', amount: '$50,000', stage: 'Proposal', date: '2024-06-30' },
+                   { name: 'Software Inc Pilot', amount: '$5,000', stage: 'Closed Won', date: '2024-01-15' },
+                   { name: 'Consulting Q2', amount: '$12,000', stage: 'Negotiation', date: '2024-05-20' },
+                   { name: 'Global Widget Deal', amount: '$85,000', stage: 'Qualification', date: '2024-07-10' },
+                   { name: 'Startup Bundle', amount: '$2,500', stage: 'Prospecting', date: '2024-08-01' }
                 ]
             }
         }
