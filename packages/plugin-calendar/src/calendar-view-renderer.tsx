@@ -7,8 +7,8 @@
  */
 
 import { ComponentRegistry } from '@object-ui/core';
-import type { CalendarViewSchema, CalendarEvent } from '@object-ui/types';
-import { CalendarView } from './CalendarView';
+import type { CalendarViewSchema } from '@object-ui/types';
+import { CalendarView, type CalendarEvent } from './CalendarView';
 import React from 'react';
 
 // Calendar View Renderer - Airtable-style calendar for displaying records as events
@@ -43,7 +43,7 @@ ComponentRegistry.register('calendar-view',
     }, [schema.data, schema.titleField, schema.startDateField, schema.endDateField, schema.colorField, schema.allDayField]);
 
     const handleEventClick = (event: CalendarEvent) => {
-      if (schema.events?.onEventClick) {
+      if (schema.onEventClick) {
         // Dispatch configured action
         // This would use the action runner in a real implementation
         // For now we just call onAction if provided
@@ -73,97 +73,7 @@ ComponentRegistry.register('calendar-view',
       />
     );
   }
-);        const allDayField = schema.allDayField || 'allDay';
-        
-        const title = record[titleField] || 'Untitled';
-        const start = record[startField] ? new Date(record[startField]) : new Date();
-        const end = record[endField] ? new Date(record[endField]) : undefined;
-        const allDay = record[allDayField] !== undefined ? record[allDayField] : false;
-        
-        // Handle color mapping
-        let color = record[colorField];
-        if (color && schema.colorMapping && schema.colorMapping[color]) {
-          color = schema.colorMapping[color];
-        }
-        
-        return {
-          id: String(record.id || record._id || index),
-          title,
-          start,
-          end,
-          allDay,
-          color,
-          data: record,
-        };
-      });
-    }, [schema.data, schema.titleField, schema.startDateField, schema.endDateField, schema.colorField, schema.allDayField, schema.colorMapping]);
-
-    const handleEventClick = React.useCallback((event: any) => {
-      if (onAction) {
-        onAction({
-          type: 'event_click',
-          payload: { event: event.data, eventId: event.id }
-        });
-      }
-      if (schema.onEventClick) {
-        schema.onEventClick(event.data);
-      }
-    }, [onAction, schema]);
-
-    const handleDateClick = React.useCallback((date: Date) => {
-      if (onAction) {
-        onAction({
-          type: 'date_click',
-          payload: { date }
-        });
-      }
-      if (schema.onDateClick) {
-        schema.onDateClick(date);
-      }
-    }, [onAction, schema]);
-
-    const handleViewChange = React.useCallback((view: "month" | "week" | "day") => {
-      if (onAction) {
-        onAction({
-          type: 'view_change',
-          payload: { view }
-        });
-      }
-      if (schema.onViewChange) {
-        schema.onViewChange(view);
-      }
-    }, [onAction, schema]);
-
-    const handleNavigate = React.useCallback((date: Date) => {
-      if (onAction) {
-        onAction({
-          type: 'navigate',
-          payload: { date }
-        });
-      }
-      if (schema.onNavigate) {
-        schema.onNavigate(date);
-      }
-    }, [onAction, schema]);
-
-    const validView = (schema.view && ['month', 'week', 'day'].includes(schema.view)) 
-      ? (schema.view as "month" | "week" | "day")
-      : 'month';
-
-    return (
-      <CalendarView
-        events={events}
-        view={validView}
-        currentDate={schema.currentDate ? new Date(schema.currentDate) : undefined}
-        onEventClick={handleEventClick}
-        onDateClick={schema.allowCreate || schema.onDateClick ? handleDateClick : undefined}
-        onViewChange={handleViewChange}
-        onNavigate={handleNavigate}
-        className={className}
-        {...props}
-      />
-    );
-  },
+,
   {
     namespace: 'plugin-calendar',
     label: 'Calendar View',
