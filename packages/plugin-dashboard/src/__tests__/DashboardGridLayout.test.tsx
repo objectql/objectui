@@ -187,7 +187,7 @@ describe('DashboardGridLayout', () => {
   });
 
   it('should render drag handles in edit mode', () => {
-    render(<DashboardGridLayout schema={mockSchema} />);
+    const { container } = render(<DashboardGridLayout schema={mockSchema} />);
     
     const editButton = screen.getByRole('button', { name: /edit/i });
     fireEvent.click(editButton);
