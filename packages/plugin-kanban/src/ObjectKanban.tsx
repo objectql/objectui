@@ -117,12 +117,16 @@ export const ObjectKanban: React.FC<ObjectKanbanProps> = ({
     if (schema.columns && schema.columns.length > 0) {
         // If columns is array of strings, normalize to objects
         if (typeof schema.columns[0] === 'string') {
-             return (schema.columns as unknown as string[]).map(val => ({
-                 id: val,
-                 title: val
-             }));
+             // If grouping is active, assume string columns are meant for data display, not lanes
+             if (!schema.groupBy) {
+                 return (schema.columns as unknown as string[]).map(val => ({
+                     id: val,
+                     title: val
+                 }));
+             }
+        } else {
+             return schema.columns;
         }
-        return schema.columns;
     }
 
     // Try to get options from metadata

@@ -50,8 +50,7 @@ export const TodoTask = ObjectSchema.create({
     board: {
       label: 'Board',
       type: 'kanban',
-      groupBy: 'priority',
-      columns: ['subject', 'due_date', 'is_completed']
+      groupBy: 'priority'
     }
   }
 });
