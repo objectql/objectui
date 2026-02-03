@@ -165,58 +165,68 @@ export function ObjectView({ dataSource, objects, onEdit }: any) {
     };
 
     return (
-        <div className="h-full flex flex-col">
-             {/* Header Section */}
-             <div className="flex justify-between items-center py-4 px-6 border-b shrink-0 bg-background/95 backdrop-blur z-10 sticky top-0">
-                 <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className="bg-primary/10 p-2 rounded-lg shrink-0">
-                             {/* Map icons based on object name if possible, fallback to generic */}
-                            <TableIcon className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                            <h1 className="text-xl font-bold tracking-tight text-foreground">{objectDef.label}</h1>
-                            <p className="text-sm text-muted-foreground">{activeView.label}</p>
-                        </div>
+        <div className="h-full flex flex-col bg-background">
+             {/* 1. Main Header */}
+             <div className="flex justify-between items-center py-3 px-4 border-b shrink-0 bg-background z-10">
+                 <div className="flex items-center gap-3">
+                    <div className="bg-primary/10 p-2 rounded-md shrink-0">
+                        <TableIcon className="h-4 w-4 text-primary" />
                     </div>
-
-                    {/* View Switcher - Re-styled as refined segmented control */}
-                    {views.length > 1 && (
-                        <div className="ml-4 h-8 bg-muted/50 rounded-lg p-1 flex items-center">
-                            {views.map((v: any) => (
-                                <button
-                                    key={v.id}
-                                    onClick={() => handleViewChange(v.id)}
-                                    className={`
-                                        flex items-center gap-2 px-3 h-full rounded-md text-sm font-medium transition-all
-                                        ${activeView.id === v.id 
-                                            ? 'bg-background shadow-sm text-foreground' 
-                                            : 'text-muted-foreground hover:bg-background/50 hover:text-foreground/80'
-                                        }
-                                    `}
-                                >
-                                    {v.type === 'kanban' && <KanbanIcon className="h-3.5 w-3.5" />}
-                                    {v.type === 'calendar' && <CalendarIcon className="h-3.5 w-3.5" />}
-                                    {v.type === 'grid' && <TableIcon className="h-3.5 w-3.5" />}
-                                    {v.type === 'gantt' && <AlignLeft className="h-3.5 w-3.5" />}
-                                    <span>{v.label}</span>
-                                </button>
-                            ))}
-                        </div>
-                    )}
+                    <div>
+                        <h1 className="text-lg font-semibold tracking-tight text-foreground">{objectDef.label}</h1>
+                    </div>
                  </div>
                  
                  <div className="flex items-center gap-2">
-                    <Button onClick={() => onEdit(null)} className="shadow-none gap-2">
+                    <Button size="sm" onClick={() => onEdit(null)} className="shadow-none gap-2">
                         <Plus className="h-4 w-4" /> 
                         <span className="hidden sm:inline">New</span>
                     </Button>
                  </div>
              </div>
 
-             {/* Content Area */}
-             <div className="flex-1 bg-muted/5 p-4 sm:p-6 overflow-hidden">
-                <div className="h-full w-full rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden relative">
+             {/* 2. View Toolbar (Tabs & Controls) */}
+             <div className="flex justify-between items-center py-2 px-4 border-b shrink-0 bg-muted/20">
+                 {/* Left: View Tabs */}
+                 <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+                    {views.map((v: any) => {
+                        const isActive = activeView.id === v.id;
+                        return (
+                            <button
+                                key={v.id}
+                                onClick={() => handleViewChange(v.id)}
+                                className={`
+                                    flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all whitespace-nowrap
+                                    ${isActive 
+                                        ? 'bg-background shadow-sm text-foreground ring-1 ring-border/50' 
+                                        : 'text-muted-foreground hover:bg-background/50 hover:text-foreground'
+                                    }
+                                `}
+                            >
+                                {v.type === 'kanban' && <KanbanIcon className="h-3.5 w-3.5 opacity-70" />}
+                                {v.type === 'calendar' && <CalendarIcon className="h-3.5 w-3.5 opacity-70" />}
+                                {v.type === 'grid' && <TableIcon className="h-3.5 w-3.5 opacity-70" />}
+                                {v.type === 'gantt' && <AlignLeft className="h-3.5 w-3.5 opacity-70" />}
+                                <span>{v.label}</span>
+                            </button>
+                        );
+                    })}
+                 </div>
+
+                 {/* Right: View Options (Placeholder for now) */}
+                 <div className="flex items-center gap-2 hidden md:flex">
+                     <Button variant="ghost" size="sm" className="h-8 text-muted-foreground">
+                        <span className="text-xs">Filter</span>
+                     </Button>
+                     <Button variant="ghost" size="sm" className="h-8 text-muted-foreground">
+                        <span className="text-xs">Sort</span>
+                     </Button>
+                 </div>
+             </div>
+
+             {/* 3. Content Area (Edge-to-Edge) */}
+             <div className="flex-1 overflow-hidden relative">
+                <div className="absolute inset-0">
                     {renderCurrentView()}
                 </div>
              </div>

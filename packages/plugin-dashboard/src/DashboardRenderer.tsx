@@ -78,6 +78,24 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, { schema: DashboardS
                 return widget; // Fallback to widget itself as schema
             }, [widget]);
 
+            // Check if the widget is self-contained (like a Metric Card) to avoid double borders
+            const isSelfContained = widget.type === 'metric';
+
+            if (isSelfContained) {
+                return (
+                    <div 
+                        key={widget.id || widget.title}
+                        className="h-full w-full"
+                        style={widget.layout ? {
+                            gridColumn: `span ${widget.layout.w}`,
+                            gridRow: `span ${widget.layout.h}`
+                        }: undefined}
+                    >
+                         <SchemaRenderer schema={componentSchema} className="h-full w-full" />
+                    </div>
+                );
+            }
+
             return (
                 <Card 
                     key={widget.id || widget.title}

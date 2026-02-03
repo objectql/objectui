@@ -475,60 +475,68 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedData.map((row, rowIndex) => {
-                const globalIndex = (currentPage - 1) * pageSize + rowIndex;
-                const rowId = getRowId(row, globalIndex);
-                const isSelected = selectedRowIds.has(rowId);
-                
-                return (
-                  <TableRow key={rowId} data-state={isSelected ? 'selected' : undefined}>
-                    {selectable && (
-                      <TableCell>
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={(checked) => handleSelectRow(rowId, checked as boolean)}
-                        />
-                      </TableCell>
-                    )}
-                    {columns.map((col, colIndex) => {
-                      const columnWidth = columnWidths[col.accessorKey] || col.width;
-                      return (
-                        <TableCell 
-                          key={colIndex} 
-                          className={col.cellClassName}
-                          style={{
-                            width: columnWidth,
-                            minWidth: columnWidth,
-                            maxWidth: columnWidth
-                          }}
-                        >
-                          {row[col.accessorKey]}
+              <>
+                {paginatedData.map((row, rowIndex) => {
+                  const globalIndex = (currentPage - 1) * pageSize + rowIndex;
+                  const rowId = getRowId(row, globalIndex);
+                  const isSelected = selectedRowIds.has(rowId);
+                  
+                  return (
+                    <TableRow key={rowId} data-state={isSelected ? 'selected' : undefined}>
+                      {selectable && (
+                        <TableCell>
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={(checked) => handleSelectRow(rowId, checked as boolean)}
+                          />
                         </TableCell>
-                      );
-                    })}
-                    {rowActions && (
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => schema.onRowEdit?.(row)}
+                      )}
+                      {columns.map((col, colIndex) => {
+                        const columnWidth = columnWidths[col.accessorKey] || col.width;
+                        return (
+                          <TableCell 
+                            key={colIndex} 
+                            className={col.cellClassName}
+                            style={{
+                              width: columnWidth,
+                              minWidth: columnWidth,
+                              maxWidth: columnWidth
+                            }}
                           >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => schema.onRowDelete?.(row)}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    )}
+                            {row[col.accessorKey]}
+                          </TableCell>
+                        );
+                      })}
+                      {rowActions && (
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              onClick={() => schema.onRowEdit?.(row)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              onClick={() => schema.onRowDelete?.(row)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  );
+                })}
+                {/* Filler rows to maintain height consistency */}
+                {paginatedData.length > 0 && Array.from({ length: Math.max(0, pageSize - paginatedData.length) }).map((_, i) => (
+                  <TableRow key={`empty-${i}`} className="hover:bg-transparent">
+                    <TableCell colSpan={columns.length + (selectable ? 1 : 0) + (rowActions ? 1 : 0)} className="h-[52px] p-0" />
                   </TableRow>
-                );
-              })
+                ))}
+              </>
             )}
           </TableBody>
         </Table>
