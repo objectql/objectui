@@ -38,18 +38,10 @@ const mocks = vi.hoisted(() => {
                     fields: {
                         name: { type: 'text', label: 'Text (Name)' },
                         description: { type: 'textarea', label: 'Text Area' },
-                        password: { type: 'password', label: 'Password' },
-                        amount: { type: 'number', label: 'Number (Int)' },
-                        price: { type: 'currency', label: 'Currency' },
-                        percent: { type: 'percent', label: 'Percentage' },
                         due_date: { type: 'date', label: 'Date' },
-                        event_time: { type: 'datetime', label: 'Date Time' },
+                        amount: { type: 'number', label: 'Number (Int)', scale: 0 },
+                        account: { type: 'lookup', label: 'Lookup (Account)', reference_to: 'account' },
                         is_active: { type: 'boolean', label: 'Boolean (Switch)' },
-                        category: { type: 'select', label: 'Select (Dropdown)', options: [] },
-                        email: { type: 'email', label: 'Email' },
-                        url: { type: 'url', label: 'URL' },
-                        phone: { type: 'phone', label: 'Phone' },
-                        color: { type: 'color', label: 'Color Picker' }
                     }
                 };
             }
@@ -181,30 +173,48 @@ describe('Console Application Simulation', () => {
         const fieldLabels = [
             'Text (Name)',
             'Text Area',
-            'Password',
+            'Date',
             'Number (Int)',
-            'Currency',
-            'Percentage',
-            // 'Date', // Date pickers might require specific mocks not present in JSDOM or are failing to render
-            // 'Date Time',
-            // 'Boolean (Switch)', 
-            // 'Select (Dropdown)', // Select might also be complex
-            // 'Email',
-            // 'URL',
-            // 'Phone',
-            // 'Color Picker'
+            'Lookup (Account)',
+            'Boolean (Switch)',
         ];
 
         // Check each label exists
         for (const label of fieldLabels) {
              const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-             const elements = screen.getAllByText(new RegExp(escaped, 'i'));
+             const regex = new RegExp(escaped, 'i');
+             const elements = screen.queryAllByText(regex);
+             if (elements.length === 0) {
+                 console.log(`Failed to find label: ${label}`);
+                 // console.log(document.body.innerHTML); // Too large, but useful if localized
+             }
              expect(elements.length).toBeGreaterThan(0);
         }
 
         // 5. Test specific interaction (e.g. typing in name)
         // Note: Shadcn/Form labels might be associated via ID, so getByLabelText is safer usually,
         // but finding by Text works for verifying presence.
+    });
+
+    it('Scenario 5: Report Rendering (Report Page)', async () => {
+        renderApp('/page/report_page');
+
+        // Verify Report Title
+        await waitFor(() => {
+            expect(screen.getByText(/Sales Performance Report/i)).toBeInTheDocument();
+        });
+        
+        // Verify Description
+        expect(screen.getByText(/Monthly breakdown of sales/i)).toBeInTheDocument();
+
+        // Verify Data Grid Headers
+        expect(screen.getByText('Region')).toBeInTheDocument();
+        expect(screen.getByText('Sales')).toBeInTheDocument();
+        expect(screen.getByText('Target')).toBeInTheDocument();
+
+        // Verify Data Rows
+        expect(screen.getByText('North')).toBeInTheDocument();
+        expect(screen.getAllByText('5000').length).toBeGreaterThan(0);
     });
 
 });

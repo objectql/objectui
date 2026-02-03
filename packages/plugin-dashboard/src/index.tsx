@@ -9,8 +9,9 @@
 import { ComponentRegistry } from '@object-ui/core';
 import { DashboardRenderer } from './DashboardRenderer';
 import { MetricWidget } from './MetricWidget';
+import { ReportRenderer } from './ReportRenderer';
 
-export { DashboardRenderer, MetricWidget };
+export { DashboardRenderer, MetricWidget, ReportRenderer };
 
 // Register dashboard component
 ComponentRegistry.register(
@@ -44,6 +45,22 @@ ComponentRegistry.register(
     inputs: [
         { name: 'label', type: 'string', label: 'Label' },
         { name: 'value', type: 'string', label: 'Value' },
+    ]
+  }
+);
+
+// Register report component
+ComponentRegistry.register(
+  'report',
+  ReportRenderer,
+  {
+    namespace: 'plugin-dashboard',
+    label: 'Report',
+    category: 'Dashboard',
+    inputs: [
+        { name: 'title', type: 'string', label: 'Title' },
+        { name: 'description', type: 'string', label: 'Description' },
+        { name: 'chart', type: 'code', label: 'Chart Configuration' },
     ]
   }
 );

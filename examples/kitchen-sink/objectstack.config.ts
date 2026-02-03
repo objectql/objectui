@@ -90,6 +90,42 @@ export default defineStack({
           ]
         }
       ]
+    },
+    {
+      name: 'report_page',
+      label: 'Monthly Report',
+      type: 'app',
+      regions: [
+        {
+          name: 'main',
+          components: [
+            {
+              type: 'report',
+              properties: {
+                title: 'Sales Performance Report',
+                description: 'Monthly breakdown of sales by region',
+                className: 'p-6',
+                data: [
+                    { region: 'North', sales: 5000, target: 4500 },
+                    { region: 'South', sales: 3000, target: 3200 },
+                    { region: 'East', sales: 4200, target: 4000 },
+                    { region: 'West', sales: 6100, target: 5000 },
+                ],
+                columns: [
+                    { field: 'region', headerName: 'Region' },
+                    { field: 'sales', headerName: 'Sales' },
+                    { field: 'target', headerName: 'Target' }
+                ],
+                chart: {
+                    type: 'bar',
+                    xAxisKey: 'region',
+                    series: [{ dataKey: 'sales' }]
+                }
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   manifest: {
