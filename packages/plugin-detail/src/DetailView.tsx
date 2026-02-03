@@ -30,9 +30,8 @@ export const DetailView: React.FC<DetailViewProps> = ({
   onDelete,
   onBack,
 }) => {
-  const [data, setData] = React.useState(schema.data);
+  const [data] = React.useState(schema.data);
   const [loading, setLoading] = React.useState(!schema.data && !!schema.api);
-  const [editMode, setEditMode] = React.useState(false);
 
   // Fetch data if API provided
   React.useEffect(() => {

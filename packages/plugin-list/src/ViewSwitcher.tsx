@@ -7,7 +7,7 @@
  */
 
 import * as React from 'react';
-import { cn, Button, ToggleGroup, ToggleGroupItem } from '@object-ui/components';
+import { cn, ToggleGroup, ToggleGroupItem } from '@object-ui/components';
 import { Grid, List, LayoutGrid, Calendar, BarChart3 } from 'lucide-react';
 
 export type ViewType = 'grid' | 'list' | 'kanban' | 'calendar' | 'chart';

@@ -7,7 +7,7 @@
  */
 
 import * as React from 'react';
-import { cn, Card, CardHeader, CardTitle, CardContent, Collapsible, CollapsibleTrigger, CollapsibleContent, Button } from '@object-ui/components';
+import { cn, Card, CardHeader, CardTitle, CardContent, Collapsible, CollapsibleTrigger, CollapsibleContent } from '@object-ui/components';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { SchemaRenderer } from '@object-ui/react';
 import type { DetailViewSection as DetailViewSectionType } from '@object-ui/types';
