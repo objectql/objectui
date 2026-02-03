@@ -403,12 +403,13 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
       </div>
 
       {/* Table */}
-      <Table>
+      <div className="rounded-md border max-h-[600px] overflow-auto relative">
+        <Table>
           {caption && <TableCaption>{caption}</TableCaption>}
-          <TableHeader>
+          <TableHeader className="sticky top-0 bg-background z-10 shadow-sm">
             <TableRow>
               {selectable && (
-                <TableHead className="w-12">
+                <TableHead className="w-12 bg-background">
                   <Checkbox
                     checked={allPageRowsSelected ? true : somePageRowsSelected ? 'indeterminate' : false}
                     onCheckedChange={handleSelectAll}
@@ -423,7 +424,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                 return (
                   <TableHead
                     key={col.accessorKey}
-                    className={`${col.className || ''} ${sortable && col.sortable !== false ? 'cursor-pointer select-none' : ''} ${isDragging ? 'opacity-50' : ''} ${isDragOver ? 'border-l-2 border-primary' : ''} relative group`}
+                    className={`${col.className || ''} ${sortable && col.sortable !== false ? 'cursor-pointer select-none' : ''} ${isDragging ? 'opacity-50' : ''} ${isDragOver ? 'border-l-2 border-primary' : ''} relative group bg-background`}
                     style={{ 
                       width: columnWidth,
                       minWidth: columnWidth 
@@ -455,7 +456,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                 );
               })}
               {rowActions && (
-                <TableHead className="w-24 text-right">Actions</TableHead>
+                <TableHead className="w-24 text-right bg-background">Actions</TableHead>
               )}
             </TableRow>
           </TableHeader>
@@ -464,9 +465,13 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length + (selectable ? 1 : 0) + (rowActions ? 1 : 0)}
-                  className="h-24 text-center text-muted-foreground"
+                  className="h-96 text-center text-muted-foreground"
                 >
-                  No data available
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <Search className="h-8 w-8 text-muted-foreground/50" />
+                    <p>No results found</p>
+                    <p className="text-xs text-muted-foreground/50">Try adjusting your filters or search query.</p>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
@@ -527,6 +532,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
             )}
           </TableBody>
         </Table>
+      </div>
 
       {/* Pagination */}
       {pagination && sortedData.length > 0 && (
