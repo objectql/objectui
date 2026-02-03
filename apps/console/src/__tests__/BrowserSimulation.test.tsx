@@ -153,6 +153,14 @@ describe('Console Application Simulation', () => {
     });
 
     it('Scenario 4: Object Create Form (All Field Types)', async () => {
+        // Helper function to check if a label exists in the form
+        const expectLabelToExist = (label: string) => {
+            const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(escaped, 'i');
+            const elements = screen.queryAllByText(regex);
+            expect(elements.length).toBeGreaterThan(0);
+        };
+
         renderApp('/kitchen_sink');
 
         // 1. Wait for Object View
@@ -187,12 +195,7 @@ describe('Console Application Simulation', () => {
         // Check all labels exist concurrently using Promise.all for faster execution
         await Promise.all(
             fieldLabels.map(label =>
-                waitFor(() => {
-                    const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                    const regex = new RegExp(escaped, 'i');
-                    const elements = screen.queryAllByText(regex);
-                    expect(elements.length).toBeGreaterThan(0);
-                }, { timeout: 5000 })
+                waitFor(() => expectLabelToExist(label), { timeout: 5000 })
             )
         );
 
