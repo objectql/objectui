@@ -15,6 +15,12 @@ export default defineStack({
       icon: 'bar-chart-2',
       navigation: [
         {
+          id: 'nav_kitchen_sink',
+          type: 'object',
+          objectName: 'kitchen_sink',
+          label: 'Kitchen Sink'
+        },
+        {
           id: 'nav_dash',
           type: 'dashboard',
           dashboardName: 'sales_dashboard',
