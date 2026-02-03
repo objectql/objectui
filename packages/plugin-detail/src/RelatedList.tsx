@@ -7,7 +7,7 @@
  */
 
 import * as React from 'react';
-import { cn, Card, CardHeader, CardTitle, CardContent } from '@object-ui/components';
+import { Card, CardHeader, CardTitle, CardContent } from '@object-ui/components';
 import { SchemaRenderer } from '@object-ui/react';
 
 export interface RelatedListProps {
@@ -29,7 +29,7 @@ export const RelatedList: React.FC<RelatedListProps> = ({
   columns,
   className,
 }) => {
-  const [relatedData, setRelatedData] = React.useState(data);
+  const [relatedData] = React.useState(data);
   const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {

@@ -7,7 +7,7 @@
  */
 
 import * as React from 'react';
-import { cn, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@object-ui/components';
+import { cn, Button, Input } from '@object-ui/components';
 import { Search, SlidersHorizontal, ArrowUpDown, X } from 'lucide-react';
 import { ViewSwitcher, ViewType } from './ViewSwitcher';
 import { SchemaRenderer } from '@object-ui/react';
@@ -34,7 +34,7 @@ export const ListView: React.FC<ListViewProps> = ({
     (schema.viewType as ViewType) || 'grid'
   );
   const [searchTerm, setSearchTerm] = React.useState('');
-  const [sortField, setSortField] = React.useState(schema.sort?.[0]?.field || '');
+  const [sortField] = React.useState(schema.sort?.[0]?.field || '');
   const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>(schema.sort?.[0]?.order || 'asc');
   const [showFilters, setShowFilters] = React.useState(false);
 

@@ -7,7 +7,7 @@
  */
 
 import * as React from 'react';
-import { cn, Tabs, TabsList, TabsTrigger, TabsContent, Badge } from '@object-ui/components';
+import { Tabs, TabsList, TabsTrigger, TabsContent, Badge } from '@object-ui/components';
 import { SchemaRenderer } from '@object-ui/react';
 import type { DetailViewTab } from '@object-ui/types';
 
