@@ -13,7 +13,7 @@ import { ObjectStackAdapter } from '@object-ui/data-objectstack';
  */
 export function createStorybookDataSource() {
   return new ObjectStackAdapter({
-    baseUrl: '/api/v1',
+    baseUrl: '',
     // No token needed for MSW
   });
 }
