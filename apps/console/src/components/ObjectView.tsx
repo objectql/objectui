@@ -4,7 +4,7 @@ import { ObjectGrid } from '@object-ui/plugin-grid';
 import { ObjectKanban } from '@object-ui/plugin-kanban';
 import { ObjectCalendar } from '@object-ui/plugin-calendar';
 import { ObjectGantt } from '@object-ui/plugin-gantt';
-import { Button } from '@object-ui/components';
+import { Button, Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
 import { Plus, Calendar as CalendarIcon, Kanban as KanbanIcon, Table as TableIcon, AlignLeft } from 'lucide-react';
 
 export function ObjectView({ dataSource, objects, onEdit }: any) {
@@ -17,9 +17,11 @@ export function ObjectView({ dataSource, objects, onEdit }: any) {
 
     if (!objectDef) {
       return (
-        <div className="flex flex-col items-center justify-center h-full text-muted-foreground bg-muted/30 rounded-lg border border-dashed p-8 m-4">
-          <h3 className="font-semibold text-lg">Object Not Found</h3>
-          <p>The object "{objectName}" does not exist in the current configuration.</p>
+        <div className="h-full p-4 flex items-center justify-center">
+          <Empty>
+            <EmptyTitle>Object Not Found</EmptyTitle>
+            <EmptyDescription>The object "{objectName}" does not exist in the current configuration.</EmptyDescription>
+          </Empty>
         </div>
       );
     }

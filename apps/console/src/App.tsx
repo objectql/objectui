@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from
 import { useState, useEffect } from 'react';
 import { ObjectStackClient } from '@objectstack/client';
 import { ObjectForm } from '@object-ui/plugin-form';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@object-ui/components';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Empty, EmptyTitle } from '@object-ui/components';
 import { ObjectStackDataSource } from './dataSource';
 import appConfig from '../objectstack.config';
 
@@ -90,7 +90,13 @@ export function AppContent() {
   };
 
   if (!client || !dataSource) return <LoadingScreen />;
-  if (!activeApp) return <div className="p-4 flex items-center justify-center h-screen">No Apps configured.</div>;
+  if (!activeApp) return (
+    <div className="h-screen flex items-center justify-center">
+      <Empty>
+        <EmptyTitle>No Apps configured</EmptyTitle>
+      </Empty>
+    </div>
+  );
 
   return (
     <ConsoleLayout

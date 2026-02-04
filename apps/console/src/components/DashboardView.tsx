@@ -5,6 +5,7 @@
 
 import { useParams } from 'react-router-dom';
 import { DashboardRenderer } from '@object-ui/plugin-dashboard';
+import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
 import appConfig from '../../objectstack.config';
 
 export function DashboardView() {
@@ -16,11 +17,11 @@ export function DashboardView() {
 
   if (!dashboard) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-8">
-        <h2 className="text-2xl font-bold mb-2">Dashboard Not Found</h2>
-        <p className="text-muted-foreground">
-          The dashboard "{dashboardName}" could not be found.
-        </p>
+      <div className="h-full flex items-center justify-center p-8">
+         <Empty>
+          <EmptyTitle>Dashboard Not Found</EmptyTitle>
+          <EmptyDescription>The dashboard "{dashboardName}" could not be found.</EmptyDescription>
+        </Empty>
       </div>
     );
   }

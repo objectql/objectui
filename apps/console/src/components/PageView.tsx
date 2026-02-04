@@ -5,6 +5,7 @@
 
 import { useParams, useSearchParams } from 'react-router-dom';
 import { SchemaRenderer } from '@object-ui/react';
+import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
 import appConfig from '../../objectstack.config';
 
 export function PageView() {
@@ -17,11 +18,11 @@ export function PageView() {
 
   if (!page) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-8">
-        <h2 className="text-2xl font-bold mb-2">Page Not Found</h2>
-        <p className="text-muted-foreground">
-          The page "{pageName}" could not be found.
-        </p>
+      <div className="h-full flex items-center justify-center p-8">
+        <Empty>
+          <EmptyTitle>Page Not Found</EmptyTitle>
+          <EmptyDescription>The page "{pageName}" could not be found.</EmptyDescription>
+        </Empty>
       </div>
     );
   }
