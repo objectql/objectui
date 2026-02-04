@@ -296,12 +296,12 @@ function NavigationItemRenderer({ item }: { item: any }) {
             <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
                 {isExternal ? (
                     <a href={href} target="_blank" rel="noopener noreferrer">
-                        <Icon className="mr-2 h-4 w-4" />
+                        <Icon className="h-4 w-4" />
                         <span>{item.label}</span>
                     </a>
                 ) : (
                     <Link to={href}>
-                        <Icon className="mr-2 h-4 w-4" />
+                        <Icon className="h-4 w-4" />
                         <span>{item.label}</span>
                     </Link>
                 )}
