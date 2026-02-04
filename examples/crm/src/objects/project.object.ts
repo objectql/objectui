@@ -14,6 +14,7 @@ export const ProjectObject = ObjectSchema.create({
     manager: Field.lookup('user', { label: 'Manager' }),
     description: Field.textarea({ label: 'Description' }),
     color: Field.text({ label: 'Color' }), // For Gantt bar color
+    dependencies: Field.text({ label: 'Dependencies' }), // Comma separated IDs
   },
   list_views: {
     all: {
@@ -30,7 +31,15 @@ export const ProjectObject = ObjectSchema.create({
       endDateField: 'end_date',
       titleField: 'name',
       progressField: 'progress',
+      dependenciesField: 'dependencies',
       colorField: 'color',
-    } as any // Cast to allow extra properties if type definition is strict
+    } as any, // Cast to allow extra properties if type definition is strict
+    timeline_view: {
+      label: 'Timeline',
+      type: 'timeline',
+      dateField: 'start_date',
+      titleField: 'name',
+      columns: ['status', 'priority']
+    } as any
   }
 });

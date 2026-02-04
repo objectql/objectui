@@ -5,4 +5,5 @@ export * from './objects/product.object';
 export * from './objects/order.object';
 export * from './objects/user.object';
 export * from './objects/project.object';
+export * from './objects/event.object';
 export { default as config } from '../objectstack.config';

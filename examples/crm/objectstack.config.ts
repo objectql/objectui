@@ -7,6 +7,7 @@ import { ProductObject } from './src/objects/product.object';
 import { OrderObject } from './src/objects/order.object';
 import { UserObject } from './src/objects/user.object';
 import { ProjectObject } from './src/objects/project.object';
+import { EventObject } from './src/objects/event.object';
 
 export default defineStack({
   objects: [
@@ -16,7 +17,8 @@ export default defineStack({
     ProductObject,
     OrderObject,
     UserObject,
-    ProjectObject
+    ProjectObject,
+    EventObject
   ],
   apps: [
     App.create({
@@ -54,6 +56,12 @@ export default defineStack({
           type: 'object',
           objectName: 'project_task',
           label: 'Projects'
+        },
+        {
+          id: 'nav_events',
+          type: 'object',
+          objectName: 'event',
+          label: 'Calendar'
         },
         {
           id: 'nav_sales',
@@ -247,9 +255,9 @@ export default defineStack({
         object: 'account',
         mode: 'upsert',
         records: [
-          { _id: "1", name: "TechCorp" },
-          { _id: "2", name: "Software Inc" },
-          { _id: "3", name: "Good Grief LLC" }
+          { _id: "1", name: "TechCorp", industry: "Technology", type: "Customer", billing_address: "100 Tech Blvd, Silicon Valley, CA", website: "https://techcorp.com", phone: "555-0100" },
+          { _id: "2", name: "Software Inc", industry: "Technology", type: "Partner", billing_address: "200 Cloud Way, Seattle, WA", website: "https://softwareinc.com", phone: "555-0200" },
+          { _id: "3", name: "Good Grief LLC", industry: "Retail", type: "Customer", billing_address: "300 Peanut Ave, Minneapolis, MN", website: "https://peanuts.com", phone: "555-0300" }
         ]
       },
       {
@@ -309,9 +317,11 @@ export default defineStack({
           object: 'product',
           mode: 'upsert',
           records: [
-              { _id: "p1", sku: 'PROD-001', name: 'Laptop', category: 'Electronics', price: 1299.99, stock: 15 },
-              { _id: "p2", sku: 'PROD-002', name: 'Mouse', category: 'Electronics', price: 29.99, stock: 120 },
-              { _id: "p3", sku: 'PROD-003', name: 'Desk Chair', category: 'Furniture', price: 249.99, stock: 8 }
+              { _id: "p1", sku: 'PROD-001', name: 'Laptop', category: 'Electronics', price: 1299.99, stock: 15, image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&q=80' },
+              { _id: "p2", sku: 'PROD-002', name: 'Wireless Mouse', category: 'Electronics', price: 29.99, stock: 120, image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=300&q=80' },
+              { _id: "p3", sku: 'PROD-003', name: 'Ergonomic Chair', category: 'Furniture', price: 249.99, stock: 8, image: 'https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?w=300&q=80' },
+              { _id: "p4", sku: 'PROD-004', name: 'Standing Desk', category: 'Furniture', price: 499.99, stock: 20, image: 'https://images.unsplash.com/photo-1595515106969-1ce29566ff1c?w=300&q=80' },
+              { _id: "p5", sku: 'PROD-005', name: 'Noise Cancelling Headphones', category: 'Electronics', price: 199.99, stock: 45, image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&q=80' }
           ]
       },
       {
@@ -326,12 +336,22 @@ export default defineStack({
           object: 'project_task',
           mode: 'upsert',
           records: [
-              { _id: "t1", name: "Requirements Gathering", start_date: new Date("2024-01-01"), end_date: new Date("2024-01-14"), progress: 100, status: 'Completed', color: '#10b981' },
-              { _id: "t2", name: "System Design", start_date: new Date("2024-01-15"), end_date: new Date("2024-02-15"), progress: 100, status: 'Completed', color: '#3b82f6' },
-              { _id: "t3", name: "Implementation", start_date: new Date("2024-02-16"), end_date: new Date("2024-04-30"), progress: 65, status: 'In Progress', color: '#8b5cf6' },
-              { _id: "t4", name: "Quality Assurance", start_date: new Date("2024-05-01"), end_date: new Date("2024-05-30"), progress: 0, status: 'Planned', color: '#f59e0b' },
-              { _id: "t5", name: "User Acceptance", start_date: new Date("2024-06-01"), end_date: new Date("2024-06-15"), progress: 0, status: 'Planned', color: '#f43f5e' },
-              { _id: "t6", name: "Go Live", start_date: new Date("2024-06-20"), end_date: new Date("2024-06-20"), progress: 0, status: 'Planned', color: '#ef4444' }
+              { _id: "t1", name: "Requirements Gathering", start_date: new Date("2024-01-01"), end_date: new Date("2024-01-14"), progress: 100, status: 'Completed', color: '#10b981', priority: 'High' },
+              { _id: "t2", name: "System Design", start_date: new Date("2024-01-15"), end_date: new Date("2024-02-15"), progress: 100, status: 'Completed', color: '#3b82f6', priority: 'High', dependencies: 't1' },
+              { _id: "t3", name: "Implementation", start_date: new Date("2024-02-16"), end_date: new Date("2024-04-30"), progress: 65, status: 'In Progress', color: '#8b5cf6', priority: 'High', dependencies: 't2' },
+              { _id: "t4", name: "Quality Assurance", start_date: new Date("2024-05-01"), end_date: new Date("2024-05-30"), progress: 0, status: 'Planned', color: '#f59e0b', priority: 'Medium', dependencies: 't3' },
+              { _id: "t5", name: "User Acceptance", start_date: new Date("2024-06-01"), end_date: new Date("2024-06-15"), progress: 0, status: 'Planned', color: '#f43f5e', priority: 'Medium', dependencies: 't4' },
+              { _id: "t6", name: "Go Live", start_date: new Date("2024-06-20"), end_date: new Date("2024-06-20"), progress: 0, status: 'Planned', color: '#ef4444', priority: 'Critical', dependencies: 't5' }
+          ]
+      },
+      {
+          object: 'event',
+          mode: 'upsert',
+          records: [
+              { _id: "e1", subject: "Weekly Standup", start: new Date("2024-02-05T09:00:00"), end: new Date("2024-02-05T10:00:00"), location: "Conference Room A", type: "Meeting", description: "Team synchronization" },
+              { _id: "e2", subject: "Client Call - TechCorp", start: new Date("2024-02-06T14:00:00"), end: new Date("2024-02-06T15:00:00"), location: "Zoom", type: "Call", description: "Project update" },
+              { _id: "e3", subject: "Project Review", start: new Date("2024-02-08T10:00:00"), end: new Date("2024-02-08T11:30:00"), location: "Board Room", type: "Meeting", description: "Milestone review" },
+              { _id: "e4", subject: "Lunch with Partners", start: new Date("2024-02-09T12:00:00"), end: new Date("2024-02-09T13:30:00"), location: "Downtown Cafe", type: "Other", description: "Networking" }
           ]
       }
     ]

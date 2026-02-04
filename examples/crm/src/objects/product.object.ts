@@ -22,6 +22,14 @@ export const ProductObject = ObjectSchema.create({
       label: 'Low Stock',
       columns: ['name', 'stock', 'price'],
       filter: [['stock', '<', 10]]
-    }
+    },
+    gallery: {
+      label: 'Product Gallery',
+      type: 'gallery',
+      columns: ['name', 'category', 'price'],
+      imageField: 'image',
+      titleField: 'name',
+      subtitleField: 'category'
+    } as any
   }
 });
