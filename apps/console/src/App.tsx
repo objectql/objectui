@@ -36,7 +36,7 @@ function RecordDetailView({ dataSource, objects, onEdit }: any) {
   }
 
   return (
-    <div className="h-full bg-background overflow-auto">
+    <div className="h-full bg-background overflow-auto p-4 lg:p-6">
        <DetailView 
          schema={{
            type: 'detail-view',
@@ -45,23 +45,24 @@ function RecordDetailView({ dataSource, objects, onEdit }: any) {
            showBack: true,
            onBack: 'history',
            showEdit: true,
+           title:  objectDef.label,
            sections: [
               {
                  title: 'Details',
                  fields: Object.keys(objectDef.fields || {}).map(key => ({
                     name: key, 
-                    label: objectDef.fields[key].label,
-                    type: objectDef.fields[key].type
+                    label: objectDef.fields[key].label || key,
+                    type: objectDef.fields[key].type || 'text'
                  })),
                  columns: 2
               }
            ]
          }}
          dataSource={dataSource}
-         onEdit={() => onEdit({ _id: recordId, id: recordId })} 
+         onEdit={() => onEdit({ _id: recordId, id: recordId })}
        />
     </div>
-  )
+  );
 }
 
 export function AppContent() {
