@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { ObjectView } from '../components/ObjectView';
 import { ComponentRegistry } from '@object-ui/core';
 import { SchemaRendererProvider } from '@object-ui/react';
@@ -155,7 +155,7 @@ describe('Console View Switching Integration', () => {
         ];
         mockDataSource.find.mockResolvedValue({ value: mockSites });
 
-        const { container } = renderObjectView();
+        renderObjectView();
         
         expect(ComponentRegistry.has('object-map')).toBe(true);
         expect(screen.queryByText(/Unknown component type/i)).not.toBeInTheDocument();

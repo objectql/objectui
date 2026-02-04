@@ -231,6 +231,12 @@ importers:
       '@object-ui/plugin-list':
         specifier: workspace:*
         version: link:../../packages/plugin-list
+      '@object-ui/plugin-map':
+        specifier: workspace:*
+        version: link:../../packages/plugin-map
+      '@object-ui/plugin-timeline':
+        specifier: workspace:*
+        version: link:../../packages/plugin-timeline
       '@object-ui/react':
         specifier: workspace:*
         version: link:../../packages/react

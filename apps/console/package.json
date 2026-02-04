@@ -40,6 +40,8 @@
     "@object-ui/plugin-grid": "workspace:*",
     "@object-ui/plugin-kanban": "workspace:*",
     "@object-ui/plugin-list": "workspace:*",
+    "@object-ui/plugin-map": "workspace:*",
+    "@object-ui/plugin-timeline": "workspace:*",
     "@object-ui/react": "workspace:*",
     "@object-ui/types": "workspace:*",
     "@objectstack/client": "^0.9.0",
