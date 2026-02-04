@@ -76,7 +76,12 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, { schema: DashboardS
                     };
                 }
 
-                return widget; // Fallback to widget itself as schema
+                // For generic widgets (like 'metric'), we simply spread the options into the schema
+                // so they appear as top-level props for the component.
+                return {
+                    ...widget,
+                    ...((widget as any).options || {})
+                };
             };
             
             const componentSchema = getComponentSchema();

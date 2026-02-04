@@ -36,14 +36,6 @@ export const OpportunityObject = ObjectSchema.create({
       groupField: 'stage',
       titleField: 'name',
       cardFields: ['amount', 'account', 'close_date']
-    } as any,
-    chart: {
-      label: 'By Stage',
-      type: 'chart',
-      chartType: 'bar',
-      xAxisField: 'stage',
-      yAxisFields: ['amount'],
-      aggregation: 'sum'
     } as any
   }
 });
