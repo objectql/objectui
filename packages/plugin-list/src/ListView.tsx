@@ -315,7 +315,12 @@ export const ListView: React.FC<ListViewProps> = ({
 
       {/* View Content */}
       <div className="flex-1">
-        <SchemaRenderer schema={viewComponentSchema} {...props} />
+        <SchemaRenderer 
+          schema={viewComponentSchema} 
+          {...props} 
+          data={data}
+          loading={loading}
+        />
       </div>
     </div>
   );
