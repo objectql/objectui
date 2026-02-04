@@ -245,6 +245,12 @@ export interface ObjectGridSchema extends BaseSchema {
    * Allows users to drag column borders to resize
    */
   resizable?: boolean;
+
+  /**
+   * Enable column reordering
+   * Allows users to drag columns to reorder
+   */
+  reorderableColumns?: boolean;
   
   /**
    * Striped row styling

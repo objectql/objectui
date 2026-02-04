@@ -426,6 +426,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
     exportable: operations?.export,
     rowActions: hasActions,
     resizableColumns: schema.resizable ?? schema.resizableColumns ?? true,
+    reorderableColumns: schema.reorderableColumns ?? false,
     className: schema.className,
     onSelectionChange: onRowSelect,
   };
