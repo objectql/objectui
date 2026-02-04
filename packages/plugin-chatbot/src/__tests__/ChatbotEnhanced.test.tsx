@@ -57,7 +57,7 @@ describe('ChatbotEnhanced', () => {
     fireEvent.click(sendButton);
     
     await waitFor(() => {
-      expect(onSendMessage).toHaveBeenCalledWith('Test message', undefined);
+      expect(onSendMessage).toHaveBeenCalledWith('Test message', []);
     });
   });
 
@@ -71,7 +71,7 @@ describe('ChatbotEnhanced', () => {
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
     
     await waitFor(() => {
-      expect(onSendMessage).toHaveBeenCalledWith('Test message', undefined);
+      expect(onSendMessage).toHaveBeenCalledWith('Test message', []);
     });
   });
 

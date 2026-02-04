@@ -338,6 +338,7 @@ const ChatbotEnhanced = React.forwardRef<HTMLDivElement, ChatbotEnhancedProps>(
                 size="icon"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={disabled}
+                aria-label="Attach file"
               >
                 <Paperclip className="h-4 w-4" />
               </Button>
@@ -358,6 +359,7 @@ const ChatbotEnhanced = React.forwardRef<HTMLDivElement, ChatbotEnhancedProps>(
             onClick={handleSend}
             disabled={disabled || (!inputValue.trim() && selectedFiles.length === 0)}
             size="icon"
+            aria-label="Send message"
           >
             <Send className="h-4 w-4" />
           </Button>
