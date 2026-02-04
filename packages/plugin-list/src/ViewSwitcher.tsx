@@ -65,7 +65,7 @@ export const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
       type="single" 
       value={currentView} 
       onValueChange={(value) => value && onViewChange(value as ViewType)}
-      className={cn("inline-flex", className)}
+      className={cn("bg-transparent gap-1", className)}
     >
       {availableViews.map((view) => (
         <ToggleGroupItem
@@ -73,9 +73,12 @@ export const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
           value={view}
           aria-label={VIEW_LABELS[view]}
           title={VIEW_LABELS[view]}
-          className="px-3"
+          className="gap-2 px-3 data-[state=on]:bg-background data-[state=on]:shadow-sm border-transparent border data-[state=on]:border-border/50"
         >
           {VIEW_ICONS[view]}
+          <span className="hidden sm:inline-block text-xs font-medium">
+            {VIEW_LABELS[view]}
+          </span>
         </ToggleGroupItem>
       ))}
     </ToggleGroup>

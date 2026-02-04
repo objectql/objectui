@@ -141,6 +141,9 @@ export const ListView: React.FC<ListViewProps> = ({
       fields: schema.fields,
       filters: schema.filters,
       sort: [{ field: sortField, order: sortOrder }],
+      className: "h-full w-full",
+      // Disable internal controls that clash with ListView toolbar
+      showSearch: false,
     };
 
     switch (currentView) {
@@ -249,54 +252,71 @@ export const ListView: React.FC<ListViewProps> = ({
   }, [schema.options, schema.viewType]);
 
   return (
-    <div className={cn('flex flex-col gap-4', className)}>
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-4 justify-between">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder={`Search ${schema.objectName}...`}
-              value={searchTerm}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-8 pr-8"
+    <div className={cn('flex flex-col h-full bg-background', className)}>
+      {/* Airtable-style Toolbar */}
+      <div className="border-b px-4 py-2 flex items-center justify-between gap-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex items-center gap-2 flex-1 overflow-hidden">
+          {/* View Switcher on the Left */}
+          <div className="flex items-center pr-2 border-r mr-2">
+            <ViewSwitcher
+              currentView={currentView}
+              availableViews={availableViews}
+              onViewChange={handleViewChange}
             />
-            {searchTerm && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0"
-                onClick={() => handleSearchChange('')}
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            )}
           </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowFilters(!showFilters)}
-            className={cn(showFilters && 'bg-muted')}
-          >
-            <SlidersHorizontal className="h-4 w-4 mr-2" />
-            Filters
-          </Button>
-
-          {sortField && (
-            <Button variant="outline" size="sm" onClick={handleSortChange}>
-              <ArrowUpDown className="h-4 w-4 mr-2" />
-              {sortOrder === 'asc' ? 'A-Z' : 'Z-A'}
-            </Button>
-          )}
+          {/* Action Tools */}
+          <div className="flex items-center gap-1">
+             <Button
+                variant={showFilters ? "secondary" : "ghost"}
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+                className="h-8 px-2 lg:px-3 text-muted-foreground hover:text-primary"
+              >
+                <SlidersHorizontal className="h-4 w-4 mr-2" />
+                <span className="hidden lg:inline">Filter</span>
+              </Button>
+            
+            {sortField && (
+               <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleSortChange}
+                className="h-8 px-2 lg:px-3 text-muted-foreground hover:text-primary"
+               >
+                <ArrowUpDown className="h-4 w-4 mr-2" />
+                <span className="hidden lg:inline">Sort</span>
+              </Button>
+            )}
+            
+            {/* Future: Group, Color, Height */}
+          </div>
         </div>
 
-        <ViewSwitcher
-          currentView={currentView}
-          availableViews={availableViews}
-          onViewChange={handleViewChange}
-        />
+        {/* Right Actions: Search + New */}
+        <div className="flex items-center gap-2">
+             <div className="relative w-40 lg:w-64 transition-all">
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Find..."
+                  value={searchTerm}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="pl-8 h-8 text-sm bg-muted/50 border-transparent hover:bg-muted focus:bg-background focus:border-input transition-colors"
+                />
+                 {searchTerm && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0 hover:bg-muted-foreground/20"
+                    onClick={() => handleSearchChange('')}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
+             </div>
+        </div>
       </div>
+
 
       {/* Filters Panel */}
       {showFilters && (
@@ -309,7 +329,7 @@ export const ListView: React.FC<ListViewProps> = ({
       )}
 
       {/* View Content */}
-      <div className="flex-1">
+      <div className="flex-1 min-h-0 bg-background relative overflow-hidden">
         <SchemaRenderer 
           schema={viewComponentSchema} 
           {...props} 

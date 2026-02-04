@@ -32,6 +32,7 @@ export function ConsoleLayout({
             objects={objects} 
           />
       }
+      className="p-0 overflow-hidden bg-muted/5"
     >
       {children}
     </AppShell>
