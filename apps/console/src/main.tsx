@@ -18,6 +18,8 @@ import '@object-ui/plugin-gantt';
 import '@object-ui/plugin-charts';
 import '@object-ui/plugin-list';
 import '@object-ui/plugin-detail';
+import '@object-ui/plugin-timeline';
+import '@object-ui/plugin-map';
 
 // Start MSW before rendering the app
 async function bootstrap() {
