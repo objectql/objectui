@@ -255,18 +255,103 @@ export default defineStack({
         object: 'account',
         mode: 'upsert',
         records: [
-          { _id: "1", name: "TechCorp", industry: "Technology", type: "Customer", billing_address: "100 Tech Blvd, Silicon Valley, CA", website: "https://techcorp.com", phone: "555-0100" },
-          { _id: "2", name: "Software Inc", industry: "Technology", type: "Partner", billing_address: "200 Cloud Way, Seattle, WA", website: "https://softwareinc.com", phone: "555-0200" },
-          { _id: "3", name: "Good Grief LLC", industry: "Retail", type: "Customer", billing_address: "300 Peanut Ave, Minneapolis, MN", website: "https://peanuts.com", phone: "555-0300" }
+          { 
+            _id: "1", 
+            name: "ObjectStack HQ", 
+            industry: "Technology", 
+            type: "Partner", 
+            billing_address: "44 Tehama St, San Francisco, CA 94105", 
+            latitude: 37.7879,
+            longitude: -122.3961,
+            website: "https://objectstack.com", 
+            phone: "555-0101" 
+          },
+          { 
+            _id: "2", 
+            name: "Salesforce Tower", 
+            industry: "Technology", 
+            type: "Customer", 
+            billing_address: "415 Mission St, San Francisco, CA 94105", 
+            latitude: 37.7897,
+            longitude: -122.3972,
+            website: "https://salesforce.com", 
+            phone: "555-0102" 
+          },
+          { 
+            _id: "3", 
+            name: "Central Park Office", 
+            industry: "Finance", 
+            type: "Customer", 
+            billing_address: "New York, NY", 
+            latitude: 40.7829,
+            longitude: -73.9654,
+            website: "https://finance.example.com", 
+            phone: "555-0103" 
+          },
+          { 
+            _id: "4",
+            name: "London Branch", 
+            industry: "Finance", 
+            type: "Partner", 
+            billing_address: "London, UK", 
+            latitude: 51.5074,
+            longitude: -0.1278,
+            website: "https://uk.example.com", 
+            phone: "555-0104"
+          },
+           { 
+            _id: "5",
+            name: "Tokyo Innovation Center", 
+            industry: "Technology", 
+            type: "Vendor", 
+            billing_address: "Tokyo, Japan", 
+            latitude: 35.6762,
+            longitude: 139.6503,
+            website: "https://jp.example.com", 
+            phone: "555-0105"
+          }
         ]
       },
       {
         object: 'contact',
         mode: 'upsert',
         records: [
-          { _id: "1", name: "Alice Johnson", email: "alice@example.com", phone: "555-0101", title: "VP Sales", company: "TechCorp", status: "Active" },
-          { _id: "2", name: "Bob Smith", email: "bob@tech.com", phone: "555-0102", title: "Developer", company: "Software Inc", status: "Lead" },
-          { _id: "3", name: "Charlie Brown", email: "charlie@peanuts.com", phone: "555-0103", title: "Manager", company: "Good Grief LLC", status: "Customer" }
+          { 
+            _id: "1", 
+            name: "Alice Johnson", 
+            email: "alice@example.com", 
+            phone: "555-0101", 
+            title: "VP Sales", 
+            company: "TechCorp", 
+            status: "Active",
+            latitude: 40.7128,
+            longitude: -74.0060, // NYC
+            address: "New York, NY"
+          },
+          { 
+            _id: "2", 
+            name: "Bob Smith", 
+            email: "bob@tech.com", 
+            phone: "555-0102", 
+            title: "Developer", 
+            company: "Software Inc", 
+            status: "Lead",
+            latitude: 47.6062,
+            longitude: -122.3321, // Seattle
+            address: "Seattle, WA"
+          },
+          { 
+            _id: "3", 
+            name: "Charlie Brown", 
+            email: "charlie@peanuts.com", 
+            phone: "555-0103", 
+            title: "Manager", 
+            company: "Good Grief LLC", 
+            status: "Customer",
+            latitude: 44.9778,
+            longitude: -93.2650, // Minneapolis
+            address: "Minneapolis, MN"
+          }
         ]
       },
       {

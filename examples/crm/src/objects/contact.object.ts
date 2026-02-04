@@ -13,6 +13,9 @@ export const ContactObject = ObjectSchema.create({
     account: Field.lookup('account', { label: 'Account' }),
     status: Field.select(['Active', 'Lead', 'Customer'], { label: 'Status' }),
     priority: Field.select(['High', 'Medium', 'Low'], { label: 'Priority', defaultValue: 'Medium' }),
+    address: Field.textarea({ label: 'Address' }),
+    latitude: Field.number({ label: 'Latitude', scale: 6 }),
+    longitude: Field.number({ label: 'Longitude', scale: 6 }),
     is_active: Field.boolean({ label: 'Active', defaultValue: true }),
     notes: Field.textarea({ label: 'Notes' })
   },
@@ -21,6 +24,16 @@ export const ContactObject = ObjectSchema.create({
       label: 'All Contacts',
       columns: ['name', 'account', 'email', 'phone', 'title', 'status']
     },
+    map_view: {
+      label: 'Map View',
+      type: 'map',
+      latitudeField: 'latitude',
+      longitudeField: 'longitude',
+      titleField: 'name',
+      descriptionField: 'title',
+      zoom: 12,
+      center: [-73.935242, 40.730610] // NYC
+    } as any,
     mypending: {
       label: 'My Pending Contacts',
       columns: ['name', 'account', 'status', 'priority'],
