@@ -11,6 +11,10 @@ import { App } from './App';
 import { startMockServer } from './mocks/browser';
 
 // Register plugins
+import '@object-ui/plugin-grid';
+import '@object-ui/plugin-kanban';
+import '@object-ui/plugin-calendar';
+import '@object-ui/plugin-gantt';
 import '@object-ui/plugin-charts';
 import '@object-ui/plugin-list';
 import '@object-ui/plugin-detail';
