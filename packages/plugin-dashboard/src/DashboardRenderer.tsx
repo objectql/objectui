@@ -9,7 +9,7 @@
 import type { DashboardSchema, DashboardWidgetSchema } from '@object-ui/types';
 import { SchemaRenderer } from '@object-ui/react';
 import { cn, Card, CardHeader, CardTitle, CardContent } from '@object-ui/components';
-import { forwardRef, useMemo } from 'react';
+import { forwardRef } from 'react';
 
 // Color palette for charts
 const CHART_COLORS = [
@@ -39,7 +39,7 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, { schema: DashboardS
             // Logic to determine what to render
             // Supports both Component Schema (widget.component) and Shorthand (widget.type)
             
-            const componentSchema = useMemo(() => {
+            const getComponentSchema = () => {
                 if (widget.component) return widget.component;
 
                 // Handle Shorthand Registry Mappings
@@ -77,7 +77,9 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, { schema: DashboardS
                 }
 
                 return widget; // Fallback to widget itself as schema
-            }, [widget]);
+            };
+            
+            const componentSchema = getComponentSchema();
 
             // Check if the widget is self-contained (like a Metric Card) to avoid double borders
             const isSelfContained = (widget as any).type === 'metric';
