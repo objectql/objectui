@@ -165,7 +165,18 @@ export const ObjectGantt: React.FC<ObjectGanttProps> = ({
             $filter: schema.filter,
             $orderby: convertSortToQueryParams(schema.sort),
           });
-          setData(result?.data || []);
+          
+          let items: any[] = [];
+          if (Array.isArray(result)) {
+            items = result;
+          } else if (result && typeof result === 'object') {
+             if (Array.isArray((result as any).data)) {
+                items = (result as any).data; 
+             } else if (Array.isArray((result as any).value)) {
+                items = (result as any).value;
+             }
+          }
+          setData(items);
         } else if (dataConfig?.provider === 'api') {
           console.warn('API provider not yet implemented for ObjectGantt');
           setData([]);

@@ -34,6 +34,8 @@ export const ObjectGallery = (props: any) => {
                 } else if (results && typeof results === 'object') {
                     if (Array.isArray((results as any).value)) {
                         data = (results as any).value;
+                    } else if (Array.isArray((results as any).data)) {
+                        data = (results as any).data;
                     }
                 }
     
