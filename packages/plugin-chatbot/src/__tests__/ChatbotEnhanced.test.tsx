@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import '@testing-library/jest-dom';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ChatbotEnhanced, type ChatMessage } from '../ChatbotEnhanced';
