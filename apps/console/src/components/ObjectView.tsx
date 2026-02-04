@@ -125,6 +125,11 @@ export function ObjectView({ dataSource, objects, onEdit }: any) {
                     zoom: activeView.zoom,
                     center: activeView.center
                 },
+                gallery: {
+                    imageField: activeView.imageField || 'image',
+                    titleField: activeView.titleField || objectDef.titleField || 'name',
+                    subtitleField: activeView.subtitleField
+                },
                 gantt: {
                     startDateField: activeView.startDateField || 'start_date',
                     endDateField: activeView.endDateField || 'end_date',
