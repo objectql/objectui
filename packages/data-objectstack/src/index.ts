@@ -495,7 +495,12 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
 
     // Filtering - convert to ObjectStack FilterNode AST format
     if (params.$filter) {
-      options.filters = convertFiltersToAST(params.$filter);
+      if (Array.isArray(params.$filter)) {
+        // Assume active AST format if it's already an array
+        options.filters = params.$filter;
+      } else {
+        options.filters = convertFiltersToAST(params.$filter);
+      }
     }
 
     // Sorting - convert to ObjectStack format

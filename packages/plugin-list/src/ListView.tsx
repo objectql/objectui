@@ -61,7 +61,7 @@ export const ListView: React.FC<ListViewProps> = ({
   schema,
   className,
   onViewChange,
-  onFilterChange: _onFilterChange,
+  onFilterChange,
   onSortChange,
   onSearchChange,
   ...props
@@ -392,7 +392,7 @@ export const ListView: React.FC<ListViewProps> = ({
                         // Convert FilterBuilder format to OData $filter string if needed
                         // For now we just update state and notify listener
                         // In a real app, this would likely build an OData string
-                        onFilterChange?.(newFilters);
+                        if (onFilterChange) onFilterChange(newFilters);
                       }}
                     />
                   </div>
