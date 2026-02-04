@@ -192,6 +192,50 @@ export const ListView: React.FC<ListViewProps> = ({
     return () => { isMounted = false; };
   }, [schema.objectName, dataSource, schema.filters, currentSort, currentFilters]); // Re-fetch on filter/sort change
 
+  // Available view types based on schema configuration
+  const availableViews = React.useMemo(() => {
+    const views: ViewType[] = ['grid'];
+    
+    // Check for Kanban capabilities
+    if (schema.options?.kanban?.groupField) {
+      views.push('kanban');
+    }
+
+    // Check for Gallery capabilities
+    if (schema.options?.gallery?.imageField) {
+      views.push('gallery');
+    }
+    
+    // Check for Calendar capabilities
+    if (schema.options?.calendar?.startDateField) {
+      views.push('calendar');
+    }
+    
+    // Check for Timeline capabilities
+    if (schema.options?.timeline?.dateField || schema.options?.calendar?.startDateField) {
+      views.push('timeline');
+    }
+    
+    // Check for Gantt capabilities
+    if (schema.options?.gantt?.startDateField) {
+      views.push('gantt');
+    }
+    
+    // Check for Map capabilities
+    if (schema.options?.map?.locationField || (schema.options?.map?.latitudeField && schema.options?.map?.longitudeField)) {
+      views.push('map');
+    }
+    
+    // Always allow switching back to the viewType defined in schema if it's one of the supported types
+    // This ensures that if a view is configured as "map", the map button is shown even if we missed the options check above
+    if (schema.viewType && !views.includes(schema.viewType as ViewType) && 
+       ['grid', 'kanban', 'calendar', 'timeline', 'gantt', 'map', 'gallery'].includes(schema.viewType)) {
+      views.push(schema.viewType as ViewType);
+    }
+    
+    return views;
+  }, [schema.options, schema.viewType]);
+
   // Load saved view preference
   React.useEffect(() => {
     try {
@@ -296,50 +340,6 @@ export const ListView: React.FC<ListViewProps> = ({
         return baseProps;
     }
   }, [currentView, schema, currentSort]);
-
-  // Available view types based on schema configuration
-  const availableViews = React.useMemo(() => {
-    const views: ViewType[] = ['grid'];
-    
-    // Check for Kanban capabilities
-    if (schema.options?.kanban?.groupField) {
-      views.push('kanban');
-    }
-
-    // Check for Gallery capabilities
-    if (schema.options?.gallery?.imageField) {
-      views.push('gallery');
-    }
-    
-    // Check for Calendar capabilities
-    if (schema.options?.calendar?.startDateField) {
-      views.push('calendar');
-    }
-    
-    // Check for Timeline capabilities
-    if (schema.options?.timeline?.dateField || schema.options?.calendar?.startDateField) {
-      views.push('timeline');
-    }
-    
-    // Check for Gantt capabilities
-    if (schema.options?.gantt?.startDateField) {
-      views.push('gantt');
-    }
-    
-    // Check for Map capabilities
-    if (schema.options?.map?.locationField || (schema.options?.map?.latitudeField && schema.options?.map?.longitudeField)) {
-      views.push('map');
-    }
-    
-    // Always allow switching back to the viewType defined in schema if it's one of the supported types
-    // This ensures that if a view is configured as "map", the map button is shown even if we missed the options check above
-    if (schema.viewType && !views.includes(schema.viewType as ViewType) && 
-       ['grid', 'kanban', 'calendar', 'timeline', 'gantt', 'map', 'gallery'].includes(schema.viewType)) {
-      views.push(schema.viewType as ViewType);
-    }
-    
-    return views;
-  }, [schema.options, schema.viewType]);
 
   const hasFilters = currentFilters.conditions && currentFilters.conditions.length > 0;
 
