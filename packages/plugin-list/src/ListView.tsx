@@ -179,20 +179,47 @@ export const ListView: React.FC<ListViewProps> = ({
 
   // Available view types based on schema configuration
   const availableViews = React.useMemo(() => {
-    const views: ViewType[] = ['grid', 'list'];
+    const views: ViewType[] = ['grid', 'list', 'spreadsheet'];
     
+    // Check for Kanban capabilities
     if (schema.options?.kanban?.groupField) {
       views.push('kanban');
     }
+    
+    // Check for Calendar capabilities
     if (schema.options?.calendar?.startDateField) {
       views.push('calendar');
     }
+    
+    // Check for Timeline capabilities
+    if (schema.options?.timeline?.dateField || schema.options?.calendar?.startDateField) {
+      views.push('timeline');
+    }
+    
+    // Check for Gantt capabilities
+    if (schema.options?.gantt?.startDateField) {
+      views.push('gantt');
+    }
+    
+    // Check for Map capabilities
+    if (schema.options?.map?.locationField) {
+      views.push('map');
+    }
+    
+    // Check for Chart capabilities
     if (schema.options?.chart) {
       views.push('chart');
     }
+
+    // Always allow switching back to the viewType defined in schema if it's one of the supported types
+    // This ensures that if a view is configured as "map", the map button is shown even if we missed the options check above
+    if (schema.viewType && !views.includes(schema.viewType as ViewType) && 
+       ['grid', 'list', 'kanban', 'calendar', 'spreadsheet', 'timeline', 'gantt', 'map', 'chart', 'gallery'].includes(schema.viewType)) {
+      views.push(schema.viewType as ViewType);
+    }
     
     return views;
-  }, [schema.options]);
+  }, [schema.options, schema.viewType]);
 
   return (
     <div className={cn('flex flex-col gap-4', className)}>
