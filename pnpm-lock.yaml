@@ -18,8 +18,8 @@ importers:
         specifier: ^1.19.9
         version: 1.19.9(hono@4.11.7)
       '@objectstack/plugin-hono-server':
-        specifier: ^1.0.1
-        version: 1.0.1(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(pino@8.21.0)
       coverage-v8:
         specifier: 0.0.1-security
         version: 0.0.1-security
@@ -40,23 +40,23 @@ importers:
         specifier: ^9.39.1
         version: 9.39.2
       '@objectstack/cli':
-        specifier: ^1.0.1
-        version: 1.0.1(@objectstack/core@1.0.1(pino@8.21.0))(esbuild@0.27.2)(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(@objectstack/core@1.0.4(pino@8.21.0))(esbuild@0.27.2)(pino@8.21.0)
       '@objectstack/core':
-        specifier: ^1.0.1
-        version: 1.0.1(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(pino@8.21.0)
       '@objectstack/driver-memory':
-        specifier: ^1.0.1
-        version: 1.0.1(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(pino@8.21.0)
       '@objectstack/objectql':
-        specifier: ^1.0.1
-        version: 1.0.1(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(pino@8.21.0)
       '@objectstack/plugin-msw':
-        specifier: ^1.0.1
-        version: 1.0.1(@objectstack/runtime@1.0.1(pino@8.21.0))(@types/node@25.2.0)(pino@8.21.0)(typescript@5.9.3)
+        specifier: ^1.0.4
+        version: 1.0.4(@objectstack/runtime@1.0.4(pino@8.21.0))(@types/node@25.2.0)(pino@8.21.0)(typescript@5.9.3)
       '@objectstack/runtime':
-        specifier: ^1.0.1
-        version: 1.0.1(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(pino@8.21.0)
       '@storybook/addon-essentials':
         specifier: ^8.6.14
         version: 8.6.14(@types/react@19.2.10)(storybook@8.6.15(prettier@3.8.1))
@@ -244,23 +244,23 @@ importers:
         specifier: workspace:*
         version: link:../../packages/types
       '@objectstack/client':
-        specifier: ^1.0.1
-        version: 1.0.1(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(pino@8.21.0)
       '@objectstack/driver-memory':
-        specifier: ^1.0.1
-        version: 1.0.1(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(pino@8.21.0)
       '@objectstack/objectql':
-        specifier: ^1.0.1
-        version: 1.0.1(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(pino@8.21.0)
       '@objectstack/plugin-msw':
-        specifier: ^1.0.1
-        version: 1.0.1(@objectstack/runtime@1.0.1(pino@8.21.0))(@types/node@25.2.0)(pino@8.21.0)(typescript@5.9.3)
+        specifier: ^1.0.4
+        version: 1.0.4(@objectstack/runtime@1.0.4(pino@8.21.0))(@types/node@25.2.0)(pino@8.21.0)(typescript@5.9.3)
       '@objectstack/runtime':
-        specifier: ^1.0.1
-        version: 1.0.1(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(pino@8.21.0)
       '@objectstack/spec':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.4
+        version: 1.0.4
       lucide-react:
         specifier: ^0.563.0
         version: 0.563.0(react@19.2.4)
@@ -275,8 +275,8 @@ importers:
         version: 7.13.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
     devDependencies:
       '@objectstack/cli':
-        specifier: ^1.0.1
-        version: 1.0.1(@objectstack/core@1.0.1(pino@8.21.0))(esbuild@0.27.2)(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(@objectstack/core@1.0.4(pino@8.21.0))(esbuild@0.27.2)(pino@8.21.0)
       '@tailwindcss/postcss':
         specifier: ^4.1.18
         version: 4.1.18
@@ -453,21 +453,21 @@ importers:
   examples/crm:
     dependencies:
       '@objectstack/core':
-        specifier: ^1.0.1
-        version: 1.0.1(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(pino@8.21.0)
       '@objectstack/runtime':
-        specifier: ^1.0.1
-        version: 1.0.1(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(pino@8.21.0)
       '@objectstack/spec':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.4
+        version: 1.0.4
       pino:
         specifier: ^8.21.0
         version: 8.21.0
     devDependencies:
       '@objectstack/cli':
-        specifier: ^1.0.1
-        version: 1.0.1(@objectstack/core@1.0.1(pino@8.21.0))(esbuild@0.27.2)(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(@objectstack/core@1.0.4(pino@8.21.0))(esbuild@0.27.2)(pino@8.21.0)
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
@@ -475,12 +475,12 @@ importers:
   examples/kitchen-sink:
     dependencies:
       '@objectstack/spec':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.4
+        version: 1.0.4
     devDependencies:
       '@objectstack/cli':
-        specifier: ^1.0.1
-        version: 1.0.1(@objectstack/core@1.0.1(pino@8.21.0))(esbuild@0.27.2)(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(@objectstack/core@1.0.4(pino@8.21.0))(esbuild@0.27.2)(pino@8.21.0)
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
@@ -491,23 +491,23 @@ importers:
         specifier: workspace:*
         version: link:../todo
       '@objectstack/client':
-        specifier: ^1.0.1
-        version: 1.0.1(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(pino@8.21.0)
       '@objectstack/driver-memory':
-        specifier: ^1.0.1
-        version: 1.0.1(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(pino@8.21.0)
       '@objectstack/objectql':
-        specifier: ^1.0.1
-        version: 1.0.1(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(pino@8.21.0)
       '@objectstack/plugin-msw':
-        specifier: ^1.0.1
-        version: 1.0.1(@objectstack/runtime@1.0.1(pino@8.21.0))(@types/node@25.2.0)(pino@8.21.0)(typescript@5.9.3)
+        specifier: ^1.0.4
+        version: 1.0.4(@objectstack/runtime@1.0.4(pino@8.21.0))(@types/node@25.2.0)(pino@8.21.0)(typescript@5.9.3)
       '@objectstack/runtime':
-        specifier: ^1.0.1
-        version: 1.0.1(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(pino@8.21.0)
       '@objectstack/spec':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.4
+        version: 1.0.4
       react:
         specifier: 19.2.4
         version: 19.2.4
@@ -549,15 +549,15 @@ importers:
   examples/todo:
     dependencies:
       '@objectstack/client':
-        specifier: ^1.0.1
-        version: 1.0.1(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(pino@8.21.0)
       '@objectstack/spec':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.4
+        version: 1.0.4
     devDependencies:
       '@objectstack/cli':
-        specifier: ^1.0.1
-        version: 1.0.1(@objectstack/core@1.0.1(pino@8.21.0))(esbuild@0.27.2)(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(@objectstack/core@1.0.4(pino@8.21.0))(esbuild@0.27.2)(pino@8.21.0)
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
@@ -825,8 +825,8 @@ importers:
         specifier: workspace:*
         version: link:../types
       '@objectstack/spec':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.4
+        version: 1.0.4
       lodash:
         specifier: ^4.17.23
         version: 4.17.23
@@ -884,8 +884,8 @@ importers:
         specifier: workspace:*
         version: link:../types
       '@objectstack/client':
-        specifier: ^1.0.1
-        version: 1.0.1(pino@8.21.0)
+        specifier: ^1.0.4
+        version: 1.0.4(pino@8.21.0)
     devDependencies:
       tsup:
         specifier: ^8.0.1
@@ -1384,8 +1384,8 @@ importers:
         specifier: workspace:*
         version: link:../types
       '@objectstack/spec':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.4
+        version: 1.0.4
       lucide-react:
         specifier: ^0.563.0
         version: 0.563.0(react@19.2.4)
@@ -1583,8 +1583,8 @@ importers:
         specifier: workspace:*
         version: link:../types
       '@objectstack/spec':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.4
+        version: 1.0.4
       lucide-react:
         specifier: ^0.563.0
         version: 0.563.0(react@19.2.4)
@@ -1687,8 +1687,8 @@ importers:
         specifier: workspace:*
         version: link:../types
       '@objectstack/spec':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.4
+        version: 1.0.4
       react:
         specifier: 19.2.4
         version: 19.2.4
@@ -1770,8 +1770,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@objectstack/spec':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.4
+        version: 1.0.4
       react:
         specifier: 19.2.4
         version: 19.2.4
@@ -1865,8 +1865,8 @@ importers:
   packages/types:
     dependencies:
       '@objectstack/spec':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.4
+        version: 1.0.4
       zod:
         specifier: ^4.3.6
         version: 4.3.6
@@ -2949,105 +2949,89 @@ packages:
     resolution: {integrity: sha512-excjX8DfsIcJ10x1Kzr4RcWe1edC9PquDRRPx3YVCvQv+U5p7Yin2s32ftzikXojb1PIFc/9Mt28/y+iRklkrw==}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@img/sharp-libvips-linux-arm@1.2.4':
     resolution: {integrity: sha512-bFI7xcKFELdiNCVov8e44Ia4u2byA+l3XtsAj+Q8tfCwO6BQ8iDojYdvoPMqsKDkuoOo+X6HZA0s0q11ANMQ8A==}
     cpu: [arm]
     os: [linux]
-    libc: [glibc]
 
   '@img/sharp-libvips-linux-ppc64@1.2.4':
     resolution: {integrity: sha512-FMuvGijLDYG6lW+b/UvyilUWu5Ayu+3r2d1S8notiGCIyYU/76eig1UfMmkZ7vwgOrzKzlQbFSuQfgm7GYUPpA==}
     cpu: [ppc64]
     os: [linux]
-    libc: [glibc]
 
   '@img/sharp-libvips-linux-riscv64@1.2.4':
     resolution: {integrity: sha512-oVDbcR4zUC0ce82teubSm+x6ETixtKZBh/qbREIOcI3cULzDyb18Sr/Wcyx7NRQeQzOiHTNbZFF1UwPS2scyGA==}
     cpu: [riscv64]
     os: [linux]
-    libc: [glibc]
 
   '@img/sharp-libvips-linux-s390x@1.2.4':
     resolution: {integrity: sha512-qmp9VrzgPgMoGZyPvrQHqk02uyjA0/QrTO26Tqk6l4ZV0MPWIW6LTkqOIov+J1yEu7MbFQaDpwdwJKhbJvuRxQ==}
     cpu: [s390x]
     os: [linux]
-    libc: [glibc]
 
   '@img/sharp-libvips-linux-x64@1.2.4':
     resolution: {integrity: sha512-tJxiiLsmHc9Ax1bz3oaOYBURTXGIRDODBqhveVHonrHJ9/+k89qbLl0bcJns+e4t4rvaNBxaEZsFtSfAdquPrw==}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@img/sharp-libvips-linuxmusl-arm64@1.2.4':
     resolution: {integrity: sha512-FVQHuwx1IIuNow9QAbYUzJ+En8KcVm9Lk5+uGUQJHaZmMECZmOlix9HnH7n1TRkXMS0pGxIJokIVB9SuqZGGXw==}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@img/sharp-libvips-linuxmusl-x64@1.2.4':
     resolution: {integrity: sha512-+LpyBk7L44ZIXwz/VYfglaX/okxezESc6UxDSoyo2Ks6Jxc4Y7sGjpgU9s4PMgqgjj1gZCylTieNamqA1MF7Dg==}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@img/sharp-linux-arm64@0.34.5':
     resolution: {integrity: sha512-bKQzaJRY/bkPOXyKx5EVup7qkaojECG6NLYswgktOZjaXecSAeCWiZwwiFf3/Y+O1HrauiE3FVsGxFg8c24rZg==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@img/sharp-linux-arm@0.34.5':
     resolution: {integrity: sha512-9dLqsvwtg1uuXBGZKsxem9595+ujv0sJ6Vi8wcTANSFpwV/GONat5eCkzQo/1O6zRIkh0m/8+5BjrRr7jDUSZw==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [arm]
     os: [linux]
-    libc: [glibc]
 
   '@img/sharp-linux-ppc64@0.34.5':
     resolution: {integrity: sha512-7zznwNaqW6YtsfrGGDA6BRkISKAAE1Jo0QdpNYXNMHu2+0dTrPflTLNkpc8l7MUP5M16ZJcUvysVWWrMefZquA==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [ppc64]
     os: [linux]
-    libc: [glibc]
 
   '@img/sharp-linux-riscv64@0.34.5':
     resolution: {integrity: sha512-51gJuLPTKa7piYPaVs8GmByo7/U7/7TZOq+cnXJIHZKavIRHAP77e3N2HEl3dgiqdD/w0yUfiJnII77PuDDFdw==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [riscv64]
     os: [linux]
-    libc: [glibc]
 
   '@img/sharp-linux-s390x@0.34.5':
     resolution: {integrity: sha512-nQtCk0PdKfho3eC5MrbQoigJ2gd1CgddUMkabUj+rBevs8tZ2cULOx46E7oyX+04WGfABgIwmMC0VqieTiR4jg==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [s390x]
     os: [linux]
-    libc: [glibc]
 
   '@img/sharp-linux-x64@0.34.5':
     resolution: {integrity: sha512-MEzd8HPKxVxVenwAa+JRPwEC7QFjoPWuS5NZnBt6B3pu7EG2Ge0id1oLHZpPJdn3OQK+BQDiw9zStiHBTJQQQQ==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@img/sharp-linuxmusl-arm64@0.34.5':
     resolution: {integrity: sha512-fprJR6GtRsMt6Kyfq44IsChVZeGN97gTD331weR1ex1c1rypDEABN6Tm2xa1wE6lYb5DdEnk03NZPqA7Id21yg==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@img/sharp-linuxmusl-x64@0.34.5':
     resolution: {integrity: sha512-Jg8wNT1MUzIvhBFxViqrEhWDGzqymo3sV7z7ZsaWbZNDLXRJZoRGrjulp60YYtV4wfY8VIKcWidjojlLcWrd8Q==}
     engines: {node: ^18.17.0 || ^20.3.0 || >=21.0.0}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@img/sharp-wasm32@0.34.5':
     resolution: {integrity: sha512-OdWTEiVkY2PHwqkbBI8frFxQQFekHaSSkUIJkwzclWZe64O1X4UlUjqqqLaPbUpMOQk6FBu/HtlGXNblIs0huw==}
@@ -3363,28 +3347,24 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@next/swc-linux-arm64-musl@16.1.6':
     resolution: {integrity: sha512-S4J2v+8tT3NIO9u2q+S0G5KdvNDjXfAv06OhfOzNDaBn5rw84DGXWndOEB7d5/x852A20sW1M56vhC/tRVbccQ==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@next/swc-linux-x64-gnu@16.1.6':
     resolution: {integrity: sha512-2eEBDkFlMMNQnkTyPBhQOAyn2qMxyG2eE7GPH2WIDGEpEILcBPI/jdSv4t6xupSP+ot/jkfrCShLAa7+ZUPcJQ==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@next/swc-linux-x64-musl@16.1.6':
     resolution: {integrity: sha512-oicJwRlyOoZXVlxmIMaTq7f8pN9QNbdes0q2FXfRsPhfCi8n8JmOZJm5oo1pwDaFbnnD421rVU409M3evFbIqg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@next/swc-win32-arm64-msvc@16.1.6':
     resolution: {integrity: sha512-gQmm8izDTPgs+DCWH22kcDmuUp7NyiJgEl18bcr8irXA5N2m2O+JQIr6f3ct42GOs9c0h8QF3L5SzIxcYAAXXw==}
@@ -3422,46 +3402,52 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@objectstack/cli@1.0.1':
-    resolution: {integrity: sha512-ErDl+VUx+Z4dKlC7bFAu+eKaVBa7gekbg/VGgkiig7g6hK/ZJFWQp8LYnCrHgTykVtc9r7QT7kUH/XOAK8DDYA==}
+  '@objectstack/cli@1.0.4':
+    resolution: {integrity: sha512-/XaHriLSNNOxRZS7G4jtFxgAQG4XVEb//ssMX5UUkOzYdcT5LTztuM5Ovr6VbSd8jeEmI6ohfrR4CzhxkE5dbA==}
     hasBin: true
     peerDependencies:
-      '@objectstack/core': ^1.0.1
+      '@objectstack/core': ^1.0.4
 
-  '@objectstack/client@1.0.1':
-    resolution: {integrity: sha512-gV+RbZqBcu0lUKO7ghhQ3wdn9lU3YM1r5QKjG1ieIPol8NL6UD/QWyYJ0XYiyO9k+y1mdHrGuIU2YQyVwCLbOA==}
+  '@objectstack/client@1.0.4':
+    resolution: {integrity: sha512-3u9yWPYcNNB4WAT989ccdhflmb6LbixeaZVLClz9FZBTK/9eKTWjen33G+7GisUK4PO0ggebFkqafxGYLZAKHw==}
 
-  '@objectstack/core@1.0.1':
-    resolution: {integrity: sha512-T9kvVvbRg6fj9lree4TStrKdfSOduDBsmc1TyH/bPfo1Kxm9DvpFh3w4NcEmrbAEIbuRgtEShZtl4qnoVkYDAQ==}
+  '@objectstack/core@1.0.4':
+    resolution: {integrity: sha512-koUkutViV4EF7X15bCctwEzjoiSKtnRAA0UorS79TC/K4PBUvAwDg0vpdVHgGCxmVdXugXeViROQryIGs+WYvA==}
     peerDependencies:
       pino: ^8.0.0
     peerDependenciesMeta:
       pino:
         optional: true
 
-  '@objectstack/driver-memory@1.0.1':
-    resolution: {integrity: sha512-YmsXZRyvJks5kQne08JfFgL1iyhHXGzC+Pvmkpknm0GQywdFyCFKDmpg+3ChT0BT6bDASIqe7NT3KWhE9hGaNw==}
+  '@objectstack/driver-memory@1.0.4':
+    resolution: {integrity: sha512-fU87iHiFKCtJkTiLPxjKjQknFMTV7+r4DmwxbI0Z+Knt02h9Dti5D82xI8gqN5zzMV0x4nl2WUeVbPB97DXLVw==}
 
-  '@objectstack/objectql@1.0.1':
-    resolution: {integrity: sha512-4haPtaKbSMM5tFRAlvVB2YMAYJltBxuKrPBJwJ7yYyjAhxXIb8ciM2FeIexcR4ib8ZVB0YLJeaS3YH37HHNIXw==}
-
-  '@objectstack/plugin-hono-server@1.0.1':
-    resolution: {integrity: sha512-LY3hqKPNPRr/aoF70kOOm8QtjdY6YujntrOxgOUy95TVxjFm28bhxcEHJySa9rj/RMMHAMY00vytvyyCkRVv0A==}
-
-  '@objectstack/plugin-msw@1.0.1':
-    resolution: {integrity: sha512-hztD4hx0La/lmkarSTlDCTDvcTvCtJq0d2YdBPvNrY6bLpxpaLDVjQoYWmcHH8lSrZ8p26jdQ2YAsRlrZy1jiw==}
+  '@objectstack/hono@1.0.4':
+    resolution: {integrity: sha512-gvpkTcRh1z3oue/wr41aYYPTEoO98SVB96PeItn1ZUqH9GyrtMgMp0SZE/bonC4VO5qUS3A6LMNwq35wjA6F3w==}
     peerDependencies:
-      '@objectstack/runtime': ^1.0.1
+      '@objectstack/runtime': 1.0.4
+      hono: ^4.0.0
 
-  '@objectstack/runtime@1.0.1':
-    resolution: {integrity: sha512-QCN9gAcd36Y+ShXtroZ6KHZUqiExG4ptsIQQepMB0lF3LUs4nIwMaI7D1kgSs59uXtRf4LsrimHzNW0BG07FVw==}
+  '@objectstack/objectql@1.0.4':
+    resolution: {integrity: sha512-E8EdNZQq8YA/tjI6sMiD7sVWrSJk1koRqsTmXr0Pb7taW5UxzvmFfaXbQ2s86n+NIdSCbKcjEVTGMtk8NFgT+w==}
 
-  '@objectstack/spec@1.0.1':
-    resolution: {integrity: sha512-1DSBQnoxjWpZw4noa+lci5ydSx2eg6Z609eB8HAlSWbNcwfJ5vJ77R/iHUYlwgQrCFHlfjT645vM+ztJMh+2bA==}
+  '@objectstack/plugin-hono-server@1.0.4':
+    resolution: {integrity: sha512-A8k2efD8/jycCAZlioi5n/aaNivtS3j2AJJYMHl7BDmDQRs3xGjseGcsvXF8MmsSbZVwdjpx/maeXEBeKrzK8A==}
+
+  '@objectstack/plugin-msw@1.0.4':
+    resolution: {integrity: sha512-6XXKeoWk3JkSK4/XxKjfwjvsvhFygp6I5fz6cpENjjRS0fm8GNQQTggTZmlWxut3tYCcYoVSDWzQdcOV1/IHzg==}
+    peerDependencies:
+      '@objectstack/runtime': ^1.0.4
+
+  '@objectstack/runtime@1.0.4':
+    resolution: {integrity: sha512-E9DlUWw5L75t3VSGoT2cu/FZyJ8iMWeZj4i8BpP41iVPvgQnDoP4Zs5Jt1vzEkSPqDVqZBvhe3ghwTqvubCpQQ==}
+
+  '@objectstack/spec@1.0.4':
+    resolution: {integrity: sha512-96wDWStvviQFwfwFsQ6b+RNv7MbhqgFcWYYO7apx5E06HdZMbHkWqu9rPIzzTDk3iQF8k5LqvQXGfLVSfHij8A==}
     engines: {node: '>=18.0.0'}
 
-  '@objectstack/types@1.0.1':
-    resolution: {integrity: sha512-mqsOxFqzbao9ZXxrF01uBGYCG2TR+afpZzMP9GWbZtFMMxBRVCWWMsYS12VOoStvas+BJsyVP4ob/nhfivnIXA==}
+  '@objectstack/types@1.0.4':
+    resolution: {integrity: sha512-lWG+14arM9dpSOFThIgSvlEMhdbhIqvBt/CyztDjig1mr+t+BwB6DGPdsHUL+SHhY8vuThoV7OHsq94KERErKg==}
 
   '@open-draft/deferred-promise@2.2.0':
     resolution: {integrity: sha512-CecwLWx3rhxVQF6V4bAgPS5t+So2sTbPgAzafKkVizyi7tlwpcFpdFqq+wqF2OwNBmqFuu6tOyouTuxgpMfzmA==}
@@ -4200,79 +4186,66 @@ packages:
     resolution: {integrity: sha512-F8sWbhZ7tyuEfsmOxwc2giKDQzN3+kuBLPwwZGyVkLlKGdV1nvnNwYD0fKQ8+XS6hp9nY7B+ZeK01EBUE7aHaw==}
     cpu: [arm]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-arm-musleabihf@4.57.1':
     resolution: {integrity: sha512-rGfNUfn0GIeXtBP1wL5MnzSj98+PZe/AXaGBCRmT0ts80lU5CATYGxXukeTX39XBKsxzFpEeK+Mrp9faXOlmrw==}
     cpu: [arm]
     os: [linux]
-    libc: [musl]
 
   '@rollup/rollup-linux-arm64-gnu@4.57.1':
     resolution: {integrity: sha512-MMtej3YHWeg/0klK2Qodf3yrNzz6CGjo2UntLvk2RSPlhzgLvYEB3frRvbEF2wRKh1Z2fDIg9KRPe1fawv7C+g==}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-arm64-musl@4.57.1':
     resolution: {integrity: sha512-1a/qhaaOXhqXGpMFMET9VqwZakkljWHLmZOX48R0I/YLbhdxr1m4gtG1Hq7++VhVUmf+L3sTAf9op4JlhQ5u1Q==}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@rollup/rollup-linux-loong64-gnu@4.57.1':
     resolution: {integrity: sha512-QWO6RQTZ/cqYtJMtxhkRkidoNGXc7ERPbZN7dVW5SdURuLeVU7lwKMpo18XdcmpWYd0qsP1bwKPf7DNSUinhvA==}
     cpu: [loong64]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-loong64-musl@4.57.1':
     resolution: {integrity: sha512-xpObYIf+8gprgWaPP32xiN5RVTi/s5FCR+XMXSKmhfoJjrpRAjCuuqQXyxUa/eJTdAE6eJ+KDKaoEqjZQxh3Gw==}
     cpu: [loong64]
     os: [linux]
-    libc: [musl]
 
   '@rollup/rollup-linux-ppc64-gnu@4.57.1':
     resolution: {integrity: sha512-4BrCgrpZo4hvzMDKRqEaW1zeecScDCR+2nZ86ATLhAoJ5FQ+lbHVD3ttKe74/c7tNT9c6F2viwB3ufwp01Oh2w==}
     cpu: [ppc64]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-ppc64-musl@4.57.1':
     resolution: {integrity: sha512-NOlUuzesGauESAyEYFSe3QTUguL+lvrN1HtwEEsU2rOwdUDeTMJdO5dUYl/2hKf9jWydJrO9OL/XSSf65R5+Xw==}
     cpu: [ppc64]
     os: [linux]
-    libc: [musl]
 
   '@rollup/rollup-linux-riscv64-gnu@4.57.1':
     resolution: {integrity: sha512-ptA88htVp0AwUUqhVghwDIKlvJMD/fmL/wrQj99PRHFRAG6Z5nbWoWG4o81Nt9FT+IuqUQi+L31ZKAFeJ5Is+A==}
     cpu: [riscv64]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-riscv64-musl@4.57.1':
     resolution: {integrity: sha512-S51t7aMMTNdmAMPpBg7OOsTdn4tySRQvklmL3RpDRyknk87+Sp3xaumlatU+ppQ+5raY7sSTcC2beGgvhENfuw==}
     cpu: [riscv64]
     os: [linux]
-    libc: [musl]
 
   '@rollup/rollup-linux-s390x-gnu@4.57.1':
     resolution: {integrity: sha512-Bl00OFnVFkL82FHbEqy3k5CUCKH6OEJL54KCyx2oqsmZnFTR8IoNqBF+mjQVcRCT5sB6yOvK8A37LNm/kPJiZg==}
     cpu: [s390x]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-x64-gnu@4.57.1':
     resolution: {integrity: sha512-ABca4ceT4N+Tv/GtotnWAeXZUZuM/9AQyCyKYyKnpk4yoA7QIAuBt6Hkgpw8kActYlew2mvckXkvx0FfoInnLg==}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-linux-x64-musl@4.57.1':
     resolution: {integrity: sha512-HFps0JeGtuOR2convgRRkHCekD7j+gdAuXM+/i6kGzQtFhlCtQkpwtNzkNj6QhCDp7DRJ7+qC/1Vg2jt5iSOFw==}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@rollup/rollup-openbsd-x64@4.57.1':
     resolution: {integrity: sha512-H+hXEv9gdVQuDTgnqD+SQffoWoc0Of59AStSzTEj/feWTBAnSfSD3+Dql1ZruJQxmykT/JVY0dE8Ka7z0DH1hw==}
@@ -4656,28 +4629,24 @@ packages:
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@swc/core-linux-arm64-musl@1.15.11':
     resolution: {integrity: sha512-PYftgsTaGnfDK4m6/dty9ryK1FbLk+LosDJ/RJR2nkXGc8rd+WenXIlvHjWULiBVnS1RsjHHOXmTS4nDhe0v0w==}
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@swc/core-linux-x64-gnu@1.15.11':
     resolution: {integrity: sha512-DKtnJKIHiZdARyTKiX7zdRjiDS1KihkQWatQiCHMv+zc2sfwb4Glrodx2VLOX4rsa92NLR0Sw8WLcPEMFY1szQ==}
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@swc/core-linux-x64-musl@1.15.11':
     resolution: {integrity: sha512-mUjjntHj4+8WBaiDe5UwRNHuEzLjIWBTSGTw0JT9+C9/Yyuh4KQqlcEQ3ro6GkHmBGXBFpGIj/o5VMyRWfVfWw==}
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@swc/core-win32-arm64-msvc@1.15.11':
     resolution: {integrity: sha512-ZkNNG5zL49YpaFzfl6fskNOSxtcZ5uOYmWBkY4wVAvgbSAQzLRVBp+xArGWh2oXlY/WgL99zQSGTv7RI5E6nzA==}
@@ -4759,28 +4728,24 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@tailwindcss/oxide-linux-arm64-musl@4.1.18':
     resolution: {integrity: sha512-1px92582HkPQlaaCkdRcio71p8bc8i/ap5807tPRDK/uw953cauQBT8c5tVGkOwrHMfc2Yh6UuxaH4vtTjGvHg==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@tailwindcss/oxide-linux-x64-gnu@4.1.18':
     resolution: {integrity: sha512-v3gyT0ivkfBLoZGF9LyHmts0Isc8jHZyVcbzio6Wpzifg/+5ZJpDiRiUhDLkcr7f/r38SWNe7ucxmGW3j3Kb/g==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@tailwindcss/oxide-linux-x64-musl@4.1.18':
     resolution: {integrity: sha512-bhJ2y2OQNlcRwwgOAGMY0xTFStt4/wyU6pvI6LSuZpRgKQwxTec0/3Scu91O8ir7qCR3AuepQKLU/kX99FouqQ==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@tailwindcss/oxide-wasm32-wasi@4.1.18':
     resolution: {integrity: sha512-LffYTvPjODiP6PT16oNeUQJzNVyJl1cjIebq/rWWBF+3eDst5JGEFSc5cWxyRCJ0Mxl+KyIkqRxk1XPEs9x8TA==}
@@ -5207,49 +5172,41 @@ packages:
     resolution: {integrity: sha512-34gw7PjDGB9JgePJEmhEqBhWvCiiWCuXsL9hYphDF7crW7UgI05gyBAi6MF58uGcMOiOqSJ2ybEeCvHcq0BCmQ==}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@unrs/resolver-binding-linux-arm64-musl@1.11.1':
     resolution: {integrity: sha512-RyMIx6Uf53hhOtJDIamSbTskA99sPHS96wxVE/bJtePJJtpdKGXO1wY90oRdXuYOGOTuqjT8ACccMc4K6QmT3w==}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@unrs/resolver-binding-linux-ppc64-gnu@1.11.1':
     resolution: {integrity: sha512-D8Vae74A4/a+mZH0FbOkFJL9DSK2R6TFPC9M+jCWYia/q2einCubX10pecpDiTmkJVUH+y8K3BZClycD8nCShA==}
     cpu: [ppc64]
     os: [linux]
-    libc: [glibc]
 
   '@unrs/resolver-binding-linux-riscv64-gnu@1.11.1':
     resolution: {integrity: sha512-frxL4OrzOWVVsOc96+V3aqTIQl1O2TjgExV4EKgRY09AJ9leZpEg8Ak9phadbuX0BA4k8U5qtvMSQQGGmaJqcQ==}
     cpu: [riscv64]
     os: [linux]
-    libc: [glibc]
 
   '@unrs/resolver-binding-linux-riscv64-musl@1.11.1':
     resolution: {integrity: sha512-mJ5vuDaIZ+l/acv01sHoXfpnyrNKOk/3aDoEdLO/Xtn9HuZlDD6jKxHlkN8ZhWyLJsRBxfv9GYM2utQ1SChKew==}
     cpu: [riscv64]
     os: [linux]
-    libc: [musl]
 
   '@unrs/resolver-binding-linux-s390x-gnu@1.11.1':
     resolution: {integrity: sha512-kELo8ebBVtb9sA7rMe1Cph4QHreByhaZ2QEADd9NzIQsYNQpt9UkM9iqr2lhGr5afh885d/cB5QeTXSbZHTYPg==}
     cpu: [s390x]
     os: [linux]
-    libc: [glibc]
 
   '@unrs/resolver-binding-linux-x64-gnu@1.11.1':
     resolution: {integrity: sha512-C3ZAHugKgovV5YvAMsxhq0gtXuwESUKc5MhEtjBpLoHPLYM+iuwSj3lflFwK3DPm68660rZ7G8BMcwSro7hD5w==}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@unrs/resolver-binding-linux-x64-musl@1.11.1':
     resolution: {integrity: sha512-rV0YSoyhK2nZ4vEswT/QwqzqQXw5I6CjoaYMOX0TqBlWhojUf8P94mvI7nuJTeaCkkds3QE4+zS8Ko+GdXuZtA==}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@unrs/resolver-binding-wasm32-wasi@1.11.1':
     resolution: {integrity: sha512-5u4RkfxJm+Ng7IWgkzi3qrFOvLvQYnPBmjmZQ8+szTK/b31fQCnleNl1GgEt7nIsZRIf5PLhPwT0WM+q45x/UQ==}
@@ -7886,28 +7843,24 @@ packages:
     engines: {node: '>= 12.0.0'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   lightningcss-linux-arm64-musl@1.30.2:
     resolution: {integrity: sha512-5Vh9dGeblpTxWHpOx8iauV02popZDsCYMPIgiuw97OJ5uaDsL86cnqSFs5LZkG3ghHoX5isLgWzMs+eD1YzrnA==}
     engines: {node: '>= 12.0.0'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   lightningcss-linux-x64-gnu@1.30.2:
     resolution: {integrity: sha512-Cfd46gdmj1vQ+lR6VRTTadNHu6ALuw2pKR9lYq4FnhvgBc4zWY1EtZcAc6EffShbb1MFrIPfLDXD6Xprbnni4w==}
     engines: {node: '>= 12.0.0'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   lightningcss-linux-x64-musl@1.30.2:
     resolution: {integrity: sha512-XJaLUUFXb6/QG2lGIW6aIk6jKdtjtcffUT0NKvIqhSBY3hh9Ch+1LCeH80dR9q9LBjG3ewbDjnumefsLsP6aiA==}
     engines: {node: '>= 12.0.0'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   lightningcss-win32-arm64-msvc@1.30.2:
     resolution: {integrity: sha512-FZn+vaj7zLv//D/192WFFVA0RgHawIcHqLX9xuWiQt7P0PtdFEVaxgF9rjM/IRYHQXNnk61/H/gb2Ei+kUQ4xQ==}
@@ -12161,14 +12114,14 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
 
-  '@objectstack/cli@1.0.1(@objectstack/core@1.0.1(pino@8.21.0))(esbuild@0.27.2)(pino@8.21.0)':
+  '@objectstack/cli@1.0.4(@objectstack/core@1.0.4(pino@8.21.0))(esbuild@0.27.2)(pino@8.21.0)':
     dependencies:
-      '@objectstack/core': 1.0.1(pino@8.21.0)
-      '@objectstack/driver-memory': 1.0.1(pino@8.21.0)
-      '@objectstack/objectql': 1.0.1(pino@8.21.0)
-      '@objectstack/plugin-hono-server': 1.0.1(pino@8.21.0)
-      '@objectstack/runtime': 1.0.1(pino@8.21.0)
-      '@objectstack/spec': 1.0.1
+      '@objectstack/core': 1.0.4(pino@8.21.0)
+      '@objectstack/driver-memory': 1.0.4(pino@8.21.0)
+      '@objectstack/objectql': 1.0.4(pino@8.21.0)
+      '@objectstack/plugin-hono-server': 1.0.4(pino@8.21.0)
+      '@objectstack/runtime': 1.0.4(pino@8.21.0)
+      '@objectstack/spec': 1.0.4
       bundle-require: 5.1.0(esbuild@0.27.2)
       chalk: 5.6.2
       commander: 11.1.0
@@ -12178,73 +12131,81 @@ snapshots:
       - esbuild
       - pino
 
-  '@objectstack/client@1.0.1(pino@8.21.0)':
+  '@objectstack/client@1.0.4(pino@8.21.0)':
     dependencies:
-      '@objectstack/core': 1.0.1(pino@8.21.0)
-      '@objectstack/spec': 1.0.1
+      '@objectstack/core': 1.0.4(pino@8.21.0)
+      '@objectstack/spec': 1.0.4
     transitivePeerDependencies:
       - pino
 
-  '@objectstack/core@1.0.1(pino@8.21.0)':
+  '@objectstack/core@1.0.4(pino@8.21.0)':
     dependencies:
-      '@objectstack/spec': 1.0.1
+      '@objectstack/spec': 1.0.4
       pino-pretty: 10.3.1
       zod: 4.3.6
     optionalDependencies:
       pino: 8.21.0
 
-  '@objectstack/driver-memory@1.0.1(pino@8.21.0)':
+  '@objectstack/driver-memory@1.0.4(pino@8.21.0)':
     dependencies:
-      '@objectstack/core': 1.0.1(pino@8.21.0)
-      '@objectstack/spec': 1.0.1
+      '@objectstack/core': 1.0.4(pino@8.21.0)
+      '@objectstack/spec': 1.0.4
     transitivePeerDependencies:
       - pino
 
-  '@objectstack/objectql@1.0.1(pino@8.21.0)':
+  '@objectstack/hono@1.0.4(@objectstack/runtime@1.0.4(pino@8.21.0))(hono@4.11.7)':
     dependencies:
-      '@objectstack/core': 1.0.1(pino@8.21.0)
-      '@objectstack/spec': 1.0.1
-      '@objectstack/types': 1.0.1
+      '@objectstack/runtime': 1.0.4(pino@8.21.0)
+      hono: 4.11.7
+
+  '@objectstack/objectql@1.0.4(pino@8.21.0)':
+    dependencies:
+      '@objectstack/core': 1.0.4(pino@8.21.0)
+      '@objectstack/spec': 1.0.4
+      '@objectstack/types': 1.0.4
     transitivePeerDependencies:
       - pino
 
-  '@objectstack/plugin-hono-server@1.0.1(pino@8.21.0)':
+  '@objectstack/plugin-hono-server@1.0.4(pino@8.21.0)':
     dependencies:
       '@hono/node-server': 1.19.9(hono@4.11.7)
-      '@objectstack/core': 1.0.1(pino@8.21.0)
-      '@objectstack/spec': 1.0.1
-      '@objectstack/types': 1.0.1
+      '@objectstack/core': 1.0.4(pino@8.21.0)
+      '@objectstack/hono': 1.0.4(@objectstack/runtime@1.0.4(pino@8.21.0))(hono@4.11.7)
+      '@objectstack/runtime': 1.0.4(pino@8.21.0)
+      '@objectstack/spec': 1.0.4
+      '@objectstack/types': 1.0.4
       hono: 4.11.7
     transitivePeerDependencies:
       - pino
 
-  '@objectstack/plugin-msw@1.0.1(@objectstack/runtime@1.0.1(pino@8.21.0))(@types/node@25.2.0)(pino@8.21.0)(typescript@5.9.3)':
+  '@objectstack/plugin-msw@1.0.4(@objectstack/runtime@1.0.4(pino@8.21.0))(@types/node@25.2.0)(pino@8.21.0)(typescript@5.9.3)':
     dependencies:
-      '@objectstack/objectql': 1.0.1(pino@8.21.0)
-      '@objectstack/runtime': 1.0.1(pino@8.21.0)
-      '@objectstack/spec': 1.0.1
-      '@objectstack/types': 1.0.1
+      '@objectstack/core': 1.0.4(pino@8.21.0)
+      '@objectstack/objectql': 1.0.4(pino@8.21.0)
+      '@objectstack/runtime': 1.0.4(pino@8.21.0)
+      '@objectstack/spec': 1.0.4
+      '@objectstack/types': 1.0.4
       msw: 2.12.7(@types/node@25.2.0)(typescript@5.9.3)
     transitivePeerDependencies:
       - '@types/node'
       - pino
       - typescript
 
-  '@objectstack/runtime@1.0.1(pino@8.21.0)':
+  '@objectstack/runtime@1.0.4(pino@8.21.0)':
     dependencies:
-      '@objectstack/core': 1.0.1(pino@8.21.0)
-      '@objectstack/spec': 1.0.1
-      '@objectstack/types': 1.0.1
+      '@objectstack/core': 1.0.4(pino@8.21.0)
+      '@objectstack/spec': 1.0.4
+      '@objectstack/types': 1.0.4
     transitivePeerDependencies:
       - pino
 
-  '@objectstack/spec@1.0.1':
+  '@objectstack/spec@1.0.4':
     dependencies:
       zod: 3.25.76
 
-  '@objectstack/types@1.0.1':
+  '@objectstack/types@1.0.4':
     dependencies:
-      '@objectstack/spec': 1.0.1
+      '@objectstack/spec': 1.0.4
 
   '@open-draft/deferred-promise@2.2.0': {}
 
