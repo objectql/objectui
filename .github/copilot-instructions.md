@@ -162,7 +162,24 @@ export const SchemaRenderer = ({ schema }: { schema: UIComponent }) => {
   );
 };
 
-7. AI Workflow Instructions
+7. Debugging & Browser Simulation Strategy
+When debugging the simulated browser environment (e.g., `apps/console` in mock mode), strict adherence to the official toolchain is required.
+
+🔧 Rule #1: Official MSW Integration
+ * **Startup**: Use `@objectstack/plugin-msw` to initialize the mock API server. Do NOT write custom fetch interceptors or manual mock servers unless absolutely necessary.
+ * **Configuration**: Ensure the `MSWPlugin` is configured with the correct `baseUrl` (e.g., `/api/v1`) to match the client's expectations.
+
+📡 Rule #2: Client Data Fetching
+ * **Data Access**: Always use `@objectstack/client` for data fetching. Do not use raw `fetch` or `axios` directly in components.
+ * **Alignment**: Verify that the client's `baseUrl` matches the mock server's configuration.
+
+🐛 Rule #3: Upstream Fixes First
+ * **Principle**: If you encounter a bug or limitation in the official packages (`@objectstack/*`):
+   * **Action 1**: Do NOT rely solely on local workarounds (monkey-patching) in the app.
+   * **Action 2**: Prompt the user to modify the source code in the official packages (if available in the workspace) or report the issue.
+   * **Reasoning**: We prioritize fixing the core engine over patching individual apps.
+
+8. AI Workflow Instructions
 🟢 On "Create New Component" (e.g., 'DataTable')
  * Type Definition: Update @object-ui/types. Define DataTableSchema (columns, sorting, pagination).
  * Shadcn Mapping: Look at shadcn/ui/table. Create DataTableRenderer in @object-ui/components.

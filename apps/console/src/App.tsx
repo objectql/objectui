@@ -104,7 +104,7 @@ export function AppContent() {
 
   async function initializeClient() {
     try {
-      const stackClient = new ObjectStackClient({ baseUrl: '' });
+      const stackClient = new ObjectStackClient({ baseUrl: '/api/v1' });
       await new Promise(resolve => setTimeout(resolve, 500));
       await stackClient.connect();
       setClient(stackClient);
