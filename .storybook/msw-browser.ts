@@ -28,15 +28,16 @@ export async function startMockServer() {
   }
 
   const driver = new InMemoryDriver();
-  kernel = new ObjectKernel();
+  kernel = new ObjectKernel({
+    skipSystemValidation: true
+  });
 
   try {
-    kernel
-        .use(new ObjectQLPlugin())
-        .use(new DriverPlugin(driver, 'memory'));
+    await kernel.use(new ObjectQLPlugin());
+    await kernel.use(new DriverPlugin(driver, 'memory'));
 
     if (crmConfig) {
-        kernel.use(new AppPlugin(crmConfig));
+        await kernel.use(new AppPlugin(crmConfig));
     } else {
         console.error('❌ CRM Config is missing! Skipping AppPlugin.');
     }
@@ -47,7 +48,7 @@ export async function startMockServer() {
         logRequests: true
     });
 
-    kernel.use(mswPlugin);
+    await kernel.use(mswPlugin);
     
     console.log('[Storybook MSW] Bootstrapping kernel...');
     await kernel.bootstrap();

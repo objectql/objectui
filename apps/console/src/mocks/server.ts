@@ -27,12 +27,13 @@ export async function startMockServer() {
   driver = new InMemoryDriver();
 
   // Create kernel
-  kernel = new ObjectKernel();
+  kernel = new ObjectKernel({
+    skipSystemValidation: true
+  });
   
-  kernel
-    .use(new ObjectQLPlugin())
-    .use(new DriverPlugin(driver, 'memory'))
-    .use(new AppPlugin(appConfig));
+  await kernel.use(new ObjectQLPlugin());
+  await kernel.use(new DriverPlugin(driver, 'memory'));
+  await kernel.use(new AppPlugin(appConfig));
   
   // Bootstrap kernel WITHOUT MSW plugin (we'll handle MSW separately for tests)
   await kernel.bootstrap();
@@ -51,9 +52,10 @@ export async function startMockServer() {
     }
   }
 
-  // Create MSW handlers manually
-  const baseUrl = 'http://localhost:3000/api/v1';
-  const handlers = createHandlers(baseUrl, kernel, driver!);
+  // Create MSW handlers manually for both paths to ensure compatibility with client defaults
+  const v1Handlers = createHandlers('http://localhost:3000/api/v1', kernel, driver!);
+  const legacyHandlers = createHandlers('http://localhost:3000/api', kernel, driver!);
+  const handlers = [...v1Handlers, ...legacyHandlers];
   
   // Setup MSW server for Node.js environment
   server = setupServer(...handlers);
@@ -179,14 +181,17 @@ function createHandlers(baseUrl: string, kernel: ObjectKernel, driver: InMemoryD
     http.get(`${baseUrl}/data/:objectName/:id`, async ({ params }) => {
       try {
         console.log('MSW: getData', params.objectName, params.id);
-        // Use driver directly
-        // Try simple find first
-        const records = await driver.find(params.objectName as string, {
-            object: params.objectName as string,
-            where: [['_id', '=', params.id]]
+        
+        // Fetch ALL records for the object to ensure we find it regardless of driver query syntax quirks
+        const allRecords = await driver.find(params.objectName as string, {
+            object: params.objectName as string
         });
-        // Manual filter to ensure we get the correct record if driver ignores filters
-        const record = records ? records.find((r: any) => r.id === params.id || r._id === params.id) : null;
+
+        // Manual filter
+        const record = allRecords ? allRecords.find((r: any) => 
+            String(r.id) === String(params.id) || 
+            String(r._id) === String(params.id)
+        ) : null;
         
         console.log('MSW: getData result', JSON.stringify(record));
         return HttpResponse.json(record, { status: record ? 200 : 404 });

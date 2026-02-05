@@ -25,25 +25,26 @@ async function startServer() {
     // Initialize Kernel
     const kernel = new ObjectKernel({
       logger,
+      skipSystemValidation: true
     });
 
     // 1. Core Engine (ObjectQL)
     const qlPlugin = new ObjectQLPlugin();
-    kernel.use(qlPlugin);
+    await kernel.use(qlPlugin);
 
     // 2. Data Driver (Memory)
     const memoryDriver = new InMemoryDriver();
     const driverPlugin = new DriverPlugin(memoryDriver);
-    kernel.use(driverPlugin);
+    await kernel.use(driverPlugin);
 
     // 3. Application (crm_app from config)
     // The config export from defineStack is treated as an App Bundle or Manifest
     const appPlugin = new AppPlugin(config);
-    kernel.use(appPlugin);
+    await kernel.use(appPlugin);
 
     // 4. HTTP Server
     const serverPlugin = new HonoServerPlugin({ port: 3000 });
-    kernel.use(serverPlugin);
+    await kernel.use(serverPlugin);
 
     // 5. Console Plugin
     const consolePlugin = new ConsolePlugin();
