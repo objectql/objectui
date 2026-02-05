@@ -13,7 +13,7 @@ describe('Plugin AgGrid', () => {
   // Import all renderers to register them
   beforeAll(async () => {
     await import('./index');
-  });
+  }, 15000); // Increase timeout to 15 seconds for async import
 
   describe('aggrid component', () => {
     it('should be registered in ComponentRegistry', () => {

@@ -15,6 +15,12 @@ export type { BarChartSchema } from './types';
 export { ChartBarRenderer, ChartRenderer };
 export { ObjectChart } from './ObjectChart';
 
+// Standard Export Protocol - for manual integration
+export const chartComponents = {
+  'bar-chart': ChartBarRenderer,
+  'chart': ChartRenderer,
+};
+
 // Register the component with the ComponentRegistry
 ComponentRegistry.register(
   'bar-chart',
