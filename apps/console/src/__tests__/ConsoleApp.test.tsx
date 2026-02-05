@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { AppContent } from '../App';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 
 // --- Mocks ---
 
@@ -12,11 +12,12 @@ vi.mock('../../objectstack.config', () => ({
         apps: [
             {
                 name: 'sales',
+                
                 label: 'Sales App',
                 active: true,
                 icon: 'briefcase',
                 navigation: [
-                    { id: 'nav_opp', label: 'Opportunities', type: 'object', object: 'opportunity' }
+                    { id: 'nav_opp', label: 'Opportunities', type: 'object', objectName: 'opportunity' }
                 ]
             },
             {
@@ -89,6 +90,7 @@ vi.mock('lucide-react', async () => {
         Database: () => <span data-testid="icon-database" />,
         LayoutDashboard: () => <span data-testid="icon-dashboard" />,
         Briefcase: () => <span data-testid="icon-briefcase" />,
+        briefcase: () => <span data-testid="icon-briefcase-lower" />,
         ChevronRight: () => <span />,
         ChevronsUpDown: () => <span />,
         Settings: () => <span />,
@@ -114,10 +116,12 @@ describe('Console App Integration', () => {
         vi.clearAllMocks();
     });
 
-    const renderApp = (initialRoute = '/') => {
+    const renderApp = (initialRoute = '/apps/sales/') => {
         return render(
             <MemoryRouter initialEntries={[initialRoute]}>
-                <AppContent />
+                <Routes>
+                    <Route path="/apps/:appName/*" element={<AppContent />} />
+                </Routes>
             </MemoryRouter>
         );
     };
@@ -142,7 +146,7 @@ describe('Console App Integration', () => {
     });
 
     it('navigates to object view when sidebar item clicked', async () => {
-        renderApp('/');
+        renderApp();
 
         await waitFor(() => {
             const appLabels = screen.getAllByText('Sales App');

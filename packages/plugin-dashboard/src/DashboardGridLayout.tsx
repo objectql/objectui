@@ -122,7 +122,7 @@ export const DashboardGridLayout: React.FC<DashboardGridLayoutProps> = ({
   }, []);
 
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn("w-full", className)} data-testid="grid-layout">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-2xl font-bold">{schema.title || 'Dashboard'}</h2>
         <div className="flex gap-2">

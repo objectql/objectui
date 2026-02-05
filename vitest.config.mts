@@ -49,6 +49,8 @@ export default defineConfig({
       '@object-ui/plugin-dashboard': path.resolve(__dirname, './packages/plugin-dashboard/src'),
       '@object-ui/plugin-grid': path.resolve(__dirname, './packages/plugin-grid/src'),
       '@object-ui/plugin-kanban': path.resolve(__dirname, './packages/plugin-kanban/src'),
+      '@object-ui/plugin-charts': path.resolve(__dirname, './packages/plugin-charts/src'),
+      '@object-ui/plugin-list': path.resolve(__dirname, './packages/plugin-list/src'),
       '@': path.resolve(__dirname, './packages/components/src'),
       '@object-ui/ui': path.resolve(__dirname, './packages/ui/src'),
     },

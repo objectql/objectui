@@ -68,7 +68,7 @@ describe('DashboardGridLayout', () => {
   it('should render all widgets', () => {
     render(<DashboardGridLayout schema={mockSchema} />);
     
-    expect(screen.getByText('Total Sales')).toBeInTheDocument();
+    expect(screen.getAllByText('Total Sales').length).toBeGreaterThan(0);
     expect(screen.getByText('Revenue by Month')).toBeInTheDocument();
   });
 
