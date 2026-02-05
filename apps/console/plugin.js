@@ -22,6 +22,7 @@ export default {
   version: '0.1.0',
   type: 'ui-plugin',
   description: 'ObjectStack Console - The standard runtime UI for ObjectStack applications',
+  init: () => {},
   
   // Plugin metadata for ObjectStack runtime
   metadata: {
