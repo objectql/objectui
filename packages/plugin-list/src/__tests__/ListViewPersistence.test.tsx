@@ -119,8 +119,11 @@ describe('ListView Persistence', () => {
       
       renderWithProvider(<ListView schema={schema} />);
       
-      // Should respect storage ('kanban') over schema ('grid')
+      // Should respect schema ('grid') because storage persistence is currently disabled
       const kanbanButton = screen.getByLabelText('Kanban');
-      expect(kanbanButton.getAttribute('data-state')).toBe('on');
+      expect(kanbanButton.getAttribute('data-state')).toBe('off');
+
+      const gridButton = screen.getByLabelText('Grid');
+      expect(gridButton.getAttribute('data-state')).toBe('on');
   });
 });

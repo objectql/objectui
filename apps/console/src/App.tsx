@@ -110,7 +110,9 @@ export function AppContent() {
       
       // FIX: MSW Mock Server returns incorrect 'endpoints' in discovery.
       // The 'routes' property has the correct paths with /v1 prefix.
+      // @ts-ignore - accessing private property for fix
       if (stackClient.discoveryInfo && stackClient.discoveryInfo.routes) {
+        // @ts-ignore - accessing private property for fix
         stackClient.discoveryInfo.endpoints = stackClient.discoveryInfo.routes;
       }
 
