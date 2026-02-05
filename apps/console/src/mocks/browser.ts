@@ -15,6 +15,16 @@ let kernel: ObjectKernel | null = null;
 let driver: InMemoryDriver | null = null;
 
 export async function startMockServer() {
+  // Polyfill process.on for ObjectKernel in browser environment
+  // This prevents the "process.on is not a function" error when ObjectKernel initializes
+  try {
+    if (typeof process !== 'undefined' && !(process as any).on) {
+      (process as any).on = () => {};
+    }
+  } catch (e) {
+    console.warn('[MSW] Failed to polyfill process.on', e);
+  }
+
   if (kernel) {
     console.log('[MSW] ObjectStack Runtime already initialized');
     return kernel;
