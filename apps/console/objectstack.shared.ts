@@ -42,6 +42,12 @@ export const sharedConfig = {
       ...(kitchenSinkConfig.manifest?.data || [])
     ]
   },
+  plugins: [],
+  datasources: {
+    default: {
+      driver: '@objectstack/driver-memory'
+    }
+  }
 };
 
 export default defineConfig(sharedConfig);
