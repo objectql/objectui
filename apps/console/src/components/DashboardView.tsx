@@ -6,7 +6,7 @@
 import { useParams } from 'react-router-dom';
 import { DashboardRenderer } from '@object-ui/plugin-dashboard';
 import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
-import appConfig from '../../objectstack.config';
+import appConfig from '../../objectstack.shared';
 
 export function DashboardView() {
   const { dashboardName } = useParams<{ dashboardName: string }>();

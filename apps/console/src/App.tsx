@@ -5,7 +5,7 @@ import { ObjectForm } from '@object-ui/plugin-form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Empty, EmptyTitle } from '@object-ui/components';
 import { SchemaRendererProvider } from '@object-ui/react';
 import { ObjectStackDataSource } from './dataSource';
-import appConfig from '../objectstack.config';
+import appConfig from '../objectstack.shared';
 
 // Components
 import { ConsoleLayout } from './components/ConsoleLayout';

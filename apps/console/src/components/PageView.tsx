@@ -6,7 +6,7 @@
 import { useParams, useSearchParams } from 'react-router-dom';
 import { SchemaRenderer } from '@object-ui/react';
 import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
-import appConfig from '../../objectstack.config';
+import appConfig from '../../objectstack.shared';
 
 export function PageView() {
   const { pageName } = useParams<{ pageName: string }>();

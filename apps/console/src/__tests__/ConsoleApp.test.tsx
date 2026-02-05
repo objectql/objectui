@@ -7,7 +7,7 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 // --- Mocks ---
 
 // Mock ObjectStack Config
-vi.mock('../../objectstack.config', () => ({
+vi.mock('../../objectstack.shared', () => ({
     default: {
         apps: [
             {

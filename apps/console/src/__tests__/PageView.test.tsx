@@ -5,7 +5,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { PageView } from '../components/PageView';
 
 // Mock appConfig
-vi.mock('../../objectstack.config', () => ({
+vi.mock('../../objectstack.shared', () => ({
   default: {
     pages: [
       {

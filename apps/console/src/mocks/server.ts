@@ -10,7 +10,7 @@ import { ObjectQLPlugin } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
-import appConfig from '../../objectstack.config';
+import appConfig from '../../objectstack.shared';
 
 let kernel: ObjectKernel | null = null;
 let driver: InMemoryDriver | null = null;

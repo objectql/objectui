@@ -35,7 +35,7 @@ import {
   Database,
   ChevronRight,
 } from 'lucide-react';
-import appConfig from '../../objectstack.config';
+import appConfig from '../../objectstack.shared';
 
 // Helper to get icon from Lucide
 function getIcon(name?: string) {

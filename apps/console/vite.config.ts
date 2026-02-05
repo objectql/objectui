@@ -9,6 +9,7 @@ export default defineConfig({
     'process.platform': '"browser"',
     'process.version': '"0.0.0"',
   },
+
   plugins: [react()],
   resolve: {
     extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json'],
@@ -61,6 +62,7 @@ export default defineConfig({
     }
   },
   build: {
+    target: 'esnext',
     commonjsOptions: {
       include: [/node_modules/, /packages/],
       transformMixedEsModules: true

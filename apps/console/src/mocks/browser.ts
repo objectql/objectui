@@ -9,7 +9,7 @@ import { ObjectKernel, DriverPlugin, AppPlugin } from '@objectstack/runtime';
 import { ObjectQLPlugin } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { MSWPlugin } from '@objectstack/plugin-msw';
-import appConfig from '../../objectstack.config';
+import appConfig from '../../objectstack.shared';
 
 let kernel: ObjectKernel | null = null;
 let driver: InMemoryDriver | null = null;

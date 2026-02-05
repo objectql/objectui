@@ -1,9 +1,12 @@
+
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 // @ts-ignore
 globalThis.require = require;
 
 import { defineConfig } from './src/config';
+import { sharedConfig } from './objectstack.shared';
+
 // @ts-ignore
 import * as MSWPluginPkg from '@objectstack/plugin-msw';
 // @ts-ignore
@@ -14,6 +17,8 @@ import * as HonoServerPluginPkg from '@objectstack/plugin-hono-server';
 const MSWPlugin = MSWPluginPkg.MSWPlugin || (MSWPluginPkg as any).default?.MSWPlugin || (MSWPluginPkg as any).default;
 const ObjectQLPlugin = ObjectQLPluginPkg.ObjectQLPlugin || (ObjectQLPluginPkg as any).default?.ObjectQLPlugin || (ObjectQLPluginPkg as any).default;
 const HonoServerPlugin = HonoServerPluginPkg.HonoServerPlugin || (HonoServerPluginPkg as any).default?.HonoServerPlugin || (HonoServerPluginPkg as any).default;
+
+import ConsolePluginConfig from './plugin.js';
 
 // FIX: Ensure init is own property for runtime compatibility
 class PatchedMSWPlugin extends MSWPlugin {
@@ -31,54 +36,54 @@ class PatchedHonoServerPlugin extends HonoServerPlugin {
         super(...args);
         // @ts-ignore
         this.init = this.init.bind(this);
+        
+        // Capture original start method (which is an arrow function property)
         // @ts-ignore
-        this.start = this.start?.bind(this);
-    }
+        const originalStart = this.start;
 
-    async start(ctx: any) {
+        // Override start with custom logic
         // @ts-ignore
-        await super.start(ctx);
-        
-        // SPA Fallback: Serve index.html for unknown routes (excluding /api)
-        // @ts-ignore
-        const app = this.server.getRawApp();
-        // @ts-ignore
-        const staticRoot = this.options.staticRoot;
-        
-        if (staticRoot) {
-            const fs = require('fs');
-            const path = require('path');
+        this.start = async (ctx: any) => {
+            // Call original start
+            if (originalStart) {
+                await originalStart(ctx);
+            }
             
-            // Register fallback after serveStatic (which is added in listen/super.start)
-            app.get('*', async (c: any) => {
-                // Ignore API calls -> let them 404
-                if (c.req.path.startsWith('/api') || c.req.path.startsWith('/assets')) {
-                    // return c.notFound(); // Hono's c.notFound() isn't standard in all versions, let's use status
-                    return c.text('Not Found', 404);
-                }
+            // SPA Fallback: Serve index.html for unknown routes (excluding /api)
+            // @ts-ignore
+            const app = this.server.getRawApp();
+            // @ts-ignore
+            const staticRoot = this.options.staticRoot;
+            
+            if (staticRoot) {
+                const fs = require('fs');
+                const path = require('path');
                 
-                try {
-                    // Try to serve index.html
-                    // Ensure we resolve relative to CWD or config location
-                    const indexPath = path.resolve(staticRoot, 'index.html');
-                    if (fs.existsSync(indexPath)) {
-                         const indexContent = fs.readFileSync(indexPath, 'utf-8');
-                         return c.html(indexContent);
+                // Register fallback after serveStatic (which is added in listen/originalStart)
+                app.get('*', async (c: any) => {
+                    // Ignore API calls -> let them 404
+                    if (c.req.path.startsWith('/api') || c.req.path.startsWith('/assets')) {
+                        return c.text('Not Found', 404);
                     }
-                    return c.text('SPA Index Not Found', 404);
-                } catch (e: any) {
-                    return c.text('Server Error: ' + e.message, 500);
-                }
-            });
-            console.log('SPA Fallback route registered for ' + staticRoot);
-        }
+                    
+                    try {
+                        // Try to serve index.html
+                        // Ensure we resolve relative to CWD or config location
+                        const indexPath = path.resolve(staticRoot, 'index.html');
+                        if (fs.existsSync(indexPath)) {
+                             const indexContent = fs.readFileSync(indexPath, 'utf-8');
+                             return c.html(indexContent);
+                        }
+                        return c.text('SPA Index Not Found', 404);
+                    } catch (e: any) {
+                        return c.text('Server Error: ' + e.message, 500);
+                    }
+                });
+                console.log('SPA Fallback route registered for ' + staticRoot);
+            }
+        };
     }
 }
-
-import ConsolePluginConfig from './plugin.js';
-import crmConfig from '@object-ui/example-crm/objectstack.config';
-import todoConfig from '@object-ui/example-todo/objectstack.config';
-import kitchenSinkConfig from '@object-ui/example-kitchen-sink/objectstack.config';
 
 const FixedConsolePlugin = {
     ...ConsolePluginConfig,
@@ -91,7 +96,6 @@ const DummyApiRegistryPlugin = {
     version: '1.0.0',
     init: (ctx: any) => {
         // Polyfill missing critical services to pass the Runtime health check
-        // These are normally provided by standard plugins not currently included in this lightweight setup
         
         ctx.registerService('metadata', {
             getApp: () => null,
@@ -117,7 +121,6 @@ const DummyApiRegistryPlugin = {
         const apiEndpoints: any[] = [];
         ctx.registerService('api-registry', {
             registerApi: (entry: any) => {
-                // console.log('Mock: Registering API', entry.id);
                 apiEndpoints.push(entry);
             },
             getRegistry: () => ({
@@ -125,7 +128,6 @@ const DummyApiRegistryPlugin = {
                 totalApis: apiEndpoints.length,
                 totalEndpoints: apiEndpoints.reduce((acc, api) => acc + (api.endpoints?.length || 0), 0)
             }),
-            // Add other potential methods if needed
             registerRoute: () => {},
             getRoutes: () => []
         });
@@ -137,7 +139,7 @@ const DummyApiRegistryPlugin = {
 
 const plugins: any[] = [
     new ObjectQLPlugin(),
-    // new PatchedMSWPlugin(), // Disabled in production mode as per requirement
+    // new PatchedMSWPlugin(), // Disabled in production mode
     new PatchedHonoServerPlugin({
         staticRoot: './dist'
     }),
@@ -145,23 +147,13 @@ const plugins: any[] = [
     DummyApiRegistryPlugin
 ];
 
-// Re-enable MSW only if explicitly needed (e.g. via test env var, though technically pnpm dev uses browser MSW)
+// Re-enable MSW only if explicitly needed
 if (process.env.ENABLE_MSW_PLUGIN === 'true') {
     plugins.push(new PatchedMSWPlugin());
 }
 
 export default defineConfig({
-  // ============================================================================
-  // Project Metadata
-  // ============================================================================
-  
-  name: '@object-ui/console',
-  version: '0.1.0',
-  description: 'ObjectStack Console',
-  
-  // ============================================================================
-  // Build Settings
-  // ============================================================================
+  ...sharedConfig,
   
   build: {
     outDir: './dist',
@@ -170,56 +162,13 @@ export default defineConfig({
     target: 'node18',
   },
   
-  // ============================================================================
-  // Database Configuration
-  // ============================================================================
-  
   datasources: {
     default: {
-      driver: 'memory', // Use memory driver for browser example
+      driver: 'memory', 
     },
   },
   
-  // ============================================================================
-  // Plugin Configuration
-  // ============================================================================
-  
   plugins,
-
-  // ============================================================================
-  // Merged Stack Configuration (CRM + Todo + Kitchen Sink + Mock Metadata)
-  // ============================================================================
-  objects: [
-    ...(crmConfig.objects || []),
-    ...(todoConfig.objects || []),
-    ...(kitchenSinkConfig.objects || [])
-  ],
-  apps: [
-    ...(crmConfig.apps || []),
-    ...(todoConfig.apps || []),
-    ...(kitchenSinkConfig.apps || [])
-  ],
-  dashboards: [
-    ...(crmConfig.dashboards || []),
-    ...(todoConfig.dashboards || []),
-    ...(kitchenSinkConfig.dashboards || [])
-  ],
-  pages: [
-    ...(crmConfig.pages || []),
-    ...(todoConfig.pages || []),
-    ...(kitchenSinkConfig.pages || [])
-  ],
-  manifest: {
-    data: [
-      ...(crmConfig.manifest?.data || []),
-      ...(todoConfig.manifest?.data || []),
-      ...(kitchenSinkConfig.manifest?.data || [])
-    ]
-  },
-  
-  // ============================================================================
-  // Development Server
-  // ============================================================================
   
   dev: {
     port: 3000,
@@ -228,12 +177,8 @@ export default defineConfig({
     hotReload: true,
   },
   
-  // ============================================================================
-  // Deployment
-  // ============================================================================
-  
   deploy: {
-    target: 'static', // This is a static SPA
+    target: 'static',
     region: 'us-east-1',
   },
 });
