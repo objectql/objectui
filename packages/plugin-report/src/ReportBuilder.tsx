@@ -520,6 +520,68 @@ export const ReportBuilder: React.FC<ReportBuilderProps> = ({ schema }) => {
                                       />
                                    </div>
                               )}
+                              {section.type === 'chart' && (
+                                 <div className="col-span-2 grid grid-cols-2 gap-2 mt-2 p-2 bg-muted/20 rounded">
+                                    <div className="col-span-2">
+                                       <Label className="text-xs font-semibold">Chart Configuration</Label>
+                                    </div>
+                                    <div>
+                                       <Label className="text-xs">Chart Type</Label>
+                                       <select 
+                                          className="flex h-8 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                          value={section.chart?.chartType || 'bar'}
+                                          onChange={(e) => handleSectionChange(index, { 
+                                             ...section, 
+                                             chart: { ...section.chart, type: 'chart', chartType: e.target.value } as any 
+                                          })}
+                                       >
+                                          <option value="bar">Bar</option>
+                                          <option value="line">Line</option>
+                                          <option value="area">Area</option>
+                                          <option value="pie">Pie</option>
+                                       </select>
+                                    </div>
+                                    <div>
+                                       <Label className="text-xs">X-Axis Field</Label>
+                                       <select 
+                                          className="flex h-8 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                          value={section.chart?.xAxisField || ''}
+                                          onChange={(e) => handleSectionChange(index, { 
+                                             ...section, 
+                                             chart: { ...section.chart, type: 'chart', xAxisField: e.target.value } as any
+                                          })}
+                                       >
+                                          <option value="">Select Field...</option>
+                                          {availableFields.map(f => (
+                                             <option key={f.name} value={f.name}>{f.label || f.name}</option>
+                                          ))}
+                                          {/* Use mock fields if no available fields provided */}
+                                          {availableFields.length === 0 && (
+                                             <>
+                                                <option value="name">Name</option>
+                                                <option value="month">Month</option>
+                                             </>
+                                          )}
+                                       </select>
+                                    </div>
+                                    <div className="col-span-2">
+                                       <Label className="text-xs">Y-Axis Fields (comma separated)</Label>
+                                       <Input 
+                                          className="h-8 text-sm"
+                                          placeholder="e.g. value, count"
+                                          value={section.chart?.yAxisFields?.join(', ') || ''}
+                                          onChange={(e) => handleSectionChange(index, { 
+                                             ...section, 
+                                             chart: { 
+                                                ...section.chart, 
+                                                type: 'chart',
+                                                yAxisFields: e.target.value.split(',').map(s => s.trim()).filter(Boolean) 
+                                             } as any
+                                          })}
+                                       />
+                                    </div>
+                                 </div>
+                              )}
                         </div>
                     </div>
                  ))}
