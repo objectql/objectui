@@ -69,6 +69,17 @@ interface UIComponent {
 }
 
 5. Coding Standards (The 7 Commandments)
+
+🌐 Rule #-1: English-Only Codebase
+ * Context: This is an international open-source project.
+ * Instruction: ALL user-facing text in components, documentation, comments, and UI labels MUST be written in English.
+ * Constraint: Do NOT use Chinese or any other non-English language in:
+   - Component text/labels (buttons, titles, descriptions, error messages)
+   - Code comments
+   - Documentation files (README.md, docs/*.md)
+   - Console/log messages
+ * Reasoning: English ensures global accessibility and consistency across the codebase.
+
 📜 Rule #0: Strict Adherence to @objectstack/spec
  * Context: We are the implementation of a standard protocol.
  * Instruction: All component schemas, JSON structures, and data types MUST strictly follow definitions in `@objectstack/spec`.
