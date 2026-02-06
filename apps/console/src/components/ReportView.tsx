@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { ReportViewer } from '@object-ui/plugin-dashboard';
+import { ReportViewer } from '@object-ui/plugin-report';
 import { Empty, EmptyTitle, EmptyDescription, Button } from '@object-ui/components';
 import { Code2 } from 'lucide-react';
 import appConfig from '../../objectstack.shared';

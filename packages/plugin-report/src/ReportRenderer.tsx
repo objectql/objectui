@@ -37,14 +37,18 @@ export const ReportRenderer: React.FC<ReportRendererProps> = ({ schema }) => {
         {hasChart && (() => {
           // Resolve chart component logic
           // 1. Try resolving using chart definition's type (e.g. 'chart', 'bar-chart')
-          // 2. Default to 'chart' (registered by plugin-charts)
-          const targetType = schema.chart?.type || 'chart';
-          const ChartComponent = ComponentRegistry.get(targetType);
+          // 2. Fallback to 'chart' generic renderer if specific type found
+          const specificType = schema.chart?.type;
+          let ChartComponent = specificType ? ComponentRegistry.get(specificType) : null;
+          
+          if (!ChartComponent) {
+             ChartComponent = ComponentRegistry.get('chart');
+          }
           
           if (!ChartComponent) {
               return (
                   <div className="min-h-[100px] border rounded-md p-4 bg-muted/20 text-muted-foreground flex items-center justify-center">
-                      Unknown component type: {targetType}
+                      Unknown component type: {specificType || 'chart'}
                   </div>
               )
           }

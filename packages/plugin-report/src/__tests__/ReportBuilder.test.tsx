@@ -83,7 +83,7 @@ describe('ReportBuilder', () => {
 
     render(<ReportBuilder schema={schema} />);
     
-    expect(screen.getByText('Preview')).toBeInTheDocument();
+    expect(screen.getByText('Live Preview')).toBeInTheDocument();
   });
 
   it('should render all tab sections', () => {

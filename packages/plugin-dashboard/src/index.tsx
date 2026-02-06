@@ -11,11 +11,8 @@ import { DashboardRenderer } from './DashboardRenderer';
 import { DashboardGridLayout } from './DashboardGridLayout';
 import { MetricWidget } from './MetricWidget';
 import { MetricCard } from './MetricCard';
-import { ReportRenderer } from './ReportRenderer';
-import { ReportViewer } from './ReportViewer';
-import { ReportBuilder } from './ReportBuilder';
 
-export { DashboardRenderer, DashboardGridLayout, MetricWidget, MetricCard, ReportRenderer, ReportViewer, ReportBuilder };
+export { DashboardRenderer, DashboardGridLayout, MetricWidget, MetricCard };
 
 // Register dashboard component
 ComponentRegistry.register(
@@ -80,57 +77,6 @@ ComponentRegistry.register(
   }
 );
 
-// Register report component (legacy)
-ComponentRegistry.register(
-  'report',
-  ReportRenderer,
-  {
-    namespace: 'plugin-dashboard',
-    label: 'Report',
-    category: 'Dashboard',
-    inputs: [
-        { name: 'title', type: 'string', label: 'Title' },
-        { name: 'description', type: 'string', label: 'Description' },
-        { name: 'chart', type: 'code', label: 'Chart Configuration' },
-    ]
-  }
-);
-
-// Register report viewer component
-ComponentRegistry.register(
-  'report-viewer',
-  ReportViewer,
-  {
-    namespace: 'plugin-dashboard',
-    label: 'Report Viewer',
-    category: 'Reports',
-    inputs: [
-        { name: 'report', type: 'code', label: 'Report Configuration', required: true },
-        { name: 'data', type: 'code', label: 'Report Data' },
-        { name: 'showToolbar', type: 'boolean', label: 'Show Toolbar', defaultValue: true },
-        { name: 'allowExport', type: 'boolean', label: 'Allow Export', defaultValue: true },
-        { name: 'allowPrint', type: 'boolean', label: 'Allow Print', defaultValue: true },
-    ]
-  }
-);
-
-// Register report builder component
-ComponentRegistry.register(
-  'report-builder',
-  ReportBuilder,
-  {
-    namespace: 'plugin-dashboard',
-    label: 'Report Builder',
-    category: 'Reports',
-    inputs: [
-        { name: 'report', type: 'code', label: 'Initial Report Config' },
-        { name: 'dataSources', type: 'code', label: 'Available Data Sources' },
-        { name: 'availableFields', type: 'code', label: 'Available Fields' },
-        { name: 'showPreview', type: 'boolean', label: 'Show Preview', defaultValue: true },
-    ]
-  }
-);
-
 // Register dashboard grid layout component
 ComponentRegistry.register(
   'dashboard-grid',
@@ -159,8 +105,4 @@ export const dashboardComponents = {
   DashboardGridLayout,
   MetricWidget,
   MetricCard,
-  ReportRenderer,
-  ReportViewer,
-  ReportBuilder,
 };
-

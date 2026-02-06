@@ -20,6 +20,7 @@ export default defineConfig({
       '@object-ui/fields': path.resolve(__dirname, '../../packages/fields/src'),
       '@object-ui/layout': path.resolve(__dirname, '../../packages/layout/src'),
       '@object-ui/plugin-dashboard': path.resolve(__dirname, '../../packages/plugin-dashboard/src'),
+      '@object-ui/plugin-report': path.resolve(__dirname, '../../packages/plugin-report/src'),
       '@object-ui/plugin-form': path.resolve(__dirname, '../../packages/plugin-form/src'),
       '@object-ui/plugin-grid': path.resolve(__dirname, '../../packages/plugin-grid/src'),
       '@object-ui/react': path.resolve(__dirname, '../../packages/react/src'),

@@ -298,60 +298,41 @@ export const ReportBuilder: React.FC<ReportBuilderProps> = ({ schema }) => {
                         <Input
                           className="h-8 text-sm"
                           value={field.label || field.name}
-                          onChange={(e) =>
-                            handleFieldChange(index, { ...field, label: e.target.value })
-                          }
+                          onChange={(e) => handleFieldChange(index, { ...field, label: e.target.value })}
                         />
                       </div>
                       <div>
                         <Label className="text-xs">Aggregation</Label>
                         <select
-                          className="w-full border rounded p-1 text-sm h-8"
+                          className="w-full border rounded-md h-8 text-sm px-2"
                           value={field.aggregation || ''}
-                          onChange={(e) =>
-                            handleFieldChange(index, {
-                              ...field,
-                              aggregation: e.target.value as any
-                            })
-                          }
+                          onChange={(e) => handleFieldChange(index, { ...field, aggregation: e.target.value as any })}
                         >
                           <option value="">None</option>
                           <option value="sum">Sum</option>
+                          <option value="count">Count</option>
                           <option value="avg">Average</option>
                           <option value="min">Min</option>
                           <option value="max">Max</option>
-                          <option value="count">Count</option>
-                          <option value="distinct">Distinct</option>
                         </select>
                       </div>
-                      <div>
-                        <Label className="text-xs">Show in Summary</Label>
-                        <input
-                          type="checkbox"
-                          checked={field.showInSummary || false}
-                          onChange={(e) =>
-                            handleFieldChange(index, {
-                              ...field,
-                              showInSummary: e.target.checked
-                            })
-                          }
-                          className="mt-2"
-                        />
+                      <div className="flex items-end justify-end">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => handleRemoveField(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleRemoveField(index)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
                   </div>
                 ))}
 
                 {selectedFields.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
-                    No fields selected. Click "Add Field" to get started.
+                  <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                    No fields selected. Click "Add Field" to begin.
                   </div>
                 )}
               </div>
@@ -361,12 +342,7 @@ export const ReportBuilder: React.FC<ReportBuilderProps> = ({ schema }) => {
             <TabsContent value="filters" className="space-y-4 mt-4">
               <div className="flex items-center justify-between">
                 <Label>Report Filters</Label>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleAddFilter}
-                  disabled={availableFields.length === 0}
-                >
+                <Button size="sm" variant="outline" onClick={handleAddFilter}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add Filter
                 </Button>
@@ -379,63 +355,52 @@ export const ReportBuilder: React.FC<ReportBuilderProps> = ({ schema }) => {
                       <div>
                         <Label className="text-xs">Field</Label>
                         <select
-                          className="w-full border rounded p-1 text-sm h-8"
+                          className="w-full border rounded-md h-8 text-sm px-2"
                           value={filter.field}
-                          onChange={(e) =>
-                            handleFilterChange(index, { ...filter, field: e.target.value })
-                          }
+                          onChange={(e) => handleFilterChange(index, { ...filter, field: e.target.value })}
                         >
-                          {availableFields.map((f) => (
-                            <option key={f.name} value={f.name}>
-                              {f.label || f.name}
-                            </option>
+                          {availableFields.map((f, i) => (
+                            <option key={i} value={f.name}>{f.label || f.name}</option>
                           ))}
                         </select>
                       </div>
                       <div>
-                        <Label className="text-xs">Operator</Label>
-                        <select
-                          className="w-full border rounded p-1 text-sm h-8"
-                          value={filter.operator}
-                          onChange={(e) =>
-                            handleFilterChange(index, { ...filter, operator: e.target.value as any })
-                          }
-                        >
-                          <option value="equals">Equals</option>
-                          <option value="not_equals">Not Equals</option>
-                          <option value="contains">Contains</option>
-                          <option value="greater_than">Greater Than</option>
-                          <option value="less_than">Less Than</option>
-                          <option value="between">Between</option>
-                          <option value="in">In</option>
-                          <option value="not_in">Not In</option>
-                        </select>
+                         <Label className="text-xs">Operator</Label>
+                         <select
+                           className="w-full border rounded-md h-8 text-sm px-2"
+                           value={filter.operator}
+                           onChange={(e) => handleFilterChange(index, { ...filter, operator: e.target.value as any })}
+                         >
+                           <option value="equals">Equals</option>
+                           <option value="contains">Contains</option>
+                           <option value="gt">Greater Than</option>
+                           <option value="lt">Less Than</option>
+                           <option value="between">Between</option>
+                         </select>
                       </div>
                       <div>
                         <Label className="text-xs">Value</Label>
                         <Input
                           className="h-8 text-sm"
-                          value={filter.value || ''}
-                          onChange={(e) =>
-                            handleFilterChange(index, { ...filter, value: e.target.value })
-                          }
-                          placeholder="Enter value"
+                          value={String(filter.value)}
+                          onChange={(e) => handleFilterChange(index, { ...filter, value: e.target.value })}
                         />
                       </div>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleRemoveFilter(index)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                     <Button
+                       size="sm"
+                       variant="ghost"
+                       className="text-red-500 hover:text-red-700 hover:bg-red-50 self-end"
+                       onClick={() => handleRemoveFilter(index)}
+                     >
+                       <Trash2 className="h-4 w-4" />
+                     </Button>
                   </div>
-                ))}
-
+              ))}
+                
                 {filters.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
-                    No filters defined. Click "Add Filter" to filter your report data.
+                  <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                    No filters defined.
                   </div>
                 )}
               </div>
@@ -443,80 +408,58 @@ export const ReportBuilder: React.FC<ReportBuilderProps> = ({ schema }) => {
 
             {/* Group By Tab */}
             <TabsContent value="grouping" className="space-y-4 mt-4">
-              <div className="flex items-center justify-between">
-                <Label>Group By Fields</Label>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleAddGroupBy}
-                  disabled={availableFields.length === 0}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Group
-                </Button>
-              </div>
-
-              <div className="space-y-2">
-                {groupBy.map((group, index) => (
-                  <div key={index} className="flex items-center gap-2 p-3 border rounded-lg">
-                    <div className="flex-1 grid grid-cols-3 gap-2">
-                      <div>
-                        <Label className="text-xs">Field</Label>
-                        <select
-                          className="w-full border rounded p-1 text-sm h-8"
-                          value={group.field}
-                          onChange={(e) =>
-                            handleGroupByChange(index, { ...group, field: e.target.value })
-                          }
-                        >
-                          {availableFields.map((f) => (
-                            <option key={f.name} value={f.name}>
-                              {f.label || f.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <Label className="text-xs">Label</Label>
-                        <Input
-                          className="h-8 text-sm"
-                          value={group.label || ''}
-                          onChange={(e) =>
-                            handleGroupByChange(index, { ...group, label: e.target.value })
-                          }
-                          placeholder="Optional label"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Sort</Label>
-                        <select
-                          className="w-full border rounded p-1 text-sm h-8"
-                          value={group.sort || 'asc'}
-                          onChange={(e) =>
-                            handleGroupByChange(index, { ...group, sort: e.target.value as 'asc' | 'desc' })
-                          }
-                        >
-                          <option value="asc">Ascending</option>
-                          <option value="desc">Descending</option>
-                        </select>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleRemoveGroupBy(index)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                ))}
-
-                {groupBy.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
-                    No grouping defined. Click "Add Group" to group your report data.
-                  </div>
-                )}
-              </div>
+               <div className="flex items-center justify-between">
+                  <Label>Grouping Rules</Label>
+                  <Button size="sm" variant="outline" onClick={handleAddGroupBy}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Group
+                  </Button>
+                </div>
+                
+                 <div className="space-y-2">
+                   {groupBy.map((group, index) => (
+                     <div key={index} className="flex items-center gap-2 p-3 border rounded-lg">
+                        <div className="flex-1 grid grid-cols-2 gap-2">
+                           <div>
+                              <Label className="text-xs">Field</Label>
+                              <select
+                                 className="w-full border rounded-md h-8 text-sm px-2"
+                                 value={group.field}
+                                 onChange={(e) => handleGroupByChange(index, { ...group, field: e.target.value })}
+                              >
+                                 {availableFields.map((f, i) => (
+                                    <option key={i} value={f.name}>{f.label || f.name}</option>
+                                 ))}
+                              </select>
+                           </div>
+                            <div>
+                               <Label className="text-xs">Sort Order</Label>
+                               <select
+                                  className="w-full border rounded-md h-8 text-sm px-2"
+                                  value={group.sort || 'asc'}
+                                  onChange={(e) => handleGroupByChange(index, { ...group, sort: e.target.value as 'asc' | 'desc' })}
+                               >
+                                  <option value="asc">Ascending</option>
+                                  <option value="desc">Descending</option>
+                               </select>
+                            </div>
+                        </div>
+                         <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 self-end"
+                            onClick={() => handleRemoveGroupBy(index)}
+                         >
+                            <Trash2 className="h-4 w-4" />
+                         </Button>
+                     </div>
+                   ))}
+                    {groupBy.length === 0 && (
+                       <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                          No grouping rules applied.
+                       </div>
+                    )}
+                 </div>
             </TabsContent>
 
             {/* Sections Tab */}
@@ -524,101 +467,108 @@ export const ReportBuilder: React.FC<ReportBuilderProps> = ({ schema }) => {
               <div className="flex items-center justify-between">
                 <Label>Report Sections</Label>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => handleAddSection('header')}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Header
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleAddSection('summary')}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Summary
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleAddSection('chart')}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Chart
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleAddSection('table')}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Table
-                  </Button>
+                   <Button size="sm" variant="outline" onClick={() => handleAddSection('header')}>
+                     <Plus className="h-4 w-4 mr-2" />
+                     Header
+                   </Button>
+                   <Button size="sm" variant="outline" onClick={() => handleAddSection('chart')}>
+                     <Plus className="h-4 w-4 mr-2" />
+                     Chart
+                   </Button>
+                   <Button size="sm" variant="outline" onClick={() => handleAddSection('table')}>
+                     <Plus className="h-4 w-4 mr-2" />
+                     Table
+                   </Button>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                {sections.map((section, index) => (
-                  <div key={index} className="flex items-center gap-2 p-3 border rounded-lg">
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-muted-foreground uppercase">
-                          {section.type}
-                        </span>
-                        <Input
-                          className="h-8 text-sm"
-                          value={section.title || ''}
-                          onChange={(e) =>
-                            handleSectionChange(index, { ...section, title: e.target.value })
-                          }
-                          placeholder="Section title"
-                        />
-                      </div>
-                      {section.type === 'text' && (
-                        <Input
-                          className="h-8 text-sm"
-                          value={section.text || ''}
-                          onChange={(e) =>
-                            handleSectionChange(index, { ...section, text: e.target.value })
-                          }
-                          placeholder="Text content"
-                        />
-                      )}
+               <div className="space-y-2">
+                 {sections.map((section, index) => (
+                    <div key={index} className="p-3 border rounded-lg space-y-2">
+                       <div className="flex items-center justify-between">
+                          <div className="font-medium flex items-center gap-2">
+                             <div className="text-xs bg-muted px-2 py-0.5 rounded uppercase">{section.type}</div>
+                             {section.title}
+                          </div>
+                           <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                              onClick={() => handleRemoveSection(index)}
+                           >
+                              <Trash2 className="h-4 w-4" />
+                           </Button>
+                       </div>
+                       
+                        {/* Simple config for section based on type */}
+                        <div className="grid grid-cols-2 gap-2">
+                             <div>
+                                <Label className="text-xs">Title</Label>
+                                <Input 
+                                   className="h-8 text-sm"
+                                   value={section.title || ''}
+                                   onChange={(e) => handleSectionChange(index, { ...section, title: e.target.value })}
+                                />
+                             </div>
+                              {section.type === 'text' && (
+                                   <div className="col-span-2">
+                                      <Label className="text-xs">Content</Label>
+                                      <Input 
+                                         className="h-8 text-sm"
+                                         value={section.text || ''}
+                                         onChange={(e) => handleSectionChange(index, { ...section, text: e.target.value })}
+                                      />
+                                   </div>
+                              )}
+                        </div>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleRemoveSection(index)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                ))}
-
-                {sections.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
-                    No sections defined. Click section buttons above to add report sections.
-                  </div>
-                )}
-              </div>
+                 ))}
+                  {sections.length === 0 && (
+                     <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                        No customized sections. The default report layout will be used.
+                     </div>
+                  )}
+               </div>
             </TabsContent>
           </Tabs>
 
-          {/* Actions */}
-          <div className="flex items-center justify-end gap-2 pt-4 mt-6 border-t">
-            <Button variant="outline" onClick={handleCancel}>
-              <X className="h-4 w-4 mr-2" />
-              Cancel
-            </Button>
+          <div className="flex items-center justify-end gap-2 mt-6 pt-4 border-t">
+            <Button variant="outline" onClick={handleCancel}>Cancel</Button>
             <Button onClick={handleSave}>
-              <Save className="h-4 w-4 mr-2" />
-              Save Report
+               <Save className="h-4 w-4 mr-2" />
+               Save Report
             </Button>
           </div>
         </CardContent>
       </Card>
-
-      {/* Preview */}
+      
+      {/* Live Preview */}
       {showPreview && (
-        <div>
-          <h3 className="text-lg font-semibold mb-2">Preview</h3>
-          <ReportViewer
-            schema={{
-              type: 'report-viewer',
-              report,
-              data: [],
-              showToolbar: false,
-              allowExport: false,
-              allowPrint: false
-            }}
-          />
-        </div>
+         <Card className="mt-8 border-2 border-blue-100">
+            <CardHeader className="bg-blue-50/50">
+               <CardTitle className="text-blue-900 text-sm uppercase tracking-wide">Live Preview</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+                <ReportViewer 
+                   schema={{ 
+                      type: 'report-viewer',
+                      report: {
+                         ...report,
+                         fields: selectedFields,
+                         filters,
+                         groupBy,
+                         sections
+                      },
+                      // Mock data for preview
+                      data: [
+                         { id: 1, name: 'Sample Item A', value: 100, status: 'New' },
+                         { id: 2, name: 'Sample Item B', value: 250, status: 'Active' },
+                         { id: 3, name: 'Sample Item C', value: 75, status: 'Closed' },
+                      ]
+                   }} 
+                />
+            </CardContent>
+         </Card>
       )}
     </div>
   );

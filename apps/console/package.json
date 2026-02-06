@@ -42,6 +42,7 @@
     "@object-ui/plugin-kanban": "workspace:*",
     "@object-ui/plugin-list": "workspace:*",
     "@object-ui/plugin-map": "workspace:*",
+    "@object-ui/plugin-report": "workspace:*",
     "@object-ui/plugin-timeline": "workspace:*",
     "@object-ui/react": "workspace:*",
     "@object-ui/types": "workspace:*",
