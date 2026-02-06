@@ -50,14 +50,14 @@ describe('CalendarView', () => {
   const defaultDate = new Date(2024, 0, 15); // Jan 15, 2024
 
   it('renders the header correctly', () => {
-    render(<CalendarView currentDate={defaultDate} />);
+    render(<CalendarView currentDate={defaultDate} locale="en-US" />);
     
     // Check for month label
     expect(screen.getByText('January 2024')).toBeInTheDocument();
   });
 
   it('renders navigation buttons', () => {
-    render(<CalendarView currentDate={defaultDate} />);
+    render(<CalendarView currentDate={defaultDate} locale="en-US" />);
     
     expect(screen.getByText('Today')).toBeInTheDocument();
     
@@ -77,7 +77,7 @@ describe('CalendarView', () => {
   });
 
   it('renders the view switcher dropdown trigger', () => {
-    render(<CalendarView currentDate={defaultDate} view="month" />);
+    render(<CalendarView currentDate={defaultDate} view="month" locale="en-US" />);
     // The SelectValue should display "Month"
     const selectTrigger = screen.getByText('Month');
     expect(selectTrigger).toBeInTheDocument();
@@ -88,7 +88,7 @@ describe('CalendarView', () => {
   });
 
   it('renders the date picker trigger', () => {
-    render(<CalendarView currentDate={defaultDate} />);
+    render(<CalendarView currentDate={defaultDate} locale="en-US" />);
     // The date label (e.g. "January 2024") is now inside a PopoverTrigger button
     const dateLabel = screen.getByText('January 2024');
     expect(dateLabel).toBeInTheDocument();
@@ -100,7 +100,7 @@ describe('CalendarView', () => {
 
   it('opens date picker on click', () => {
     // We need to mock pointer interactions for Popover usually, but let's try basic click
-    render(<CalendarView currentDate={defaultDate} />);
+    render(<CalendarView currentDate={defaultDate} locale="en-US" />);
     const dateTrigger = screen.getByText('January 2024');
     
     fireEvent.click(dateTrigger);
@@ -112,7 +112,7 @@ describe('CalendarView', () => {
   });
 
   it('renders events in month view', () => {
-    render(<CalendarView currentDate={defaultDate} events={mockEvents} />);
+    render(<CalendarView currentDate={defaultDate} events={mockEvents} locale="en-US" />);
     expect(screen.getByText('Test Event 1')).toBeInTheDocument();
   });
 });

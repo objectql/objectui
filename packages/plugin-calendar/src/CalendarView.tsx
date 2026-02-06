@@ -40,6 +40,7 @@ export interface CalendarViewProps {
   events?: CalendarEvent[]
   view?: "month" | "week" | "day"
   currentDate?: Date
+  locale?: string
   onEventClick?: (event: CalendarEvent) => void
   onDateClick?: (date: Date) => void
   onViewChange?: (view: "month" | "week" | "day") => void
@@ -52,6 +53,7 @@ function CalendarView({
   events = [],
   view = "month",
   currentDate = new Date(),
+  locale = "default",
   onEventClick,
   onDateClick,
   onViewChange,
@@ -110,7 +112,7 @@ function CalendarView({
 
   const getDateLabel = () => {
     if (selectedView === "month") {
-      return selectedDate.toLocaleDateString("default", {
+      return selectedDate.toLocaleDateString(locale, {
         month: "long",
         year: "numeric",
       })
@@ -118,16 +120,16 @@ function CalendarView({
       const weekStart = getWeekStart(selectedDate)
       const weekEnd = new Date(weekStart)
       weekEnd.setDate(weekEnd.getDate() + 6)
-      return `${weekStart.toLocaleDateString("default", {
+      return `${weekStart.toLocaleDateString(locale, {
         month: "short",
         day: "numeric",
-      })} - ${weekEnd.toLocaleDateString("default", {
+      })} - ${weekEnd.toLocaleDateString(locale, {
         month: "short",
         day: "numeric",
         year: "numeric",
       })}`
     } else {
-      return selectedDate.toLocaleDateString("default", {
+      return selectedDate.toLocaleDateString(locale, {
         weekday: "long",
         month: "long",
         day: "numeric",
@@ -429,7 +431,7 @@ function WeekView({ date, events, onEventClick, onDateClick }: WeekViewProps) {
               className="p-3 text-center border-r last:border-r-0"
             >
               <div className="text-sm font-medium text-muted-foreground">
-                {day.toLocaleDateString("default", { weekday: "short" })}
+                {day.toLocaleDateString(locale, { weekday: "short" })}
               </div>
               <div
                 className={cn(

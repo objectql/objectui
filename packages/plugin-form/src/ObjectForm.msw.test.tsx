@@ -28,6 +28,26 @@ const mockRecord = {
 // --- MSW Setup ---
 
 const handlers = [
+  // .well-known discovery endpoint (used by client.connect())
+  http.get(`${BASE_URL}/.well-known/objectstack`, () => {
+    return HttpResponse.json({
+      name: 'ObjectStack API',
+      version: '1.0',
+      endpoints: {
+        data: '/api/v1/data',
+        metadata: '/api/v1/meta'
+      },
+      capabilities: {
+        graphql: false,
+        search: false,
+        websockets: false,
+        files: true,
+        analytics: false,
+        hub: false
+      }
+    });
+  }),
+
   // OPTIONS handler for CORS preflight
   http.options(`${BASE_URL}/*`, () => {
     return new HttpResponse(null, {
@@ -45,8 +65,15 @@ const handlers = [
     return HttpResponse.json({ status: 'ok', version: '1.0.0' });
   }),
 
-  // Mock Schema Fetch: GET /api/v1/metadata/object/:name
+  // Mock Schema Fetch: GET /api/v1/metadata/object/:name and /api/v1/meta/object/:name (client uses /meta)
   http.get(`${BASE_URL}/api/v1/metadata/object/:name`, ({ params }) => {
+    const { name } = params;
+    if (name === 'contact') {
+      return HttpResponse.json(mockSchema);
+    }
+    return new HttpResponse(null, { status: 404 });
+  }),
+  http.get(`${BASE_URL}/api/v1/meta/object/:name`, ({ params }) => {
     const { name } = params;
     if (name === 'contact') {
       return HttpResponse.json(mockSchema);

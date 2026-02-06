@@ -17,12 +17,12 @@ describe('Plugin Kanban', () => {
 
   describe('kanban component', () => {
     it('should be registered in ComponentRegistry', () => {
-      const kanbanRenderer = ComponentRegistry.get('kanban');
+      const kanbanRenderer = ComponentRegistry.get('kanban-ui');
       expect(kanbanRenderer).toBeDefined();
     });
 
     it('should have proper metadata', () => {
-      const config = ComponentRegistry.getConfig('kanban');
+      const config = ComponentRegistry.getConfig('kanban-ui');
       expect(config).toBeDefined();
       expect(config?.label).toBe('Kanban Board');
       expect(config?.icon).toBe('LayoutDashboard');
@@ -32,7 +32,7 @@ describe('Plugin Kanban', () => {
     });
 
     it('should have expected inputs', () => {
-      const config = ComponentRegistry.getConfig('kanban');
+      const config = ComponentRegistry.getConfig('kanban-ui');
       const inputNames = config?.inputs?.map((input: any) => input.name) || [];
       
       expect(inputNames).toContain('columns');
@@ -41,7 +41,7 @@ describe('Plugin Kanban', () => {
     });
 
     it('should have columns as required input', () => {
-      const config = ComponentRegistry.getConfig('kanban');
+      const config = ComponentRegistry.getConfig('kanban-ui');
       const columnsInput = config?.inputs?.find((input: any) => input.name === 'columns');
       
       expect(columnsInput).toBeDefined();
@@ -51,7 +51,7 @@ describe('Plugin Kanban', () => {
     });
 
     it('should have onCardMove as code input', () => {
-      const config = ComponentRegistry.getConfig('kanban');
+      const config = ComponentRegistry.getConfig('kanban-ui');
       const onCardMoveInput = config?.inputs?.find((input: any) => input.name === 'onCardMove');
       
       expect(onCardMoveInput).toBeDefined();
@@ -61,7 +61,7 @@ describe('Plugin Kanban', () => {
     });
 
     it('should have sensible default props', () => {
-      const config = ComponentRegistry.getConfig('kanban');
+      const config = ComponentRegistry.getConfig('kanban-ui');
       const defaults = config?.defaultProps;
       
       expect(defaults).toBeDefined();
@@ -72,7 +72,7 @@ describe('Plugin Kanban', () => {
     });
 
     it('should have default columns with proper structure', () => {
-      const config = ComponentRegistry.getConfig('kanban');
+      const config = ComponentRegistry.getConfig('kanban-ui');
       const defaults = config?.defaultProps;
       const columns = defaults?.columns || [];
       
@@ -93,7 +93,7 @@ describe('Plugin Kanban', () => {
     });
 
     it('should have cards with proper structure', () => {
-      const config = ComponentRegistry.getConfig('kanban');
+      const config = ComponentRegistry.getConfig('kanban-ui');
       const defaults = config?.defaultProps;
       const columns = defaults?.columns || [];
       
