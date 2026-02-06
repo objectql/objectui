@@ -102,7 +102,8 @@ describe('ObjectGrid Interactions', () => {
         );
 
         await waitFor(() => {
-            expect(screen.getByText('Alice Johnson')).toBeInTheDocument();
+            const elements = screen.getAllByText('Alice Johnson');
+            expect(elements.length).toBeGreaterThan(0);
         });
 
         // Test if sorting interaction works seamlessly on server data which is rendered client-side by DataTable

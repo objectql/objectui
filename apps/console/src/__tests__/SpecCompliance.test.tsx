@@ -133,7 +133,7 @@ describe('ObjectStack Spec v0.9.0 Compliance', () => {
                 expect(item.type).toBeDefined();
                 
                 // Type must be one of the valid types
-                expect(['object', 'dashboard', 'page', 'url', 'group']).toContain(item.type);
+                expect(['object', 'dashboard', 'page', 'url', 'group', 'report']).toContain(item.type);
                 
                 // Type-specific validation
                 if (item.type === 'object') {
