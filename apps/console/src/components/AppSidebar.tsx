@@ -97,7 +97,7 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">{activeApp.label}</span>
                     <span className="truncate text-xs">
-                      {activeApp.description || `${activeApps.length} Apps Available`}
+                      {activeApp.description || `共 ${activeApps.length} 个应用`}
                     </span>
                   </div>
                   <ChevronsUpDown className="ml-auto" />
@@ -110,7 +110,7 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
                 sideOffset={4}
               >
                 <DropdownMenuLabel className="text-xs text-muted-foreground">
-                  Switch Application
+                  切换应用
                 </DropdownMenuLabel>
                 {activeApps.map((app: any) => (
                   <DropdownMenuItem
@@ -122,7 +122,7 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
                       {app.icon ? React.createElement(getIcon(app.icon), { className: "size-3" }) : <Database className="size-3" />}
                     </div>
                     {app.label}
-                    {/* {activeApp.name === app.name && <Check className="ml-auto h-4 w-4" />} */}
+                    {activeApp.name === app.name && <span className="ml-auto text-xs">✓</span>}
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
@@ -130,7 +130,7 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
                   <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                     <Plus className="size-4" />
                   </div>
-                  <div className="font-medium text-muted-foreground">Add App</div>
+                  <div className="font-medium text-muted-foreground">添加应用</div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -152,12 +152,12 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src="/avatars/user.jpg" alt="User" />
-                    <AvatarFallback className="rounded-lg">ME</AvatarFallback>
+                    <AvatarImage src="/avatars/user.jpg" alt="用户" />
+                    <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">管</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">John Doe</span>
-                    <span className="truncate text-xs">admin@example.com</span>
+                    <span className="truncate font-semibold">管理员</span>
+                    <span className="truncate text-xs text-muted-foreground">admin@example.com</span>
                   </div>
                   <ChevronsUpDown className="ml-auto size-4" />
                 </SidebarMenuButton>
@@ -171,12 +171,12 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarImage src="/avatars/user.jpg" alt="User" />
-                      <AvatarFallback className="rounded-lg">ME</AvatarFallback>
+                      <AvatarImage src="/avatars/user.jpg" alt="用户" />
+                      <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">管</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">John Doe</span>
-                      <span className="truncate text-xs">admin@example.com</span>
+                      <span className="truncate font-semibold">管理员</span>
+                      <span className="truncate text-xs text-muted-foreground">admin@example.com</span>
                     </div>
                   </div>
                 </DropdownMenuLabel>
@@ -184,13 +184,13 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
                 <DropdownMenuGroup>
                   <DropdownMenuItem>
                     <Settings className="mr-2 h-4 w-4" />
-                    Settings
+                    设置
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem className="text-destructive focus:text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
-                  Log out
+                  退出登录
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

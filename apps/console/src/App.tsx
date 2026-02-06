@@ -31,8 +31,8 @@ function RecordDetailView({ dataSource, objects, onEdit }: any) {
     return (
       <div className="flex h-full items-center justify-center p-4">
         <Empty>
-          <EmptyTitle>Object Not Found</EmptyTitle>
-          <p>Object "{objectName}" definition missing.</p>
+          <EmptyTitle>对象未找到</EmptyTitle>
+          <p>对象 "{objectName}" 定义缺失。</p>
         </Empty>
       </div>
     );
@@ -66,7 +66,7 @@ function RecordDetailView({ dataSource, objects, onEdit }: any) {
               variant="outline" 
               size="icon"
               onClick={() => setShowDebug(!showDebug)}
-              title="Toggle Metadata Inspector"
+              title="切换元数据检查器"
               className="bg-background/80 backdrop-blur shadow-sm"
            >
              <Code2 className="h-4 w-4" />
@@ -84,12 +84,12 @@ function RecordDetailView({ dataSource, objects, onEdit }: any) {
            {showDebug && (
                 <div className="w-[400px] border-l bg-muted/30 p-0 overflow-hidden flex flex-col shrink-0 shadow-xl z-20 transition-all">
                     <div className="p-3 border-b bg-muted/50 font-semibold text-sm flex items-center justify-between">
-                        <span>Metadata Inspector</span>
-                        <span className="text-xs text-muted-foreground">JSON Protocol</span>
+                        <span>元数据检查器</span>
+                        <span className="text-xs text-muted-foreground">JSON 协议</span>
                     </div>
                     <div className="flex-1 overflow-auto p-4 space-y-6">
                         <div>
-                            <h4 className="text-xs font-bold uppercase text-muted-foreground mb-2">View Schema</h4>
+                            <h4 className="text-xs font-bold uppercase text-muted-foreground mb-2">视图配置</h4>
                             <div className="relative rounded-md border bg-slate-950 text-slate-50 overflow-hidden">
                                 <pre className="text-xs p-3 overflow-auto max-h-[800px]">
                                     {JSON.stringify(detailSchema, null, 2)}
@@ -203,7 +203,7 @@ export function AppContent() {
   if (!activeApp) return (
     <div className="h-screen flex items-center justify-center">
       <Empty>
-        <EmptyTitle>No Apps configured</EmptyTitle>
+        <EmptyTitle>未配置应用</EmptyTitle>
       </Empty>
     </div>
   );
@@ -261,9 +261,9 @@ export function AppContent() {
        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className="sm:max-w-xl max-h-[90vh] flex flex-col gap-0 p-0 overflow-hidden">
              <DialogHeader className="p-6 pb-4 border-b">
-                <DialogTitle>{editingRecord ? 'Edit' : 'Create'} {currentObjectDef?.label}</DialogTitle>
+                <DialogTitle>{editingRecord ? '编辑' : '新建'} {currentObjectDef?.label}</DialogTitle>
                 <DialogDescription>
-                    {editingRecord ? `Update details for ${currentObjectDef?.label}` : `Add a new ${currentObjectDef?.label} to your database.`}
+                    {editingRecord ? `更新 ${currentObjectDef?.label} 的详细信息` : `添加一条新的 ${currentObjectDef?.label} 记录`}
                 </DialogDescription>
              </DialogHeader>
              <div className="flex-1 overflow-y-auto p-6">
@@ -286,8 +286,8 @@ export function AppContent() {
                             onCancel: () => setIsDialogOpen(false),
                             showSubmit: true,
                             showCancel: true,
-                            submitText: 'Save Record',
-                            cancelText: 'Cancel'
+                            submitText: '保存记录',
+                            cancelText: '取消'
                         }}
                         dataSource={dataSource}
                     />
