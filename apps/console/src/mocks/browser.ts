@@ -52,7 +52,7 @@ export async function startMockServer() {
   // MSW Plugin (intercepts network requests)
   // Disable auto-start to manually control worker registration with correct path
   const mswPlugin = new MSWPlugin({
-    enableBrowser: false, 
+    enableBrowser: true, 
     baseUrl: '/api/v1',
     logRequests: true
   });

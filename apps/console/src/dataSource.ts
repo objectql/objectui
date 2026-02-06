@@ -50,6 +50,7 @@ export class ObjectStackDataSource implements DataSource {
 
   async find(objectName: string, options?: any): Promise<QueryResult<any>> {
     const result: any = await this.client.data.find(objectName, options || {});
+    console.log('DEBUG: find result', result);
     
     // Handle array response
     if (Array.isArray(result)) {
