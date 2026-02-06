@@ -151,6 +151,20 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
   
   const hasInlineData = dataConfig?.provider === 'value';
 
+  // Extract stable primitive/reference-stable values from schema for dependency arrays.
+  // This prevents infinite re-render loops when schema is a new object on each render
+  // (e.g. when rendered through SchemaRenderer which creates a fresh evaluatedSchema).
+  const objectName = dataConfig?.provider === 'object' && dataConfig && 'object' in dataConfig
+    ? (dataConfig as any).object
+    : schema.objectName;
+  const schemaFields = schema.fields;
+  const schemaColumns = schema.columns;
+  const schemaFilter = schema.filter;
+  const schemaSort = schema.sort;
+  const schemaPagination = schema.pagination;
+  const schemaPageSize = schema.pageSize;
+
+  // --- Inline data effect (synchronous, no fetch needed) ---
   useEffect(() => {
     if (hasInlineData && dataConfig?.provider === 'value') {
        // Only update if data is different to avoid infinite loop
@@ -165,42 +179,104 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
     }
   }, [hasInlineData, dataConfig]);
 
+  // --- Unified async data loading effect ---
+  // Combines schema fetch + data fetch into a single async flow with AbortController.
+  // This avoids the fragile "chained effects" pattern where Effect 1 sets objectSchema,
+  // triggering Effect 2 to call fetchData — a pattern prone to infinite loops when
+  // fetchData's reference is unstable.
   useEffect(() => {
-    const fetchObjectSchema = async () => {
+    if (hasInlineData) return;
+
+    let cancelled = false;
+
+    const loadSchemaAndData = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        if (!dataSource) {
+        // --- Step 1: Resolve object schema ---
+        let resolvedSchema: any = null;
+        const cols = normalizeColumns(schemaColumns) || schemaFields;
+
+        if (cols && objectName) {
+          // We have explicit columns — use a minimal schema stub
+          resolvedSchema = { name: objectName, fields: {} };
+        } else if (objectName && dataSource) {
+          // Fetch full schema from DataSource
+          const schemaData = await dataSource.getObjectSchema(objectName);
+          if (cancelled) return;
+          resolvedSchema = schemaData;
+        } else if (!objectName) {
+          throw new Error('Object name required for data fetching');
+        } else {
           throw new Error('DataSource required');
         }
-        
-        // For object provider, get the object name
-        const objectName = dataConfig?.provider === 'object' && 'object' in dataConfig
-          ? dataConfig.object 
-          : schema.objectName;
-          
-        if (!objectName) {
-          throw new Error('Object name required for object provider');
+
+        if (!cancelled) {
+          setObjectSchema(resolvedSchema);
         }
-        
-        const schemaData = await dataSource.getObjectSchema(objectName);
-        setObjectSchema(schemaData);
+
+        // --- Step 2: Fetch data ---
+        if (dataSource && objectName) {
+          const getSelectFields = () => {
+            if (schemaFields) return schemaFields;
+            if (schemaColumns && Array.isArray(schemaColumns)) {
+              return schemaColumns.map((c: any) => typeof c === 'string' ? c : c.field);
+            }
+            return undefined;
+          };
+
+          const params: any = {
+            $select: getSelectFields(),
+            $top: (schemaPagination as any)?.pageSize || schemaPageSize || 50,
+          };
+
+          // Support new filter format
+          if (schemaFilter && Array.isArray(schemaFilter)) {
+            params.$filter = schemaFilter;
+          } else if (schema.defaultFilters) {
+            // Legacy support
+            params.$filter = schema.defaultFilters;
+          }
+
+          // Support new sort format
+          if (schemaSort) {
+            if (typeof schemaSort === 'string') {
+              params.$orderby = schemaSort;
+            } else if (Array.isArray(schemaSort)) {
+              params.$orderby = schemaSort
+                .map((s: any) => `${s.field} ${s.order}`)
+                .join(', ');
+            }
+          } else if (schema.defaultSort) {
+            // Legacy support
+            params.$orderby = `${(schema.defaultSort as any).field} ${(schema.defaultSort as any).order}`;
+          }
+
+          const result = await dataSource.find(objectName, params);
+          if (cancelled) return;
+          setData(result.data || []);
+        }
       } catch (err) {
-        setError(err as Error);
+        if (!cancelled) {
+          setError(err as Error);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
-    // Normalize columns (support both legacy 'fields' and new 'columns')
-    const cols = normalizeColumns(schema.columns) || schema.fields;
-    
-    if (hasInlineData && cols) {
-      setObjectSchema({ name: schema.objectName, fields: {} });
-    } else if (schema.objectName && !hasInlineData && dataSource) {
-      fetchObjectSchema();
-    }
-  }, [schema.objectName, schema.columns, schema.fields, dataSource, hasInlineData, dataConfig]);
+    loadSchemaAndData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [objectName, schemaFields, schemaColumns, schemaFilter, schemaSort, schemaPagination, schemaPageSize, dataSource, hasInlineData, dataConfig]);
 
   const generateColumns = useCallback(() => {
     // Use normalized columns (support both new and legacy)
-    const cols = normalizeColumns(schema.columns);
+    const cols = normalizeColumns(schemaColumns);
     
     if (cols) {
       // Check if columns are already in data-table format (have 'accessorKey')
@@ -243,7 +319,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
     if (hasInlineData) {
       const inlineData = dataConfig?.provider === 'value' ? dataConfig.items as any[] : [];
       if (inlineData.length > 0) {
-        const fieldsToShow = schema.fields || Object.keys(inlineData[0]);
+        const fieldsToShow = schemaFields || Object.keys(inlineData[0]);
         return fieldsToShow.map((fieldName) => ({
           header: fieldName.charAt(0).toUpperCase() + fieldName.slice(1).replace(/_/g, ' '),
           accessorKey: fieldName,
@@ -254,7 +330,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
     if (!objectSchema) return [];
 
     const generatedColumns: any[] = [];
-    const fieldsToShow = schema.fields || Object.keys(objectSchema.fields || {});
+    const fieldsToShow = schemaFields || Object.keys(objectSchema.fields || {});
     
     fieldsToShow.forEach((fieldName) => {
       const field = objectSchema.fields?.[fieldName];
@@ -272,74 +348,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
     });
 
     return generatedColumns;
-  }, [objectSchema, schema.fields, schema.columns, dataConfig, hasInlineData]);
-
-  const fetchData = useCallback(async () => {
-    if (hasInlineData || !dataSource) return;
-
-    setLoading(true);
-    try {
-      // Get object name from data config or schema
-      const objectName = dataConfig?.provider === 'object' && 'object' in dataConfig
-        ? dataConfig.object 
-        : schema.objectName;
-        
-      if (!objectName) {
-        throw new Error('Object name required for data fetching');
-      }
-      
-      // Helper to get select fields
-      const getSelectFields = () => {
-        if (schema.fields) return schema.fields;
-        if (schema.columns && Array.isArray(schema.columns)) {
-          return schema.columns.map(c => typeof c === 'string' ? c : c.field);
-        }
-        return undefined;
-      };
-      
-      const params: any = {
-        $select: getSelectFields(),
-        $top: schema.pagination?.pageSize || schema.pageSize || 50,
-      };
-
-      // Support new filter format
-      if (schema.filter && Array.isArray(schema.filter)) {
-        params.$filter = schema.filter;
-      } else if ('defaultFilters' in schema && schema.defaultFilters) {
-        // Legacy support
-        params.$filter = schema.defaultFilters;
-      }
-
-      // Support new sort format
-      if (schema.sort) {
-        if (typeof schema.sort === 'string') {
-          // Legacy string format
-          params.$orderby = schema.sort;
-        } else if (Array.isArray(schema.sort)) {
-          // New array format
-          params.$orderby = schema.sort
-            .map(s => `${s.field} ${s.order}`)
-            .join(', ');
-        }
-      } else if ('defaultSort' in schema && schema.defaultSort) {
-        // Legacy support
-        params.$orderby = `${schema.defaultSort.field} ${schema.defaultSort.order}`;
-      }
-
-      const result = await dataSource.find(objectName, params);
-      setData(result.data || []);
-    } catch (err) {
-      setError(err as Error);
-    } finally {
-      setLoading(false);
-    }
-  }, [schema, dataSource, hasInlineData, dataConfig]);
-
-  useEffect(() => {
-    if (objectSchema || hasInlineData) {
-      fetchData();
-    }
-  }, [objectSchema, hasInlineData, fetchData]);
+  }, [objectSchema, schemaFields, schemaColumns, dataConfig, hasInlineData]);
 
   if (error) {
     return (
