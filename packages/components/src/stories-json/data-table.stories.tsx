@@ -62,7 +62,7 @@ export const FullFeatures: Story = {
 export const EditableTable: Story = {
     args: {
       type: 'data-table',
-      caption: 'Editable Product Inventory',
+      caption: 'Editable Product Inventory - Simple Cell Editing',
       searchable: false,
       pagination: false,
       editable: true,
@@ -81,6 +81,43 @@ export const EditableTable: Story = {
       onCellChange: (rowIndex: number, columnKey: string, newValue: any, row: any) => {
         console.log('Cell edited:', { rowIndex, columnKey, newValue, row });
         alert(`Updated ${columnKey} to "${newValue}" for ${row.name}`);
+      }
+    },
+    render: (args) => <SchemaRenderer schema={args} />
+  };
+
+export const BatchEditTable: Story = {
+    args: {
+      type: 'data-table',
+      caption: 'Batch Edit Mode - Edit Multiple Rows & Save Together',
+      searchable: false,
+      pagination: false,
+      editable: true,
+      rowActions: true,
+      columns: [
+          { header: 'ID', accessorKey: 'id', width: '60px', editable: false },
+          { header: 'Product Name', accessorKey: 'name' },
+          { header: 'Category', accessorKey: 'category' },
+          { header: 'Price', accessorKey: 'price' },
+          { header: 'Stock', accessorKey: 'stock' }
+      ],
+      data: [
+          { id: 1, name: 'Wireless Mouse', category: 'Electronics', price: '$29.99', stock: 50 },
+          { id: 2, name: 'USB-C Cable', category: 'Accessories', price: '$12.99', stock: 100 },
+          { id: 3, name: 'Laptop Stand', category: 'Accessories', price: '$45.99', stock: 25 },
+          { id: 4, name: 'Webcam HD', category: 'Electronics', price: '$79.99', stock: 15 },
+          { id: 5, name: 'Desk Lamp', category: 'Furniture', price: '$34.99', stock: 30 }
+      ],
+      onRowSave: async (rowIndex: number, changes: Record<string, any>, row: any) => {
+        console.log('Saving single row:', { rowIndex, changes, row });
+        await new Promise(resolve => setTimeout(resolve, 500));
+        alert(`✓ Saved changes for "${row.name}":\n${JSON.stringify(changes, null, 2)}`);
+      },
+      onBatchSave: async (allChanges: Array<{ rowIndex: number; changes: Record<string, any>; row: any }>) => {
+        console.log('Batch saving all rows:', allChanges);
+        await new Promise(resolve => setTimeout(resolve, 800));
+        const summary = allChanges.map(c => `${c.row.name}: ${Object.keys(c.changes).length} field(s)`).join('\n');
+        alert(`✓ Batch saved ${allChanges.length} rows:\n\n${summary}`);
       }
     },
     render: (args) => <SchemaRenderer schema={args} />

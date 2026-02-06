@@ -157,12 +157,13 @@ export const OpportunitiesGrid: Story = {
 };
 
 /**
- * Editable Grid - Inline cell editing example
+ * Editable Grid - Simple Inline Cell Editing
  * 
- * This story demonstrates inline editing capabilities:
+ * This story demonstrates basic inline editing capabilities:
  * - Double-click or press Enter to edit a cell
  * - Press Enter to save, Escape to cancel
  * - ID column is read-only (editable: false)
+ * - Changes are immediately reported via onCellChange callback
  */
 export const EditableGrid: Story = {
   render: renderStory,
@@ -179,27 +180,30 @@ export const EditableGrid: Story = {
     data: [
       { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', status: 'Active' },
       { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'User', status: 'Active' },
-      { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'User', status: 'Inactive' }
+      { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'User', status: 'Inactive' },
+      { id: 4, name: 'Alice Williams', email: 'alice@example.com', role: 'User', status: 'Active' }
     ],
     editable: true,
     pagination: false,
     className: 'w-full',
     onCellChange: (rowIndex: number, columnKey: string, newValue: any, row: any) => {
       console.log('Cell changed:', { rowIndex, columnKey, newValue, row });
-      // In a real application, you would update your data source here
-      // Example: await dataSource.update(row.id, { [columnKey]: newValue });
+      alert(`✓ Cell updated immediately:\n${columnKey} = "${newValue}"`);
     }
   } as any,
 };
 
 /**
- * Batch Edit Grid - Multi-row editing with batch save
+ * Batch Edit Grid - Multi-Row Editing with Batch Save
  * 
- * This story demonstrates batch editing capabilities:
+ * This story demonstrates advanced batch editing capabilities:
  * - Edit multiple cells across multiple rows
- * - Modified rows are highlighted
- * - Save individual rows or batch save all changes
+ * - Modified rows are highlighted with amber background
+ * - Modified cells shown in bold amber text
+ * - Save individual rows using row-level save buttons
+ * - Batch save all changes at once using "Save All" button
  * - Cancel changes per row or all at once
+ * - Toolbar shows count of modified rows
  */
 export const BatchEditGrid: Story = {
   render: renderStory,
@@ -209,14 +213,16 @@ export const BatchEditGrid: Story = {
     columns: [
       { field: 'sku', header: 'SKU', width: 120, editable: false },
       { field: 'name', header: 'Product Name', sortable: true },
+      { field: 'category', header: 'Category', sortable: true },
       { field: 'price', header: 'Price', sortable: true },
       { field: 'stock', header: 'Stock', sortable: true }
     ],
     data: [
-      { sku: 'PROD-001', name: 'Laptop', price: '$1299.99', stock: 15 },
-      { sku: 'PROD-002', name: 'Mouse', price: '$29.99', stock: 120 },
-      { sku: 'PROD-003', name: 'Keyboard', price: '$79.99', stock: 45 },
-      { sku: 'PROD-004', name: 'Monitor', price: '$399.99', stock: 22 }
+      { sku: 'PROD-001', name: 'Laptop', category: 'Electronics', price: '$1299.99', stock: 15 },
+      { sku: 'PROD-002', name: 'Mouse', category: 'Electronics', price: '$29.99', stock: 120 },
+      { sku: 'PROD-003', name: 'Keyboard', category: 'Accessories', price: '$79.99', stock: 45 },
+      { sku: 'PROD-004', name: 'Monitor', category: 'Electronics', price: '$399.99', stock: 22 },
+      { sku: 'PROD-005', name: 'USB Cable', category: 'Accessories', price: '$12.99', stock: 200 }
     ],
     editable: true,
     pagination: false,
@@ -226,13 +232,69 @@ export const BatchEditGrid: Story = {
       console.log('Saving row:', { rowIndex, changes, row });
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 500));
-      alert(`Saved changes for ${row.name}: ${JSON.stringify(changes)}`);
+      const changeList = Object.entries(changes).map(([k, v]) => `  ${k}: "${v}"`).join('\n');
+      alert(`✓ Saved changes for "${row.name}":\n\n${changeList}`);
     },
     onBatchSave: async (allChanges: Array<{ rowIndex: number; changes: Record<string, any>; row: any }>) => {
       console.log('Batch saving:', allChanges);
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      alert(`Batch saved ${allChanges.length} rows`);
+      const summary = allChanges.map(c => 
+        `${c.row.name}: ${Object.keys(c.changes).join(', ')}`
+      ).join('\n');
+      alert(`✓ Batch saved ${allChanges.length} rows:\n\n${summary}`);
+    }
+  } as any,
+};
+
+/**
+ * Advanced Batch Editing - Real-World Inventory Management
+ * 
+ * This example shows a complete workflow:
+ * - Large dataset with pagination
+ * - Multiple editable fields
+ * - Read-only columns (ID, SKU)
+ * - Both row-level and batch save operations
+ * - Search and filter capabilities
+ */
+export const AdvancedBatchEdit: Story = {
+  render: renderStory,
+  args: {
+    type: 'object-grid',
+    objectName: 'Inventory',
+    columns: [
+      { field: 'id', header: 'ID', width: 60, editable: false },
+      { field: 'sku', header: 'SKU', width: 100, editable: false },
+      { field: 'name', header: 'Product Name', sortable: true },
+      { field: 'category', header: 'Category', sortable: true },
+      { field: 'price', header: 'Price ($)', sortable: true },
+      { field: 'stock', header: 'Stock', sortable: true },
+      { field: 'reorderLevel', header: 'Reorder At', sortable: true }
+    ],
+    data: [
+      { id: 1, sku: 'ELEC-001', name: 'Wireless Mouse', category: 'Electronics', price: '29.99', stock: 45, reorderLevel: 20 },
+      { id: 2, sku: 'ELEC-002', name: 'USB Keyboard', category: 'Electronics', price: '49.99', stock: 32, reorderLevel: 15 },
+      { id: 3, sku: 'FURN-001', name: 'Desk Lamp', category: 'Furniture', price: '34.99', stock: 18, reorderLevel: 10 },
+      { id: 4, sku: 'ELEC-003', name: 'Webcam HD', category: 'Electronics', price: '79.99', stock: 12, reorderLevel: 10 },
+      { id: 5, sku: 'ACC-001', name: 'HDMI Cable', category: 'Accessories', price: '15.99', stock: 150, reorderLevel: 50 },
+      { id: 6, sku: 'FURN-002', name: 'Monitor Stand', category: 'Furniture', price: '45.99', stock: 28, reorderLevel: 12 },
+      { id: 7, sku: 'ELEC-004', name: 'USB Hub', category: 'Electronics', price: '24.99', stock: 65, reorderLevel: 25 },
+      { id: 8, sku: 'ACC-002', name: 'Mouse Pad', category: 'Accessories', price: '9.99', stock: 200, reorderLevel: 75 }
+    ],
+    editable: true,
+    pagination: true,
+    pageSize: 5,
+    rowActions: true,
+    className: 'w-full',
+    onRowSave: async (rowIndex: number, changes: Record<string, any>, row: any) => {
+      console.log('Saving inventory row:', { rowIndex, changes, row });
+      await new Promise(resolve => setTimeout(resolve, 600));
+      alert(`✓ Updated inventory for "${row.name}"\n\nChanges:\n${JSON.stringify(changes, null, 2)}`);
+    },
+    onBatchSave: async (allChanges: Array<{ rowIndex: number; changes: Record<string, any>; row: any }>) => {
+      console.log('Batch updating inventory:', allChanges);
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      alert(`✓ Batch updated ${allChanges.length} inventory items\n\nProcessed successfully!`);
     }
   } as any,
 };
