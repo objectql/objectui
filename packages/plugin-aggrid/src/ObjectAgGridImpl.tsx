@@ -453,7 +453,6 @@ function applyFieldTypeFormatting(colDef: ColDef, field: FieldMetadata): void {
   } else {
     // Fallback to simple rendering for unsupported types
     switch (field.type) {
-      case 'lookup':
       case 'master_detail':
         colDef.valueFormatter = (params: any) => {
           if (!params.value) return '';

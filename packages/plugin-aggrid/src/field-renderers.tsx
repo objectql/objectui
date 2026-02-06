@@ -38,32 +38,33 @@ import {
 
 /**
  * Map field type to field widget component
+ * Defined at module level to avoid recreating on every call
  */
-function getFieldWidget(fieldType: string): React.ComponentType<any> | null {
-  const widgetMap: Record<string, React.ComponentType<any>> = {
-    text: TextField,
-    textarea: TextAreaField,
-    number: NumberField,
-    currency: CurrencyField,
-    percent: PercentField,
-    boolean: BooleanField,
-    select: SelectField,
-    date: DateField,
-    datetime: DateTimeField,
-    time: TimeField,
-    email: EmailField,
-    phone: PhoneField,
-    url: UrlField,
-    password: PasswordField,
-    color: ColorField,
-    rating: RatingField,
-    image: ImageField,
-    avatar: AvatarField,
-    lookup: LookupField,
-    slider: SliderField,
-    code: CodeField,
-  };
+const widgetMap: Record<string, React.ComponentType<any>> = {
+  text: TextField,
+  textarea: TextAreaField,
+  number: NumberField,
+  currency: CurrencyField,
+  percent: PercentField,
+  boolean: BooleanField,
+  select: SelectField,
+  date: DateField,
+  datetime: DateTimeField,
+  time: TimeField,
+  email: EmailField,
+  phone: PhoneField,
+  url: UrlField,
+  password: PasswordField,
+  color: ColorField,
+  rating: RatingField,
+  image: ImageField,
+  avatar: AvatarField,
+  lookup: LookupField,
+  slider: SliderField,
+  code: CodeField,
+};
 
+function getFieldWidget(fieldType: string): React.ComponentType<any> | null {
   return widgetMap[fieldType] || null;
 }
 
@@ -114,6 +115,12 @@ export class FieldWidgetCellRenderer {
           readonly={true}
         />
       );
+      return true;
+    }
+
+    // Fallback to text display when no FieldWidget is available
+    if (this.eGui) {
+      this.eGui.textContent = value != null ? String(value) : '';
       return true;
     }
 
