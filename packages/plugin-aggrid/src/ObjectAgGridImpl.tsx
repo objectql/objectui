@@ -466,15 +466,30 @@ function applyFieldTypeFormatting(colDef: ColDef, field: FieldMetadata): void {
         break;
         
       case 'object':
-        colDef.cellRenderer = () => '<span class="text-gray-500 italic">[Object]</span>';
+        colDef.cellRenderer = () => {
+          const span = document.createElement('span');
+          span.className = 'text-gray-500 italic';
+          span.textContent = '[Object]';
+          return span;
+        };
         break;
         
       case 'vector':
-        colDef.cellRenderer = () => '<span class="text-gray-500 italic">[Vector]</span>';
+        colDef.cellRenderer = () => {
+          const span = document.createElement('span');
+          span.className = 'text-gray-500 italic';
+          span.textContent = '[Vector]';
+          return span;
+        };
         break;
         
       case 'grid':
-        colDef.cellRenderer = () => '<span class="text-gray-500 italic">[Grid]</span>';
+        colDef.cellRenderer = () => {
+          const span = document.createElement('span');
+          span.className = 'text-gray-500 italic';
+          span.textContent = '[Grid]';
+          return span;
+        };
         break;
         
       default:

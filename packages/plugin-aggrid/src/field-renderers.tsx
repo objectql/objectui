@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, type Root } from 'react-dom/client';
 import type { ICellRendererParams, ICellEditorParams } from 'ag-grid-community';
 import type { FieldMetadata } from '@object-ui/types';
 
@@ -72,7 +72,7 @@ function getFieldWidget(fieldType: string): React.ComponentType<any> | null {
  */
 export class FieldWidgetCellRenderer {
   public eGui!: HTMLDivElement;
-  public root: any;
+  public root: Root | null = null;
 
   init(params: ICellRendererParams & { field: FieldMetadata }) {
     const { value, field } = params;
@@ -132,8 +132,8 @@ export class FieldWidgetCellRenderer {
  */
 export class FieldWidgetCellEditor {
   public eGui!: HTMLDivElement;
-  public root: any;
-  public currentValue: any;
+  public root: Root | null = null;
+  public currentValue: unknown;
   public params!: ICellEditorParams & { field: FieldMetadata };
 
   init(params: ICellEditorParams & { field: FieldMetadata }) {
