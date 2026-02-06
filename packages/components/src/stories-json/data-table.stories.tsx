@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { SchemaRenderer } from '../SchemaRenderer';
+import { SchemaRenderer, SchemaRendererProvider } from '@object-ui/react';
+import type { BaseSchema } from '@object-ui/types';
+import { createStorybookDataSource } from '@storybook-config/datasource';
 
 const meta: Meta = {
   title: 'Components/Table',
@@ -12,6 +14,15 @@ const meta: Meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+// Create a DataSource instance that connects to MSW
+const dataSource = createStorybookDataSource();
+
+const renderStory = (args: any) => (
+  <SchemaRendererProvider dataSource={dataSource}>
+    <SchemaRenderer schema={args as unknown as BaseSchema} />
+  </SchemaRendererProvider>
+);
 
 export const DataTable: Story = {
   args: {
@@ -29,7 +40,7 @@ export const DataTable: Story = {
         { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'User' }
     ]
   },
-  render: (args) => <SchemaRenderer schema={args} />
+  render: renderStory
 };
 
 export const FullFeatures: Story = {
@@ -56,7 +67,7 @@ export const FullFeatures: Story = {
           method: i % 2 === 0 ? 'Credit Card' : 'PayPal'
       }))
     },
-    render: (args) => <SchemaRenderer schema={args} />
+    render: renderStory
   };
 
 export const EditableTable: Story = {
@@ -83,7 +94,7 @@ export const EditableTable: Story = {
         alert(`Updated ${columnKey} to "${newValue}" for ${row.name}`);
       }
     },
-    render: (args) => <SchemaRenderer schema={args} />
+    render: renderStory
   };
 
 export const BatchEditTable: Story = {
@@ -120,6 +131,6 @@ export const BatchEditTable: Story = {
         alert(`✓ Batch saved ${allChanges.length} rows:\n\n${summary}`);
       }
     },
-    render: (args) => <SchemaRenderer schema={args} />
+    render: renderStory
   };
 
