@@ -38,19 +38,8 @@ export async function startMockServer() {
   // Bootstrap kernel WITHOUT MSW plugin (we'll handle MSW separately for tests)
   await kernel.bootstrap();
 
-  // Load initial data from manifest
-  const manifest = (appConfig as any).manifest;
-  if (manifest && Array.isArray(manifest.data)) {
-    console.log('[MSW] Loading initial data...');
-    for (const dataset of manifest.data) {
-      if (dataset.object && Array.isArray(dataset.records)) {
-        for (const record of dataset.records) {
-          await driver.create(dataset.object, record);
-        }
-        console.log(`[MSW] Loaded ${dataset.records.length} records for ${dataset.object}`);
-      }
-    }
-  }
+  // Note: AppPlugin already loads manifest data during bootstrap,
+  // so we don't need to manually load it again here.
 
   // Create MSW handlers manually for both paths to ensure compatibility with client defaults
   const v1Handlers = createHandlers('http://localhost:3000/api/v1', kernel, driver!);

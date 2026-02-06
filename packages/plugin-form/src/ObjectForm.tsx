@@ -83,10 +83,12 @@ export const ObjectForm: React.FC<ObjectFormProps> = ({
         if (!dataSource) {
           throw new Error('DataSource is required when using ObjectQL schema fetching (inline fields not provided)');
         }
+        console.log('[ObjectForm] Fetching object schema for:', schema.objectName);
         const schemaData = await dataSource.getObjectSchema(schema.objectName);
+        console.log('[ObjectForm] Got schema data:', schemaData?.name, 'fields count:', Object.keys(schemaData?.fields || {}).length);
         setObjectSchema(schemaData);
       } catch (err) {
-        console.error('Failed to fetch object schema:', err);
+        console.error('[ObjectForm] Failed to fetch object schema:', err);
         setError(err as Error);
       }
     };
@@ -269,6 +271,7 @@ export const ObjectForm: React.FC<ObjectFormProps> = ({
       }
     });
 
+    console.log('[ObjectForm] Generated fields:', generatedFields.length, 'for objectSchema:', objectSchema?.name);
     setFormFields(generatedFields);
     setLoading(false);
   }, [objectSchema, schema.fields, schema.customFields, schema.readOnly, schema.mode, hasInlineFields]);
@@ -364,6 +367,7 @@ export const ObjectForm: React.FC<ObjectFormProps> = ({
   }
 
   // Render loading state
+  console.log('[ObjectForm] Render check - loading:', loading, 'formFields:', formFields.length, 'objectSchema:', !!objectSchema, 'error:', !!error);
   if (loading) {
     return (
       <div className="p-8 text-center">

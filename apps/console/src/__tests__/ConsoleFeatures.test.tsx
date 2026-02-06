@@ -54,7 +54,8 @@ vi.mock('lucide-react', () => ({
     Table: () => <span>Tab</span>,
     AlignLeft: () => <span>Gantt</span>,
     Filter: () => <span>FilterIcon</span>,
-    X: () => <span>X</span>
+    X: () => <span>X</span>,
+    Code2: () => <span>Code</span>
 }));
 
 describe('ObjectView Console Features', () => {

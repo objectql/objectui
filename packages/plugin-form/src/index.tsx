@@ -19,7 +19,26 @@ const ObjectFormRenderer: React.FC<{ schema: any }> = ({ schema }) => {
 };
 
 ComponentRegistry.register('object-form', ObjectFormRenderer, {
-  namespace: 'plugin-form'
+  namespace: 'plugin-form',
+  label: 'Object Form',
+  category: 'plugin',
+  inputs: [
+    { name: 'objectName', type: 'string', label: 'Object Name', required: true },
+    { name: 'fields', type: 'array', label: 'Fields' },
+    { name: 'mode', type: 'enum', label: 'Mode', enum: ['create', 'edit', 'view'] },
+  ]
+});
+
+// Alias for view namespace - this allows using { type: 'view:form' } in schemas
+ComponentRegistry.register('form', ObjectFormRenderer, {
+  namespace: 'view',
+  label: 'Data Form',
+  category: 'view',
+  inputs: [
+    { name: 'objectName', type: 'string', label: 'Object Name', required: true },
+    { name: 'fields', type: 'array', label: 'Fields' },
+    { name: 'mode', type: 'enum', label: 'Mode', enum: ['create', 'edit', 'view'] },
+  ]
 });
 
 // Note: 'form' type is handled by @object-ui/components Form component
