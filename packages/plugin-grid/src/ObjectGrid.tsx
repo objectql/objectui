@@ -42,7 +42,9 @@ export interface ObjectGridProps {
   onEdit?: (record: any) => void;
   onDelete?: (record: any) => void;
   onBulkDelete?: (records: any[]) => void;
-  onCellChange?: (rowIndex: number, columnKey: string, newValue: any) => void;
+  onCellChange?: (rowIndex: number, columnKey: string, newValue: any, row: any) => void;
+  onRowSave?: (rowIndex: number, changes: Record<string, any>, row: any) => void | Promise<void>;
+  onBatchSave?: (changes: Array<{ rowIndex: number; changes: Record<string, any>; row: any }>) => void | Promise<void>;
   onRowSelect?: (selectedRows: any[]) => void;
 }
 
@@ -109,6 +111,9 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
   onDelete,
   onRowSelect,
   onRowClick,
+  onCellChange,
+  onRowSave,
+  onBatchSave,
   ...rest
 }) => {
   const [data, setData] = useState<any[]>([]);
@@ -428,9 +433,13 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
     rowActions: hasActions,
     resizableColumns: schema.resizable ?? schema.resizableColumns ?? true,
     reorderableColumns: schema.reorderableColumns ?? false,
+    editable: schema.editable ?? false,
     className: schema.className,
     onSelectionChange: onRowSelect,
     onRowClick: onRowClick,
+    onCellChange: onCellChange,
+    onRowSave: onRowSave,
+    onBatchSave: onBatchSave,
   };
 
   return <SchemaRenderer schema={dataTableSchema} />;

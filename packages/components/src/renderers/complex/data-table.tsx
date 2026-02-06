@@ -44,6 +44,8 @@ import {
   ChevronsLeft,
   ChevronsRight,
   GripVertical,
+  Save,
+  X,
 } from 'lucide-react';
 
 type SortDirection = 'asc' | 'desc' | null;
@@ -97,6 +99,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
     rowActions = false,
     resizableColumns = true,
     reorderableColumns = true,
+    editable = false,
     className,
   } = schema;
 
@@ -120,11 +123,17 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
   const [draggedColumn, setDraggedColumn] = useState<number | null>(null);
   const [dragOverColumn, setDragOverColumn] = useState<number | null>(null);
+  const [editingCell, setEditingCell] = useState<{ rowIndex: number; columnKey: string } | null>(null);
+  const [editValue, setEditValue] = useState<any>('');
+  // Track pending changes for multi-cell editing: rowIndex -> { columnKey -> newValue }
+  const [pendingChanges, setPendingChanges] = useState<Map<number, Record<string, any>>>(new Map());
+  const [isSaving, setIsSaving] = useState(false);
   
   // Refs for column resizing
   const resizingColumn = useRef<string | null>(null);
   const startX = useRef<number>(0);
   const startWidth = useRef<number>(0);
+  const editInputRef = useRef<HTMLInputElement>(null);
 
   // Update columns when schema changes
   useEffect(() => {
@@ -340,6 +349,141 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
     setDragOverColumn(null);
   };
 
+  // Cell editing handlers
+  const startEdit = (rowIndex: number, columnKey: string) => {
+    if (!editable) return;
+    
+    const column = columns.find(col => col.accessorKey === columnKey);
+    if (column?.editable === false) return;
+    
+    setEditingCell({ rowIndex, columnKey });
+    
+    // Check if there's a pending change for this cell, otherwise use current data value
+    const rowChanges = pendingChanges.get(rowIndex);
+    const currentValue = paginatedData[rowIndex][columnKey];
+    const valueToEdit = rowChanges?.[columnKey] ?? currentValue ?? '';
+    setEditValue(valueToEdit);
+  };
+
+  const saveEdit = (force: boolean = false) => {
+    if (!editingCell) return;
+    
+    // Don't save if we're in cancelled state (unless forced)
+    if (!force && editingCell === null) return;
+    
+    const { rowIndex, columnKey } = editingCell;
+    const globalIndex = (currentPage - 1) * pageSize + rowIndex;
+    const row = sortedData[globalIndex];
+    
+    // Update pending changes
+    const newPendingChanges = new Map(pendingChanges);
+    const rowChanges = newPendingChanges.get(rowIndex) || {};
+    rowChanges[columnKey] = editValue;
+    newPendingChanges.set(rowIndex, rowChanges);
+    setPendingChanges(newPendingChanges);
+    
+    // Call the legacy onCellChange callback if provided
+    if (schema.onCellChange) {
+      schema.onCellChange(globalIndex, columnKey, editValue, row);
+    }
+    
+    setEditingCell(null);
+    setEditValue('');
+  };
+
+  const cancelEdit = () => {
+    setEditingCell(null);
+    setEditValue('');
+  };
+
+  const saveRow = async (rowIndex: number) => {
+    const globalIndex = (currentPage - 1) * pageSize + rowIndex;
+    const row = sortedData[globalIndex];
+    const rowChanges = pendingChanges.get(rowIndex);
+    
+    if (!rowChanges || Object.keys(rowChanges).length === 0) return;
+    
+    setIsSaving(true);
+    try {
+      if (schema.onRowSave) {
+        await schema.onRowSave(globalIndex, rowChanges, row);
+      }
+      
+      // Clear pending changes for this row
+      const newPendingChanges = new Map(pendingChanges);
+      newPendingChanges.delete(rowIndex);
+      setPendingChanges(newPendingChanges);
+    } catch (error) {
+      console.error('Failed to save row:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const cancelRowChanges = (rowIndex: number) => {
+    const newPendingChanges = new Map(pendingChanges);
+    newPendingChanges.delete(rowIndex);
+    setPendingChanges(newPendingChanges);
+  };
+
+  const saveBatch = async () => {
+    if (pendingChanges.size === 0) return;
+    
+    setIsSaving(true);
+    try {
+      const changesToSave = Array.from(pendingChanges.entries()).map(([rowIndex, changes]) => {
+        const globalIndex = (currentPage - 1) * pageSize + rowIndex;
+        const row = sortedData[globalIndex];
+        return { rowIndex: globalIndex, changes, row };
+      });
+      
+      if (schema.onBatchSave) {
+        await schema.onBatchSave(changesToSave);
+      }
+      
+      // Clear all pending changes
+      setPendingChanges(new Map());
+    } catch (error) {
+      console.error('Failed to save batch:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const cancelAllChanges = () => {
+    setPendingChanges(new Map());
+  };
+
+  const handleCellKeyDown = (e: React.KeyboardEvent, rowIndex: number, columnKey: string) => {
+    if (!editable) return;
+    
+    const column = columns.find(col => col.accessorKey === columnKey);
+    if (column?.editable === false) return;
+    
+    if (e.key === 'Enter' && !editingCell) {
+      e.preventDefault();
+      startEdit(rowIndex, columnKey);
+    }
+  };
+
+  const handleEditKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveEdit(true);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancelEdit();
+    }
+  };
+
+  // Auto-focus on edit input when entering edit mode
+  useEffect(() => {
+    if (editingCell && editInputRef.current) {
+      editInputRef.current.focus();
+      editInputRef.current.select();
+    }
+  }, [editingCell]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -361,7 +505,8 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
     return selectedRowIds.has(rowId);
   }) && !allPageRowsSelected;
 
-  const showToolbar = searchable || exportable || (selectable && selectedRowIds.size > 0);
+  const hasPendingChanges = pendingChanges.size > 0;
+  const showToolbar = searchable || exportable || (selectable && selectedRowIds.size > 0) || hasPendingChanges;
 
   return (
     <div className={`flex flex-col h-full gap-4 ${className || ''}`}>
@@ -386,6 +531,32 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
           </div>
           
           <div className="flex items-center gap-2">
+            {hasPendingChanges && (
+              <>
+                <div className="text-sm text-muted-foreground">
+                  {pendingChanges.size} row{pendingChanges.size > 1 ? 's' : ''} modified
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={cancelAllChanges}
+                  disabled={isSaving}
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Cancel All
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={saveBatch}
+                  disabled={isSaving}
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save All ({pendingChanges.size})
+                </Button>
+              </>
+            )}
+            
             {exportable && (
               <Button
                 variant="outline"
@@ -485,24 +656,24 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                   const globalIndex = (currentPage - 1) * pageSize + rowIndex;
                   const rowId = getRowId(row, globalIndex);
                   const isSelected = selectedRowIds.has(rowId);
+                  const rowHasChanges = pendingChanges.has(rowIndex);
+                  const rowChanges = pendingChanges.get(rowIndex) || {};
                   
                   return (
                     <TableRow 
                       key={rowId} 
                       data-state={isSelected ? 'selected' : undefined}
                       className={cn(
-                        // @ts-expect-error - onRowClick might not be in schema type definition
-                        schema.onRowClick && "cursor-pointer"
+                        schema.onRowClick && "cursor-pointer",
+                        rowHasChanges && "bg-amber-50 dark:bg-amber-950/20"
                       )}
                       onClick={(e) => {
-                        // @ts-expect-error - onRowClick might not be in schema type definition
                         if (schema.onRowClick && !e.defaultPrevented) {
                            // Simple heuristic to avoid triggering on interactive elements if they didn't stop propagation
                            const target = e.target as HTMLElement;
                            if (target.closest('button') || target.closest('[role="checkbox"]') || target.closest('a')) {
                              return;
                            }
-                           // @ts-expect-error - onRowClick might not be in schema type definition
                            schema.onRowClick(row);
                         }
                       }}
@@ -517,37 +688,85 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                       )}
                       {columns.map((col, colIndex) => {
                         const columnWidth = columnWidths[col.accessorKey] || col.width;
+                        const originalValue = row[col.accessorKey];
+                        const hasPendingChange = rowChanges[col.accessorKey] !== undefined;
+                        const cellValue = hasPendingChange ? rowChanges[col.accessorKey] : originalValue;
+                        const isEditing = editingCell?.rowIndex === rowIndex && editingCell?.columnKey === col.accessorKey;
+                        const isEditable = editable && col.editable !== false;
+                        
                         return (
                           <TableCell 
                             key={colIndex} 
-                            className={col.cellClassName}
+                            className={cn(
+                              col.cellClassName,
+                              isEditable && !isEditing && "cursor-text hover:bg-muted/50",
+                              hasPendingChange && "font-semibold text-amber-700 dark:text-amber-400"
+                            )}
                             style={{
                               width: columnWidth,
                               minWidth: columnWidth,
                               maxWidth: columnWidth
                             }}
+                            onDoubleClick={() => isEditable && startEdit(rowIndex, col.accessorKey)}
+                            onKeyDown={(e) => handleCellKeyDown(e, rowIndex, col.accessorKey)}
+                            tabIndex={0}
                           >
-                            {row[col.accessorKey]}
+                            {isEditing ? (
+                              <Input
+                                ref={editInputRef}
+                                value={editValue}
+                                onChange={(e) => setEditValue(e.target.value)}
+                                onKeyDown={handleEditKeyDown}
+                                className="h-8 px-2 py-1"
+                              />
+                            ) : (
+                              cellValue
+                            )}
                           </TableCell>
                         );
                       })}
                       {rowActions && (
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              onClick={() => schema.onRowEdit?.(row)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon-sm"
-                              onClick={() => schema.onRowDelete?.(row)}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
+                            {rowHasChanges && (schema.onRowSave || schema.onBatchSave) ? (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  onClick={() => cancelRowChanges(rowIndex)}
+                                  disabled={isSaving}
+                                  title="Cancel changes"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  onClick={() => saveRow(rowIndex)}
+                                  disabled={isSaving}
+                                  title="Save row"
+                                >
+                                  <Save className="h-4 w-4 text-green-600" />
+                                </Button>
+                              </>
+                            ) : (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  onClick={() => schema.onRowEdit?.(row)}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon-sm"
+                                  onClick={() => schema.onRowDelete?.(row)}
+                                >
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </>
+                            )}
                           </div>
                         </TableCell>
                       )}
