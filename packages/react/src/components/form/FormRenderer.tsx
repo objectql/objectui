@@ -10,6 +10,7 @@ import React from 'react';
 import { useForm, FormProvider, UseFormReturn } from 'react-hook-form';
 import type { FormView, FormSection } from '@objectstack/spec/ui';
 import { FieldFactory } from './FieldFactory';
+import { ExpressionEvaluator } from '@object-ui/core';
 
 export interface FormRendererProps {
   /**
@@ -138,6 +139,39 @@ const COL_SPAN = {
 } as const;
 
 /**
+ * Evaluate whether a field should be visible based on visibleOn expression
+ * and dependsOn parent field value.
+ */
+function evaluateFieldVisibility(
+  fieldConfig: any,
+  formValues: Record<string, any>,
+): boolean {
+  // If explicitly hidden, skip
+  if (fieldConfig.hidden) {
+    return false;
+  }
+
+  // Evaluate visibleOn expression
+  if (fieldConfig.visibleOn) {
+    try {
+      const evaluator = new ExpressionEvaluator({ data: formValues, form: formValues });
+      return evaluator.evaluateCondition(fieldConfig.visibleOn);
+    } catch {
+      // On error, default to visible
+      return true;
+    }
+  }
+
+  // Evaluate dependsOn: field is hidden if parent field has no value
+  if (fieldConfig.dependsOn) {
+    const parentValue = formValues[fieldConfig.dependsOn];
+    return parentValue !== undefined && parentValue !== null && parentValue !== '';
+  }
+
+  return true;
+}
+
+/**
  * Renders a form section with grid layout
  */
 const FormSectionRenderer: React.FC<FormSectionRendererProps> = ({
@@ -149,6 +183,20 @@ const FormSectionRenderer: React.FC<FormSectionRendererProps> = ({
 
   // Determine grid columns based on section.columns
   const gridCols = GRID_COLS[section.columns || 1];
+
+  // Collect whether there are any conditional fields
+  const hasConditionalFields = React.useMemo(() => {
+    return section.fields.some((field) => {
+      if (typeof field === 'string') return false;
+      return !!field.dependsOn || !!field.visibleOn;
+    });
+  }, [section.fields]);
+
+  // Watch form values for conditional field evaluation
+  // Only watch when there are fields with dependsOn or visibleOn to avoid
+  // unnecessary re-renders in forms without conditional fields.
+  const allFormValues = methods.watch();
+  const formValues = hasConditionalFields ? allFormValues : undefined;
 
   const handleToggleCollapse = () => {
     if (section.collapsible) {
@@ -181,8 +229,8 @@ const FormSectionRenderer: React.FC<FormSectionRendererProps> = ({
             const fieldName = typeof field === 'string' ? field : field.field;
             const fieldConfig = typeof field === 'string' ? { field: fieldName } : field;
 
-            // Skip hidden fields
-            if (fieldConfig.hidden) {
+            // Evaluate visibility: static hidden, visibleOn expression, dependsOn parent
+            if (!evaluateFieldVisibility(fieldConfig, formValues || {})) {
               return null;
             }
 
