@@ -2,6 +2,7 @@ import React from 'react';
 import { AppShell } from '@object-ui/layout';
 import { AppSidebar } from './AppSidebar';
 import { AppHeader } from './AppHeader';
+import type { ConnectionState } from '../dataSource';
 
 interface ConsoleLayoutProps {
   children: React.ReactNode;
@@ -9,6 +10,7 @@ interface ConsoleLayoutProps {
   activeApp: any;
   onAppChange: (name: string) => void;
   objects: any[];
+  connectionState?: ConnectionState;
 }
 
 export function ConsoleLayout({ 
@@ -16,7 +18,8 @@ export function ConsoleLayout({
   activeAppName, 
   activeApp,
   onAppChange,
-  objects 
+  objects,
+  connectionState
 }: ConsoleLayoutProps) {
   return (
     <AppShell
@@ -29,7 +32,8 @@ export function ConsoleLayout({
       navbar={
           <AppHeader 
             appName={activeApp?.label || activeAppName} 
-            objects={objects} 
+            objects={objects}
+            connectionState={connectionState}
           />
       }
       className="p-0 overflow-hidden bg-muted/5"

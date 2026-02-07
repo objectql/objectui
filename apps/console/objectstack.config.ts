@@ -5,8 +5,11 @@ const require = createRequire(import.meta.url);
 // @ts-ignore
 globalThis.require = require;
 
-import { defineConfig } from './src/config';
 import { sharedConfig } from './objectstack.shared';
+
+// Server-side config extends the shared stack definition with
+// build/deploy/runtime settings that are outside the spec schema.
+// The shared config is already validated via defineStack() in objectstack.shared.ts.
 
 // @ts-ignore
 import * as MSWPluginPkg from '@objectstack/plugin-msw';
@@ -113,7 +116,7 @@ if (process.env.ENABLE_MSW_PLUGIN === 'true') {
     plugins.push(new MSWPlugin());
 }
 
-export default defineConfig({
+export default {
   ...sharedConfig,
   
   build: {
@@ -142,4 +145,4 @@ export default defineConfig({
     target: 'static',
     region: 'us-east-1',
   },
-});
+};

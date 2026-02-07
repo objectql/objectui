@@ -10,7 +10,7 @@ import './index.css';
 import { App } from './App';
 import { startMockServer } from './mocks/browser';
 
-// Register plugins
+// Register plugins (side-effect imports for ComponentRegistry)
 import '@object-ui/plugin-grid';
 import '@object-ui/plugin-kanban';
 import '@object-ui/plugin-calendar';
@@ -20,6 +20,11 @@ import '@object-ui/plugin-list';
 import '@object-ui/plugin-detail';
 import '@object-ui/plugin-timeline';
 import '@object-ui/plugin-map';
+import '@object-ui/plugin-view';
+import '@object-ui/plugin-form';
+import '@object-ui/plugin-dashboard';
+import '@object-ui/plugin-report';
+import '@object-ui/plugin-markdown';
 
 // Start MSW before rendering the app
 async function bootstrap() {

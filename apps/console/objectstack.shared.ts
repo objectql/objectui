@@ -1,4 +1,4 @@
-import { defineConfig } from './src/config';
+import { defineStack } from '@objectstack/spec';
 import crmConfigImport from '@object-ui/example-crm/objectstack.config';
 import todoConfigImport from '@object-ui/example-todo/objectstack.config';
 import kitchenSinkConfigImport from '@object-ui/example-kitchen-sink/objectstack.config';
@@ -6,14 +6,6 @@ import kitchenSinkConfigImport from '@object-ui/example-kitchen-sink/objectstack
 const crmConfig = (crmConfigImport as any).default || crmConfigImport;
 const todoConfig = (todoConfigImport as any).default || todoConfigImport;
 const kitchenSinkConfig = (kitchenSinkConfigImport as any).default || kitchenSinkConfigImport;
-
-// Debug check for definition loading
-console.log('DEBUG: CRM Objects Count:', crmConfig.objects?.length);
-if (crmConfig.objects?.length) {
-    console.log('DEBUG: CRM Objects:', crmConfig.objects.map((o: any) => o.name || o.id));
-} else {
-    // console.log('DEBUG: CRM Config content:', JSON.stringify(crmConfig, null, 2));
-}
 
 // Patch CRM App Navigation to include Report (since it was removed from CRM config for strict validation)
 const crmApps = crmConfig.apps ? JSON.parse(JSON.stringify(crmConfig.apps)) : [];
@@ -127,4 +119,4 @@ export const sharedConfig = {
   }
 };
 
-export default defineConfig(sharedConfig);
+export default defineStack(sharedConfig as any);

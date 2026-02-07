@@ -14,8 +14,10 @@ import {
 import { Search, Bell, HelpCircle } from 'lucide-react';
 
 import { ModeToggle } from './mode-toggle';
+import { ConnectionStatus } from './ConnectionStatus';
+import type { ConnectionState } from '../dataSource';
 
-export function AppHeader({ appName, objects }: { appName: string, objects: any[] }) {
+export function AppHeader({ appName, objects, connectionState }: { appName: string, objects: any[], connectionState?: ConnectionState }) {
     const location = useLocation();
     const params = useParams();
     
@@ -32,17 +34,17 @@ export function AppHeader({ appName, objects }: { appName: string, objects: any[
     ];
     
     if (routeType === 'dashboard') {
-      breadcrumbItems.push({ label: '仪表盘' });
+      breadcrumbItems.push({ label: 'Dashboard' });
       if (pathParts[3]) {
         breadcrumbItems.push({ label: pathParts[3] });
       }
     } else if (routeType === 'page') {
-      breadcrumbItems.push({ label: '页面' });
+      breadcrumbItems.push({ label: 'Page' });
       if (pathParts[3]) {
         breadcrumbItems.push({ label: pathParts[3] });
       }
     } else if (routeType === 'report') {
-      breadcrumbItems.push({ label: '报表' });
+      breadcrumbItems.push({ label: 'Report' });
       if (pathParts[3]) {
         breadcrumbItems.push({ label: pathParts[3] });
       }
@@ -57,7 +59,7 @@ export function AppHeader({ appName, objects }: { appName: string, objects: any[
         
         // Check if viewing a specific record
         if (pathParts[3] === 'record' && pathParts[4]) {
-          breadcrumbItems.push({ label: `记录 ${pathParts[4].slice(0, 8)}...` });
+          breadcrumbItems.push({ label: `Record ${pathParts[4].slice(0, 8)}...` });
         } else if (pathParts[3] === 'view' && pathParts[4]) {
           breadcrumbItems.push({ label: pathParts[4] });
         }
@@ -95,11 +97,14 @@ export function AppHeader({ appName, objects }: { appName: string, objects: any[
              </div>
              
              <div className="flex items-center gap-1 md:gap-2">
+                {/* Connection Status */}
+                {connectionState && <ConnectionStatus state={connectionState} />}
+                
                 {/* Search - Desktop */}
                 <div className="hidden lg:flex relative">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input 
-                    placeholder="搜索..." 
+                    placeholder="Search..." 
                     className="w-[200px] xl:w-[280px] pl-8 h-8 bg-muted/50"
                   />
                 </div>

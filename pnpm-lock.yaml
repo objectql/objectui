@@ -189,6 +189,9 @@ importers:
       '@object-ui/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@object-ui/data-objectstack':
+        specifier: workspace:*
+        version: link:../../packages/data-objectstack
       '@object-ui/example-crm':
         specifier: workspace:*
         version: link:../../examples/crm
@@ -234,12 +237,18 @@ importers:
       '@object-ui/plugin-map':
         specifier: workspace:*
         version: link:../../packages/plugin-map
+      '@object-ui/plugin-markdown':
+        specifier: workspace:*
+        version: link:../../packages/plugin-markdown
       '@object-ui/plugin-report':
         specifier: workspace:*
         version: link:../../packages/plugin-report
       '@object-ui/plugin-timeline':
         specifier: workspace:*
         version: link:../../packages/plugin-timeline
+      '@object-ui/plugin-view':
+        specifier: workspace:*
+        version: link:../../packages/plugin-view
       '@object-ui/react':
         specifier: workspace:*
         version: link:../../packages/react

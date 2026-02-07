@@ -27,6 +27,7 @@
   "dependencies": {
     "@object-ui/components": "workspace:*",
     "@object-ui/core": "workspace:*",
+    "@object-ui/data-objectstack": "workspace:*",
     "@object-ui/example-crm": "workspace:*",
     "@object-ui/example-kitchen-sink": "workspace:*",
     "@object-ui/example-todo": "workspace:*",
@@ -42,8 +43,10 @@
     "@object-ui/plugin-kanban": "workspace:*",
     "@object-ui/plugin-list": "workspace:*",
     "@object-ui/plugin-map": "workspace:*",
+    "@object-ui/plugin-markdown": "workspace:*",
     "@object-ui/plugin-report": "workspace:*",
     "@object-ui/plugin-timeline": "workspace:*",
+    "@object-ui/plugin-view": "workspace:*",
     "@object-ui/react": "workspace:*",
     "@object-ui/types": "workspace:*",
     "@objectstack/client": "^1.0.11",

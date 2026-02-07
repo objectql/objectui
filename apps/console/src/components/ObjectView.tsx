@@ -1,21 +1,23 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { ObjectChart } from '@object-ui/plugin-charts';
 import { ListView } from '@object-ui/plugin-list';
 import { DetailView } from '@object-ui/plugin-detail';
+import { ViewSwitcher } from '@object-ui/plugin-view';
 // Import plugins for side-effects (registration)
 import '@object-ui/plugin-grid';
 import '@object-ui/plugin-kanban';
 import '@object-ui/plugin-calendar';
 import { Button, Empty, EmptyTitle, EmptyDescription, Sheet, SheetContent } from '@object-ui/components';
-import { Plus, Calendar as CalendarIcon, Kanban as KanbanIcon, Table as TableIcon, AlignLeft, Code2 } from 'lucide-react';
-import type { ListViewSchema } from '@object-ui/types';
+import { Plus, Table as TableIcon } from 'lucide-react';
+import type { ListViewSchema, ViewSwitcherSchema, ViewType } from '@object-ui/types';
+import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
 
 export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
     const navigate = useNavigate();
     const { objectName, viewId } = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
-    const [showDebug, setShowDebug] = useState(false);
+    const { showDebug, toggleDebug } = useMetadataInspector();
     
     // Get Object Definition
     const objectDef = objects.find((o: any) => o.name === objectName);
@@ -63,6 +65,35 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
         } else {
              // In root route, append view
              navigate(`view/${newViewId}`);
+        }
+    };
+
+    // Build ViewSwitcher schema from object's list_views
+    const viewSwitcherSchema: ViewSwitcherSchema = useMemo(() => ({
+        type: 'view-switcher' as const,
+        variant: 'tabs',
+        position: 'top',
+        persistPreference: true,
+        storageKey: `view-pref-${objectName}`,
+        defaultView: (activeView?.type || 'grid') as ViewType,
+        activeView: (activeView?.type || 'grid') as ViewType,
+        views: views.map((v: any) => ({
+            type: v.type as ViewType,
+            label: v.label,
+            icon: v.type === 'kanban' ? 'kanban' :
+                  v.type === 'calendar' ? 'calendar' :
+                  v.type === 'gantt' ? 'align-left' :
+                  v.type === 'map' ? 'map' :
+                  v.type === 'chart' ? 'bar-chart' :
+                  'table',
+        })),
+    }), [views, activeView, objectName]);
+
+    // Handle ViewSwitcher view change (receives ViewType, map to view id)
+    const handleViewTypeChange = (viewType: ViewType) => {
+        const matchedView = views.find((v: any) => v.type === viewType);
+        if (matchedView) {
+            handleViewChange(matchedView.id);
         }
     };
     
@@ -190,16 +221,7 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
                  </div>
                  
                  <div className="flex items-center gap-2">
-                    <Button 
-                        size="sm" 
-                        variant={showDebug ? "secondary" : "outline"}
-                        onClick={() => setShowDebug(!showDebug)} 
-                        className="shadow-none gap-2 hidden sm:flex"
-                        title="Toggle Metadata Inspector"
-                    >
-                        <Code2 className="h-4 w-4" /> 
-                        <span className="hidden lg:inline">Metadata</span>
-                    </Button>
+                    <MetadataToggle open={showDebug} onToggle={toggleDebug} className="hidden sm:flex" />
                     <Button size="sm" onClick={() => onEdit(null)} className="shadow-none gap-2">
                         <Plus className="h-4 w-4" /> 
                         <span className="hidden sm:inline">New</span>
@@ -207,37 +229,16 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
                  </div>
              </div>
 
-             {/* 2. View Toolbar (Tabs & Controls) */}
+             {/* 2. View Toolbar — Schema-Driven ViewSwitcher */}
              <div className="flex justify-between items-center py-2 px-4 border-b shrink-0 bg-muted/20">
-                 {/* Left: View Tabs */}
-                 <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-                    {views.map((v: any) => {
-                        const isActive = activeView.id === v.id;
-                        return (
-                            <button
-                                key={v.id}
-                                onClick={() => handleViewChange(v.id)}
-                                className={`
-                                    flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all whitespace-nowrap
-                                    ${isActive 
-                                        ? 'bg-background shadow-sm text-foreground ring-1 ring-border/50' 
-                                        : 'text-muted-foreground hover:bg-background/50 hover:text-foreground'
-                                    }
-                                `}
-                            >
-                                {v.type === 'kanban' && <KanbanIcon className="h-3.5 w-3.5 opacity-70" />}
-                                {v.type === 'calendar' && <CalendarIcon className="h-3.5 w-3.5 opacity-70" />}
-                                {v.type === 'grid' && <TableIcon className="h-3.5 w-3.5 opacity-70" />}
-                                {v.type === 'gantt' && <AlignLeft className="h-3.5 w-3.5 opacity-70" />}
-                                <span>{v.label}</span>
-                            </button>
-                        );
-                    })}
-                 </div>
+                 <ViewSwitcher
+                     schema={viewSwitcherSchema}
+                     onViewChange={handleViewTypeChange}
+                     className="overflow-x-auto no-scrollbar"
+                 />
 
-                 {/* Right: View Options (Placeholder for now) */}
-                 <div className="flex items-center gap-2 hidden md:flex">
-                     {/* Filter/Sort are handled by ListView now */}
+                 {/* Right: Placeholder for FilterUI / SortUI */}
+                 <div className="hidden md:flex items-center gap-2">
                  </div>
              </div>
 
@@ -248,33 +249,13 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
                         {renderCurrentView()}
                     </div>
                 </div>
-                {showDebug && (
-                  <div className="w-[400px] border-l bg-muted/30 p-0 overflow-hidden flex flex-col shrink-0 shadow-xl z-20 transition-all">
-                     <div className="p-3 border-b bg-muted/50 font-semibold text-sm flex items-center justify-between">
-                        <span>Metadata Inspector</span>
-                        <span className="text-xs text-muted-foreground">JSON Protocol</span>
-                     </div>
-                     <div className="flex-1 overflow-auto p-4 space-y-6">
-                        <div>
-                            <h4 className="text-xs font-bold uppercase text-muted-foreground mb-2">View Configuration</h4>
-                            <div className="relative rounded-md border bg-slate-950 text-slate-50 overflow-hidden">
-                                <pre className="text-xs p-3 overflow-auto max-h-[400px]">
-                                    {JSON.stringify(activeView, null, 2)}
-                                </pre>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h4 className="text-xs font-bold uppercase text-muted-foreground mb-2">Object Definition</h4>
-                             <div className="relative rounded-md border bg-slate-950 text-slate-50 overflow-hidden">
-                                <pre className="text-xs p-3 overflow-auto max-h-[400px]">
-                                    {JSON.stringify(objectDef, null, 2)}
-                                </pre>
-                            </div>
-                        </div>
-                     </div>
-                  </div>
-                )}
+                <MetadataPanel
+                    open={showDebug}
+                    sections={[
+                        { title: 'View Configuration', data: activeView },
+                        { title: 'Object Definition', data: objectDef },
+                    ]}
+                />
              </div>
 
              {/* Drawer for Record Details */}

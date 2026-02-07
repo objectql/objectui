@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ReportViewer, ReportBuilder } from '@object-ui/plugin-report';
 import { Empty, EmptyTitle, EmptyDescription, Button } from '@object-ui/components';
-import { Code2, PenLine, ChevronLeft } from 'lucide-react';
+import { PenLine, ChevronLeft } from 'lucide-react';
+import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import appConfig from '../../objectstack.shared';
 
 // Mock fields for the builder since we don't have a dynamic schema provider here yet
@@ -19,7 +20,7 @@ const MOCK_FIELDS = [
 
 export function ReportView() {
   const { reportName } = useParams<{ reportName: string }>();
-  const [showDebug, setShowDebug] = useState(false);
+  const { showDebug, toggleDebug } = useMetadataInspector();
   const [isEditing, setIsEditing] = useState(false);
   
   // Find report definition in config
@@ -91,15 +92,7 @@ export function ReportView() {
               <PenLine className="h-4 w-4 mr-2" />
               Edit Report
            </Button>
-           <Button 
-             variant={showDebug ? "secondary" : "ghost"}
-             size="sm" 
-             onClick={() => setShowDebug(!showDebug)} 
-             className="gap-2"
-           >
-             <Code2 className="h-4 w-4" />
-             {showDebug ? 'Hide JSON' : 'Show JSON'}
-           </Button>
+           <MetadataToggle open={showDebug} onToggle={toggleDebug} />
         </div>
       </div>
 
@@ -110,24 +103,10 @@ export function ReportView() {
             </div>
          </div>
 
-         {showDebug && (
-            <div className="w-[400px] border-l bg-muted/30 p-0 overflow-hidden flex flex-col shrink-0 shadow-xl z-20 transition-all">
-                <div className="p-3 border-b bg-muted/50 font-semibold text-sm flex items-center justify-between">
-                  <span>Metadata Inspector</span>
-                  <span className="text-xs text-muted-foreground">JSON Protocol</span>
-                </div>
-                <div className="flex-1 overflow-auto p-4 space-y-6">
-                  <div>
-                      <h4 className="text-xs font-bold uppercase text-muted-foreground mb-2">Report Configuration</h4>
-                        <div className="relative rounded-md border bg-slate-950 text-slate-50 overflow-hidden">
-                          <pre className="text-xs p-3 overflow-auto max-h-[800px]">
-                              {JSON.stringify(reportData, null, 2)}
-                          </pre>
-                      </div>
-                  </div>
-                </div>
-            </div>
-          )}
+         <MetadataPanel
+            open={showDebug}
+            sections={[{ title: 'Report Configuration', data: reportData }]}
+         />
       </div>
     </div>
   );
