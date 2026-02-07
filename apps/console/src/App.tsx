@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, useSearchParams, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { ObjectForm } from '@object-ui/plugin-form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Empty, EmptyTitle } from '@object-ui/components';
@@ -8,6 +8,7 @@ import type { ConnectionState } from './dataSource';
 import appConfig from '../objectstack.shared';
 
 // Components
+import { ThemeProvider } from './components/theme-provider';
 import { ConsoleLayout } from './components/ConsoleLayout';
 import { CommandPalette } from './components/CommandPalette';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -18,9 +19,6 @@ import { DashboardView } from './components/DashboardView';
 import { PageView } from './components/PageView';
 import { ReportView } from './components/ReportView';
 import { ExpressionProvider } from './context/ExpressionProvider';
-
-import { useParams } from 'react-router-dom';
-import { ThemeProvider } from './components/theme-provider';
 
 export function AppContent() {
   const [dataSource, setDataSource] = useState<ObjectStackAdapter | null>(null);

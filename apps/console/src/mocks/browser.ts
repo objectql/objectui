@@ -54,7 +54,7 @@ export async function startMockServer() {
   const mswPlugin = new MSWPlugin({
     enableBrowser: true, 
     baseUrl: '/api/v1',
-    logRequests: true
+    logRequests: import.meta.env.DEV
   });
 
   await kernel.use(mswPlugin);

@@ -273,10 +273,21 @@ function NavigationItemRenderer({ item, activeAppName }: { item: any, activeAppN
     const { evaluator } = useExpressionContext();
 
     // Evaluate visibility expression (supports boolean, string, and ${} template expressions)
-    const isVisible = evaluateVisibility(item.visible ?? item.visibleOn, evaluator);
+    let isVisible = evaluateVisibility(item.visible ?? item.visibleOn, evaluator);
+    
+    // Check hidden prop (inverse of visible)
+    if (item.hidden) {
+        if (evaluateVisibility(item.hidden, evaluator)) {
+            isVisible = false;
+        }
+    }
+
     if (!isVisible) {
         return null;
     }
+
+    // Evaluate disabled expression
+    const isDisabled = evaluateVisibility(item.disabled, evaluator);
 
     if (item.type === 'group') {
         return (
@@ -333,8 +344,19 @@ function NavigationItemRenderer({ item, activeAppName }: { item: any, activeAppN
 
     return (
         <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
-                {isExternal ? (
+            <SidebarMenuButton 
+              asChild={!isDisabled} 
+              isActive={isActive} 
+              tooltip={item.label}
+              disabled={isDisabled}
+              className={isDisabled ? "opacity-50 pointer-events-none" : ""}
+            >
+                {isDisabled ? (
+                    <div className="flex w-full items-center gap-2">
+                        <Icon className="h-4 w-4" />
+                        <span>{item.label}</span>
+                    </div>
+                ) : isExternal ? (
                     <a href={href} target="_blank" rel="noopener noreferrer">
                         <Icon className="h-4 w-4" />
                         <span>{item.label}</span>
