@@ -1,3 +1,12 @@
+/**
+ * AppSidebar
+ *
+ * Collapsible sidebar navigation for the console. Displays the active app's
+ * objects, dashboards, pages, and reports as grouped menu items, with an
+ * app-switcher dropdown and user profile footer.
+ * @module
+ */
+
 import * as React from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
@@ -36,14 +45,18 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import appConfig from '../../objectstack.shared';
+import { useExpressionContext, evaluateVisibility } from '../context/ExpressionProvider';
 
-// Helper to get icon from Lucide
-function getIcon(name?: string) {
+/**
+ * Resolve a Lucide icon component by name string.
+ * Supports camelCase, PascalCase, and kebab-case icon names.
+ */
+function getIconComponent(name?: string): React.ComponentType<any> {
   if (!name) return LucideIcons.Database;
-  
-  // 1. Try direct match (e.g. if user passed "User")
+
+  // 1. Direct match (PascalCase or camelCase)
   if ((LucideIcons as any)[name]) {
-      return (LucideIcons as any)[name];
+    return (LucideIcons as any)[name];
   }
 
   // 2. Try converting kebab-case to PascalCase (e.g. "shopping-cart" -> "ShoppingCart")
@@ -257,11 +270,11 @@ function NavigationItemRenderer({ item, activeAppName }: { item: any, activeAppN
     const Icon = getIcon(item.icon);
     const location = useLocation();
     const [isOpen, setIsOpen] = React.useState(item.expanded !== false);
+    const { evaluator } = useExpressionContext();
 
-    // Handle visibility condition from spec (visible field)
-    // In a real implementation, this would evaluate the expression
-    // For now, we'll just check if it exists and is not explicitly false
-    if (item.visible === 'false' || item.visible === false) {
+    // Evaluate visibility expression (supports boolean, string, and ${} template expressions)
+    const isVisible = evaluateVisibility(item.visible ?? item.visibleOn, evaluator);
+    if (!isVisible) {
         return null;
     }
 

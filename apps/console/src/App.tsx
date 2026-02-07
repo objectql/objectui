@@ -13,14 +13,12 @@ import { CommandPalette } from './components/CommandPalette';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { LoadingScreen } from './components/LoadingScreen';
 import { ObjectView } from './components/ObjectView';
+import { RecordDetailView } from './components/RecordDetailView';
 import { DashboardView } from './components/DashboardView';
 import { PageView } from './components/PageView';
 import { ReportView } from './components/ReportView';
 import { MetadataToggle, MetadataPanel, useMetadataInspector } from './components/MetadataInspector';
-import { useBranding } from './hooks/useBranding';
-
-import { DetailView } from '@object-ui/plugin-detail';
-import { useParams } from 'react-router-dom';
+import { ExpressionProvider } from './context/ExpressionProvider';
 
 /**
  * Patch: MSW discovery response uses 'routes' instead of 'endpoints'.
@@ -38,66 +36,8 @@ function patchDiscoveryEndpoints(adapter: ObjectStackAdapter) {
   }
 }
 
-// Detail View Component
-function RecordDetailView({ dataSource, objects, onEdit }: any) {
-  const { objectName, recordId } = useParams();
-  const { showDebug, toggleDebug } = useMetadataInspector();
-  const objectDef = objects.find((o: any) => o.name === objectName);
-
-  if (!objectDef) {
-    return (
-      <div className="flex h-full items-center justify-center p-4">
-        <Empty>
-          <EmptyTitle>Object Not Found</EmptyTitle>
-          <p>Object "{objectName}" definition missing.</p>
-        </Empty>
-      </div>
-    );
-  }
-
-  const detailSchema = {
-    type: 'detail-view',
-    objectName: objectDef.name,
-    resourceId: recordId,
-    showBack: true,
-    onBack: 'history',
-    showEdit: true,
-    title:  objectDef.label,
-    sections: [
-       {
-          title: 'Details',
-          fields: Object.keys(objectDef.fields || {}).map(key => ({
-             name: key, 
-             label: objectDef.fields[key].label || key,
-             type: objectDef.fields[key].type || 'text'
-          })),
-          columns: 2
-       }
-    ]
-  };
-
-  return (
-    <div className="h-full bg-background overflow-hidden flex flex-col relative">
-       <div className="absolute top-4 right-4 z-50">
-           <MetadataToggle open={showDebug} onToggle={toggleDebug} />
-       </div>
-
-       <div className="flex-1 overflow-hidden flex flex-row">
-           <div className="flex-1 overflow-auto p-4 lg:p-6">
-               <DetailView 
-                 schema={detailSchema}
-                 dataSource={dataSource}
-                 onEdit={() => onEdit({ _id: recordId, id: recordId })}
-               />
-           </div>
-           <MetadataPanel
-               open={showDebug}
-               sections={[{ title: 'View Schema', data: detailSchema }]}
-           />
-       </div>
-    </div>
-  );
-}
+import { useParams } from 'react-router-dom';
+import { ThemeProvider } from './components/theme-provider';
 
 export function AppContent() {
   const [dataSource, setDataSource] = useState<ObjectStackAdapter | null>(null);
@@ -118,8 +58,7 @@ export function AppContent() {
   const [editingRecord, setEditingRecord] = useState<any>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Apply app branding (primaryColor, favicon, title)
-  useBranding(activeApp);
+  // Branding is now applied by AppShell via ConsoleLayout
 
   useEffect(() => {
     initializeDataSource();
@@ -202,7 +141,11 @@ export function AppContent() {
     </div>
   );
 
+  // Expression context for dynamic visibility/disabled/hidden expressions
+  const expressionUser = { name: 'John Doe', email: 'admin@example.com', role: 'admin' };
+
   return (
+    <ExpressionProvider user={expressionUser} app={activeApp} data={{}}>
     <ConsoleLayout
         activeAppName={activeApp.name}
         activeApp={activeApp}
@@ -300,6 +243,7 @@ export function AppContent() {
        </Dialog>
       </SchemaRendererProvider>
     </ConsoleLayout>
+    </ExpressionProvider>
   );
 }
 
@@ -330,8 +274,6 @@ function RootRedirect() {
     }
     return <LoadingScreen />;
 }
-
-import { ThemeProvider } from './components/theme-provider';
 
 export function App() {
   return (

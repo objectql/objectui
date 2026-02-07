@@ -20,3 +20,9 @@ export type {
   BatchProgressListener,
 } from '@object-ui/data-objectstack';
 
+/**
+ * @deprecated Use `ObjectStackAdapter` instead. This alias exists only for
+ * backward compatibility with older test files.
+ */
+export { ObjectStackAdapter as ObjectStackDataSource } from '@object-ui/data-objectstack';
+

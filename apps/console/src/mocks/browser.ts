@@ -23,15 +23,15 @@ export async function startMockServer() {
       (process as any).on = () => {};
     }
   } catch (e) {
-    console.warn('[MSW] Failed to polyfill process.on', e);
+    if (import.meta.env.DEV) console.warn('[MSW] Failed to polyfill process.on', e);
   }
 
   if (kernel) {
-    console.log('[MSW] ObjectStack Runtime already initialized');
+    if (import.meta.env.DEV) console.log('[MSW] ObjectStack Runtime already initialized');
     return kernel;
   }
 
-  console.log('[MSW] Starting ObjectStack Runtime (Browser Mode)...');
+  if (import.meta.env.DEV) console.log('[MSW] Starting ObjectStack Runtime (Browser Mode)...');
 
   driver = new InMemoryDriver();
 
@@ -80,7 +80,7 @@ export async function startMockServer() {
     // unless vite base is handled strangely. But typically public assets follow base.
     const swUrl = '/mockServiceWorker.js';
 
-    console.log(`[MSW] Starting worker with script at: ${swUrl}`);
+    if (import.meta.env.DEV) console.log(`[MSW] Starting worker with script at: ${swUrl}`);
     
     await worker.start({
       onUnhandledRequest: 'bypass',
@@ -103,10 +103,10 @@ export async function startMockServer() {
         totals.push(`${dataset.object}(${dataset.records.length})`);
       }
     }
-    console.log(`[MSW] Seeded: ${totals.join(', ')}`);
+    if (import.meta.env.DEV) console.log(`[MSW] Seeded: ${totals.join(', ')}`);
   }
   
-  console.log('[MSW] ObjectStack Runtime ready');
+  if (import.meta.env.DEV) console.log('[MSW] ObjectStack Runtime ready');
   return kernel;
 }
 

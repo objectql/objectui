@@ -7,36 +7,66 @@
  */
 
 import { useState, useCallback, useMemo } from 'react';
-import { ActionRunner, type ActionContext, type ActionResult } from '@object-ui/core';
+import {
+  ActionRunner,
+  type ActionContext,
+  type ActionDef,
+  type ActionResult,
+  type ConfirmationHandler,
+  type ToastHandler,
+} from '@object-ui/core';
+
+export interface UseActionRunnerOptions {
+  context?: ActionContext;
+  /** Custom confirmation handler — wire to Shadcn AlertDialog or similar */
+  onConfirm?: ConfirmationHandler;
+  /** Custom toast handler — wire to Sonner or similar */
+  onToast?: ToastHandler;
+}
 
 /**
- * Hook for executing actions with loading state
+ * Hook for executing actions with loading state, typed with ActionDef.
  * 
  * @example
  * ```tsx
- * const { execute, loading, error, result } = useActionRunner({ data: formData });
+ * const { execute, loading, error, result } = useActionRunner({
+ *   context: { data: formData },
+ *   onToast: (msg, opts) => toast[opts?.type || 'info'](msg),
+ * });
  * 
  * const handleClick = () => {
  *   execute({
- *     type: 'action',
+ *     type: 'api',
  *     api: '/api/save',
- *     successMessage: 'Saved successfully!'
+ *     successMessage: 'Saved successfully!',
  *   });
  * };
  * ```
  */
-export function useActionRunner(context: ActionContext = {}) {
+export function useActionRunner(
+  optionsOrContext: UseActionRunnerOptions | ActionContext = {},
+) {
+  // Backwards compat: if no 'context' key, treat entire object as context
+  const options: UseActionRunnerOptions = 'context' in optionsOrContext
+    ? optionsOrContext as UseActionRunnerOptions
+    : { context: optionsOrContext as ActionContext };
+
+  const { context = {}, onConfirm, onToast } = options;
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ActionResult | null>(null);
 
-  const runner = useMemo(
-    () => new ActionRunner(context),
-    [JSON.stringify(context)]
-  );
+  const runner = useMemo(() => {
+    const r = new ActionRunner(context);
+    if (onConfirm) r.setConfirmHandler(onConfirm);
+    if (onToast) r.setToastHandler(onToast);
+    return r;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(context)]);
 
   const execute = useCallback(
-    async (action: any): Promise<ActionResult> => {
+    async (action: ActionDef): Promise<ActionResult> => {
       setLoading(true);
       setError(null);
       setResult(null);

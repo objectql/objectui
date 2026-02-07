@@ -1,3 +1,12 @@
+/**
+ * AppHeader
+ *
+ * Top header bar for the console application. Renders breadcrumb navigation
+ * derived from the current route, along with search, notifications, theme
+ * toggle, and connection status indicators.
+ * @module
+ */
+
 import { useLocation, useParams, Link } from 'react-router-dom';
 import { 
   Breadcrumb, 

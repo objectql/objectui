@@ -81,6 +81,9 @@ export interface ActionCondition {
 /**
  * Action button configuration for CRUD operations
  * Enhanced with Phase 2 features: ajax, confirm, dialog, chaining, conditional execution
+ *
+ * @deprecated Use `UIActionSchema` from `@object-ui/types` (re-exported from `ui-action.ts`) for new code.
+ * This legacy interface will be removed in a future major version.
  */
 export interface ActionSchema extends BaseSchema {
   type: 'action';

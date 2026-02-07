@@ -47,16 +47,20 @@ vi.mock('@object-ui/components', async (importOriginal) => {
 });
 
 // Mock Icons
-vi.mock('lucide-react', () => ({
-    Plus: () => <span>+</span>,
-    Calendar: () => <span>Cal</span>,
-    Kanban: () => <span>Kan</span>,
-    Table: () => <span>Tab</span>,
-    AlignLeft: () => <span>Gantt</span>,
-    Filter: () => <span>FilterIcon</span>,
-    X: () => <span>X</span>,
-    Code2: () => <span>Code</span>
-}));
+vi.mock('lucide-react', async (importOriginal) => {
+    const actual = await importOriginal<any>();
+    return {
+        ...actual,
+        Plus: () => <span>+</span>,
+        Calendar: () => <span>Cal</span>,
+        Kanban: () => <span>Kan</span>,
+        Table: () => <span>Tab</span>,
+        AlignLeft: () => <span>Gantt</span>,
+        Filter: () => <span>FilterIcon</span>,
+        X: () => <span>X</span>,
+        Code2: () => <span>Code</span>,
+    };
+});
 
 describe('ObjectView Console Features', () => {
     

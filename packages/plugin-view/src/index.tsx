@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { ComponentRegistry } from '@object-ui/core';
 import { ObjectView } from './ObjectView';
 import { ViewSwitcher } from './ViewSwitcher';
@@ -19,9 +19,28 @@ export type { ViewSwitcherProps } from './ViewSwitcher';
 export type { FilterUIProps } from './FilterUI';
 export type { SortUIProps } from './SortUI';
 
+/**
+ * SchemaRendererContext is created by @object-ui/react.
+ * We import it dynamically to avoid a circular dependency.
+ * The context value provides { dataSource }.
+ */
+let SchemaRendererContext: React.Context<any> | null = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const mod = require('@object-ui/react');
+  // The context is re-exported from @object-ui/react
+  SchemaRendererContext = mod.SchemaRendererContext || null;
+} catch {
+  // @object-ui/react not available — registry-based dataSource only
+}
+
 // Register object-view component
 const ObjectViewRenderer: React.FC<{ schema: any }> = ({ schema }) => {
-  return <ObjectView schema={schema} dataSource={null as any} />;
+  // Resolve dataSource from SchemaRendererProvider context
+  const ctx = SchemaRendererContext ? useContext(SchemaRendererContext) : null;
+  const dataSource = ctx?.dataSource ?? null;
+
+  return <ObjectView schema={schema} dataSource={dataSource} />;
 };
 
 ComponentRegistry.register('object-view', ObjectViewRenderer, {

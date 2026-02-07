@@ -29,6 +29,7 @@ import {
   Monitor,
 } from 'lucide-react';
 import { useTheme } from './theme-provider';
+import { useExpressionContext, evaluateVisibility } from '../context/ExpressionProvider';
 
 /** Resolve a Lucide icon by name (kebab-case or PascalCase) */
 function getIcon(name?: string): React.ElementType {
@@ -54,6 +55,7 @@ export function CommandPalette({ apps, activeApp, objects: _objects, onAppChange
   const navigate = useNavigate();
   const { appName } = useParams();
   const { setTheme } = useTheme();
+  const { evaluator } = useExpressionContext();
 
   // ⌘+K / Ctrl+K shortcut
   useEffect(() => {
@@ -74,8 +76,10 @@ export function CommandPalette({ apps, activeApp, objects: _objects, onAppChange
     command();
   }, []);
 
-  // Extract navigation items from active app
-  const navItems = flattenNavigation(activeApp?.navigation || []);
+  // Extract navigation items from active app, filtering by visibility expressions
+  const navItems = flattenNavigation(activeApp?.navigation || []).filter(
+    (item) => evaluateVisibility(item.visible ?? item.visibleOn, evaluator)
+  );
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>

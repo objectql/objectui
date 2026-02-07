@@ -10,6 +10,8 @@
  * @object-ui/core - Action Runner
  * 
  * Executes actions defined in ActionSchema and EventHandler.
+ * Supports typed action dispatch, conditional execution, confirmation,
+ * toast notifications, redirect handling, and custom handler registration.
  */
 
 import { ExpressionEvaluator } from '../evaluator/ExpressionEvaluator';
@@ -30,27 +32,115 @@ export interface ActionContext {
   [key: string]: any;
 }
 
+/**
+ * Action definition accepted by the runner.
+ * Compatible with both UIActionSchema (spec v0.7.1) and legacy crud.ts ActionSchema.
+ */
+export interface ActionDef {
+  /** Action type identifier (e.g., 'create', 'delete', 'navigate', 'api', 'script', 'url') */
+  type?: string;
+  /** Legacy action type field */
+  actionType?: string;
+  /** Action name (from UIActionSchema) */
+  name?: string;
+  /** Confirmation text — shows a confirm dialog before executing */
+  confirmText?: string;
+  /** Structured confirmation (from crud.ts) */
+  confirm?: { title?: string; message?: string; confirmText?: string; cancelText?: string };
+  /** Condition expression — if falsy, skip action */
+  condition?: string;
+  /** Disabled expression — if truthy, skip action */
+  disabled?: string | boolean;
+  /** API endpoint */
+  api?: string;
+  /** HTTP method */
+  method?: string;
+  /** Navigation target */
+  navigate?: any;
+  /** onClick callback (legacy) */
+  onClick?: () => void | Promise<void>;
+  /** Whether to reload data after success */
+  reload?: boolean;
+  /** Whether to close dialog after success */
+  close?: boolean;
+  /** Redirect URL expression */
+  redirect?: string;
+  /** Toast configuration */
+  toast?: { showOnSuccess?: boolean; showOnError?: boolean; duration?: number };
+  /** Success message (from UIActionSchema) */
+  successMessage?: string;
+  /** Error message (from UIActionSchema) */
+  errorMessage?: string;
+  /** Whether to refresh data after execution (from UIActionSchema) */
+  refreshAfter?: boolean;
+  /** Params object (for custom handlers) */
+  params?: Record<string, any>;
+  /** Any additional properties */
+  [key: string]: any;
+}
+
 export type ActionHandler = (
-  action: any,
+  action: ActionDef,
   context: ActionContext
 ) => Promise<ActionResult> | ActionResult;
+
+/**
+ * Confirmation handler — replaces window.confirm.
+ * Consumers can provide an async implementation (e.g., Shadcn AlertDialog).
+ */
+export type ConfirmationHandler = (message: string, options?: {
+  title?: string;
+  confirmText?: string;
+  cancelText?: string;
+}) => Promise<boolean>;
+
+/**
+ * Toast handler — consumers can wire to Sonner or any toast library.
+ */
+export type ToastHandler = (message: string, options?: {
+  type?: 'success' | 'error' | 'info' | 'warning';
+  duration?: number;
+}) => void;
 
 export class ActionRunner {
   private handlers = new Map<string, ActionHandler>();
   private evaluator: ExpressionEvaluator;
   private context: ActionContext;
+  private confirmHandler: ConfirmationHandler;
+  private toastHandler: ToastHandler | null;
 
   constructor(context: ActionContext = {}) {
     this.context = context;
     this.evaluator = new ExpressionEvaluator(context);
+    // Default confirmation: window.confirm (can be overridden)
+    this.confirmHandler = async (message: string) => window.confirm(message);
+    this.toastHandler = null;
+  }
+
+  /**
+   * Set a custom confirmation handler (e.g., Shadcn AlertDialog).
+   */
+  setConfirmHandler(handler: ConfirmationHandler): void {
+    this.confirmHandler = handler;
+  }
+
+  /**
+   * Set a custom toast handler (e.g., Sonner).
+   */
+  setToastHandler(handler: ToastHandler): void {
+    this.toastHandler = handler;
   }
 
   registerHandler(actionName: string, handler: ActionHandler): void {
     this.handlers.set(actionName, handler);
   }
 
-  async execute(action: any): Promise<ActionResult> {
+  async execute(action: ActionDef): Promise<ActionResult> {
     try {
+      // Resolve the action type
+      const actionType = action.type || action.actionType || action.name || '';
+
+      // Conditional execution
       if (action.condition) {
         const shouldExecute = this.evaluator.evaluateCondition(action.condition);
         if (!shouldExecute) {
@@ -68,32 +158,81 @@ export class ActionRunner {
         }
       }
 
-      if (action.type === 'action' || action.actionType) {
-        return await this.executeActionSchema(action);
-      } else if (action.type === 'navigation' || action.navigate) {
-        return await this.executeNavigation(action);
-      } else if (action.type === 'api' || action.api) {
-        return await this.executeAPI(action);
-      } else if (action.onClick) {
-        await action.onClick();
-        return { success: true };
+      // Confirmation (structured or simple)
+      const confirmMessage = action.confirm?.message || action.confirmText;
+      if (confirmMessage) {
+        const confirmed = await this.confirmHandler(
+          this.evaluator.evaluate(confirmMessage) as string,
+          action.confirm ? {
+            title: action.confirm.title,
+            confirmText: action.confirm.confirmText,
+            cancelText: action.confirm.cancelText,
+          } : undefined,
+        );
+        if (!confirmed) {
+          return { success: false, error: 'Action cancelled by user' };
+        }
       }
 
-      return { success: false, error: 'Unknown action type' };
+      // Check for a registered custom handler first
+      if (actionType && this.handlers.has(actionType)) {
+        const handler = this.handlers.get(actionType)!;
+        const result = await handler(action, this.context);
+        this.handlePostExecution(action, result);
+        return result;
+      }
+
+      // Built-in action execution
+      let result: ActionResult;
+
+      if (actionType === 'navigation' || action.navigate) {
+        result = await this.executeNavigation(action);
+      } else if (actionType === 'api' || action.api) {
+        result = await this.executeAPI(action);
+      } else if (action.onClick) {
+        await action.onClick();
+        result = { success: true };
+      } else {
+        // Try as a generic action with API
+        result = await this.executeActionSchema(action);
+      }
+
+      this.handlePostExecution(action, result);
+      return result;
     } catch (error) {
-      return { success: false, error: (error as Error).message };
+      const result: ActionResult = { success: false, error: (error as Error).message };
+      this.handlePostExecution(action, result);
+      return result;
     }
   }
 
-  private async executeActionSchema(action: any): Promise<ActionResult> {
-    const result: ActionResult = { success: true };
+  /**
+   * Post-execution: emit toast notifications, set reload/redirect.
+   */
+  private handlePostExecution(action: ActionDef, result: ActionResult): void {
+    if (!this.toastHandler) return;
 
-    if (action.confirmText) {
-      const confirmed = await this.showConfirmation(action.confirmText);
-      if (!confirmed) {
-        return { success: false, error: 'Action cancelled by user' };
-      }
+    const showToast = action.toast ?? { showOnSuccess: true, showOnError: true };
+    const duration = action.toast?.duration;
+
+    if (result.success && showToast.showOnSuccess !== false) {
+      const message = action.successMessage || 'Action completed successfully';
+      this.toastHandler(message, { type: 'success', duration });
     }
+
+    if (!result.success && showToast.showOnError !== false && result.error) {
+      const message = action.errorMessage || result.error;
+      this.toastHandler(message, { type: 'error', duration });
+    }
+
+    // Apply refreshAfter from UIActionSchema
+    if (action.refreshAfter && result.success) {
+      result.reload = true;
+    }
+  }
+
+  private async executeActionSchema(action: ActionDef): Promise<ActionResult> {
+    const result: ActionResult = { success: true };
 
     if (action.api) {
       const apiResult = await this.executeAPI(action);
@@ -118,7 +257,7 @@ export class ActionRunner {
   /**
    * Execute navigation action
    */
-  private async executeNavigation(action: any): Promise<ActionResult> {
+  private async executeNavigation(action: ActionDef): Promise<ActionResult> {
     const nav = action.navigate || action;
     const to = this.evaluator.evaluate(nav.to) as string;
 
@@ -146,7 +285,7 @@ export class ActionRunner {
     return { success: true };
   }
 
-  private async executeAPI(action: any): Promise<ActionResult> {
+  private async executeAPI(action: ActionDef): Promise<ActionResult> {
     const apiConfig = action.api;
     
     if (typeof apiConfig === 'string') {
@@ -171,11 +310,6 @@ export class ActionRunner {
     return { success: false, error: 'Complex API configuration not yet implemented' };
   }
 
-  private async showConfirmation(message: string): Promise<boolean> {
-    const evaluatedMessage = this.evaluator.evaluate(message) as string;
-    return window.confirm(evaluatedMessage);
-  }
-
   updateContext(newContext: Partial<ActionContext>): void {
     this.context = { ...this.context, ...newContext };
     this.evaluator.updateContext(newContext);
@@ -187,7 +321,7 @@ export class ActionRunner {
 }
 
 export async function executeAction(
-  action: any,
+  action: ActionDef,
   context: ActionContext = {}
 ): Promise<ActionResult> {
   const runner = new ActionRunner(context);

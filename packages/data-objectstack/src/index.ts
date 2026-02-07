@@ -583,6 +583,58 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
   }
 
   /**
+   * Get a view definition for an object.
+   * Attempts to fetch from the server metadata API.
+   * Falls back to null if the server doesn't provide view definitions,
+   * allowing the consumer to use static config.
+   * 
+   * @param objectName - Object name
+   * @param viewId - View identifier
+   * @returns Promise resolving to the view definition or null
+   */
+  async getView(objectName: string, viewId: string): Promise<unknown | null> {
+    await this.connect();
+
+    try {
+      const cacheKey = `view:${objectName}:${viewId}`;
+      return await this.metadataCache.get(cacheKey, async () => {
+        // Try meta.getItem for view metadata
+        const result: any = await this.client.meta.getItem(`${objectName}/views/${viewId}`);
+        if (result && result.item) return result.item;
+        return result ?? null;
+      });
+    } catch {
+      // Server doesn't support view metadata — return null to fall back to static config
+      return null;
+    }
+  }
+
+  /**
+   * Get an application definition by name or ID.
+   * Attempts to fetch from the server metadata API.
+   * Falls back to null if the server doesn't provide app definitions,
+   * allowing the consumer to use static config.
+   * 
+   * @param appId - Application identifier
+   * @returns Promise resolving to the app definition or null
+   */
+  async getApp(appId: string): Promise<unknown | null> {
+    await this.connect();
+
+    try {
+      const cacheKey = `app:${appId}`;
+      return await this.metadataCache.get(cacheKey, async () => {
+        const result: any = await this.client.meta.getItem(`apps/${appId}`);
+        if (result && result.item) return result.item;
+        return result ?? null;
+      });
+    } catch {
+      // Server doesn't support app metadata — return null to fall back to static config
+      return null;
+    }
+  }
+
+  /**
    * Get cache statistics for monitoring performance.
    */
   getCacheStats() {

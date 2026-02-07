@@ -9,6 +9,8 @@
     "fields",
     "component-registry",
     "plugins",
-    "schema-overview"
+    "schema-overview",
+    "console",
+    "console-architecture"
   ]
 }

@@ -1,16 +1,27 @@
+/**
+ * Console ObjectView
+ *
+ * Thin wrapper around the plugin-view ObjectView that adds:
+ * - Multi-view resolution from objectDef.list_views
+ * - MetadataInspector toggle
+ * - Drawer for record detail preview
+ * - useObjectActions for toolbar create button
+ * - ListView delegation for non-grid view types (kanban, calendar, chart, etc.)
+ */
+
 import { useMemo, useState, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { ObjectChart } from '@object-ui/plugin-charts';
 import { ListView } from '@object-ui/plugin-list';
 import { DetailView } from '@object-ui/plugin-detail';
-import { ViewSwitcher, FilterUI, SortUI } from '@object-ui/plugin-view';
+import { ObjectView as PluginObjectView } from '@object-ui/plugin-view';
 // Import plugins for side-effects (registration)
 import '@object-ui/plugin-grid';
 import '@object-ui/plugin-kanban';
 import '@object-ui/plugin-calendar';
 import { Button, Empty, EmptyTitle, EmptyDescription, Sheet, SheetContent } from '@object-ui/components';
 import { Plus, Table as TableIcon } from 'lucide-react';
-import type { ListViewSchema, ViewSwitcherSchema, FilterUISchema, SortUISchema, ViewType } from '@object-ui/types';
+import type { ListViewSchema } from '@object-ui/types';
 import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import { useObjectActions } from '../hooks/useObjectActions';
 
@@ -28,13 +39,13 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
         <div className="h-full p-4 flex items-center justify-center">
           <Empty>
             <EmptyTitle>Object Not Found</EmptyTitle>
-            <EmptyDescription>The object "{objectName}" does not exist in the current configuration.</EmptyDescription>
+            <EmptyDescription>The object &quot;{objectName}&quot; does not exist in the current configuration.</EmptyDescription>
           </Empty>
         </div>
       );
     }
 
-    // Resolve Views
+    // Resolve Views from objectDef.list_views
     const views = useMemo(() => {
         const definedViews = objectDef.list_views || {};
         const viewList = Object.entries(definedViews).map(([key, value]: [string, any]) => ({
@@ -43,7 +54,6 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
             type: value.type || 'grid'
         }));
         
-        // Ensure at least one default view exists
         if (viewList.length === 0) {
             viewList.push({ 
                 id: 'all', 
@@ -60,118 +70,15 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
     const activeView = views.find((v: any) => v.id === activeViewId) || views[0];
 
     const handleViewChange = (newViewId: string) => {
+        // The plugin ObjectView returns the view ID directly via onViewChange
+        const matchedView = views.find((v: any) => v.id === newViewId);
+        if (!matchedView) return;
         if (viewId) {
-             // In view route, replace last segment
-             navigate(`../${newViewId}`, { relative: "path" });
+             navigate(`../${matchedView.id}`, { relative: "path" });
         } else {
-             // In root route, append view
-             navigate(`view/${newViewId}`);
+             navigate(`view/${matchedView.id}`);
         }
     };
-
-    // Build ViewSwitcher schema from object's list_views
-    const viewSwitcherSchema: ViewSwitcherSchema = useMemo(() => ({
-        type: 'view-switcher' as const,
-        variant: 'tabs',
-        position: 'top',
-        persistPreference: true,
-        storageKey: `view-pref-${objectName}`,
-        defaultView: (activeView?.type || 'grid') as ViewType,
-        activeView: (activeView?.type || 'grid') as ViewType,
-        views: views.map((v: any) => ({
-            type: v.type as ViewType,
-            label: v.label,
-            icon: v.type === 'kanban' ? 'kanban' :
-                  v.type === 'calendar' ? 'calendar' :
-                  v.type === 'gantt' ? 'align-left' :
-                  v.type === 'map' ? 'map' :
-                  v.type === 'chart' ? 'bar-chart' :
-                  'table',
-        })),
-    }), [views, activeView, objectName]);
-
-    // Handle ViewSwitcher view change (receives ViewType, map to view id)
-    const handleViewTypeChange = (viewType: ViewType) => {
-        const matchedView = views.find((v: any) => v.type === viewType);
-        if (matchedView) {
-            handleViewChange(matchedView.id);
-        }
-    };
-
-    // --- Filter & Sort State ---
-    const [filterValues, setFilterValues] = useState<Record<string, any>>({});
-    const [sortConfig, setSortConfig] = useState<Array<{ field: string; direction: 'asc' | 'desc' }>>(activeView.sort || []);
-
-    // Build FilterUI schema from object field definitions
-    const filterSchema: FilterUISchema = useMemo(() => {
-        const fields = objectDef.fields || {};
-        const filterableFields = Object.entries(fields)
-            .filter(([, f]: [string, any]) => !f.hidden)
-            .slice(0, 8) // Limit to 8 most relevant fields
-            .map(([key, f]: [string, any]) => {
-                const fieldType = f.type || 'text';
-                let filterType: 'text' | 'number' | 'select' | 'date' | 'boolean' = 'text';
-                let options: Array<{ label: string; value: any }> | undefined;
-
-                if (fieldType === 'number' || fieldType === 'currency' || fieldType === 'percent') {
-                    filterType = 'number';
-                } else if (fieldType === 'boolean' || fieldType === 'toggle') {
-                    filterType = 'boolean';
-                } else if (fieldType === 'date' || fieldType === 'datetime') {
-                    filterType = 'date';
-                } else if (fieldType === 'select' || f.options) {
-                    filterType = 'select';
-                    options = (f.options || []).map((o: any) =>
-                        typeof o === 'string' ? { label: o, value: o } : { label: o.label, value: o.value }
-                    );
-                }
-
-                return {
-                    field: key,
-                    label: f.label || key,
-                    type: filterType,
-                    placeholder: `Filter ${f.label || key}...`,
-                    ...(options ? { options } : {}),
-                };
-            });
-
-        return {
-            type: 'filter-ui' as const,
-            layout: 'popover' as const,
-            showClear: true,
-            showApply: true,
-            filters: filterableFields,
-            values: filterValues,
-        };
-    }, [objectDef, filterValues]);
-
-    // Build SortUI schema from object field definitions
-    const sortSchema: SortUISchema = useMemo(() => {
-        const fields = objectDef.fields || {};
-        const sortableFields = Object.entries(fields)
-            .filter(([, f]: [string, any]) => !f.hidden)
-            .slice(0, 10)
-            .map(([key, f]: [string, any]) => ({
-                field: key,
-                label: f.label || key,
-            }));
-
-        return {
-            type: 'sort-ui' as const,
-            variant: 'dropdown' as const,
-            multiple: false,
-            fields: sortableFields,
-            sort: sortConfig,
-        };
-    }, [objectDef, sortConfig]);
-
-    const handleFilterChange = useCallback((values: Record<string, any>) => {
-        setFilterValues(values);
-    }, []);
-
-    const handleSortChange = useCallback((sort: SortUISchema['sort']) => {
-        setSortConfig(sort || []);
-    }, []);
 
     // Action system for toolbar operations
     const [refreshKey, setRefreshKey] = useState(0);
@@ -191,115 +98,112 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
         setSearchParams(newParams);
     };
 
-    const renderCurrentView = () => {
+    // Render multi-view content via ListView plugin (for kanban, calendar, etc.)
+    const renderListView = useCallback(({ schema: listSchema, dataSource: ds, onEdit: editHandler, onRowClick: rowClickHandler, className }: any) => {
         const key = `${objectName}-${activeView.id}-${refreshKey}`;
-        
-        // Helper to pass dataSource if component needs it
-        const interactionProps = {
-            onEdit,
-            onRowClick: onRowClick || ((record: any) => onEdit(record)), 
-            dataSource
-        };
+        const viewDef = activeView;
 
-        if (activeView.type === 'chart') {
-             return (
-                 <ObjectChart 
-                     key={key}
-                     dataSource={dataSource}
-                     schema={{
-                         type: 'object-chart',
-                         objectName: objectDef.name,
-                         chartType: activeView.chartType,
-                         xAxisField: activeView.xAxisField,
-                         yAxisFields: activeView.yAxisFields,
-                         aggregation: activeView.aggregation,
-                         series: activeView.series,
-                         config: activeView.config,
-                         filter: activeView.filter
-                     } as any}
-                 />
-             );
+        if (viewDef.type === 'chart') {
+            return (
+                <ObjectChart 
+                    key={key}
+                    dataSource={ds}
+                    schema={{
+                        type: 'object-chart',
+                        objectName: objectDef.name,
+                        chartType: viewDef.chartType,
+                        xAxisField: viewDef.xAxisField,
+                        yAxisFields: viewDef.yAxisFields,
+                        aggregation: viewDef.aggregation,
+                        series: viewDef.series,
+                        config: viewDef.config,
+                        filter: viewDef.filter,
+                    } as any}
+                />
+            );
         }
 
-        // Use standard ListView for supported types
-        // Mapped options to ensure plugin components receive correct configuration
-        // Merge user filter/sort selections with the view's default filter/sort
-        const mergedFilters = Object.keys(filterValues).length > 0
-            ? Object.entries(filterValues)
-                .filter(([, v]) => v !== undefined && v !== '' && v !== null)
-                .map(([field, value]) => ({ field, operator: 'equals' as const, value }))
-            : activeView.filter;
-        const mergedSort = sortConfig.length > 0 ? sortConfig : activeView.sort;
-
-        const listViewSchema: ListViewSchema = {
-            type: 'list-view',
-            id: activeView.id, // Pass the View ID to the schema
-            objectName: objectDef.name,
-            viewType: activeView.type,
-            fields: activeView.columns,
-            filters: mergedFilters,
-            sort: mergedSort,
+        const fullSchema: ListViewSchema = {
+            ...listSchema,
             options: {
                 kanban: {
-                     groupBy: activeView.groupBy || activeView.groupField || 'status',
-                     groupField: activeView.groupBy || activeView.groupField || 'status',
-                     titleField: activeView.titleField || objectDef.titleField || 'name',
-                     cardFields: activeView.columns || activeView.cardFields
+                    groupBy: viewDef.groupBy || viewDef.groupField || 'status',
+                    groupField: viewDef.groupBy || viewDef.groupField || 'status',
+                    titleField: viewDef.titleField || objectDef.titleField || 'name',
+                    cardFields: viewDef.columns || viewDef.cardFields,
                 },
                 calendar: {
-                    startDateField: activeView.startDateField || activeView.dateField || 'due_date',
-                    endDateField: activeView.endDateField || activeView.endField,
-                    titleField: activeView.titleField || activeView.subjectField || 'name',
-                    colorField: activeView.colorField,
-                    allDayField: activeView.allDayField,
-                    defaultView: activeView.defaultView
+                    startDateField: viewDef.startDateField || viewDef.dateField || 'due_date',
+                    endDateField: viewDef.endDateField || viewDef.endField,
+                    titleField: viewDef.titleField || viewDef.subjectField || 'name',
+                    colorField: viewDef.colorField,
+                    allDayField: viewDef.allDayField,
+                    defaultView: viewDef.defaultView,
                 },
                 timeline: {
-                    dateField: activeView.dateField || activeView.startDateField || 'due_date',
-                    titleField: activeView.titleField || objectDef.titleField || 'name',
-                    descriptionField: activeView.descriptionField,
+                    dateField: viewDef.dateField || viewDef.startDateField || 'due_date',
+                    titleField: viewDef.titleField || objectDef.titleField || 'name',
+                    descriptionField: viewDef.descriptionField,
                 },
                 map: {
-                    locationField: activeView.locationField,
-                    titleField: activeView.titleField || objectDef.titleField || 'name',
-                    latitudeField: activeView.latitudeField,
-                    longitudeField: activeView.longitudeField,
-                    zoom: activeView.zoom,
-                    center: activeView.center
+                    locationField: viewDef.locationField,
+                    titleField: viewDef.titleField || objectDef.titleField || 'name',
+                    latitudeField: viewDef.latitudeField,
+                    longitudeField: viewDef.longitudeField,
+                    zoom: viewDef.zoom,
+                    center: viewDef.center,
                 },
                 gallery: {
-                    imageField: activeView.imageField || 'image',
-                    titleField: activeView.titleField || objectDef.titleField || 'name',
-                    subtitleField: activeView.subtitleField
+                    imageField: viewDef.imageField || 'image',
+                    titleField: viewDef.titleField || objectDef.titleField || 'name',
+                    subtitleField: viewDef.subtitleField,
                 },
                 gantt: {
-                    startDateField: activeView.startDateField || 'start_date',
-                    endDateField: activeView.endDateField || 'end_date',
-                    titleField: activeView.titleField || 'name',
-                    progressField: activeView.progressField,
-                    dependenciesField: activeView.dependenciesField,
-                    colorField: activeView.colorField
+                    startDateField: viewDef.startDateField || 'start_date',
+                    endDateField: viewDef.endDateField || 'end_date',
+                    titleField: viewDef.titleField || 'name',
+                    progressField: viewDef.progressField,
+                    dependenciesField: viewDef.dependenciesField,
+                    colorField: viewDef.colorField,
                 },
                 chart: {
-                    chartType: activeView.chartType,
-                    xAxisField: activeView.xAxisField,
-                    yAxisFields: activeView.yAxisFields,
-                    aggregation: activeView.aggregation,
-                    series: activeView.series,
-                    config: activeView.config,
-                }
-            }
+                    chartType: viewDef.chartType,
+                    xAxisField: viewDef.xAxisField,
+                    yAxisFields: viewDef.yAxisFields,
+                    aggregation: viewDef.aggregation,
+                    series: viewDef.series,
+                    config: viewDef.config,
+                },
+            },
         };
 
         return (
             <ListView
                 key={key}
-                schema={listViewSchema}
-                className="h-full"
-                {...interactionProps}
+                schema={fullSchema}
+                className={className}
+                onEdit={editHandler}
+                onRowClick={rowClickHandler || ((record: any) => editHandler?.(record))}
+                dataSource={ds}
             />
         );
-    };
+    }, [activeView, objectDef, objectName, refreshKey]);
+
+    // Build the ObjectViewSchema for the plugin
+    const objectViewSchema = useMemo(() => ({
+        type: 'object-view' as const,
+        objectName: objectDef.name,
+        layout: 'page' as const,
+        showSearch: true,
+        showFilters: true,
+        showCreate: false, // We render our own create button in the header
+        showRefresh: true,
+        onNavigate: (recordId: string | number, mode: 'view' | 'edit') => {
+            if (mode === 'edit') {
+                onEdit?.({ _id: recordId, id: recordId });
+            }
+        },
+    }), [objectDef.name, onEdit]);
 
     return (
         <div className="h-full flex flex-col bg-background">
@@ -323,32 +227,21 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
                  </div>
              </div>
 
-             {/* 2. View Toolbar — Schema-Driven ViewSwitcher */}
-             <div className="flex justify-between items-center py-2 px-4 border-b shrink-0 bg-muted/20">
-                 <ViewSwitcher
-                     schema={viewSwitcherSchema}
-                     onViewChange={handleViewTypeChange}
-                     className="overflow-x-auto no-scrollbar"
-                 />
-
-                 {/* Right: Filter & Sort Controls */}
-                 <div className="hidden md:flex items-center gap-2">
-                     <FilterUI
-                         schema={filterSchema}
-                         onChange={handleFilterChange}
-                     />
-                     <SortUI
-                         schema={sortSchema}
-                         onChange={handleSortChange}
-                     />
-                 </div>
-             </div>
-
-             {/* 3. Content Area (Edge-to-Edge) */}
+             {/* 2. Content — Plugin ObjectView with ViewSwitcher + Filter + Sort */}
              <div className="flex-1 overflow-hidden relative flex flex-row">
                 <div className="flex-1 relative h-full">
-                    <div className="absolute inset-0">
-                        {renderCurrentView()}
+                    <div className="absolute inset-0 overflow-auto p-4">
+                        <PluginObjectView
+                            key={refreshKey}
+                            schema={objectViewSchema}
+                            dataSource={dataSource}
+                            views={views}
+                            activeViewId={activeViewId}
+                            onViewChange={handleViewChange}
+                            onEdit={(record) => onEdit?.(record)}
+                            onRowClick={onRowClick || ((record: any) => onEdit?.(record))}
+                            renderListView={renderListView}
+                        />
                     </div>
                 </div>
                 <MetadataPanel
@@ -370,7 +263,7 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
                                     type: 'detail-view',
                                     objectName: objectDef.name,
                                     resourceId: drawerRecordId,
-                                    showBack: false, // No back button in drawer
+                                    showBack: false,
                                     showEdit: true,
                                     title: objectDef.label,
                                     sections: [

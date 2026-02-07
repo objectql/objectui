@@ -85,8 +85,10 @@ vi.mock('@object-ui/components', async (importOriginal) => {
 });
 
 // Mock Lucide icons to avoid rendering SVG complexity
-vi.mock('lucide-react', async () => {
+vi.mock('lucide-react', async (importOriginal) => {
+    const actual = await importOriginal<any>();
     return {
+        ...actual,
         Database: () => <span data-testid="icon-database" />,
         LayoutDashboard: () => <span data-testid="icon-dashboard" />,
         Briefcase: () => <span data-testid="icon-briefcase" />,

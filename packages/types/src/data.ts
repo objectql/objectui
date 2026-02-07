@@ -205,6 +205,27 @@ export interface DataSource<T = any> {
    * @returns Promise resolving to the object schema
    */
   getObjectSchema(objectName: string): Promise<any>;
+
+  /**
+   * Get a view definition for an object.
+   * Used by view components to render server-defined UI configurations.
+   * Optional — implementations may return null to fall back to static config.
+   * 
+   * @param objectName - Object name
+   * @param viewId - View identifier (e.g., 'all', 'active', 'my_records')
+   * @returns Promise resolving to the view definition or null
+   */
+  getView?(objectName: string, viewId: string): Promise<any | null>;
+
+  /**
+   * Get an application definition by name or ID.
+   * Used by app shells to render server-defined navigation, branding, and layout.
+   * Optional — implementations may return null to fall back to static config.
+   * 
+   * @param appId - Application identifier
+   * @returns Promise resolving to the app definition or null
+   */
+  getApp?(appId: string): Promise<any | null>;
 }
 
 /**

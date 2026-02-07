@@ -11,10 +11,10 @@
  * - refresh: Trigger a data refresh
  */
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useActionRunner } from '@object-ui/react';
-import type { ActionResult } from '@object-ui/core';
+import type { ActionDef, ActionResult } from '@object-ui/core';
 
 interface ObjectActionConfig {
   objectName: string;
@@ -26,7 +26,7 @@ interface ObjectActionConfig {
 
 interface ObjectActions {
   /** Run an action by schema or type string */
-  execute: (action: any) => Promise<ActionResult>;
+  execute: (action: ActionDef) => Promise<ActionResult>;
   /** Create new record — opens the create dialog */
   create: () => void;
   /** Delete a record by id */
@@ -52,19 +52,16 @@ export function useObjectActions({
   const { appName } = useParams();
   const baseUrl = `/apps/${appName}`;
 
-  const context = useMemo(
-    () => ({
+  const { execute, loading, error, runner } = useActionRunner({
+    context: {
       objectName,
       objectLabel: objectLabel || objectName,
       baseUrl,
-    }),
-    [objectName, objectLabel, baseUrl],
-  );
-
-  const { execute, loading, error, runner } = useActionRunner(context);
+    },
+  });
 
   // Register custom handlers
-  useMemo(() => {
+  useEffect(() => {
     // Handler: create
     runner.registerHandler('create', async () => {
       onEdit?.(null);
@@ -107,7 +104,11 @@ export function useObjectActions({
 
   const deleteRecord = useCallback(
     async (recordId: string) => {
-      return execute({ type: 'delete', params: { recordId } });
+      return execute({
+        type: 'delete',
+        confirmText: `Are you sure you want to delete this record?`,
+        params: { recordId },
+      });
     },
     [execute],
   );
