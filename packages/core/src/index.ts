@@ -16,6 +16,7 @@ export * from './utils/filter-converter.js';
 export * from './evaluator/index.js';
 export * from './actions/index.js';
 export * from './query/index.js';
+export * from './adapters/index.js';
 // export * from './data-scope'; // TODO
 // export * from './validators'; // TODO
 

@@ -241,20 +241,21 @@ WidgetManifest: {
 
 ---
 
-#### 8. ViewData API Provider
+#### 8. ViewData API Provider ✅
 
 **Spec Requirement:**
 ```typescript
 { provider: 'api', read?: HttpRequest, write?: HttpRequest }
 ```
 
-**Current State:** Type defined but not fully implemented in plugin-form.
+**Current State:** Fully implemented with three DataSource adapters and a unified React hook.
 
-**Tasks:**
-- [ ] Full HttpRequest support (method, url, headers, body)
-- [ ] API read integration in plugin-form
-- [ ] API write integration in plugin-form
-- [ ] Error handling and loading states
+**Completed:**
+- [x] `ApiDataSource` — HTTP-based adapter for `provider: 'api'` (GET/POST/PATCH/DELETE, URL building, response normalization for array/{data}/{items}/{results}/{records}/{value} shapes, header merging, configurable fetch)
+- [x] `ValueDataSource` — In-memory adapter for `provider: 'value'` (filtering with $gt/$gte/$lt/$lte/$ne/$in/$contains, sorting, pagination, $search, full CRUD, auto-ID generation)
+- [x] `resolveDataSource()` — Factory routing `ViewData.provider` → correct adapter (`'api'` → ApiDataSource, `'value'` → ValueDataSource, `'object'` → context fallback)
+- [x] `useViewData` hook — React hook bridging ViewData → DataSource → reactive {data, loading, error, totalCount, refresh, fetchOne, hasMore}
+- [x] Full test coverage: 26 ApiDataSource + 34 ValueDataSource + 13 resolveDataSource + 15 useViewData tests (88 total)
 
 ---
 

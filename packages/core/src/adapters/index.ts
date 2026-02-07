@@ -7,4 +7,9 @@
  */
 
 // export { ObjectStackAdapter, createObjectStackAdapter } from './objectstack-adapter';
-// Adapters have been moved to separate packages (e.g. @object-ui/data-objectstack)
+// ObjectStack adapter has been moved to @object-ui/data-objectstack
+
+// Generic data source adapters (no external SDK dependencies)
+export { ApiDataSource, type ApiDataSourceConfig } from './ApiDataSource.js';
+export { ValueDataSource, type ValueDataSourceConfig } from './ValueDataSource.js';
+export { resolveDataSource, type ResolveDataSourceOptions } from './resolveDataSource.js';
