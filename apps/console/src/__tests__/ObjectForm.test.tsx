@@ -487,8 +487,8 @@ describe('ObjectForm with MSW Integration', () => {
 
       // Verify data is persisted by fetching it
       const result = await client.data.get('contact', createdId);
-      expect(result.name).toBe('Persist Test');
-      expect(result.email).toBe('persist@example.com');
+      expect(result.record.name).toBe('Persist Test');
+      expect(result.record.email).toBe('persist@example.com');
     });
   });
 });

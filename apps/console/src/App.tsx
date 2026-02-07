@@ -19,22 +19,6 @@ import { PageView } from './components/PageView';
 import { ReportView } from './components/ReportView';
 import { ExpressionProvider } from './context/ExpressionProvider';
 
-/**
- * Patch: MSW discovery response uses 'routes' instead of 'endpoints'.
- * This normalizes the shape until @objectstack/plugin-msw is fixed upstream.
- */
-function patchDiscoveryEndpoints(adapter: ObjectStackAdapter) {
-  try {
-    const client = adapter.getClient();
-    const info = (client as any).discoveryInfo;
-    if (info?.routes && !info.endpoints) {
-      info.endpoints = info.routes;
-    }
-  } catch {
-    // Silently ignore — adapter may not expose getClient()
-  }
-}
-
 import { useParams } from 'react-router-dom';
 import { ThemeProvider } from './components/theme-provider';
 
@@ -82,10 +66,6 @@ export function AppContent() {
       });
 
       await adapter.connect();
-
-      // Patch: MSW discovery returns 'routes' instead of 'endpoints'.
-      // TODO: Fix in @objectstack/plugin-msw to emit correct discovery shape.
-      patchDiscoveryEndpoints(adapter);
 
       setDataSource(adapter);
     } catch (err) {

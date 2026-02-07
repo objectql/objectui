@@ -57,18 +57,7 @@ export async function startMockServer() {
     logRequests: true
   });
 
-  // WORKAROUND: ObjectKernel's PluginLoader uses object spread ({ ...plugin })
-  // which copies only own-enumerable properties, stripping prototype methods.
-  // This binds all prototype methods so they survive the spread.
-  // TODO: Remove once @objectstack/runtime fixes PluginLoader to preserve prototypes.
-  const fixedMswPlugin = { ...mswPlugin } as any;
-  for (const key of Object.getOwnPropertyNames(Object.getPrototypeOf(mswPlugin))) {
-    if (typeof (mswPlugin as any)[key] === 'function' && key !== 'constructor') {
-      fixedMswPlugin[key] = (mswPlugin as any)[key].bind(mswPlugin);
-    }
-  }
-
-  await kernel.use(fixedMswPlugin);
+  await kernel.use(mswPlugin);
   
   await kernel.bootstrap();
 
