@@ -18,6 +18,12 @@ export { TabbedForm } from './TabbedForm';
 export type { TabbedFormProps, TabbedFormSchema, FormSectionConfig } from './TabbedForm';
 export { WizardForm } from './WizardForm';
 export type { WizardFormProps, WizardFormSchema } from './WizardForm';
+export { SplitForm } from './SplitForm';
+export type { SplitFormProps, SplitFormSchema } from './SplitForm';
+export { DrawerForm } from './DrawerForm';
+export type { DrawerFormProps, DrawerFormSchema } from './DrawerForm';
+export { ModalForm } from './ModalForm';
+export type { ModalFormProps, ModalFormSchema } from './ModalForm';
 
 // Register object-form component
 const ObjectFormRenderer: React.FC<{ schema: any }> = ({ schema }) => {
@@ -32,6 +38,27 @@ ComponentRegistry.register('object-form', ObjectFormRenderer, {
     { name: 'objectName', type: 'string', label: 'Object Name', required: true },
     { name: 'fields', type: 'array', label: 'Fields' },
     { name: 'mode', type: 'enum', label: 'Mode', enum: ['create', 'edit', 'view'] },
+    { name: 'formType', type: 'enum', label: 'Form Type', enum: ['simple', 'tabbed', 'wizard', 'split', 'drawer', 'modal'] },
+    { name: 'sections', type: 'array', label: 'Sections' },
+    { name: 'title', type: 'string', label: 'Title' },
+    { name: 'description', type: 'string', label: 'Description' },
+    { name: 'layout', type: 'enum', label: 'Layout', enum: ['vertical', 'horizontal', 'inline', 'grid'] },
+    { name: 'columns', type: 'number', label: 'Columns' },
+    // Tabbed
+    { name: 'defaultTab', type: 'string', label: 'Default Tab' },
+    { name: 'tabPosition', type: 'enum', label: 'Tab Position', enum: ['top', 'bottom', 'left', 'right'] },
+    // Wizard
+    { name: 'allowSkip', type: 'boolean', label: 'Allow Skip Steps' },
+    { name: 'showStepIndicator', type: 'boolean', label: 'Show Step Indicator' },
+    // Split
+    { name: 'splitDirection', type: 'enum', label: 'Split Direction', enum: ['horizontal', 'vertical'] },
+    { name: 'splitSize', type: 'number', label: 'Split Panel Size (%)' },
+    { name: 'splitResizable', type: 'boolean', label: 'Split Resizable' },
+    // Drawer
+    { name: 'drawerSide', type: 'enum', label: 'Drawer Side', enum: ['top', 'bottom', 'left', 'right'] },
+    { name: 'drawerWidth', type: 'string', label: 'Drawer Width' },
+    // Modal
+    { name: 'modalSize', type: 'enum', label: 'Modal Size', enum: ['sm', 'default', 'lg', 'xl', 'full'] },
   ]
 });
 

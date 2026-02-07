@@ -694,6 +694,66 @@ export interface ObjectFormSchema extends BaseSchema {
    * Custom CSS class
    */
   className?: string;
+
+  // ─── Split Form Props ──────────────────────────────────
+  
+  /**
+   * Split panel direction. Only used when formType is 'split'.
+   * @default 'horizontal'
+   */
+  splitDirection?: 'horizontal' | 'vertical';
+  
+  /**
+   * Size of the left/top panel in the split layout (percentage 1-99).
+   * Only used when formType is 'split'.
+   * @default 50
+   */
+  splitSize?: number;
+  
+  /**
+   * Whether the split panels can be resized. Only used when formType is 'split'.
+   * @default true
+   */
+  splitResizable?: boolean;
+
+  // ─── Drawer Form Props ─────────────────────────────────
+  
+  /**
+   * Whether the drawer is open. Only used when formType is 'drawer'.
+   * @default true
+   */
+  open?: boolean;
+  
+  /**
+   * Callback when open state changes. Only used when formType is 'drawer'.
+   */
+  onOpenChange?: (open: boolean) => void;
+  
+  /**
+   * Drawer slide-in side. Only used when formType is 'drawer'.
+   * @default 'right'
+   */
+  drawerSide?: 'top' | 'bottom' | 'left' | 'right';
+  
+  /**
+   * Drawer width (CSS value). Only used when formType is 'drawer'.
+   * @default '50%'
+   */
+  drawerWidth?: string;
+
+  // ─── Modal Form Props ──────────────────────────────────
+  
+  /**
+   * Modal dialog size. Only used when formType is 'modal'.
+   * @default 'default'
+   */
+  modalSize?: 'sm' | 'default' | 'lg' | 'xl' | 'full';
+  
+  /**
+   * Whether to show a close button in the modal header. Only used when formType is 'modal'.
+   * @default true
+   */
+  modalCloseButton?: boolean;
 }
 
 /**

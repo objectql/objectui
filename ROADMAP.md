@@ -18,7 +18,7 @@
 | @object-ui/fields | ✅ Complete | 95% | 36 widgets, 20+ cell renderers |
 | @object-ui/layout | 🟡 Partial | 60% | Basic layouts, missing responsive grid |
 | @object-ui/react | ✅ Complete | 100% | SchemaRenderer, hooks, providers |
-| @object-ui/plugin-form | 🟡 Partial | 30% | Only `simple` form, missing 5 variants |
+| @object-ui/plugin-form | ✅ Complete | 90% | All 6 variants (simple/tabbed/wizard/split/drawer/modal), FormField enhancements |
 | @object-ui/plugin-grid | ✅ Complete | 95% | Full ListView support |
 | @object-ui/plugin-aggrid | ✅ Complete | 100% | AG Grid integration |
 | @object-ui/plugin-kanban | ✅ Complete | 100% | Kanban board |
@@ -57,15 +57,15 @@ FormView.type: 'simple' | 'tabbed' | 'wizard' | 'split' | 'drawer' | 'modal'
 **Current State:** Only `simple` form implemented.
 
 **Missing Features:**
-- [ ] Tabbed Form - Fields organized in tab groups
-- [ ] Wizard Form - Multi-step form with navigation
-- [ ] Split Form - Side-by-side panels
-- [ ] Drawer Form - Slide-out form panel
-- [ ] Modal Form - Dialog-based form
-- [ ] Section/Group support (collapsible, columns per section)
-- [ ] FormField.colSpan support
-- [ ] FormField.dependsOn (field dependencies)
-- [ ] FormField.widget (custom widget override)
+- [x] Tabbed Form - Fields organized in tab groups
+- [x] Wizard Form - Multi-step form with navigation
+- [x] Split Form - Side-by-side panels (ResizablePanelGroup)
+- [x] Drawer Form - Slide-out form panel (Sheet)
+- [x] Modal Form - Dialog-based form (Dialog)
+- [x] Section/Group support (collapsible, columns per section)
+- [x] FormField.colSpan support
+- [ ] FormField.dependsOn (field dependencies) — type defined, runtime evaluation pending
+- [x] FormField.widget (custom widget override)
 
 ---
 

@@ -19,6 +19,9 @@ import { SchemaRenderer } from '@object-ui/react';
 import { mapFieldTypeToFormType, buildValidationRules, evaluateCondition, formatFileSize } from '@object-ui/fields';
 import { TabbedForm } from './TabbedForm';
 import { WizardForm } from './WizardForm';
+import { SplitForm } from './SplitForm';
+import { DrawerForm } from './DrawerForm';
+import { ModalForm } from './ModalForm';
 import { FormSection } from './FormSection';
 
 export interface ObjectFormProps {
@@ -103,6 +106,83 @@ export const ObjectForm: React.FC<ObjectFormProps> = ({
           nextText: schema.nextText,
           prevText: schema.prevText,
           onStepChange: schema.onStepChange,
+        }}
+        dataSource={dataSource}
+        className={schema.className}
+      />
+    );
+  }
+
+  if (schema.formType === 'split' && schema.sections?.length) {
+    return (
+      <SplitForm
+        schema={{
+          ...schema,
+          formType: 'split',
+          sections: schema.sections.map(s => ({
+            name: s.name,
+            label: s.label,
+            description: s.description,
+            columns: s.columns,
+            fields: s.fields,
+          })),
+          splitDirection: schema.splitDirection,
+          splitSize: schema.splitSize,
+          splitResizable: schema.splitResizable,
+        }}
+        dataSource={dataSource}
+        className={schema.className}
+      />
+    );
+  }
+
+  if (schema.formType === 'drawer') {
+    const { layout: _layout, ...drawerRest } = schema;
+    const drawerLayout = (schema.layout === 'vertical' || schema.layout === 'horizontal') ? schema.layout : undefined;
+    return (
+      <DrawerForm
+        schema={{
+          ...drawerRest,
+          layout: drawerLayout,
+          formType: 'drawer',
+          sections: schema.sections?.map(s => ({
+            name: s.name,
+            label: s.label,
+            description: s.description,
+            columns: s.columns,
+            fields: s.fields,
+          })),
+          open: schema.open,
+          onOpenChange: schema.onOpenChange,
+          drawerSide: schema.drawerSide,
+          drawerWidth: schema.drawerWidth,
+        }}
+        dataSource={dataSource}
+        className={schema.className}
+      />
+    );
+  }
+
+  if (schema.formType === 'modal') {
+    const { layout: _layout2, ...modalRest } = schema;
+    const modalLayout = (schema.layout === 'vertical' || schema.layout === 'horizontal') ? schema.layout : undefined;
+    return (
+      <ModalForm
+        schema={{
+          ...modalRest,
+          layout: modalLayout,
+          formType: 'modal',
+          sections: schema.sections?.map(s => ({
+            name: s.name,
+            label: s.label,
+            description: s.description,
+            columns: s.columns,
+            fields: s.fields,
+          })),
+          open: schema.open,
+          onOpenChange: schema.onOpenChange,
+          modalSize: schema.modalSize,
+          modalCloseButton: schema.modalCloseButton,
         }}
         dataSource={dataSource}
         className={schema.className}

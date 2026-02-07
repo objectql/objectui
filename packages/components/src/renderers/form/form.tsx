@@ -228,8 +228,16 @@ ComponentRegistry.register('form',
                   disabled: fieldDisabled = false,
                   validation = {},
                   condition,
+                  colSpan,
+                  hidden,
+                  widget,
+                  visibleOn,
+                  readonly,
                   ...fieldProps
                 } = field;
+
+                // Skip hidden fields
+                if (hidden) return null;
 
                 // Handle conditional rendering with null/undefined safety
                 if (condition) {
@@ -264,6 +272,17 @@ ComponentRegistry.register('form',
                 // Use field.id or field.name for stable keys (never use index alone)
                 const fieldKey = field.id ?? name;
 
+                // Resolve the component type: prefer widget override, fallback to field type
+                const resolvedType = widget || type;
+
+                // colSpan classes for grid layout
+                const colSpanClass = colSpan && colSpan > 1
+                  ? colSpan === 2 ? 'col-span-2'
+                  : colSpan === 3 ? 'col-span-3'
+                  : colSpan >= 4 ? 'col-span-4'
+                  : ''
+                  : '';
+
                 return (
                   <FormField
                     key={fieldKey}
@@ -271,7 +290,7 @@ ComponentRegistry.register('form',
                     name={name}
                     rules={rules}
                     render={({ field: formField }) => (
-                      <FormItem>
+                      <FormItem className={colSpanClass || undefined}>
                         {label && (
                           <FormLabel>
                             {label}
@@ -283,8 +302,8 @@ ComponentRegistry.register('form',
                           </FormLabel>
                         )}
                         <FormControl>
-                          {/* Render the actual field component based on type */}
-                          {renderFieldComponent(type, {
+                          {/* Render the actual field component based on resolved type */}
+                          {renderFieldComponent(resolvedType, {
                             ...fieldProps,
                             // specialized fields needs raw metadata, but we should traverse down if it exists
                             // field is the field configuration loop variable
@@ -293,7 +312,7 @@ ComponentRegistry.register('form',
                             inputType: fieldProps.inputType,
                             options: fieldProps.options,
                             placeholder: fieldProps.placeholder,
-                            disabled: disabled || fieldDisabled || isSubmitting,
+                            disabled: disabled || fieldDisabled || readonly || isSubmitting,
                           })}
                         </FormControl>
                         {description && (

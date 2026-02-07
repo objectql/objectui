@@ -819,11 +819,45 @@ export interface FormField {
    */
   condition?: FieldCondition;
   /**
+   * Custom widget/component name override.
+   * Aligns with @objectstack/spec FormField.widget.
+   * When set, the form renderer uses this widget type instead of auto-detecting.
+   * @example 'rich-text', 'code-editor', 'rating'
+   */
+  widget?: string;
+  /**
+   * Parent field name for cascading/dependent fields.
+   * Aligns with @objectstack/spec FormField.dependsOn.
+   * When the parent field value changes, this field is re-evaluated.
+   * @example 'country' (field 'state' dependsOn 'country')
+   */
+  dependsOn?: string;
+  /**
+   * Visibility condition expression.
+   * Aligns with @objectstack/spec FormField.visibleOn.
+   * When evaluated to false, the field is hidden.
+   * @example "${data.role === 'admin'}"
+   */
+  visibleOn?: string;
+  /**
+   * Whether the field is hidden.
+   * Aligns with @objectstack/spec FormField.hidden.
+   * @default false
+   */
+  hidden?: boolean;
+  /**
+   * Whether the field is read-only.
+   * Aligns with @objectstack/spec FormField.readonly.
+   * @default false
+   */
+  readonly?: boolean;
+  /**
    * Additional field-specific props
    */
   [key: string]: any;
   /**
-   * Column span for grid layouts
+   * Column span for grid layouts (1-4).
+   * Aligns with @objectstack/spec FormField.colSpan.
    * @default 1
    */
   colSpan?: number;
