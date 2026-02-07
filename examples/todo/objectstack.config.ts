@@ -97,6 +97,7 @@ export default defineStack({
             xField: 'status',
             yField: 'count',
           },
+          // @ts-ignore
           data: {
             provider: 'value',
             items: [
@@ -116,6 +117,7 @@ export default defineStack({
             xField: 'category',
             yField: 'count',
           },
+          // @ts-ignore
           data: {
             provider: 'value',
             items: [

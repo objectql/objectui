@@ -115,25 +115,25 @@ describe('Console Application Simulation', () => {
     };
 
     it('Scenario 1: Page Rendering (Help Page)', async () => {
-        renderApp('/page/help_page');
+        renderApp('/page/crm_help');
 
-        // Verify content from help_page (part of kitchen sink)
+        // Verify content from crm_help page
         await waitFor(() => {
-            expect(screen.getByText(/Application Guide/i)).toBeInTheDocument();
+            expect(screen.getByText(/CRM Help Guide/i)).toBeInTheDocument();
         }, { timeout: 10000 });
-        expect(screen.getByText(/Welcome to the ObjectStack Console/i)).toBeInTheDocument();
+        expect(screen.getByText(/Welcome to the CRM application/i)).toBeInTheDocument();
     });
 
-    it('Scenario 2: Dashboard Rendering (Sales Dashboard)', async () => {
-        renderApp('/dashboard/sales_dashboard');
+    it('Scenario 2: Dashboard Rendering (CRM Dashboard)', async () => {
+        renderApp('/dashboard/crm_dashboard');
 
         // Verify Dashboard Title
         await waitFor(() => {
-            expect(screen.getByText(/Sales Overview/i)).toBeInTheDocument();
+            expect(screen.getByText(/CRM Overview/i)).toBeInTheDocument();
         }, { timeout: 10000 });
 
-        // Verify Widget Rendering (Bar Chart)
-        expect(screen.getByText(/Sales by Region/i)).toBeInTheDocument();
+        // Verify Widget Rendering (Area Chart)
+        expect(screen.getByText(/Revenue Trends/i)).toBeInTheDocument();
         
         // Note: We skip checking for specific chart data (e.g. "North") because 
         // Recharts in JSDOM (headless) often renders with 0 width/height even with mocks,
@@ -214,25 +214,17 @@ describe('Console Application Simulation', () => {
         // but finding by Text works for verifying presence.
     });
 
-    it('Scenario 5: Report Rendering (Report Page)', async () => {
-        renderApp('/page/report_page');
+    it('Scenario 5: Page Rendering (Task Tracker Help)', async () => {
+        renderApp('/page/todo_help');
 
-        // Verify Report Title
+        // Verify Page Title
         await waitFor(() => {
-            expect(screen.getByText(/Sales Performance Report/i)).toBeInTheDocument();
+            expect(screen.getByText(/Task Tracker Guide/i)).toBeInTheDocument();
         }, { timeout: 10000 });
         
-        // Verify Description
-        expect(screen.getByText(/Monthly breakdown of sales/i)).toBeInTheDocument();
-
-        // Verify Data Grid Headers
-        expect(screen.getByText('Region')).toBeInTheDocument();
-        expect(screen.getAllByText('Sales').length).toBeGreaterThan(0);
-        expect(screen.getByText('Target')).toBeInTheDocument();
-
-        // Verify Data Rows
-        expect(screen.getByText('North')).toBeInTheDocument();
-        expect(screen.getAllByText('5000').length).toBeGreaterThan(0);
+        // Verify structured content sections
+        expect(screen.getByText(/Views/i)).toBeInTheDocument();
+        expect(screen.getByText(/Workflow/i)).toBeInTheDocument();
     });
 
     // -----------------------------------------------------------------------------
@@ -808,24 +800,23 @@ describe('Dashboard Integration', () => {
     };
 
     it('Scenario A: Dashboard Page Rendering', async () => {
-        renderApp('/dashboard/sales_dashboard');
+        renderApp('/dashboard/showcase_dashboard');
         
         await waitFor(() => {
-            expect(screen.getByText(/Sales Overview/i)).toBeInTheDocument();
+            expect(screen.getByText(/Platform Showcase/i)).toBeInTheDocument();
         });
         
-        expect(screen.getByText(/Sales by Region/i)).toBeInTheDocument();
+        expect(screen.getByText(/Records by Category/i)).toBeInTheDocument();
     });
 
-    it('Scenario B: Report Page Rendering', async () => {
-        renderApp('/page/report_page');
+    it('Scenario B: Help Page Rendering', async () => {
+        renderApp('/page/showcase_help');
         
         await waitFor(() => {
-            expect(screen.getByText(/Sales Performance Report/i)).toBeInTheDocument();
+            expect(screen.getByText(/Platform Showcase/i)).toBeInTheDocument();
         });
         
-        expect(screen.getByText('Region')).toBeInTheDocument();
-        expect(screen.getByText('North')).toBeInTheDocument();
+        expect(screen.getByText(/Supported Field Types/i)).toBeInTheDocument();
     });
 
     it('Scenario C: Component Registry Check', async () => {

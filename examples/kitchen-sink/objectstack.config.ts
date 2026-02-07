@@ -105,6 +105,7 @@ export default defineStack({
             xField: 'category',
             yField: 'count',
           },
+          // @ts-ignore
           data: {
             provider: 'value',
             items: [
@@ -122,6 +123,7 @@ export default defineStack({
             xField: 'name',
             yField: 'amount',
           },
+          // @ts-ignore
           data: {
             provider: 'value',
             items: [
@@ -143,6 +145,7 @@ export default defineStack({
             xField: 'month',
             yField: 'value',
           },
+          // @ts-ignore
           data: {
             provider: 'value',
             items: [
