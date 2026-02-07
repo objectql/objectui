@@ -95,6 +95,10 @@ export interface ListColumn {
   wrap?: boolean;
   /** Renderer type override (e.g., "currency", "date") */
   type?: string;
+  /** Functions as the primary navigation link (triggers View navigation) */
+  link?: boolean;
+  /** Registered Action ID to execute when clicked */
+  action?: string;
 }
 
 /**

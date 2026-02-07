@@ -142,7 +142,7 @@ Reusable `useNavigationOverlay` hook in @object-ui/react + `NavigationOverlay` c
 
 ### 🟡 Medium Priority Gaps
 
-#### 4. ListColumn Extensions
+#### 4. ListColumn Extensions ✅
 
 **Spec Requirement:**
 ```typescript
@@ -150,12 +150,17 @@ ListColumn.link: boolean    // Primary navigation column
 ListColumn.action: string   // Associated action ID
 ```
 
-**Current State:** Not in types, not rendered.
+**Current State:** ✅ Complete — types aligned with @objectstack/spec, rendering implemented.
 
-**Tasks:**
-- [ ] Add `link` and `action` to ListColumnSchema
-- [ ] Render link columns with navigation behavior
-- [ ] Render action columns with ActionRunner integration
+**Completed:**
+- [x] Add `link` and `action` to ListColumn interface + Zod schema
+- [x] Add `col.cell()` custom renderer support to data-table
+- [x] Render link columns with navigation behavior (triggers useNavigationOverlay)
+- [x] Render action columns with ActionRunner integration (dispatches registered handler)
+- [x] Support `hidden` columns (filtered out of data-table)
+- [x] Support `type` columns (getCellRenderer for typed cell rendering)
+- [x] Support `wrap` and `resizable` passthrough
+- [x] 28 plugin-grid tests + 4 data-table cell renderer tests, all passing
 
 ---
 

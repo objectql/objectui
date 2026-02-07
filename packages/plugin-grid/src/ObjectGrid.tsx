@@ -23,7 +23,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import type { ObjectGridSchema, DataSource, ListColumn, ViewData } from '@object-ui/types';
-import { SchemaRenderer, useDataScope, useNavigationOverlay } from '@object-ui/react';
+import { SchemaRenderer, useDataScope, useNavigationOverlay, useAction } from '@object-ui/react';
 import { getCellRenderer } from '@object-ui/fields';
 import { Button, NavigationOverlay } from '@object-ui/components';
 import {
@@ -274,6 +274,18 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
     };
   }, [objectName, schemaFields, schemaColumns, schemaFilter, schemaSort, schemaPagination, schemaPageSize, dataSource, hasInlineData, dataConfig]);
 
+  // --- NavigationConfig support ---
+  // Must be called before any early returns to satisfy React hooks rules
+  const navigation = useNavigationOverlay({
+    navigation: schema.navigation,
+    objectName: schema.objectName,
+    onNavigate: schema.onNavigate,
+    onRowClick,
+  });
+
+  // --- Action support for action columns ---
+  const { execute: executeAction } = useAction();
+
   const generateColumns = useCallback(() => {
     // Use normalized columns (support both new and legacy)
     const cols = normalizeColumns(schemaColumns);
@@ -289,17 +301,97 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
           return cols;
         }
         
-        // ListColumn format - convert to data-table format
+        // ListColumn format - convert to data-table format with full feature support
         if ('field' in firstCol) {
           return (cols as ListColumn[])
-            .filter((col) => col?.field && typeof col.field === 'string') // Filter out invalid column objects
-            .map((col) => ({
-              header: col.label || col.field.charAt(0).toUpperCase() + col.field.slice(1).replace(/_/g, ' '),
-              accessorKey: col.field,
-              ...(col.width && { width: col.width }),
-              ...(col.align && { align: col.align }),
-              sortable: col.sortable !== false,
-            }));
+            .filter((col) => col?.field && typeof col.field === 'string' && !col.hidden)
+            .map((col) => {
+              const header = col.label || col.field.charAt(0).toUpperCase() + col.field.slice(1).replace(/_/g, ' ');
+
+              // Build custom cell renderer based on column configuration
+              let cellRenderer: ((value: any, row: any) => React.ReactNode) | undefined;
+
+              // Type-based cell renderer (e.g., "currency", "date", "boolean")
+              const CellRenderer = col.type ? getCellRenderer(col.type) : null;
+
+              if (col.link && col.action) {
+                // Both link and action: link takes priority for navigation, action executes on secondary interaction
+                cellRenderer = (value: any, row: any) => {
+                  const displayContent = CellRenderer
+                    ? <CellRenderer value={value} field={{ name: col.field, type: col.type || 'text' } as any} />
+                    : String(value ?? '');
+                  return (
+                    <button
+                      type="button"
+                      className="text-primary underline-offset-4 hover:underline cursor-pointer bg-transparent border-none p-0 text-left font-inherit"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigation.handleClick(row);
+                      }}
+                    >
+                      {displayContent}
+                    </button>
+                  );
+                };
+              } else if (col.link) {
+                // Link column: clicking navigates to the record detail
+                cellRenderer = (value: any, row: any) => {
+                  const displayContent = CellRenderer
+                    ? <CellRenderer value={value} field={{ name: col.field, type: col.type || 'text' } as any} />
+                    : String(value ?? '');
+                  return (
+                    <button
+                      type="button"
+                      className="text-primary underline-offset-4 hover:underline cursor-pointer bg-transparent border-none p-0 text-left font-inherit"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigation.handleClick(row);
+                      }}
+                    >
+                      {displayContent}
+                    </button>
+                  );
+                };
+              } else if (col.action) {
+                // Action column: clicking executes the registered action
+                cellRenderer = (value: any, row: any) => {
+                  const displayContent = CellRenderer
+                    ? <CellRenderer value={value} field={{ name: col.field, type: col.type || 'text' } as any} />
+                    : String(value ?? '');
+                  return (
+                    <button
+                      type="button"
+                      className="text-primary underline-offset-4 hover:underline cursor-pointer bg-transparent border-none p-0 text-left font-inherit"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        executeAction({
+                          type: col.action!,
+                          params: { record: row, field: col.field, value },
+                        });
+                      }}
+                    >
+                      {displayContent}
+                    </button>
+                  );
+                };
+              } else if (CellRenderer) {
+                // Type-only cell renderer (no link/action)
+                cellRenderer = (value: any) => (
+                  <CellRenderer value={value} field={{ name: col.field, type: col.type || 'text' } as any} />
+                );
+              }
+
+              return {
+                header,
+                accessorKey: col.field,
+                ...(col.width && { width: col.width }),
+                ...(col.align && { align: col.align }),
+                sortable: col.sortable !== false,
+                ...(col.resizable !== undefined && { resizable: col.resizable }),
+                ...(col.wrap !== undefined && { wrap: col.wrap }),
+                ...(cellRenderer && { cell: cellRenderer }),
+              };
+            });
         }
       }
       
@@ -348,16 +440,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
     });
 
     return generatedColumns;
-  }, [objectSchema, schemaFields, schemaColumns, dataConfig, hasInlineData]);
-
-  // --- NavigationConfig support ---
-  // Must be called before any early returns to satisfy React hooks rules
-  const navigation = useNavigationOverlay({
-    navigation: schema.navigation,
-    objectName: schema.objectName,
-    onNavigate: schema.onNavigate,
-    onRowClick,
-  });
+  }, [objectSchema, schemaFields, schemaColumns, dataConfig, hasInlineData, navigation.handleClick, executeAction]);
 
   if (error) {
     return (

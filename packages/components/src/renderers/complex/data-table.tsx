@@ -719,6 +719,8 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                                 onKeyDown={handleEditKeyDown}
                                 className="h-8 px-2 py-1"
                               />
+                            ) : typeof col.cell === 'function' ? (
+                              col.cell(cellValue, row)
                             ) : (
                               cellValue
                             )}
