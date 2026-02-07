@@ -11,6 +11,8 @@
     "plugins",
     "schema-overview",
     "console",
-    "console-architecture"
+    "console-architecture",
+    "console-rendering",
+    "objectos-integration"
   ]
 }
