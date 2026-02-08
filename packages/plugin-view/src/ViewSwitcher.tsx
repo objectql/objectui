@@ -227,8 +227,8 @@ export const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
             <SelectValue placeholder="Select view" />
           </SelectTrigger>
           <SelectContent>
-            {schema.views.map(view => (
-              <SelectItem key={view.type} value={view.type}>
+            {schema.views.map((view, index) => (
+              <SelectItem key={`${view.type}-${index}`} value={view.type}>
                 {getViewLabel(view)}
               </SelectItem>
             ))}
@@ -238,13 +238,13 @@ export const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
 
       {variant === 'buttons' && (
         <div className={cn(viewSwitcherList({ orientation }))}>
-          {schema.views.map(view => {
+          {schema.views.map((view, index) => {
             const isActive = view.type === currentView;
             const Icon = getViewIcon(view);
 
             return (
               <Button
-                key={view.type}
+                key={`${view.type}-${index}`}
                 type="button"
                 size="sm"
                 variant={isActive ? 'secondary' : 'ghost'}
@@ -262,11 +262,11 @@ export const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
       {variant === 'tabs' && (
         <Tabs value={currentViewValue} onValueChange={(value) => handleViewChange(value as ViewType)}>
           <TabsList className={cn(viewSwitcherTabsList({ orientation }))}>
-            {schema.views.map(view => {
+            {schema.views.map((view, index) => {
               const Icon = getViewIcon(view);
               return (
                 <TabsTrigger
-                  key={view.type}
+                  key={`${view.type}-${index}`}
                   value={view.type}
                   className={cn('gap-2', isVertical ? 'justify-start' : '')}
                 >

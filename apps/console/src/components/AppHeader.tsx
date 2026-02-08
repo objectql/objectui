@@ -7,13 +7,14 @@
  * @module
  */
 
+import { Fragment } from 'react';
 import { useLocation, useParams, Link } from 'react-router-dom';
-import { 
-  Breadcrumb, 
-  BreadcrumbItem, 
-  BreadcrumbLink, 
-  BreadcrumbList, 
-  BreadcrumbPage, 
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
   BreadcrumbSeparator,
   SidebarTrigger,
   Button,
@@ -84,16 +85,18 @@ export function AppHeader({ appName, objects, connectionState }: { appName: stri
                 <Breadcrumb className="hidden sm:flex">
                   <BreadcrumbList>
                     {breadcrumbItems.map((item, index) => (
-                      <BreadcrumbItem key={index}>
+                      <Fragment key={index}>
                         {index > 0 && <BreadcrumbSeparator />}
-                        {index === breadcrumbItems.length - 1 || !item.href ? (
-                          <BreadcrumbPage>{item.label}</BreadcrumbPage>
-                        ) : (
-                          <BreadcrumbLink asChild>
-                            <Link to={item.href}>{item.label}</Link>
-                          </BreadcrumbLink>
-                        )}
-                      </BreadcrumbItem>
+                        <BreadcrumbItem>
+                          {index === breadcrumbItems.length - 1 || !item.href ? (
+                            <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                          ) : (
+                            <BreadcrumbLink asChild>
+                              <Link to={item.href}>{item.label}</Link>
+                            </BreadcrumbLink>
+                          )}
+                        </BreadcrumbItem>
+                      </Fragment>
                     ))}
                   </BreadcrumbList>
                 </Breadcrumb>
