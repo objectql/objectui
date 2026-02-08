@@ -53,10 +53,7 @@ class PluginErrorBoundary extends Component<
     if (this.state.hasError && this.state.error) {
       const FallbackComponent = this.props.fallback;
       if (FallbackComponent) {
-        return React.createElement(FallbackComponent, {
-          error: this.state.error,
-          retry: this.handleRetry,
-        });
+        return <FallbackComponent error={this.state.error} retry={this.handleRetry} />;
       }
       return null;
     }
@@ -136,17 +133,17 @@ export function createLazyPlugin<P extends object = any>(
   const LazyComponent = lazy(retryImport);
   
   const PluginWrapper: React.FC<P> = (props) => {
-    const content = React.createElement(
-      Suspense,
-      { fallback: options?.fallback || null },
-      React.createElement(LazyComponent, props),
+    const content = (
+      <Suspense fallback={options?.fallback || null}>
+        <LazyComponent {...props} />
+      </Suspense>
     );
 
     if (errorFallback) {
-      return React.createElement(
-        PluginErrorBoundary,
-        { fallback: errorFallback },
-        content,
+      return (
+        <PluginErrorBoundary fallback={errorFallback}>
+          {content}
+        </PluginErrorBoundary>
       );
     }
 
