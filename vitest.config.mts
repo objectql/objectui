@@ -39,6 +39,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      '@object-ui/i18n': path.resolve(__dirname, './packages/i18n/src'),
       '@object-ui/core': path.resolve(__dirname, './packages/core/src'),
       '@object-ui/types/zod': path.resolve(__dirname, './packages/types/src/zod/index.zod.ts'),
       '@object-ui/types': path.resolve(__dirname, './packages/types/src'),
