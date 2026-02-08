@@ -1,0 +1,670 @@
+---
+title: "ObjectOS Integration Guide"
+description: "Complete guide for integrating ObjectUI with ObjectOS platform"
+---
+
+# ObjectOS Integration Guide
+
+ObjectUI is designed to be the official frontend renderer for the **ObjectOS** ecosystem. This guide provides comprehensive instructions for integrating ObjectUI components with ObjectOS, ObjectStack, and building enterprise applications.
+
+## Overview
+
+ObjectUI serves as the **UI Layer** in the ObjectOS architecture:
+
+```
+┌─────────────────────────────────────────────────┐
+│               ObjectUI (UI Layer)                │
+│  React Components + Tailwind + Schema Rendering │
+└──────────────────┬──────────────────────────────┘
+                   │
+                   ▼
+┌─────────────────────────────────────────────────┐
+│          ObjectStack (Runtime Layer)             │
+│   Kernel + Plugins + ObjectQL + Data Drivers    │
+└──────────────────┬──────────────────────────────┘
+                   │
+                   ▼
+┌─────────────────────────────────────────────────┐
+│           ObjectOS (Platform Layer)              │
+│  Multi-tenant + RBAC + System Objects + APIs    │
+└─────────────────────────────────────────────────┘
+```
+
+## Quick Start Integration
+
+### 1. Install Dependencies
+
+```bash
+# Core ObjectUI packages
+pnpm add @object-ui/react @object-ui/components @object-ui/fields
+
+# ObjectStack runtime
+pnpm add @objectstack/core @objectstack/runtime @objectstack/objectql
+
+# Data adapter
+pnpm add @object-ui/data-objectstack
+
+# Optional: Plugins as needed
+pnpm add @object-ui/plugin-form @object-ui/plugin-grid @object-ui/plugin-aggrid
+```
+
+### 2. Set Up ObjectStack Kernel
+
+```typescript
+// src/kernel.ts
+import { Kernel } from '@objectstack/runtime';
+import { ObjectQLPlugin } from '@objectstack/objectql';
+import { AppPlugin } from '@objectstack/plugin-app';
+import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
+
+export async function createKernel() {
+  const kernel = new Kernel();
+
+  // Register essential plugins
+  kernel.registerPlugin(new ObjectQLPlugin());
+  kernel.registerPlugin(new AppPlugin());
+  kernel.registerPlugin(new HonoServerPlugin({
+    port: 3000,
+    cors: true
+  }));
+
+  await kernel.start();
+  return kernel;
+}
+```
+
+### 3. Create ObjectStack Configuration
+
+```typescript
+// objectstack.config.ts
+import type { AppManifest } from '@objectstack/spec';
+
+export const manifest: AppManifest = {
+  name: 'my-app',
+  version: '1.0.0',
+  description: 'My ObjectUI + ObjectOS Application',
+  
+  // Define your data objects
+  objects: {
+    contact: {
+      name: 'contact',
+      label: 'Contact',
+      fields: {
+        name: { name: 'name', label: 'Name', type: 'text', required: true },
+        email: { name: 'email', label: 'Email', type: 'email', required: true },
+        phone: { name: 'phone', label: 'Phone', type: 'phone' },
+        company: { name: 'company', label: 'Company', type: 'text' },
+        status: {
+          name: 'status',
+          label: 'Status',
+          type: 'select',
+          options: [
+            { label: 'Active', value: 'active' },
+            { label: 'Inactive', value: 'inactive' }
+          ]
+        }
+      }
+    }
+  },
+
+  // Define UI pages
+  pages: [
+    {
+      name: 'contacts',
+      label: 'Contacts',
+      path: '/contacts',
+      icon: 'users',
+      component: {
+        type: 'object-view',
+        objectName: 'contact',
+        viewTypes: ['grid', 'kanban', 'calendar']
+      }
+    }
+  ],
+
+  // Define app navigation
+  navigation: {
+    items: [
+      {
+        label: 'Dashboard',
+        path: '/',
+        icon: 'home'
+      },
+      {
+        label: 'Contacts',
+        path: '/contacts',
+        icon: 'users'
+      }
+    ]
+  }
+};
+
+export default manifest;
+```
+
+### 4. Set Up Frontend with Console
+
+```typescript
+// src/index.tsx
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { SchemaRenderer } from '@object-ui/react';
+import { ObjectStackAdapter } from '@object-ui/data-objectstack';
+
+// Import required plugins
+import '@object-ui/components';
+import '@object-ui/fields';
+import '@object-ui/plugin-form';
+import '@object-ui/plugin-grid';
+import '@object-ui/plugin-aggrid';
+
+// Initialize ObjectStack adapter
+const dataSource = new ObjectStackAdapter({
+  baseUrl: 'http://localhost:3000/api'
+});
+
+function App() {
+  return (
+    <div className="min-h-screen bg-background">
+      <SchemaRenderer
+        schema={{
+          type: 'page',
+          template: 'header-sidebar-main',
+          header: {
+            type: 'header-bar',
+            title: 'My App',
+            navigation: {
+              items: [
+                { label: 'Dashboard', path: '/', icon: 'home' },
+                { label: 'Contacts', path: '/contacts', icon: 'users' }
+              ]
+            }
+          },
+          sidebar: {
+            type: 'navigation-menu',
+            items: [
+              { label: 'Dashboard', path: '/', icon: 'home' },
+              { label: 'Contacts', path: '/contacts', icon: 'users' }
+            ]
+          },
+          main: {
+            type: 'object-view',
+            objectName: 'contact',
+            dataSource,
+            viewTypes: ['grid', 'kanban']
+          }
+        }}
+      />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+```
+
+## ObjectOS-Specific Features
+
+### Multi-Tenancy Support
+
+```typescript
+// Configure tenant isolation
+const adapter = new ObjectStackAdapter({
+  baseUrl: 'http://localhost:3000/api',
+  headers: {
+    'X-Tenant-ID': 'tenant-123',
+    'X-Workspace-ID': 'workspace-456'
+  }
+});
+```
+
+### Role-Based Access Control (RBAC)
+
+```typescript
+// Define permissions in object schema
+{
+  objects: {
+    contact: {
+      name: 'contact',
+      label: 'Contact',
+      permissions: {
+        create: ['admin', 'sales'],
+        read: ['admin', 'sales', 'support'],
+        update: ['admin', 'sales'],
+        delete: ['admin']
+      },
+      fields: {
+        salary: {
+          name: 'salary',
+          label: 'Salary',
+          type: 'currency',
+          permissions: {
+            read: ['admin', 'hr'],
+            update: ['admin', 'hr']
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### System Objects Integration
+
+ObjectOS provides system objects like `sys_user`, `sys_organization`, `sys_role`, etc. Integrate them in your UI:
+
+```typescript
+{
+  type: 'object-view',
+  objectName: 'sys_user',
+  dataSource: objectStackAdapter,
+  viewTypes: ['grid'],
+  fieldNames: ['username', 'email', 'role', 'status', 'last_login']
+}
+```
+
+### Workflow Integration
+
+```typescript
+// Define workflow-enabled object
+{
+  objects: {
+    opportunity: {
+      name: 'opportunity',
+      label: 'Opportunity',
+      workflow: {
+        enabled: true,
+        states: ['lead', 'qualified', 'proposal', 'negotiation', 'closed_won', 'closed_lost'],
+        transitions: [
+          { from: 'lead', to: 'qualified', label: 'Qualify', role: ['sales'] },
+          { from: 'qualified', to: 'proposal', label: 'Create Proposal', role: ['sales'] },
+          { from: 'proposal', to: 'negotiation', label: 'Negotiate', role: ['sales', 'manager'] },
+          { from: 'negotiation', to: 'closed_won', label: 'Close Won', role: ['manager'] },
+          { from: 'negotiation', to: 'closed_lost', label: 'Close Lost', role: ['manager'] }
+        ]
+      },
+      fields: {
+        // ... field definitions
+      }
+    }
+  }
+}
+```
+
+## Data Layer Integration
+
+### Using ObjectQL for Queries
+
+```typescript
+import { ObjectStackAdapter } from '@object-ui/data-objectstack';
+
+const dataSource = new ObjectStackAdapter({
+  baseUrl: 'http://localhost:3000/api'
+});
+
+// ObjectQL queries are automatically handled
+const schema = {
+  type: 'object-aggrid',
+  objectName: 'contact',
+  dataSource,
+  // ObjectQL filter syntax
+  filter: {
+    and: [
+      { field: 'status', operator: 'eq', value: 'active' },
+      { field: 'created_date', operator: 'gte', value: '2024-01-01' }
+    ]
+  },
+  // ObjectQL sorting
+  sort: [
+    { field: 'created_date', order: 'desc' }
+  ]
+};
+```
+
+### Custom Data Hooks
+
+```typescript
+// Implement custom hooks for data operations
+import { useObjectQuery, useObjectMutation } from '@object-ui/data-objectstack';
+
+function ContactList() {
+  const { data, loading, error } = useObjectQuery('contact', {
+    filter: { field: 'status', operator: 'eq', value: 'active' },
+    sort: [{ field: 'name', order: 'asc' }],
+    page: 1,
+    pageSize: 20
+  });
+
+  const { mutate: createContact } = useObjectMutation('contact', 'create');
+  
+  const handleCreate = async (formData: any) => {
+    await createContact(formData);
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  return (
+    <SchemaRenderer
+      schema={{
+        type: 'object-aggrid',
+        rowData: data.records,
+        // ... other props
+      }}
+    />
+  );
+}
+```
+
+## Deployment Strategies
+
+### Strategy 1: Monolithic Deployment
+
+Deploy ObjectUI and ObjectStack together in a single Node.js process:
+
+```typescript
+// server.ts
+import { createKernel } from './kernel';
+import { ConsolePlugin } from './console-plugin';
+
+async function start() {
+  const kernel = await createKernel();
+  
+  // Register console UI plugin
+  kernel.registerPlugin(new ConsolePlugin());
+  
+  console.log('🚀 Server started at http://localhost:3000');
+  console.log('📊 Console UI at http://localhost:3000/console');
+}
+
+start();
+```
+
+### Strategy 2: Microservices Deployment
+
+Deploy ObjectUI (frontend) and ObjectStack (backend) separately:
+
+**Backend (ObjectStack API):**
+```typescript
+// backend/server.ts
+import { createKernel } from './kernel';
+
+async function start() {
+  const kernel = await createKernel();
+  console.log('🚀 API Server started at http://localhost:3000');
+}
+
+start();
+```
+
+**Frontend (ObjectUI):**
+```typescript
+// frontend/src/config.ts
+export const config = {
+  apiBaseUrl: process.env.VITE_API_URL || 'http://localhost:3000/api'
+};
+
+// frontend/src/index.tsx
+const dataSource = new ObjectStackAdapter({
+  baseUrl: config.apiBaseUrl
+});
+```
+
+### Strategy 3: Cloud-Native Deployment
+
+Deploy on Kubernetes with separate services:
+
+```yaml
+# k8s/deployment.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: objectstack-api
+spec:
+  selector:
+    app: objectstack-api
+  ports:
+  - port: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: objectui-frontend
+spec:
+  selector:
+    app: objectui-frontend
+  ports:
+  - port: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: objectstack-api
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: api
+        image: myregistry/objectstack-api:latest
+        env:
+        - name: DATABASE_URL
+          value: postgresql://...
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: objectui-frontend
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+      - name: frontend
+        image: myregistry/objectui-frontend:latest
+        env:
+        - name: API_URL
+          value: http://objectstack-api:3000
+```
+
+## Advanced Integration Patterns
+
+### Custom Component Registration
+
+```typescript
+// Register custom components with ObjectUI
+import { ComponentRegistry } from '@object-ui/core';
+
+ComponentRegistry.register('my-custom-widget', MyCustomWidget, {
+  namespace: 'custom',
+  lazy: true
+});
+
+// Use in schema
+{
+  type: 'my-custom-widget',
+  config: {
+    // custom props
+  }
+}
+```
+
+### Event Handling & Callbacks
+
+```typescript
+{
+  type: 'object-aggrid',
+  objectName: 'contact',
+  dataSource,
+  callbacks: {
+    onRowClicked: (event) => {
+      // Navigate to detail page
+      window.location.href = `/contact/${event.data.id}`;
+    },
+    onCellValueChanged: async (event) => {
+      // Auto-save on edit
+      await dataSource.update('contact', event.data.id, {
+        [event.column.field]: event.newValue
+      });
+    }
+  }
+}
+```
+
+### Real-time Updates with WebSockets
+
+```typescript
+// Configure WebSocket connection
+const adapter = new ObjectStackAdapter({
+  baseUrl: 'http://localhost:3000/api',
+  websocket: {
+    enabled: true,
+    url: 'ws://localhost:3000/ws'
+  }
+});
+
+// Subscribe to real-time updates
+adapter.subscribe('contact', (event) => {
+  if (event.type === 'create' || event.type === 'update') {
+    // Refresh grid
+    gridRef.current?.refresh();
+  }
+});
+```
+
+## Migration from Other Platforms
+
+### From Retool
+
+```typescript
+// Retool table → ObjectUI AG Grid
+{
+  type: 'object-aggrid',
+  objectName: 'users',
+  dataSource,
+  editable: true,
+  rowSelection: 'multiple',
+  exportConfig: { enabled: true }
+}
+```
+
+### From Appsmith
+
+```typescript
+// Appsmith form → ObjectUI form
+{
+  type: 'object-form',
+  objectName: 'contact',
+  dataSource,
+  mode: 'create',
+  fieldNames: ['name', 'email', 'phone', 'company'],
+  onSubmit: async (data) => {
+    await dataSource.create('contact', data);
+  }
+}
+```
+
+### From Mendix
+
+```typescript
+// Mendix page → ObjectUI page
+{
+  type: 'page',
+  template: 'header-sidebar-main',
+  header: { /* ... */ },
+  sidebar: { /* ... */ },
+  main: {
+    type: 'tabs',
+    items: [
+      { label: 'Overview', content: { /* ... */ } },
+      { label: 'Details', content: { /* ... */ } }
+    ]
+  }
+}
+```
+
+## Performance Optimization
+
+### Bundle Optimization
+
+```typescript
+// Lazy load plugins
+const plugins = {
+  aggrid: () => import('@object-ui/plugin-aggrid'),
+  charts: () => import('@object-ui/plugin-charts'),
+  kanban: () => import('@object-ui/plugin-kanban')
+};
+
+// Load on demand
+await plugins.aggrid();
+```
+
+### Caching Strategy
+
+```typescript
+const adapter = new ObjectStackAdapter({
+  baseUrl: 'http://localhost:3000/api',
+  cache: {
+    enabled: true,
+    ttl: 60000, // 1 minute
+    strategies: {
+      'contact': 'stale-while-revalidate',
+      'sys_user': 'cache-first'
+    }
+  }
+});
+```
+
+## Testing & Quality Assurance
+
+### Unit Tests
+
+```typescript
+import { render } from '@testing-library/react';
+import { SchemaRenderer } from '@object-ui/react';
+
+test('renders contact grid', () => {
+  const { getByText } = render(
+    <SchemaRenderer
+      schema={{
+        type: 'object-aggrid',
+        objectName: 'contact',
+        dataSource: mockDataSource
+      }}
+    />
+  );
+  expect(getByText('Contact')).toBeInTheDocument();
+});
+```
+
+### Integration Tests
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test('create contact workflow', async ({ page }) => {
+  await page.goto('http://localhost:3000/console/contacts');
+  await page.click('button:has-text("New Contact")');
+  await page.fill('[name="name"]', 'John Doe');
+  await page.fill('[name="email"]', 'john@example.com');
+  await page.click('button:has-text("Save")');
+  await expect(page.locator('text=John Doe')).toBeVisible();
+});
+```
+
+## Resources
+
+- [ObjectStack Documentation](https://docs.objectstack.ai)
+- [ObjectUI Components Reference](/docs/components)
+- [ObjectQL Query Language](/docs/core/objectql)
+- [Example: CRM Application](/examples/crm)
+- [Example: Kitchen Sink](/examples/kitchen-sink)
+
+## Support
+
+- GitHub Issues: https://github.com/objectstack-ai/objectui/issues
+- Discord Community: https://discord.gg/objectui
+- Email: hello@objectui.org
