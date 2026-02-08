@@ -21,14 +21,14 @@ const CHART_COLORS = [
 ];
 
 export const DashboardRenderer = forwardRef<HTMLDivElement, { schema: DashboardSchema; className?: string; [key: string]: any }>(
-  ({ schema, className, ...props }, ref) => {
+  ({ schema, className, dataSource, ...props }, ref) => {
     const columns = schema.columns || 4; // Default to 4 columns for better density
     const gap = schema.gap || 4;
 
     return (
-      <div 
-        ref={ref} 
-        className={cn("grid auto-rows-min", className)} 
+      <div
+        ref={ref}
+        className={cn("grid auto-rows-min", className)}
         style={{
             gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
             gap: `${gap * 0.25}rem`

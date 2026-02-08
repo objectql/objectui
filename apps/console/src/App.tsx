@@ -44,35 +44,46 @@ export function AppContent() {
   // Branding is now applied by AppShell via ConsoleLayout
 
   useEffect(() => {
-    initializeDataSource();
-  }, []);
+    let cancelled = false;
 
-  async function initializeDataSource() {
-    try {
-      const adapter = new ObjectStackAdapter({
-        baseUrl: '',
-        autoReconnect: true,
-        maxReconnectAttempts: 5,
-        reconnectDelay: 1000,
-        cache: { maxSize: 50, ttl: 300_000 },
-      });
+    async function initializeDataSource() {
+      try {
+        const adapter = new ObjectStackAdapter({
+          baseUrl: '',
+          autoReconnect: true,
+          maxReconnectAttempts: 5,
+          reconnectDelay: 1000,
+          cache: { maxSize: 50, ttl: 300_000 },
+        });
 
-      // Monitor connection state
-      adapter.onConnectionStateChange((event) => {
-        setConnectionState(event.state);
-        if (event.error) {
-          console.error('[Console] Connection error:', event.error);
+        // Monitor connection state
+        adapter.onConnectionStateChange((event) => {
+          if (cancelled) return;
+          setConnectionState(event.state);
+          if (event.error) {
+            console.error('[Console] Connection error:', event.error);
+          }
+        });
+
+        await adapter.connect();
+
+        if (!cancelled) {
+          setDataSource(adapter);
         }
-      });
-
-      await adapter.connect();
-
-      setDataSource(adapter);
-    } catch (err) {
-      console.error('[Console] Failed to initialize:', err);
-      setConnectionState('error');
+      } catch (err) {
+        if (!cancelled) {
+          console.error('[Console] Failed to initialize:', err);
+          setConnectionState('error');
+        }
+      }
     }
-  }
+
+    initializeDataSource();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const allObjects = appConfig.objects || [];
   

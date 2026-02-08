@@ -165,7 +165,7 @@ ComponentRegistry.register('sort-ui', SortUI, {
 });
 
 // Simple View Renderer (Container)
-const SimpleViewRenderer: React.FC<any> = ({ schema, className, children, ...props }) => {
+const SimpleViewRenderer: React.FC<any> = ({ schema, className, children, dataSource, ...props }) => {
   // If columns prop is present, use grid layout
   const style = schema.props?.columns 
     ? { display: 'grid', gridTemplateColumns: `repeat(${schema.props.columns}, 1fr)`, gap: '1rem' }
