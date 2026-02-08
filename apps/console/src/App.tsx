@@ -50,7 +50,7 @@ export function AppContent() {
   async function initializeDataSource() {
     try {
       const adapter = new ObjectStackAdapter({
-        baseUrl: '/api/v1',
+        baseUrl: '',
         autoReconnect: true,
         maxReconnectAttempts: 5,
         reconnectDelay: 1000,
