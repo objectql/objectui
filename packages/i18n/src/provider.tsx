@@ -43,7 +43,7 @@ export interface I18nProviderProps {
 export function I18nProvider({ config, instance: externalInstance, children }: I18nProviderProps) {
   const i18nInstance = useMemo(
     () => externalInstance || createI18n(config),
-    [externalInstance], // eslint-disable-line react-hooks/exhaustive-deps
+    [externalInstance, config],
   );
 
   const [language, setLanguage] = useState(i18nInstance.language || 'en');
