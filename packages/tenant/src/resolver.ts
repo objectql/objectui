@@ -67,8 +67,16 @@ export function createTenantResolver(
         resolve: () => {
           if (typeof document === 'undefined') return null;
           const name = options?.cookieName ?? 'tenant_id';
-          const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
-          return match ? decodeURIComponent(match[1]) : null;
+          const cookies = document.cookie.split('; ');
+          for (const cookie of cookies) {
+            const eqIndex = cookie.indexOf('=');
+            if (eqIndex === -1) continue;
+            const key = cookie.substring(0, eqIndex);
+            if (key === name) {
+              return decodeURIComponent(cookie.substring(eqIndex + 1));
+            }
+          }
+          return null;
         },
       };
 

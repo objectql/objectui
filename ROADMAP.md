@@ -24,7 +24,7 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 ### Achievements ✅
 
 **Architecture & Quality:**
-- ✅ 32 packages in monorepo (16 plugins, 4 core, 12 tools)
+- ✅ 35 packages in monorepo (20 plugins, 4 core, 11 tools)
 - ✅ 91+ components fully documented
 - ✅ 57+ Storybook stories with interactive demos
 - ✅ TypeScript 5.9+ strict mode (100%)

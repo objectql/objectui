@@ -110,7 +110,12 @@ export function evaluateCondition(
   condition: PermissionCondition,
   record: Record<string, unknown>,
 ): boolean {
-  const value = record[condition.field];
+  // Prevent prototype pollution via dangerous property access
+  if (['__proto__', 'constructor', 'prototype'].includes(condition.field)) {
+    return false;
+  }
+
+  const value = Object.prototype.hasOwnProperty.call(record, condition.field) ? record[condition.field] : undefined;
 
   switch (condition.operator) {
     case 'eq':
