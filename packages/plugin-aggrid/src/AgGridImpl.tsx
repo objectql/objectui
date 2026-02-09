@@ -9,7 +9,7 @@
 import React, { useMemo, useRef, useCallback } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import type { ColDef, GridOptions, GridReadyEvent, CellClickedEvent, RowClickedEvent, SelectionChangedEvent, CellValueChangedEvent, StatusPanelDef, GetContextMenuItemsParams, MenuItemDef } from 'ag-grid-community';
-import type { AgGridCallbacks, ExportConfig, StatusBarConfig, ColumnConfig, ContextMenuConfig } from './types';
+import type { AgGridCallbacks, ExportConfig, StatusBarConfig, ColumnConfig, ContextMenuConfig, TreeDataConfig, RowGroupingConfig, ExcelExportConfig } from './types';
 
 export interface AgGridImplProps {
   rowData?: any[];
@@ -34,6 +34,9 @@ export interface AgGridImplProps {
   enableRangeSelection?: boolean;
   enableCharts?: boolean;
   contextMenu?: ContextMenuConfig;
+  treeData?: TreeDataConfig;
+  rowGrouping?: RowGroupingConfig;
+  excelExport?: ExcelExportConfig;
 }
 
 /**
@@ -63,6 +66,9 @@ export default function AgGridImpl({
   enableRangeSelection = false,
   enableCharts = false,
   contextMenu,
+  treeData,
+  rowGrouping,
+  excelExport,
 }: AgGridImplProps) {
   const gridRef = useRef<any>(null);
 
@@ -113,6 +119,31 @@ export default function AgGridImpl({
     }
   }, [exportConfig, callbacks, rowData]);
 
+  // Excel-compatible CSV Export handler
+  // Exports CSV format which can be opened directly in Excel
+  const handleExportExcel = useCallback(() => {
+    if (!gridRef.current?.api) return;
+    
+    const fileName = excelExport?.fileName || exportConfig?.fileName || 'export.csv';
+    const includeHeaders = excelExport?.includeHeaders !== false;
+    
+    const params = {
+      fileName,
+      skipColumnHeaders: !includeHeaders,
+      allColumns: true,
+      onlySelected: excelExport?.onlySelected || false,
+    };
+    
+    gridRef.current.api.exportDataAsCsv(params);
+    
+    if (callbacks?.onExport) {
+      const data = excelExport?.onlySelected 
+        ? gridRef.current.api.getSelectedRows()
+        : rowData;
+      callbacks.onExport(data || [], 'excel');
+    }
+  }, [excelExport, exportConfig, callbacks, rowData]);
+
   // Context Menu handler
   const getContextMenuItems = useCallback((params: GetContextMenuItemsParams): (string | MenuItemDef)[] => {
     if (!contextMenu?.enabled) return [];
@@ -126,6 +157,12 @@ export default function AgGridImpl({
           name: 'Export CSV',
           icon: '<span>📥</span>',
           action: () => handleExportCSV(),
+        });
+      } else if (item === 'export-excel') {
+        items.push({
+          name: 'Export Excel (CSV)',
+          icon: '<span>📊</span>',
+          action: () => handleExportExcel(),
         });
       } else if (item === 'autoSizeAll') {
         items.push({
@@ -170,7 +207,7 @@ export default function AgGridImpl({
     }
     
     return items;
-  }, [contextMenu, handleExportCSV, callbacks]);
+  }, [contextMenu, handleExportCSV, handleExportExcel, callbacks]);
 
   // Event handlers
   const handleCellClicked = useCallback((event: CellClickedEvent) => {
@@ -218,9 +255,20 @@ export default function AgGridImpl({
         }
       }
       
+      // Apply grouping
+      if (rowGrouping?.enabled && rowGrouping.groupByFields?.includes(col.field || '')) {
+        processed.rowGroup = true;
+        processed.hide = true;
+      }
+
+      // Apply aggregation
+      if (rowGrouping?.aggregations && col.field && rowGrouping.aggregations[col.field]) {
+        processed.aggFunc = rowGrouping.aggregations[col.field];
+      }
+      
       return processed;
     });
-  }, [columnDefs, editable, columnConfig]);
+  }, [columnDefs, editable, columnConfig, rowGrouping]);
 
   // Merge grid options with props
   const mergedGridOptions = useMemo(() => ({
@@ -237,6 +285,31 @@ export default function AgGridImpl({
     enableRangeSelection,
     enableCharts,
     getContextMenuItems: contextMenu?.enabled ? getContextMenuItems : undefined,
+    // Tree data support
+    ...(treeData?.enabled ? {
+      treeData: true,
+      getDataPath: treeData.pathField 
+        ? (data: any) => data[treeData.pathField as string] 
+        : undefined,
+      autoGroupColumnDef: {
+        headerName: 'Hierarchy',
+        minWidth: 250,
+        cellRendererParams: {
+          suppressCount: false,
+        },
+      },
+      groupDefaultExpanded: treeData.expandAll ? -1 : (treeData.expandDepth ?? 0),
+    } : {}),
+    // Row grouping
+    ...(rowGrouping?.enabled ? {
+      groupDefaultExpanded: rowGrouping.groupByFields?.length ? 1 : 0,
+      autoGroupColumnDef: {
+        minWidth: 200,
+        cellRendererParams: {
+          suppressCount: !rowGrouping.showRowCount,
+        },
+      },
+    } : {}),
     // Default options for better UX
     suppressCellFocus: !editable,
     enableCellTextSelection: true,
@@ -265,6 +338,8 @@ export default function AgGridImpl({
     enableCharts,
     contextMenu,
     getContextMenuItems,
+    treeData,
+    rowGrouping,
     editable,
     rowData.length,
     handleCellClicked,
@@ -294,14 +369,24 @@ export default function AgGridImpl({
 
   return (
     <div className="ag-grid-container">
-      {exportConfig?.enabled && (
+      {(exportConfig?.enabled || excelExport?.enabled) && (
         <div className="mb-2 flex gap-2">
-          <button
-            onClick={handleExportCSV}
-            className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
-          >
-            Export CSV
-          </button>
+          {exportConfig?.enabled && (
+            <button
+              onClick={handleExportCSV}
+              className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+            >
+              Export CSV
+            </button>
+          )}
+          {excelExport?.enabled && (
+            <button
+              onClick={handleExportExcel}
+              className="px-3 py-1.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors"
+            >
+              Export Excel (CSV)
+            </button>
+          )}
         </div>
       )}
       <div 
