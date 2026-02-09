@@ -409,7 +409,7 @@ export type {
   ValidationContext,
   AdvancedValidationResult,
   AdvancedValidationError,
-  // ObjectStack Spec v0.7.1 Validation
+  // ObjectStack Spec v2.0.1 Validation
   BaseValidation,
   ScriptValidation,
   UniquenessValidation,
@@ -624,7 +624,7 @@ export type {
 } from './plugin-scope';
 
 // ============================================================================
-// UI Actions - Enhanced Action Schema (ObjectStack Spec v0.7.1)
+// UI Actions - Enhanced Action Schema (ObjectStack Spec v2.0.1)
 // ============================================================================
 /**
  * Enhanced action schema with location-based placement, parameter collection,
