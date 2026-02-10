@@ -6,6 +6,7 @@
 import { useParams, useSearchParams } from 'react-router-dom';
 import { SchemaRenderer } from '@object-ui/react';
 import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
+import { FileText } from 'lucide-react';
 import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import appConfig from '../../objectstack.shared';
 
@@ -22,8 +23,14 @@ export function PageView() {
     return (
       <div className="h-full flex items-center justify-center p-8">
         <Empty>
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+            <FileText className="h-6 w-6 text-muted-foreground" />
+          </div>
           <EmptyTitle>Page Not Found</EmptyTitle>
-          <EmptyDescription>The page "{pageName}" could not be found.</EmptyDescription>
+          <EmptyDescription>
+            The page &quot;{pageName}&quot; could not be found.
+            It may have been removed or renamed.
+          </EmptyDescription>
         </Empty>
       </div>
     );

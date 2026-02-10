@@ -26,6 +26,13 @@ import { ModeToggle } from './mode-toggle';
 import { ConnectionStatus } from './ConnectionStatus';
 import type { ConnectionState } from '../dataSource';
 
+/** Convert a slug like "crm_dashboard" or "audit-log" to "Crm Dashboard" / "Audit Log" */
+function humanizeSlug(slug: string): string {
+  return slug
+    .replace(/[-_]/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export function AppHeader({ appName, objects, connectionState }: { appName: string, objects: any[], connectionState?: ConnectionState }) {
     const location = useLocation();
     const params = useParams();
@@ -43,19 +50,24 @@ export function AppHeader({ appName, objects, connectionState }: { appName: stri
     ];
     
     if (routeType === 'dashboard') {
-      breadcrumbItems.push({ label: 'Dashboard' });
+      breadcrumbItems.push({ label: 'Dashboards', href: `${breadcrumbItems[0].href}` });
       if (pathParts[3]) {
-        breadcrumbItems.push({ label: pathParts[3] });
+        breadcrumbItems.push({ label: humanizeSlug(pathParts[3]) });
       }
     } else if (routeType === 'page') {
-      breadcrumbItems.push({ label: 'Page' });
+      breadcrumbItems.push({ label: 'Pages', href: `${breadcrumbItems[0].href}` });
       if (pathParts[3]) {
-        breadcrumbItems.push({ label: pathParts[3] });
+        breadcrumbItems.push({ label: humanizeSlug(pathParts[3]) });
       }
     } else if (routeType === 'report') {
-      breadcrumbItems.push({ label: 'Report' });
+      breadcrumbItems.push({ label: 'Reports', href: `${breadcrumbItems[0].href}` });
       if (pathParts[3]) {
-        breadcrumbItems.push({ label: pathParts[3] });
+        breadcrumbItems.push({ label: humanizeSlug(pathParts[3]) });
+      }
+    } else if (routeType === 'system') {
+      breadcrumbItems.push({ label: 'System' });
+      if (pathParts[3]) {
+        breadcrumbItems.push({ label: humanizeSlug(pathParts[3]) });
       }
     } else if (routeType) {
       // Object route
@@ -68,9 +80,10 @@ export function AppHeader({ appName, objects, connectionState }: { appName: stri
         
         // Check if viewing a specific record
         if (pathParts[3] === 'record' && pathParts[4]) {
-          breadcrumbItems.push({ label: `Record ${pathParts[4].slice(0, 8)}...` });
+          const shortId = pathParts[4].length > 12 ? `${pathParts[4].slice(0, 8)}…` : pathParts[4];
+          breadcrumbItems.push({ label: `#${shortId}` });
         } else if (pathParts[3] === 'view' && pathParts[4]) {
-          breadcrumbItems.push({ label: pathParts[4] });
+          breadcrumbItems.push({ label: humanizeSlug(pathParts[4]) });
         }
       }
     }

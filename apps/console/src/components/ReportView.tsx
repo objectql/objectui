@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ReportViewer, ReportBuilder } from '@object-ui/plugin-report';
 import { Empty, EmptyTitle, EmptyDescription, Button } from '@object-ui/components';
-import { PenLine, ChevronLeft } from 'lucide-react';
+import { PenLine, ChevronLeft, BarChart3 } from 'lucide-react';
 import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import appConfig from '../../objectstack.shared';
 
@@ -32,8 +32,14 @@ export function ReportView({ dataSource: _dataSource }: { dataSource?: any }) {
     return (
       <div className="h-full flex items-center justify-center p-8">
          <Empty>
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+            <BarChart3 className="h-6 w-6 text-muted-foreground" />
+          </div>
           <EmptyTitle>Report Not Found</EmptyTitle>
-          <EmptyDescription>The report "{reportName}" could not be found.</EmptyDescription>
+          <EmptyDescription>
+            The report &quot;{reportName}&quot; could not be found.
+            It may have been removed or renamed.
+          </EmptyDescription>
         </Empty>
       </div>
     );
