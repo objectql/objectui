@@ -296,6 +296,111 @@ describe('FormulaFunctions', () => {
       expect(LOWER('HELLO')).toBe('hello');
     });
   });
+
+  describe('String Search Functions', () => {
+    const formulas = new FormulaFunctions();
+
+    it('should find substring position with FIND', () => {
+      const FIND = formulas.get('FIND')!;
+      expect(FIND('world', 'hello world')).toBe(6);
+      expect(FIND('xyz', 'hello world')).toBe(-1);
+    });
+
+    it('should find substring from start position', () => {
+      const FIND = formulas.get('FIND')!;
+      expect(FIND('l', 'hello world', 4)).toBe(9);
+    });
+
+    it('should replace all occurrences with REPLACE', () => {
+      const REPLACE = formulas.get('REPLACE')!;
+      expect(REPLACE('hello world', 'o', '0')).toBe('hell0 w0rld');
+    });
+
+    it('should extract substring with SUBSTRING', () => {
+      const SUBSTRING = formulas.get('SUBSTRING')!;
+      expect(SUBSTRING('hello world', 6)).toBe('world');
+      expect(SUBSTRING('hello world', 0, 5)).toBe('hello');
+    });
+
+    it('should test regex pattern with REGEX', () => {
+      const REGEX = formulas.get('REGEX')!;
+      expect(REGEX('hello123', '\\d+')).toBe(true);
+      expect(REGEX('hello', '\\d+')).toBe(false);
+      expect(REGEX('Hello', '^hello$', 'i')).toBe(true);
+    });
+
+    it('should get string length with LEN', () => {
+      const LEN = formulas.get('LEN')!;
+      expect(LEN('hello')).toBe(5);
+      expect(LEN('')).toBe(0);
+    });
+  });
+
+  describe('Statistical Functions', () => {
+    const formulas = new FormulaFunctions();
+
+    it('should calculate MEDIAN for odd count', () => {
+      const MEDIAN = formulas.get('MEDIAN')!;
+      expect(MEDIAN(3, 1, 2)).toBe(2);
+    });
+
+    it('should calculate MEDIAN for even count', () => {
+      const MEDIAN = formulas.get('MEDIAN')!;
+      expect(MEDIAN(1, 2, 3, 4)).toBe(2.5);
+    });
+
+    it('should return 0 for empty MEDIAN', () => {
+      const MEDIAN = formulas.get('MEDIAN')!;
+      expect(MEDIAN()).toBe(0);
+    });
+
+    it('should calculate STDEV', () => {
+      const STDEV = formulas.get('STDEV')!;
+      const result = STDEV(2, 4, 4, 4, 5, 5, 7, 9);
+      // Sample standard deviation (Bessel's correction, divides by n-1)
+      expect(result).toBeCloseTo(2.138, 2);
+    });
+
+    it('should return 0 for STDEV with less than 2 values', () => {
+      const STDEV = formulas.get('STDEV')!;
+      expect(STDEV(5)).toBe(0);
+      expect(STDEV()).toBe(0);
+    });
+
+    it('should calculate VARIANCE', () => {
+      const VARIANCE = formulas.get('VARIANCE')!;
+      const result = VARIANCE(2, 4, 4, 4, 5, 5, 7, 9);
+      // Sample variance (Bessel's correction, divides by n-1)
+      expect(result).toBeCloseTo(4.571, 2);
+    });
+
+    it('should calculate PERCENTILE', () => {
+      const PERCENTILE = formulas.get('PERCENTILE')!;
+      expect(PERCENTILE(0, 1, 2, 3, 4, 5)).toBe(1);
+      expect(PERCENTILE(100, 1, 2, 3, 4, 5)).toBe(5);
+      expect(PERCENTILE(50, 1, 2, 3, 4, 5)).toBe(3);
+    });
+
+    it('should handle PERCENTILE with empty values', () => {
+      const PERCENTILE = formulas.get('PERCENTILE')!;
+      expect(PERCENTILE(50)).toBe(0);
+    });
+  });
+
+  describe('DATEFORMAT Function', () => {
+    const formulas = new FormulaFunctions();
+
+    it('should format date with DATEFORMAT', () => {
+      const DATEFORMAT = formulas.get('DATEFORMAT')!;
+      const result = DATEFORMAT('2026-02-10T00:00:00.000Z', 'YYYY-MM-DD');
+      expect(result).toBe('2026-02-10');
+    });
+
+    it('should throw for invalid date in DATEFORMAT', () => {
+      const DATEFORMAT = formulas.get('DATEFORMAT')!;
+      expect(() => DATEFORMAT('invalid', 'YYYY')).toThrow('DATEFORMAT: Invalid date');
+    });
+  });
 });
 
 describe('ExpressionEvaluator with Formula Functions', () => {
