@@ -276,7 +276,19 @@ export class WidgetRegistry {
       }
 
       case 'module': {
-        const mod = await import(/* @vite-ignore */ source.url);
+        // Runtime-only dynamic import for loading widgets from external URLs
+        // This uses Function constructor to prevent bundlers (Webpack/Turbopack/Vite)
+        // from attempting static analysis at build time, which would fail since
+        // source.url is only known at runtime.
+        //
+        // Security: Widget URLs must be from trusted sources only. Never pass
+        // user-supplied URLs directly to WidgetManifest. URLs should be validated
+        // and controlled by the application developer.
+        //
+        // CSP Consideration: If your application uses strict Content Security Policy,
+        // ensure dynamic imports are allowed or use 'inline' or 'registry' source types.
+        const dynamicImport = new Function('url', 'return import(url)');
+        const mod = await dynamicImport(source.url);
         const exportName = source.exportName ?? 'default';
         const component = mod[exportName];
         if (!component) {

@@ -95,10 +95,20 @@ export type WidgetSource =
   | WidgetSourceInline
   | WidgetSourceRegistry;
 
-/** Load from an ES module URL */
+/**
+ * Load from an ES module URL.
+ *
+ * ⚠️ SECURITY WARNING: Only use URLs from trusted sources.
+ * Never pass user-supplied URLs directly. URLs should be validated
+ * and controlled by your application. This feature uses dynamic imports
+ * which bypass static analysis and may be restricted by Content Security Policy.
+ */
 export interface WidgetSourceModule {
   type: 'module';
-  /** URL to the ES module (e.g., '/widgets/chart.js' or 'https://cdn.example.com/widget.mjs') */
+  /**
+   * URL to the ES module (e.g., '/widgets/chart.js' or 'https://cdn.example.com/widget.mjs')
+   * Must be from a trusted source - never user input.
+   */
   url: string;
   /** Named export to use (default: 'default') */
   exportName?: string;
