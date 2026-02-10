@@ -22,7 +22,7 @@ import type {
   TransactionConfig,
   TransactionResult,
   ActionResult,
-  ActionSchema,
+  UIActionSchema,
 } from '@object-ui/types';
 
 /**
@@ -138,7 +138,7 @@ export class TransactionManager {
    */
   async executeTransaction(
     config: TransactionConfig,
-    actionExecutor: (action: ActionSchema) => Promise<ActionResult>,
+    actionExecutor: (action: UIActionSchema) => Promise<ActionResult>,
   ): Promise<TransactionResult> {
     const transactionId = generateId();
     const actions = config.actions || [];
