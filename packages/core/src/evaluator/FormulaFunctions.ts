@@ -79,6 +79,8 @@ export class FormulaFunctions {
     this.registerDateFunctions();
     this.registerLogicFunctions();
     this.registerStringFunctions();
+    this.registerStringSearchFunctions();
+    this.registerStatisticalFunctions();
   }
 
   // ==========================================================================
@@ -193,6 +195,22 @@ export class FormulaFunctions {
           throw new Error(`DATEDIFF: Unsupported unit "${unit}"`);
       }
     });
+
+    this.register('DATEFORMAT', (dateStr: string, format: string): string => {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) {
+        throw new Error(`DATEFORMAT: Invalid date "${dateStr}"`);
+      }
+      const pad = (n: number, len = 2) => String(n).padStart(len, '0');
+      return format
+        .replace('YYYY', String(date.getFullYear()))
+        .replace('YY', String(date.getFullYear()).slice(-2))
+        .replace('MM', pad(date.getMonth() + 1))
+        .replace('DD', pad(date.getDate()))
+        .replace('HH', pad(date.getHours()))
+        .replace('mm', pad(date.getMinutes()))
+        .replace('ss', pad(date.getSeconds()));
+    });
   }
 
   // ==========================================================================
@@ -259,6 +277,85 @@ export class FormulaFunctions {
 
     this.register('LOWER', (text: string): string => {
       return String(text ?? '').toLowerCase();
+    });
+  }
+
+  // ==========================================================================
+  // String Search Functions
+  // ==========================================================================
+
+  private registerStringSearchFunctions(): void {
+    this.register('FIND', (search: string, text: string, startPos?: number): number => {
+      const str = String(text ?? '');
+      const idx = str.indexOf(String(search ?? ''), startPos ?? 0);
+      return idx;
+    });
+
+    this.register('REPLACE', (text: string, search: string, replacement: string): string => {
+      const str = String(text ?? '');
+      return str.split(String(search ?? '')).join(String(replacement ?? ''));
+    });
+
+    this.register('SUBSTRING', (text: string, start: number, length?: number): string => {
+      const str = String(text ?? '');
+      if (length !== undefined) {
+        return str.substring(start, start + length);
+      }
+      return str.substring(start);
+    });
+
+    this.register('REGEX', (text: string, pattern: string, flags?: string): boolean => {
+      const str = String(text ?? '');
+      const regex = new RegExp(pattern, flags);
+      return regex.test(str);
+    });
+
+    this.register('LEN', (text: string): number => {
+      return String(text ?? '').length;
+    });
+  }
+
+  // ==========================================================================
+  // Statistical Functions
+  // ==========================================================================
+
+  private registerStatisticalFunctions(): void {
+    this.register('MEDIAN', (...args: any[]): number => {
+      const values = flattenNumericArgs(args).sort((a, b) => a - b);
+      if (values.length === 0) return 0;
+      const mid = Math.floor(values.length / 2);
+      return values.length % 2 !== 0
+        ? values[mid]
+        : (values[mid - 1] + values[mid]) / 2;
+    });
+
+    this.register('STDEV', (...args: any[]): number => {
+      const values = flattenNumericArgs(args);
+      if (values.length < 2) return 0;
+      const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
+      const squaredDiffs = values.map(v => (v - mean) ** 2);
+      const variance = squaredDiffs.reduce((sum, v) => sum + v, 0) / (values.length - 1);
+      return Math.sqrt(variance);
+    });
+
+    this.register('VARIANCE', (...args: any[]): number => {
+      const values = flattenNumericArgs(args);
+      if (values.length < 2) return 0;
+      const mean = values.reduce((sum, v) => sum + v, 0) / values.length;
+      const squaredDiffs = values.map(v => (v - mean) ** 2);
+      return squaredDiffs.reduce((sum, v) => sum + v, 0) / (values.length - 1);
+    });
+
+    this.register('PERCENTILE', (percentile: number, ...args: any[]): number => {
+      const values = flattenNumericArgs(args).sort((a, b) => a - b);
+      if (values.length === 0) return 0;
+      const p = Math.max(0, Math.min(100, percentile)) / 100;
+      const index = p * (values.length - 1);
+      const lower = Math.floor(index);
+      const upper = Math.ceil(index);
+      if (lower === upper) return values[lower];
+      const fraction = index - lower;
+      return values[lower] + fraction * (values[upper] - values[lower]);
     });
   }
 }

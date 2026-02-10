@@ -55,11 +55,15 @@ export const DetailView: React.FC<DetailViewProps> = ({
       });
     } else if (schema.api && schema.resourceId) {
       setLoading(true);
-      // TODO: Fetch from API
-      // This would integrate with the data provider
-      setTimeout(() => {
-        setLoading(false);
-      }, 500);
+      fetch(`${schema.api}/${schema.resourceId}`)
+        .then(res => res.json())
+        .then(result => {
+          setData(result?.data || result);
+        })
+        .catch(err => {
+          console.error('Failed to fetch detail data:', err);
+        })
+        .finally(() => setLoading(false));
     }
   }, [schema.api, schema.resourceId]);
 
@@ -207,6 +211,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
               api={related.api}
               data={related.data}
               columns={related.columns as any}
+              dataSource={dataSource}
             />
           ))}
         </div>

@@ -155,9 +155,8 @@ export const ReportBuilder: React.FC<ReportBuilderProps> = ({ schema }) => {
   };
 
   const handleCancel = () => {
-    console.log('Canceling report builder');
     if (onCancel) {
-      // TODO: Trigger onCancel handler from schema
+      onCancel();
     }
   };
 

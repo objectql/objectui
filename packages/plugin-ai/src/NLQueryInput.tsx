@@ -13,13 +13,15 @@ import { Search, Sparkles, Clock, ArrowRight, Loader2, Table } from 'lucide-reac
 
 export interface NLQueryInputProps {
   schema: NLQuerySchema;
+  /** Callback when a query is submitted */
+  onSubmit?: (query: string) => void;
 }
 
 /**
  * NLQueryInput - Natural language query interface
  * Allows users to query data using natural language, with AI-powered parsing.
  */
-export const NLQueryInput: React.FC<NLQueryInputProps> = ({ schema }) => {
+export const NLQueryInput: React.FC<NLQueryInputProps> = ({ schema, onSubmit: onSubmitProp }) => {
   const {
     placeholder = 'Ask a question about your data...',
     result: initialResult,
@@ -40,19 +42,23 @@ export const NLQueryInput: React.FC<NLQueryInputProps> = ({ schema }) => {
     if (!queryText.trim()) return;
     
     setLoading(true);
-    console.log('NL Query submitted:', queryText);
+    onSubmitProp?.(queryText);
     
-    // Simulate AI processing
-    setTimeout(() => {
-      setResult({
-        query: queryText,
-        summary: `Results for: "${queryText}"`,
-        confidence: 0.85,
-        data: [],
-        columns: [],
-      });
+    // Simulate AI processing when no external handler
+    if (!onSubmitProp) {
+      setTimeout(() => {
+        setResult({
+          query: queryText,
+          summary: `Results for: "${queryText}"`,
+          confidence: 0.85,
+          data: [],
+          columns: [],
+        });
+        setLoading(false);
+      }, 1000);
+    } else {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleSuggestionClick = (suggestion: string) => {

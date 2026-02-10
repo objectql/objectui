@@ -328,19 +328,23 @@ export const ObjectMap: React.FC<ObjectMapProps> = ({
   }, [schema.objectName, dataSource, hasInlineData, dataConfig]);
 
   // Transform data to map markers
-  const markers = useMemo(() => {
-    return data
+  const { markers, invalidCount } = useMemo(() => {
+    let invalid = 0;
+    const validMarkers = data
       .map((record, index) => {
         const coordinates = extractCoordinates(record, mapConfig);
-        if (!coordinates) return null;
+        if (!coordinates) {
+          invalid++;
+          return null;
+        }
 
         const title = mapConfig.titleField ? record[mapConfig.titleField] : 'Marker';
         const description = mapConfig.descriptionField ? record[mapConfig.descriptionField] : undefined;
 
         // Ensure lat/lng are within valid ranges
         const [lat, lng] = coordinates;
-        if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-            console.warn(`Invalid coordinates for marker ${index}: [${lat}, ${lng}]`);
+        if (!isFinite(lat) || !isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+            invalid++;
             return null;
         }
 
@@ -353,6 +357,8 @@ export const ObjectMap: React.FC<ObjectMapProps> = ({
         };
       })
       .filter((marker): marker is NonNullable<typeof marker> => marker !== null);
+
+    return { markers: validMarkers, invalidCount: invalid };
   }, [data, mapConfig]);
 
   const selectedMarker = useMemo(() => 
@@ -407,6 +413,11 @@ export const ObjectMap: React.FC<ObjectMapProps> = ({
 
   return (
     <div className={className}>
+      {invalidCount > 0 && (
+        <div className="mb-2 p-2 text-sm text-yellow-800 bg-yellow-50 border border-yellow-200 rounded">
+          {invalidCount} record{invalidCount !== 1 ? 's' : ''} with missing or invalid coordinates {invalidCount !== 1 ? 'were' : 'was'} excluded from the map.
+        </div>
+      )}
       <div className="relative border rounded-lg overflow-hidden bg-muted" style={{ height: '600px', width: '100%' }}>
          <Map
             initialViewState={initialViewState}

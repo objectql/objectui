@@ -34,6 +34,39 @@ import type {
  * Validation Engine - Executes validation rules
  */
 export class ValidationEngine {
+  private customValidators = new Map<string, ValidationFunction>();
+  private customAsyncValidators = new Map<string, AsyncValidationFunction>();
+
+  /**
+   * Register a custom synchronous validator by name
+   */
+  registerValidator(name: string, fn: ValidationFunction): void {
+    this.customValidators.set(name, fn);
+  }
+
+  /**
+   * Register a custom asynchronous validator by name
+   */
+  registerAsyncValidator(name: string, fn: AsyncValidationFunction): void {
+    this.customAsyncValidators.set(name, fn);
+  }
+
+  /**
+   * Check if a custom validator is registered
+   */
+  hasValidator(name: string): boolean {
+    return this.customValidators.has(name) || this.customAsyncValidators.has(name);
+  }
+
+  /**
+   * Get all registered custom validator names
+   */
+  getValidatorNames(): string[] {
+    return [
+      ...Array.from(this.customValidators.keys()),
+      ...Array.from(this.customAsyncValidators.keys()),
+    ];
+  }
   /**
    * Validate a value against validation schema
    */
@@ -80,7 +113,7 @@ export class ValidationEngine {
     rule: AdvancedValidationRule,
     context?: ValidationContext
   ): Promise<string | null> {
-    // Custom async validator
+    // Custom async validator (inline)
     if (rule.async_validator) {
       const result = await rule.async_validator(value, context);
       if (result === false) {
@@ -92,9 +125,35 @@ export class ValidationEngine {
       return null;
     }
 
-    // Custom sync validator
+    // Custom sync validator (inline)
     if (rule.validator) {
       const result = rule.validator(value, context);
+      if (result === false) {
+        return rule.message || 'Validation failed';
+      }
+      if (typeof result === 'string') {
+        return result;
+      }
+      return null;
+    }
+
+    // Registered custom async validator (by name)
+    const registeredAsync = this.customAsyncValidators.get(rule.type);
+    if (registeredAsync) {
+      const result = await registeredAsync(value, context);
+      if (result === false) {
+        return rule.message || 'Async validation failed';
+      }
+      if (typeof result === 'string') {
+        return result;
+      }
+      return null;
+    }
+
+    // Registered custom sync validator (by name)
+    const registeredSync = this.customValidators.get(rule.type);
+    if (registeredSync) {
+      const result = registeredSync(value, context);
       if (result === false) {
         return rule.message || 'Validation failed';
       }
