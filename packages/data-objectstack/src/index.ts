@@ -585,6 +585,25 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
   }
 
   /**
+   * Get the discovery information from the connected server.
+   * Returns the capabilities and service status of the ObjectStack server.
+   * 
+   * @returns Promise resolving to discovery data, or null if not connected
+   */
+  async getDiscovery(): Promise<unknown | null> {
+    try {
+      // Ensure we're connected first
+      await this.connect();
+      
+      // Access discovery data from the client
+      // @ts-expect-error - Accessing internal property
+      return this.client.discovery || null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
    * Get a view definition for an object.
    * Attempts to fetch from the server metadata API.
    * Falls back to null if the server doesn't provide view definitions,
