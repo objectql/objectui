@@ -44,6 +44,7 @@ async function startServer() {
     await kernel.use(appPlugin);
 
     // 4. Authentication (via @objectstack/plugin-auth)
+    // NOTE: In production, always set AUTH_SECRET env var. The fallback is for local development only.
     const authPlugin = new AuthPlugin({
       secret: process.env.AUTH_SECRET || 'objectui-dev-secret',
       baseUrl: 'http://localhost:3000',
