@@ -50,9 +50,9 @@ function MessageContent({ content, enableMarkdown }: { content: string; enableMa
   }
 
   return (
+    <div className="prose prose-sm dark:prose-invert max-w-none">
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
-      className="prose prose-sm dark:prose-invert max-w-none"
       components={{
         code({ node, inline, className, children, ...props }: any) {
           const match = /language-(\w+)/.exec(className || '')
@@ -103,6 +103,7 @@ function MessageContent({ content, enableMarkdown }: { content: string; enableMa
     >
       {content}
     </ReactMarkdown>
+    </div>
   )
 }
 

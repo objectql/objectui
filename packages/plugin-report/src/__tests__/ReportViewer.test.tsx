@@ -59,7 +59,7 @@ describe('ReportViewer', () => {
 
     render(<ReportViewer schema={schema} />);
     
-    expect(screen.getByText('Export')).toBeInTheDocument();
+    expect(screen.getByText('PDF')).toBeInTheDocument();
     expect(screen.getByText('Print')).toBeInTheDocument();
   });
 
