@@ -503,14 +503,14 @@ export class TransactionManager {
 // Helpers
 // ==========================================================================
 
-let idCounter = 0;
-
 /**
- * Generate a simple unique ID
+ * Generate a unique transaction ID using crypto when available
  */
 function generateId(): string {
-  idCounter++;
-  return `txn_${Date.now()}_${idCounter}`;
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return `txn_${crypto.randomUUID()}`;
+  }
+  return `txn_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
 /**

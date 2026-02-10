@@ -326,13 +326,14 @@ function getExcelColumnLetter(index: number): string {
 
 /**
  * Sanitize cell values to prevent formula injection in Excel.
- * Prefixes values starting with formula characters (=, +, -, @, |) with a tab.
+ * Prefixes values starting with formula characters (=, +, -, @, |) with a
+ * single-quote, which is the standard Excel protection against formula injection.
  */
 function sanitizeExcelValue(val: string): string {
   if (val.length > 0) {
     const firstChar = val.charAt(0);
     if (firstChar === '=' || firstChar === '+' || firstChar === '-' || firstChar === '@' || firstChar === '|') {
-      return `\t${val}`;
+      return `'${val}`;
     }
   }
   return val;
