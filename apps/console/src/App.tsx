@@ -150,7 +150,7 @@ export function AppContent() {
         type: 'report',
       });
     }
-  }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [location.pathname, activeApp, allObjects, objectNameFromPath, cleanParts, addRecentItem]);
 
   const handleEdit = (record: any) => {
     setEditingRecord(record);

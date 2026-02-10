@@ -27,9 +27,9 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
   const objectDef = objects.find((o: any) => o.name === objectName);
 
   useEffect(() => {
+    // Reset loading on navigation; the actual DetailView handles data fetching
     setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 0);
-    return () => clearTimeout(timer);
+    queueMicrotask(() => setIsLoading(false));
   }, [objectName, recordId]);
 
   if (isLoading) {

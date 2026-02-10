@@ -2,7 +2,7 @@
  * Tests for skeleton loading components
  */
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { SkeletonGrid } from '../components/skeletons/SkeletonGrid';
 import { SkeletonDashboard } from '../components/skeletons/SkeletonDashboard';

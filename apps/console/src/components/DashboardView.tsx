@@ -18,9 +18,10 @@ export function DashboardView({ dataSource }: { dataSource?: any }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate initial data load; real implementation would await dataSource readiness
-    const timer = setTimeout(() => setIsLoading(false), 0);
-    return () => clearTimeout(timer);
+    // Reset loading on navigation; the actual DashboardRenderer handles data fetching
+    setIsLoading(true);
+    // Use microtask to let React render the skeleton before the heavy dashboard
+    queueMicrotask(() => setIsLoading(false));
   }, [dashboardName]);
   
   // Find dashboard definition in config

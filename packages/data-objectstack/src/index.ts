@@ -96,6 +96,8 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
   private maxReconnectAttempts: number;
   private reconnectDelay: number;
   private reconnectAttempts: number = 0;
+  private baseUrl: string;
+  private token?: string;
 
   constructor(config: {
     baseUrl: string;
@@ -114,6 +116,8 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
     this.autoReconnect = config.autoReconnect ?? true;
     this.maxReconnectAttempts = config.maxReconnectAttempts ?? 3;
     this.reconnectDelay = config.reconnectDelay ?? 1000;
+    this.baseUrl = config.baseUrl;
+    this.token = config.token;
   }
 
   /**
@@ -720,8 +724,7 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
       formData.append('metadata', JSON.stringify(options.metadata));
     }
 
-    const baseUrl = (this.client as any).baseUrl || '';
-    const url = `${baseUrl}/api/data/${encodeURIComponent(resource)}/upload`;
+    const url = `${this.baseUrl}/api/data/${encodeURIComponent(resource)}/upload`;
 
     const response = await fetch(url, {
       method: 'POST',
@@ -779,8 +782,7 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
       formData.append('metadata', JSON.stringify(options.metadata));
     }
 
-    const baseUrl = (this.client as any).baseUrl || '';
-    const url = `${baseUrl}/api/data/${encodeURIComponent(resource)}/upload`;
+    const url = `${this.baseUrl}/api/data/${encodeURIComponent(resource)}/upload`;
 
     const response = await fetch(url, {
       method: 'POST',
@@ -803,14 +805,12 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
   }
 
   /**
-   * Get authorization headers from the underlying client (if any).
+   * Get authorization headers from the adapter config.
    */
   private getAuthHeaders(): Record<string, string> {
     const headers: Record<string, string> = {};
-    // Access token from client config if available
-    const token = (this.client as any).token || (this.client as any).config?.token;
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
     }
     return headers;
   }
