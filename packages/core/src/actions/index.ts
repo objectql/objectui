@@ -7,3 +7,4 @@
  */
 
 export * from './ActionRunner.js';
+export * from './TransactionManager.js';
