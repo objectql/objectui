@@ -10,6 +10,7 @@ import React from 'react';
 import { AppShell } from '@object-ui/layout';
 import { AppSidebar } from './AppSidebar';
 import { AppHeader } from './AppHeader';
+import { useResponsiveSidebar } from '../hooks/useResponsiveSidebar';
 import type { ConnectionState } from '../dataSource';
 
 interface ConsoleLayoutProps {
@@ -19,6 +20,12 @@ interface ConsoleLayoutProps {
   onAppChange: (name: string) => void;
   objects: any[];
   connectionState?: ConnectionState;
+}
+
+/** Inner component that can access SidebarProvider context */
+function ConsoleLayoutInner({ children }: { children: React.ReactNode }) {
+  useResponsiveSidebar();
+  return <>{children}</>;
 }
 
 export function ConsoleLayout({ 
@@ -59,7 +66,9 @@ export function ConsoleLayout({
           : undefined
       }
     >
-      {children}
+      <ConsoleLayoutInner>
+        {children}
+      </ConsoleLayoutInner>
     </AppShell>
   );
 }

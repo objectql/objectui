@@ -18,6 +18,7 @@ export type {
   BatchProgressEvent,
   ConnectionStateListener,
   BatchProgressListener,
+  FileUploadResult,
 } from '@object-ui/data-objectstack';
 
 /**

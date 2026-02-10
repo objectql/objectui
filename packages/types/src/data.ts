@@ -114,6 +114,26 @@ export interface QueryResult<T = any> {
 }
 
 /**
+ * Result of a file upload operation.
+ */
+export interface FileUploadResult {
+  /** Server-assigned unique ID for the uploaded file */
+  id: string;
+  /** Original filename */
+  filename: string;
+  /** MIME type of the uploaded file */
+  mimeType: string;
+  /** File size in bytes */
+  size: number;
+  /** Public URL to access the file */
+  url: string;
+  /** Thumbnail URL (for images) */
+  thumbnailUrl?: string;
+  /** Additional server-side metadata */
+  metadata?: Record<string, unknown>;
+}
+
+/**
  * Universal data source interface.
  * This is the core abstraction that makes Object UI backend-agnostic.
  * 
@@ -226,6 +246,46 @@ export interface DataSource<T = any> {
    * @returns Promise resolving to the app definition or null
    */
   getApp?(appId: string): Promise<any | null>;
+
+  /**
+   * Upload a single file to a resource.
+   * Optional — only supported by data sources with file storage integration.
+   *
+   * @param resource - Resource name
+   * @param file - File or Blob to upload
+   * @param options - Upload options (recordId, fieldName, metadata)
+   * @returns Promise resolving to the upload result
+   */
+  uploadFile?(
+    resource: string,
+    file: File | Blob,
+    options?: {
+      recordId?: string;
+      fieldName?: string;
+      metadata?: Record<string, unknown>;
+      onProgress?: (percent: number) => void;
+    },
+  ): Promise<FileUploadResult>;
+
+  /**
+   * Upload multiple files to a resource.
+   * Optional — only supported by data sources with file storage integration.
+   *
+   * @param resource - Resource name
+   * @param files - Array of Files or Blobs to upload
+   * @param options - Upload options
+   * @returns Promise resolving to array of upload results
+   */
+  uploadFiles?(
+    resource: string,
+    files: (File | Blob)[],
+    options?: {
+      recordId?: string;
+      fieldName?: string;
+      metadata?: Record<string, unknown>;
+      onProgress?: (percent: number) => void;
+    },
+  ): Promise<FileUploadResult[]>;
 }
 
 /**
