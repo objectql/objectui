@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForReactMount } from './helpers';
 
 /**
  * Smoke tests for the console production build.
@@ -11,14 +12,6 @@ import { test, expect } from '@playwright/test';
  *   - Failed network requests for critical assets (JS/CSS bundles)
  *   - React failing to mount into #root
  */
-
-/** Wait for React to mount (at least one child inside #root). */
-async function waitForReactMount(page: import('@playwright/test').Page) {
-  await page.waitForFunction(
-    () => (document.getElementById('root')?.children.length ?? 0) > 0,
-    { timeout: 30_000 },
-  );
-}
 
 test.describe('Console App – Smoke', () => {
   test('should load the page without JavaScript errors', async ({ page }) => {

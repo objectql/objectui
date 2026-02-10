@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { waitForReactMount } from './helpers';
 
 /**
  * Console rendering & navigation E2E tests.
@@ -7,14 +8,6 @@ import { test, expect } from '@playwright/test';
  * that client-side routing works — the two main failure modes that cause
  * the "blank page on Vercel" issue.
  */
-
-/** Wait for React to mount (at least one child inside #root). */
-async function waitForReactMount(page: import('@playwright/test').Page) {
-  await page.waitForFunction(
-    () => (document.getElementById('root')?.children.length ?? 0) > 0,
-    { timeout: 30_000 },
-  );
-}
 
 test.describe('Console Rendering', () => {
   test('should not have critical console errors during bootstrap', async ({ page }) => {

@@ -1,29 +1,11 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { viteCryptoStub } from '../../scripts/vite-crypto-stub';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  // @objectstack/core@2.0.4 statically imports Node.js crypto (for plugin hashing).
-  // The code already has a browser fallback, so we provide an empty stub instead of
-  // marking it as external (which emits a bare `import 'crypto'` that browsers reject).
-  // enforce: 'pre' ensures this runs before Vite's built-in browser-external resolve.
   plugins: [
-    {
-      name: 'stub-crypto',
-      enforce: 'pre',
-      resolveId(id: string) {
-        if (id === 'crypto') return '\0crypto-stub';
-      },
-      load(id: string) {
-        if (id === '\0crypto-stub') {
-          return [
-            'export function createHash() { return { update() { return this; }, digest() { return ""; } }; }',
-            'export function createVerify() { return { update() { return this; }, end() {}, verify() { return false; } }; }',
-            'export default {};',
-          ].join('\n');
-        }
-      },
-    },
+    viteCryptoStub(),
     react(),
   ],
   server: {
