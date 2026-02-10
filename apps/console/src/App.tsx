@@ -122,11 +122,21 @@ export function AppContent() {
   const currentObjectDef = allObjects.find((o: any) => o.name === objectNameFromPath);
 
   // Track recent items on route change
+  // Only depend on location.pathname — the sole external trigger.
+  // All other values (activeApp, allObjects, cleanParts) are derived from
+  // stable module-level config and the current pathname, so they don't need
+  // to be in the dependency array (and including array refs would loop).
   useEffect(() => {
     if (!activeApp) return;
+    const parts = location.pathname.split('/').filter(Boolean);
+    let objName = parts[2];
+    if (objName === 'view' || objName === 'record' || objName === 'page' || objName === 'dashboard') {
+      objName = '';
+    }
     const basePath = `/apps/${activeApp.name}`;
-    if (objectNameFromPath) {
-      const obj = allObjects.find((o: any) => o.name === objectNameFromPath);
+    const objects = appConfig.objects || [];
+    if (objName) {
+      const obj = objects.find((o: any) => o.name === objName);
       if (obj) {
         addRecentItem({
           id: `object:${obj.name}`,
@@ -135,22 +145,22 @@ export function AppContent() {
           type: 'object',
         });
       }
-    } else if (cleanParts[2] === 'dashboard' && cleanParts[3]) {
+    } else if (parts[2] === 'dashboard' && parts[3]) {
       addRecentItem({
-        id: `dashboard:${cleanParts[3]}`,
-        label: cleanParts[3].replace(/[-_]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
-        href: `${basePath}/dashboard/${cleanParts[3]}`,
+        id: `dashboard:${parts[3]}`,
+        label: parts[3].replace(/[-_]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
+        href: `${basePath}/dashboard/${parts[3]}`,
         type: 'dashboard',
       });
-    } else if (cleanParts[2] === 'report' && cleanParts[3]) {
+    } else if (parts[2] === 'report' && parts[3]) {
       addRecentItem({
-        id: `report:${cleanParts[3]}`,
-        label: cleanParts[3].replace(/[-_]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
-        href: `${basePath}/report/${cleanParts[3]}`,
+        id: `report:${parts[3]}`,
+        label: parts[3].replace(/[-_]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
+        href: `${basePath}/report/${parts[3]}`,
         type: 'report',
       });
     }
-  }, [location.pathname, activeApp, allObjects, objectNameFromPath, cleanParts, addRecentItem]);
+  }, [location.pathname, addRecentItem]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleEdit = (record: any) => {
     setEditingRecord(record);
