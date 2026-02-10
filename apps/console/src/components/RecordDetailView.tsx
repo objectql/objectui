@@ -8,7 +8,8 @@
 
 import { useParams } from 'react-router-dom';
 import { DetailView } from '@object-ui/plugin-detail';
-import { Empty, EmptyTitle } from '@object-ui/components';
+import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
+import { Database } from 'lucide-react';
 import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
 
 interface RecordDetailViewProps {
@@ -26,8 +27,14 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
     return (
       <div className="flex h-full items-center justify-center p-4">
         <Empty>
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+            <Database className="h-6 w-6 text-muted-foreground" />
+          </div>
           <EmptyTitle>Object Not Found</EmptyTitle>
-          <p>Object "{objectName}" definition missing.</p>
+          <EmptyDescription>
+            Object &quot;{objectName}&quot; definition missing.
+            Check your configuration or navigate back to select a valid object.
+          </EmptyDescription>
         </Empty>
       </div>
     );

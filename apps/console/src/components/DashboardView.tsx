@@ -6,6 +6,7 @@
 import { useParams } from 'react-router-dom';
 import { DashboardRenderer } from '@object-ui/plugin-dashboard';
 import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
+import { LayoutDashboard } from 'lucide-react';
 import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import appConfig from '../../objectstack.shared';
 
@@ -21,8 +22,14 @@ export function DashboardView({ dataSource }: { dataSource?: any }) {
     return (
       <div className="h-full flex items-center justify-center p-8">
          <Empty>
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+            <LayoutDashboard className="h-6 w-6 text-muted-foreground" />
+          </div>
           <EmptyTitle>Dashboard Not Found</EmptyTitle>
-          <EmptyDescription>The dashboard "{dashboardName}" could not be found.</EmptyDescription>
+          <EmptyDescription>
+            The dashboard &quot;{dashboardName}&quot; could not be found.
+            It may have been removed or renamed.
+          </EmptyDescription>
         </Empty>
       </div>
     );

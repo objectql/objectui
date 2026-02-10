@@ -17,7 +17,7 @@
 
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Button, Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
-import { AlertTriangle, RotateCcw } from 'lucide-react';
+import { AlertTriangle, RotateCcw, Home } from 'lucide-react';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -76,15 +76,26 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               <EmptyDescription className="mb-4">
                 {this.state.error.message || 'An unexpected error occurred while rendering this view.'}
               </EmptyDescription>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={this.resetErrorBoundary}
-                className="gap-2"
-              >
-                <RotateCcw className="h-4 w-4" />
-                Try Again
-              </Button>
+              <div className="flex items-center justify-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={this.resetErrorBoundary}
+                  className="gap-2"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  Try Again
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => { window.location.href = '/'; }}
+                  className="gap-2"
+                >
+                  <Home className="h-4 w-4" />
+                  Go Home
+                </Button>
+              </div>
             </Empty>
             {import.meta.env.DEV && (
               <details className="mt-6 text-left">

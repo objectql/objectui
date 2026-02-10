@@ -1,8 +1,30 @@
 
 import { Spinner } from '@object-ui/components';
-import { Database } from 'lucide-react';
+import { Database, CheckCircle2, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
-export function LoadingScreen() {
+interface LoadingScreenProps {
+  /** Optional message override */
+  message?: string;
+}
+
+const LOADING_STEPS = [
+  'Connecting to data source',
+  'Loading configuration',
+  'Preparing workspace',
+];
+
+export function LoadingScreen({ message }: LoadingScreenProps) {
+  const [currentStep, setCurrentStep] = useState(0);
+
+  useEffect(() => {
+    if (message) return; // skip auto-progression when message is overridden
+    const timer = setInterval(() => {
+      setCurrentStep((prev) => Math.min(prev + 1, LOADING_STEPS.length - 1));
+    }, 1200);
+    return () => clearInterval(timer);
+  }, [message]);
+
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-background">
       <div className="flex flex-col items-center gap-6">
@@ -20,11 +42,34 @@ export function LoadingScreen() {
           <p className="text-sm text-muted-foreground">Initializing application...</p>
         </div>
         
-        {/* Loading indicator */}
-        <div className="flex items-center gap-3 px-4 py-2 bg-muted/50 rounded-full">
-          <Spinner className="h-4 w-4 text-primary" />
-          <span className="text-sm text-muted-foreground">Connecting to data source</span>
-        </div>
+        {/* Progress steps */}
+        {message ? (
+          <div className="flex items-center gap-3 px-4 py-2 bg-muted/50 rounded-full">
+            <Spinner className="h-4 w-4 text-primary" />
+            <span className="text-sm text-muted-foreground">{message}</span>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2 w-64">
+            {LOADING_STEPS.map((step, index) => (
+              <div
+                key={step}
+                className="flex items-center gap-2.5 text-sm transition-opacity duration-300"
+                style={{ opacity: index <= currentStep ? 1 : 0.3 }}
+              >
+                {index < currentStep ? (
+                  <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                ) : index === currentStep ? (
+                  <Loader2 className="h-4 w-4 text-primary shrink-0 animate-spin" />
+                ) : (
+                  <div className="h-4 w-4 rounded-full border border-muted-foreground/30 shrink-0" />
+                )}
+                <span className={index <= currentStep ? 'text-foreground' : 'text-muted-foreground'}>
+                  {step}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

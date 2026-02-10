@@ -38,8 +38,14 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
       return (
         <div className="h-full p-4 flex items-center justify-center">
           <Empty>
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+              <TableIcon className="h-6 w-6 text-muted-foreground" />
+            </div>
             <EmptyTitle>Object Not Found</EmptyTitle>
-            <EmptyDescription>The object &quot;{objectName}&quot; does not exist in the current configuration.</EmptyDescription>
+            <EmptyDescription>
+              The object &quot;{objectName}&quot; does not exist in the current configuration.
+              Check your app navigation settings or select a different object from the sidebar.
+            </EmptyDescription>
           </Empty>
         </div>
       );
