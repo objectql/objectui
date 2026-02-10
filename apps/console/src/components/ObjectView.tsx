@@ -208,19 +208,19 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
     return (
         <div className="h-full flex flex-col bg-background">
              {/* 1. Main Header */}
-             <div className="flex justify-between items-center py-3 px-4 border-b shrink-0 bg-background z-10">
-                 <div className="flex items-center gap-3">
-                    <div className="bg-primary/10 p-2 rounded-md shrink-0">
+             <div className="flex justify-between items-center py-2.5 sm:py-3 px-3 sm:px-4 border-b shrink-0 bg-background z-10">
+                 <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                    <div className="bg-primary/10 p-1.5 sm:p-2 rounded-md shrink-0">
                         <TableIcon className="h-4 w-4 text-primary" />
                     </div>
-                    <div>
-                        <h1 className="text-lg font-semibold tracking-tight text-foreground">{objectDef.label}</h1>
+                    <div className="min-w-0">
+                        <h1 className="text-base sm:text-lg font-semibold tracking-tight text-foreground truncate">{objectDef.label}</h1>
                     </div>
                  </div>
                  
-                 <div className="flex items-center gap-2">
+                 <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                     <MetadataToggle open={showDebug} onToggle={toggleDebug} className="hidden sm:flex" />
-                    <Button size="sm" onClick={actions.create} className="shadow-none gap-2">
+                    <Button size="sm" onClick={actions.create} className="shadow-none gap-1.5 sm:gap-2 h-8 sm:h-9">
                         <Plus className="h-4 w-4" /> 
                         <span className="hidden sm:inline">New</span>
                     </Button>
@@ -230,7 +230,7 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
              {/* 2. Content — Plugin ObjectView with ViewSwitcher + Filter + Sort */}
              <div className="flex-1 overflow-hidden relative flex flex-row">
                 <div className="flex-1 relative h-full">
-                    <div className="absolute inset-0 overflow-auto p-4">
+                    <div className="absolute inset-0 overflow-auto p-3 sm:p-4">
                         <PluginObjectView
                             key={refreshKey}
                             schema={objectViewSchema}
@@ -238,7 +238,7 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
                             views={views}
                             activeViewId={activeViewId}
                             onViewChange={handleViewChange}
-                            onEdit={(record) => onEdit?.(record)}
+                            onEdit={(record: any) => onEdit?.(record)}
                             onRowClick={onRowClick || ((record: any) => onEdit?.(record))}
                             renderListView={renderListView}
                         />
@@ -254,10 +254,10 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
              </div>
 
              {/* Drawer for Record Details */}
-             <Sheet open={!!drawerRecordId} onOpenChange={(open) => !open && handleDrawerClose()}>
-                <SheetContent side="right" className="w-[85vw] sm:w-150 sm:max-w-none p-0 overflow-hidden">
+             <Sheet open={!!drawerRecordId} onOpenChange={(open: boolean) => !open && handleDrawerClose()}>
+                <SheetContent side="right" className="w-[90vw] sm:w-150 sm:max-w-none p-0 overflow-hidden">
                     {drawerRecordId && (
-                        <div className="h-full bg-background overflow-auto p-4 lg:p-6">
+                        <div className="h-full bg-background overflow-auto p-3 sm:p-4 lg:p-6">
                             <DetailView
                                 schema={{
                                     type: 'detail-view',
