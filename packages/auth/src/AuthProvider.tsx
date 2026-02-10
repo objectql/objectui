@@ -75,7 +75,7 @@ export function AuthProvider({
       });
       setSession({
         token: 'guest-token',
-        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year
+        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
       });
       setIsLoading(false);
       return;
