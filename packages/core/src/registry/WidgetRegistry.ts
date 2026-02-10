@@ -276,7 +276,11 @@ export class WidgetRegistry {
       }
 
       case 'module': {
-        const mod = await import(/* @vite-ignore */ source.url);
+        // Use Function-based dynamic import to prevent bundlers from analyzing this at build time
+        // This import happens at runtime only, when widgets are actually loaded
+        // Turbopack/Webpack cannot statically analyze this pattern
+        const dynamicImport = new Function('url', 'return import(url)');
+        const mod = await dynamicImport(source.url);
         const exportName = source.exportName ?? 'default';
         const component = mod[exportName];
         if (!component) {
