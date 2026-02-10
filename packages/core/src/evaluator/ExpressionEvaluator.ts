@@ -18,6 +18,7 @@
 
 import { ExpressionContext } from './ExpressionContext.js';
 import { ExpressionCache } from './ExpressionCache.js';
+import { FormulaFunctions } from './FormulaFunctions.js';
 
 /**
  * Options for expression evaluation
@@ -47,8 +48,13 @@ export interface EvaluationOptions {
 export class ExpressionEvaluator {
   private context: ExpressionContext;
   private cache: ExpressionCache;
+  private formulas: FormulaFunctions;
 
-  constructor(context?: ExpressionContext | Record<string, any>, cache?: ExpressionCache) {
+  constructor(
+    context?: ExpressionContext | Record<string, any>,
+    cache?: ExpressionCache,
+    formulas?: FormulaFunctions,
+  ) {
     if (context instanceof ExpressionContext) {
       this.context = context;
     } else {
@@ -57,6 +63,7 @@ export class ExpressionEvaluator {
     
     // Use provided cache or create a new one
     this.cache = cache || new ExpressionCache();
+    this.formulas = formulas || new FormulaFunctions();
   }
 
   /**
@@ -139,9 +146,13 @@ export class ExpressionEvaluator {
       // Create a safe evaluation function
       const contextObj = this.context.toObject();
       
+      // Inject formula functions into the evaluation context
+      const formulaObj = this.formulas.toObject();
+      const mergedContext = { ...formulaObj, ...contextObj };
+      
       // Build safe function with context variables
-      const varNames = Object.keys(contextObj);
-      const varValues = Object.values(contextObj);
+      const varNames = Object.keys(mergedContext);
+      const varValues = Object.values(mergedContext);
       
       // Use cached compilation
       const compiled = this.cache.compile(expression, varNames);
@@ -219,8 +230,8 @@ export class ExpressionEvaluator {
    * Create a new evaluator with additional context data
    */
   withContext(data: Record<string, any>): ExpressionEvaluator {
-    // Share the cache with the new evaluator for maximum efficiency
-    return new ExpressionEvaluator(this.context.createChild(data), this.cache);
+    // Share the cache and formulas with the new evaluator for maximum efficiency
+    return new ExpressionEvaluator(this.context.createChild(data), this.cache, this.formulas);
   }
   
   /**
@@ -236,12 +247,27 @@ export class ExpressionEvaluator {
   clearCache(): void {
     this.cache.clear();
   }
+
+  /**
+   * Get the formula functions registry
+   */
+  getFormulas(): FormulaFunctions {
+    return this.formulas;
+  }
+
+  /**
+   * Register a custom formula function
+   */
+  registerFunction(name: string, fn: (...args: any[]) => any): void {
+    this.formulas.register(name, fn);
+  }
 }
 
 /**
- * Shared global cache for convenience functions
+ * Shared global cache and formulas for convenience functions
  */
 const globalCache = new ExpressionCache();
+const globalFormulas = new FormulaFunctions();
 
 /**
  * Convenience function to quickly evaluate an expression
@@ -251,7 +277,7 @@ export function evaluateExpression(
   context: Record<string, any> = {},
   options: EvaluationOptions = {}
 ): any {
-  const evaluator = new ExpressionEvaluator(context, globalCache);
+  const evaluator = new ExpressionEvaluator(context, globalCache, globalFormulas);
   return evaluator.evaluate(expression, options);
 }
 
@@ -262,6 +288,6 @@ export function evaluateCondition(
   condition: string | boolean | undefined,
   context: Record<string, any> = {}
 ): boolean {
-  const evaluator = new ExpressionEvaluator(context, globalCache);
+  const evaluator = new ExpressionEvaluator(context, globalCache, globalFormulas);
   return evaluator.evaluateCondition(condition);
 }
