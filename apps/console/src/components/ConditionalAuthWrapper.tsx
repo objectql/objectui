@@ -6,9 +6,9 @@
  */
 
 import { useState, useEffect, ReactNode } from 'react';
-import { ObjectStackAdapter } from './dataSource';
+import { ObjectStackAdapter } from '../dataSource';
 import { AuthProvider } from '@object-ui/auth';
-import { LoadingScreen } from './components/LoadingScreen';
+import { LoadingScreen } from './LoadingScreen';
 import type { DiscoveryInfo } from '@object-ui/react';
 
 interface ConditionalAuthWrapperProps {
