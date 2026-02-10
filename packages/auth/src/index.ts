@@ -30,6 +30,7 @@ export { ForgotPasswordForm, type ForgotPasswordFormProps } from './ForgotPasswo
 export { UserMenu, type UserMenuProps } from './UserMenu';
 export { createAuthClient } from './createAuthClient';
 export { createAuthenticatedFetch, type AuthenticatedAdapterOptions } from './createAuthenticatedFetch';
+export { getUserInitials } from './types';
 
 // Re-export types for convenience
 export type {

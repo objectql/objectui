@@ -30,6 +30,23 @@ export interface AuthUser {
   [key: string]: unknown;
 }
 
+/**
+ * Get user initials from their name or email.
+ * Returns up to 2 uppercase characters.
+ */
+export function getUserInitials(user: Pick<AuthUser, 'name' | 'email'> | null | undefined): string {
+  if (!user) return '?';
+  if (user.name) {
+    return user.name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  }
+  return user.email?.[0]?.toUpperCase() ?? '?';
+}
+
 /** Session information */
 export interface AuthSession {
   /** Access token */

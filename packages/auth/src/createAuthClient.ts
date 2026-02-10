@@ -36,8 +36,11 @@ export function createAuthClient(config: AuthClientConfig): AuthClient {
     });
 
     if (!response.ok) {
-      const body = await response.json().catch(() => ({}));
-      throw new Error(body.message || `Auth request failed: ${response.status}`);
+      const body = await response.json().catch(() => null);
+      const message = (body && typeof body === 'object' && 'message' in body)
+        ? String(body.message)
+        : `Auth request failed with status ${response.status}`;
+      throw new Error(message);
     }
 
     return response.json();

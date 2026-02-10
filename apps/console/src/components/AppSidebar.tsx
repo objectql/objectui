@@ -46,7 +46,7 @@ import {
 } from 'lucide-react';
 import appConfig from '../../objectstack.shared';
 import { useExpressionContext, evaluateVisibility } from '../context/ExpressionProvider';
-import { useAuth } from '@object-ui/auth';
+import { useAuth, getUserInitials } from '@object-ui/auth';
 
 /**
  * Resolve a Lucide icon component by name string.
@@ -169,7 +169,7 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage src={user?.image ?? '/avatars/user.jpg'} alt={user?.name ?? 'User'} />
                     <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
-                      {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : '?'}
+                      {getUserInitials(user)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
@@ -190,7 +190,7 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
                     <Avatar className="h-8 w-8 rounded-lg">
                       <AvatarImage src={user?.image ?? '/avatars/user.jpg'} alt={user?.name ?? 'User'} />
                       <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
-                        {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : '?'}
+                        {getUserInitials(user)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">

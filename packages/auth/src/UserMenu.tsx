@@ -8,6 +8,7 @@
 
 import React from 'react';
 import { useAuth } from './useAuth';
+import { getUserInitials } from './types';
 
 export interface UserMenuProps {
   /** Custom avatar URL override */
@@ -43,14 +44,7 @@ export function UserMenu({
     return null;
   }
 
-  const initials = user.name
-    ? user.name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
-    : user.email?.[0]?.toUpperCase() ?? '?';
+  const initials = getUserInitials(user);
 
   const imageUrl = avatarUrl ?? user.image;
 
