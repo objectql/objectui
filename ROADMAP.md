@@ -1,6 +1,6 @@
 # ObjectUI Development Roadmap
 
-> **Last Updated:** February 9, 2026  
+> **Last Updated:** February 10, 2026  
 > **Current Version:** v0.5.x  
 > **Target Version:** v2.0.0  
 > **Spec Version:** @objectstack/spec v2.0.1
@@ -46,6 +46,12 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - ⚠️ Test coverage: 62% lines, 43% functions (Target: 80%+)
 - ⚠️ Internationalization: No built-in i18n support
 - ⚠️ Performance: Bundle size 200KB, LCP 1.2s (Target: 150KB, 600ms)
+
+**Authentication & Console Gaps (P0):**
+- 🔲 Authentication system (@object-ui/auth with better-auth)
+- 🔲 Login / Register / Password Reset pages
+- 🔲 Session management & token injection into @objectstack/client
+- 🔲 Route guards (AuthGuard component)
 
 **ObjectOS Integration Gaps (P1):**
 - ✅ Multi-tenant architecture support (@object-ui/tenant)
@@ -106,8 +112,39 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - Largest Contentful Paint: 1.2s → 600ms
 - Bundle Size: 200KB → 140KB (gzipped)
 
+#### 1.5 Console Authentication System (6 weeks)
+**Target:** Complete login-to-usage flow using @objectstack/client + better-auth
+
+> 📄 Detailed plan: [CONSOLE_AUTH_PLAN.md](./CONSOLE_AUTH_PLAN.md)
+
+**Phase 1 — Auth Foundation (Week 1-2):**
+- [ ] Create `@object-ui/auth` package (AuthProvider, useAuth, AuthGuard)
+- [ ] Integrate better-auth client (`createAuthClient`, session management)
+- [ ] Implement LoginForm, RegisterForm, ForgotPasswordForm (Shadcn UI)
+- [ ] Implement authenticated fetch wrapper for @objectstack/client token injection
+
+**Phase 2 — Console Integration (Week 3-4):**
+- [ ] Add /login, /register, /forgot-password routes to Console
+- [ ] Wrap app routes with AuthGuard (redirect unauthenticated users)
+- [ ] Connect AuthProvider → ExpressionProvider → PermissionProvider chain
+- [ ] Add UserMenu to AppHeader (profile, settings, sign out)
+- [ ] Replace hardcoded user context with real auth session
+
+**Phase 3 — System Administration (Week 5-6):**
+- [ ] Define system objects (sys_user, sys_org, sys_role, sys_permission, sys_audit_log)
+- [ ] Build user management page (reuse plugin-grid + plugin-form)
+- [ ] Build organization management page with member management
+- [ ] Build role management page with permission assignment matrix
+- [ ] Build user profile page (profile edit, password change)
+- [ ] Build audit log viewer (read-only grid)
+
+**Deliverables:**
+- @object-ui/auth package
+- Console login / register / password reset pages
+- System administration pages (users, orgs, roles, audit logs)
+
 **Q1 Milestone:**
-- **v0.6.0 Release (March 2026):** Infrastructure Complete
+- **v0.6.0 Release (March 2026):** Infrastructure Complete + Auth Foundation
 
 ---
 
@@ -137,9 +174,14 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 
 #### 2.3 System Objects Integration (2 weeks)
 
-- [ ] sys_user, sys_organization, sys_role, sys_permission, sys_audit_log
-- [ ] Pre-built UI components (user profile, org tree, role assignment)
-- [ ] Admin console example
+> ⬆️ Auth-related system objects (sys_user, sys_org, sys_role) are initiated in Q1 §1.5 Phase 3.
+> Q2 focuses on completing advanced features and integration hardening.
+
+- [ ] Complete sys_permission advanced UI (conditional permissions, sharing rules)
+- [ ] sys_audit_log advanced features (search, export, retention policies)
+- [ ] Pre-built UI components (org tree visualization, role assignment matrix)
+- [ ] Admin console polish and production readiness
+- [ ] OAuth provider management UI (GitHub, Google, SAML SSO)
 
 #### 2.4 Enterprise-Grade Features (4 weeks)
 
@@ -306,6 +348,7 @@ This roadmap consolidates information from:
 3. **apps/console/DEVELOPMENT_PLAN.md** - Console development plan
 4. **UPDATE_SUMMARY.md** - Recent updates summary
 5. **.github/copilot-instructions.md** - Architectural guidelines
+6. **CONSOLE_AUTH_PLAN.md** - Console authentication & full-flow development plan (@objectstack/client + better-auth)
 
 For detailed technical specifications, implementation patterns, and historical context, please refer to these source documents.
 
