@@ -9,7 +9,7 @@ export function RegisterPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
       <RegisterForm
         onSuccess={() => navigate('/')}
         loginUrl="/login"

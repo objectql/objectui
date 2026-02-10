@@ -30,18 +30,20 @@ export function DashboardView({ dataSource }: { dataSource?: any }) {
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-background">
-      <div className="flex justify-between items-center p-6 border-b shrink-0">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{dashboard.label || dashboard.name}</h1>
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 sm:gap-4 p-4 sm:p-6 border-b shrink-0">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight truncate">{dashboard.label || dashboard.name}</h1>
           {dashboard.description && (
-            <p className="text-muted-foreground mt-1">{dashboard.description}</p>
+            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{dashboard.description}</p>
           )}
         </div>
-        <MetadataToggle open={showDebug} onToggle={toggleDebug} />
+        <div className="shrink-0">
+          <MetadataToggle open={showDebug} onToggle={toggleDebug} />
+        </div>
       </div>
 
       <div className="flex-1 overflow-hidden flex flex-row relative">
-         <div className="flex-1 overflow-auto p-6">
+         <div className="flex-1 overflow-auto p-4 sm:p-6">
             <DashboardRenderer schema={dashboard} dataSource={dataSource} />
          </div>
 

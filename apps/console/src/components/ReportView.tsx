@@ -48,12 +48,13 @@ export function ReportView({ dataSource: _dataSource }: { dataSource?: any }) {
   if (isEditing) {
     return (
       <div className="flex flex-col h-full overflow-hidden bg-background">
-         <div className="flex items-center p-4 border-b bg-muted/10 gap-2">
-            <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}>
+         <div className="flex items-center p-3 sm:p-4 border-b bg-muted/10 gap-2">
+            <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)} className="shrink-0">
                <ChevronLeft className="h-4 w-4 mr-1" />
-               Back to View
+               <span className="hidden sm:inline">Back to View</span>
+               <span className="sm:hidden">Back</span>
             </Button>
-            <div className="font-medium">Edit Report: {reportData.title}</div>
+            <div className="font-medium truncate">Edit Report: {reportData.title}</div>
          </div>
          <div className="flex-1 overflow-auto">
             <ReportBuilder 
@@ -82,23 +83,23 @@ export function ReportView({ dataSource: _dataSource }: { dataSource?: any }) {
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-background">
-      <div className="flex justify-between items-center p-6 border-b shrink-0 bg-muted/10">
-        <div>
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 sm:gap-4 p-4 sm:p-6 border-b shrink-0 bg-muted/10">
+        <div className="min-w-0">
            {/* Header is handled by ReportViewer usually, but we can have a page header too */}
-           <h1 className="text-lg font-medium text-muted-foreground">{reportData.title || 'Report Viewer'}</h1>
+           <h1 className="text-base sm:text-lg font-medium text-muted-foreground truncate">{reportData.title || 'Report Viewer'}</h1>
         </div>
-        <div className="flex items-center gap-2">
-           <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
-              <PenLine className="h-4 w-4 mr-2" />
-              Edit Report
+        <div className="flex items-center gap-2 shrink-0">
+           <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="h-8">
+              <PenLine className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Edit Report</span>
            </Button>
            <MetadataToggle open={showDebug} onToggle={toggleDebug} />
         </div>
       </div>
 
       <div className="flex-1 overflow-hidden flex flex-row relative">
-         <div className="flex-1 overflow-auto p-8 bg-muted/5">
-            <div className="max-w-5xl mx-auto shadow-sm border rounded-xl bg-background overflow-hidden min-h-150">
+         <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8 bg-muted/5">
+            <div className="max-w-5xl mx-auto shadow-sm border rounded-lg sm:rounded-xl bg-background overflow-hidden min-h-150">
                 <ReportViewer schema={viewerSchema} />
             </div>
          </div>

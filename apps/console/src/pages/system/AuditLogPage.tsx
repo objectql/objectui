@@ -11,20 +11,20 @@ const auditObject = systemObjects.find((o) => o.name === 'sys_audit_log')!;
 
 export function AuditLogPage() {
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Audit Log</h1>
-        <p className="text-muted-foreground">View system activity and user actions</p>
+    <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6">
+      <div className="min-w-0">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Audit Log</h1>
+        <p className="text-sm text-muted-foreground mt-1">View system activity and user actions</p>
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-muted/50">
               {auditObject.views[0].columns.map((col) => {
                 const field = auditObject.fields.find((f) => f.name === col);
                 return (
-                  <th key={col} className="h-10 px-4 text-left font-medium text-muted-foreground">
+                  <th key={col} className="h-10 px-3 sm:px-4 text-left font-medium text-muted-foreground whitespace-nowrap">
                     {field?.label ?? col}
                   </th>
                 );
@@ -33,7 +33,7 @@ export function AuditLogPage() {
           </thead>
           <tbody>
             <tr className="border-b">
-              <td className="p-4 text-muted-foreground" colSpan={auditObject.views[0].columns.length}>
+              <td className="p-3 sm:p-4 text-sm text-muted-foreground" colSpan={auditObject.views[0].columns.length}>
                 Connect to ObjectStack server to load audit logs. In production, this page uses plugin-grid in read-only mode.
               </td>
             </tr>

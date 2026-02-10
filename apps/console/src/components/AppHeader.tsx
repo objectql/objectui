@@ -76,23 +76,23 @@ export function AppHeader({ appName, objects, connectionState }: { appName: stri
     }
 
     return (
-        <div className="flex items-center justify-between w-full h-full px-2 md:px-4 gap-2">
-             <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between w-full h-full px-2 sm:px-3 md:px-4 gap-1.5 sm:gap-2">
+             <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
                 {/* Mobile sidebar trigger */}
-                <SidebarTrigger className="md:hidden" />
-                <Separator orientation="vertical" className="h-4 md:hidden" />
+                <SidebarTrigger className="md:hidden shrink-0" />
+                <Separator orientation="vertical" className="h-4 md:hidden shrink-0" />
                 
-                <Breadcrumb className="hidden sm:flex">
+                <Breadcrumb className="hidden sm:flex min-w-0">
                   <BreadcrumbList>
                     {breadcrumbItems.map((item, index) => (
                       <Fragment key={index}>
                         {index > 0 && <BreadcrumbSeparator />}
                         <BreadcrumbItem>
                           {index === breadcrumbItems.length - 1 || !item.href ? (
-                            <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                            <BreadcrumbPage className="truncate max-w-[200px]">{item.label}</BreadcrumbPage>
                           ) : (
                             <BreadcrumbLink asChild>
-                              <Link to={item.href}>{item.label}</Link>
+                              <Link to={item.href} className="truncate max-w-[150px]">{item.label}</Link>
                             </BreadcrumbLink>
                           )}
                         </BreadcrumbItem>
@@ -102,12 +102,12 @@ export function AppHeader({ appName, objects, connectionState }: { appName: stri
                 </Breadcrumb>
                 
                 {/* Mobile: Just show current page */}
-                <span className="text-sm font-medium sm:hidden truncate max-w-37.5">
+                <span className="text-sm font-medium sm:hidden truncate min-w-0">
                   {breadcrumbItems[breadcrumbItems.length - 1]?.label || appName}
                 </span>
              </div>
              
-             <div className="flex items-center gap-1 md:gap-2">
+             <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2 shrink-0">
                 {/* Connection Status */}
                 {connectionState && <ConnectionStatus state={connectionState} />}
                 
@@ -127,24 +127,26 @@ export function AppHeader({ appName, objects, connectionState }: { appName: stri
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="lg:hidden h-8 w-8"
+                  className="lg:hidden h-8 w-8 shrink-0"
                   onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
                 >
                   <Search className="h-4 w-4" />
                 </Button>
                 
                 {/* Notifications */}
-                <Button variant="ghost" size="icon" className="h-8 w-8 hidden sm:flex">
+                <Button variant="ghost" size="icon" className="h-8 w-8 hidden sm:flex shrink-0">
                   <Bell className="h-4 w-4" />
                 </Button>
                 
                 {/* Help */}
-                <Button variant="ghost" size="icon" className="h-8 w-8 hidden md:flex">
+                <Button variant="ghost" size="icon" className="h-8 w-8 hidden md:flex shrink-0">
                   <HelpCircle className="h-4 w-4" />
                 </Button>
                 
                 {/* Theme toggle */}
-                <ModeToggle />
+                <div className="shrink-0">
+                  <ModeToggle />
+                </div>
              </div>
         </div>
     );

@@ -30,16 +30,16 @@ export function ProfilePage() {
   if (!user) return null;
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Profile</h1>
-        <p className="text-muted-foreground">Manage your account settings</p>
+    <div className="flex flex-col gap-4 sm:gap-6 p-4 sm:p-6">
+      <div className="min-w-0">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Profile</h1>
+        <p className="text-sm text-muted-foreground mt-1">Manage your account settings</p>
       </div>
 
-      <div className="max-w-lg space-y-6">
+      <div className="max-w-lg space-y-4 sm:space-y-6">
         {/* Profile Info */}
-        <div className="rounded-md border p-6">
-          <h2 className="mb-4 text-lg font-semibold">Personal Information</h2>
+        <div className="rounded-md border p-4 sm:p-6">
+          <h2 className="mb-4 text-base sm:text-lg font-semibold">Personal Information</h2>
           <form onSubmit={handleSave} className="space-y-4">
             {error && (
               <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive" role="alert">
@@ -94,7 +94,7 @@ export function ProfilePage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+              className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 w-full sm:w-auto"
             >
               {isLoading ? 'Saving...' : 'Save Changes'}
             </button>
@@ -102,8 +102,8 @@ export function ProfilePage() {
         </div>
 
         {/* Password Change */}
-        <div className="rounded-md border p-6">
-          <h2 className="mb-4 text-lg font-semibold">Change Password</h2>
+        <div className="rounded-md border p-4 sm:p-6">
+          <h2 className="mb-4 text-base sm:text-lg font-semibold">Change Password</h2>
           <p className="text-sm text-muted-foreground">
             To change your password, use the password reset flow from the login page.
           </p>
