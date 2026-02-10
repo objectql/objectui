@@ -253,6 +253,7 @@ export type {
   DataBinding,
   ValidationError,
   APIError,
+  FileUploadResult,
 } from './data';
 
 // ============================================================================

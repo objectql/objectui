@@ -6,11 +6,13 @@
  * the object field definitions.
  */
 
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { DetailView } from '@object-ui/plugin-detail';
 import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
 import { Database } from 'lucide-react';
 import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
+import { SkeletonDetail } from './skeletons';
 
 interface RecordDetailViewProps {
   dataSource: any;
@@ -21,7 +23,18 @@ interface RecordDetailViewProps {
 export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailViewProps) {
   const { objectName, recordId } = useParams();
   const { showDebug, toggleDebug } = useMetadataInspector();
+  const [isLoading, setIsLoading] = useState(true);
   const objectDef = objects.find((o: any) => o.name === objectName);
+
+  useEffect(() => {
+    // Reset loading on navigation; the actual DetailView handles data fetching
+    setIsLoading(true);
+    queueMicrotask(() => setIsLoading(false));
+  }, [objectName, recordId]);
+
+  if (isLoading) {
+    return <SkeletonDetail />;
+  }
 
   if (!objectDef) {
     return (

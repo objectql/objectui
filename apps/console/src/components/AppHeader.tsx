@@ -19,8 +19,12 @@ import {
   SidebarTrigger,
   Button,
   Separator,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
 } from '@object-ui/components';
-import { Search, Bell, HelpCircle } from 'lucide-react';
+import { Search, Bell, HelpCircle, ChevronDown } from 'lucide-react';
 
 import { ModeToggle } from './mode-toggle';
 import { ConnectionStatus } from './ConnectionStatus';
@@ -43,10 +47,17 @@ export function AppHeader({ appName, objects, connectionState }: { appName: stri
     
     const appNameFromRoute = params.appName || pathParts[1];
     const routeType = pathParts[2]; // 'contact', 'dashboard', 'page', 'report'
+    const baseHref = `/apps/${appNameFromRoute}`;
     
-    // Determine breadcrumb items
-    const breadcrumbItems: { label: string; href?: string }[] = [
-      { label: appName, href: `/apps/${appNameFromRoute}` }
+    // Build sibling links for quick navigation dropdown
+    const objectSiblings = objects.map((o: any) => ({
+      label: o.label || o.name,
+      href: `${baseHref}/${o.name}`,
+    }));
+
+    // Determine breadcrumb items with optional siblings for dropdown
+    const breadcrumbItems: { label: string; href?: string; siblings?: { label: string; href: string }[] }[] = [
+      { label: appName, href: baseHref }
     ];
     
     if (routeType === 'dashboard') {
@@ -75,7 +86,8 @@ export function AppHeader({ appName, objects, connectionState }: { appName: stri
       if (currentObject) {
         breadcrumbItems.push({ 
           label: currentObject.label || routeType,
-          href: `/apps/${appNameFromRoute}/${routeType}`
+          href: `/apps/${appNameFromRoute}/${routeType}`,
+          siblings: objectSiblings,
         });
         
         // Check if viewing a specific record
@@ -102,7 +114,37 @@ export function AppHeader({ appName, objects, connectionState }: { appName: stri
                         {index > 0 && <BreadcrumbSeparator />}
                         <BreadcrumbItem>
                           {index === breadcrumbItems.length - 1 || !item.href ? (
-                            <BreadcrumbPage className="truncate max-w-[200px]">{item.label}</BreadcrumbPage>
+                            item.siblings && item.siblings.length > 1 ? (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium">
+                                  {item.label}
+                                  <ChevronDown className="h-3 w-3" />
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="start" className="max-h-64 overflow-y-auto">
+                                  {item.siblings.map((sibling) => (
+                                    <DropdownMenuItem key={sibling.href} asChild>
+                                      <Link to={sibling.href} className="w-full">{sibling.label}</Link>
+                                    </DropdownMenuItem>
+                                  ))}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            ) : (
+                              <BreadcrumbPage className="truncate max-w-[200px]">{item.label}</BreadcrumbPage>
+                            )
+                          ) : item.siblings && item.siblings.length > 1 ? (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                                {item.label}
+                                <ChevronDown className="h-3 w-3" />
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="start" className="max-h-64 overflow-y-auto">
+                                {item.siblings.map((sibling) => (
+                                  <DropdownMenuItem key={sibling.href} asChild>
+                                    <Link to={sibling.href} className="w-full">{sibling.label}</Link>
+                                  </DropdownMenuItem>
+                                ))}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           ) : (
                             <BreadcrumbLink asChild>
                               <Link to={item.href} className="truncate max-w-[150px]">{item.label}</Link>

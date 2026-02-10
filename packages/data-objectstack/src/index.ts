@@ -7,7 +7,7 @@
  */
 
 import { ObjectStackClient, type QueryOptions as ObjectStackQueryOptions } from '@objectstack/client';
-import type { DataSource, QueryParams, QueryResult } from '@object-ui/types';
+import type { DataSource, QueryParams, QueryResult, FileUploadResult } from '@object-ui/types';
 import { convertFiltersToAST } from '@object-ui/core';
 import { MetadataCache } from './cache/MetadataCache';
 import {
@@ -53,6 +53,9 @@ export type ConnectionStateListener = (event: ConnectionStateEvent) => void;
  */
 export type BatchProgressListener = (event: BatchProgressEvent) => void;
 
+// Re-export FileUploadResult from types for consumers
+export type { FileUploadResult } from '@object-ui/types';
+
 /**
  * ObjectStack Data Source Adapter
  * 
@@ -93,6 +96,8 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
   private maxReconnectAttempts: number;
   private reconnectDelay: number;
   private reconnectAttempts: number = 0;
+  private baseUrl: string;
+  private token?: string;
 
   constructor(config: {
     baseUrl: string;
@@ -111,6 +116,8 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
     this.autoReconnect = config.autoReconnect ?? true;
     this.maxReconnectAttempts = config.maxReconnectAttempts ?? 3;
     this.reconnectDelay = config.reconnectDelay ?? 1000;
+    this.baseUrl = config.baseUrl;
+    this.token = config.token;
   }
 
   /**
@@ -681,6 +688,131 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
    */
   clearCache(): void {
     this.metadataCache.clear();
+  }
+
+  /**
+   * Upload a single file to a resource.
+   * Posts the file as multipart/form-data to the ObjectStack server.
+   *
+   * @param resource - The resource/object name to attach the file to
+   * @param file - File object or Blob to upload
+   * @param options - Additional upload options (recordId, fieldName, metadata)
+   * @returns Promise resolving to the upload result (file URL, metadata)
+   */
+  async uploadFile(
+    resource: string,
+    file: File | Blob,
+    options?: {
+      recordId?: string;
+      fieldName?: string;
+      metadata?: Record<string, unknown>;
+      onProgress?: (percent: number) => void;
+    },
+  ): Promise<FileUploadResult> {
+    await this.connect();
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    if (options?.recordId) {
+      formData.append('recordId', options.recordId);
+    }
+    if (options?.fieldName) {
+      formData.append('fieldName', options.fieldName);
+    }
+    if (options?.metadata) {
+      formData.append('metadata', JSON.stringify(options.metadata));
+    }
+
+    const url = `${this.baseUrl}/api/data/${encodeURIComponent(resource)}/upload`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        ...(this.getAuthHeaders()),
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: response.statusText }));
+      throw new ObjectStackError(
+        error.message || `Upload failed with status ${response.status}`,
+        'UPLOAD_ERROR',
+        response.status,
+      );
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Upload multiple files to a resource.
+   * Posts all files as a single multipart/form-data request.
+   *
+   * @param resource - The resource/object name to attach the files to
+   * @param files - Array of File objects or Blobs to upload
+   * @param options - Additional upload options
+   * @returns Promise resolving to array of upload results
+   */
+  async uploadFiles(
+    resource: string,
+    files: (File | Blob)[],
+    options?: {
+      recordId?: string;
+      fieldName?: string;
+      metadata?: Record<string, unknown>;
+      onProgress?: (percent: number) => void;
+    },
+  ): Promise<FileUploadResult[]> {
+    await this.connect();
+
+    const formData = new FormData();
+    files.forEach((file, idx) => {
+      formData.append(`files`, file, (file as File).name || `file-${idx}`);
+    });
+
+    if (options?.recordId) {
+      formData.append('recordId', options.recordId);
+    }
+    if (options?.fieldName) {
+      formData.append('fieldName', options.fieldName);
+    }
+    if (options?.metadata) {
+      formData.append('metadata', JSON.stringify(options.metadata));
+    }
+
+    const url = `${this.baseUrl}/api/data/${encodeURIComponent(resource)}/upload`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        ...(this.getAuthHeaders()),
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: response.statusText }));
+      throw new ObjectStackError(
+        error.message || `Upload failed with status ${response.status}`,
+        'UPLOAD_ERROR',
+        response.status,
+      );
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Get authorization headers from the adapter config.
+   */
+  private getAuthHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {};
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+    return headers;
   }
 }
 

@@ -36,17 +36,19 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from '@object-ui/components';
-import { 
+import {
   ChevronsUpDown, 
   Plus, 
   Settings, 
   LogOut, 
   Database,
   ChevronRight,
+  Clock,
 } from 'lucide-react';
 import appConfig from '../../objectstack.shared';
 import { useExpressionContext, evaluateVisibility } from '../context/ExpressionProvider';
 import { useAuth, getUserInitials } from '@object-ui/auth';
+import { useRecentItems } from '../hooks/useRecentItems';
 
 /**
  * Resolve a Lucide icon component by name string.
@@ -77,6 +79,7 @@ function getIcon(name?: string): React.ComponentType<any> {
 export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: string, onAppChange: (name: string) => void }) {
   const { isMobile } = useSidebar();
   const { user, signOut } = useAuth();
+  const { recentItems } = useRecentItems();
   
   const apps = appConfig.apps || [];
   // Filter out inactive apps
@@ -155,6 +158,32 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
 
       <SidebarContent>
          <NavigationTree items={activeApp.navigation || []} activeAppName={activeAppName} />
+
+         {/* Recent Items */}
+         {recentItems.length > 0 && (
+           <SidebarGroup>
+             <SidebarGroupLabel className="flex items-center gap-1.5">
+               <Clock className="h-3.5 w-3.5" />
+               Recent
+             </SidebarGroupLabel>
+             <SidebarGroupContent>
+               <SidebarMenu>
+                 {recentItems.slice(0, 5).map(item => (
+                   <SidebarMenuItem key={item.id}>
+                     <SidebarMenuButton asChild tooltip={item.label}>
+                       <Link to={item.href}>
+                         <span className="text-muted-foreground">
+                           {item.type === 'dashboard' ? '📊' : item.type === 'report' ? '📈' : '📄'}
+                         </span>
+                         <span className="truncate">{item.label}</span>
+                       </Link>
+                     </SidebarMenuButton>
+                   </SidebarMenuItem>
+                 ))}
+               </SidebarMenu>
+             </SidebarGroupContent>
+           </SidebarGroup>
+         )}
       </SidebarContent>
 
       <SidebarFooter>

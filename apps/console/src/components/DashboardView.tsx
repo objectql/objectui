@@ -3,20 +3,34 @@
  * Renders a dashboard based on the dashboardName parameter
  */
 
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { DashboardRenderer } from '@object-ui/plugin-dashboard';
 import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
 import { LayoutDashboard } from 'lucide-react';
 import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
+import { SkeletonDashboard } from './skeletons';
 import appConfig from '../../objectstack.shared';
 
 export function DashboardView({ dataSource }: { dataSource?: any }) {
   const { dashboardName } = useParams<{ dashboardName: string }>();
   const { showDebug, toggleDebug } = useMetadataInspector();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Reset loading on navigation; the actual DashboardRenderer handles data fetching
+    setIsLoading(true);
+    // Use microtask to let React render the skeleton before the heavy dashboard
+    queueMicrotask(() => setIsLoading(false));
+  }, [dashboardName]);
   
   // Find dashboard definition in config
   // In a real implementation, this would fetch from the server
   const dashboard = appConfig.dashboards?.find((d: any) => d.name === dashboardName);
+
+  if (isLoading) {
+    return <SkeletonDashboard />;
+  }
 
   if (!dashboard) {
     return (

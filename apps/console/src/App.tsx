@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, useSe
 import { useState, useEffect } from 'react';
 import { ObjectForm } from '@object-ui/plugin-form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Empty, EmptyTitle } from '@object-ui/components';
+import { toast } from 'sonner';
 import { SchemaRendererProvider } from '@object-ui/react';
 import { ObjectStackAdapter } from './dataSource';
 import type { ConnectionState } from './dataSource';
@@ -20,6 +21,8 @@ import { PageView } from './components/PageView';
 import { ReportView } from './components/ReportView';
 import { ExpressionProvider } from './context/ExpressionProvider';
 import { ConditionalAuthWrapper } from './components/ConditionalAuthWrapper';
+import { KeyboardShortcutsDialog } from './components/KeyboardShortcutsDialog';
+import { useRecentItems } from './hooks/useRecentItems';
 
 // Auth Pages
 import { LoginPage } from './pages/LoginPage';
@@ -35,6 +38,7 @@ import { ProfilePage } from './pages/system/ProfilePage';
 
 import { useParams } from 'react-router-dom';
 import { ThemeProvider } from './components/theme-provider';
+import { ConsoleToaster } from './components/ConsoleToaster';
 
 export function AppContent() {
   const [dataSource, setDataSource] = useState<ObjectStackAdapter | null>(null);
@@ -55,6 +59,7 @@ export function AppContent() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<any>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const { addRecentItem } = useRecentItems();
 
   // Branding is now applied by AppShell via ConsoleLayout
 
@@ -116,6 +121,47 @@ export function AppContent() {
 
   const currentObjectDef = allObjects.find((o: any) => o.name === objectNameFromPath);
 
+  // Track recent items on route change
+  // Only depend on location.pathname — the sole external trigger.
+  // All other values (activeApp, allObjects, cleanParts) are derived from
+  // stable module-level config and the current pathname, so they don't need
+  // to be in the dependency array (and including array refs would loop).
+  useEffect(() => {
+    if (!activeApp) return;
+    const parts = location.pathname.split('/').filter(Boolean);
+    let objName = parts[2];
+    if (objName === 'view' || objName === 'record' || objName === 'page' || objName === 'dashboard') {
+      objName = '';
+    }
+    const basePath = `/apps/${activeApp.name}`;
+    const objects = appConfig.objects || [];
+    if (objName) {
+      const obj = objects.find((o: any) => o.name === objName);
+      if (obj) {
+        addRecentItem({
+          id: `object:${obj.name}`,
+          label: obj.label || obj.name,
+          href: `${basePath}/${obj.name}`,
+          type: 'object',
+        });
+      }
+    } else if (parts[2] === 'dashboard' && parts[3]) {
+      addRecentItem({
+        id: `dashboard:${parts[3]}`,
+        label: parts[3].replace(/[-_]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
+        href: `${basePath}/dashboard/${parts[3]}`,
+        type: 'dashboard',
+      });
+    } else if (parts[2] === 'report' && parts[3]) {
+      addRecentItem({
+        id: `report:${parts[3]}`,
+        label: parts[3].replace(/[-_]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
+        href: `${basePath}/report/${parts[3]}`,
+        type: 'report',
+      });
+    }
+  }, [location.pathname, addRecentItem]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleEdit = (record: any) => {
     setEditingRecord(record);
     setIsDialogOpen(true);
@@ -166,6 +212,7 @@ export function AppContent() {
         objects={allObjects}
         onAppChange={handleAppChange}
       />
+      <KeyboardShortcutsDialog />
       <SchemaRendererProvider dataSource={dataSource || {}}>
       <ErrorBoundary>
       <Routes>
@@ -242,7 +289,15 @@ export function AppContent() {
                                     ? currentObjectDef.fields.map((f: any) => typeof f === 'string' ? f : f.name)
                                     : Object.keys(currentObjectDef.fields))
                                 : [],
-                            onSuccess: () => { setIsDialogOpen(false); setRefreshKey(k => k + 1); }, 
+                            onSuccess: () => {
+                                setIsDialogOpen(false);
+                                setRefreshKey(k => k + 1);
+                                toast.success(
+                                  editingRecord
+                                    ? `${currentObjectDef?.label} updated successfully`
+                                    : `${currentObjectDef?.label} created successfully`
+                                );
+                            }, 
                             onCancel: () => setIsDialogOpen(false),
                             showSubmit: true,
                             showCancel: true,
@@ -292,6 +347,7 @@ function RootRedirect() {
 export function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="object-ui-theme">
+      <ConsoleToaster position="bottom-right" />
       <ConditionalAuthWrapper authUrl="/api/auth">
         <BrowserRouter basename="/">
             <Routes>

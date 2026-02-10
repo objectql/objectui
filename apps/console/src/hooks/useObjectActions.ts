@@ -14,6 +14,7 @@
 import { useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useActionRunner } from '@object-ui/react';
+import { toast } from 'sonner';
 import type { ActionDef, ActionResult } from '@object-ui/core';
 
 interface ObjectActionConfig {
@@ -76,8 +77,12 @@ export function useObjectActions({
       try {
         await dataSource.delete(objectName, recordId);
         onRefresh?.();
+        toast.success(`${objectLabel || objectName} deleted successfully`);
         return { success: true, reload: true };
       } catch (err: any) {
+        toast.error(`Failed to delete ${objectLabel || objectName}`, {
+          description: err.message,
+        });
         return { success: false, error: err.message };
       }
     });
