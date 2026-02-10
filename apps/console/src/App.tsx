@@ -38,6 +38,7 @@ import { ThemeProvider } from './components/theme-provider';
 export function AppContent() {
   const [dataSource, setDataSource] = useState<ObjectStackAdapter | null>(null);
   const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected');
+  const { user } = useAuth();
   
   // App Selection
   const navigate = useNavigate();
@@ -145,7 +146,6 @@ export function AppContent() {
   );
 
   // Expression context for dynamic visibility/disabled/hidden expressions
-  const { user } = useAuth();
   const expressionUser = user
     ? { name: user.name, email: user.email, role: user.role ?? 'user' }
     : { name: 'Anonymous', email: '', role: 'guest' };
