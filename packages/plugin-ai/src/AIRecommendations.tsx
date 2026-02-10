@@ -13,13 +13,17 @@ import { Sparkles, Star, ExternalLink, X, ThumbsUp, ThumbsDown } from 'lucide-re
 
 export interface AIRecommendationsProps {
   schema: AIRecommendationsSchema;
+  /** Callback when a recommendation is selected */
+  onSelect?: (item: AIRecommendationItem) => void;
+  /** Callback when a recommendation is dismissed */
+  onDismiss?: (item: AIRecommendationItem) => void;
 }
 
 /**
  * AIRecommendations - AI-powered recommendation component
  * Displays intelligent recommendations based on context and user behavior.
  */
-export const AIRecommendations: React.FC<AIRecommendationsProps> = ({ schema }) => {
+export const AIRecommendations: React.FC<AIRecommendationsProps> = ({ schema, onSelect, onDismiss }) => {
   const {
     recommendations = [],
     showScores = false,
@@ -29,11 +33,11 @@ export const AIRecommendations: React.FC<AIRecommendationsProps> = ({ schema }) 
   } = schema;
 
   const handleSelect = (item: AIRecommendationItem) => {
-    console.log('Selected recommendation:', item);
+    onSelect?.(item);
   };
 
   const handleDismiss = (item: AIRecommendationItem) => {
-    console.log('Dismissed recommendation:', item);
+    onDismiss?.(item);
   };
 
   if (loading) {

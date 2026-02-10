@@ -16,13 +16,15 @@ import { exportReport } from './ReportExportEngine';
 
 export interface ReportViewerProps {
   schema: ReportViewerSchema;
+  /** Callback to refresh data */
+  onRefresh?: () => void;
 }
 
 /**
  * ReportViewer - Display a generated report with optional toolbar
  * Supports rendering report sections, charts, tables, and export functionality
  */
-export const ReportViewer: React.FC<ReportViewerProps> = ({ schema }) => {
+export const ReportViewer: React.FC<ReportViewerProps> = ({ schema, onRefresh }) => {
   const { 
     report, 
     data, 
@@ -43,13 +45,26 @@ export const ReportViewer: React.FC<ReportViewerProps> = ({ schema }) => {
   };
 
   const handlePrint = () => {
-    console.log('Print report');
     window.print();
   };
 
   const handleRefresh = () => {
-    console.log('Refresh report');
-    // TODO: Trigger data refresh
+    onRefresh?.();
+  };
+
+  const computeAggregation = (fieldName: string, aggregation?: string): string | number => {
+    if (!data) return 0;
+    const values = data.map(item => Number(item[fieldName]) || 0);
+    switch (aggregation) {
+      case 'count': return data.length;
+      case 'sum': return values.reduce((sum, v) => sum + v, 0);
+      case 'avg': return values.length > 0
+        ? (values.reduce((sum, v) => sum + v, 0) / values.length).toFixed(2)
+        : 0;
+      case 'min': return values.length > 0 ? Math.min(...values) : 0;
+      case 'max': return values.length > 0 ? Math.max(...values) : 0;
+      default: return '';
+    }
   };
 
   if (!report) {
@@ -158,10 +173,7 @@ export const ReportViewer: React.FC<ReportViewerProps> = ({ schema }) => {
                           <CardContent className="p-4">
                             <div className="text-sm text-muted-foreground">{field.label || field.name}</div>
                             <div className="text-2xl font-bold">
-                              {/* Calculate aggregation from data */}
-                              {field.aggregation === 'count' && data?.length}
-                              {field.aggregation === 'sum' && data?.reduce((sum, item) => sum + (item[field.name] || 0), 0)}
-                              {/* TODO: Implement other aggregations */}
+                              {computeAggregation(field.name, field.aggregation)}
                             </div>
                           </CardContent>
                         </Card>

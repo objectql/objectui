@@ -9,6 +9,7 @@
 import * as React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@object-ui/components';
 import { SchemaRenderer } from '@object-ui/react';
+import type { DataSource } from '@object-ui/types';
 
 export interface RelatedListProps {
   title: string;
@@ -18,6 +19,7 @@ export interface RelatedListProps {
   schema?: any;
   columns?: any[];
   className?: string;
+  dataSource?: DataSource;
 }
 
 export const RelatedList: React.FC<RelatedListProps> = ({
@@ -28,18 +30,41 @@ export const RelatedList: React.FC<RelatedListProps> = ({
   schema,
   columns,
   className,
+  dataSource,
 }) => {
-  const [relatedData] = React.useState(data);
+  const [relatedData, setRelatedData] = React.useState(data);
   const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     if (api && !data.length) {
       setLoading(true);
-      // TODO: Fetch data from API
-      // This would integrate with the data provider
-      setLoading(false);
+      if (dataSource) {
+        dataSource.find(api).then((result) => {
+          const items = Array.isArray(result)
+            ? result
+            : Array.isArray((result as any)?.data)
+              ? (result as any).data
+              : [];
+          setRelatedData(items);
+          setLoading(false);
+        }).catch((err) => {
+          console.error('Failed to fetch related data:', err);
+          setLoading(false);
+        });
+      } else {
+        fetch(api)
+          .then(res => res.json())
+          .then(result => {
+            const items = Array.isArray(result) ? result : (result?.data || []);
+            setRelatedData(items);
+          })
+          .catch(err => {
+            console.error('Failed to fetch related data:', err);
+          })
+          .finally(() => setLoading(false));
+      }
     }
-  }, [api, data]);
+  }, [api, data, dataSource]);
 
   const viewSchema = React.useMemo(() => {
     if (schema) return schema;

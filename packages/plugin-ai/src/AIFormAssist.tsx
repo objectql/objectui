@@ -13,13 +13,17 @@ import { Sparkles, Check, X, RefreshCw, Lightbulb } from 'lucide-react';
 
 export interface AIFormAssistProps {
   schema: AIFormAssistSchema;
+  /** Callback when a suggestion is applied */
+  onApply?: (suggestion: AIFieldSuggestion) => void;
+  /** Callback when suggestions are refreshed */
+  onRefresh?: () => void;
 }
 
 /**
  * AIFormAssist - AI-powered form filling assistant
  * Provides intelligent field suggestions based on context and historical data.
  */
-export const AIFormAssist: React.FC<AIFormAssistProps> = ({ schema }) => {
+export const AIFormAssist: React.FC<AIFormAssistProps> = ({ schema, onApply, onRefresh }) => {
   const {
     suggestions: initialSuggestions = [],
     showConfidence = true,
@@ -33,12 +37,12 @@ export const AIFormAssist: React.FC<AIFormAssistProps> = ({ schema }) => {
   const [loading, setLoading] = useState(false);
 
   const handleApply = (suggestion: AIFieldSuggestion) => {
-    console.log('Apply suggestion:', suggestion);
+    onApply?.(suggestion);
     setAppliedFields(prev => new Set(prev).add(suggestion.fieldName));
   };
 
   const handleApplyAll = () => {
-    console.log('Apply all suggestions:', suggestions);
+    suggestions.forEach(s => onApply?.(s));
     setAppliedFields(new Set(suggestions.map(s => s.fieldName)));
   };
 
@@ -48,8 +52,9 @@ export const AIFormAssist: React.FC<AIFormAssistProps> = ({ schema }) => {
 
   const handleRefresh = () => {
     setLoading(true);
-    console.log('Refreshing AI suggestions...');
-    // Simulate AI response
+    if (onRefresh) {
+      onRefresh();
+    }
     setTimeout(() => setLoading(false), 1000);
   };
 
