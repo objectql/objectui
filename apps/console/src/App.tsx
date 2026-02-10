@@ -218,14 +218,14 @@ export function AppContent() {
       </ErrorBoundary>
 
        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="sm:max-w-xl max-h-[90vh] flex flex-col gap-0 p-0 overflow-hidden">
-             <DialogHeader className="p-6 pb-4 border-b">
-                <DialogTitle>{editingRecord ? 'Edit' : 'Create'} {currentObjectDef?.label}</DialogTitle>
-                <DialogDescription>
+          <DialogContent className="sm:max-w-xl max-h-[90vh] flex flex-col gap-0 p-0 overflow-hidden w-[calc(100vw-2rem)] sm:w-full">
+             <DialogHeader className="p-4 sm:p-6 pb-3 sm:pb-4 border-b">
+                <DialogTitle className="text-lg sm:text-xl">{editingRecord ? 'Edit' : 'Create'} {currentObjectDef?.label}</DialogTitle>
+                <DialogDescription className="text-sm">
                     {editingRecord ? `Update details for ${currentObjectDef?.label}` : `Add a new ${currentObjectDef?.label} to your database.`}
                 </DialogDescription>
              </DialogHeader>
-             <div className="flex-1 overflow-y-auto p-6">
+             <div className="flex-1 overflow-y-auto p-4 sm:p-6">
                 {currentObjectDef && (
                     <ObjectForm
                         key={editingRecord?.id || 'new'}

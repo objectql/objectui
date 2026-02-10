@@ -56,12 +56,12 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
 
   return (
     <div className="h-full bg-background overflow-hidden flex flex-col relative">
-      <div className="absolute top-4 right-4 z-50">
+      <div className="absolute top-2 sm:top-4 right-2 sm:right-4 z-50">
         <MetadataToggle open={showDebug} onToggle={toggleDebug} />
       </div>
 
       <div className="flex-1 overflow-hidden flex flex-row">
-        <div className="flex-1 overflow-auto p-4 lg:p-6">
+        <div className="flex-1 overflow-auto p-3 sm:p-4 lg:p-6">
           <DetailView
             schema={detailSchema}
             dataSource={dataSource}

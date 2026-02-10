@@ -35,7 +35,7 @@ export function PageView() {
   return (
     <div className="flex flex-row h-full w-full overflow-hidden relative">
         <div className="flex-1 overflow-auto h-full relative group">
-             <div className={`absolute top-2 right-2 z-50 transition-opacity ${showDebug ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+             <div className={`absolute top-1.5 sm:top-2 right-1.5 sm:right-2 z-50 transition-opacity ${showDebug ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                  <MetadataToggle open={showDebug} onToggle={toggleDebug} />
              </div>
              <SchemaRenderer 

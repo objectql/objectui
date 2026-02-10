@@ -135,12 +135,12 @@ export function AppShell({
     <SidebarProvider defaultOpen={defaultOpen}>
       {sidebar}
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
+        <header className="flex h-14 sm:h-16 shrink-0 items-center gap-2 border-b bg-background px-2 sm:px-4">
           <SidebarTrigger className="-ml-1" />
-          <div className="w-px h-4 bg-border mx-2" />
+          <div className="w-px h-4 bg-border mx-1 sm:mx-2" />
           {navbar}
         </header>
-        <main className={cn("flex-1 overflow-auto p-4 md:p-6", className)}>
+        <main className={cn("flex-1 overflow-auto p-3 sm:p-4 md:p-6", className)}>
           {children}
         </main>
       </SidebarInset>
