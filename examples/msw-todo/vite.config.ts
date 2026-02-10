@@ -1,9 +1,13 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { viteCryptoStub } from '../../scripts/vite-crypto-stub';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    viteCryptoStub(),
+    react(),
+  ],
   server: {
     port: 3000,
   },
@@ -35,14 +39,6 @@ export default defineConfig({
           return;
         }
         warn(warning);
-      },
-      // @objectstack/core@2.0.4 statically imports Node.js crypto (for plugin hashing).
-      // The code already has a browser fallback, so we treat it as external in the browser build.
-      external: ['crypto'],
-      output: {
-        globals: {
-          crypto: '{}',
-        },
       },
     }
   }

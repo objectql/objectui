@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { viteCryptoStub } from '../../scripts/vite-crypto-stub';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,7 +12,10 @@ export default defineConfig({
     'process.version': '"0.0.0"',
   },
 
-  plugins: [react()],
+  plugins: [
+    viteCryptoStub(),
+    react(),
+  ],
   resolve: {
     extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json'],
     alias: {
@@ -73,14 +77,6 @@ export default defineConfig({
       transformMixedEsModules: true
     },
     rollupOptions: {
-      // @objectstack/core@2.0.4 statically imports Node.js crypto (for plugin hashing).
-      // The code already has a browser fallback, so we treat it as external in the browser build.
-      external: ['crypto'],
-      output: {
-        globals: {
-          crypto: '{}',
-        },
-      },
       onwarn(warning, warn) {
         if (
           warning.code === 'UNRESOLVED_IMPORT' &&
