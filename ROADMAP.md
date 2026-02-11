@@ -1,6 +1,6 @@
 # ObjectUI Development Roadmap
 
-> **Last Updated:** February 12, 2026  
+> **Last Updated:** February 11, 2026  
 > **Current Version:** v0.5.x  
 > **Target Version:** v2.0.0  
 > **Spec Version:** @objectstack/spec v2.0.7  
