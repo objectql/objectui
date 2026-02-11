@@ -572,7 +572,7 @@ export const ListView: React.FC<ListViewProps> = ({
       {/* Filters Panel - Removed as it is now in Popover */}
 
       {/* View Content */}
-      <div className="flex-1 min-h-0 bg-background relative overflow-hidden">
+      <div key={currentView} className="flex-1 min-h-0 bg-background relative overflow-hidden animate-in fade-in-0 duration-200">
         <SchemaRenderer 
           schema={viewComponentSchema} 
           {...props} 
