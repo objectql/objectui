@@ -839,6 +839,184 @@ export type {
 } from '@objectstack/spec';
 
 // ============================================================================
+// v2.0.7 Spec UI Types — Drag and Drop
+// ============================================================================
+export type {
+  DndConfig,
+  DndConfigSchema,
+  DragItem,
+  DragItemSchema,
+  DropZone,
+  DropZoneSchema,
+  DragConstraint,
+  DragConstraintSchema,
+  DragHandle,
+  DragHandleSchema,
+  DropEffect,
+  DropEffectSchema,
+} from '@objectstack/spec/ui';
+
+// ============================================================================
+// v2.0.7 Spec UI Types — Focus & Keyboard Navigation
+// ============================================================================
+export type {
+  FocusManagement,
+  FocusManagementSchema,
+  FocusTrapConfig,
+  FocusTrapConfigSchema,
+  KeyboardNavigationConfig,
+  KeyboardNavigationConfigSchema,
+  KeyboardShortcut,
+  KeyboardShortcutSchema,
+} from '@objectstack/spec/ui';
+
+// ============================================================================
+// v2.0.7 Spec UI Types — Animation & Motion
+// ============================================================================
+export type {
+  ComponentAnimation,
+  ComponentAnimationSchema,
+  AnimationTrigger,
+  AnimationTriggerSchema,
+  MotionConfig,
+  MotionConfigSchema,
+  TransitionConfig,
+  TransitionConfigSchema,
+  TransitionPreset,
+  TransitionPresetSchema,
+  EasingFunction,
+  EasingFunctionSchema,
+} from '@objectstack/spec/ui';
+
+// ============================================================================
+// v2.0.7 Spec UI Types — Notifications
+// ============================================================================
+export type {
+  Notification,
+  NotificationSchema,
+  NotificationConfig,
+  NotificationConfigSchema,
+  NotificationAction,
+  NotificationActionSchema,
+  NotificationPosition,
+  NotificationPositionSchema,
+  NotificationSeverity,
+  NotificationSeveritySchema,
+  NotificationType,
+  NotificationTypeSchema,
+} from '@objectstack/spec/ui';
+
+// ============================================================================
+// v2.0.7 Spec UI Types — Gestures & Touch
+// ============================================================================
+export type {
+  GestureConfig as SpecGestureConfig,
+  GestureConfigSchema as SpecGestureConfigSchema,
+  GestureType as SpecGestureType,
+  GestureTypeSchema as SpecGestureTypeSchema,
+  SwipeGestureConfig,
+  SwipeGestureConfigSchema,
+  SwipeDirection,
+  SwipeDirectionSchema,
+  PinchGestureConfig,
+  PinchGestureConfigSchema,
+  LongPressGestureConfig,
+  LongPressGestureConfigSchema,
+  TouchInteraction,
+  TouchInteractionSchema,
+  TouchTargetConfig,
+  TouchTargetConfigSchema,
+} from '@objectstack/spec/ui';
+
+// ============================================================================
+// v2.0.7 Spec UI Types — Offline & Sync
+// ============================================================================
+export type {
+  OfflineConfig as SpecOfflineConfig,
+  OfflineConfigSchema as SpecOfflineConfigSchema,
+  OfflineCacheConfig,
+  OfflineCacheConfigSchema,
+  OfflineStrategy,
+  OfflineStrategySchema,
+  SyncConfig,
+  SyncConfigSchema,
+  ConflictResolution,
+  ConflictResolutionSchema,
+  PersistStorage,
+  PersistStorageSchema,
+  EvictionPolicy,
+  EvictionPolicySchema,
+} from '@objectstack/spec/ui';
+
+// ============================================================================
+// v2.0.7 Spec UI Types — View Enhancements
+// ============================================================================
+export type {
+  ColumnSummary,
+  ColumnSummarySchema,
+  GalleryConfig,
+  GalleryConfigSchema,
+  GroupingConfig,
+  GroupingConfigSchema,
+  RowColorConfig,
+  RowColorConfigSchema,
+  RowHeight,
+  RowHeightSchema,
+  DensityMode,
+  ViewSharing,
+  ViewSharingSchema,
+} from '@objectstack/spec/ui';
+
+// ============================================================================
+// v2.0.7 Spec UI Types — Performance & Page Transitions
+// ============================================================================
+export type {
+  PerformanceConfig,
+  PerformanceConfigSchema,
+  PageTransition,
+  PageTransitionSchema,
+  PageComponentType,
+} from '@objectstack/spec/ui';
+
+// ============================================================================
+// v2.0.7 Spec UI Types — Accessibility
+// ============================================================================
+export type {
+  AriaProps,
+  AriaPropsSchema,
+  WcagContrastLevel,
+} from '@objectstack/spec/ui';
+
+// ============================================================================
+// v2.0.7 Spec UI Types — I18n
+// ============================================================================
+export type {
+  I18nLabel,
+  I18nLabelSchema,
+  I18nObject,
+  I18nObjectSchema,
+  LocaleConfig,
+  LocaleConfigSchema,
+  PluralRule,
+  PluralRuleSchema,
+  DateFormat,
+  DateFormatSchema,
+  NumberFormat,
+  NumberFormatSchema,
+} from '@objectstack/spec/ui';
+
+// ============================================================================
+// v2.0.7 Spec UI Types — Responsive Design
+// ============================================================================
+export type {
+  ResponsiveConfig as SpecResponsiveConfig,
+  ResponsiveConfigSchema as SpecResponsiveConfigSchema,
+  BreakpointColumnMapSchema,
+  BreakpointOrderMapSchema,
+  BreakpointName as SpecBreakpointName,
+} from '@objectstack/spec/ui';
+
+// ============================================================================
 // Widget System - Runtime Widget Registration (Section 1.6)
 // ============================================================================
 /**
