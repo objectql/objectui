@@ -38,7 +38,7 @@ BlockSchema enables:
           {
             type: "div",
             className: "w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center",
-            children: [{ type: "icon", name: "Zap", className: "h-6 w-6 text-primary" }]
+            children: [{ type: "icon", name: "zap", className: "h-6 w-6 text-primary" }]
           },
           { type: "text", content: "Fast Performance", className: "text-lg font-semibold" },
           { type: "text", content: "Lightning-fast response times with optimized bundle sizes and edge caching support.", className: "text-sm text-muted-foreground" },
@@ -66,7 +66,7 @@ BlockSchema enables:
             spacing: 3,
             className: "items-center text-center p-4",
             children: [
-              { type: "div", className: "w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center", children: [{ type: "icon", name: "Shield", className: "h-6 w-6 text-green-600" }] },
+              { type: "div", className: "w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center", children: [{ type: "icon", name: "shield", className: "h-6 w-6 text-green-600" }] },
               { type: "text", content: "Enterprise Security", className: "text-lg font-semibold" },
               { type: "text", content: "Bank-grade encryption and SOC 2 compliance built in.", className: "text-sm text-muted-foreground" },
               { type: "button", label: "See Certifications", variant: "outline", size: "sm" }
@@ -110,7 +110,7 @@ BlockSchema enables:
       {
         type: "div",
         className: "h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-t-lg flex items-center justify-center",
-        children: [{ type: "icon", name: "LayoutTemplate", className: "h-12 w-12 text-primary/60" }]
+        children: [{ type: "icon", name: "layout-template", className: "h-12 w-12 text-primary/60" }]
       },
       {
         type: "stack",
@@ -266,7 +266,7 @@ const cardBlock: BlockSchema = {
     label: 'Feature Card',
     description: 'A card component for highlighting product features',
     category: 'Marketing',
-    icon: 'Box',
+    icon: 'box',
     tags: ['card', 'feature', 'marketing', 'product'],
     author: 'ObjectUI Team',
     version: '1.0.0',
@@ -296,9 +296,9 @@ const cardBlock: BlockSchema = {
       name: 'icon',
       label: 'Icon',
       type: 'string',
-      defaultValue: 'Star',
+      defaultValue: 'star',
       description: 'Lucide icon name',
-      enum: ['Star', 'Heart', 'Check', 'Zap', 'Shield']
+      enum: ['star', 'heart', 'check', 'zap', 'shield']
     },
     {
       name: 'variant',
@@ -408,7 +408,7 @@ const instance: BlockInstanceSchema = {
   values: {
     title: 'Fast Performance',
     description: 'Lightning-fast response times',
-    icon: 'Zap',
+    icon: 'zap',
     variant: 'filled',
     showButton: true,
     buttonText: 'See Benchmarks'
@@ -503,7 +503,7 @@ const marketplace: BlockLibrarySchema = {
         label: 'Pricing Table Pro',
         description: 'Professional pricing comparison table',
         category: 'Marketing',
-        icon: 'DollarSign',
+        icon: 'dollar-sign',
         tags: ['pricing', 'saas', 'comparison'],
         author: 'ObjectUI Team',
         version: '2.1.0',

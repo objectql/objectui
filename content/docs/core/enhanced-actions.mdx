@@ -34,9 +34,9 @@ The enhanced `ActionSchema` provides:
         type: "flex",
         className: "gap-2 flex-wrap",
         children: [
-          { type: "button", label: "Submit", variant: "default", icon: "Send" },
-          { type: "button", label: "Save Draft", variant: "outline", icon: "Save" },
-          { type: "button", label: "Delete", variant: "destructive", icon: "Trash2" },
+          { type: "button", label: "Submit", variant: "default", icon: "send" },
+          { type: "button", label: "Save Draft", variant: "outline", icon: "save" },
+          { type: "button", label: "Delete", variant: "destructive", icon: "trash-2" },
           { type: "button", label: "Cancel", variant: "ghost" }
         ]
       }
@@ -68,7 +68,7 @@ The enhanced `ActionSchema` provides:
         className: "justify-end gap-2 pt-4",
         children: [
           { type: "button", label: "Cancel", variant: "outline" },
-          { type: "button", label: "Yes, Delete", variant: "destructive", icon: "Trash2" }
+          { type: "button", label: "Yes, Delete", variant: "destructive", icon: "trash-2" }
         ]
       }
     ]
@@ -118,8 +118,8 @@ The enhanced `ActionSchema` provides:
         className: "justify-end gap-2 pt-4 border-t mt-4",
         children: [
           { type: "button", label: "Reject", variant: "outline", size: "sm" },
-          { type: "button", label: "Request Review", variant: "secondary", size: "sm", icon: "Eye" },
-          { type: "button", label: "Approve", variant: "default", size: "sm", icon: "Check" }
+          { type: "button", label: "Request Review", variant: "secondary", size: "sm", icon: "eye" },
+          { type: "button", label: "Approve", variant: "default", size: "sm", icon: "check" }
         ]
       }
     ]
@@ -396,7 +396,7 @@ A comprehensive action combining multiple features:
 const complexAction: ActionSchema = {
   type: 'action',
   label: 'Process Order',
-  icon: 'ShoppingCart',
+  icon: 'shopping-cart',
   variant: 'default',
   
   // Confirm before processing
