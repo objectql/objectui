@@ -9,6 +9,7 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import type { FormField } from '@objectstack/spec/ui';
+import { resolveI18nLabel } from '../../utils/i18n';
 
 /**
  * Extended form field with additional properties for complex widgets
@@ -58,6 +59,11 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
   const widgetType = field.widget || 'text';
   const fieldName = field.field;
   const error = errors[fieldName];
+  
+  // Resolve I18nLabel values to plain strings
+  const fieldLabel = resolveI18nLabel(field.label);
+  const fieldPlaceholder = resolveI18nLabel(field.placeholder);
+  const fieldHelpText = resolveI18nLabel(field.helpText);
 
   // Helper function to handle multiple select value conversion
   const handleMultipleSelectValue = (value: any) => {
@@ -77,15 +83,15 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
   // Common field wrapper
   const renderField = (input: React.ReactNode) => (
     <div className="space-y-2">
-      {field.label && (
+      {fieldLabel && (
         <label htmlFor={fieldName} className="block text-sm font-medium text-gray-700">
-          {field.label}
+          {fieldLabel}
           {field.required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
       {input}
-      {field.helpText && (
-        <p className="text-sm text-gray-500">{field.helpText}</p>
+      {fieldHelpText && (
+        <p className="text-sm text-gray-500">{fieldHelpText}</p>
       )}
       {error && (
         <p className="text-sm text-red-600">{error.message as string}</p>
@@ -105,11 +111,11 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
         <input
           id={fieldName}
           type={widgetType === 'string' ? 'text' : widgetType}
-          placeholder={field.placeholder}
+          placeholder={fieldPlaceholder}
           disabled={disabled}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           {...register(fieldName, {
-            required: field.required ? `${field.label || fieldName} is required` : false,
+            required: field.required ? `${fieldLabel || fieldName} is required` : false,
           })}
         />
       );
@@ -121,12 +127,12 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
         <input
           id={fieldName}
           type="number"
-          placeholder={field.placeholder}
+          placeholder={fieldPlaceholder}
           disabled={disabled}
           step={widgetType === 'integer' ? '1' : 'any'}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           {...register(fieldName, {
-            required: field.required ? `${field.label || fieldName} is required` : false,
+            required: field.required ? `${fieldLabel || fieldName} is required` : false,
             valueAsNumber: true,
           })}
         />
@@ -144,14 +150,14 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
             {...register(fieldName)}
           />
           <div className="flex-1">
-            {field.label && (
+            {fieldLabel && (
               <label htmlFor={fieldName} className="text-sm font-medium text-gray-700">
-                {field.label}
+                {fieldLabel}
                 {field.required && <span className="text-red-500 ml-1">*</span>}
               </label>
             )}
-            {field.helpText && (
-              <p className="text-sm text-gray-500 mt-1">{field.helpText}</p>
+            {fieldHelpText && (
+              <p className="text-sm text-gray-500 mt-1">{fieldHelpText}</p>
             )}
             {error && (
               <p className="text-sm text-red-600 mt-1">{error.message as string}</p>
@@ -164,12 +170,12 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
       return renderField(
         <textarea
           id={fieldName}
-          placeholder={field.placeholder}
+          placeholder={fieldPlaceholder}
           disabled={disabled}
           rows={4}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           {...register(fieldName, {
-            required: field.required ? `${field.label || fieldName} is required` : false,
+            required: field.required ? `${fieldLabel || fieldName} is required` : false,
           })}
         />
       );
@@ -183,11 +189,11 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
           multiple={extendedField.multiple}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           {...register(fieldName, {
-            required: field.required ? `${field.label || fieldName} is required` : false,
+            required: field.required ? `${fieldLabel || fieldName} is required` : false,
             setValueAs: handleMultipleSelectValue,
           })}
         >
-          {!extendedField.multiple && <option value="">{field.placeholder || 'Select an option'}</option>}
+          {!extendedField.multiple && <option value="">{fieldPlaceholder || 'Select an option'}</option>}
           {extendedField.options?.map((option) => (
             <option key={option.value} value={option.value} disabled={option.disabled}>
               {option.label}
@@ -201,11 +207,11 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
         <input
           id={fieldName}
           type="date"
-          placeholder={field.placeholder}
+          placeholder={fieldPlaceholder}
           disabled={disabled}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           {...register(fieldName, {
-            required: field.required ? `${field.label || fieldName} is required` : false,
+            required: field.required ? `${fieldLabel || fieldName} is required` : false,
           })}
         />
       );
@@ -216,11 +222,11 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
         <input
           id={fieldName}
           type="datetime-local"
-          placeholder={field.placeholder}
+          placeholder={fieldPlaceholder}
           disabled={disabled}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           {...register(fieldName, {
-            required: field.required ? `${field.label || fieldName} is required` : false,
+            required: field.required ? `${fieldLabel || fieldName} is required` : false,
           })}
         />
       );
@@ -230,11 +236,11 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
         <input
           id={fieldName}
           type="time"
-          placeholder={field.placeholder}
+          placeholder={fieldPlaceholder}
           disabled={disabled}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           {...register(fieldName, {
-            required: field.required ? `${field.label || fieldName} is required` : false,
+            required: field.required ? `${fieldLabel || fieldName} is required` : false,
           })}
         />
       );
@@ -246,12 +252,12 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
           <input
             id={fieldName}
             type="number"
-            placeholder={field.placeholder}
+            placeholder={fieldPlaceholder}
             disabled={disabled}
             step="0.01"
             className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
             {...register(fieldName, {
-              required: field.required ? `${field.label || fieldName} is required` : false,
+              required: field.required ? `${fieldLabel || fieldName} is required` : false,
               valueAsNumber: true,
             })}
           />
@@ -264,14 +270,14 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
           <input
             id={fieldName}
             type="number"
-            placeholder={field.placeholder}
+            placeholder={fieldPlaceholder}
             disabled={disabled}
             step="0.01"
             min="0"
             max="100"
             className="w-full pr-8 pl-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
             {...register(fieldName, {
-              required: field.required ? `${field.label || fieldName} is required` : false,
+              required: field.required ? `${fieldLabel || fieldName} is required` : false,
               valueAsNumber: true,
             })}
           />
@@ -284,11 +290,11 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
         <input
           id={fieldName}
           type="tel"
-          placeholder={field.placeholder || '+1 (555) 000-0000'}
+          placeholder={fieldPlaceholder || '+1 (555) 000-0000'}
           disabled={disabled}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           {...register(fieldName, {
-            required: field.required ? `${field.label || fieldName} is required` : false,
+            required: field.required ? `${fieldLabel || fieldName} is required` : false,
           })}
         />
       );
@@ -297,12 +303,12 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
       return renderField(
         <textarea
           id={fieldName}
-          placeholder={field.placeholder || 'Enter markdown text...'}
+          placeholder={fieldPlaceholder || 'Enter markdown text...'}
           disabled={disabled}
           rows={8}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed font-mono"
           {...register(fieldName, {
-            required: field.required ? `${field.label || fieldName} is required` : false,
+            required: field.required ? `${fieldLabel || fieldName} is required` : false,
           })}
         />
       );
@@ -311,12 +317,12 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
       return renderField(
         <textarea
           id={fieldName}
-          placeholder={field.placeholder || 'Enter HTML...'}
+          placeholder={fieldPlaceholder || 'Enter HTML...'}
           disabled={disabled}
           rows={8}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed font-mono"
           {...register(fieldName, {
-            required: field.required ? `${field.label || fieldName} is required` : false,
+            required: field.required ? `${fieldLabel || fieldName} is required` : false,
           })}
         />
       );
@@ -331,7 +337,7 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
           accept={extendedField.accept?.join(',')}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
           {...register(fieldName, {
-            required: field.required ? `${field.label || fieldName} is required` : false,
+            required: field.required ? `${fieldLabel || fieldName} is required` : false,
           })}
         />
       );
@@ -346,7 +352,7 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
           accept={extendedField.accept?.join(',') || 'image/*'}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
           {...register(fieldName, {
-            required: field.required ? `${field.label || fieldName} is required` : false,
+            required: field.required ? `${fieldLabel || fieldName} is required` : false,
           })}
         />
       );
@@ -390,11 +396,11 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
           multiple={extendedField.multiple}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           {...register(fieldName, {
-            required: field.required ? `${field.label || fieldName} is required` : false,
+            required: field.required ? `${fieldLabel || fieldName} is required` : false,
             setValueAs: handleMultipleSelectValue,
           })}
         >
-          {!extendedField.multiple && <option value="">{field.placeholder || 'Select an option'}</option>}
+          {!extendedField.multiple && <option value="">{fieldPlaceholder || 'Select an option'}</option>}
           {extendedField.options?.map((option) => (
             <option key={option.value} value={option.value} disabled={option.disabled}>
               {option.label}
@@ -412,11 +418,11 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
           multiple={extendedField.multiple}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           {...register(fieldName, {
-            required: field.required ? `${field.label || fieldName} is required` : false,
+            required: field.required ? `${fieldLabel || fieldName} is required` : false,
             setValueAs: handleMultipleSelectValue,
           })}
         >
-          {!extendedField.multiple && <option value="">{field.placeholder || 'Select user'}</option>}
+          {!extendedField.multiple && <option value="">{fieldPlaceholder || 'Select user'}</option>}
           {extendedField.options?.map((option) => (
             <option key={option.value} value={option.value} disabled={option.disabled}>
               {option.label}
@@ -443,12 +449,12 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
       return renderField(
         <textarea
           id={fieldName}
-          placeholder={field.placeholder || 'Enter JSON object...'}
+          placeholder={fieldPlaceholder || 'Enter JSON object...'}
           disabled={disabled}
           rows={6}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed font-mono text-sm"
           {...register(fieldName, {
-            required: field.required ? `${field.label || fieldName} is required` : false,
+            required: field.required ? `${fieldLabel || fieldName} is required` : false,
             validate: (value) => {
               if (!value) return true;
               try {
@@ -468,7 +474,7 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
         <input
           id={fieldName}
           type="text"
-          placeholder={field.placeholder || 'Vector data (read-only)'}
+          placeholder={fieldPlaceholder || 'Vector data (read-only)'}
           disabled={true}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 cursor-not-allowed text-gray-600"
           {...register(fieldName)}
@@ -489,11 +495,11 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
         <input
           id={fieldName}
           type="text"
-          placeholder={field.placeholder}
+          placeholder={fieldPlaceholder}
           disabled={disabled}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           {...register(fieldName, {
-            required: field.required ? `${field.label || fieldName} is required` : false,
+            required: field.required ? `${fieldLabel || fieldName} is required` : false,
           })}
         />
       );

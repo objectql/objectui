@@ -49,6 +49,7 @@ import appConfig from '../../objectstack.shared';
 import { useExpressionContext, evaluateVisibility } from '../context/ExpressionProvider';
 import { useAuth, getUserInitials } from '@object-ui/auth';
 import { useRecentItems } from '../hooks/useRecentItems';
+import { resolveI18nLabel } from '../utils';
 
 /**
  * Resolve a Lucide icon component by name string.
@@ -107,15 +108,15 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
                   >
                      {/* App Logo - use branding logo if available */}
                      {logo ? (
-                       <img src={logo} alt={activeApp.label} className="size-6 object-contain" />
+                       <img src={logo} alt={resolveI18nLabel(activeApp.label)} className="size-6 object-contain" />
                      ) : (
                        React.createElement(getIcon(activeApp.icon), { className: "size-4" })
                      )}
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">{activeApp.label}</span>
+                    <span className="truncate font-semibold">{resolveI18nLabel(activeApp.label)}</span>
                     <span className="truncate text-xs">
-                      {activeApp.description || `${activeApps.length} Apps Available`}
+                      {resolveI18nLabel(activeApp.description) || `${activeApps.length} Apps Available`}
                     </span>
                   </div>
                   <ChevronsUpDown className="ml-auto" />

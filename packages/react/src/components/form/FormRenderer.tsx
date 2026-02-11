@@ -11,6 +11,7 @@ import { useForm, FormProvider, UseFormReturn } from 'react-hook-form';
 import type { FormView, FormSection } from '@objectstack/spec/ui';
 import { FieldFactory } from './FieldFactory';
 import { ExpressionEvaluator } from '@object-ui/core';
+import { resolveI18nLabel } from '../../utils/i18n';
 
 export interface FormRendererProps {
   /**
@@ -213,7 +214,7 @@ const FormSectionRenderer: React.FC<FormSectionRendererProps> = ({
           }`}
           onClick={handleToggleCollapse}
         >
-          <h3 className="text-lg font-semibold">{section.label}</h3>
+          <h3 className="text-lg font-semibold">{resolveI18nLabel(section.label)}</h3>
           {section.collapsible && (
             <span className="text-sm text-gray-500">
               {isCollapsed ? '▶' : '▼'}
