@@ -104,7 +104,7 @@ describe('ObjectView', () => {
       expect(screen.getByText('Manage your contacts')).toBeDefined();
     });
 
-    it('should render search box by default', () => {
+    it('should render search button by default', () => {
       const schema: ObjectViewSchema = {
         type: 'object-view',
         objectName: 'contacts',
@@ -112,7 +112,7 @@ describe('ObjectView', () => {
 
       render(<ObjectView schema={schema} dataSource={mockDataSource} />);
 
-      expect(screen.getByPlaceholderText(/search/i)).toBeDefined();
+      expect(screen.getByRole('button', { name: /search/i })).toBeDefined();
     });
 
     it('should hide search box when showSearch is false', () => {

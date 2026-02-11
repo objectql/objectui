@@ -55,7 +55,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@object-ui/components';
-import { Plus, Search, RefreshCw } from 'lucide-react';
+import { Plus, Search, RefreshCw, SlidersHorizontal, ArrowUpDown, EyeOff, Group, Paintbrush, RulerIcon, X } from 'lucide-react';
 import { ViewSwitcher } from './ViewSwitcher';
 import { FilterUI } from './FilterUI';
 import { SortUI } from './SortUI';
@@ -212,6 +212,7 @@ export const ObjectView: React.FC<ObjectViewProps> = ({
   const [formMode, setFormMode] = useState<FormMode>('create');
   const [selectedRecord, setSelectedRecord] = useState<Record<string, unknown> | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchExpanded, setSearchExpanded] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   // Data fetching state for non-grid views
@@ -860,59 +861,138 @@ export const ObjectView: React.FC<ObjectViewProps> = ({
     const showViewSwitcherToggle = schema.showViewSwitcher === true; // Changed: default to false (hidden)
 
     return (
-      <div className="flex flex-col gap-3">
-        {/* Named view tabs (if any) */}
-        {renderNamedViewTabs()}
-
-        {/* Main toolbar row */}
-        <div className="flex items-center justify-between gap-4">
-          {/* Left side: Search */}
-          <div className="flex-1 max-w-md">
-            {showSearchBox && (
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder={`Search ${(objectSchema?.label as string) || schema.objectName}...`}
-                  value={searchQuery}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Right side: Actions */}
+      <div className="flex flex-col">
+        {/* Row 1: View tabs + ViewSwitcher */}
+        <div className="flex items-center justify-between border-b px-4 py-1">
           <div className="flex items-center gap-2">
+            {renderNamedViewTabs()}
+          </div>
+          {showViewSwitcherToggle && viewSwitcherSchema && (
+            <ViewSwitcher
+              schema={viewSwitcherSchema}
+              onViewChange={handleViewTypeChange}
+              className="overflow-x-auto"
+            />
+          )}
+        </div>
+
+        {/* Row 2: Tool buttons (Airtable-style) */}
+        <div className="flex items-center justify-between border-b px-4 py-1 gap-2">
+          {/* Left: Tool buttons */}
+          <div className="flex items-center gap-0.5 overflow-hidden">
+            {/* Hide Fields */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-muted-foreground hover:text-primary text-xs"
+              disabled
+            >
+              <EyeOff className="h-3.5 w-3.5 mr-1.5" />
+              <span className="hidden sm:inline">Hide fields</span>
+            </Button>
+
+            {/* Filter */}
             {filterSchema && (
               <FilterUI schema={filterSchema} onChange={setFilterValues} />
             )}
+
+            {/* Group */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-muted-foreground hover:text-primary text-xs"
+              disabled
+            >
+              <Group className="h-3.5 w-3.5 mr-1.5" />
+              <span className="hidden sm:inline">Group</span>
+            </Button>
+
+            {/* Sort */}
             {sortSchema && (
               <SortUI schema={sortSchema} onChange={(sort) => setSortConfig(sort ?? [])} />
             )}
+
+            {/* Color */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-muted-foreground hover:text-primary text-xs"
+              disabled
+            >
+              <Paintbrush className="h-3.5 w-3.5 mr-1.5" />
+              <span className="hidden sm:inline">Color</span>
+            </Button>
+
+            {/* Row Height */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-muted-foreground hover:text-primary text-xs hidden lg:flex"
+              disabled
+            >
+              <RulerIcon className="h-3.5 w-3.5 mr-1.5" />
+              <span className="hidden sm:inline">Row height</span>
+            </Button>
+          </div>
+
+          {/* Right: Search + Actions */}
+          <div className="flex items-center gap-1">
+            {showSearchBox && (
+              <>
+                {searchExpanded ? (
+                  <div className="relative w-48 lg:w-64">
+                    <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                    <Input
+                      type="search"
+                      placeholder={`Search ${(objectSchema?.label as string) || schema.objectName}...`}
+                      value={searchQuery}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+                      className="pl-7 h-7 text-xs"
+                      autoFocus
+                      onBlur={() => {
+                        if (!searchQuery) setSearchExpanded(false);
+                      }}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0.5 top-1/2 -translate-y-1/2 h-5 w-5 p-0 hover:bg-muted-foreground/20"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setSearchExpanded(false);
+                      }}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-muted-foreground hover:text-primary text-xs"
+                    onClick={() => setSearchExpanded(true)}
+                  >
+                    <Search className="h-3.5 w-3.5 mr-1.5" />
+                    <span className="hidden sm:inline">Search</span>
+                  </Button>
+                )}
+              </>
+            )}
+
             {showRefreshButton && (
-              <Button variant="outline" size="sm" onClick={handleRefresh}>
-                <RefreshCw className="h-4 w-4" />
+              <Button variant="ghost" size="sm" className="h-7 px-2 text-muted-foreground hover:text-primary" onClick={handleRefresh}>
+                <RefreshCw className="h-3.5 w-3.5" />
               </Button>
             )}
             {toolbarAddon}
             {showCreateButton && (
-              <Button size="sm" onClick={handleCreate}>
-                <Plus className="h-4 w-4" />
+              <Button size="sm" className="h-7 text-xs" onClick={handleCreate}>
+                <Plus className="h-3.5 w-3.5 mr-1" />
                 Create
               </Button>
             )}
           </div>
         </div>
-
-        {/* ViewSwitcher row (if multi-view via props) */}
-        {showViewSwitcherToggle && viewSwitcherSchema && (
-          <ViewSwitcher
-            schema={viewSwitcherSchema}
-            onViewChange={handleViewTypeChange}
-            className="overflow-x-auto"
-          />
-        )}
       </div>
     );
   };
