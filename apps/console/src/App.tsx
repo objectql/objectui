@@ -19,6 +19,7 @@ import { RecordDetailView } from './components/RecordDetailView';
 import { DashboardView } from './components/DashboardView';
 import { PageView } from './components/PageView';
 import { ReportView } from './components/ReportView';
+import { ViewDesignerPage } from './components/ViewDesignerPage';
 import { ExpressionProvider } from './context/ExpressionProvider';
 import { ConditionalAuthWrapper } from './components/ConditionalAuthWrapper';
 import { KeyboardShortcutsDialog } from './components/KeyboardShortcutsDialog';
@@ -244,6 +245,14 @@ export function AppContent() {
         {/* Detail Page */}
         <Route path=":objectName/record/:recordId" element={
             <RecordDetailView key={refreshKey} dataSource={dataSource} objects={allObjects} onEdit={handleEdit} />
+        } />
+
+        {/* View Designer - Create/Edit Views */}
+        <Route path=":objectName/views/new" element={
+            <ViewDesignerPage objects={allObjects} />
+        } />
+        <Route path=":objectName/views/:viewId" element={
+            <ViewDesignerPage objects={allObjects} />
         } />
 
         <Route path="dashboard/:dashboardName" element={

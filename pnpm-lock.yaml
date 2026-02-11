@@ -225,6 +225,9 @@ importers:
       '@object-ui/plugin-dashboard':
         specifier: workspace:*
         version: link:../../packages/plugin-dashboard
+      '@object-ui/plugin-designer':
+        specifier: workspace:*
+        version: link:../../packages/plugin-designer
       '@object-ui/plugin-detail':
         specifier: workspace:*
         version: link:../../packages/plugin-detail

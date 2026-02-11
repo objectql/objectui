@@ -519,6 +519,8 @@ export type {
   CollaborationPresence,
   CollaborationOperation,
   CollaborationConfig,
+  ViewDesignerColumn,
+  ViewDesignerSchema,
 } from './designer';
 
 // ============================================================================
