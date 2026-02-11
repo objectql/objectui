@@ -1,6 +1,7 @@
 import type { StorybookConfig } from "@storybook/react-vite";
 import { mergeConfig } from 'vite';
 import path from 'path';
+import { viteCryptoStub } from '../scripts/vite-crypto-stub';
 
 const config: StorybookConfig = {
   stories: ["../packages/**/src/**/*.mdx", "../packages/**/src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
@@ -19,6 +20,14 @@ const config: StorybookConfig = {
   },
   async viteFinal(config) {
     return mergeConfig(config, {
+      define: {
+        'process.env': {},
+        'process.platform': '"browser"',
+        'process.version': '"0.0.0"',
+      },
+      plugins: [
+        viteCryptoStub(),
+      ],
       resolve: {
         alias: {
           // Alias for .storybook directory to allow imports from stories
@@ -51,6 +60,25 @@ const config: StorybookConfig = {
           '@object-ui/plugin-timeline': path.resolve(__dirname, '../packages/plugin-timeline/src/index.tsx'),
           '@object-ui/plugin-view': path.resolve(__dirname, '../packages/plugin-view/src/index.tsx'),
         },
+      },
+      optimizeDeps: {
+        include: [
+          'msw',
+          'msw/browser',
+          '@objectstack/spec',
+          '@objectstack/spec/data',
+          '@objectstack/spec/system',
+          '@objectstack/spec/ui',
+          '@objectstack/runtime',
+          '@objectstack/objectql',
+          '@objectstack/driver-memory',
+          '@objectstack/plugin-msw',
+          '@mdx-js/react',
+          'react-router-dom',
+        ],
+      },
+      build: {
+        target: 'esnext',
       },
     });
   },
