@@ -31,7 +31,7 @@ pnpm build
 pnpm test
 ```
 
-The console opens at **http://localhost:5175** with a simulated backend (CRM + Todo + Kitchen Sink demo data).
+The console opens at **http://localhost:5173** with a simulated backend (CRM + Todo + Kitchen Sink demo data).
 
 ## Running Modes
 
@@ -44,7 +44,7 @@ The console supports two distinct running modes:
 - Uses Mock Service Worker (MSW) to intercept API calls in the browser
 - Fast development cycle with instant feedback
 - Best for UI development and testing
-- Opens at http://localhost:5175
+- Opens at http://localhost:5173
 
 ### 2. Plugin Mode (Production-like)
 **Command:** `pnpm start`
