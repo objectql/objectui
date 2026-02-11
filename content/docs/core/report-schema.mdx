@@ -3,6 +3,8 @@ title: "Report Schema (ReportSchema)"
 description: "Enterprise reports with aggregation, export, and scheduling"
 ---
 
+import { InteractiveDemo, DemoGrid } from '@/app/components/ComponentDemo';
+
 # Report Schema
 
 The `ReportSchema` enables creating comprehensive data reports with field aggregation, multiple export formats, and automated scheduling.
@@ -16,6 +18,246 @@ ReportSchema provides:
 - **Email distribution** - Automatic report delivery
 - **Interactive builder** - Report configuration UI
 - **Data filtering** - Complex filter criteria
+
+## Interactive Examples
+
+### Sales Report Header
+
+<InteractiveDemo
+  title="Report Header with KPIs"
+  description="Summary section showing key metrics at the top of a report"
+  schema={{
+    type: "stack",
+    spacing: 4,
+    children: [
+      {
+        type: "flex",
+        className: "items-center justify-between",
+        children: [
+          {
+            type: "stack",
+            spacing: 1,
+            children: [
+              { type: "text", content: "Quarterly Sales Report", className: "text-xl font-bold" },
+              { type: "text", content: "Q1 2024 · January - March", className: "text-sm text-muted-foreground" }
+            ]
+          },
+          {
+            type: "flex",
+            className: "gap-2",
+            children: [
+              { type: "button", label: "PDF", variant: "outline", size: "sm", icon: "file-text" },
+              { type: "button", label: "Excel", variant: "outline", size: "sm", icon: "table" },
+              { type: "button", label: "Print", variant: "outline", size: "sm", icon: "printer" }
+            ]
+          }
+        ]
+      },
+      {
+        type: "grid",
+        cols: 4,
+        gap: 4,
+        children: [
+          {
+            type: "card",
+            className: "p-4",
+            children: [
+              { type: "text", content: "Total Revenue", className: "text-xs text-muted-foreground font-medium uppercase tracking-wider" },
+              { type: "text", content: "$284,500", className: "text-2xl font-bold mt-1" },
+              { type: "text", content: "+12.5% vs Q4", className: "text-xs text-green-600 mt-1" }
+            ]
+          },
+          {
+            type: "card",
+            className: "p-4",
+            children: [
+              { type: "text", content: "Orders", className: "text-xs text-muted-foreground font-medium uppercase tracking-wider" },
+              { type: "text", content: "1,842", className: "text-2xl font-bold mt-1" },
+              { type: "text", content: "+8.3% vs Q4", className: "text-xs text-green-600 mt-1" }
+            ]
+          },
+          {
+            type: "card",
+            className: "p-4",
+            children: [
+              { type: "text", content: "Avg. Order", className: "text-xs text-muted-foreground font-medium uppercase tracking-wider" },
+              { type: "text", content: "$154.45", className: "text-2xl font-bold mt-1" },
+              { type: "text", content: "+3.8% vs Q4", className: "text-xs text-green-600 mt-1" }
+            ]
+          },
+          {
+            type: "card",
+            className: "p-4",
+            children: [
+              { type: "text", content: "Return Rate", className: "text-xs text-muted-foreground font-medium uppercase tracking-wider" },
+              { type: "text", content: "2.4%", className: "text-2xl font-bold mt-1" },
+              { type: "text", content: "-0.6% vs Q4", className: "text-xs text-green-600 mt-1" }
+            ]
+          }
+        ]
+      }
+    ]
+  }}
+/>
+
+### Report Data Table
+
+<InteractiveDemo
+  title="Report Breakdown Table"
+  description="Tabular data section with aggregation summaries by region"
+  schema={{
+    type: "card",
+    children: [
+      {
+        type: "flex",
+        className: "items-center justify-between mb-4",
+        children: [
+          { type: "text", content: "Revenue by Region", className: "font-semibold" },
+          { type: "badge", label: "5 regions", variant: "secondary" }
+        ]
+      },
+      {
+        type: "stack",
+        spacing: 0,
+        children: [
+          {
+            type: "flex",
+            className: "items-center gap-4 px-4 py-2 bg-muted text-xs font-medium text-muted-foreground border-b",
+            children: [
+              { type: "text", content: "Region", className: "w-36" },
+              { type: "text", content: "Revenue", className: "w-24" },
+              { type: "text", content: "Orders", className: "w-20" },
+              { type: "text", content: "Growth", className: "w-20" }
+            ]
+          },
+          {
+            type: "flex",
+            className: "items-center gap-4 px-4 py-3 border-b text-sm",
+            children: [
+              { type: "text", content: "North America", className: "w-36 font-medium" },
+              { type: "text", content: "$125,400", className: "w-24" },
+              { type: "text", content: "824", className: "w-20" },
+              { type: "text", content: "+15.2%", className: "w-20 text-green-600" }
+            ]
+          },
+          {
+            type: "flex",
+            className: "items-center gap-4 px-4 py-3 border-b text-sm",
+            children: [
+              { type: "text", content: "Europe", className: "w-36 font-medium" },
+              { type: "text", content: "$89,200", className: "w-24" },
+              { type: "text", content: "562", className: "w-20" },
+              { type: "text", content: "+10.8%", className: "w-20 text-green-600" }
+            ]
+          },
+          {
+            type: "flex",
+            className: "items-center gap-4 px-4 py-3 border-b text-sm",
+            children: [
+              { type: "text", content: "Asia Pacific", className: "w-36 font-medium" },
+              { type: "text", content: "$42,300", className: "w-24" },
+              { type: "text", content: "298", className: "w-20" },
+              { type: "text", content: "+22.1%", className: "w-20 text-green-600" }
+            ]
+          },
+          {
+            type: "flex",
+            className: "items-center gap-4 px-4 py-3 border-b text-sm",
+            children: [
+              { type: "text", content: "Latin America", className: "w-36 font-medium" },
+              { type: "text", content: "$18,600", className: "w-24" },
+              { type: "text", content: "108", className: "w-20" },
+              { type: "text", content: "+5.4%", className: "w-20 text-green-600" }
+            ]
+          },
+          {
+            type: "flex",
+            className: "items-center gap-4 px-4 py-3 text-sm",
+            children: [
+              { type: "text", content: "Middle East", className: "w-36 font-medium" },
+              { type: "text", content: "$9,000", className: "w-24" },
+              { type: "text", content: "50", className: "w-20" },
+              { type: "text", content: "+18.7%", className: "w-20 text-green-600" }
+            ]
+          }
+        ]
+      }
+    ]
+  }}
+/>
+
+### Schedule Configuration Preview
+
+<InteractiveDemo
+  title="Report Scheduling"
+  description="Configure automated report delivery via email"
+  schema={{
+    type: "card",
+    className: "max-w-lg mx-auto",
+    header: [
+      {
+        type: "flex",
+        className: "items-center gap-2",
+        children: [
+          { type: "icon", name: "clock", className: "h-5 w-5 text-primary" },
+          { type: "text", content: "Schedule Settings", className: "font-semibold" }
+        ]
+      }
+    ],
+    children: [
+      {
+        type: "stack",
+        spacing: 4,
+        children: [
+          {
+            type: "stack",
+            spacing: 2,
+            children: [
+              { type: "label", label: "Frequency" },
+              { type: "select", options: [{ label: "Monthly", value: "monthly" }, { label: "Weekly", value: "weekly" }, { label: "Daily", value: "daily" }], defaultValue: "monthly" }
+            ]
+          },
+          {
+            type: "stack",
+            spacing: 2,
+            children: [
+              { type: "label", label: "Day of Month" },
+              { type: "input", inputType: "number", placeholder: "1", defaultValue: "1" }
+            ]
+          },
+          {
+            type: "stack",
+            spacing: 2,
+            children: [
+              { type: "label", label: "Recipients" },
+              { type: "input", placeholder: "sales-team@company.com" }
+            ]
+          },
+          {
+            type: "flex",
+            className: "gap-2",
+            children: [
+              { type: "checkbox", id: "pdf", name: "pdf", defaultChecked: true },
+              { type: "label", htmlFor: "pdf", label: "PDF" },
+              { type: "checkbox", id: "excel", name: "excel" },
+              { type: "label", htmlFor: "excel", label: "Excel" },
+              { type: "checkbox", id: "csv", name: "csv" },
+              { type: "label", htmlFor: "csv", label: "CSV" }
+            ]
+          },
+          {
+            type: "flex",
+            className: "justify-end gap-2 pt-2",
+            children: [
+              { type: "button", label: "Cancel", variant: "outline" },
+              { type: "button", label: "Save Schedule", variant: "default", icon: "save" }
+            ]
+          }
+        ]
+      }
+    ]
+  }}
+/>
 
 ## Basic Usage
 

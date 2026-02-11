@@ -3,6 +3,8 @@ title: "Application Schema (AppSchema)"
 description: "Configure your entire application with navigation, branding, and global settings"
 ---
 
+import { InteractiveDemo, DemoGrid } from '@/app/components/ComponentDemo';
+
 # Application Schema
 
 The `AppSchema` defines the top-level configuration for your entire ObjectUI application, including navigation menus, branding, layout strategies, and global actions.
@@ -14,6 +16,123 @@ AppSchema provides a declarative way to configure:
 - **Branding** - Logo, title, favicon
 - **Layout strategies** - Sidebar, header, or empty layout
 - **Global actions** - User menu, global toolbar buttons
+
+## Interactive Examples
+
+### Navigation Menu Preview
+
+<InteractiveDemo
+  title="Sidebar Navigation"
+  description="A typical application sidebar menu structure with icons, groups, and badges"
+  schema={{
+    type: "card",
+    className: "w-64",
+    children: [
+      {
+        type: "stack",
+        spacing: 1,
+        children: [
+          {
+            type: "flex",
+            className: "items-center gap-2 px-3 py-2 rounded-md bg-accent text-accent-foreground",
+            children: [
+              { type: "icon", name: "layout-dashboard", className: "h-4 w-4" },
+              { type: "text", content: "Dashboard", className: "text-sm font-medium" }
+            ]
+          },
+          {
+            type: "flex",
+            className: "items-center gap-2 px-3 py-2 rounded-md hover:bg-accent/50",
+            children: [
+              { type: "icon", name: "users", className: "h-4 w-4 text-muted-foreground" },
+              { type: "text", content: "Contacts", className: "text-sm" },
+              { type: "badge", label: "128", variant: "secondary", className: "ml-auto text-xs" }
+            ]
+          },
+          {
+            type: "flex",
+            className: "items-center gap-2 px-3 py-2 rounded-md hover:bg-accent/50",
+            children: [
+              { type: "icon", name: "target", className: "h-4 w-4 text-muted-foreground" },
+              { type: "text", content: "Opportunities", className: "text-sm" }
+            ]
+          },
+          { type: "separator", className: "my-2" },
+          { type: "text", content: "Marketing", className: "px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider" },
+          {
+            type: "flex",
+            className: "items-center gap-2 px-3 py-2 rounded-md hover:bg-accent/50",
+            children: [
+              { type: "icon", name: "megaphone", className: "h-4 w-4 text-muted-foreground" },
+              { type: "text", content: "Campaigns", className: "text-sm" }
+            ]
+          },
+          {
+            type: "flex",
+            className: "items-center gap-2 px-3 py-2 rounded-md hover:bg-accent/50",
+            children: [
+              { type: "icon", name: "mail", className: "h-4 w-4 text-muted-foreground" },
+              { type: "text", content: "Email Templates", className: "text-sm" }
+            ]
+          },
+          { type: "separator", className: "my-2" },
+          {
+            type: "flex",
+            className: "items-center gap-2 px-3 py-2 rounded-md hover:bg-accent/50",
+            children: [
+              { type: "icon", name: "settings", className: "h-4 w-4 text-muted-foreground" },
+              { type: "text", content: "Settings", className: "text-sm" }
+            ]
+          }
+        ]
+      }
+    ]
+  }}
+/>
+
+### Application Header Bar
+
+<InteractiveDemo
+  title="Application Header"
+  description="Top bar with branding, global search, and user actions"
+  schema={{
+    type: "flex",
+    className: "items-center justify-between p-3 border rounded-lg bg-background",
+    children: [
+      {
+        type: "flex",
+        className: "items-center gap-3",
+        children: [
+          { type: "icon", name: "box", className: "h-6 w-6 text-primary" },
+          { type: "text", content: "Acme CRM", className: "font-semibold text-lg" }
+        ]
+      },
+      {
+        type: "flex",
+        className: "items-center gap-2",
+        children: [
+          { type: "button", label: "Quick Actions", variant: "outline", size: "sm", icon: "zap" },
+          { type: "button", label: "Notifications", variant: "ghost", size: "sm", icon: "bell" },
+          {
+            type: "flex",
+            className: "items-center gap-2 ml-2 pl-2 border-l",
+            children: [
+              { type: "avatar", fallback: "JD", className: "h-8 w-8" },
+              {
+                type: "stack",
+                spacing: 0,
+                children: [
+                  { type: "text", content: "John Doe", className: "text-sm font-medium leading-none" },
+                  { type: "text", content: "john@acme.com", className: "text-xs text-muted-foreground" }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }}
+/>
 
 ## Basic Usage
 
@@ -32,7 +151,7 @@ const app: AppSchema = {
     {
       type: 'item',
       label: 'Dashboard',
-      icon: 'LayoutDashboard',
+      icon: 'layout-dashboard',
       path: '/dashboard'
     }
   ],
@@ -95,7 +214,7 @@ interface MenuItem {
 {
   "type": "item",
   "label": "Dashboard",
-  "icon": "LayoutDashboard",
+  "icon": "layout-dashboard",
   "path": "/dashboard",
   "badge": "New"
 }
@@ -106,7 +225,7 @@ interface MenuItem {
 {
   "type": "group",
   "label": "Sales",
-  "icon": "DollarSign",
+  "icon": "dollar-sign",
   "children": [
     { "type": "item", "label": "Leads", "path": "/leads" },
     { "type": "item", "label": "Deals", "path": "/deals" }
@@ -156,7 +275,7 @@ const crm: AppSchema = {
     {
       type: 'item',
       label: 'Dashboard',
-      icon: 'LayoutDashboard',
+      icon: 'layout-dashboard',
       path: '/dashboard'
     },
     {
@@ -165,25 +284,25 @@ const crm: AppSchema = {
     {
       type: 'group',
       label: 'Sales',
-      icon: 'DollarSign',
+      icon: 'dollar-sign',
       children: [
         {
           type: 'item',
           label: 'Leads',
-          icon: 'Users',
+          icon: 'users',
           path: '/leads',
           badge: 12
         },
         {
           type: 'item',
           label: 'Opportunities',
-          icon: 'Target',
+          icon: 'target',
           path: '/opportunities'
         },
         {
           type: 'item',
           label: 'Quotes',
-          icon: 'FileText',
+          icon: 'file-text',
           path: '/quotes'
         }
       ]
@@ -191,7 +310,7 @@ const crm: AppSchema = {
     {
       type: 'group',
       label: 'Marketing',
-      icon: 'Megaphone',
+      icon: 'megaphone',
       children: [
         {
           type: 'item',
@@ -211,7 +330,7 @@ const crm: AppSchema = {
     {
       type: 'item',
       label: 'Settings',
-      icon: 'Settings',
+      icon: 'settings',
       path: '/settings',
       hidden: '${user.role !== "admin"}'
     }
@@ -221,7 +340,7 @@ const crm: AppSchema = {
     {
       type: 'button',
       label: 'Quick Actions',
-      icon: 'Zap',
+      icon: 'zap',
       variant: 'outline',
       onClick: 'openQuickActions'
     },
@@ -234,13 +353,13 @@ const crm: AppSchema = {
         {
           type: 'item',
           label: 'Profile',
-          icon: 'User',
+          icon: 'user',
           path: '/profile'
         },
         {
           type: 'item',
           label: 'Settings',
-          icon: 'Settings',
+          icon: 'settings',
           path: '/settings'
         },
         {
@@ -249,7 +368,7 @@ const crm: AppSchema = {
         {
           type: 'item',
           label: 'Logout',
-          icon: 'LogOut',
+          icon: 'log-out',
           path: '/logout'
         }
       ]
