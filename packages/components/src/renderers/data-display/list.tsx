@@ -15,7 +15,7 @@ ComponentRegistry.register('list',
   ({ schema, className, ...props }: { schema: ListSchema; className?: string; [key: string]: any }) => {
     // Support data binding
     const boundData = useDataScope(schema.bind);
-    const items = boundData || schema.items || [];
+    const items = Array.isArray(boundData) ? boundData : Array.isArray(schema.items) ? schema.items : [];
     
     // We use 'ol' or 'ul' based on ordered prop
     const ListTag = schema.ordered ? 'ol' : 'ul';

@@ -23,7 +23,7 @@ export const SimpleTableRenderer = ({ schema, className }: any) => {
   // Try to get data from binding first, then fall back to inline data
   const boundData = useDataScope(schema.bind);
   const data = boundData || schema.data || schema.props?.data || [];
-  const columns = schema.columns || schema.props?.columns || [];
+  const columns = Array.isArray(schema.columns) ? schema.columns : Array.isArray(schema.props?.columns) ? schema.props.columns : [];
 
   // If we have data but it's not an array, show error. 
   // If data is undefined, we might just be loading or empty.
