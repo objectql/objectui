@@ -15,14 +15,14 @@
     "start": "tsx server.ts"
   },
   "dependencies": {
-    "@objectstack/core": "^2.0.4",
-    "@objectstack/plugin-auth": "^2.0.3",
-    "@objectstack/runtime": "^2.0.4",
-    "@objectstack/spec": "^2.0.4",
+    "@objectstack/core": "^2.0.7",
+    "@objectstack/plugin-auth": "^2.0.7",
+    "@objectstack/runtime": "^2.0.7",
+    "@objectstack/spec": "^2.0.7",
     "pino": "^8.21.0"
   },
   "devDependencies": {
-    "@objectstack/cli": "^2.0.4",
+    "@objectstack/cli": "^2.0.7",
     "typescript": "^5.0.0"
   }
 }
