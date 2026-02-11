@@ -23,6 +23,8 @@ export { useBreakpoint, type BreakpointState } from './useBreakpoint';
 export { useResponsive } from './useResponsive';
 export { useResponsiveConfig, type SpecResponsiveConfig, type ResolvedResponsiveState } from './useResponsiveConfig';
 export { useGesture, type UseGestureOptions } from './useGesture';
+export { useSpecGesture, type UseSpecGestureOptions } from './useSpecGesture';
+export { useTouchTarget, type UseTouchTargetOptions, type TouchTargetResult } from './useTouchTarget';
 export { usePullToRefresh, type PullToRefreshOptions } from './usePullToRefresh';
 export { MobileProvider, type MobileProviderProps } from './MobileProvider';
 export { ResponsiveContainer, type ResponsiveContainerProps } from './ResponsiveContainer';
@@ -45,4 +47,10 @@ export type {
   GestureConfig,
   GestureContext,
   MobileComponentConfig,
+  SpecGestureConfig,
+  SwipeGestureConfig,
+  PinchGestureConfig,
+  LongPressGestureConfig,
+  TouchInteraction,
+  TouchTargetConfig,
 } from '@object-ui/types';
