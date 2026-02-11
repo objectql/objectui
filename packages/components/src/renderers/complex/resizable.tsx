@@ -17,23 +17,26 @@ import {
 import { renderChildren } from '../../lib/utils';
 
 ComponentRegistry.register('resizable', 
-  ({ schema, className, ...props }: { schema: ResizableSchema; className?: string; [key: string]: any }) => (
-    <ResizablePanelGroup 
-        orientation={(schema.direction || 'horizontal') as "horizontal" | "vertical"}
-        className={className} 
-        {...props}
-        style={{ minHeight: schema.minHeight || '200px' }}
-    >
-      {schema.panels?.map((panel: any, index: number) => (
-        <React.Fragment key={index}>
-             <ResizablePanel defaultSize={panel.defaultSize} minSize={panel.minSize} maxSize={panel.maxSize}>
-                {renderChildren(panel.content)}
-             </ResizablePanel>
-             {index < schema.panels.length - 1 && <ResizableHandle withHandle={schema.withHandle} />}
-        </React.Fragment>
-      ))}
-    </ResizablePanelGroup>
-  ),
+  ({ schema, className, ...props }: { schema: ResizableSchema; className?: string; [key: string]: any }) => {
+    const panels = Array.isArray(schema.panels) ? schema.panels : [];
+    return (
+      <ResizablePanelGroup 
+          orientation={(schema.direction || 'horizontal') as "horizontal" | "vertical"}
+          className={className} 
+          {...props}
+          style={{ minHeight: schema.minHeight || '200px' }}
+      >
+        {panels.map((panel: any, index: number) => (
+          <React.Fragment key={index}>
+               <ResizablePanel defaultSize={panel.defaultSize} minSize={panel.minSize} maxSize={panel.maxSize}>
+                  {renderChildren(panel.content)}
+               </ResizablePanel>
+               {index < panels.length - 1 && <ResizableHandle withHandle={schema.withHandle} />}
+          </React.Fragment>
+        ))}
+      </ResizablePanelGroup>
+    );
+  },
   {
     namespace: 'ui',
     label: 'Resizable Panel Group',

@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { SchemaRenderer } from '@object-ui/react';
+import React, { useMemo } from 'react';
+import { SchemaRenderer, SchemaRendererContext } from '@object-ui/react';
 import { SidebarProvider } from '@object-ui/components';
 import type { SchemaNode } from '@object-ui/core';
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
@@ -9,6 +9,17 @@ import { CodeBlock, Pre } from 'fumadocs-ui/components/codeblock';
 
 // Re-export SchemaNode type for use in MDX files
 export type { SchemaNode } from '@object-ui/core';
+
+/** Minimal provider so plugins can find SchemaRendererContext */
+const defaultCtx = { dataSource: {} };
+function DemoProvider({ children }: { children: React.ReactNode }) {
+  const value = useMemo(() => defaultCtx, []);
+  return (
+    <SchemaRendererContext.Provider value={value}>
+      {children}
+    </SchemaRendererContext.Provider>
+  );
+}
 
 interface InteractiveDemoProps {
   schema: SchemaNode;
@@ -55,11 +66,13 @@ export function InteractiveDemo({
                     </div>
                   )}
                   <div className="p-6 bg-background">
-                    <SidebarProvider className="min-h-0 w-full" defaultOpen={false}>
-                      <div className="w-full">
-                        <SchemaRenderer schema={example.schema} />
-                      </div>
-                    </SidebarProvider>
+                    <DemoProvider>
+                      <SidebarProvider className="min-h-0 w-full" defaultOpen={false}>
+                        <div className="w-full">
+                          <SchemaRenderer schema={example.schema} />
+                        </div>
+                      </SidebarProvider>
+                    </DemoProvider>
                   </div>
                 </div>
               ))}
@@ -98,11 +111,13 @@ export function InteractiveDemo({
       <Tabs items={['Preview', 'Code']} defaultIndex={0}>
         <Tab value="Preview">
           <div className="border rounded-lg p-6 bg-background">
-            <SidebarProvider className="min-h-0 w-full" defaultOpen={false}>
-              <div className="w-full">
-                <SchemaRenderer schema={schema} />
-              </div>
-            </SidebarProvider>
+            <DemoProvider>
+              <SidebarProvider className="min-h-0 w-full" defaultOpen={false}>
+                <div className="w-full">
+                  <SchemaRenderer schema={schema} />
+                </div>
+              </SidebarProvider>
+            </DemoProvider>
           </div>
         </Tab>
         <Tab value="Code">
