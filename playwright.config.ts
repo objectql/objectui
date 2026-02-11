@@ -62,7 +62,7 @@ export default defineConfig({
    * caused by build-time errors (broken imports, missing polyfills, etc.).
    */
   webServer: {
-    command: 'pnpm --filter @object-ui/console build && pnpm --filter @object-ui/console preview --port 4173',
+    command: 'pnpm turbo run build --filter=@object-ui/console && pnpm --filter @object-ui/console preview --port 4173',
     url: 'http://localhost:4173',
     reuseExistingServer: !process.env.CI,
     timeout: 180 * 1000,
