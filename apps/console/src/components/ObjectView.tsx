@@ -26,7 +26,7 @@ import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataI
 import { useObjectActions } from '../hooks/useObjectActions';
 
 /** Map view types to Lucide icons (Airtable-style) */
-const VIEW_TYPE_ICONS: Record<string, ComponentType<any>> = {
+const VIEW_TYPE_ICONS: Record<string, ComponentType<{ className?: string }>> = {
     grid: TableIcon,
     kanban: KanbanSquare,
     calendar: Calendar,
@@ -289,7 +289,7 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
              {views.length > 1 && (
                <div className="border-b px-3 sm:px-4 bg-background overflow-x-auto shrink-0">
                  <div className="flex items-center gap-0.5 -mb-px">
-                   {views.map((view: any) => {
+                   {views.map((view: { id: string; label: string; type: string }) => {
                      const isActive = view.id === activeViewId;
                      const ViewIcon = VIEW_TYPE_ICONS[view.type] || TableIcon;
                      return (
