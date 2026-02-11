@@ -15,4 +15,6 @@ export * from './useDynamicApp';
 export * from './useDiscovery';
 export * from './useFocusTrap';
 export * from './useKeyboardShortcuts';
+export * from './useReducedMotion';
+export * from './useAnimation';
 
