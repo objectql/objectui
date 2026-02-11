@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import type { DataModelEntity, DataModelRelationship, DesignerCanvasConfig } from '@object-ui/types';
+import type { DataModelEntity, DataModelField, DataModelRelationship, DesignerCanvasConfig } from '@object-ui/types';
 import { Database, Plus, Trash2, Link2 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -202,7 +202,7 @@ export function DataModelDesigner({
                 </div>
                 {/* Fields */}
                 <div className="px-3 py-1 divide-y">
-                  {entity.fields.map((field) => (
+                  {entity.fields.map((field: DataModelField) => (
                     <div
                       key={field.name}
                       className="flex items-center gap-2 py-1 text-xs"

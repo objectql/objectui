@@ -112,7 +112,7 @@ export function ReportDesigner({
       if (readOnly) return;
       const updated = sections.map((section) => ({
         ...section,
-        elements: section.elements.filter((e) => e.id !== elementId),
+        elements: section.elements.filter((e: ReportDesignerElement) => e.id !== elementId),
       }));
       setSections(updated);
       if (selectedElement === elementId) setSelectedElement(null);
@@ -217,7 +217,7 @@ export function ReportDesigner({
 
                 {/* Elements */}
                 <div className="relative" style={{ minHeight: section.height, paddingTop: 24 }}>
-                  {section.elements.map((element) => (
+                  {section.elements.map((element: ReportDesignerElement) => (
                     <div
                       key={element.id}
                       className={cn(

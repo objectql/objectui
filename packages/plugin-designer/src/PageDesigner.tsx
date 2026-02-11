@@ -11,6 +11,7 @@ import type {
   DesignerComponent,
   DesignerCanvasConfig,
   DesignerPaletteCategory,
+  DesignerPaletteItem,
 } from '@object-ui/types';
 import { GripVertical, Undo2, Redo2, Eye, Layers, Plus, Trash2 } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -105,7 +106,7 @@ export function PageDesigner({
                 <div className="text-xs font-medium text-muted-foreground px-2 py-1 uppercase">
                   {category.label}
                 </div>
-                {category.items.map((item) => (
+                {category.items.map((item: DesignerPaletteItem) => (
                   <button
                     key={item.type}
                     onClick={() => handleAddComponent(item.type, item.label)}

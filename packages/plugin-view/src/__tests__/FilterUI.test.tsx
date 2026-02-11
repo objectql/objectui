@@ -15,7 +15,8 @@ import type { FilterUISchema } from '@object-ui/types';
 // Mock @object-ui/components – provide lightweight stand-ins for Shadcn
 // primitives so tests render without a full component tree.
 // ---------------------------------------------------------------------------
-vi.mock('@object-ui/components', () => {
+vi.mock('@object-ui/components', async () => {
+  const React = await import('react');
   const cn = (...args: any[]) => args.filter(Boolean).join(' ');
 
   const Button = ({ children, onClick, variant, size, type, ...rest }: any) => (
@@ -48,15 +49,16 @@ vi.mock('@object-ui/components', () => {
     />
   );
 
-  // Store onValueChange callbacks by a global map keyed on a unique id
-  let selectCallback: ((v: string) => void) | undefined;
+  // Share onValueChange from Select to SelectItem via React Context
+  const SelectCtx = React.createContext<((v: string) => void) | undefined>(undefined);
 
   const Select = ({ children, value, onValueChange }: any) => {
-    selectCallback = onValueChange;
     return (
-      <div data-testid="select-root" data-value={value}>
-        {children}
-      </div>
+      <SelectCtx.Provider value={onValueChange}>
+        <div data-testid="select-root" data-value={value}>
+          {children}
+        </div>
+      </SelectCtx.Provider>
     );
   };
 
@@ -72,16 +74,19 @@ vi.mock('@object-ui/components', () => {
     <div data-testid="select-content">{children}</div>
   );
 
-  const SelectItem = ({ children, value }: any) => (
-    <div
-      data-testid="select-item"
-      data-value={value}
-      role="option"
-      onClick={() => selectCallback?.(String(value))}
-    >
-      {children}
-    </div>
-  );
+  const SelectItem = ({ children, value }: any) => {
+    const onValueChange = React.useContext(SelectCtx);
+    return (
+      <div
+        data-testid="select-item"
+        data-value={value}
+        role="option"
+        onClick={() => onValueChange?.(String(value))}
+      >
+        {children}
+      </div>
+    );
+  };
 
   const Popover = ({ children, open }: any) => (
     <div data-testid="popover" data-open={open}>
