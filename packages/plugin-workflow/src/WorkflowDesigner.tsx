@@ -168,7 +168,7 @@ export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({ schema }) =>
             <div>
               <Input
                 value={workflow.title || ''}
-                onChange={(e) => setWorkflow(prev => ({ ...prev, title: e.target.value }))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWorkflow(prev => ({ ...prev, title: e.target.value }))}
                 className="text-lg font-semibold border-none p-0 h-auto focus-visible:ring-0"
                 readOnly={readOnly}
                 placeholder="Workflow Title"
@@ -238,9 +238,9 @@ export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({ schema }) =>
                   </div>
                   <div className="flex items-center gap-1">
                     {/* Connection indicators */}
-                    {workflow.edges.filter(e => e.source === node.id).length > 0 && (
+                    {workflow.edges.filter((e: WorkflowEdge) => e.source === node.id).length > 0 && (
                       <Badge variant="outline" className="text-xs">
-                        {workflow.edges.filter(e => e.source === node.id).length} out
+                        {workflow.edges.filter((e: WorkflowEdge) => e.source === node.id).length} out
                       </Badge>
                     )}
                     {!readOnly && node.type !== 'start' && node.type !== 'end' && (
@@ -248,7 +248,7 @@ export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({ schema }) =>
                         size="sm"
                         variant="ghost"
                         className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                        onClick={(e) => { e.stopPropagation(); removeNode(node.id); }}
+                        onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); removeNode(node.id); }}
                       >
                         <Trash2 className="h-3 w-3" />
                       </Button>
@@ -261,9 +261,9 @@ export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({ schema }) =>
               {workflow.edges.length > 0 && (
                 <div className="mt-4 pt-4 border-t">
                   <Label className="text-xs text-muted-foreground mb-2 block">Connections</Label>
-                  {workflow.edges.map(edge => {
-                    const sourceNode = workflow.nodes.find(n => n.id === edge.source);
-                    const targetNode = workflow.nodes.find(n => n.id === edge.target);
+                  {workflow.edges.map((edge: WorkflowEdge) => {
+                    const sourceNode = workflow.nodes.find((n: WorkflowNode) => n.id === edge.source);
+                    const targetNode = workflow.nodes.find((n: WorkflowNode) => n.id === edge.target);
                     return (
                       <div key={edge.id} className="flex items-center gap-2 p-2 text-sm">
                         <span>{sourceNode?.label || edge.source}</span>
@@ -296,7 +296,7 @@ export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({ schema }) =>
                       className="border rounded-md p-1.5 text-sm bg-background"
                     >
                       <option value="">From...</option>
-                      {workflow.nodes.filter(n => n.type !== 'end').map(n => (
+                      {workflow.nodes.filter((n: WorkflowNode) => n.type !== 'end').map((n: WorkflowNode) => (
                         <option key={n.id} value={n.id}>{n.label}</option>
                       ))}
                     </select>
@@ -305,7 +305,7 @@ export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({ schema }) =>
                       className="border rounded-md p-1.5 text-sm bg-background"
                     >
                       <option value="">To...</option>
-                      {workflow.nodes.filter(n => n.type !== 'start').map(n => (
+                      {workflow.nodes.filter((n: WorkflowNode) => n.type !== 'start').map((n: WorkflowNode) => (
                         <option key={n.id} value={n.id}>{n.label}</option>
                       ))}
                     </select>
@@ -346,7 +346,7 @@ export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({ schema }) =>
                   <Label className="text-xs">Label</Label>
                   <Input
                     value={selectedNode.label}
-                    onChange={(e) => updateNode(selectedNode.id, { label: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateNode(selectedNode.id, { label: e.target.value })}
                     className="h-8 text-sm"
                     readOnly={readOnly}
                   />
@@ -363,7 +363,7 @@ export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({ schema }) =>
                     <Label className="text-xs">Description</Label>
                     <Input
                       value={selectedNode.description || ''}
-                      onChange={(e) => updateNode(selectedNode.id, { description: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateNode(selectedNode.id, { description: e.target.value })}
                       className="h-8 text-sm"
                       readOnly={readOnly}
                     />
@@ -375,7 +375,7 @@ export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({ schema }) =>
                       <Label className="text-xs">Assignee</Label>
                       <Input
                         value={selectedNode.assignee || ''}
-                        onChange={(e) => updateNode(selectedNode.id, { assignee: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateNode(selectedNode.id, { assignee: e.target.value })}
                         className="h-8 text-sm"
                         placeholder="User, role, or expression"
                         readOnly={readOnly}
@@ -386,7 +386,7 @@ export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({ schema }) =>
                       <select
                         className="w-full border rounded-md h-8 text-sm px-2 bg-background"
                         value={selectedNode.assigneeType || 'user'}
-                        onChange={(e) => updateNode(selectedNode.id, { assigneeType: e.target.value as any })}
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateNode(selectedNode.id, { assigneeType: e.target.value as any })}
                         disabled={readOnly}
                       >
                         <option value="user">User</option>
@@ -403,7 +403,7 @@ export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({ schema }) =>
                     <Input
                       type="number"
                       value={selectedNode.timeout || 60}
-                      onChange={(e) => updateNode(selectedNode.id, { timeout: Number(e.target.value) })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateNode(selectedNode.id, { timeout: Number(e.target.value) })}
                       className="h-8 text-sm"
                       readOnly={readOnly}
                     />
