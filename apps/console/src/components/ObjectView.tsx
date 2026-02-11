@@ -20,7 +20,7 @@ import '@object-ui/plugin-grid';
 import '@object-ui/plugin-kanban';
 import '@object-ui/plugin-calendar';
 import { Button, Empty, EmptyTitle, EmptyDescription, Sheet, SheetContent } from '@object-ui/components';
-import { Plus, Table as TableIcon } from 'lucide-react';
+import { Plus, Table as TableIcon, Settings2 } from 'lucide-react';
 import type { ListViewSchema } from '@object-ui/types';
 import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import { useObjectActions } from '../hooks/useObjectActions';
@@ -226,6 +226,26 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
                  
                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                     <MetadataToggle open={showDebug} onToggle={toggleDebug} className="hidden sm:flex" />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => navigate(viewId ? `../../views/${viewId}` : `views/${activeViewId}`)}
+                      className="shadow-none gap-1.5 h-8 sm:h-9 hidden sm:flex"
+                      title="Edit current view layout"
+                    >
+                      <Settings2 className="h-4 w-4" />
+                      <span className="hidden lg:inline">Edit View</span>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => navigate(viewId ? '../../views/new' : 'views/new')}
+                      className="shadow-none gap-1.5 h-8 sm:h-9 hidden sm:flex"
+                      title="Create a new view"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span className="hidden lg:inline">New View</span>
+                    </Button>
                     <Button size="sm" onClick={actions.create} className="shadow-none gap-1.5 sm:gap-2 h-8 sm:h-9">
                         <Plus className="h-4 w-4" /> 
                         <span className="hidden sm:inline">New</span>

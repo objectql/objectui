@@ -393,6 +393,57 @@ export interface ReportDesignerSchema extends BaseSchema {
 }
 
 // ============================================================================
+// View Designer (List View Layout Editor)
+// ============================================================================
+
+/** Column configuration for the view designer */
+export interface ViewDesignerColumn {
+  /** Field name */
+  field: string;
+  /** Display label */
+  label?: string;
+  /** Column width */
+  width?: number | string;
+  /** Whether column is visible */
+  visible?: boolean;
+  /** Sort direction */
+  sortDirection?: 'asc' | 'desc';
+  /** Column order index */
+  order?: number;
+}
+
+/** View designer schema */
+export interface ViewDesignerSchema extends BaseSchema {
+  type: 'view-designer';
+  /** Object name this view is for */
+  objectName: string;
+  /** View identifier (for editing existing views) */
+  viewId?: string;
+  /** View display label */
+  viewLabel?: string;
+  /** View type */
+  viewType?: 'grid' | 'kanban' | 'gallery' | 'calendar' | 'timeline' | 'gantt' | 'map';
+  /** Columns / fields to display */
+  columns?: ViewDesignerColumn[];
+  /** Filter conditions */
+  filters?: Array<{ field: string; operator: string; value: any }>;
+  /** Sort configuration */
+  sort?: Array<{ field: string; direction: 'asc' | 'desc' }>;
+  /** Available fields from the object schema */
+  availableFields?: Array<{ name: string; label: string; type: string }>;
+  /** Type-specific options */
+  options?: Record<string, any>;
+  /** Read-only mode */
+  readOnly?: boolean;
+  /** Callback when view config changes */
+  onChange?: string;
+  /** Callback when view is saved */
+  onSave?: string;
+  /** Callback when cancelled */
+  onCancel?: string;
+}
+
+// ============================================================================
 // Multi-User Collaborative Editing
 // ============================================================================
 

@@ -38,6 +38,7 @@
     "@object-ui/plugin-charts": "workspace:*",
     "@object-ui/plugin-dashboard": "workspace:*",
     "@object-ui/plugin-detail": "workspace:*",
+    "@object-ui/plugin-designer": "workspace:*",
     "@object-ui/plugin-form": "workspace:*",
     "@object-ui/plugin-gantt": "workspace:*",
     "@object-ui/plugin-grid": "workspace:*",
