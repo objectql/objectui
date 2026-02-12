@@ -8,8 +8,9 @@
 
 import type { DashboardSchema, DashboardWidgetSchema } from '@object-ui/types';
 import { SchemaRenderer } from '@object-ui/react';
-import { cn, Card, CardHeader, CardTitle, CardContent } from '@object-ui/components';
-import { forwardRef } from 'react';
+import { cn, Card, CardHeader, CardTitle, CardContent, Button } from '@object-ui/components';
+import { forwardRef, useState, useEffect, useCallback, useRef } from 'react';
+import { RefreshCw } from 'lucide-react';
 
 // Color palette for charts
 const CHART_COLORS = [
@@ -20,10 +21,37 @@ const CHART_COLORS = [
   'hsl(var(--chart-5))',
 ];
 
-export const DashboardRenderer = forwardRef<HTMLDivElement, { schema: DashboardSchema; className?: string; [key: string]: any }>(
-  ({ schema, className, dataSource, ...props }, ref) => {
+export interface DashboardRendererProps {
+  schema: DashboardSchema;
+  className?: string;
+  /** Callback invoked when dashboard refresh is triggered (manual or auto) */
+  onRefresh?: () => void;
+  [key: string]: any;
+}
+
+export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererProps>(
+  ({ schema, className, dataSource, onRefresh, ...props }, ref) => {
     const columns = schema.columns || 4; // Default to 4 columns for better density
     const gap = schema.gap || 4;
+    const [refreshing, setRefreshing] = useState(false);
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    const handleRefresh = useCallback(() => {
+      if (!onRefresh) return;
+      setRefreshing(true);
+      onRefresh();
+      // Reset refreshing indicator after a short delay
+      setTimeout(() => setRefreshing(false), 600);
+    }, [onRefresh]);
+
+    // Auto-refresh interval
+    useEffect(() => {
+      if (!schema.refreshInterval || schema.refreshInterval <= 0 || !onRefresh) return;
+      intervalRef.current = setInterval(handleRefresh, schema.refreshInterval * 1000);
+      return () => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+      };
+    }, [schema.refreshInterval, onRefresh, handleRefresh]);
 
     return (
       <div
@@ -35,6 +63,20 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, { schema: DashboardS
         }}
         {...props}
       >
+        {onRefresh && (
+          <div className="col-span-full flex justify-end mb-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              aria-label="Refresh dashboard"
+            >
+              <RefreshCw className={cn("h-4 w-4 mr-2", refreshing && "animate-spin")} />
+              {refreshing ? 'Refreshing…' : 'Refresh All'}
+            </Button>
+          </div>
+        )}
         {schema.widgets?.map((widget: DashboardWidgetSchema) => {
             // Logic to determine what to render
             // Supports both Component Schema (widget.component) and Shorthand (widget.type)

@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { forwardRef, useContext, useMemo } from 'react';
+import React, { forwardRef, useContext, useMemo, Component } from 'react';
 import { SchemaNode, ComponentRegistry, ExpressionEvaluator } from '@object-ui/core';
 import { SchemaRendererContext } from './context/SchemaRendererContext';
 import { resolveI18nLabel } from './utils/i18n';
@@ -32,6 +32,51 @@ function resolveAriaProps(schema: Record<string, any>): Record<string, string | 
     aria['role'] = schema.role;
   }
   return aria;
+}
+
+/**
+ * Per-component Error Boundary for SchemaRenderer.
+ * Catches render errors in individual components, preventing one broken
+ * component from crashing the entire page.
+ */
+interface SchemaErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+export class SchemaErrorBoundary extends Component<
+  { componentType?: string; children: React.ReactNode },
+  SchemaErrorBoundaryState
+> {
+  state: SchemaErrorBoundaryState = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error: Error): SchemaErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  handleRetry = () => {
+    this.setState({ hasError: false, error: null });
+  };
+
+  render() {
+    if (this.state.hasError && this.state.error) {
+      return (
+        <div className="p-4 border border-orange-400 rounded bg-orange-50 text-orange-700 my-2" role="alert">
+          <p className="font-medium">
+            Component{this.props.componentType ? ` "${this.props.componentType}"` : ''} failed to render
+          </p>
+          <p className="text-sm mt-1">{this.state.error.message}</p>
+          <button
+            onClick={this.handleRetry}
+            className="mt-2 text-sm underline hover:no-underline"
+          >
+            Retry
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 export const SchemaRenderer = forwardRef<any, { schema: SchemaNode } & Record<string, any>>(({ schema, ...props }, _ref) => {
@@ -105,15 +150,19 @@ export const SchemaRenderer = forwardRef<any, { schema: SchemaNode } & Record<st
   // Extract AriaPropsSchema properties for accessibility
   const ariaProps = resolveAriaProps(evaluatedSchema);
 
-  return React.createElement(Component, {
-    schema: evaluatedSchema,
-    ...componentProps,  // Spread non-metadata schema properties as props
-    ...(evaluatedSchema.props || {}),  // Override with explicit props if provided
-    ...ariaProps,  // Inject ARIA attributes from AriaPropsSchema
-    className: evaluatedSchema.className,
-    'data-obj-id': evaluatedSchema.id,
-    'data-obj-type': evaluatedSchema.type,
-    ...props
-  });
+  return (
+    <SchemaErrorBoundary componentType={evaluatedSchema.type}>
+      {React.createElement(Component, {
+        schema: evaluatedSchema,
+        ...componentProps,  // Spread non-metadata schema properties as props
+        ...(evaluatedSchema.props || {}),  // Override with explicit props if provided
+        ...ariaProps,  // Inject ARIA attributes from AriaPropsSchema
+        className: evaluatedSchema.className,
+        'data-obj-id': evaluatedSchema.id,
+        'data-obj-type': evaluatedSchema.type,
+        ...props
+      })}
+    </SchemaErrorBoundary>
+  );
 });
 SchemaRenderer.displayName = 'SchemaRenderer';

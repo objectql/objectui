@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ResponsiveGridLayout, useContainerWidth, type LayoutItem as RGLLayout, type Layout, type ResponsiveLayouts } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import { cn, Card, CardHeader, CardTitle, CardContent, Button } from '@object-ui/components';
-import { Edit, GripVertical, Save, X } from 'lucide-react';
+import { Edit, GripVertical, Save, X, RefreshCw } from 'lucide-react';
 import { SchemaRenderer, useHasDndProvider, useDnd } from '@object-ui/react';
 import type { DashboardSchema, DashboardWidgetSchema } from '@object-ui/types';
 
@@ -35,6 +35,8 @@ export interface DashboardGridLayoutProps {
   className?: string;
   onLayoutChange?: (layout: RGLLayout[]) => void;
   persistLayoutKey?: string;
+  /** Callback invoked when dashboard refresh is triggered (manual or auto) */
+  onRefresh?: () => void;
 }
 
 export const DashboardGridLayout: React.FC<DashboardGridLayoutProps> = ({
@@ -42,10 +44,29 @@ export const DashboardGridLayout: React.FC<DashboardGridLayoutProps> = ({
   className,
   onLayoutChange,
   persistLayoutKey = 'dashboard-layout',
+  onRefresh,
 }) => {
   const { width, containerRef, mounted } = useContainerWidth();
   const [editMode, setEditMode] = React.useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
   const hasDndProvider = useHasDndProvider();
+  const intervalRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const handleRefresh = React.useCallback(() => {
+    if (!onRefresh) return;
+    setRefreshing(true);
+    onRefresh();
+    setTimeout(() => setRefreshing(false), 600);
+  }, [onRefresh]);
+
+  // Auto-refresh interval
+  React.useEffect(() => {
+    if (!schema.refreshInterval || schema.refreshInterval <= 0 || !onRefresh) return;
+    intervalRef.current = setInterval(handleRefresh, schema.refreshInterval * 1000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [schema.refreshInterval, onRefresh, handleRefresh]);
   const [layouts, setLayouts] = React.useState<{ lg: RGLLayout[] }>(() => {
     // Try to load saved layout
     if (typeof window !== 'undefined' && persistLayoutKey) {
@@ -158,10 +179,24 @@ export const DashboardGridLayout: React.FC<DashboardGridLayoutProps> = ({
               </Button>
             </>
           ) : (
-            <Button onClick={() => setEditMode(true)} size="sm" variant="outline">
-              <Edit className="h-4 w-4 mr-2" />
-              Edit Layout
-            </Button>
+            <>
+              {onRefresh && (
+                <Button
+                  onClick={handleRefresh}
+                  size="sm"
+                  variant="outline"
+                  disabled={refreshing}
+                  aria-label="Refresh dashboard"
+                >
+                  <RefreshCw className={cn("h-4 w-4 mr-2", refreshing && "animate-spin")} />
+                  {refreshing ? 'Refreshing…' : 'Refresh All'}
+                </Button>
+              )}
+              <Button onClick={() => setEditMode(true)} size="sm" variant="outline">
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Layout
+              </Button>
+            </>
           )}
         </div>
       </div>

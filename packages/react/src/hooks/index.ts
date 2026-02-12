@@ -28,3 +28,4 @@ export * from './usePerformanceBudget';
 export * from './usePageTransition';
 export * from './useViewTransition';
 export * from './useETagCache';
+export * from './useSchemaPersistence';
