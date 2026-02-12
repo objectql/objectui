@@ -53,8 +53,9 @@ export async function doctor() {
   const tailwindConfigPath = join(cwd, 'tailwind.config.js');
   const tailwindTsPath = join(cwd, 'tailwind.config.ts');
   if (existsSync(tailwindConfigPath) || existsSync(tailwindTsPath)) {
+     const configFile = existsSync(tailwindConfigPath) ? 'tailwind.config.js' : 'tailwind.config.ts';
      const configPath = existsSync(tailwindConfigPath) ? tailwindConfigPath : tailwindTsPath;
-     console.log(chalk.green('✓ tailwind.config found'));
+     console.log(chalk.green(`✓ ${configFile} found`));
      // Check content configuration
      try {
        const configContent = readFileSync(configPath, 'utf-8');
