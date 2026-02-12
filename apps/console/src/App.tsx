@@ -23,6 +23,7 @@ import { ViewDesignerPage } from './components/ViewDesignerPage';
 import { ExpressionProvider } from './context/ExpressionProvider';
 import { ConditionalAuthWrapper } from './components/ConditionalAuthWrapper';
 import { KeyboardShortcutsDialog } from './components/KeyboardShortcutsDialog';
+import { OnboardingWalkthrough } from './components/OnboardingWalkthrough';
 import { useRecentItems } from './hooks/useRecentItems';
 
 // Auth Pages
@@ -214,6 +215,7 @@ export function AppContent() {
         onAppChange={handleAppChange}
       />
       <KeyboardShortcutsDialog />
+      <OnboardingWalkthrough />
       <SchemaRendererProvider dataSource={dataSource || {}}>
       <ErrorBoundary>
       <Routes>
