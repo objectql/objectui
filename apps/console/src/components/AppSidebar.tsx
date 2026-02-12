@@ -196,7 +196,7 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
       setDragGroupKey(null);
       setDropTargetId(null);
     },
-  }), [dragItemId, dragGroupKey, dropTargetId, applyOrder, saveOrder]);
+  }), [dragItemId, dragGroupKey, dropTargetId, saveOrder]);
 
   return (
     <DndContext.Provider value={dndValue}>
