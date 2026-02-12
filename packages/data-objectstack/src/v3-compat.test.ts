@@ -165,7 +165,13 @@ describe('v3.0.0 Compatibility', () => {
         },
       });
 
-      const record = { ssn: '123-45-6789', password: 'secret123', email: 'john@example.com', phone: '555-1234', name: 'John' };
+      const record = {
+        ssn: '123-45-6789',
+        password: 'secret123',
+        email: 'john@example.com',
+        phone: '555-1234',
+        name: 'John',
+      };
       
       const masked = manager.maskRecord(record);
       expect(masked.ssn).toBe('123-*******');

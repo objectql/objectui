@@ -168,12 +168,12 @@ export class SecurityManager {
     const maskChar = this.policy.dataMasking.maskChar ?? '*';
 
     for (const rule of this.policy.dataMasking.rules) {
-      if (!(rule.field in masked)) continue;
+      if (!(rule.field in masked) || masked[rule.field] == null) continue;
       
       // Check role exemptions
       if (rule.exemptRoles?.some(role => userRoles.includes(role))) continue;
 
-      const value = String(masked[rule.field] ?? '');
+      const value = String(masked[rule.field]);
       
       switch (rule.strategy) {
         case 'full':
@@ -181,6 +181,7 @@ export class SecurityManager {
           break;
         case 'partial': {
           const visible = rule.visibleChars ?? 4;
+          // Values shorter than visibleChars are fully masked for security
           if (value.length <= visible) {
             masked[rule.field] = maskChar.repeat(value.length);
           } else {
