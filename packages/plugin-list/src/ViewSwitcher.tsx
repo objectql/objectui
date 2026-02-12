@@ -32,6 +32,8 @@ export interface ViewSwitcherProps {
   availableViews?: ViewType[];
   onViewChange: (view: ViewType) => void;
   className?: string;
+  /** Enable animated transitions between views (default: true) */
+  animated?: boolean;
 }
 
 const VIEW_ICONS: Record<ViewType, React.ReactNode> = {
@@ -59,16 +61,35 @@ export const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
   availableViews = ['grid', 'kanban'],
   onViewChange,
   className,
+  animated = true,
 }) => {
+  const handleViewChange = React.useCallback(
+    (view: ViewType) => {
+      if (!animated || view === currentView) {
+        onViewChange(view);
+        return;
+      }
+
+      if (typeof document !== 'undefined' && 'startViewTransition' in document) {
+        (document as Document & {
+          startViewTransition: (cb: () => void) => { finished: Promise<void> };
+        }).startViewTransition(() => onViewChange(view));
+      } else {
+        onViewChange(view);
+      }
+    },
+    [animated, currentView, onViewChange],
+  );
+
   return (
-    <div className={cn("flex items-center gap-1 bg-transparent", className)}>
+    <div className={cn("flex items-center gap-1 bg-transparent oui-view-switcher", className)}>
       {availableViews.map((view) => {
         const isActive = currentView === view;
         return (
           <button
             key={view}
             type="button"
-            onClick={() => onViewChange(view)}
+            onClick={() => handleViewChange(view)}
             aria-label={VIEW_LABELS[view]}
             title={VIEW_LABELS[view]}
             aria-pressed={isActive}
