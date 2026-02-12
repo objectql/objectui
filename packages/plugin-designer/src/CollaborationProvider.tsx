@@ -70,7 +70,14 @@ export function CollaborationProvider({
     if (!canUseWS) return;
 
     function connect() {
-      const url = new URL(config.serverUrl!);
+      // Validate WebSocket URL protocol (only ws: or wss: allowed)
+      let url: URL;
+      try {
+        url = new URL(config.serverUrl!);
+        if (url.protocol !== 'ws:' && url.protocol !== 'wss:') return;
+      } catch {
+        return;
+      }
       if (config.roomId) url.searchParams.set('room', config.roomId);
       url.searchParams.set('userId', user!.id);
 

@@ -65,7 +65,17 @@ function useNavOrder(appName: string) {
   const [orderMap, setOrderMap] = React.useState<Record<string, string[]>>(() => {
     try {
       const raw = localStorage.getItem(storageKey);
-      return raw ? JSON.parse(raw) : {};
+      if (!raw) return {};
+      const parsed: unknown = JSON.parse(raw);
+      // Validate shape: must be a plain object with string[] values
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return {};
+      const result: Record<string, string[]> = {};
+      for (const [k, v] of Object.entries(parsed as Record<string, unknown>)) {
+        if (Array.isArray(v) && v.every((i: unknown) => typeof i === 'string')) {
+          result[k] = v as string[];
+        }
+      }
+      return result;
     } catch {
       return {};
     }

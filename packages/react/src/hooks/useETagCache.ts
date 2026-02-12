@@ -287,6 +287,19 @@ export function useETagCache(userConfig: ETagCacheConfig = {}): ETagCacheResult 
       url: string,
       options?: RequestInit,
     ): Promise<{ data: T; fromCache: boolean; etag?: string }> => {
+      // Validate URL: only allow http(s) or relative URLs
+      if (url.includes('://')) {
+        try {
+          const parsed = new URL(url);
+          if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+            throw new Error(`Unsupported URL protocol: ${parsed.protocol}`);
+          }
+        } catch (e) {
+          if (e instanceof Error && e.message.startsWith('Unsupported')) throw e;
+          throw new Error('Invalid URL');
+        }
+      }
+
       if (!configRef.current.enabled) {
         const res = await fetch(url, options);
         const data = (await res.json()) as T;

@@ -118,6 +118,20 @@ export function useRealtimeSubscription<T = unknown>(config: RealtimeConfig): Re
       return;
     }
 
+    // Validate WebSocket URL protocol (only ws: or wss: allowed)
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== 'ws:' && parsed.protocol !== 'wss:') {
+        setError(new Error('WebSocket URL must use ws: or wss: protocol'));
+        setConnectionState('error');
+        return;
+      }
+    } catch {
+      setError(new Error('Invalid WebSocket URL'));
+      setConnectionState('error');
+      return;
+    }
+
     // Close existing connection
     if (wsRef.current) {
       intentionalCloseRef.current = true;
