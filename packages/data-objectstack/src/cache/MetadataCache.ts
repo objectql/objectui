@@ -205,6 +205,28 @@ export class MetadataCache {
   }
 
   /**
+   * Get a cached value synchronously without triggering a fetch.
+   * Returns undefined if not in cache or expired.
+   */
+  getCachedSync<V = unknown>(key: string): V | undefined {
+    const entry = this.cache.get(key);
+    if (!entry) return undefined;
+
+    // Check TTL
+    if (this.ttl > 0 && Date.now() - entry.timestamp > this.ttl) {
+      this.cache.delete(key);
+      return undefined;
+    }
+
+    // Update access order for LRU
+    this.cache.delete(key);
+    this.cache.set(key, entry);
+    this.stats.hits++;
+
+    return entry.data as V;
+  }
+
+  /**
    * Check if a key exists in the cache (and is not expired)
    * 
    * @param key - Cache key to check

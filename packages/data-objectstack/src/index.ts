@@ -670,6 +670,35 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
   }
 
   /**
+   * Get multiple metadata items from ObjectStack.
+   * Uses v3.0.0 metadata API pattern: getItems for batch retrieval.
+   */
+  async getItems(category: string, names: string[]): Promise<unknown[]> {
+    await this.connect();
+    
+    const results = await Promise.all(
+      names.map(async (name) => {
+        const cacheKey = `${category}:${name}`;
+        return this.metadataCache.get(cacheKey, async () => {
+          const result: any = await this.client.meta.getItem(category, name);
+          if (result && result.item) return result.item;
+          return result;
+        });
+      })
+    );
+    
+    return results;
+  }
+
+  /**
+   * Get cached metadata if available, without triggering a fetch.
+   * Uses v3.0.0 metadata API pattern: getCached for synchronous cache access.
+   */
+  getCached(key: string): unknown | undefined {
+    return this.metadataCache.getCachedSync(key);
+  }
+
+  /**
    * Get cache statistics for monitoring performance.
    */
   getCacheStats() {
@@ -862,3 +891,19 @@ export {
 
 // Export cache types
 export type { CacheStats } from './cache/MetadataCache';
+
+// v3.0.0 Deep Integration modules
+export { CloudOperations } from './cloud';
+export type { CloudDeploymentConfig, CloudHostingConfig, CloudMarketplaceEntry } from './cloud';
+
+export { validatePluginContract, generateContractManifest } from './contracts';
+export type { PluginContract, PluginExport, PluginAPIContract, ContractValidationResult, ContractValidationError } from './contracts';
+
+export { IntegrationManager } from './integration';
+export type { IntegrationConfig, IntegrationTrigger, IntegrationProvider, SlackIntegrationConfig, EmailIntegrationConfig, WebhookIntegrationConfig } from './integration';
+
+export { SecurityManager } from './security';
+export type { SecurityPolicy, CSPConfig, AuditLogConfig, AuditEventType, DataMaskingConfig, DataMaskingRule, AuditLogEntry } from './security';
+
+export { createDefaultCanvasConfig, snapToGrid, calculateAutoLayout } from './studio';
+export type { StudioCanvasConfig, StudioPropertyEditor, StudioThemeBuilderConfig, StudioColorPalette, StudioTypographyPreset, StudioShadowPreset } from './studio';

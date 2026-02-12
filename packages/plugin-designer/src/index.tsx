@@ -26,6 +26,19 @@ export {
 
 export type { ViewDesignerProps, ViewDesignerConfig } from './ViewDesigner';
 
+// Shared hooks
+export { useUndoRedo } from './hooks/useUndoRedo';
+export { useConfirmDialog } from './hooks/useConfirmDialog';
+export { useClipboard } from './hooks/useClipboard';
+export { useMultiSelect } from './hooks/useMultiSelect';
+export { useCanvasPanZoom } from './hooks/useCanvasPanZoom';
+
+// Shared components
+export { ConfirmDialog } from './components/ConfirmDialog';
+export { Minimap } from './components/Minimap';
+export { PropertyEditor } from './components/PropertyEditor';
+export { VersionHistory } from './components/VersionHistory';
+
 // Register page designer component
 ComponentRegistry.register(
   'page-designer',
