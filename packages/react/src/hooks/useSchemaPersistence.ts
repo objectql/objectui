@@ -125,7 +125,10 @@ export function createLocalStorageAdapter(prefix = 'objectui-schema'): SchemaPer
 export function useSchemaPersistence(
   adapter?: SchemaPersistenceAdapter,
 ): SchemaPersistenceResult {
-  const adapterRef = useRef(adapter ?? createLocalStorageAdapter());
+  const defaultAdapter = useRef(createLocalStorageAdapter());
+  const adapterRef = useRef(adapter ?? defaultAdapter.current);
+  // Keep the ref up to date if the adapter prop changes
+  adapterRef.current = adapter ?? defaultAdapter.current;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [isDirty, setIsDirty] = useState(false);
