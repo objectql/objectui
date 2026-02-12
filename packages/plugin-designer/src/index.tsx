@@ -11,7 +11,7 @@ import { PageDesigner } from './PageDesigner';
 import { DataModelDesigner } from './DataModelDesigner';
 import { ProcessDesigner } from './ProcessDesigner';
 import { ReportDesigner } from './ReportDesigner';
-import { CollaborationProvider } from './CollaborationProvider';
+import { CollaborationProvider, ConnectionStatusIndicator } from './CollaborationProvider';
 import { ViewDesigner } from './ViewDesigner';
 
 export {
@@ -20,6 +20,7 @@ export {
   ProcessDesigner,
   ReportDesigner,
   CollaborationProvider,
+  ConnectionStatusIndicator,
   ViewDesigner,
 };
 
