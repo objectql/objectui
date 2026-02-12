@@ -46,6 +46,7 @@ export interface CalendarViewProps {
   onViewChange?: (view: "month" | "week" | "day") => void
   onNavigate?: (date: Date) => void
   onAddClick?: () => void
+  onEventDrop?: (event: CalendarEvent, newStart: Date, newEnd?: Date) => void
   className?: string
 }
 
@@ -59,6 +60,7 @@ function CalendarView({
   onViewChange,
   onNavigate,
   onAddClick,
+  onEventDrop,
   className,
 }: CalendarViewProps) {
   const [selectedView, setSelectedView] = React.useState(view)
@@ -228,6 +230,7 @@ function CalendarView({
             events={events}
             onEventClick={onEventClick}
             onDateClick={onDateClick}
+            onEventDrop={onEventDrop}
           />
         )}
         {selectedView === "week" && (
@@ -322,12 +325,70 @@ interface MonthViewProps {
   events: CalendarEvent[]
   onEventClick?: (event: CalendarEvent) => void
   onDateClick?: (date: Date) => void
+  onEventDrop?: (event: CalendarEvent, newStart: Date, newEnd?: Date) => void
 }
 
-function MonthView({ date, events, onEventClick, onDateClick }: MonthViewProps) {
+function MonthView({ date, events, onEventClick, onDateClick, onEventDrop }: MonthViewProps) {
   const days = getMonthDays(date)
   const today = new Date()
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+  const [draggedEventId, setDraggedEventId] = React.useState<string | number | null>(null)
+  const [dropTargetIndex, setDropTargetIndex] = React.useState<number | null>(null)
+
+  const handleDragStart = (e: React.DragEvent, event: CalendarEvent) => {
+    setDraggedEventId(event.id)
+    e.dataTransfer.effectAllowed = "move"
+    e.dataTransfer.setData("text/plain", String(event.id))
+  }
+
+  const handleDragEnd = () => {
+    setDraggedEventId(null)
+    setDropTargetIndex(null)
+  }
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "move"
+    setDropTargetIndex(index)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    // Only clear when actually leaving the cell, not when moving over child elements
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDropTargetIndex(null)
+    }
+  }
+
+  const handleDrop = (e: React.DragEvent, targetDay: Date) => {
+    e.preventDefault()
+    setDropTargetIndex(null)
+    setDraggedEventId(null)
+
+    if (!onEventDrop) return
+
+    const eventId = e.dataTransfer.getData("text/plain")
+    const draggedEvent = events.find((ev) => String(ev.id) === eventId)
+    if (!draggedEvent) return
+
+    const oldStart = new Date(draggedEvent.start)
+    const oldStartDay = new Date(oldStart)
+    oldStartDay.setHours(0, 0, 0, 0)
+
+    const newTargetDay = new Date(targetDay)
+    newTargetDay.setHours(0, 0, 0, 0)
+
+    const deltaMs = newTargetDay.getTime() - oldStartDay.getTime()
+    if (deltaMs === 0) return
+
+    const newStart = new Date(oldStart.getTime() + deltaMs)
+
+    let newEnd: Date | undefined
+    if (draggedEvent.end) {
+      newEnd = new Date(new Date(draggedEvent.end).getTime() + deltaMs)
+    }
+
+    onEventDrop(draggedEvent, newStart, newEnd)
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -355,9 +416,13 @@ function MonthView({ date, events, onEventClick, onDateClick }: MonthViewProps) 
               key={index}
               className={cn(
                 "border-b border-r last:border-r-0 p-2 min-h-[100px] cursor-pointer hover:bg-accent/50",
-                !isCurrentMonth && "bg-muted/30 text-muted-foreground"
+                !isCurrentMonth && "bg-muted/30 text-muted-foreground",
+                dropTargetIndex === index && "ring-2 ring-primary"
               )}
               onClick={() => onDateClick?.(day)}
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, day)}
             >
               <div
                 className={cn(
@@ -372,9 +437,13 @@ function MonthView({ date, events, onEventClick, onDateClick }: MonthViewProps) 
                 {dayEvents.slice(0, 3).map((event) => (
                   <div
                     key={event.id}
+                    draggable={!!onEventDrop}
+                    onDragStart={(e) => handleDragStart(e, event)}
+                    onDragEnd={handleDragEnd}
                     className={cn(
                       "text-xs px-2 py-1 rounded truncate cursor-pointer hover:opacity-80",
-                      event.color || DEFAULT_EVENT_COLOR
+                      event.color || DEFAULT_EVENT_COLOR,
+                      draggedEventId === event.id && "opacity-50"
                     )}
                     style={
                       event.color && event.color.startsWith("#")

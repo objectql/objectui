@@ -221,9 +221,9 @@ The v2.0.7 spec introduces 70+ new UI types across 12 domains. This section maps
 
 - [x] Implement DndConfigSchema-based DnD framework (unified API for Kanban, Dashboard, Calendar, Grid) — `DndProvider`, `useDnd` in @object-ui/react
 - [x] Consume DragItemSchema, DropZoneSchema, DragConstraintSchema, DropEffectSchema — types re-exported from @object-ui/types
-- [ ] Refactor plugin-kanban card drag to use spec DnD schemas
-- [ ] Refactor plugin-dashboard widget drag to use spec DnD schemas
-- [ ] Add drag-to-reschedule for calendar events
+- [x] Refactor plugin-kanban card drag to use spec DnD schemas — DndBridge bridges @dnd-kit events to ObjectUI DndProvider
+- [x] Refactor plugin-dashboard widget drag to use spec DnD schemas — DndEditModeBridge bridges edit mode to DndProvider
+- [x] Add drag-to-reschedule for calendar events — native HTML5 DnD in MonthView with `onEventDrop` callback
 - [ ] Add drag-and-drop sidebar navigation reordering
 
 **Spec Reference:** `DndConfigSchema`, `DragItemSchema`, `DropZoneSchema`, `DragConstraintSchema`, `DragHandleSchema`, `DropEffectSchema`
@@ -231,11 +231,11 @@ The v2.0.7 spec introduces 70+ new UI types across 12 domains. This section maps
 #### 2.2 Gesture & Touch Support (2 weeks)
 **Target:** Mobile-first gesture handling aligned with spec schemas
 
-- [ ] Integrate GestureConfigSchema and TouchInteractionSchema into @object-ui/mobile hooks
-- [ ] Consume SwipeGestureConfigSchema for navigation gestures
-- [ ] Consume PinchGestureConfigSchema for zoom interactions (maps, images)
-- [ ] Consume LongPressGestureConfigSchema for context menus
-- [ ] Consume TouchTargetConfigSchema for minimum touch target sizes (44px)
+- [x] Integrate GestureConfigSchema and TouchInteractionSchema into @object-ui/mobile hooks — `useSpecGesture` hook
+- [x] Consume SwipeGestureConfigSchema for navigation gestures — integrated in `useSpecGesture`
+- [x] Consume PinchGestureConfigSchema for zoom interactions (maps, images) — integrated in `useSpecGesture`
+- [x] Consume LongPressGestureConfigSchema for context menus — integrated in `useSpecGesture`
+- [x] Consume TouchTargetConfigSchema for minimum touch target sizes (44px) — `useTouchTarget` hook
 
 **Spec Reference:** `GestureConfigSchema`, `SwipeGestureConfigSchema`, `PinchGestureConfigSchema`, `LongPressGestureConfigSchema`, `TouchInteractionSchema`, `TouchTargetConfigSchema`
 
@@ -246,7 +246,7 @@ The v2.0.7 spec introduces 70+ new UI types across 12 domains. This section maps
 - [x] Implement FocusTrapConfigSchema for modal/drawer focus trapping — `useFocusTrap` with autoFocus, restoreFocus, escapeDeactivates
 - [x] Implement KeyboardNavigationConfigSchema for grid/list navigation (arrow keys, tab order) — `useKeyboardShortcuts` hook
 - [x] Implement KeyboardShortcutSchema system with help dialog (? key) — `useKeyboardShortcuts` + `getShortcutDescriptions` utility
-- [ ] Add keyboard shortcuts for common CRUD operations
+- [x] Add keyboard shortcuts for common CRUD operations — `useCrudShortcuts` hook (Ctrl+N/E/S/D, Delete, Escape, Ctrl+F)
 
 **Spec Reference:** `FocusManagementSchema`, `FocusTrapConfigSchema`, `KeyboardNavigationConfigSchema`, `KeyboardShortcutSchema`
 
@@ -257,17 +257,17 @@ The v2.0.7 spec introduces 70+ new UI types across 12 domains. This section maps
 - [x] Implement MotionConfigSchema for reduced-motion preferences (`prefers-reduced-motion`) — `useReducedMotion` hook
 - [x] Implement TransitionConfigSchema and TransitionPresetSchema for view transitions — `useAnimation` with 7 presets (fade, slide-up/down/left/right, scale, scale-fade)
 - [x] Implement EasingFunctionSchema for consistent easing curves — easing presets (linear, ease, ease-in, ease-out, ease-in-out, spring)
-- [ ] Add animation to view switcher transitions
+- [x] Add animation to view switcher transitions — fade-in animation via Tailwind CSS `animate-in` classes
 
 **Spec Reference:** `ComponentAnimationSchema`, `AnimationTriggerSchema`, `MotionConfigSchema`, `TransitionConfigSchema`, `TransitionPresetSchema`, `EasingFunctionSchema`
 
 #### 2.5 View Enhancements (3 weeks)
 **Target:** Consume v2.0.7 view enhancement schemas in grid/list plugins
 
-- [ ] Consume GalleryConfigSchema in plugin-list (gallery view layout, image sizing, masonry mode)
+- [x] Consume GalleryConfigSchema in plugin-list (gallery view layout, image sizing, masonry mode) — ObjectGallery with coverField/coverFit/cardSize/visibleFields
 - [x] Consume ColumnSummarySchema in plugin-grid and plugin-aggrid (column-level SUM/AVG/COUNT) — `useColumnSummary` hook
-- [ ] Consume GroupingConfigSchema and GroupingFieldSchema in plugin-grid (row grouping with subtotals)
-- [ ] Consume RowColorConfigSchema for conditional row coloring rules
+- [x] Consume GroupingConfigSchema and GroupingFieldSchema in plugin-grid (row grouping with subtotals) — `useGroupedData` hook with collapsible sections
+- [x] Consume RowColorConfigSchema for conditional row coloring rules — `useRowColor` hook with field-value color mapping
 - [x] Consume RowHeightSchema for compact/comfortable/spacious row height modes — `useDensityMode` hook
 - [x] Consume DensityMode for grid/list density toggling — `useDensityMode` with cycle()
 - [x] Consume ViewSharingSchema for shared/personal view configurations — `useViewSharing` hook with CRUD
@@ -281,7 +281,7 @@ The v2.0.7 spec introduces 70+ new UI types across 12 domains. This section maps
 - [x] Consume NotificationConfigSchema for position, duration, stacking — `NotificationSystemConfig` with all options
 - [x] Consume NotificationActionSchema for interactive notifications (buttons, links) — `NotificationActionButton` support
 - [x] Implement notification center UI with unread count badge — `useNotifications` with `unreadCount`, `markAsRead`, `markAllAsRead`
-- [ ] Integrate with `client.notifications.*` API for device registration and preferences
+- [x] Integrate with `client.notifications.*` API for device registration and preferences — `useClientNotifications` hook
 
 **Spec Reference:** `NotificationSchema`, `NotificationConfigSchema`, `NotificationActionSchema`, `NotificationPositionSchema`, `NotificationSeveritySchema`, `NotificationTypeSchema`
 
