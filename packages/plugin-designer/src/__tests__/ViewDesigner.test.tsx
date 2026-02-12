@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ViewDesigner } from '../ViewDesigner';
 import type { ViewDesignerColumn } from '@object-ui/types';
 
@@ -178,7 +178,7 @@ describe('ViewDesigner', () => {
       expect(screen.getByText('Columns (2)')).toBeDefined();
     });
 
-    it('should remove column when clicking delete', () => {
+    it('should remove column when clicking delete', async () => {
       const columns: ViewDesignerColumn[] = [
         { field: 'name', label: 'Name', visible: true, order: 0 },
         { field: 'email', label: 'Email', visible: true, order: 1 },
@@ -197,8 +197,16 @@ describe('ViewDesigner', () => {
       const deleteBtn = nameColumn.querySelector('[title="Remove column"]') as HTMLElement;
       fireEvent.click(deleteBtn);
 
+      // Confirm the deletion dialog
+      await waitFor(() => {
+        const confirmBtn = screen.getByText('Delete');
+        fireEvent.click(confirmBtn);
+      });
+
       // Name column should be removed
-      expect(screen.queryByTestId('column-name')).toBeNull();
+      await waitFor(() => {
+        expect(screen.queryByTestId('column-name')).toBeNull();
+      });
       expect(screen.getByTestId('column-email')).toBeDefined();
     });
   });

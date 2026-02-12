@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import type { ViewDesignerColumn } from '@object-ui/types';
 import {
   GripVertical,
@@ -27,9 +27,18 @@ import {
   Image,
   Clock,
   GanttChart,
+  Undo2,
+  Redo2,
+  Copy,
+  Clipboard,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { useUndoRedo } from './hooks/useUndoRedo';
+import { useConfirmDialog } from './hooks/useConfirmDialog';
+import { useClipboard } from './hooks/useClipboard';
+import { ConfirmDialog } from './components/ConfirmDialog';
+import { useCollaboration } from './CollaborationProvider';
 
 function cn(...inputs: (string | undefined | false)[]) {
   return twMerge(clsx(inputs));
@@ -77,6 +86,63 @@ export interface ViewDesignerConfig {
   options: Record<string, any>;
 }
 
+/** Tracked state for undo/redo */
+interface ViewDesignerState {
+  columns: ViewDesignerColumn[];
+  filters: Array<{ field: string; operator: string; value: any }>;
+  sort: Array<{ field: string; direction: 'asc' | 'desc' }>;
+  viewType: ViewType;
+  viewLabel: string;
+  options: Record<string, any>;
+}
+
+const LABELS = {
+  title: 'View Designer',
+  saveView: 'Save View',
+  cancel: 'Cancel',
+  availableFields: 'Available Fields',
+  allFieldsAdded: 'All fields added',
+  noColumnsTitle: 'No columns added yet. Select fields from the palette to add columns.',
+  columnsCount: (count: number) => `Columns (${count})`,
+  viewType: 'View Type',
+  viewName: 'View Name',
+  viewNamePlaceholder: 'Enter view name...',
+  columnProperties: 'Column Properties',
+  selectColumnPrompt: 'Select a column to edit its properties',
+  labelField: 'Label',
+  widthField: 'Width',
+  widthPlaceholder: 'auto',
+  fieldLabel: 'Field:',
+  addFilter: 'Add Filter',
+  addSort: 'Add Sort',
+  valuePlaceholder: 'Value',
+  asc: 'Asc',
+  desc: 'Desc',
+  selectField: 'Select field...',
+  moveUp: 'Move up',
+  moveDown: 'Move down',
+  moveColumnUp: 'Move column up',
+  moveColumnDown: 'Move column down',
+  hideColumn: 'Hide column',
+  showColumn: 'Show column',
+  toggleVisibility: 'Toggle column visibility',
+  removeColumn: 'Remove column',
+  copyColumn: 'Copy column',
+  pasteColumn: 'Paste column',
+  deleteColumnTitle: 'Delete Column',
+  deleteColumnMessage: (field: string) => `Are you sure you want to delete the column "${field}"? This action cannot be undone.`,
+  undo: 'Undo (Ctrl+Z)',
+  redo: 'Redo (Ctrl+Y)',
+  gridOptionsHint: 'Grid view uses the columns configured above.',
+  groupByField: 'Group By Field',
+  startDateField: 'Start Date Field',
+  titleField: 'Title Field',
+  latitudeField: 'Latitude Field',
+  longitudeField: 'Longitude Field',
+  imageField: 'Image Field',
+  dateField: 'Date Field',
+} as const;
+
 const VIEW_TYPE_OPTIONS: Array<{ type: ViewType; label: string; icon: React.ElementType }> = [
   { type: 'grid', label: 'Grid', icon: LayoutGrid },
   { type: 'kanban', label: 'Kanban', icon: Kanban },
@@ -120,12 +186,36 @@ export function ViewDesigner({
   onCancel,
   className,
 }: ViewDesignerProps) {
-  const [viewLabel, setViewLabel] = useState(initialViewLabel);
-  const [viewType, setViewType] = useState<ViewType>(initialViewType);
-  const [columns, setColumns] = useState<ViewDesignerColumn[]>(initialColumns);
-  const [filters, setFilters] = useState<Array<{ field: string; operator: string; value: any }>>(initialFilters);
-  const [sort, setSort] = useState<Array<{ field: string; direction: 'asc' | 'desc' }>>(initialSort);
-  const [options, setOptions] = useState<Record<string, any>>(initialOptions);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // --- Undo/Redo ---
+  const history = useUndoRedo<ViewDesignerState>({
+    columns: initialColumns,
+    filters: initialFilters,
+    sort: initialSort,
+    viewType: initialViewType,
+    viewLabel: initialViewLabel,
+    options: initialOptions,
+  });
+
+  const { columns, filters, sort, viewType, viewLabel, options } = history.current;
+
+  const pushState = useCallback(
+    (updates: Partial<ViewDesignerState>) => {
+      history.push({ ...history.current, ...updates });
+    },
+    [history],
+  );
+
+  // --- Clipboard ---
+  const clipboardHook = useClipboard<ViewDesignerColumn>();
+
+  // --- Confirm dialog ---
+  const confirmDialog = useConfirmDialog();
+
+  // --- Collaboration (optional) ---
+  const collaboration = useCollaboration();
+
   const [selectedColumnIndex, setSelectedColumnIndex] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'columns' | 'filters' | 'sort' | 'options'>('columns');
 
@@ -145,28 +235,37 @@ export function ViewDesigner({
         visible: true,
         order: columns.length,
       };
-      setColumns((prev) => [...prev, newCol]);
+      pushState({ columns: [...columns, newCol] });
+      collaboration?.sendOperation({ type: 'insert', userId: collaboration.currentUserId ?? '', elementId: fieldName, data: { column: newCol } });
     },
-    [availableFields, columns.length, readOnly],
+    [availableFields, columns, readOnly, pushState, collaboration],
   );
 
   const handleRemoveColumn = useCallback(
-    (index: number) => {
+    async (index: number) => {
       if (readOnly) return;
-      setColumns((prev) => prev.filter((_, i) => i !== index));
+      const col = columns[index];
+      if (!col) return;
+      const confirmed = await confirmDialog.confirm(
+        LABELS.deleteColumnTitle,
+        LABELS.deleteColumnMessage(col.label || col.field),
+      );
+      if (!confirmed) return;
+      pushState({ columns: columns.filter((_, i) => i !== index) });
       if (selectedColumnIndex === index) setSelectedColumnIndex(null);
+      collaboration?.sendOperation({ type: 'delete', userId: collaboration.currentUserId ?? '', elementId: col.field, data: {} });
     },
-    [readOnly, selectedColumnIndex],
+    [readOnly, columns, confirmDialog, pushState, selectedColumnIndex, collaboration],
   );
 
   const handleToggleColumnVisibility = useCallback(
     (index: number) => {
       if (readOnly) return;
-      setColumns((prev) =>
-        prev.map((col, i) => (i === index ? { ...col, visible: !col.visible } : col)),
-      );
+      pushState({
+        columns: columns.map((col, i) => (i === index ? { ...col, visible: !col.visible } : col)),
+      });
     },
-    [readOnly],
+    [readOnly, columns, pushState],
   );
 
   const handleMoveColumn = useCallback(
@@ -174,69 +273,84 @@ export function ViewDesigner({
       if (readOnly) return;
       const newIndex = direction === 'up' ? index - 1 : index + 1;
       if (newIndex < 0 || newIndex >= columns.length) return;
-      setColumns((prev) => {
-        const updated = [...prev];
-        const temp = updated[index];
-        updated[index] = updated[newIndex];
-        updated[newIndex] = temp;
-        return updated;
-      });
+      const updated = [...columns];
+      const temp = updated[index];
+      updated[index] = updated[newIndex];
+      updated[newIndex] = temp;
+      pushState({ columns: updated });
       setSelectedColumnIndex(newIndex);
     },
-    [readOnly, columns.length],
+    [readOnly, columns, pushState],
   );
 
   const handleAddFilter = useCallback(() => {
     if (readOnly || availableFields.length === 0) return;
-    setFilters((prev) => [
-      ...prev,
-      { field: availableFields[0].name, operator: 'equals', value: '' },
-    ]);
-  }, [readOnly, availableFields]);
+    pushState({
+      filters: [...filters, { field: availableFields[0].name, operator: 'equals', value: '' }],
+    });
+  }, [readOnly, availableFields, filters, pushState]);
 
   const handleRemoveFilter = useCallback(
     (index: number) => {
       if (readOnly) return;
-      setFilters((prev) => prev.filter((_, i) => i !== index));
+      pushState({ filters: filters.filter((_, i) => i !== index) });
     },
-    [readOnly],
+    [readOnly, filters, pushState],
   );
 
   const handleUpdateFilter = useCallback(
     (index: number, updates: Partial<{ field: string; operator: string; value: any }>) => {
       if (readOnly) return;
-      setFilters((prev) =>
-        prev.map((f, i) => (i === index ? { ...f, ...updates } : f)),
-      );
+      pushState({
+        filters: filters.map((f, i) => (i === index ? { ...f, ...updates } : f)),
+      });
     },
-    [readOnly],
+    [readOnly, filters, pushState],
   );
 
   const handleAddSort = useCallback(() => {
     if (readOnly || availableFields.length === 0) return;
-    setSort((prev) => [
-      ...prev,
-      { field: availableFields[0].name, direction: 'asc' as const },
-    ]);
-  }, [readOnly, availableFields]);
+    pushState({
+      sort: [...sort, { field: availableFields[0].name, direction: 'asc' as const }],
+    });
+  }, [readOnly, availableFields, sort, pushState]);
 
   const handleRemoveSort = useCallback(
     (index: number) => {
       if (readOnly) return;
-      setSort((prev) => prev.filter((_, i) => i !== index));
+      pushState({ sort: sort.filter((_, i) => i !== index) });
     },
-    [readOnly],
+    [readOnly, sort, pushState],
   );
 
   const handleUpdateSort = useCallback(
     (index: number, updates: Partial<{ field: string; direction: 'asc' | 'desc' }>) => {
       if (readOnly) return;
-      setSort((prev) =>
-        prev.map((s, i) => (i === index ? { ...s, ...updates } : s)),
-      );
+      pushState({
+        sort: sort.map((s, i) => (i === index ? { ...s, ...updates } : s)),
+      });
     },
-    [readOnly],
+    [readOnly, sort, pushState],
   );
+
+  // --- Copy/Paste handlers ---
+  const handleCopyColumn = useCallback(() => {
+    if (selectedColumnIndex === null || !columns[selectedColumnIndex]) return;
+    clipboardHook.copy(columns[selectedColumnIndex]);
+  }, [selectedColumnIndex, columns, clipboardHook]);
+
+  const handlePasteColumn = useCallback(() => {
+    if (readOnly) return;
+    const pasted = clipboardHook.paste();
+    if (!pasted) return;
+    const pastedCol: ViewDesignerColumn = {
+      ...pasted,
+      field: `${pasted.field}_copy`,
+      label: `${pasted.label || pasted.field} (Copy)`,
+      order: columns.length,
+    };
+    pushState({ columns: [...columns, pastedCol] });
+  }, [readOnly, clipboardHook, columns, pushState]);
 
   const handleSave = useCallback(() => {
     onSave?.({
@@ -250,14 +364,130 @@ export function ViewDesigner({
     });
   }, [onSave, viewId, viewLabel, objectName, viewType, columns, filters, sort, options]);
 
+  // --- Keyboard shortcuts ---
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName);
+      const ctrl = e.ctrlKey || e.metaKey;
+
+      if (isInput) return;
+
+      if (ctrl && e.key === 'z' && !e.shiftKey && !readOnly) {
+        e.preventDefault();
+        history.undo();
+        return;
+      }
+      if (ctrl && ((e.key === 'z' && e.shiftKey) || e.key === 'y') && !readOnly) {
+        e.preventDefault();
+        history.redo();
+        return;
+      }
+      if (ctrl && e.key === 'c') {
+        e.preventDefault();
+        handleCopyColumn();
+        return;
+      }
+      if (ctrl && e.key === 'v' && !readOnly) {
+        e.preventDefault();
+        handlePasteColumn();
+        return;
+      }
+    };
+
+    el.addEventListener('keydown', handleKeyDown);
+    return () => el.removeEventListener('keydown', handleKeyDown);
+  }, [readOnly, history, handleCopyColumn, handlePasteColumn]);
+
   return (
-    <div className={cn('flex flex-col h-full w-full border rounded-lg overflow-hidden bg-background', className)}>
+    <div
+      ref={containerRef}
+      tabIndex={-1}
+      className={cn('flex flex-col h-full w-full border rounded-lg overflow-hidden bg-background', className)}
+    >
       {/* Top Toolbar */}
       <div className="flex items-center gap-2 p-2 border-b bg-muted/20 shrink-0" role="toolbar">
         <Settings2 className="h-4 w-4 text-muted-foreground" />
-        <span className="font-medium text-sm">View Designer</span>
+        <span className="font-medium text-sm">{LABELS.title}</span>
         <span className="text-xs text-muted-foreground">— {objectName}</span>
+
+        {/* Collaboration indicator */}
+        {collaboration?.isConnected && collaboration.users.length > 1 && (
+          <div className="flex items-center gap-1 ml-2" role="status" aria-label="Active collaborators">
+            {collaboration.users.slice(0, 3).map((u) => (
+              <div
+                key={u.userId}
+                className="h-5 w-5 rounded-full text-[10px] font-bold flex items-center justify-center text-white"
+                style={{ backgroundColor: u.color }}
+                title={u.userName}
+              >
+                {u.userName.charAt(0).toUpperCase()}
+              </div>
+            ))}
+            {collaboration.users.length > 3 && (
+              <span className="text-xs text-muted-foreground">+{collaboration.users.length - 3}</span>
+            )}
+          </div>
+        )}
+
         <div className="flex-1" />
+
+        {/* Undo/Redo buttons */}
+        {!readOnly && (
+          <>
+            <button
+              onClick={history.undo}
+              disabled={!history.canUndo}
+              className="p-1.5 rounded hover:bg-accent disabled:opacity-30"
+              title={LABELS.undo}
+              aria-label={LABELS.undo}
+              data-testid="view-designer-undo"
+            >
+              <Undo2 className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={history.redo}
+              disabled={!history.canRedo}
+              className="p-1.5 rounded hover:bg-accent disabled:opacity-30"
+              title={LABELS.redo}
+              aria-label={LABELS.redo}
+              data-testid="view-designer-redo"
+            >
+              <Redo2 className="h-3.5 w-3.5" />
+            </button>
+            <div className="w-px h-4 bg-border mx-1" />
+          </>
+        )}
+
+        {/* Copy/Paste buttons */}
+        {!readOnly && (
+          <>
+            <button
+              onClick={handleCopyColumn}
+              disabled={selectedColumnIndex === null}
+              className="p-1.5 rounded hover:bg-accent disabled:opacity-30"
+              title={LABELS.copyColumn}
+              aria-label={LABELS.copyColumn}
+              data-testid="view-designer-copy"
+            >
+              <Copy className="h-3.5 w-3.5" />
+            </button>
+            <button
+              onClick={handlePasteColumn}
+              disabled={!clipboardHook.hasContent}
+              className="p-1.5 rounded hover:bg-accent disabled:opacity-30"
+              title={LABELS.pasteColumn}
+              aria-label={LABELS.pasteColumn}
+              data-testid="view-designer-paste"
+            >
+              <Clipboard className="h-3.5 w-3.5" />
+            </button>
+            <div className="w-px h-4 bg-border mx-1" />
+          </>
+        )}
+
         {!readOnly && (
           <>
             {onCancel && (
@@ -266,7 +496,7 @@ export function ViewDesigner({
                 className="flex items-center gap-1 px-3 py-1.5 text-xs rounded border border-border hover:bg-accent"
                 data-testid="view-designer-cancel"
               >
-                <X className="h-3 w-3" /> Cancel
+                <X className="h-3 w-3" /> {LABELS.cancel}
               </button>
             )}
             <button
@@ -274,7 +504,7 @@ export function ViewDesigner({
               className="flex items-center gap-1 px-3 py-1.5 text-xs rounded bg-primary text-primary-foreground hover:bg-primary/90"
               data-testid="view-designer-save"
             >
-              <Save className="h-3 w-3" /> Save View
+              <Save className="h-3 w-3" /> {LABELS.saveView}
             </button>
           </>
         )}
@@ -284,11 +514,11 @@ export function ViewDesigner({
         {/* Left Panel - Field Palette */}
         {!readOnly && (
           <div className="w-56 border-r bg-muted/30 flex flex-col shrink-0">
-            <div className="p-3 border-b font-medium text-sm">Available Fields</div>
+            <div className="p-3 border-b font-medium text-sm">{LABELS.availableFields}</div>
             <div className="flex-1 overflow-y-auto p-2">
               {unusedFields.length === 0 ? (
                 <div className="text-xs text-muted-foreground text-center py-4">
-                  All fields added
+                  {LABELS.allFieldsAdded}
                 </div>
               ) : (
                 unusedFields.map((field) => (
@@ -314,12 +544,12 @@ export function ViewDesigner({
           <div className="p-3 border-b space-y-3 shrink-0 bg-muted/10">
             {/* View Type - Made more prominent for creation */}
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold text-foreground">View Type</label>
+              <label className="text-xs font-semibold text-foreground">{LABELS.viewType}</label>
               <div className="flex gap-2 flex-wrap">
                 {VIEW_TYPE_OPTIONS.map(({ type, label, icon: Icon }) => (
                   <button
                     key={type}
-                    onClick={() => !readOnly && setViewType(type)}
+                    onClick={() => !readOnly && pushState({ viewType: type })}
                     className={cn(
                       'flex items-center gap-2 px-3 py-2 text-sm rounded-md border-2 transition-all font-medium',
                       viewType === type
@@ -336,12 +566,12 @@ export function ViewDesigner({
             </div>
             {/* View Label */}
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold text-foreground">View Name</label>
+              <label className="text-xs font-semibold text-foreground">{LABELS.viewName}</label>
               <input
                 type="text"
                 value={viewLabel}
-                onChange={(e) => !readOnly && setViewLabel(e.target.value)}
-                placeholder="Enter view name..."
+                onChange={(e) => !readOnly && pushState({ viewLabel: e.target.value })}
+                placeholder={LABELS.viewNamePlaceholder}
                 className="px-3 py-2 text-sm border-2 rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 readOnly={readOnly}
                 data-testid="view-label-input"
@@ -355,13 +585,13 @@ export function ViewDesigner({
               <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
                 <div className="text-center">
                   <Columns3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p>No columns added yet. Select fields from the palette to add columns.</p>
+                  <p>{LABELS.noColumnsTitle}</p>
                 </div>
               </div>
             ) : (
               <div className="space-y-1">
                 <div className="text-xs font-medium text-muted-foreground mb-2">
-                  Columns ({columns.length})
+                  {LABELS.columnsCount(columns.length)}
                 </div>
                 {columns.map((col, index) => (
                   <div
@@ -390,8 +620,8 @@ export function ViewDesigner({
                           }}
                           disabled={index === 0}
                           className="p-0.5 rounded hover:bg-accent disabled:opacity-30"
-                          title="Move up"
-                          aria-label="Move column up"
+                          title={LABELS.moveUp}
+                          aria-label={LABELS.moveColumnUp}
                         >
                           <ArrowUp className="h-3 w-3" />
                         </button>
@@ -402,8 +632,8 @@ export function ViewDesigner({
                           }}
                           disabled={index === columns.length - 1}
                           className="p-0.5 rounded hover:bg-accent disabled:opacity-30"
-                          title="Move down"
-                          aria-label="Move column down"
+                          title={LABELS.moveDown}
+                          aria-label={LABELS.moveColumnDown}
                         >
                           <ArrowDown className="h-3 w-3" />
                         </button>
@@ -413,8 +643,8 @@ export function ViewDesigner({
                             handleToggleColumnVisibility(index);
                           }}
                           className="p-0.5 rounded hover:bg-accent"
-                          title={col.visible !== false ? 'Hide column' : 'Show column'}
-                          aria-label="Toggle column visibility"
+                          title={col.visible !== false ? LABELS.hideColumn : LABELS.showColumn}
+                          aria-label={LABELS.toggleVisibility}
                         >
                           {col.visible !== false ? (
                             <Eye className="h-3 w-3" />
@@ -428,8 +658,8 @@ export function ViewDesigner({
                             handleRemoveColumn(index);
                           }}
                           className="p-0.5 rounded hover:bg-destructive/10"
-                          title="Remove column"
-                          aria-label="Remove column"
+                          title={LABELS.removeColumn}
+                          aria-label={LABELS.removeColumn}
                         >
                           <Trash2 className="h-3 w-3 text-destructive" />
                         </button>
@@ -470,18 +700,18 @@ export function ViewDesigner({
               <div>
                 {selectedColumnIndex !== null && columns[selectedColumnIndex] ? (
                   <div className="space-y-3">
-                    <div className="text-xs font-medium">Column Properties</div>
+                    <div className="text-xs font-medium">{LABELS.columnProperties}</div>
                     <div>
-                      <label className="text-xs text-muted-foreground">Label</label>
+                      <label className="text-xs text-muted-foreground">{LABELS.labelField}</label>
                       <input
                         type="text"
                         value={columns[selectedColumnIndex].label ?? ''}
                         onChange={(e) => {
                           if (readOnly) return;
                           const idx = selectedColumnIndex;
-                          setColumns((prev) =>
-                            prev.map((c, i) => (i === idx ? { ...c, label: e.target.value } : c)),
-                          );
+                          pushState({
+                            columns: columns.map((c, i) => (i === idx ? { ...c, label: e.target.value } : c)),
+                          });
                         }}
                         className="w-full px-2 py-1 text-sm border rounded bg-background mt-1"
                         readOnly={readOnly}
@@ -489,7 +719,7 @@ export function ViewDesigner({
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-muted-foreground">Width</label>
+                      <label className="text-xs text-muted-foreground">{LABELS.widthField}</label>
                       <input
                         type="text"
                         value={columns[selectedColumnIndex].width ?? ''}
@@ -497,27 +727,27 @@ export function ViewDesigner({
                           if (readOnly) return;
                           const idx = selectedColumnIndex;
                           const val = e.target.value;
-                          setColumns((prev) =>
-                            prev.map((c, i) =>
+                          pushState({
+                            columns: columns.map((c, i) =>
                               i === idx
                                 ? { ...c, width: /^\d+$/.test(val) ? Number(val) : val }
                                 : c,
                             ),
-                          );
+                          });
                         }}
-                        placeholder="auto"
+                        placeholder={LABELS.widthPlaceholder}
                         className="w-full px-2 py-1 text-sm border rounded bg-background mt-1"
                         readOnly={readOnly}
                         data-testid="column-width-input"
                       />
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Field: <span className="font-mono">{columns[selectedColumnIndex].field}</span>
+                      {LABELS.fieldLabel} <span className="font-mono">{columns[selectedColumnIndex].field}</span>
                     </div>
                   </div>
                 ) : (
                   <div className="text-xs text-muted-foreground text-center py-4">
-                    Select a column to edit its properties
+                    {LABELS.selectColumnPrompt}
                   </div>
                 )}
               </div>
@@ -567,7 +797,7 @@ export function ViewDesigner({
                         type="text"
                         value={filter.value ?? ''}
                         onChange={(e) => handleUpdateFilter(index, { value: e.target.value })}
-                        placeholder="Value"
+                        placeholder={LABELS.valuePlaceholder}
                         className="flex-1 px-1 py-0.5 text-xs border rounded bg-background"
                         readOnly={readOnly}
                       />
@@ -579,9 +809,9 @@ export function ViewDesigner({
                     onClick={handleAddFilter}
                     className="w-full flex items-center justify-center gap-1 px-2 py-1.5 text-xs rounded border border-dashed border-border hover:bg-accent"
                     data-testid="add-filter"
-                    aria-label="Add filter"
+                    aria-label={LABELS.addFilter}
                   >
-                    <Plus className="h-3 w-3" /> Add Filter
+                    <Plus className="h-3 w-3" /> {LABELS.addFilter}
                   </button>
                 )}
               </div>
@@ -610,8 +840,8 @@ export function ViewDesigner({
                       className="w-16 px-1 py-0.5 text-xs border rounded bg-background"
                       disabled={readOnly}
                     >
-                      <option value="asc">Asc</option>
-                      <option value="desc">Desc</option>
+                      <option value="asc">{LABELS.asc}</option>
+                      <option value="desc">{LABELS.desc}</option>
                     </select>
                     {!readOnly && (
                       <button
@@ -628,9 +858,9 @@ export function ViewDesigner({
                     onClick={handleAddSort}
                     className="w-full flex items-center justify-center gap-1 px-2 py-1.5 text-xs rounded border border-dashed border-border hover:bg-accent"
                     data-testid="add-sort"
-                    aria-label="Add sort"
+                    aria-label={LABELS.addSort}
                   >
-                    <Plus className="h-3 w-3" /> Add Sort
+                    <Plus className="h-3 w-3" /> {LABELS.addSort}
                   </button>
                 )}
               </div>
@@ -644,15 +874,15 @@ export function ViewDesigner({
                 </div>
                 {viewType === 'kanban' && (
                   <div>
-                    <label className="text-xs text-muted-foreground">Group By Field</label>
+                    <label className="text-xs text-muted-foreground">{LABELS.groupByField}</label>
                     <select
                       value={options.groupBy ?? ''}
-                      onChange={(e) => !readOnly && setOptions((prev) => ({ ...prev, groupBy: e.target.value }))}
+                      onChange={(e) => !readOnly && pushState({ options: { ...options, groupBy: e.target.value } })}
                       className="w-full px-2 py-1 text-sm border rounded bg-background mt-1"
                       disabled={readOnly}
                       data-testid="kanban-group-by"
                     >
-                      <option value="">Select field...</option>
+                      <option value="">{LABELS.selectField}</option>
                       {availableFields.map((f) => (
                         <option key={f.name} value={f.name}>
                           {f.label || f.name}
@@ -664,15 +894,15 @@ export function ViewDesigner({
                 {viewType === 'calendar' && (
                   <>
                     <div>
-                      <label className="text-xs text-muted-foreground">Start Date Field</label>
+                      <label className="text-xs text-muted-foreground">{LABELS.startDateField}</label>
                       <select
                         value={options.startDateField ?? ''}
-                        onChange={(e) => !readOnly && setOptions((prev) => ({ ...prev, startDateField: e.target.value }))}
+                        onChange={(e) => !readOnly && pushState({ options: { ...options, startDateField: e.target.value } })}
                         className="w-full px-2 py-1 text-sm border rounded bg-background mt-1"
                         disabled={readOnly}
                         data-testid="calendar-start-date"
                       >
-                        <option value="">Select field...</option>
+                        <option value="">{LABELS.selectField}</option>
                         {availableFields.map((f) => (
                           <option key={f.name} value={f.name}>
                             {f.label || f.name}
@@ -681,15 +911,15 @@ export function ViewDesigner({
                       </select>
                     </div>
                     <div>
-                      <label className="text-xs text-muted-foreground">Title Field</label>
+                      <label className="text-xs text-muted-foreground">{LABELS.titleField}</label>
                       <select
                         value={options.titleField ?? ''}
-                        onChange={(e) => !readOnly && setOptions((prev) => ({ ...prev, titleField: e.target.value }))}
+                        onChange={(e) => !readOnly && pushState({ options: { ...options, titleField: e.target.value } })}
                         className="w-full px-2 py-1 text-sm border rounded bg-background mt-1"
                         disabled={readOnly}
                         data-testid="calendar-title-field"
                       >
-                        <option value="">Select field...</option>
+                        <option value="">{LABELS.selectField}</option>
                         {availableFields.map((f) => (
                           <option key={f.name} value={f.name}>
                             {f.label || f.name}
@@ -702,14 +932,14 @@ export function ViewDesigner({
                 {viewType === 'map' && (
                   <>
                     <div>
-                      <label className="text-xs text-muted-foreground">Latitude Field</label>
+                      <label className="text-xs text-muted-foreground">{LABELS.latitudeField}</label>
                       <select
                         value={options.latitudeField ?? ''}
-                        onChange={(e) => !readOnly && setOptions((prev) => ({ ...prev, latitudeField: e.target.value }))}
+                        onChange={(e) => !readOnly && pushState({ options: { ...options, latitudeField: e.target.value } })}
                         className="w-full px-2 py-1 text-sm border rounded bg-background mt-1"
                         disabled={readOnly}
                       >
-                        <option value="">Select field...</option>
+                        <option value="">{LABELS.selectField}</option>
                         {availableFields.map((f) => (
                           <option key={f.name} value={f.name}>
                             {f.label || f.name}
@@ -718,14 +948,14 @@ export function ViewDesigner({
                       </select>
                     </div>
                     <div>
-                      <label className="text-xs text-muted-foreground">Longitude Field</label>
+                      <label className="text-xs text-muted-foreground">{LABELS.longitudeField}</label>
                       <select
                         value={options.longitudeField ?? ''}
-                        onChange={(e) => !readOnly && setOptions((prev) => ({ ...prev, longitudeField: e.target.value }))}
+                        onChange={(e) => !readOnly && pushState({ options: { ...options, longitudeField: e.target.value } })}
                         className="w-full px-2 py-1 text-sm border rounded bg-background mt-1"
                         disabled={readOnly}
                       >
-                        <option value="">Select field...</option>
+                        <option value="">{LABELS.selectField}</option>
                         {availableFields.map((f) => (
                           <option key={f.name} value={f.name}>
                             {f.label || f.name}
@@ -737,14 +967,14 @@ export function ViewDesigner({
                 )}
                 {(viewType === 'gallery') && (
                   <div>
-                    <label className="text-xs text-muted-foreground">Image Field</label>
+                    <label className="text-xs text-muted-foreground">{LABELS.imageField}</label>
                     <select
                       value={options.imageField ?? ''}
-                      onChange={(e) => !readOnly && setOptions((prev) => ({ ...prev, imageField: e.target.value }))}
+                      onChange={(e) => !readOnly && pushState({ options: { ...options, imageField: e.target.value } })}
                       className="w-full px-2 py-1 text-sm border rounded bg-background mt-1"
                       disabled={readOnly}
                     >
-                      <option value="">Select field...</option>
+                      <option value="">{LABELS.selectField}</option>
                       {availableFields.map((f) => (
                         <option key={f.name} value={f.name}>
                           {f.label || f.name}
@@ -756,14 +986,14 @@ export function ViewDesigner({
                 {(viewType === 'timeline' || viewType === 'gantt') && (
                   <>
                     <div>
-                      <label className="text-xs text-muted-foreground">Date Field</label>
+                      <label className="text-xs text-muted-foreground">{LABELS.dateField}</label>
                       <select
                         value={options.dateField ?? options.startDateField ?? ''}
-                        onChange={(e) => !readOnly && setOptions((prev) => ({ ...prev, dateField: e.target.value, startDateField: e.target.value }))}
+                        onChange={(e) => !readOnly && pushState({ options: { ...options, dateField: e.target.value, startDateField: e.target.value } })}
                         className="w-full px-2 py-1 text-sm border rounded bg-background mt-1"
                         disabled={readOnly}
                       >
-                        <option value="">Select field...</option>
+                        <option value="">{LABELS.selectField}</option>
                         {availableFields.map((f) => (
                           <option key={f.name} value={f.name}>
                             {f.label || f.name}
@@ -772,14 +1002,14 @@ export function ViewDesigner({
                       </select>
                     </div>
                     <div>
-                      <label className="text-xs text-muted-foreground">Title Field</label>
+                      <label className="text-xs text-muted-foreground">{LABELS.titleField}</label>
                       <select
                         value={options.titleField ?? ''}
-                        onChange={(e) => !readOnly && setOptions((prev) => ({ ...prev, titleField: e.target.value }))}
+                        onChange={(e) => !readOnly && pushState({ options: { ...options, titleField: e.target.value } })}
                         className="w-full px-2 py-1 text-sm border rounded bg-background mt-1"
                         disabled={readOnly}
                       >
-                        <option value="">Select field...</option>
+                        <option value="">{LABELS.selectField}</option>
                         {availableFields.map((f) => (
                           <option key={f.name} value={f.name}>
                             {f.label || f.name}
@@ -791,7 +1021,7 @@ export function ViewDesigner({
                 )}
                 {viewType === 'grid' && (
                   <div className="text-xs text-muted-foreground text-center py-2">
-                    Grid view uses the columns configured above.
+                    {LABELS.gridOptionsHint}
                   </div>
                 )}
               </div>
@@ -799,6 +1029,15 @@ export function ViewDesigner({
           </div>
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={confirmDialog.onCancel}
+      />
     </div>
   );
 }
