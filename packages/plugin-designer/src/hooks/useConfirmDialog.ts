@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 export interface ConfirmDialogState {
   /** Whether the dialog is open */
@@ -30,28 +30,28 @@ export function useConfirmDialog(): ConfirmDialogState {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
-  const [resolver, setResolver] = useState<((value: boolean) => void) | null>(null);
+  const resolverRef = useRef<((value: boolean) => void) | null>(null);
 
   const confirm = useCallback((title: string, message: string): Promise<boolean> => {
     setTitle(title);
     setMessage(message);
     setIsOpen(true);
     return new Promise<boolean>((resolve) => {
-      setResolver(() => resolve);
+      resolverRef.current = resolve;
     });
   }, []);
 
   const onConfirm = useCallback(() => {
     setIsOpen(false);
-    resolver?.(true);
-    setResolver(null);
-  }, [resolver]);
+    resolverRef.current?.(true);
+    resolverRef.current = null;
+  }, []);
 
   const onCancel = useCallback(() => {
     setIsOpen(false);
-    resolver?.(false);
-    setResolver(null);
-  }, [resolver]);
+    resolverRef.current?.(false);
+    resolverRef.current = null;
+  }, []);
 
   return { isOpen, title, message, confirm, onConfirm, onCancel };
 }
