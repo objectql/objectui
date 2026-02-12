@@ -519,6 +519,8 @@ export interface DashboardSchema extends BaseSchema {
   columns?: number;
   gap?: number;
   widgets: DashboardWidgetSchema[];
+  /** Auto-refresh interval in seconds. When set, the dashboard will periodically trigger onRefresh. */
+  refreshInterval?: number;
 }
 
 /**
