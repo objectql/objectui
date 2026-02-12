@@ -253,7 +253,7 @@ export function ViewDesigner({
   return (
     <div className={cn('flex flex-col h-full w-full border rounded-lg overflow-hidden bg-background', className)}>
       {/* Top Toolbar */}
-      <div className="flex items-center gap-2 p-2 border-b bg-muted/20 shrink-0">
+      <div className="flex items-center gap-2 p-2 border-b bg-muted/20 shrink-0" role="toolbar">
         <Settings2 className="h-4 w-4 text-muted-foreground" />
         <span className="font-medium text-sm">View Designer</span>
         <span className="text-xs text-muted-foreground">— {objectName}</span>
@@ -355,8 +355,7 @@ export function ViewDesigner({
               <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
                 <div className="text-center">
                   <Columns3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p>No columns added yet</p>
-                  <p className="text-xs mt-1">Add fields from the left panel to design your view</p>
+                  <p>No columns added yet. Select fields from the palette to add columns.</p>
                 </div>
               </div>
             ) : (
@@ -392,6 +391,7 @@ export function ViewDesigner({
                           disabled={index === 0}
                           className="p-0.5 rounded hover:bg-accent disabled:opacity-30"
                           title="Move up"
+                          aria-label="Move column up"
                         >
                           <ArrowUp className="h-3 w-3" />
                         </button>
@@ -403,6 +403,7 @@ export function ViewDesigner({
                           disabled={index === columns.length - 1}
                           className="p-0.5 rounded hover:bg-accent disabled:opacity-30"
                           title="Move down"
+                          aria-label="Move column down"
                         >
                           <ArrowDown className="h-3 w-3" />
                         </button>
@@ -413,6 +414,7 @@ export function ViewDesigner({
                           }}
                           className="p-0.5 rounded hover:bg-accent"
                           title={col.visible !== false ? 'Hide column' : 'Show column'}
+                          aria-label="Toggle column visibility"
                         >
                           {col.visible !== false ? (
                             <Eye className="h-3 w-3" />
@@ -427,6 +429,7 @@ export function ViewDesigner({
                           }}
                           className="p-0.5 rounded hover:bg-destructive/10"
                           title="Remove column"
+                          aria-label="Remove column"
                         >
                           <Trash2 className="h-3 w-3 text-destructive" />
                         </button>
@@ -442,11 +445,13 @@ export function ViewDesigner({
         {/* Right Panel - Properties */}
         <div className="w-64 border-l bg-muted/30 flex flex-col shrink-0">
           {/* Tabs */}
-          <div className="flex border-b shrink-0">
+          <div className="flex border-b shrink-0" role="tablist">
             {(['columns', 'filters', 'sort', 'options'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
+                role="tab"
+                aria-selected={activeTab === tab}
                 className={cn(
                   'flex-1 px-2 py-2 text-xs font-medium capitalize transition-colors',
                   activeTab === tab
@@ -574,6 +579,7 @@ export function ViewDesigner({
                     onClick={handleAddFilter}
                     className="w-full flex items-center justify-center gap-1 px-2 py-1.5 text-xs rounded border border-dashed border-border hover:bg-accent"
                     data-testid="add-filter"
+                    aria-label="Add filter"
                   >
                     <Plus className="h-3 w-3" /> Add Filter
                   </button>
@@ -622,6 +628,7 @@ export function ViewDesigner({
                     onClick={handleAddSort}
                     className="w-full flex items-center justify-center gap-1 px-2 py-1.5 text-xs rounded border border-dashed border-border hover:bg-accent"
                     data-testid="add-sort"
+                    aria-label="Add sort"
                   >
                     <Plus className="h-3 w-3" /> Add Sort
                   </button>

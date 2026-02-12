@@ -8,6 +8,12 @@
 
 import React, { createContext, useContext, useCallback, useMemo, useEffect, useRef, useState } from 'react';
 import type { CollaborationConfig, CollaborationPresence, CollaborationOperation } from '@object-ui/types';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+function cn(...inputs: (string | undefined | false)[]) {
+  return twMerge(clsx(inputs));
+}
 
 export interface CollaborationContextValue {
   /** Active users in the session */
@@ -201,12 +207,42 @@ export function useCollaboration(): CollaborationContextValue | null {
 }
 
 /**
+ * Connection status indicator component.
+ * Shows the current collaboration connection state with a colored dot and label.
+ */
+export function ConnectionStatusIndicator({ className }: { className?: string }) {
+  const ctx = useContext(CollabCtx);
+  if (!ctx) return null;
+
+  const { connectionState, users } = ctx;
+  const stateConfig: Record<string, { color: string; label: string }> = {
+    connected: { color: 'bg-green-500', label: 'Connected' },
+    connecting: { color: 'bg-yellow-500 animate-pulse', label: 'Connecting…' },
+    disconnected: { color: 'bg-gray-400', label: 'Disconnected' },
+    error: { color: 'bg-red-500', label: 'Connection error' },
+  };
+  const { color, label } = stateConfig[connectionState] ?? stateConfig.disconnected;
+
+  return (
+    <div className={cn('flex items-center gap-2 text-xs', className)} role="status" aria-live="polite" aria-label={`Collaboration: ${label}`}>
+      <span className={`inline-block h-2 w-2 rounded-full ${color}`} />
+      <span>{label}</span>
+      {connectionState === 'connected' && users.length > 1 && (
+        <span className="text-muted-foreground">({users.length} users)</span>
+      )}
+    </div>
+  );
+}
+
+/**
  * Generate a consistent color for a user ID.
  */
 function generateColor(userId: string): string {
   const colors = [
     '#3b82f6', '#ef4444', '#22c55e', '#f59e0b',
     '#8b5cf6', '#ec4899', '#06b6d4', '#f97316',
+    '#14b8a6', '#f43f5e', '#a855f7', '#84cc16',
+    '#0ea5e9', '#e879f9', '#fb923c', '#facc15',
   ];
   let hash = 0;
   for (let i = 0; i < userId.length; i++) {
