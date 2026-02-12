@@ -12,6 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgraded all `@objectstack/*` packages from v2.0.0 to v2.0.1 (latest)
 - Updated spec version references in ROADMAP.md, CONSOLE_ROADMAP.md, and README files to reflect @objectstack/spec v2.0.1
 
+### Added
+
+- **Console Bundle Optimization**: Split monolithic 3.7 MB main chunk into 17 granular cacheable chunks via `manualChunks` — main entry reduced from 1,008 KB gzip to 48.5 KB gzip (95% reduction)
+- **Gzip + Brotli Compression**: Pre-compressed assets via `vite-plugin-compression2` — Brotli main entry at 40 KB
+- **Bundle Analysis**: Added `rollup-plugin-visualizer` generating interactive treemap at `dist/stats.html`; new `build:analyze` script
+- **Lazy MSW Loading**: MSW mock server now loaded via dynamic `import()` — fully excluded from `build:server` output (~150 KB gzip saved)
+- **ROADMAP Console v1.0 Section**: Added production release optimization roadmap with detailed before/after metrics
+
 ---
 
 ## [0.3.1] - 2026-01-27
