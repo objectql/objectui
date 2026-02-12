@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import type {
   DesignerComponent,
   DesignerCanvasConfig,
   DesignerPaletteCategory,
   DesignerPaletteItem,
 } from '@object-ui/types';
-import { GripVertical, Undo2, Redo2, Eye, Layers, Plus, Trash2 } from 'lucide-react';
+import { GripVertical, Undo2, Redo2, Eye, Layers, Plus, Minus, Maximize2, Trash2 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -42,6 +42,10 @@ export interface PageDesignerProps {
   className?: string;
 }
 
+const ZOOM_MIN = 0.25;
+const ZOOM_MAX = 3;
+const ZOOM_STEP = 0.1;
+
 /**
  * Drag-and-drop page designer component.
  * Allows visual composition of UI components on a canvas.
@@ -58,7 +62,8 @@ export function PageDesigner({
 }: PageDesignerProps) {
   const [components, setComponents] = useState<DesignerComponent[]>(initialComponents);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [zoom, _setZoom] = useState(canvas.zoom ?? 1);
+  const [zoom, setZoom] = useState(canvas.zoom ?? 1);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const selectedComponent = useMemo(
     () => components.find((c) => c.id === selectedId),
@@ -94,11 +99,38 @@ export function PageDesigner({
     [components, selectedId, readOnly, onChange],
   );
 
+  const handleUpdateLabel = useCallback(
+    (id: string, label: string) => {
+      if (readOnly) return;
+      const updated = components.map((c) => (c.id === id ? { ...c, label } : c));
+      setComponents(updated);
+      onChange?.(updated);
+    },
+    [components, readOnly, onChange],
+  );
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName)) return;
+        e.preventDefault();
+        handleDeleteComponent(selectedId);
+      }
+      if (e.key === 'Escape') {
+        setSelectedId(null);
+      }
+    };
+    el.addEventListener('keydown', handleKeyDown);
+    return () => el.removeEventListener('keydown', handleKeyDown);
+  }, [selectedId, handleDeleteComponent]);
+
   return (
-    <div className={cn('flex h-full w-full border rounded-lg overflow-hidden bg-background', className)}>
+    <div ref={containerRef} tabIndex={0} className={cn('flex h-full w-full border rounded-lg overflow-hidden bg-background', className)}>
       {/* Left Panel - Component Palette */}
       {!readOnly && (
-        <div className="w-60 border-r bg-muted/30 flex flex-col">
+        <div className="w-60 border-r bg-muted/30 flex flex-col" role="region" aria-label="Component palette">
           <div className="p-3 border-b font-medium text-sm">Components</div>
           <div className="flex-1 overflow-y-auto p-2">
             {palette.map((category) => (
@@ -125,29 +157,52 @@ export function PageDesigner({
       {/* Center - Canvas */}
       <div className="flex-1 flex flex-col">
         {/* Toolbar */}
-        <div className="flex items-center gap-2 p-2 border-b bg-muted/20">
+        <div className="flex items-center gap-2 p-2 border-b bg-muted/20" role="toolbar" aria-label="Designer toolbar">
           {undoRedo && !readOnly && (
             <>
-              <button className="p-1.5 rounded hover:bg-accent" title="Undo">
+              <button className="p-1.5 rounded hover:bg-accent" title="Undo" aria-label="Undo">
                 <Undo2 className="h-4 w-4" />
               </button>
-              <button className="p-1.5 rounded hover:bg-accent" title="Redo">
+              <button className="p-1.5 rounded hover:bg-accent" title="Redo" aria-label="Redo">
                 <Redo2 className="h-4 w-4" />
               </button>
               <div className="w-px h-5 bg-border mx-1" />
             </>
           )}
-          <button className="p-1.5 rounded hover:bg-accent" title="Preview">
+          <button className="p-1.5 rounded hover:bg-accent" title="Preview" aria-label="Preview">
             <Eye className="h-4 w-4" />
           </button>
           <div className="flex-1" />
-          <span className="text-xs text-muted-foreground">
-            {Math.round(zoom * 100)}%
-          </span>
+          <div className="flex items-center gap-1">
+            <button
+              className="p-1 rounded hover:bg-accent text-xs"
+              aria-label="Zoom out"
+              onClick={() => setZoom((z) => Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(2)))}
+            >
+              <Minus className="h-3 w-3" />
+            </button>
+            <span className="text-xs text-muted-foreground w-10 text-center">
+              {Math.round(zoom * 100)}%
+            </span>
+            <button
+              className="p-1 rounded hover:bg-accent text-xs"
+              aria-label="Zoom in"
+              onClick={() => setZoom((z) => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(2)))}
+            >
+              <Plus className="h-3 w-3" />
+            </button>
+            <button
+              className="p-1 rounded hover:bg-accent text-xs"
+              aria-label="Reset zoom"
+              onClick={() => setZoom(1)}
+            >
+              <Maximize2 className="h-3 w-3" />
+            </button>
+          </div>
         </div>
 
         {/* Canvas Area */}
-        <div className="flex-1 overflow-auto bg-muted/10 p-4">
+        <div className="flex-1 overflow-auto bg-muted/10 p-4" role="region" aria-label="Design canvas">
           <div
             className="relative bg-background border rounded shadow-sm mx-auto"
             style={{
@@ -188,6 +243,7 @@ export function PageDesigner({
                         handleDeleteComponent(comp.id);
                       }}
                       className="ml-auto p-0.5 rounded hover:bg-destructive/10"
+                      aria-label={`Delete ${comp.label ?? comp.type}`}
                     >
                       <Trash2 className="h-3 w-3 text-destructive" />
                     </button>
@@ -204,7 +260,7 @@ export function PageDesigner({
 
       {/* Right Panel - Component Tree / Properties */}
       {showComponentTree && (
-        <div className="w-60 border-l bg-muted/30 flex flex-col">
+        <div className="w-60 border-l bg-muted/30 flex flex-col" role="region" aria-label="Component tree">
           <div className="p-3 border-b font-medium text-sm flex items-center gap-2">
             <Layers className="h-4 w-4" />
             Component Tree
@@ -212,7 +268,7 @@ export function PageDesigner({
           <div className="flex-1 overflow-y-auto p-2">
             {components.length === 0 ? (
               <div className="text-xs text-muted-foreground text-center py-4">
-                No components added yet
+                No components added yet. Click a component in the palette to add it to the canvas.
               </div>
             ) : (
               components.map((comp) => (
@@ -235,6 +291,15 @@ export function PageDesigner({
               <div className="text-xs text-muted-foreground space-y-1">
                 <div>Type: {selectedComponent.type}</div>
                 <div>ID: {selectedComponent.id}</div>
+                <label className="flex items-center gap-1">
+                  Label:
+                  <input
+                    type="text"
+                    value={selectedComponent.label ?? ''}
+                    onChange={(e) => handleUpdateLabel(selectedComponent.id, e.target.value)}
+                    className="flex-1 px-1 py-0.5 border rounded text-xs bg-background"
+                  />
+                </label>
                 <div>
                   Position: {selectedComponent.position.x}, {selectedComponent.position.y}
                 </div>
