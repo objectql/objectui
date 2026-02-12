@@ -73,7 +73,7 @@ describe('ViewDesigner', () => {
     it('should show empty state when no columns added', () => {
       render(<ViewDesigner objectName="contacts" />);
 
-      expect(screen.getByText('No columns added yet')).toBeDefined();
+      expect(screen.getByText('No columns added yet. Select fields from the palette to add columns.')).toBeDefined();
     });
   });
 
