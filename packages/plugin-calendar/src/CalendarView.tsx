@@ -240,6 +240,7 @@ function CalendarView({
           <WeekView
             date={selectedDate}
             events={events}
+            locale={locale}
             onEventClick={onEventClick}
             onDateClick={onDateClick}
           />
@@ -484,11 +485,12 @@ function MonthView({ date, events, onEventClick, onDateClick, onEventDrop }: Mon
 interface WeekViewProps {
   date: Date
   events: CalendarEvent[]
+  locale?: string
   onEventClick?: (event: CalendarEvent) => void
   onDateClick?: (date: Date) => void
 }
 
-function WeekView({ date, events, onEventClick, onDateClick }: WeekViewProps) {
+function WeekView({ date, events, locale = "default", onEventClick, onDateClick }: WeekViewProps) {
   const weekStart = getWeekStart(date)
   const weekDays = Array.from({ length: 7 }, (_, i) => {
     const day = new Date(weekStart)
