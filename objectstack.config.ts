@@ -83,6 +83,6 @@ export default {
     new DriverPlugin(new InMemoryDriver()),
     new AppPlugin(mergedApp),
     new HonoServerPlugin({ port: 3000 }),
-    new ConsolePlugin({ path: '/' }),
+    new ConsolePlugin(),
   ],
 };

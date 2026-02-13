@@ -2,22 +2,23 @@
  * ObjectStack Console Plugin
  *
  * Serves the pre-built Console SPA as a static UI plugin.
- * When registered alongside HonoServerPlugin, it mounts the SPA at `/console`
- * with static asset serving and SPA fallback routing.
+ * The mount path is auto-detected from the built assets (VITE_BASE_PATH
+ * at build time determines asset prefixes and React Router basename).
+ *
+ * Build commands:
+ *   pnpm build                          → base '/'        → mount at /
+ *   VITE_BASE_PATH=/console/ pnpm build → base '/console' → mount at /console
  *
  * Usage in any ObjectStack application:
  *
  *   import { ConsolePlugin } from '@object-ui/console';
  *
- *   export default defineStack({
+ *   export default {
  *     plugins: [
  *       new HonoServerPlugin({ port: 3000 }),
- *       new ConsolePlugin(),          // mounts at /console
- *       // new ConsolePlugin({ path: '/' })  // mount at root
+ *       new ConsolePlugin(),
  *     ],
- *   });
- *
- * Then visit http://localhost:3000/console
+ *   };
  *
  * @see https://github.com/objectstack-ai/objectui
  */
@@ -32,12 +33,21 @@ const __dirname = dirname(__filename);
 /** Absolute path to the built SPA assets (dist/) */
 export const staticPath = resolve(__dirname, 'dist');
 
-/** URL mount path for the console */
-export const mountPath = '/console';
-
-export interface ConsolePluginOptions {
-  /** Override the mount path (default: '/console') */
-  path?: string;
+/**
+ * Detect the base path baked into dist/index.html at build time.
+ *
+ * Vite prefixes all asset URLs with the `base` config value.
+ * We parse `<script … src="/console/assets/…">` to recover it.
+ * Falls back to '/' when dist is missing or no prefix is found.
+ */
+function detectBasePath(distDir: string): string {
+  const indexPath = resolve(distDir, 'index.html');
+  if (!existsSync(indexPath)) return '/';
+  const html = readFileSync(indexPath, 'utf-8');
+  // Match src="/console/assets/..." or href="/console/assets/..."
+  const match = html.match(/(?:src|href)="(\/[^"]*?)\/assets\//);
+  if (match?.[1]) return match[1]; // e.g. '/console'
+  return '/';
 }
 
 export class ConsolePlugin {
@@ -63,14 +73,6 @@ export class ConsolePlugin {
     ],
   };
 
-  private basePath: string;
-  private isRoot: boolean;
-
-  constructor(options?: ConsolePluginOptions) {
-    this.basePath = options?.path || mountPath;
-    this.isRoot = this.basePath === '/';
-  }
-
   init() {
     // No initialization needed
   }
@@ -92,6 +94,10 @@ export class ConsolePlugin {
       return;
     }
 
+    // Auto-detect mount path from the build output
+    const basePath = detectBasePath(distDir);
+    const isRoot = basePath === '/';
+
     // Try to use @hono/node-server/serve-static for efficient file serving
     let serveStaticFn: any;
     try {
@@ -102,9 +108,8 @@ export class ConsolePlugin {
       serveStaticFn = null;
     }
 
-    const routePattern = this.isRoot ? '/*' : `${this.basePath}/*`;
-    const basePath = this.basePath;
-    const stripPrefix = this.isRoot
+    const routePattern = isRoot ? '/*' : `${basePath}/*`;
+    const stripPrefix = isRoot
       ? (p: string) => p
       : (p: string) => p.replace(new RegExp(`^${basePath}`), '');
 
@@ -161,11 +166,11 @@ export class ConsolePlugin {
     }
 
     // Only redirect / → basePath when NOT mounted at root
-    if (!this.isRoot) {
+    if (!isRoot) {
       app.get('/', (c: any) => c.redirect(basePath));
     }
 
-    logger.info(`[Console] SPA mounted at ${this.isRoot ? '/' : basePath}`);
+    logger.info(`[Console] SPA mounted at ${isRoot ? '/' : basePath}`);
   }
 }
 
