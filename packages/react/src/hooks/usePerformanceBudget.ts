@@ -166,7 +166,9 @@ export function usePerformanceBudget(
   );
 
   const onViolationRef = useRef(userBudget.onViolation);
-  onViolationRef.current = userBudget.onViolation;
+  useEffect(() => {
+    onViolationRef.current = userBudget.onViolation;
+  }, [userBudget.onViolation]);
 
   const [violations, setViolations] = useState<BudgetViolation[]>([]);
   const seenRef = useRef<Set<string>>(new Set());

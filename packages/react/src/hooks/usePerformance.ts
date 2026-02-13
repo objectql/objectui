@@ -194,16 +194,12 @@ export function usePerformance(userConfig: PerformanceConfig = {}): PerformanceR
     return () => clearTimeout(timer);
   }, []);
 
-  // Track render count (ref-only, no state updates needed for metrics)
-  const renderCountRef = useRef(0);
-  renderCountRef.current += 1;
-
   const markRenderStart = useCallback((): (() => void) => {
     const start = typeof performance !== 'undefined' ? performance.now() : Date.now();
     return () => {
       const end = typeof performance !== 'undefined' ? performance.now() : Date.now();
       const duration = Math.round((end - start) * 100) / 100;
-      setMetrics((prev) => ({ ...prev, lastRenderDuration: duration }));
+      setMetrics((prev) => ({ ...prev, lastRenderDuration: duration, renderCount: prev.renderCount + 1 }));
     };
   }, []);
 
@@ -241,7 +237,7 @@ export function usePerformance(userConfig: PerformanceConfig = {}): PerformanceR
   return useMemo(
     () => ({
       config,
-      metrics: { ...metrics, renderCount: renderCountRef.current },
+      metrics,
       markRenderStart,
       debounce,
     }),

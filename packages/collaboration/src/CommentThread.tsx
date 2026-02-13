@@ -332,6 +332,17 @@ export function CommentThread({
     setMentionQuery(null);
   }, [inputValue]);
 
+  const handleSubmit = useCallback(() => {
+    const trimmed = inputValue.trim();
+    if (!trimmed || !onAddComment) return;
+
+    const mentions = parseMentions(trimmed, mentionableUsers);
+    onAddComment(trimmed, mentions, replyTo ?? undefined);
+    setInputValue('');
+    setReplyTo(null);
+    setMentionQuery(null);
+  }, [inputValue, onAddComment, mentionableUsers, replyTo]);
+
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (mentionQuery !== null && filteredMentions.length > 0) {
       if (e.key === 'ArrowDown') {
@@ -353,18 +364,7 @@ export function CommentThread({
       e.preventDefault();
       handleSubmit();
     }
-  }, [mentionQuery, filteredMentions, mentionIndex, insertMention]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleSubmit = useCallback(() => {
-    const trimmed = inputValue.trim();
-    if (!trimmed || !onAddComment) return;
-
-    const mentions = parseMentions(trimmed, mentionableUsers);
-    onAddComment(trimmed, mentions, replyTo ?? undefined);
-    setInputValue('');
-    setReplyTo(null);
-    setMentionQuery(null);
-  }, [inputValue, onAddComment, mentionableUsers, replyTo]);
+  }, [mentionQuery, filteredMentions, mentionIndex, insertMention, handleSubmit]);
 
   const handleEdit = useCallback((commentId: string) => {
     const comment = comments.find(c => c.id === commentId);

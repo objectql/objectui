@@ -63,17 +63,17 @@ describe('usePerformance', () => {
     }
   });
 
-  it('should track render count via ref', () => {
-    const { result, rerender } = renderHook(() => usePerformance());
+  it('should track render count via markRenderStart', () => {
+    const { result } = renderHook(() => usePerformance());
 
-    // Initial render count should be at least 1
-    expect(result.current.metrics.renderCount).toBeGreaterThanOrEqual(1);
+    // Initial render count should be 0 (only increments when markRenderStart stop is called)
+    expect(result.current.metrics.renderCount).toBe(0);
 
-    // After several rerenders, the count from markRenderStart should still be callable
-    rerender();
-    rerender();
-    // The ref increments on each render, but useMemo may cache the previous value.
-    // The important thing is that the render count is a valid non-negative number.
+    // After calling markRenderStart and its stop function, count should increment
+    act(() => {
+      const stop = result.current.markRenderStart();
+      stop();
+    });
     expect(result.current.metrics.renderCount).toBeGreaterThanOrEqual(1);
   });
 

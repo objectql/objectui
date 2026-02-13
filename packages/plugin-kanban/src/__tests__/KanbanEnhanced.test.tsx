@@ -24,6 +24,7 @@ vi.mock('@dnd-kit/core', () => ({
   DndContext: ({ children }: any) => <div data-testid="dnd-context">{children}</div>,
   DragOverlay: ({ children }: any) => <div data-testid="drag-overlay">{children}</div>,
   PointerSensor: vi.fn(),
+  TouchSensor: vi.fn(),
   useSensor: vi.fn(),
   useSensors: () => [],
   closestCorners: vi.fn(),
