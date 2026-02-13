@@ -33,32 +33,4 @@ export const TodoTask = ObjectSchema.create({
     estimated_hours: Field.number({ label: 'Est. Hours', scale: 1 }),
     description: Field.textarea({ label: 'Description' }),
   },
-
-  // list_views is a runtime extension not yet in @objectstack/spec types
-  list_views: {
-    all: {
-      label: 'All Tasks',
-      columns: ['subject', 'status', 'priority', 'assignee', 'category', 'due_date', 'is_completed'],
-    },
-    board: {
-      label: 'Board',
-      type: 'kanban',
-      groupField: 'status',
-      titleField: 'subject',
-      cardFields: ['priority', 'assignee', 'due_date'],
-    } as any,
-    calendar: {
-      label: 'Calendar',
-      type: 'calendar',
-      startDateField: 'due_date',
-      titleField: 'subject',
-      defaultView: 'month',
-    } as any,
-    active: {
-      label: 'Active',
-      columns: ['subject', 'status', 'priority', 'assignee', 'due_date'],
-      filter: [['status', '!=', 'Done']],
-      sort: [['priority', 'asc']],
-    },
-  },
-} as any);
+});

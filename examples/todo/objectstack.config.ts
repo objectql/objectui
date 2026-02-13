@@ -11,6 +11,50 @@ const daysFromNow = (days: number) => {
 
 export default defineStack({
   objects: [TodoTask],
+  views: [
+    {
+      listViews: {
+        all: {
+          name: 'all',
+          label: 'All Tasks',
+          type: 'grid',
+          data: { provider: 'object', object: 'todo_task' },
+          columns: ['subject', 'status', 'priority', 'assignee', 'category', 'due_date', 'is_completed'],
+        },
+        board: {
+          name: 'board',
+          label: 'Board',
+          type: 'kanban',
+          data: { provider: 'object', object: 'todo_task' },
+          columns: ['subject', 'priority', 'assignee', 'due_date'],
+          kanban: {
+            groupByField: 'status',
+            columns: ['priority', 'assignee', 'due_date'],
+          },
+        },
+        calendar: {
+          name: 'calendar',
+          label: 'Calendar',
+          type: 'calendar',
+          data: { provider: 'object', object: 'todo_task' },
+          columns: ['subject', 'status', 'due_date'],
+          calendar: {
+            startDateField: 'due_date',
+            titleField: 'subject',
+          },
+        },
+        active: {
+          name: 'active',
+          label: 'Active',
+          type: 'grid',
+          data: { provider: 'object', object: 'todo_task' },
+          columns: ['subject', 'status', 'priority', 'assignee', 'due_date'],
+          filter: [['status', '!=', 'Done']],
+          sort: [{ field: 'priority', order: 'asc' }],
+        },
+      },
+    },
+  ],
   apps: [
     App.create({
       name: 'todo_app',
