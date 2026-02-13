@@ -20,6 +20,8 @@ import { defineStack } from '@objectstack/spec';
 import { AppPlugin, DriverPlugin } from '@objectstack/runtime';
 import { ObjectQLPlugin } from '@objectstack/objectql';
 import { InMemoryDriver } from '@objectstack/driver-memory';
+import { HonoServerPlugin } from '@objectstack/plugin-hono-server';
+import { ConsolePlugin } from '@object-ui/console';
 import CrmConfig from './examples/crm/objectstack.config';
 import TodoConfig from './examples/todo/objectstack.config';
 import KitchenSinkConfig from './examples/kitchen-sink/objectstack.config';
@@ -80,5 +82,7 @@ export default {
     new ObjectQLPlugin(),
     new DriverPlugin(new InMemoryDriver()),
     new AppPlugin(mergedApp),
+    new HonoServerPlugin({ port: 3000 }),
+    new ConsolePlugin({ path: '/' }),
   ],
 };

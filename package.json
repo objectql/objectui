@@ -16,7 +16,7 @@
     "docs"
   ],
   "scripts": {
-    "dev": "pnpm dev:msv",    
+    "dev": "pnpm dev:msw",    
     "dev:msw": "pnpm --filter @object-ui/console dev",
     "start": "pnpm os:start",
     "os:dev": "tsx node_modules/@objectstack/cli/bin/objectstack.js serve --dev",

@@ -23,13 +23,13 @@ const InMemoryDriver = DriverMemoryPkg.InMemoryDriver || (DriverMemoryPkg as any
 const DriverPlugin = RuntimePkg.DriverPlugin || (RuntimePkg as any).default?.DriverPlugin || (RuntimePkg as any).default;
 const HonoServerPlugin = HonoServerPluginPkg.HonoServerPlugin || (HonoServerPluginPkg as any).default?.HonoServerPlugin || (HonoServerPluginPkg as any).default;
 
-import ConsolePlugin from './plugin';
+import { ConsolePlugin } from './plugin';
 
 const plugins: any[] = [
     new ObjectQLPlugin(),
     new DriverPlugin(new InMemoryDriver(), 'memory'),
     new HonoServerPlugin({ port: 3000 }),
-    ConsolePlugin,
+    new ConsolePlugin(),
 ];
 
 // Re-enable MSW only if explicitly needed

@@ -9,4 +9,4 @@
  *   import { ConsolePlugin } from './console-plugin';
  *   kernel.use(ConsolePlugin);
  */
-export { default as ConsolePlugin, createConsolePlugin } from '@object-ui/console';
+export { ConsolePlugin } from '@object-ui/console';
