@@ -9,7 +9,7 @@
  * - ListView delegation for non-grid view types (kanban, calendar, chart, etc.)
  */
 
-import { useMemo, useState, useCallback, type ComponentType } from 'react';
+import { useMemo, useState, useCallback, useEffect, type ComponentType } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { ObjectChart } from '@object-ui/plugin-charts';
 import { ListView } from '@object-ui/plugin-list';
@@ -26,6 +26,7 @@ import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataI
 import { useObjectActions } from '../hooks/useObjectActions';
 import { useObjectTranslation } from '@object-ui/i18n';
 import { usePermissions } from '@object-ui/permissions';
+import { useRealtimeSubscription } from '@object-ui/collaboration';
 
 /** Map view types to Lucide icons (Airtable-style) */
 const VIEW_TYPE_ICONS: Record<string, ComponentType<{ className?: string }>> = {
@@ -115,6 +116,17 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
         onEdit,
         onRefresh: () => setRefreshKey(k => k + 1),
     });
+
+    // Real-time: auto-refresh when server reports data changes
+    const { lastMessage: realtimeMessage } = useRealtimeSubscription({
+        channel: `object:${objectDef.name}`,
+    });
+
+    useEffect(() => {
+        if (realtimeMessage) {
+            setRefreshKey(k => k + 1);
+        }
+    }, [realtimeMessage]);
     
     // Drawer Logic
     const drawerRecordId = searchParams.get('recordId');

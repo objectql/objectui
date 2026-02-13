@@ -210,6 +210,9 @@ importers:
       '@object-ui/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@object-ui/collaboration':
+        specifier: workspace:*
+        version: link:../../packages/collaboration
       '@object-ui/components':
         specifier: workspace:*
         version: link:../../packages/components
