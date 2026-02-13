@@ -33,6 +33,8 @@ export const TodoTask = ObjectSchema.create({
     estimated_hours: Field.number({ label: 'Est. Hours', scale: 1 }),
     description: Field.textarea({ label: 'Description' }),
   },
+
+  // list_views is a runtime extension not yet in @objectstack/spec types
   list_views: {
     all: {
       label: 'All Tasks',
@@ -59,4 +61,4 @@ export const TodoTask = ObjectSchema.create({
       sort: [['priority', 'asc']],
     },
   },
-});
+} as any);
