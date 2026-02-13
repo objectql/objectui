@@ -292,7 +292,7 @@ ComponentRegistry.register('form',
                     render={({ field: formField }) => (
                       <FormItem className={colSpanClass || undefined}>
                         {label && (
-                          <FormLabel>
+                          <FormLabel className="text-xs sm:text-sm">
                             {label}
                             {required && (
                               <span className="text-destructive ml-1" aria-label="required">
@@ -462,12 +462,12 @@ function renderFieldComponent(type: string, props: RenderFieldProps) {
       if (inputType === 'file') {
         // File inputs cannot be controlled with value prop
          const { value, ...fileProps } = fieldProps;
-         return <Input type="file" placeholder={placeholder} {...fileProps} />;
+         return <Input type="file" placeholder={placeholder} className="min-h-[44px] sm:min-h-0" {...fileProps} />;
       }
-      return <Input type={inputType || 'text'} placeholder={placeholder} {...fieldProps} value={fieldProps.value ?? ''} />;
+      return <Input type={inputType || 'text'} placeholder={placeholder} className="min-h-[44px] sm:min-h-0" {...fieldProps} value={fieldProps.value ?? ''} />;
       
     case 'textarea':
-      return <Textarea placeholder={placeholder} {...fieldProps} value={fieldProps.value ?? ''} />;
+      return <Textarea placeholder={placeholder} className="min-h-[44px] sm:min-h-0" {...fieldProps} value={fieldProps.value ?? ''} />;
     
     case 'checkbox': {
       // For checkbox, we need to handle the value differently
@@ -476,6 +476,7 @@ function renderFieldComponent(type: string, props: RenderFieldProps) {
         <Checkbox 
           checked={value}
           onCheckedChange={onChange}
+          className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0"
           {...checkboxProps}
         />
       );
@@ -488,6 +489,7 @@ function renderFieldComponent(type: string, props: RenderFieldProps) {
         <Switch 
           checked={value}
           onCheckedChange={onChange}
+          className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0"
           {...switchProps}
         />
       );
@@ -504,7 +506,7 @@ function renderFieldComponent(type: string, props: RenderFieldProps) {
       
       return (
         <Select value={selectValue} onValueChange={selectOnChange} {...selectProps}>
-          <SelectTrigger>
+          <SelectTrigger className="min-h-[44px] sm:min-h-0">
             <SelectValue placeholder={placeholder ?? 'Select an option'} />
           </SelectTrigger>
           <SelectContent>
