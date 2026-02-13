@@ -15,6 +15,16 @@ const MOBILE_VIEWPORTS = [
   { name: 'iPad Mini', width: 768, height: 1024 },
 ];
 
+// Minimum touch compliance rate: 70% of visible buttons should meet the minimum height.
+// Some icon buttons intentionally use smaller sizes (e.g., h-6 for inline controls),
+// so we allow a 30% tolerance rather than requiring 100%.
+const MINIMUM_TOUCH_TARGET_COMPLIANCE = 0.7;
+
+// Practical minimum touch target height in pixels.
+// WCAG recommends 44px, but many design systems use h-8 (32px) for icon buttons.
+// The 44px minimum is enforced on form controls via min-h-[44px] sm:min-h-0.
+const MINIMUM_TOUCH_TARGET_PX = 32;
+
 test.describe('P5.5 Mobile Viewport Tests', () => {
   for (const viewport of MOBILE_VIEWPORTS) {
     test.describe(`${viewport.name} (${viewport.width}×${viewport.height})`, () => {
@@ -82,14 +92,13 @@ test.describe('P5.5 Mobile Viewport Tests', () => {
         const limit = Math.min(count, 20); // Check up to 20 buttons
         for (let i = 0; i < limit; i++) {
           const box = await buttons.nth(i).boundingBox();
-          if (box && (box.height >= 32 || box.width >= 32)) {
-            // Using 32px as practical minimum (44px is ideal but many icon buttons use h-8=32px)
+          if (box && (box.height >= MINIMUM_TOUCH_TARGET_PX || box.width >= MINIMUM_TOUCH_TARGET_PX)) {
             compliant++;
           }
         }
 
         const complianceRate = compliant / limit;
-        expect(complianceRate, 'Touch target compliance').toBeGreaterThanOrEqual(0.7);
+        expect(complianceRate, 'Touch target compliance').toBeGreaterThanOrEqual(MINIMUM_TOUCH_TARGET_COMPLIANCE);
       });
     });
   }
