@@ -118,11 +118,11 @@ function KanbanColumn({
       role="group"
       aria-label={column.title}
       className={cn(
-        "flex flex-col w-80 flex-shrink-0 rounded-lg border border-border bg-card/20 backdrop-blur-sm shadow-xl",
+        "flex flex-col w-72 sm:w-80 flex-shrink-0 rounded-lg border border-border bg-card/20 backdrop-blur-sm shadow-xl",
         column.className
       )}
     >
-      <div className="p-4 border-b border-border/50 bg-muted/20">
+      <div className="p-3 sm:p-4 border-b border-border/50 bg-muted/20">
         <div className="flex items-center justify-between">
           <h3 id={`kanban-col-${column.id}`} className="font-mono text-sm font-semibold tracking-wider text-primary/90 uppercase">{column.title}</h3>
           <div className="flex items-center gap-2">
@@ -318,7 +318,7 @@ function KanbanBoardInner({ columns, onCardMove, className, dnd }: KanbanBoardPr
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className={cn("flex gap-4 overflow-x-auto p-4", className)} role="region" aria-label="Kanban board">
+      <div className={cn("flex gap-3 sm:gap-4 overflow-x-auto p-2 sm:p-4 [-webkit-overflow-scrolling:touch]", className)} role="region" aria-label="Kanban board">
         {boardColumns.map((column) => (
           <KanbanColumn
             key={column.id}

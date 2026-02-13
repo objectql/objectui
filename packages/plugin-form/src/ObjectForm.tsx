@@ -511,7 +511,7 @@ const SimpleObjectForm: React.FC<ObjectFormProps> = ({
   // Render error state
   if (error) {
     return (
-      <div className="p-4 border border-red-300 bg-red-50 rounded-md">
+      <div className="p-3 sm:p-4 border border-red-300 bg-red-50 rounded-md">
         <h3 className="text-red-800 font-semibold">Error loading form</h3>
         <p className="text-red-600 text-sm mt-1">{error.message}</p>
       </div>
@@ -521,7 +521,7 @@ const SimpleObjectForm: React.FC<ObjectFormProps> = ({
   // Render loading state
   if (loading) {
     return (
-      <div className="p-8 text-center">
+      <div className="p-4 sm:p-8 text-center">
         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
         <p className="mt-2 text-sm text-gray-600">Loading form...</p>
       </div>
