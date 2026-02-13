@@ -46,7 +46,9 @@ export function useKeyboardShortcuts(
 ): void {
   const { enabled = true } = options;
   const shortcutsRef = useRef(shortcuts);
-  shortcutsRef.current = shortcuts;
+  useEffect(() => {
+    shortcutsRef.current = shortcuts;
+  });
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
