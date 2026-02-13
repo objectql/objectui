@@ -1,6 +1,7 @@
 import { readFileSync, existsSync, statSync } from 'node:fs';
 import { join, extname, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { Context } from 'hono';
 
 const MIME_TYPES: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
@@ -70,6 +71,22 @@ export interface ConsolePluginOptions {
    * @default 'no-cache'
    */
   indexCacheControl?: string;
+
+  /**
+   * URL path prefixes that should be skipped (passed through to other handlers).
+   * @default ['/api', '/graphql']
+   */
+  skipPaths?: string[];
+}
+
+/** Minimal interface for the ObjectStack kernel plugin context. */
+interface PluginContext {
+  logger?: { info: (msg: string) => void; warn: (msg: string) => void };
+  getService?: (name: string) => { getRawApp?: () => HonoApp; app?: HonoApp } | null;
+}
+
+interface HonoApp {
+  get: (path: string, handler: (c: Context) => Promise<Response | undefined> | Response | undefined) => void;
 }
 
 /**
@@ -149,6 +166,7 @@ export class ConsolePlugin {
       compression: options.compression ?? true,
       assetCacheControl: options.assetCacheControl ?? 'public, max-age=31536000, immutable',
       indexCacheControl: options.indexCacheControl ?? 'no-cache',
+      skipPaths: options.skipPaths ?? ['/api', '/graphql'],
     };
 
     // Normalize basePath: ensure it starts with / and doesn't end with /
@@ -166,7 +184,7 @@ export class ConsolePlugin {
     // No initialization needed
   }
 
-  async start(ctx: any): Promise<void> {
+  async start(ctx: PluginContext): Promise<void> {
     const logger = ctx.logger || console;
 
     // Resolve the client directory
@@ -196,7 +214,7 @@ export class ConsolePlugin {
       return;
     }
 
-    const { basePath, compression, assetCacheControl, indexCacheControl } = this.options;
+    const { basePath, compression, assetCacheControl, indexCacheControl, skipPaths } = this.options;
 
     logger.info(`[ConsolePlugin] Serving console from ${clientDir}`);
     logger.info(`[ConsolePlugin] Console UI available at ${basePath}`);
@@ -204,11 +222,11 @@ export class ConsolePlugin {
     // Route pattern: basePath/* (e.g., /console/* or /*)
     const routePattern = basePath === '/' ? '/*' : `${basePath}/*`;
 
-    app.get(routePattern, async (c: any) => {
+    app.get(routePattern, async (c: Context) => {
       const reqPath = c.req.path;
 
-      // Skip API routes
-      if (reqPath.startsWith('/api') || reqPath.startsWith('/graphql')) {
+      // Skip configured paths (e.g., /api, /graphql)
+      if (skipPaths.some((prefix) => reqPath.startsWith(prefix))) {
         return undefined; // Let other handlers process
       }
 
@@ -246,7 +264,7 @@ export class ConsolePlugin {
 
     // If basePath is not '/', also handle exact basePath request (without trailing /)
     if (basePath !== '/') {
-      app.get(basePath, async (c: any) => {
+      app.get(basePath, async (c: Context) => {
         const indexPath = join(clientDir, 'index.html');
         if (existsSync(indexPath)) {
           return this.serveFile(c, indexPath, false, indexCacheControl);
@@ -257,7 +275,7 @@ export class ConsolePlugin {
   }
 
   private serveFile(
-    c: any,
+    c: Context,
     filePath: string,
     useCompression: boolean,
     cacheControl: string,
