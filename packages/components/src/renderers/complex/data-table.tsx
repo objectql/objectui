@@ -601,7 +601,15 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                 return (
                   <TableHead
                     key={col.accessorKey}
-                    className={`${col.className || ''} ${sortable && col.sortable !== false ? 'cursor-pointer select-none' : ''} ${isDragging ? 'opacity-50' : ''} ${isDragOver ? 'border-l-2 border-primary' : ''} relative group bg-background`}
+                    className={cn(
+                      col.className,
+                      sortable && col.sortable !== false && 'cursor-pointer select-none',
+                      isDragging && 'opacity-50',
+                      isDragOver && 'border-l-2 border-primary',
+                      col.align === 'right' && 'text-right',
+                      col.align === 'center' && 'text-center',
+                      'relative group bg-background'
+                    )}
                     style={{ 
                       width: columnWidth,
                       minWidth: columnWidth 
@@ -613,7 +621,10 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                     onDragEnd={handleColumnDragEnd}
                     onClick={() => sortable && col.sortable !== false && handleSort(col.accessorKey)}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className={cn(
+                      "flex items-center",
+                      col.align === 'right' ? 'justify-end' : 'justify-between'
+                    )}>
                       <div className="flex items-center gap-1">
                         {reorderableColumns && (
                           <GripVertical className="h-4 w-4 opacity-0 group-hover:opacity-50 cursor-grab active:cursor-grabbing flex-shrink-0" />
@@ -701,6 +712,8 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                             key={colIndex} 
                             className={cn(
                               col.cellClassName,
+                              col.align === 'right' && 'text-right',
+                              col.align === 'center' && 'text-center',
                               isEditable && !isEditing && "cursor-text hover:bg-muted/50",
                               hasPendingChange && "font-semibold text-amber-700 dark:text-amber-400"
                             )}
