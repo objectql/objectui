@@ -27,7 +27,7 @@ import {
   TimelineGanttBar,
   TimelineGanttBarContent,
 } from './index';
-import { renderChildren } from '@object-ui/components';
+import { renderChildren, cn } from '@object-ui/components';
 
 // Constants
 const MILLISECONDS_PER_WEEK = 7 * 24 * 60 * 60 * 1000;
@@ -123,7 +123,7 @@ export const TimelineRenderer = ({ schema, className, ...props }: { schema: Time
     // Horizontal Timeline
     if (variant === 'horizontal') {
       return (
-        <TimelineHorizontal className={className} {...props}>
+        <TimelineHorizontal className={cn("overflow-x-auto [-webkit-overflow-scrolling:touch]", className)} {...props}>
           {items.map((item: any, index: number) => (
             <TimelineHorizontalItem key={index} className={item.className}>
               <div className="flex flex-col items-center">
@@ -208,7 +208,7 @@ export const TimelineRenderer = ({ schema, className, ...props }: { schema: Time
       const timeHeaders = generateTimeHeaders();
 
       return (
-        <TimelineGantt className={className} {...props}>
+        <TimelineGantt className={cn("overflow-x-auto [-webkit-overflow-scrolling:touch]", className)} {...props}>
           {/* Header */}
           <TimelineGanttHeader>
             <TimelineGanttRowLabels className="flex items-center px-4 py-3">

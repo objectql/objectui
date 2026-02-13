@@ -406,8 +406,8 @@ export const ListView: React.FC<ListViewProps> = ({
       )}
 
       {/* Airtable-style Toolbar — Row 2: Tool buttons */}
-      <div className="border-b px-4 py-1 flex items-center justify-between gap-2 bg-background">
-        <div className="flex items-center gap-0.5 overflow-hidden">
+      <div className="border-b px-2 sm:px-4 py-1 flex items-center justify-between gap-1 sm:gap-2 bg-background">
+        <div className="flex items-center gap-0.5 overflow-hidden flex-1 min-w-0">
           {/* Hide Fields */}
           <Button
             variant="ghost"
@@ -439,7 +439,7 @@ export const ListView: React.FC<ListViewProps> = ({
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent align="start" className="w-[600px] p-4">
+            <PopoverContent align="start" className="w-[calc(100vw-2rem)] sm:w-[600px] max-w-[600px] p-3 sm:p-4">
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b pb-2">
                   <h4 className="font-medium text-sm">Filter Records</h4>
@@ -487,7 +487,7 @@ export const ListView: React.FC<ListViewProps> = ({
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent align="start" className="w-[600px] p-4">
+            <PopoverContent align="start" className="w-[calc(100vw-2rem)] sm:w-[600px] max-w-[600px] p-3 sm:p-4">
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b pb-2">
                   <h4 className="font-medium text-sm">Sort Records</h4>
@@ -530,7 +530,7 @@ export const ListView: React.FC<ListViewProps> = ({
         {/* Right: Search */}
         <div className="flex items-center gap-1">
           {searchExpanded ? (
-            <div className="relative w-48 lg:w-64">
+            <div className="relative w-36 sm:w-48 lg:w-64">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input
                 placeholder="Find..."

@@ -56,9 +56,13 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
     return (
       <div
         ref={ref}
-        className={cn("grid auto-rows-min", className)}
+        className={cn(
+          "grid auto-rows-min",
+          "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+          className
+        )}
         style={{
-            gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+            ...(columns > 4 && { gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }),
             gap: `${gap * 0.25}rem`
         }}
         {...props}
@@ -166,7 +170,7 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                         </CardHeader>
                     )}
                     <CardContent className="p-0">
-                        <div className={cn("h-full w-full", !widget.title ? "p-4" : "p-4")}>
+                        <div className={cn("h-full w-full", "p-3 sm:p-4")}>
                             <SchemaRenderer schema={componentSchema} />
                         </div>
                     </CardContent>

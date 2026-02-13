@@ -510,13 +510,13 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
   const showToolbar = searchable || exportable || (selectable && selectedRowIds.size > 0) || hasPendingChanges;
 
   return (
-    <div className={`flex flex-col h-full gap-4 ${className || ''}`}>
+    <div className={`flex flex-col h-full gap-2 sm:gap-4 ${className || ''}`}>
       {/* Toolbar */}
       {showToolbar && (
-        <div className="flex items-center justify-between gap-4 flex-none">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-4 flex-none">
           <div className="flex items-center gap-2 flex-1">
             {searchable && (
-              <div className="relative max-w-sm flex-1">
+              <div className="relative w-full sm:max-w-sm flex-1">
                 <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search..."
@@ -531,7 +531,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
             )}
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {hasPendingChanges && (
               <>
                 <div className="text-sm text-muted-foreground">
@@ -580,7 +580,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
       )}
 
       {/* Table */}
-      <div className="rounded-md border flex-1 min-h-0 overflow-auto relative bg-background">
+      <div className="rounded-md border flex-1 min-h-0 overflow-auto relative bg-background [-webkit-overflow-scrolling:touch]">
         <Table>
           {caption && <TableCaption>{caption}</TableCaption>}
           <TableHeader className="sticky top-0 bg-background z-10 shadow-sm">
@@ -804,7 +804,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
 
       {/* Pagination */}
       {pagination && sortedData.length > 0 && (
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Rows per page:</span>
             <Select

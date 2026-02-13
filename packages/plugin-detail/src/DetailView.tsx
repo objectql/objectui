@@ -182,8 +182,8 @@ export const DetailView: React.FC<DetailViewProps> = ({
     <TooltipProvider>
       <div className={cn('space-y-6', className)}>
         {/* Header - Airtable-inspired layout */}
-        <div className="flex items-start justify-between gap-4 pb-4 border-b">
-          <div className="flex items-start gap-3 flex-1 min-w-0">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4 pb-4 border-b">
+          <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
             {(schema.showBack ?? true) && (
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -196,7 +196,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
             )}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold truncate">{schema.title || 'Details'}</h1>
+                <h1 className="text-xl sm:text-2xl font-bold truncate">{schema.title || 'Details'}</h1>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button 
@@ -227,7 +227,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex flex-wrap items-center gap-1.5 shrink-0">
             {schema.actions?.map((action, index) => (
               <SchemaRenderer key={index} schema={action} data={data} />
             ))}
