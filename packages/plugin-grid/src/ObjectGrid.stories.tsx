@@ -79,6 +79,43 @@ export const WithRowActions: Story = {
   } as any,
 };
 
+/**
+ * CRM Deals Pipeline — demonstrates professional data formatting:
+ * - Currency with thousand separators (Amount column, right-aligned)
+ * - Percentage with progress bar (Probability column, right-aligned)
+ * - Formatted dates (Close Date column)
+ * - Colored badges for stage/status (Stage column)
+ * - Bold clickable name as primary link (Name column)
+ * - Empty value placeholder (Account column)
+ */
+export const CRMDeals: Story = {
+  name: 'CRM Deals Pipeline',
+  render: renderStory,
+  args: {
+    type: 'object-grid',
+    objectName: 'Deal',
+    columns: [
+      { field: 'name', label: 'Name', link: true, sortable: true },
+      { field: 'account', label: 'Account' },
+      { field: 'stage', label: 'Stage', type: 'select', sortable: true },
+      { field: 'amount', label: 'Amount', type: 'currency', sortable: true },
+      { field: 'probability', label: 'Probability', type: 'percent', sortable: true },
+      { field: 'close_date', label: 'Close Date', type: 'date', sortable: true },
+    ],
+    data: [
+      { _id: '1', name: 'ObjectStack Enterprise License', account: '', stage: 'Closed Won', amount: 150000, probability: 100, close_date: '2024-01-15T00:00:00.000Z' },
+      { _id: '2', name: 'Cloud Migration Project', account: 'Acme Corp', stage: 'Negotiation', amount: 85000, probability: 60, close_date: '2024-03-20T00:00:00.000Z' },
+      { _id: '3', name: 'Annual Support Renewal', account: '', stage: 'Proposal', amount: 42000, probability: 80, close_date: '2024-02-28T00:00:00.000Z' },
+      { _id: '4', name: 'Custom Integration Development', account: 'TechFlow Inc', stage: 'Qualification', amount: 230000, probability: 30, close_date: '2024-06-15T00:00:00.000Z' },
+      { _id: '5', name: 'Data Analytics Platform', account: '', stage: 'Closed Lost', amount: 95000, probability: 0, close_date: '2024-01-10T00:00:00.000Z' },
+      { _id: '6', name: 'Security Audit Contract', account: 'SecureNet', stage: 'Closed Won', amount: 67500, probability: 100, close_date: '2024-02-01T00:00:00.000Z' },
+      { _id: '7', name: 'Mobile App Development', account: '', stage: 'Discovery', amount: 180000, probability: 15, close_date: '2024-08-30T00:00:00.000Z' },
+    ],
+    pagination: false,
+    className: 'w-full',
+  } as any,
+};
+
 export const EditableGrid: Story = {
   render: renderStory,
   args: {
