@@ -1,0 +1,132 @@
+/**
+ * ObjectUI
+ * Copyright (c) 2024-present ObjectStack Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * Smoke tests for SchemaRendererProvider.
+ *
+ * These tests ensure that every registered plugin component that calls
+ * useSchemaContext() can render without throwing when wrapped in a
+ * SchemaRendererProvider. This catches the class of errors reported in
+ * Storybook ("useSchemaContext must be used within a SchemaRendererProvider").
+ */
+
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import React from 'react';
+import { ComponentRegistry } from '@object-ui/core';
+import { SchemaRenderer } from '../SchemaRenderer';
+import { SchemaRendererProvider, useSchemaContext } from '../context/SchemaRendererContext';
+
+// Suppress console.error from React error boundary during tests
+const originalConsoleError = console.error;
+beforeEach(() => {
+  console.error = vi.fn();
+});
+afterEach(() => {
+  console.error = originalConsoleError;
+});
+
+// Helper: a component that calls useSchemaContext (mimics plugin pattern)
+const ContextConsumer: React.FC<any> = ({ schema }) => {
+  const { dataSource } = useSchemaContext();
+  return <div data-testid="ctx-consumer">dataSource: {JSON.stringify(dataSource)}</div>;
+};
+
+describe('useSchemaContext provider requirement', () => {
+  it('should throw when used outside SchemaRendererProvider', () => {
+    expect(() => render(<ContextConsumer schema={{}} />)).toThrow(
+      'useSchemaContext must be used within a SchemaRendererProvider'
+    );
+  });
+
+  it('should not throw when used inside SchemaRendererProvider', () => {
+    render(
+      <SchemaRendererProvider dataSource={{ test: true }}>
+        <ContextConsumer schema={{}} />
+      </SchemaRendererProvider>
+    );
+    expect(screen.getByTestId('ctx-consumer')).toHaveTextContent('dataSource: {"test":true}');
+  });
+
+  it('should fall back to empty dataSource when provider has empty object', () => {
+    render(
+      <SchemaRendererProvider dataSource={{}}>
+        <ContextConsumer schema={{}} />
+      </SchemaRendererProvider>
+    );
+    expect(screen.getByTestId('ctx-consumer')).toHaveTextContent('dataSource: {}');
+  });
+});
+
+describe('SchemaRenderer + SchemaRendererProvider integration', () => {
+  beforeEach(() => {
+    ComponentRegistry.register('test-ctx-consumer', ContextConsumer);
+  });
+
+  afterEach(() => {
+    ComponentRegistry.unregister?.('test-ctx-consumer');
+  });
+
+  it('should render a component that calls useSchemaContext without error when provider wraps the tree', () => {
+    render(
+      <SchemaRendererProvider dataSource={{ foo: 'bar' }}>
+        <SchemaRenderer schema={{ type: 'test-ctx-consumer' }} />
+      </SchemaRendererProvider>
+    );
+    expect(screen.getByTestId('ctx-consumer')).toHaveTextContent('dataSource: {"foo":"bar"}');
+  });
+
+  it('should show error boundary fallback (not crash) when provider is missing', () => {
+    // Without a provider, the SchemaErrorBoundary catches the throw
+    render(
+      <SchemaRenderer schema={{ type: 'test-ctx-consumer' }} />
+    );
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+    expect(screen.getByText(/failed to render/i)).toBeInTheDocument();
+  });
+});
+
+describe('Plugin component types render inside provider', () => {
+  // This test ensures all registered plugin types that use useSchemaContext
+  // can at least mount without throwing inside a SchemaRendererProvider.
+  const pluginTypes = [
+    'kanban',
+    'object-kanban',
+    'timeline',
+    'object-timeline',
+    'object-grid',
+    'object-calendar',
+    'object-map',
+    'chart',
+    'object-gantt',
+  ];
+
+  for (const type of pluginTypes) {
+    it(`type="${type}" should not throw inside SchemaRendererProvider`, () => {
+      const component = ComponentRegistry.get(type);
+      if (!component) {
+        // Component not registered in test environment — skip
+        return;
+      }
+
+      // Render via SchemaRenderer inside provider
+      const { container } = render(
+        <SchemaRendererProvider dataSource={{}}>
+          <SchemaRenderer schema={{ type }} />
+        </SchemaRendererProvider>
+      );
+
+      // Should NOT show the error boundary alert
+      const alerts = container.querySelectorAll('[role="alert"]');
+      const providerErrors = Array.from(alerts).filter((el) =>
+        el.textContent?.includes('useSchemaContext must be used within')
+      );
+      expect(providerErrors).toHaveLength(0);
+    });
+  }
+});
