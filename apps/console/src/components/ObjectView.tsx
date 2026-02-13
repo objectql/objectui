@@ -265,6 +265,19 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
                     </Button>
                     )}
                     
+                    {/* Schema-driven toolbar actions */}
+                    {objectDef.actions?.filter((a: any) => a.location === 'list_toolbar').map((action: any) => (
+                      <Button
+                        key={action.name || action.label}
+                        size="sm"
+                        variant={action.variant || "outline"}
+                        className="shadow-none h-8 sm:h-9"
+                        onClick={() => actions.execute(action)}
+                      >
+                        {action.label || action.name}
+                      </Button>
+                    ))}
+
                     {/* Design mode tools menu */}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
