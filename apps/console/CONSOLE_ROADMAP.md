@@ -1,10 +1,11 @@
 # ObjectStack Console — Complete Development Roadmap
 
-> **Last Updated:** February 13, 2026
+> **Last Updated:** February 14, 2026
 > **Current Version:** v0.5.2
 > **Target Version:** v1.0.0 (GA)
-> **Spec Alignment:** @objectstack/spec v3.0.0
-> **Phases 1-9:** ✅ All Complete
+> **Spec Alignment:** @objectstack/spec v3.0.2
+> **Bootstrap (Phase 0):** ✅ Complete
+> **Phases 1-9:** ⚠️ Mostly Complete (see verified status below)
 
 ---
 
@@ -125,11 +126,11 @@ The Console is the **canonical proof** that ObjectUI's Server-Driven UI (SDUI) e
 - ✅ Favorites and recent items
 
 **Data Layer:**
-- ✅ Official `@object-ui/data-objectstack` adapter
+- ✅ Official `@object-ui/data-objectstack` adapter (`ObjectStackAdapter`)
 - ✅ Auto-reconnect with exponential backoff
 - ✅ Metadata caching (ETag-based)
 - ✅ MSW browser-based mock server
-- ✅ Server-driven metadata API (`getView`, `getApp`, `getPage`)
+- ⚠️ Metadata API (`getView`, `getApp`, `getPage`) exists on adapter but console still loads from static config
 - ✅ Graceful hotcrm submodule fallback (empty arrays when not initialized)
 
 **Object Views:**
@@ -157,10 +158,10 @@ The Console is the **canonical proof** that ObjectUI's Server-Driven UI (SDUI) e
 - ✅ Expression-based navigation item visibility (`visible`, `visibleOn`)
 
 **Action System:**
-- ✅ Typed `ActionRunner` with `ActionDef` (not `any`)
-- ✅ `useObjectActions` hook with create/delete/navigate/refresh handlers
+- ⚠️ `useObjectActions` hook with create/delete/navigate/refresh handlers (callback-based, not yet full `ActionEngine` dispatch)
 - ✅ Toast notifications via Sonner
 - ✅ Confirmation dialogs for destructive actions
+- ❌ Declarative `ActionDef[]` event pipeline (events → ActionEngine) not yet implemented
 
 **Internationalization:**
 - ✅ `@object-ui/i18n` integration with `I18nProvider`
@@ -206,23 +207,50 @@ The Console is the **canonical proof** that ObjectUI's Server-Driven UI (SDUI) e
 - ✅ Login, Register, Forgot Password pages
 - ✅ System admin pages (users, orgs, roles, audit log, profile)
 
-### Resolved Gaps ✅
+### Resolved Gaps
 
-| # | Gap | Resolution |
-|---|-----|------------|
-| G1 | Expression engine not fully wired | ✅ `ExpressionProvider` + `evaluateVisibility` wired into navigation, form fields, and CRUD dialog |
-| G2 | Action system uses `any` types | ✅ `ActionRunner.execute()` typed with `ActionDef` interface |
-| G3 | DataSource missing metadata API | ✅ `getView`/`getApp`/`getPage` implemented in `ObjectStackAdapter` |
-| G4 | No i18n support | ✅ 10 language packs + `LocaleSwitcher` + `useObjectTranslation` |
-| G5 | No RBAC integration | ✅ `usePermissions` gating CRUD buttons and navigation items |
-| G6 | No real-time updates | ✅ `useRealtimeSubscription` auto-refreshing views on data changes |
-| G7 | No offline support / PWA | ✅ `MobileProvider` with PWA manifest and service worker |
-| G8 | Bundle size 200KB+ | ✅ Code splitting, chunk splitting, compression, preloading |
-| G9 | NavigationConfig incomplete | ✅ All 8 view plugins support NavigationConfig with 7 modes |
+| # | Gap | Status | Resolution |
+|---|-----|--------|------------|
+| G1 | Expression engine not fully wired | ✅ | `ExpressionProvider` + `evaluateVisibility` wired into navigation, form fields, and CRUD dialog |
+| G2 | Action system uses `any` types | ⚠️ | `useObjectActions` hook typed, but no declarative `ActionEngine` pipeline yet |
+| G3 | DataSource missing metadata API | ⚠️ | `getView`/`getApp`/`getPage` exist on adapter, but console still uses static config |
+| G4 | No i18n support | ✅ | 10 language packs + `LocaleSwitcher` + `useObjectTranslation` |
+| G5 | No RBAC integration | ✅ | `usePermissions` gating CRUD buttons and navigation items |
+| G6 | No real-time updates | ✅ | `useRealtimeSubscription` auto-refreshing views on data changes |
+| G7 | No offline support / PWA | ✅ | `MobileProvider` with PWA manifest and service worker |
+| G8 | Bundle size 200KB+ | ✅ | Code splitting, chunk splitting, compression, preloading |
+| G9 | NavigationConfig incomplete | ✅ | All 8 view plugins support NavigationConfig with 7 modes |
 
 ---
 
 ## 4. Development Phases
+
+### Phase 0: Bootstrap & Foundation ✅ Complete
+
+**Origin:** Consolidated from `DEVELOPMENT_PLAN.md` (10 sub-phases, Feb 7-13 2026).
+
+These were the initial tasks to bring the console prototype to production-quality architecture.
+
+| Sub-Phase | Description | Status | Notes |
+|-----------|-------------|--------|-------|
+| 0.1 | English-Only Codebase | ✅ Done | All Chinese strings replaced with English; i18n keys used |
+| 0.2 | Plugin Registration | ✅ Done | 14 plugins registered in `main.tsx` (5 planned + 9 extra) |
+| 0.3 | Config Alignment (`defineStack()`) | ⚠️ Partial | `defineStack()` from spec used, but `as any` cast bypasses Zod validation |
+| 0.4 | Data Layer Upgrade | ⚠️ Partial | `ObjectStackAdapter` integrated + `ConnectionStatus`; metadata still loaded statically |
+| 0.5 | Schema-Driven Architecture | ⚠️ Partial | `ObjectView` delegates to `plugin-view` with ViewSwitcher; Filter/Sort delegated to plugins internally |
+| 0.6 | Developer Experience | ✅ Done | Shared `MetadataInspector`, Error Boundaries, 34 test files |
+| 0.7 | MSW Runtime Fixes | ⚠️ Partial | MSW functional via lazy-load; workarounds remain in `objectstack.config.ts` + `vite.config.ts` |
+| 0.8 | Layout System | ✅ Done | Branding/theming via `AppShell`, mobile-responsive layout |
+| 0.9 | Navigation & Routing | ✅ Done | Deep-links, `⌘+K` command palette, expression-based visibility |
+| 0.10 | Action System (Foundation) | ⚠️ Partial | `useObjectActions` hook with callbacks; declarative `ActionEngine` not yet implemented |
+
+**Remaining items to close Phase 0:**
+- [ ] Remove `as any` cast in `objectstack.shared.ts` — use proper typed config
+- [ ] Migrate static metadata loading to runtime `getView()`/`getApp()` calls
+- [ ] Clean up MSW workarounds in `objectstack.config.ts`
+- [ ] Implement declarative `ActionEngine` from `@object-ui/core`
+
+---
 
 ### Phase 1: Expression Engine Integration ✅ Complete
 
@@ -245,18 +273,18 @@ The Console is the **canonical proof** that ObjectUI's Server-Driven UI (SDUI) e
 
 ---
 
-### Phase 2: Action System Completion ✅ Complete
+### Phase 2: Action System Completion ⚠️ Partially Complete
 
 **Goal:** Unify the action system and make ActionRunner production-ready with typed dispatch, toast notifications, dialog confirmations, and redirect handling.
 
-**Status:** ✅ Complete — `ActionRunner.execute()` typed with `ActionDef`, `useObjectActions` hook provides create/delete/navigate/refresh handlers, toast notifications via Sonner, schema-driven toolbar actions.
+**Status:** ⚠️ Partial — `useObjectActions` hook provides create/delete/navigate/refresh handlers with toast notifications via Sonner. However, the declarative `ActionEngine` pipeline (events → `ActionDef[]` dispatch) from the JSON Protocol is **not yet implemented**. CRUD dialog uses inline callbacks, not `ActionSchema`.
 
 | Task | Description | Status |
 |------|-------------|--------|
-| 2.1 | Canonical ActionDef type | ✅ Done (`ActionDef` in `@object-ui/core`) |
-| 2.2 | Type `ActionRunner.execute()` with `ActionDef` | ✅ Done |
+| 2.1 | Canonical ActionDef type | ⚠️ Partial (typed hook, not full ActionDef pipeline) |
+| 2.2 | Type `ActionRunner.execute()` with `ActionDef` | ❌ Not implemented |
 | 2.3 | Toast action handler (Sonner) | ✅ Done (in `useObjectActions`) |
-| 2.4 | Dialog confirmation action handler | ✅ Done (`confirmText` support in ActionRunner) |
+| 2.4 | Dialog confirmation action handler | ✅ Done (`confirmText` in delete flow) |
 | 2.5 | Redirect result handling | ✅ Done (`navigate` handler in `useObjectActions`) |
 | 2.6 | Wire action buttons into ObjectView toolbar | ✅ Done (`objectDef.actions[]` rendering) |
 | 2.7 | Bulk action support | ✅ Done (multi-row selection in plugin-grid) |
@@ -264,11 +292,11 @@ The Console is the **canonical proof** that ObjectUI's Server-Driven UI (SDUI) e
 
 ---
 
-### Phase 3: Server-Driven Metadata API ✅ Complete
+### Phase 3: Server-Driven Metadata API ⚠️ Partially Complete
 
 **Goal:** Add `getView`, `getApp`, `getPage` methods to the DataSource interface so the console can fetch UI definitions from the server instead of using static config.
 
-**Status:** ✅ Complete — All three methods exist on `DataSource` interface and are implemented in `ObjectStackAdapter` with metadata caching. Console uses static config fallback via `objectstack.shared.ts`.
+**Status:** ⚠️ Partial — All three methods exist on `DataSource` interface and are implemented in `ObjectStackAdapter` with metadata caching. However, the console **still loads objects/apps from static `objectstack.shared.ts`** rather than fetching at runtime. Views are resolved from `objectDef.list_views` (static), not via `client.meta.getView()`.
 
 | Task | Description | Status |
 |------|-------------|--------|
@@ -277,7 +305,7 @@ The Console is the **canonical proof** that ObjectUI's Server-Driven UI (SDUI) e
 | 3.3 | `getPage(pageId)` on DataSource | ✅ Done |
 | 3.4 | Implement in `ObjectStackAdapter` | ✅ Done (with `MetadataCache`) |
 | 3.5 | Metadata cache layer (TTL + ETag) | ✅ Done |
-| 3.6 | Console: fetch app config from server | ✅ Done (via adapter) |
+| 3.6 | Console: fetch app config from server | ⚠️ Adapter supports it, but console uses static config |
 | 3.7 | Console: fallback to static config | ✅ Done (`objectstack.shared.ts`) |
 | 3.8 | MSW: mock metadata endpoints | ✅ Done |
 
@@ -477,11 +505,15 @@ The Console is the **canonical proof** that ObjectUI's Server-Driven UI (SDUI) e
 ## 6. Execution Timeline
 
 ```
-2026 Q1 (Feb-Mar)  — ALL PHASES COMPLETE ✅
+2026 Q1 (Feb 7-13)  — BOOTSTRAP COMPLETE ✅
+═══════════════════════════════════════════════════════════
+  Phase 0: Bootstrap & Foundation     ██████████████  ✅ Complete (4 items remaining)
+
+2026 Q1 (Feb-Mar)  — FEATURE PHASES
 ═══════════════════════════════════════════════════════════
   Phase 1: Expression Engine          ██████████████  ✅ Complete
-  Phase 2: Action System              ██████████████  ✅ Complete
-  Phase 3: Metadata API               ██████████████  ✅ Complete
+  Phase 2: Action System              ██████████░░░░  ⚠️ Partial (no ActionEngine)
+  Phase 3: Metadata API               ██████████░░░░  ⚠️ Partial (static config)
   Phase 4: Internationalization        ██████████████  ✅ Complete
   Phase 5: RBAC & Permissions          ██████████████  ✅ Complete
   Phase 6: Real-Time Updates           ██████████████  ✅ Complete
@@ -499,9 +531,10 @@ The Console is the **canonical proof** that ObjectUI's Server-Driven UI (SDUI) e
 
 | Milestone | Version | Date | Description |
 |-----------|---------|------|-------------|
-| **Alpha** | v0.6.0 | ✅ Feb 2026 | Expressions + Actions + Metadata API |
-| **Beta** | v0.8.0 | ✅ Feb 2026 | i18n + RBAC + Real-time |
-| **RC** | v0.9.0 | ✅ Feb 2026 | Full feature set + Performance + NavigationConfig |
+| **Bootstrap** | v0.5.0 | ✅ Feb 7, 2026 | 10 sub-phases: data layer, plugins, i18n, routing, DX |
+| **Alpha** | v0.5.2 | ✅ Feb 14, 2026 | Expressions + Partial Actions + Metadata adapter + i18n + RBAC |
+| **Beta** | v0.8.0 | Planned | Complete Action System + Server-driven metadata + MSW cleanup |
+| **RC** | v0.9.0 | Planned | Full feature set + Performance + NavigationConfig |
 | **GA** | v1.0.0 | Q3 2026 | Production-ready enterprise console |
 
 ---
@@ -636,10 +669,16 @@ Each app has its own navigation tree, branding, and permissions. The sidebar and
 
 ## 11. Success Metrics
 
-### Phase 1-3 (Foundation) ✅
+### Phase 0 (Bootstrap) ✅
+- [x] Official `ObjectStackAdapter` replaces local data source
+- [x] 14 plugins registered in `main.tsx`
+- [x] `defineStack()` used for config (Zod validation pending)
+- [x] All UI strings in English; i18n keys via `useObjectTranslation`
+
+### Phase 1-3 (Foundation) ⚠️
 - [x] 100% of navigation items respect `visible` expressions
-- [x] All CRUD actions dispatched through typed ActionRunner
-- [x] Console can load app config from server API
+- [ ] All CRUD actions dispatched through declarative `ActionEngine` pipeline
+- [ ] Console fetches app config from server at runtime (currently static)
 
 ### Phase 4-6 (Enterprise) ✅
 - [x] 10 languages supported with runtime switching
@@ -666,8 +705,7 @@ Each app has its own navigation tree, branding, and permissions. The sidebar and
 
 | Document | Location | Purpose |
 |----------|----------|---------|
-| Development Plan (v0.1–v0.5) | `apps/console/DEVELOPMENT_PLAN.md` | Completed phases 1-10 |
-| Next Steps (v0.5.1+) | `apps/console/NEXT_STEPS.md` | Tactical next tasks |
+| Development Plan (v0.1–v0.5) | Merged into Phase 0 above | Bootstrap phases (archived) |
 | NavigationConfig Compliance Report | `/tmp/navigation-config-compliance-report.md` | Spec compliance analysis for all view plugins |
 | Architecture Guide | `content/docs/guide/console-architecture.md` | Technical deep-dive |
 | Getting Started | `content/docs/guide/console.md` | User-facing docs |

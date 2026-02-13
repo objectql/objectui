@@ -108,11 +108,9 @@ Console App
 
 | Document | Description |
 |----------|-------------|
-| [Console Roadmap](./CONSOLE_ROADMAP.md) | Full development plan with phases and timeline |
+| [Console Roadmap](./CONSOLE_ROADMAP.md) | Full development plan with phases, timeline, and verified status |
 | [Getting Started Guide](../../content/docs/guide/console.md) | User-facing documentation |
 | [Architecture Guide](../../content/docs/guide/console-architecture.md) | Technical deep-dive |
-| [Development Plan](./DEVELOPMENT_PLAN.md) | Completed phases 1-10 |
-| [Next Steps](./NEXT_STEPS.md) | Tactical next tasks |
 | [UI Improvement Proposal](./docs/UI_IMPROVEMENT_PROPOSAL.md) | Modern UI design improvements for metadata inspector |
 
 ## License
