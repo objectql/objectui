@@ -93,9 +93,13 @@ export function usePresence(
   const activityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const awayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentUserRef = useRef(currentUser);
-  currentUserRef.current = currentUser;
+  useEffect(() => {
+    currentUserRef.current = currentUser;
+  });
   const sendPresenceRef = useRef(sendPresence);
-  sendPresenceRef.current = sendPresence;
+  useEffect(() => {
+    sendPresenceRef.current = sendPresence;
+  });
 
   const throttledSend = useCallback((updated: PresenceUser) => {
     const now = Date.now();

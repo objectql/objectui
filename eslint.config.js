@@ -34,5 +34,11 @@ export default tseslint.config({ ignores: ['**/dist', '**/.next', '**/node_modul
     ],
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+    // Downgrade new React Compiler rules to warnings (codebase predates these rules)
+    'react-hooks/refs': 'warn',
+    'react-hooks/immutability': 'warn',
+    'react-hooks/set-state-in-effect': 'warn',
+    'react-hooks/preserve-manual-memoization': 'warn',
+    'react-hooks/use-memo': 'warn',
   },
 }, storybook.configs["flat/recommended"]);
