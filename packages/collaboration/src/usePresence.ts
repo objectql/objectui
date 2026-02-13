@@ -95,11 +95,11 @@ export function usePresence(
   const currentUserRef = useRef(currentUser);
   useEffect(() => {
     currentUserRef.current = currentUser;
-  });
+  }, [currentUser]);
   const sendPresenceRef = useRef(sendPresence);
   useEffect(() => {
     sendPresenceRef.current = sendPresence;
-  });
+  }, [sendPresence]);
 
   const throttledSend = useCallback((updated: PresenceUser) => {
     const now = Date.now();

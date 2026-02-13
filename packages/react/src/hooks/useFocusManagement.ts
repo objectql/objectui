@@ -145,7 +145,7 @@ export function useRovingFocus<T extends HTMLElement = HTMLDivElement>(
   const onFocusChangeRef = useRef(onFocusChange);
   useEffect(() => {
     onFocusChangeRef.current = onFocusChange;
-  });
+  }, [onFocusChange]);
 
   const getItems = useCallback((): HTMLElement[] => {
     if (!containerRef.current) return [];
