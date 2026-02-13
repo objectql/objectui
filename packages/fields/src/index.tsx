@@ -76,9 +76,12 @@ export function formatCurrency(value: number, currency: string = 'USD'): string 
 
 /**
  * Format percent value
+ * Handles both decimal (0.8 = 80%) and whole number (80 = 80%) inputs.
  */
-export function formatPercent(value: number, precision: number = 2): string {
-  return `${(value * 100).toFixed(precision)}%`;
+export function formatPercent(value: number, precision: number = 0): string {
+  // If value is between -1 and 1 (exclusive), treat as decimal (e.g. 0.8 → 80%)
+  const displayValue = (value > -1 && value < 1) ? value * 100 : value;
+  return `${displayValue.toFixed(precision)}%`;
 }
 
 /**
@@ -125,11 +128,13 @@ export function TextCellRenderer({ value }: CellRendererProps): React.ReactEleme
  * Number field cell renderer
  */
 export function NumberCellRenderer({ value, field }: CellRendererProps): React.ReactElement {
-  if (value == null) return <span>-</span>;
+  if (value == null) return <span className="text-muted-foreground">-</span>;
   
   const numField = field as any;
   const precision = numField.precision ?? 0;
-  const formatted = typeof value === 'number' ? value.toFixed(precision) : value;
+  const formatted = typeof value === 'number'
+    ? new Intl.NumberFormat('en-US', { minimumFractionDigits: precision, maximumFractionDigits: precision }).format(value)
+    : value;
   
   return <span className="tabular-nums">{formatted}</span>;
 }
@@ -138,26 +143,40 @@ export function NumberCellRenderer({ value, field }: CellRendererProps): React.R
  * Currency field cell renderer
  */
 export function CurrencyCellRenderer({ value, field }: CellRendererProps): React.ReactElement {
-  if (value == null) return <span>-</span>;
+  if (value == null) return <span className="text-muted-foreground">-</span>;
   
   const currencyField = field as any;
   const currency = currencyField.currency || 'USD';
   const formatted = formatCurrency(Number(value), currency);
   
-  return <span className="tabular-nums font-medium">{formatted}</span>;
+  return <span className="tabular-nums font-medium whitespace-nowrap">{formatted}</span>;
 }
 
 /**
- * Percent field cell renderer
+ * Percent field cell renderer with mini progress bar
  */
 export function PercentCellRenderer({ value, field }: CellRendererProps): React.ReactElement {
-  if (value == null) return <span>-</span>;
+  if (value == null) return <span className="text-muted-foreground">-</span>;
   
   const percentField = field as any;
-  const precision = percentField.precision ?? 2;
-  const formatted = formatPercent(Number(value), precision);
+  const precision = percentField.precision ?? 0;
+  const numValue = Number(value);
+  const formatted = formatPercent(numValue, precision);
+  // Normalize to 0-100 range for progress bar
+  const barValue = (numValue > -1 && numValue < 1) ? numValue * 100 : numValue;
+  const clampedBar = Math.max(0, Math.min(100, barValue));
   
-  return <span className="tabular-nums">{formatted}</span>;
+  return (
+    <div className="flex items-center gap-2">
+      <div className="h-1.5 w-16 rounded-full bg-muted overflow-hidden flex-shrink-0">
+        <div
+          className="h-full rounded-full bg-primary transition-all"
+          style={{ width: `${clampedBar}%` }}
+        />
+      </div>
+      <span className="tabular-nums whitespace-nowrap">{formatted}</span>
+    </div>
+  );
 }
 
 /**

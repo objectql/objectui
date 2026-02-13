@@ -327,11 +327,11 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
                 cellRenderer = (value: any, row: any) => {
                   const displayContent = CellRenderer
                     ? <CellRenderer value={value} field={{ name: col.field, type: col.type || 'text' } as any} />
-                    : String(value ?? '');
+                    : (value != null && value !== '' ? String(value) : <span className="text-muted-foreground">-</span>);
                   return (
                     <button
                       type="button"
-                      className="text-primary underline-offset-4 hover:underline cursor-pointer bg-transparent border-none p-0 text-left font-inherit"
+                      className="text-primary font-medium underline-offset-4 hover:underline cursor-pointer bg-transparent border-none p-0 text-left"
                       onClick={(e) => {
                         e.stopPropagation();
                         navigation.handleClick(row);
@@ -346,11 +346,11 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
                 cellRenderer = (value: any, row: any) => {
                   const displayContent = CellRenderer
                     ? <CellRenderer value={value} field={{ name: col.field, type: col.type || 'text' } as any} />
-                    : String(value ?? '');
+                    : (value != null && value !== '' ? String(value) : <span className="text-muted-foreground">-</span>);
                   return (
                     <button
                       type="button"
-                      className="text-primary underline-offset-4 hover:underline cursor-pointer bg-transparent border-none p-0 text-left font-inherit"
+                      className="text-primary font-medium underline-offset-4 hover:underline cursor-pointer bg-transparent border-none p-0 text-left"
                       onClick={(e) => {
                         e.stopPropagation();
                         navigation.handleClick(row);
@@ -365,11 +365,11 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
                 cellRenderer = (value: any, row: any) => {
                   const displayContent = CellRenderer
                     ? <CellRenderer value={value} field={{ name: col.field, type: col.type || 'text' } as any} />
-                    : String(value ?? '');
+                    : (value != null && value !== '' ? String(value) : <span className="text-muted-foreground">-</span>);
                   return (
                     <button
                       type="button"
-                      className="text-primary underline-offset-4 hover:underline cursor-pointer bg-transparent border-none p-0 text-left font-inherit"
+                      className="text-primary underline-offset-4 hover:underline cursor-pointer bg-transparent border-none p-0 text-left"
                       onClick={(e) => {
                         e.stopPropagation();
                         executeAction({
@@ -387,13 +387,24 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
                 cellRenderer = (value: any) => (
                   <CellRenderer value={value} field={{ name: col.field, type: col.type || 'text' } as any} />
                 );
+              } else {
+                // Default renderer with empty value handling
+                cellRenderer = (value: any) => (
+                  value != null && value !== ''
+                    ? <span>{String(value)}</span>
+                    : <span className="text-muted-foreground">-</span>
+                );
               }
+
+              // Auto-infer alignment from field type if not explicitly set
+              const numericTypes = ['number', 'currency', 'percent'];
+              const inferredAlign = col.align || (col.type && numericTypes.includes(col.type) ? 'right' as const : undefined);
 
               return {
                 header,
                 accessorKey: col.field,
                 ...(col.width && { width: col.width }),
-                ...(col.align && { align: col.align }),
+                ...(inferredAlign && { align: inferredAlign }),
                 sortable: col.sortable !== false,
                 ...(col.resizable !== undefined && { resizable: col.resizable }),
                 ...(col.wrap !== undefined && { wrap: col.wrap }),
@@ -439,9 +450,11 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
       if (field.permissions && field.permissions.read === false) return;
 
       const CellRenderer = getCellRenderer(field.type);
+      const numericTypes = ['number', 'currency', 'percent'];
       generatedColumns.push({
         header: field.label || fieldName,
         accessorKey: fieldName,
+        ...(numericTypes.includes(field.type) && { align: 'right' }),
         cell: (value: any) => <CellRenderer value={value} field={field} />,
         sortable: field.sortable !== false,
       });
