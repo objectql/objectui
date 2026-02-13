@@ -806,7 +806,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
       {pagination && sortedData.length > 0 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Rows per page:</span>
+            <span className="text-xs sm:text-sm text-muted-foreground">Rows per page:</span>
             <Select
               value={pageSize.toString()}
               onValueChange={(value) => {
@@ -828,8 +828,8 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">
-              Page {currentPage} of {totalPages} ({sortedData.length} total)
+            <span className="text-xs sm:text-sm text-muted-foreground">
+              Page {currentPage} of {totalPages} <span className="hidden sm:inline">({sortedData.length} total)</span>
             </span>
             <div className="flex items-center gap-1">
               <Button

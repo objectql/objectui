@@ -329,13 +329,14 @@ ComponentRegistry.register('form',
 
           {/* Form Actions */}
           {(schema.showActions !== false) && (
-            <div className={`flex gap-2 ${layout === 'horizontal' ? 'justify-end' : 'justify-start'} mt-6`}>
+            <div className={`flex flex-col sm:flex-row gap-2 ${layout === 'horizontal' ? 'sm:justify-end' : 'sm:justify-start'} mt-6`}>
               {showCancel && (
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handleCancel}
                   disabled={isSubmitting || disabled}
+                  className="w-full sm:w-auto"
                 >
                   {cancelLabel}
                 </Button>
@@ -344,6 +345,7 @@ ComponentRegistry.register('form',
               <Button
                 type="submit"
                 disabled={isSubmitting || disabled}
+                className="w-full sm:w-auto"
               >
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {submitLabel}

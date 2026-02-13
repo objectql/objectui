@@ -211,8 +211,8 @@ export const TimelineRenderer = ({ schema, className, ...props }: { schema: Time
         <TimelineGantt className={cn("overflow-x-auto [-webkit-overflow-scrolling:touch]", className)} {...props}>
           {/* Header */}
           <TimelineGanttHeader>
-            <TimelineGanttRowLabels className="flex items-center px-4 py-3">
-              <span className="font-semibold text-sm">
+            <TimelineGanttRowLabels className="flex items-center px-2 sm:px-4 py-2 sm:py-3">
+              <span className="font-semibold text-xs sm:text-sm">
                 {schema.rowLabel || 'Items'}
               </span>
             </TimelineGanttRowLabels>
@@ -221,7 +221,7 @@ export const TimelineRenderer = ({ schema, className, ...props }: { schema: Time
                 {timeHeaders.map((header, index) => (
                   <div
                     key={index}
-                    className="flex-1 px-2 py-3 border-r text-xs font-medium text-center"
+                    className="flex-1 px-1 sm:px-2 py-2 sm:py-3 border-r text-[10px] sm:text-xs font-medium text-center"
                   >
                     {header}
                   </div>

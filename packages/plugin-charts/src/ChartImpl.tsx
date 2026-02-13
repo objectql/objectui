@@ -31,9 +31,9 @@ export default function ChartImpl({
   color = 'hsl(var(--primary))',
 }: ChartImplProps) {
   return (
-    <div className={`p-4 rounded-xl border border-border bg-card/40 backdrop-blur-sm shadow-lg shadow-background/5 ${className}`}>
+    <div className={`p-2 sm:p-3 md:p-4 rounded-xl border border-border bg-card/40 backdrop-blur-sm shadow-lg shadow-background/5 ${className}`}>
       <ResponsiveContainer width="100%" height={height}>
-        <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+        <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 5 }}>
           <defs>
             <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={color} stopOpacity={1} />

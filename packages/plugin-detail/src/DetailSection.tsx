@@ -110,11 +110,11 @@ export const DetailSection: React.FC<DetailSectionProps> = ({
   const content = (
     <div 
       className={cn(
-        "grid gap-4",
+        "grid gap-3 sm:gap-4",
         section.columns === 1 ? "grid-cols-1" :
-        section.columns === 2 ? "grid-cols-2" :
-        section.columns === 3 ? "grid-cols-3" :
-        "grid-cols-2 md:grid-cols-3"
+        section.columns === 2 ? "grid-cols-1 sm:grid-cols-2" :
+        section.columns === 3 ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3" :
+        "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
       )}
     >
       {section.fields.map(renderField)}
@@ -142,7 +142,7 @@ export const DetailSection: React.FC<DetailSectionProps> = ({
             )}
           </CardHeader>
         )}
-        <CardContent className="pt-6">
+        <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
           {content}
         </CardContent>
       </Card>
@@ -185,7 +185,7 @@ export const DetailSection: React.FC<DetailSectionProps> = ({
           </CardHeader>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
             {content}
           </CardContent>
         </CollapsibleContent>
