@@ -49,8 +49,8 @@ jobs:
       - name: Build packages
         run: pnpm turbo run build --filter='./packages/*'
 
-      - name: Build Console (server mode)
-        run: pnpm --filter @object-ui/console build:server
+      - name: Build Console
+        run: pnpm --filter @object-ui/console build
 
       - name: Check performance budget
         id: budget
