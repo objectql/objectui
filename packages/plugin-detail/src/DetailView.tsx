@@ -227,7 +227,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+          <div className="flex flex-wrap items-center gap-1.5 shrink-0 w-full sm:w-auto">
             {schema.actions?.map((action, index) => (
               <SchemaRenderer key={index} schema={action} data={data} />
             ))}
@@ -306,7 +306,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
 
       {/* Sections */}
       {schema.sections && schema.sections.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {schema.sections.map((section, index) => (
             <DetailSection
               key={index}

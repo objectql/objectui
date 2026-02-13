@@ -147,27 +147,28 @@ export function GanttView({
   return (
     <div className={cn("flex flex-col h-full bg-background border rounded-lg overflow-hidden", className)}>
       {/* Toolbar */}
-      <div className="flex items-center justify-between p-2 border-b bg-card">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-2 border-b bg-card">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => onAddClick?.()}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Task
+          <Button variant="outline" size="sm" onClick={() => onAddClick?.()} aria-label="Create new task">
+            <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">New Task</span>
+            <span className="sm:hidden">New</span>
           </Button>
-          <div className="h-4 w-px bg-border mx-2" />
+          <div className="h-4 w-px bg-border mx-1 sm:mx-2" />
           <Button variant="ghost" size="icon" className="h-8 w-8">
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <Button variant="ghost" size="icon" className="h-8 w-8">
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <span className="font-semibold text-sm">
+          <span className="font-semibold text-xs sm:text-sm">
             {timelineRange.start.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
           </span>
         </div>
         
         <div className="flex items-center gap-2">
           <Select value={viewMode} onValueChange={(v) => onViewChange?.(v as GanttViewMode)}>
-            <SelectTrigger className="w-[120px] h-8">
+            <SelectTrigger className="w-[100px] sm:w-[120px] h-8">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -191,15 +192,15 @@ export function GanttView({
       {/* Gantt Body */}
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Headers Row */}
-        <div className="flex border-b bg-muted/30 shrink-0 h-[50px]">
+        <div className="flex border-b bg-muted/30 shrink-0 h-10 sm:h-[50px]">
           {/* List Header */}
           <div 
-            className="flex items-center font-medium text-xs text-muted-foreground px-4 border-r bg-card z-20 shadow-sm"
+            className="flex items-center font-medium text-xs text-muted-foreground px-2 sm:px-4 border-r bg-card z-20 shadow-sm"
             style={{ width: taskListWidth, minWidth: taskListWidth }}
           >
             <div className="flex-1">Task Name</div>
-            <div className="w-20 text-right">Start</div>
-            <div className="w-20 text-right">End</div>
+            <div className="w-16 sm:w-20 text-right hidden sm:block">Start</div>
+            <div className="w-16 sm:w-20 text-right hidden sm:block">End</div>
           </div>
           
           {/* Timeline Header */}
@@ -235,21 +236,21 @@ export function GanttView({
             {tasks.map((task) => (
               <div 
                 key={task.id}
-                className="flex items-center border-b px-4 hover:bg-accent/50 cursor-pointer transition-colors"
+                className="flex items-center border-b px-2 sm:px-4 hover:bg-accent/50 cursor-pointer transition-colors touch-manipulation"
                 style={{ height: ROW_HEIGHT }}
                 onClick={() => onTaskClick?.(task)}
               >
-                <div className="flex-1 truncate font-medium text-sm flex items-center gap-2">
+                <div className="flex-1 truncate font-medium text-xs sm:text-sm flex items-center gap-2">
                   <div 
-                    className="w-2 h-2 rounded-full"
+                    className="w-2 h-2 rounded-full shrink-0"
                     style={{ backgroundColor: task.color || '#3b82f6' }} 
                   />
                   {task.title}
                 </div>
-                <div className="w-20 text-right text-xs text-muted-foreground">
+                <div className="w-16 sm:w-20 text-right text-xs text-muted-foreground hidden sm:block">
                   {task.start.toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}
                 </div>
-                <div className="w-20 text-right text-xs text-muted-foreground">
+                <div className="w-16 sm:w-20 text-right text-xs text-muted-foreground hidden sm:block">
                   {task.end.toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}
                 </div>
               </div>
@@ -258,7 +259,7 @@ export function GanttView({
 
           {/* Right Side: Timeline */}
           <div 
-            className="flex-1 overflow-auto bg-background/50 relative" 
+            className="flex-1 overflow-auto bg-background/50 relative [-webkit-overflow-scrolling:touch]" 
             ref={timelineRef}
             onScroll={handleScroll}
           >

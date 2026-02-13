@@ -25,7 +25,7 @@ export interface ChartBarRendererProps {
  */
 export const ChartBarRenderer: React.FC<ChartBarRendererProps> = ({ schema }) => {
   return (
-    <Suspense fallback={<Skeleton className="w-full h-[400px]" />}>
+    <Suspense fallback={<Skeleton className="w-full h-48 sm:h-64 md:h-80 lg:h-[400px]" />}>
       <LazyChart
         data={schema.data}
         dataKey={schema.dataKey}
@@ -98,7 +98,7 @@ export const ChartRenderer: React.FC<ChartRendererProps> = ({ schema }) => {
   }, [schema]);
 
   return (
-    <Suspense fallback={<Skeleton className="w-full h-[400px]" />}>
+    <Suspense fallback={<Skeleton className="w-full h-48 sm:h-64 md:h-80 lg:h-[400px]" />}>
       <LazyAdvancedChart
         chartType={props.chartType}
         data={props.data}

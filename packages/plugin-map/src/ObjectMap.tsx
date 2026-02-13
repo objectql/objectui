@@ -418,7 +418,7 @@ export const ObjectMap: React.FC<ObjectMapProps> = ({
           {`${invalidCount} record${invalidCount !== 1 ? 's' : ''} with missing or invalid coordinates excluded from the map.`}
         </div>
       )}
-      <div className="relative border rounded-lg overflow-hidden bg-muted" style={{ height: '600px', width: '100%' }}>
+      <div className="relative border rounded-lg overflow-hidden bg-muted h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] w-full">
          <Map
             initialViewState={initialViewState}
             style={{ width: '100%', height: '100%' }}
@@ -452,7 +452,7 @@ export const ObjectMap: React.FC<ObjectMapProps> = ({
                     onClose={() => setSelectedMarkerId(null)}
                     closeOnClick={false}
                 >
-                    <div className="p-2 min-w-[200px]">
+                    <div className="p-2 min-w-[150px] sm:min-w-[200px]">
                         <h3 className="font-bold text-sm mb-1">{selectedMarker.title}</h3>
                         {selectedMarker.description && (
                             <p className="text-xs text-muted-foreground">{selectedMarker.description}</p>

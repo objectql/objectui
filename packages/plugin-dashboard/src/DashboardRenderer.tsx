@@ -108,7 +108,7 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                         xAxisKey: xAxisKey,
                         series: [{ dataKey: yField }],
                         colors: CHART_COLORS,
-                        className: "h-[300px]" // Enforce height
+                        className: "h-[200px] sm:h-[250px] md:h-[300px]" // Responsive height
                     };
                 }
 
@@ -165,8 +165,8 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                     }: undefined}
                 >
                     {widget.title && (
-                        <CardHeader className="pb-2 border-b border-border/40 bg-muted/20">
-                            <CardTitle className="text-base font-medium tracking-tight truncate" title={widget.title}>
+                        <CardHeader className="pb-2 border-b border-border/40 bg-muted/20 px-3 sm:px-6">
+                            <CardTitle className="text-sm sm:text-base font-medium tracking-tight truncate" title={widget.title}>
                                 {widget.title}
                             </CardTitle>
                         </CardHeader>

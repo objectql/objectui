@@ -20,6 +20,7 @@
 @source '../../../packages/plugin-chatbot/src/**/*.{ts,tsx}';
 @source '../../../packages/plugin-editor/src/**/*.{ts,tsx}';
 @source '../../../packages/plugin-view/src/**/*.{ts,tsx}';
+@source '../../../packages/mobile/src/**/*.{ts,tsx}';
 
 /* Tailwind plugin for animations remove
 @plugin 'tailwindcss-animate';
@@ -153,5 +154,22 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+  }
+
+  /* Prevent iOS zoom on input focus (ensure minimum 16px font) */
+  @media screen and (max-width: 767px) {
+    input, select, textarea {
+      font-size: 16px;
+    }
+  }
+
+  /* Dynamic viewport height utility for mobile-safe full-screen layouts */
+  .h-dvh {
+    height: 100dvh;
+  }
+
+  /* Safe-area-inset utility for notched devices */
+  .safe-area-inset {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
 }
