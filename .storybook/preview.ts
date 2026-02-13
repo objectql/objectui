@@ -1,4 +1,5 @@
-import type { Preview, LoaderFunction } from '@storybook/react-vite'
+import React from 'react';
+import type { Preview, LoaderFunction, Decorator } from '@storybook/react-vite'
 import { initialize, mswLoader } from 'msw-storybook-addon';
 import { handlers } from './mocks';
 import { startMockServer, getHandlers } from './msw-browser';
@@ -6,6 +7,7 @@ import '../packages/components/src/index.css';
 
 import { ComponentRegistry } from '@object-ui/core';
 import * as components from '../packages/components/src/index';
+import { SchemaRendererProvider } from '@object-ui/react';
 
 // Initialize MSW
 initialize({
@@ -74,7 +76,19 @@ import '@object-ui/plugin-view';
 import '@object-ui/layout';
 import '@object-ui/fields';
 
+// Global decorator: wrap every story in SchemaRendererProvider so that
+// plugin components calling useSchemaContext() never throw.
+// Stories that need a specific dataSource can still wrap with their own provider
+// (the innermost provider wins via React context).
+const withSchemaProvider: Decorator = (Story) =>
+  React.createElement(
+    SchemaRendererProvider,
+    { dataSource: {} },
+    React.createElement(Story)
+  );
+
 const preview: Preview = {
+  decorators: [withSchemaProvider],
   loaders: [objectStackLoader],
   parameters: {
     msw: {
