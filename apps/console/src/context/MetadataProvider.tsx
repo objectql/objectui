@@ -11,7 +11,7 @@
  * @module
  */
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import type { ObjectStackAdapter } from '../dataSource';
 
 export interface MetadataState {
@@ -32,8 +32,16 @@ export interface MetadataContextValue extends MetadataState {
 const MetadataCtx = createContext<MetadataContextValue | null>(null);
 
 interface MetadataProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
   adapter: ObjectStackAdapter;
+}
+
+/** Extract the items array from an API response, defaulting to []. */
+function extractItems(res: unknown): any[] {
+  if (res && typeof res === 'object' && 'items' in res && Array.isArray((res as { items: unknown[] }).items)) {
+    return (res as { items: unknown[] }).items;
+  }
+  return [];
 }
 
 /**
@@ -51,11 +59,11 @@ async function fetchAllMetadata(adapter: ObjectStackAdapter): Promise<Omit<Metad
   ]);
 
   return {
-    apps: (appsRes as any).items ?? [],
-    objects: (objectsRes as any).items ?? [],
-    dashboards: (dashboardsRes as any).items ?? [],
-    reports: (reportsRes as any).items ?? [],
-    pages: (pagesRes as any).items ?? [],
+    apps: extractItems(appsRes),
+    objects: extractItems(objectsRes),
+    dashboards: extractItems(dashboardsRes),
+    reports: extractItems(reportsRes),
+    pages: extractItems(pagesRes),
   };
 }
 

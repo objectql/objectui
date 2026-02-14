@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import React, { useState, useEffect, lazy, Suspense, useMemo } from 'react';
+import { useState, useEffect, lazy, Suspense, useMemo, type ReactNode } from 'react';
 import { ObjectForm } from '@object-ui/plugin-form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Empty, EmptyTitle } from '@object-ui/components';
 import { toast } from 'sonner';
@@ -52,7 +52,7 @@ import { ConsoleToaster } from './components/ConsoleToaster';
  * Creates the ObjectStackAdapter (via AdapterProvider), waits for connection,
  * then wraps children in MetadataProvider for API-driven metadata.
  */
-function ConnectedShell({ children }: { children: React.ReactNode }) {
+function ConnectedShell({ children }: { children: ReactNode }) {
   return (
     <AdapterProvider>
       <ConnectedShellInner>{children}</ConnectedShellInner>
@@ -60,7 +60,7 @@ function ConnectedShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function ConnectedShellInner({ children }: { children: React.ReactNode }) {
+function ConnectedShellInner({ children }: { children: ReactNode }) {
   const adapter = useAdapter();
   if (!adapter) return <LoadingScreen />;
 
