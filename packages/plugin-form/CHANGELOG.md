@@ -1,5 +1,15 @@
 # @object-ui/plugin-form
 
+## 3.0.2
+
+### Patch Changes
+
+- @object-ui/types@3.0.2
+- @object-ui/core@3.0.2
+- @object-ui/react@3.0.2
+- @object-ui/components@3.0.2
+- @object-ui/fields@3.0.2
+
 ## 3.0.1
 
 ### Patch Changes
