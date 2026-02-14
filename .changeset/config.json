@@ -39,6 +39,7 @@
       "@object-ui/plugin-timeline",
       "@object-ui/plugin-view",
       "@object-ui/plugin-workflow",
+      "@object-ui/collaboration",
       "object-ui"
     ]
   ],
