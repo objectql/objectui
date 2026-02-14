@@ -110,25 +110,31 @@ export class ConsolePlugin {
       ? (p: string) => p
       : (p: string) => p.replace(new RegExp(`^${basePath}`), '');
 
-    if (serveStaticFn) {
-      // Serve static assets
-      app.use(routePattern, serveStaticFn({
-        root: distDir,
-        rewriteRequestPath: stripPrefix,
-      }));
+    // Paths that must NOT be intercepted by the SPA fallback
+    const isServerRoute = (path: string) =>
+      path.startsWith('/api') || path.startsWith('/.well-known');
 
-      // SPA fallback: any non-file route → dist/index.html
-      app.get(routePattern, serveStaticFn({
-        root: distDir,
-        rewriteRequestPath: () => '/index.html',
-      }));
+    if (serveStaticFn) {
+      // Serve static assets (skip server routes so they reach API handlers)
+      app.use(routePattern, async (c: any, next: any) => {
+        if (isServerRoute(c.req.path)) return next();
+        const mw = serveStaticFn({ root: distDir, rewriteRequestPath: stripPrefix });
+        return mw(c, next);
+      });
+
+      // SPA fallback: non-file, non-API routes → dist/index.html
+      app.get(routePattern, async (c: any, next: any) => {
+        if (isServerRoute(c.req.path)) return next();
+        const indexHtml = readFileSync(resolve(distDir, 'index.html'), 'utf-8');
+        return c.html(indexHtml);
+      });
     } else {
       // Manual fallback when serveStatic is unavailable
       const indexPath = resolve(distDir, 'index.html');
 
-      app.get(routePattern, async (c: any) => {
-        // Skip API routes
-        if (c.req.path.startsWith('/api')) return c.text('Not Found', 404);
+      app.get(routePattern, async (c: any, next: any) => {
+        // Skip server routes so they reach API handlers
+        if (isServerRoute(c.req.path)) return next();
 
         const reqPath = stripPrefix(c.req.path);
         const filePath = resolve(distDir, reqPath.replace(/^\//, ''));
