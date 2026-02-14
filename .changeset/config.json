@@ -40,6 +40,7 @@
       "@object-ui/plugin-view",
       "@object-ui/plugin-workflow",
       "@object-ui/collaboration",
+      "@object-ui/console",
       "object-ui"
     ]
   ],
@@ -49,7 +50,6 @@
   "updateInternalDependencies": "patch",
   "ignore": [
     "@object-ui/example-*",
-    "@object-ui/console",
     "@object-ui/site"
   ]
 }
