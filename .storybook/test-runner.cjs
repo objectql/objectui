@@ -10,8 +10,6 @@
  *
  * @type {import('@storybook/test-runner').TestRunnerConfig}
  */
-const { toMatchSnapshot } = require('jest-snapshot');
-const { getStoryContext } = require('@storybook/test-runner');
 
 module.exports = {
   async prepare({ page, browserContext, testRunnerConfig }) {
