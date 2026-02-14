@@ -1,4 +1,9 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "buildCommand": "cd ../.. && pnpm turbo run build --filter=@object-ui/console^... && cd apps/console && VITE_BASE_PATH=/ pnpm build:vercel",
+  "outputDirectory": "dist",
+  "framework": "vite",
   "rewrites": [
     { "source": "/((?!assets|mockServiceWorker\\.js).*)", "destination": "/index.html" }
   ]
