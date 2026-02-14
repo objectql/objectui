@@ -2,6 +2,8 @@
  * Storybook test-runner configuration.
  *
  * Includes:
+ * - prepare: navigates to the Storybook iframe with increased timeout to avoid
+ *            CI flakiness from slow initial page loads
  * - preVisit: injects __test global and console error collector
  * - postVisit: captures DOM snapshots for visual regression testing (§1.4)
  *              and asserts no React/provider errors were logged
@@ -9,8 +11,21 @@
  * @type {import('@storybook/test-runner').TestRunnerConfig}
  */
 const { toMatchSnapshot } = require('jest-snapshot');
+const { getStoryContext } = require('@storybook/test-runner');
 
 module.exports = {
+  async prepare({ page, browserContext, testRunnerConfig }) {
+    // Override defaultPrepare to set a longer navigation timeout (60s vs default 30s).
+    // The Storybook iframe can be slow to load on resource-constrained CI runners,
+    // causing ERR_CONNECTION_REFUSED or timeout failures.
+    const targetURL = 'http://127.0.0.1:6006/iframe.html';
+    const iframeUrl = new URL(targetURL);
+    Object.entries({ isTestRunner: 'true', layout: 'none' }).forEach(([key, value]) => {
+      iframeUrl.searchParams.set(key, value);
+    });
+    await page.goto(iframeUrl.toString(), { waitUntil: 'load', timeout: 60_000 });
+  },
+
   async preVisit(page) {
     // Inject __test global as a no-op function to satisfy test-runner expectations
     // The test-runner expects __test to be a function, not a boolean value

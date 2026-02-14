@@ -40,6 +40,12 @@ test.describe('Console App – Smoke', () => {
     await page.goto('/');
     await waitForReactMount(page);
 
+    // Wait for visible text to appear (SPA may still be rendering after mount)
+    await page.waitForFunction(
+      () => (document.body.innerText?.trim().length ?? 0) > 0,
+      { timeout: 15_000 },
+    );
+
     // The visible page text must not be empty
     const bodyText = await page.locator('body').innerText();
     expect(bodyText.trim().length, 'Page body has no visible text').toBeGreaterThan(0);

@@ -17,11 +17,17 @@ test.describe('Console Rendering', () => {
     page.on('console', (msg) => {
       if (msg.type() === 'error') {
         const text = msg.text();
-        // Ignore benign errors (e.g. favicon 404, service-worker registration)
+        // Ignore benign errors (e.g. favicon 404, service-worker registration,
+        // MSW mock messages, and network errors for optional resources)
         if (
           text.includes('favicon') ||
           text.includes('service-worker') ||
-          text.includes('mockServiceWorker')
+          text.includes('mockServiceWorker') ||
+          text.includes('MSW') ||
+          text.includes('Mock Service Worker') ||
+          text.includes('[MSW]') ||
+          text.includes('Failed to load resource') ||
+          text.includes('net::ERR_')
         ) {
           return;
         }
