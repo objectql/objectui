@@ -36,9 +36,9 @@ function preloadCriticalChunks(): Plugin {
   };
 }
 
-// Base path for SPA deployment. Set VITE_BASE_PATH to mount under a sub-path
-// (e.g., '/console/' when served as an ObjectStack plugin).
-const basePath = process.env.VITE_BASE_PATH || '/';
+// Base path for SPA deployment. Always '/console/' to match the HonoServerPlugin
+// auto-mount slug. Override with VITE_BASE_PATH only if deploying standalone.
+const basePath = process.env.VITE_BASE_PATH || '/console/';
 
 // https://vitejs.dev/config/
 export default defineConfig({

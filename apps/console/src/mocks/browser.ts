@@ -48,7 +48,12 @@ export async function startMockServer() {
 
   // Start MSW service worker
   worker = setupWorker(...handlers);
-  await worker.start({ onUnhandledRequest: 'bypass' });
+  await worker.start({
+    onUnhandledRequest: 'bypass',
+    serviceWorker: {
+      url: `${import.meta.env.BASE_URL}mockServiceWorker.js`,
+    },
+  });
 
   if (import.meta.env.DEV) console.log('[MSW] ObjectStack Runtime ready');
   return kernel;
