@@ -514,9 +514,6 @@ importers:
       '@hono/node-server':
         specifier: ^1.19.9
         version: 1.19.9(hono@4.11.9)
-      '@object-ui/console':
-        specifier: workspace:*
-        version: link:../../apps/console
       '@objectstack/core':
         specifier: ^3.0.4
         version: 3.0.4(pino@8.21.0)

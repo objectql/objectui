@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9",
-    "@object-ui/console": "workspace:*",
     "@objectstack/core": "^3.0.4",
     "@objectstack/driver-memory": "^3.0.4",
     "@objectstack/objectql": "^3.0.4",
