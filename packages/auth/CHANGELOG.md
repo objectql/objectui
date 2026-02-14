@@ -1,5 +1,11 @@
 # @object-ui/auth
 
+## 3.0.2
+
+### Patch Changes
+
+- @object-ui/types@3.0.2
+
 ## 3.0.1
 
 ### Patch Changes

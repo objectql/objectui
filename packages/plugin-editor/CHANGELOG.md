@@ -1,5 +1,15 @@
 # @object-ui/plugin-editor
 
+## 3.0.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @object-ui/react@3.0.2
+  - @object-ui/components@3.0.2
+  - @object-ui/types@3.0.2
+  - @object-ui/core@3.0.2
+
 ## 3.0.1
 
 ### Patch Changes
