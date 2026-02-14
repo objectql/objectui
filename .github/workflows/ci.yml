@@ -6,13 +6,14 @@ on:
   pull_request:
     branches: [main, develop]
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20.x]
 
     steps:
       - name: Checkout code
@@ -21,24 +22,19 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '20.x'
           cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run tests
-        run: pnpm test
-
-      - name: Generate coverage report
-        if: matrix.node-version == '20.x'
+      - name: Run tests with coverage
         run: pnpm test:coverage
 
       - name: Upload coverage to Codecov
-        if: matrix.node-version == '20.x'
         uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: false
@@ -134,8 +130,8 @@ jobs:
           node-version: '20.x'
           cache: 'pnpm'
 
-      - name: Turbo Cache
-        uses: actions/cache@v5
+      - name: Restore Turbo Cache
+        uses: actions/cache/restore@v5
         with:
           path: node_modules/.cache/turbo
           key: turbo-${{ runner.os }}-${{ github.sha }}
@@ -165,8 +161,12 @@ jobs:
   docs:
     name: Build Docs
     runs-on: ubuntu-latest
-    # Optional: Only run if related files change (requires strict path filtering logic or reliance on turbo cache)
-    # For now, we run it but as a separate parallel job so it doesn't block 'Build Core'
+    if: >-
+      github.event_name == 'push' ||
+      (
+        github.event_name == 'pull_request' &&
+        !contains(github.event.pull_request.title, '[skip docs]')
+      )
 
     steps:
       - name: Checkout code

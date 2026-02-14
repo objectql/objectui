@@ -9,6 +9,10 @@ on:
       - 'packages/layout/**'
       - '.storybook/**'
 
+concurrency:
+  group: visual-regression-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
