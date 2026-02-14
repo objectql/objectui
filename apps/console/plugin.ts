@@ -53,10 +53,7 @@ function detectBasePath(distDir: string): string {
 export class ConsolePlugin {
   readonly name = '@object-ui/console';
   readonly version = '1.0.0';
-  readonly type = 'ui-plugin' as const;
-  readonly slug = 'console';
   readonly staticPath = staticPath;
-  readonly default = true;
   readonly description = 'ObjectStack Console - The standard runtime UI for ObjectStack applications';
 
   readonly metadata = {
