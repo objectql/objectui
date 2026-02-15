@@ -72,9 +72,9 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
       );
     }
 
-    // Resolve Views from objectDef.list_views
+    // Resolve Views from objectDef.listViews (camelCase per @objectstack/spec)
     const views = useMemo(() => {
-        const definedViews = objectDef.list_views || {};
+        const definedViews = objectDef.listViews || objectDef.list_views || {};
         const viewList = Object.entries(definedViews).map(([key, value]: [string, any]) => ({
             id: key,
             ...value,
