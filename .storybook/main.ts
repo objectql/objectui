@@ -19,7 +19,7 @@ const config: StorybookConfig = {
     autodocs: "tag",
   },
   async viteFinal(config) {
-    return mergeConfig(config, {
+    const merged = mergeConfig(config, {
       define: {
         'process.env': {},
         'process.platform': '"browser"',
@@ -35,6 +35,9 @@ const config: StorybookConfig = {
           // Alias components package to source to avoid circular dependency during build
           '@object-ui/core': path.resolve(__dirname, '../packages/core/src/index.ts'),
           '@object-ui/react': path.resolve(__dirname, '../packages/react/src/index.ts'),
+          '@object-ui/types': path.resolve(__dirname, '../packages/types/src/index.ts'),
+          '@object-ui/i18n': path.resolve(__dirname, '../packages/i18n/src/index.ts'),
+          '@object-ui/mobile': path.resolve(__dirname, '../packages/mobile/src/index.ts'),
           '@object-ui/components': path.resolve(__dirname, '../packages/components/src/index.ts'),
           '@object-ui/fields': path.resolve(__dirname, '../packages/fields/src/index.tsx'),
           '@object-ui/layout': path.resolve(__dirname, '../packages/layout/src/index.ts'),
@@ -81,6 +84,28 @@ const config: StorybookConfig = {
         target: 'esnext',
       },
     });
+
+    // Apply onwarn directly to avoid mergeConfig potentially dropping function callbacks
+    merged.build ??= {};
+    merged.build.rollupOptions ??= {};
+    const existingOnwarn = merged.build.rollupOptions.onwarn;
+    merged.build.rollupOptions.onwarn = (warning, warn) => {
+      // Suppress "use client" directive warnings (from Radix UI, react-router, etc.)
+      // and sourcemap resolution errors from dependencies with incomplete sourcemaps
+      if (
+        warning.code === 'MODULE_LEVEL_DIRECTIVE' ||
+        warning.message?.includes("Can't resolve original location of error")
+      ) {
+        return;
+      }
+      if (existingOnwarn) {
+        existingOnwarn(warning, warn);
+      } else {
+        warn(warning);
+      }
+    };
+
+    return merged;
   },
 };
 export default config;
