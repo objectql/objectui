@@ -61,14 +61,14 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
       };
     }, [schema.refreshInterval, onRefresh, handleRefresh]);
 
-    const renderWidget = (widget: DashboardWidgetSchema) => {
+    const renderWidget = (widget: DashboardWidgetSchema, index: number) => {
         const getComponentSchema = () => {
             if (widget.component) return widget.component;
 
             // Handle Shorthand Registry Mappings
-            const widgetType = (widget as any).type;
+            const widgetType = widget.type;
+            const options = (widget.options || {}) as Record<string, any>;
             if (widgetType === 'bar' || widgetType === 'line' || widgetType === 'area' || widgetType === 'pie' || widgetType === 'donut') {
-                const options = (widget as any).options || {};
                 // Support data at widget level or nested inside options
                 const widgetData = (widget as any).data || options.data;
                 const dataItems = Array.isArray(widgetData) ? widgetData : widgetData?.items || [];
@@ -87,7 +87,6 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
             }
 
             if (widgetType === 'table') {
-                const options = (widget as any).options || {};
                 // Support data at widget level or nested inside options
                 const widgetData = (widget as any).data || options.data;
                 return {
@@ -102,17 +101,18 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
 
             return {
                 ...widget,
-                ...((widget as any).options || {})
+                ...options
             };
         };
         
         const componentSchema = getComponentSchema();
-        const isSelfContained = (widget as any).type === 'metric';
+        const isSelfContained = widget.type === 'metric';
+        const widgetKey = widget.id || widget.title || `widget-${index}`;
 
         if (isSelfContained) {
             return (
                 <div 
-                    key={widget.id || widget.title}
+                    key={widgetKey}
                     className={cn("h-full w-full", isMobile && "w-[85vw] shrink-0 snap-center")}
                     style={!isMobile && widget.layout ? {
                         gridColumn: `span ${widget.layout.w}`,
@@ -126,7 +126,7 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
 
         return (
             <Card 
-                key={widget.id || widget.title}
+                key={widgetKey}
                 className={cn(
                     "overflow-hidden border-border/50 shadow-sm transition-all hover:shadow-md",
                     "bg-card/50 backdrop-blur-sm",
@@ -176,7 +176,7 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
             className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-4 [-webkit-overflow-scrolling:touch]"
             style={{ scrollPaddingLeft: '0.75rem' }}
           >
-            {schema.widgets?.map((widget: DashboardWidgetSchema) => renderWidget(widget))}
+            {schema.widgets?.map((widget: DashboardWidgetSchema, index: number) => renderWidget(widget, index))}
           </div>
         </div>
       );
@@ -197,7 +197,7 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
         {...props}
       >
         {refreshButton}
-        {schema.widgets?.map((widget: DashboardWidgetSchema) => renderWidget(widget))}
+        {schema.widgets?.map((widget: DashboardWidgetSchema, index: number) => renderWidget(widget, index))}
       </div>
     );
   }

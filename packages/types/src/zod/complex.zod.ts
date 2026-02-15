@@ -227,12 +227,18 @@ export const DashboardWidgetLayoutSchema = z.object({
 
 /**
  * Dashboard Widget Schema
+ *
+ * Supports two formats:
+ * 1. Component format (legacy): `{ id, component: { type, ... }, layout }`
+ * 2. Shorthand format (@objectstack/spec): `{ type: 'metric'|'bar'|…, options: {…}, layout }`
  */
 export const DashboardWidgetSchema = z.object({
-  id: z.string().describe('Widget ID'),
+  id: z.string().optional().describe('Widget ID'),
   title: z.string().optional().describe('Widget Title'),
-  component: SchemaNodeSchema.describe('Widget Component'),
+  component: SchemaNodeSchema.optional().describe('Widget Component (legacy format)'),
   layout: DashboardWidgetLayoutSchema.optional().describe('Widget Layout'),
+  type: z.string().optional().describe('Widget visualization type (spec shorthand)'),
+  options: z.unknown().optional().describe('Widget specific configuration (spec shorthand)'),
 });
 
 /**
