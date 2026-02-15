@@ -27,6 +27,39 @@ if (crmApps.length > 0) {
     }
 }
 
+// ---------------------------------------------------------------------------
+// Merge stack-level views into object definitions.
+// The @objectstack/spec defines views at the stack level (views[].listViews),
+// but the runtime protocol serves objects without listViews. This helper
+// merges listViews from the views array into the corresponding objects so
+// the console can render the correct view type when switching views.
+// ---------------------------------------------------------------------------
+function mergeViewsIntoObjects(objects: any[], configs: any[]): any[] {
+  // Collect all listViews grouped by object name
+  const viewsByObject: Record<string, Record<string, any>> = {};
+  for (const config of configs) {
+    if (!Array.isArray(config.views)) continue;
+    for (const view of config.views) {
+      if (!view.listViews) continue;
+      for (const [viewName, listView] of Object.entries(view.listViews as Record<string, any>)) {
+        const objectName = listView?.data?.object;
+        if (!objectName) continue;
+        if (!viewsByObject[objectName]) viewsByObject[objectName] = {};
+        viewsByObject[objectName][viewName] = listView;
+      }
+    }
+  }
+
+  // Merge into objects
+  return objects.map((obj: any) => {
+    const views = viewsByObject[obj.name];
+    if (!views) return obj;
+    return { ...obj, listViews: { ...(obj.listViews || {}), ...views } };
+  });
+}
+
+const allConfigs = [crmConfig, todoConfig, kitchenSinkConfig];
+
 export const sharedConfig = {
   // ============================================================================
   // Project Metadata
@@ -39,13 +72,16 @@ export const sharedConfig = {
   // ============================================================================
   // Merged Stack Configuration (CRM + Todo + Kitchen Sink + HotCRM + Mock Metadata)
   // ============================================================================
-  objects: mergeObjects(
-    [
-      ...(crmConfig.objects || []),
-      ...(todoConfig.objects || []),
-      ...(kitchenSinkConfig.objects || []),
-    ],
-    hotcrmObjects,
+  objects: mergeViewsIntoObjects(
+    mergeObjects(
+      [
+        ...(crmConfig.objects || []),
+        ...(todoConfig.objects || []),
+        ...(kitchenSinkConfig.objects || []),
+      ],
+      hotcrmObjects,
+    ),
+    allConfigs,
   ),
   apps: [
     ...crmApps,

@@ -20,6 +20,89 @@ export default defineStack({
     ProjectObject,
     EventObject
   ],
+  views: [
+    {
+      listViews: {
+        all: {
+          name: 'all',
+          label: 'All Opportunities',
+          type: 'grid',
+          data: { provider: 'object', object: 'opportunity' },
+          columns: ['name', 'amount', 'stage', 'close_date', 'probability'],
+        },
+        pipeline: {
+          name: 'pipeline',
+          label: 'Pipeline',
+          type: 'kanban',
+          data: { provider: 'object', object: 'opportunity' },
+          columns: ['name', 'amount', 'close_date', 'probability'],
+          kanban: {
+            groupByField: 'stage',
+            columns: ['name', 'amount', 'close_date'],
+          },
+        },
+      },
+    },
+    {
+      listViews: {
+        all_events: {
+          name: 'all_events',
+          label: 'All Events',
+          type: 'grid',
+          data: { provider: 'object', object: 'event' },
+          columns: ['subject', 'start', 'end', 'location', 'type'],
+        },
+        calendar: {
+          name: 'calendar',
+          label: 'Calendar',
+          type: 'calendar',
+          data: { provider: 'object', object: 'event' },
+          columns: ['subject', 'start', 'end', 'type'],
+          calendar: {
+            startDateField: 'start',
+            endDateField: 'end',
+            titleField: 'subject',
+          },
+        },
+      },
+    },
+    {
+      listViews: {
+        all_tasks: {
+          name: 'all_tasks',
+          label: 'All Tasks',
+          type: 'grid',
+          data: { provider: 'object', object: 'project_task' },
+          columns: ['name', 'status', 'priority', 'start_date', 'end_date', 'progress'],
+        },
+        board: {
+          name: 'board',
+          label: 'Board',
+          type: 'kanban',
+          data: { provider: 'object', object: 'project_task' },
+          columns: ['name', 'priority', 'start_date', 'end_date'],
+          kanban: {
+            groupByField: 'status',
+            columns: ['name', 'priority', 'start_date', 'end_date'],
+          },
+        },
+        gantt: {
+          name: 'gantt',
+          label: 'Gantt',
+          type: 'gantt',
+          data: { provider: 'object', object: 'project_task' },
+          columns: ['name', 'start_date', 'end_date', 'progress', 'status'],
+        },
+        timeline: {
+          name: 'timeline',
+          label: 'Timeline',
+          type: 'timeline',
+          data: { provider: 'object', object: 'project_task' },
+          columns: ['name', 'start_date', 'status'],
+        },
+      },
+    },
+  ],
   reports: [],
   pages: [
     {

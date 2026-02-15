@@ -41,8 +41,10 @@ export function ViewDesignerPage({ objects }: { objects: any[] }) {
 
   // Resolve existing view for editing
   const existingView = useMemo(() => {
-    if (!viewId || viewId === 'new' || !objectDef?.list_views) return null;
-    return objectDef.list_views[viewId] || null;
+    if (!viewId || viewId === 'new') return null;
+    const views = objectDef?.listViews || objectDef?.list_views;
+    if (!views) return null;
+    return views[viewId] || null;
   }, [viewId, objectDef]);
 
   const handleSave = useCallback(
