@@ -30,9 +30,7 @@ export function ReportView({ dataSource: _dataSource }: { dataSource?: any }) {
 
   // Sync reportData when metadata finishes loading or reportName changes
   useEffect(() => {
-    if (initialReport) {
-      setReportData(initialReport);
-    }
+    setReportData(initialReport);
   }, [initialReport]);
 
   if (loading) {
