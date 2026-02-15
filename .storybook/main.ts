@@ -84,8 +84,12 @@ const config: StorybookConfig = {
         target: 'esnext',
         rollupOptions: {
           onwarn(warning, warn) {
-            // Suppress "use client" directive warnings and sourcemap resolution errors
-            if (warning.code === 'MODULE_LEVEL_DIRECTIVE' || warning.message?.includes('sourcemap')) {
+            // Suppress "use client" directive warnings (from Radix UI, react-router, etc.)
+            // and sourcemap resolution errors from dependencies with incomplete sourcemaps
+            if (
+              warning.code === 'MODULE_LEVEL_DIRECTIVE' ||
+              warning.message?.includes("Can't resolve original location of error")
+            ) {
               return;
             }
             warn(warning);
