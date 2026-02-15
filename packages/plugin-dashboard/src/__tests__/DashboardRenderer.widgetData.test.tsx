@@ -184,4 +184,78 @@ describe('DashboardRenderer widget data extraction', () => {
     expect(chartSchema).toBeDefined();
     expect(chartSchema.data).toEqual([]);
   });
+
+  it('should render metric widgets using spec shorthand format', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      widgets: [
+        {
+          type: 'metric',
+          layout: { x: 0, y: 0, w: 1, h: 1 },
+          options: {
+            label: 'Total Revenue',
+            value: '$652,000',
+            trend: { value: 12.5, direction: 'up', label: 'vs last month' },
+            icon: 'DollarSign',
+          },
+        },
+        {
+          type: 'metric',
+          layout: { x: 1, y: 0, w: 1, h: 1 },
+          options: {
+            label: 'Active Deals',
+            value: '5',
+            trend: { value: 2.1, direction: 'down', label: 'vs last month' },
+            icon: 'Briefcase',
+          },
+        },
+      ],
+    } as any;
+
+    const { container } = render(<DashboardRenderer schema={schema} />);
+
+    // MetricWidget is registered in the ComponentRegistry, so it should render
+    // the label and value from the merged options
+    expect(container.textContent).toContain('Total Revenue');
+    expect(container.textContent).toContain('$652,000');
+    expect(container.textContent).toContain('Active Deals');
+    expect(container.textContent).toContain('5');
+  });
+
+  it('should assign unique keys to widgets without id or title', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      widgets: [
+        {
+          type: 'metric',
+          layout: { x: 0, y: 0, w: 1, h: 1 },
+          options: { label: 'Metric A', value: '100' },
+        },
+        {
+          type: 'metric',
+          layout: { x: 1, y: 0, w: 1, h: 1 },
+          options: { label: 'Metric B', value: '200' },
+        },
+        {
+          type: 'metric',
+          layout: { x: 2, y: 0, w: 1, h: 1 },
+          options: { label: 'Metric C', value: '300' },
+        },
+      ],
+    } as any;
+
+    const { container } = render(<DashboardRenderer schema={schema} />);
+
+    // All three metrics should render without React key warnings
+    expect(container.textContent).toContain('Metric A');
+    expect(container.textContent).toContain('Metric B');
+    expect(container.textContent).toContain('Metric C');
+    expect(container.textContent).toContain('100');
+    expect(container.textContent).toContain('200');
+    expect(container.textContent).toContain('300');
+  });
 });

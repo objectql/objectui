@@ -503,12 +503,21 @@ export interface DashboardWidgetLayout {
 
 /**
  * Dashboard Widget
+ *
+ * Supports two formats:
+ * 1. **Component format** (legacy): `{ id, component: { type, ... }, layout }`
+ * 2. **Shorthand format** (@objectstack/spec): `{ type: 'metric'|'bar'|…, options: {…}, layout }`
  */
 export interface DashboardWidgetSchema {
-  id: string;
+  id?: string;
   title?: string;
-  component: SchemaNode;
+  /** Component schema (legacy format) */
+  component?: SchemaNode;
   layout?: DashboardWidgetLayout;
+  /** Widget visualization type (spec shorthand format) */
+  type?: string;
+  /** Widget-specific configuration (spec shorthand format) */
+  options?: unknown;
 }
 
 /**

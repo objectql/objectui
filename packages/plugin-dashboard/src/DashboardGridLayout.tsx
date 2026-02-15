@@ -126,10 +126,11 @@ export const DashboardGridLayout: React.FC<DashboardGridLayoutProps> = ({
   const getComponentSchema = React.useCallback((widget: DashboardWidgetSchema) => {
     if (widget.component) return widget.component;
 
-    const widgetType = (widget as any).type;
+    const widgetType = widget.type;
+    const options = (widget.options || {}) as Record<string, any>;
     if (widgetType === 'bar' || widgetType === 'line' || widgetType === 'area' || widgetType === 'pie' || widgetType === 'donut') {
-      const dataItems = Array.isArray((widget as any).data) ? (widget as any).data : (widget as any).data?.items || [];
-      const options = (widget as any).options || {};
+      const widgetData = (widget as any).data || options.data;
+      const dataItems = Array.isArray(widgetData) ? widgetData : widgetData?.items || [];
       const xAxisKey = options.xField || 'name';
       const yField = options.yField || 'value';
       
@@ -145,17 +146,21 @@ export const DashboardGridLayout: React.FC<DashboardGridLayoutProps> = ({
     }
 
     if (widgetType === 'table') {
+      const widgetData = (widget as any).data || options.data;
       return {
         type: 'data-table',
-        ...(widget as any).options,
-        data: (widget as any).data?.items || [],
+        ...options,
+        data: widgetData?.items || [],
         searchable: false,
         pagination: false,
         className: "border-0"
       };
     }
 
-    return widget;
+    return {
+      ...widget,
+      ...options
+    };
   }, []);
 
   return (
@@ -216,7 +221,7 @@ export const DashboardGridLayout: React.FC<DashboardGridLayoutProps> = ({
           {schema.widgets?.map((widget, index) => {
             const widgetId = widget.id || `widget-${index}`;
             const componentSchema = getComponentSchema(widget);
-            const isSelfContained = (widget as any).type === 'metric';
+            const isSelfContained = widget.type === 'metric';
 
             return (
               <div key={widgetId} className="h-full">
