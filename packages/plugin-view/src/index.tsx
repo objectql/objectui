@@ -12,12 +12,14 @@ import { ObjectView } from './ObjectView';
 import { ViewSwitcher } from './ViewSwitcher';
 import { FilterUI } from './FilterUI';
 import { SortUI } from './SortUI';
+import { SharedViewLink } from './SharedViewLink';
 
-export { ObjectView, ViewSwitcher, FilterUI, SortUI };
+export { ObjectView, ViewSwitcher, FilterUI, SortUI, SharedViewLink };
 export type { ObjectViewProps } from './ObjectView';
 export type { ViewSwitcherProps } from './ViewSwitcher';
 export type { FilterUIProps } from './FilterUI';
 export type { SortUIProps } from './SortUI';
+export type { SharedViewLinkProps } from './SharedViewLink';
 
 /**
  * SchemaRendererContext is created by @object-ui/react.
@@ -161,6 +163,22 @@ ComponentRegistry.register('sort-ui', SortUI, {
       { field: 'created_at', label: 'Created At' },
     ],
     sort: [{ field: 'name', direction: 'asc' }],
+  },
+});
+
+ComponentRegistry.register('shared-view-link', SharedViewLink, {
+  namespace: 'view',
+  label: 'Shared View Link',
+  category: 'view',
+  icon: 'Share2',
+  inputs: [
+    { name: 'objectName', type: 'string', label: 'Object Name', required: true },
+    { name: 'viewId', type: 'string', label: 'View ID' },
+    { name: 'baseUrl', type: 'string', label: 'Base URL' },
+  ],
+  defaultProps: {
+    objectName: 'objects',
+    viewId: 'default',
   },
 });
 
