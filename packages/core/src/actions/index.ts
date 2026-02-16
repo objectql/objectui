@@ -8,3 +8,4 @@
 
 export * from './ActionRunner.js';
 export * from './TransactionManager.js';
+export * from './UndoManager.js';
