@@ -1,10 +1,10 @@
 # ObjectUI Development Roadmap
 
-> **Last Updated:** February 13, 2026
+> **Last Updated:** February 16, 2026
 > **Current Version:** v0.5.x
 > **Spec Version:** @objectstack/spec v3.0.0
 > **Client Version:** @objectstack/client v3.0.0
-> **Current Priority:** 🎯 Developer Experience · User Experience · Component Excellence · Documentation · Mobile UX
+> **Current Priority:** 🎯 v1.0 UI Essentials · Spec Compliance · Component Excellence · Developer Experience · Mobile UX
 
 ---
 
@@ -14,13 +14,13 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 
 **Where We Are:** The foundation is solid — 35 packages, 91+ components, 200+ test files, 68 Storybook stories, 98% spec compliance, and all 42 builds passing. The @objectstack/spec v3.0.0 migration is complete, and the Console v1.0 production build is optimized and shipping.
 
-**What's Next:** Before expanding to marketplace or cloud features, we are focusing on **developer experience** and **user experience**. A full-repository audit (Feb 2026) identified concrete improvement areas across all 35 packages, 4 examples, the Console app, 128 documentation pages, and 68 Storybook stories. The re-prioritized focus is:
+**What's Next:** Priorities have been reorganized (Feb 16, 2026) to focus on **v1.0 release UI essentials** — the minimum viable set of UI features and spec compliance required for a usable first release. Non-UI infrastructure, marketplace, and cloud features are deferred until after v1.0 ships. The re-prioritized focus is:
 
-1. **🛠️ Developer Experience (DX)** — Zero-friction onboarding, discoverable APIs, helpful errors, complete docs
-2. **🎨 User Experience (UX)** — Console polish, i18n completeness, accessibility, performance at scale
-3. **🧩 Component Excellence** — Every component polished, well-tested, and delightful to use
-4. **📖 Documentation** — Complete API docs, rich Storybook stories, tutorials, and guides
-5. **📱 Mobile User Experience** — Responsive layouts, touch-friendly interactions, PWA support
+1. **🎯 v1.0 UI Essentials** — Core UI functionality required for a usable first release: spec-compliant views, working navigation, CRUD flows, and Console completeness
+2. **📐 Spec Compliance (UI-Facing)** — Align all view plugins with @objectstack/spec contracts: TimelineConfig, GalleryConfig, navigation properties, ListView spec properties
+3. **🧩 Component & Plugin Excellence** — Polish every view plugin for production use: empty states, error handling, edge cases, toolbar consistency
+4. **🛠️ Developer Experience (DX)** — Zero-friction onboarding, discoverable APIs, helpful errors, complete docs (✅ largely complete)
+5. **📱 Mobile User Experience** — Responsive layouts, touch-friendly interactions, PWA support (✅ largely complete, testing remaining)
 
 > 📄 Companion documents:
 > - [SPEC_COMPLIANCE_EVALUATION.md](./SPEC_COMPLIANCE_EVALUATION.md) — Per-package spec compliance (98% current)
@@ -129,168 +129,210 @@ All 4 phases complete across 5 designers (Page, View, DataModel, Process, Report
 
 ## 🎯 Current Priorities
 
-> All foundation work is complete. Priorities re-ordered based on the Feb 2026 audit, with DX and UX front and center.
+> Priorities re-ordered (Feb 16, 2026) to focus on **v1.0 UI essentials first**. All foundation DX/UX work is complete. The new priority order puts UI-facing functionality and spec compliance ahead of infrastructure and non-UI tasks, ensuring the first release delivers a usable, spec-compliant product.
 
-### P1. Developer Experience 🛠️
+### P0. v1.0 UI Essentials — Must Ship 🎯
 
-**Goal:** A developer can go from `git clone` to a running app in under 5 minutes, with discoverable APIs, helpful errors, and complete documentation at every step.
+**Goal:** Every core UI workflow works end-to-end in the Console: CRUD, views, navigation, dashboards, and reports. These are the minimum features required for v1.0 to be usable.
 
-#### P1.1 Zero-Friction Onboarding
-- [x] Create MIGRATION_GUIDE.md at repo root (currently referenced in README but missing)
-- [x] Streamline `npx create-objectui-app` scaffolding with working Vite + Tailwind templates
+#### P0.1 Console Core UI Completeness
+- [ ] Implement declarative `ActionEngine` pipeline (events → `ActionDef[]` dispatch) — replaces callback-based `useObjectActions`
+- [ ] Migrate Console from static config to runtime metadata API (`getView()`/`getApp()`/`getPage()`)
+- [ ] Remove `as any` cast in `objectstack.shared.ts` — use properly typed config
+- [ ] Clean up MSW workarounds in `objectstack.config.ts`
+- [ ] CSV/Excel export for grid views (core data workflow)
+- [ ] File upload fields in forms (required for real-world data entry)
+- [ ] Related record lookup in forms (essential for relational data)
+
+#### P0.2 View Plugin Navigation Compliance
+- [ ] Add navigation property support to ObjectGallery (currently only accepts `onCardClick`)
+- [ ] Apply `navigation.width` to drawer/modal overlays in Kanban, Calendar, Gantt, Timeline, Map, View plugins
+- [ ] Implement `navigation.view` property across all view plugins
+
+#### P0.3 Spec-Compliant View Configs
+- [ ] Define `TimelineConfig` type in `@object-ui/types` aligned with `@objectstack/spec TimelineConfigSchema`
+- [ ] Rename Timeline `dateField` → `startDateField` to match spec naming convention
+- [ ] Export `GalleryConfig` type from `@object-ui/types` index.ts
+- [ ] Implement Timeline spec properties: `endDateField`, `groupByField`, `colorField`, `scale`
+
+#### P0.4 ListView Spec Properties (v1.0 Subset)
+- [ ] Implement `emptyState` spec property (custom no-data UI — critical for UX)
+- [ ] Implement `hiddenFields` and `fieldOrder` spec properties (view customization)
+- [ ] Implement `quickFilters` spec property (predefined filter buttons)
+
+### P1. Spec Compliance — UI-Facing 📐
+
+**Goal:** Achieve 100% compliance with `@objectstack/spec` for all UI-facing contracts. These items improve user experience and ensure protocol compatibility.
+
+#### P1.1 View Enhancement Properties
+- [ ] Implement `rowHeight` spec property in ListView
+- [ ] Add `DensityMode` support to grid and list views
+- [ ] Implement `conditionalFormatting` spec property in ListView
+- [ ] Implement `inlineEdit` spec property in ListView
+
+#### P1.2 Data Export & Import
+- [ ] Implement `exportOptions` spec property in ListView (csv, xlsx, json, pdf)
+- [ ] Add `aria` spec property support to ListView
+- [ ] Add `sharing` spec property support to ListView
+
+#### P1.3 Advanced View Features
+- [ ] Inline task editing for Gantt chart
+- [ ] Marker clustering for map plugin (Supercluster for 100+ markers)
+- [ ] Combo chart support (e.g., bar + line overlay)
+- [ ] Column reorder/resize persistence for grid
+- [ ] Drag-to-reschedule calendar events (move between dates)
+
+### P2. Component & Plugin Excellence 🧩 (Completed Foundation)
+
+**Goal:** Every component is polished, consistent, well-tested, and delightful to use.
+
+> ✅ **Foundation complete** — P2 items from the Feb 2026 audit are all resolved. The subsections below document the completed work.
+
+#### P2.1 Component Quality Audit ✅
+- [x] Audit all 91+ components for API consistency (prop naming, default values, error states)
+- [x] Ensure every component has complete TypeScript types with JSDoc descriptions
+- [x] Standardize error/empty/loading states across all components
+- [x] Add missing edge-case handling (overflow, truncation, null data, large datasets)
+
+#### P2.2 Field Widget Polish ✅
+- [x] Audit all 36+ field widgets for consistent validation feedback
+- [x] Ensure all fields work correctly in all form variants
+- [x] Test field widgets with extreme inputs
+- [x] Polish date/time/datetime pickers for timezone edge cases
+
+#### P2.3 Plugin View Robustness ✅
+- [x] Verify all 13+ view types handle empty data, loading, and error states gracefully
+- [x] Ensure consistent toolbar, filter, and sort behavior across all views
+- [x] Validate view switching preserves selection state, scroll position, and filter criteria
+- [x] Add E2E tests for critical view workflows
+
+#### P2.4 Test Coverage ✅
+- [x] Increase test coverage from 80% → 90% (target: 4,000+ tests)
+- [x] Identify and cover components with < 80% test coverage
+- [x] Add integration tests for complex interactions
+- [x] Add snapshot tests for critical UI output consistency
+
+#### P2.5 Storybook Enhancement ✅
+- [x] Ensure every exported component has at least one Storybook story
+- [x] Add interactive controls (args) for all major props
+- [x] Add "edge case" stories per component
+- [x] Organize stories with consistent categorization
+
+### P3. Developer Experience 🛠️ (Completed Foundation)
+
+**Goal:** A developer can go from `git clone` to a running app in under 5 minutes.
+
+> ✅ **Foundation complete** — All DX items from the Feb 2026 audit are resolved.
+
+#### P3.1 Zero-Friction Onboarding ✅
+- [x] Create MIGRATION_GUIDE.md at repo root
+- [x] Streamline `npx create-objectui-app` scaffolding
 - [x] Ensure `pnpm install && pnpm dev` starts the console with zero additional configuration
-- [x] Add a standalone "Hello World" example (5-file, <50 lines total) demonstrating JSON → UI flow
-- [x] Provide copy-paste-ready schema examples in the root README for instant gratification
+- [x] Add a standalone "Hello World" example
+- [x] Provide copy-paste-ready schema examples in the root README
 
-#### P1.2 API Discoverability & JSDoc
-- [x] Add JSDoc comments to all 20+ exported React hooks (`useExpression`, `useActionRunner`, `useViewData`, `useDynamicApp`, `usePerformance`, `useCrudShortcuts`, etc.)
-- [x] Add JSDoc with usage examples to key types in `@object-ui/types` (`SchemaNode`, `FieldMetadata`, `ViewSchema`, `ActionSchema`, etc.)
-- [x] Document all context providers (`ThemeContext`, `AuthContext`, `I18nContext`, `NotificationContext`, `DndContext`) with usage examples
-- [x] Ensure TypeScript autocompletion works smoothly for all schema types via strict discriminated unions
+#### P3.2 API Discoverability & JSDoc ✅
+- [x] Add JSDoc comments to all 20+ exported React hooks
+- [x] Add JSDoc with usage examples to key types in `@object-ui/types`
+- [x] Document all context providers with usage examples
+- [x] Ensure TypeScript autocompletion works smoothly for all schema types
 
-#### P1.3 Error Messages & Debugging
-- [x] Create error code system (`OBJUI-001`, `OBJUI-002`, etc.) with documentation links
-- [x] Improve SchemaErrorBoundary to show actionable fix suggestions in dev mode (e.g., "Missing field 'type'. Did you mean to use a PageSchema?")
-- [x] Replace generic `console.warn()` calls in core with structured error factory
-- [x] Add `OBJECTUI_DEBUG=true` mode with schema resolution tracing and component render timing
+#### P3.3 Error Messages & Debugging ✅
+- [x] Create error code system (`OBJUI-001`, `OBJUI-002`, etc.)
+- [x] Improve SchemaErrorBoundary to show actionable fix suggestions in dev mode
+- [x] Replace generic `console.warn()` calls with structured error factory
+- [x] Add `OBJECTUI_DEBUG=true` mode
 - [x] Ensure console warnings for deprecated APIs include migration code snippets
 
-#### P1.4 CLI Tooling Polish
-- [x] Verify `objectui init` produces a buildable project with all dependencies resolved
+#### P3.4 CLI Tooling Polish ✅
+- [x] Verify `objectui init` produces a buildable project
 - [x] Enhance `objectui doctor` to check TypeScript version, Tailwind config, and peer dependencies
-- [x] Verify `create-plugin` template produces a plugin with working tests and Storybook story
-- [x] Add `objectui validate <schema.json>` command for schema linting with actionable error messages
-- [x] Resolve TODO/FIXME items in CLI code (`doctor.ts`, `dev.ts`, `check.ts`)
+- [x] Verify `create-plugin` template produces a plugin with working tests
+- [x] Add `objectui validate <schema.json>` command
+- [x] Resolve TODO/FIXME items in CLI code
 
-#### P1.5 Package READMEs (10 Missing)
-- [x] Add README for `@object-ui/auth` — authentication guards, login/register forms, AuthContext
-- [x] Add README for `@object-ui/tenant` — multi-tenancy support, TenantProvider, branding
-- [x] Add README for `@object-ui/permissions` — RBAC, PermissionGuard, usePermissions hook
-- [x] Add README for `@object-ui/i18n` — 11 locales, RTL support, I18nProvider, formatting utilities
-- [x] Add README for `@object-ui/mobile` — responsive hooks, gesture support, touch optimization
-- [x] Add README for `@object-ui/collaboration` — live cursors, presence, comment threads, conflict resolution
-- [x] Add README for `@object-ui/plugin-ai` — AI form assistance, recommendations, NL query
-- [x] Add README for `@object-ui/plugin-designer` — 5 visual designers (Page, View, DataModel, Process, Report)
-- [x] Add README for `@object-ui/plugin-workflow` — approval processes, workflow designer
-- [x] Add README for `@object-ui/plugin-report` — report builder, viewer, exporter, scheduling
+#### P3.5 Package READMEs ✅
+- [x] All 37 packages now have READMEs
 
----
-
-### P2. User Experience 🎨
+### P4. User Experience 🎨 (Completed Foundation)
 
 **Goal:** Every interaction in the Console and rendered UIs is fast, polished, accessible, and works flawlessly in all supported languages.
 
-#### P2.1 Console i18n Completeness
-- [x] Migrate hardcoded strings in `LoadingScreen.tsx` to i18n keys ("ObjectStack Console", "Initializing application...")
+> ✅ **Foundation complete** — All UX items from the Feb 2026 audit are resolved.
+
+#### P4.1 Console i18n Completeness ✅
+- [x] Migrate hardcoded strings in `LoadingScreen.tsx` to i18n keys
 - [x] Migrate hardcoded strings in `KeyboardShortcutsDialog.tsx` to i18n keys
 - [x] Audit all `apps/console/src/components/` for remaining hardcoded UI strings
 - [x] Remove all Chinese UI strings; enforce English-only with i18n key lookups
 - [x] Add locale switcher to Console settings panel
 
-#### P2.2 Console Architecture Cleanup
-- [x] Consolidate hand-wired ObjectView into plugin-based ObjectView (eliminate duplication)
+#### P4.2 Console Architecture Cleanup ✅
+- [x] Consolidate hand-wired ObjectView into plugin-based ObjectView
 - [x] Replace lightweight local data adapter with official `@object-ui/data-objectstack`
-- [x] Replace custom `defineConfig()` with standard `defineStack()` configuration
+- [x] Replace custom `defineConfig()` with standard `defineStack()`
 - [x] Register all missing plugins properly in the plugin registry
 - [x] Convert hardcoded view tabs to schema-driven configuration
 
-#### P2.3 Accessibility & Inclusive Design
-- [x] Run axe-core audit on Console pages (10 tests in `console-accessibility.test.tsx` covering layout, sidebar, header, dashboard, list, form, loading, error, empty, and dialog views)
-- [x] Ensure focus management across all Console navigation flows (sidebar → content → modal → back)
-- [x] Verify screen reader experience for complex views (Grid, Kanban, Calendar — `accessibility.test.tsx` in each plugin with ARIA roles, landmarks, and announcements)
-- [x] Test all color combinations against WCAG 2.1 AA contrast ratios in both light and dark themes (`wcag-contrast.test.tsx` with HSL→RGB conversion and WCAG AA threshold checks)
-- [x] Add `prefers-reduced-motion` respect to all animations (page transitions, DnD, skeleton loading)
+#### P4.3 Accessibility & Inclusive Design ✅
+- [x] Run axe-core audit on Console pages
+- [x] Ensure focus management across all Console navigation flows
+- [x] Verify screen reader experience for complex views
+- [x] Test all color combinations against WCAG 2.1 AA contrast ratios
+- [x] Add `prefers-reduced-motion` respect to all animations
 
-#### P2.4 Performance at Scale
-- [x] Benchmark Grid/Kanban/Calendar with 1,000+ and 10,000+ records; set performance baselines (`performance-benchmark.test.tsx` in each plugin)
-- [x] Implement virtual scrolling for large data grids (plugin-grid VirtualGrid with @tanstack/react-virtual)
-- [x] Profile and optimize initial Console load (target: < 2s on 3G — `console-load-performance.test.tsx` validates lazy routes, bundle budget, render timing, and MSW hygiene)
+#### P4.4 Performance at Scale ✅
+- [x] Benchmark Grid/Kanban/Calendar with 1,000+ and 10,000+ records
+- [x] Implement virtual scrolling for large data grids
+- [x] Profile and optimize initial Console load (target: < 2s on 3G)
 - [x] Add loading skeleton states for all async data views
-- [x] Test view switching (grid ↔ kanban ↔ calendar) state preservation with large datasets (`ViewSwitching.test.tsx`, `view-states.test.tsx`)
+- [x] Test view switching state preservation with large datasets
 
-#### P2.5 Console Feature Completeness
-- [x] Verify CRUD end-to-end for all object types (create, read, update, delete, bulk operations — `crud-e2e.test.tsx` with full lifecycle tests)
-- [x] Verify command palette (⌘K) searches across all entity types (`command-palette.test.tsx` with search, navigation, and entity type tests)
-- [x] Ensure dark/light theme toggle is consistent across all pages with no flash (`theme-toggle.test.tsx` with localStorage persistence, class application, and system preference tests)
-- [x] Test responsive layout on tablet (768px) and mobile (375px) breakpoints (`responsive-layout.test.tsx` with Tailwind class assertions)
-- [x] Verify inline editing in grid view with save/cancel/validation feedback (`InlineEditing.test.tsx` with Enter/Escape keys, save/cancel buttons, validation errors)
+#### P4.5 Console Feature Completeness ✅
+- [x] Verify CRUD end-to-end for all object types
+- [x] Verify command palette (⌘K) searches across all entity types
+- [x] Ensure dark/light theme toggle is consistent across all pages
+- [x] Test responsive layout on tablet (768px) and mobile (375px)
+- [x] Verify inline editing in grid view with save/cancel/validation feedback
 
----
+### P5. Documentation 📖 (Completed Foundation)
 
-### P3. Component Excellence 🧩
+**Goal:** Comprehensive, accurate, and easy-to-navigate documentation.
 
-**Goal:** Every component is polished, consistent, well-tested, and delightful to use.
+> ✅ **Foundation complete** — All documentation items from the Feb 2026 audit are resolved.
 
-#### P3.1 Component Quality Audit
-- [x] Audit all 91+ components for API consistency (prop naming, default values, error states — `api-consistency.test.tsx` with 119 tests covering data-slot, className, cn(), forwardRef, displayName, naming conventions, and composition patterns)
-- [x] Ensure every component has complete TypeScript types with JSDoc descriptions (all 47 UI primitives, 14 custom components, 36 field widgets with JSDoc)
-- [x] Standardize error/empty/loading states across all components using shared primitives
-- [x] Add missing edge-case handling (overflow, truncation, null data, large datasets — `extreme-inputs.test.tsx`, `view-states.test.tsx` across plugins)
+#### P5.1 Guide Content ✅
+- [x] Verify "Getting Started" guide stays current with latest API
+- [x] Write "Building a CRUD App" end-to-end tutorial
+- [x] Write "Custom Plugin Development" guide
+- [x] Write "Theming & Customization" guide
+- [x] Add deployment guides for examples
 
-#### P3.2 Field Widget Polish
-- [x] Audit all 36+ field widgets for consistent validation feedback (error message placement, color, icon — `validation-feedback.test.tsx`)
-- [x] Ensure all fields work correctly in all form variants (simple, tabbed, wizard, split, drawer, modal — `form-variants.test.tsx`)
-- [x] Test field widgets with extreme inputs (10,000-char strings, MAX_SAFE_INTEGER, emoji, RTL text — `extreme-inputs.test.tsx`)
-- [x] Polish date/time/datetime pickers for timezone edge cases and locale formatting (`datetime-timezone.test.tsx` with 55 tests covering DST boundaries, midnight, locales, and invalid dates)
+#### P5.2 API Reference ✅
+- [x] Generate API reference docs from TypeScript types
+- [x] Document all schema types with annotated examples
+- [x] Add interactive schema playground on documentation site
+- [x] Document expression engine syntax and all built-in functions
 
-#### P3.3 Plugin View Robustness
-- [x] Verify all 13+ view types handle empty data, loading, and error states gracefully (`view-states.test.tsx` in Grid, Kanban, Calendar plugins)
-- [x] Ensure consistent toolbar, filter, and sort behavior across all views (`toolbar-consistency.test.tsx` with 29 tests on toolbar, filter, sort, search, view switcher, and named views)
-- [x] Validate view switching preserves selection state, scroll position, and filter criteria (`ViewSwitching.test.tsx`, `view-switching.test.tsx`)
-- [x] Add E2E tests for critical view workflows (Grid → detail → back, Kanban drag-and-drop — `view-workflows.spec.ts` in e2e/, `dnd-undo-integration.test.tsx`)
+#### P5.3 Storybook as Living Documentation ✅
+- [x] Ensure Storybook serves as the primary component reference
+- [x] Add usage documentation (MDX) alongside each component story
+- [x] Add accessibility notes for each component
+- [x] Deploy Storybook to a publicly accessible URL
 
-#### P3.4 Test Coverage
-- [x] Increase test coverage from 80% → 90% (target: 4,000+ tests — added 300+ new tests across accessibility, performance, API consistency, extreme inputs, datetime, DnD integration, snapshot, toolbar, and console load)
-- [x] Identify and cover components with < 80% test coverage (field widgets, view plugins, and console components now have comprehensive test suites)
-- [x] Add integration tests for complex interactions (DnD + undo/redo in `dnd-undo-integration.test.tsx`, form validation + submit in `crud-e2e.test.tsx`)
-- [x] Add snapshot tests for critical UI output consistency (`snapshot.test.tsx` for Badge/Button/Card/Empty/Spinner, `snapshot-critical.test.tsx` for Alert/Dialog/Tabs/Accordion/Avatar/Progress/Tooltip/Breadcrumb/Separator/Skeleton)
-
-#### P3.5 Storybook Enhancement
-- [x] Ensure every exported component has at least one Storybook story (target: 91+ stories from current 68)
-- [x] Add interactive controls (args) for all major props in each story (CSF3 args pattern used across all 77 stories)
-- [x] Add "edge case" stories per component (empty data, error state, loading, overflow, RTL — `fields-edge-cases.stories.tsx` with 20 edge-case stories)
-- [x] Organize stories with consistent categorization (Components / Fields / Layout / Plugins — Introduction.mdx and Accessibility.mdx added as Storybook MDX landing pages)
-
----
-
-### P4. Documentation 📖
-
-**Goal:** Comprehensive, accurate, and easy-to-navigate documentation that is a developer's best friend.
-
-#### P4.1 Guide Content
-- [x] Verify "Getting Started" guide (`quick-start.md`) stays current with latest API
-- [x] Write "Building a CRUD App" end-to-end tutorial (complete walkthrough: schema → data → deploy)
-- [x] Write "Custom Plugin Development" guide with best practices and template walkthrough
-- [x] Write "Theming & Customization" guide (Tailwind config, cva variants, dark mode, CSS custom properties)
-- [x] Add deployment guides for examples (Docker, Vercel, Railway configurations)
-
-#### P4.2 API Reference
-- [x] Generate API reference docs from TypeScript types (TypeDoc configured in `typedoc.json` with `pnpm docs:api`, covering types/core/react/components/fields/layout)
-- [x] Document all schema types with annotated examples (ViewSchema, ActionSchema, FieldSchema, etc.)
-- [x] Add interactive schema playground on documentation site (JSON editor → live preview — `content/docs/guide/schema-playground.md` with 5 example schemas)
-- [x] Document expression engine syntax and all built-in functions with examples
-
-#### P4.3 Storybook as Living Documentation
-- [x] Ensure Storybook serves as the primary component reference alongside docs site (Introduction.mdx landing page with architecture overview)
-- [x] Add usage documentation (MDX) alongside each component story (Introduction.mdx and Accessibility.mdx in stories-json)
-- [x] Add accessibility notes for each component (keyboard shortcuts, ARIA roles, screen reader behavior — Accessibility.mdx with per-component-type ARIA reference)
-- [x] Deploy Storybook to a publicly accessible URL (`storybook-deploy.yml` GitHub Actions workflow configured)
-
-#### P4.4 Architecture & Internals
-- [x] Document the layer architecture (spec → types → core → react → components → plugins) with data flow diagrams
-- [x] Document the plugin system architecture (registration, lifecycle, lazy loading)
+#### P5.4 Architecture & Internals ✅
+- [x] Document the layer architecture with data flow diagrams
+- [x] Document the plugin system architecture
 - [x] Add troubleshooting guide for common development issues
-- [x] Document CI/CD pipeline architecture (13 workflows, their triggers and responsibilities)
+- [x] Document CI/CD pipeline architecture
 
----
-
-### P5. Mobile User Experience 📱
+### P6. Mobile User Experience 📱
 
 **Goal:** Every component and page delivers a native-quality experience on phones and tablets — responsive layout, touch-friendly interactions, and fast performance on mobile networks.
 
-> **Existing Infrastructure:** `@object-ui/mobile` provides `useBreakpoint` (isMobile/isTablet/isDesktop), `useResponsive`, `useGesture`, `useTouchTarget`, `MobileProvider`, and `ResponsiveContainer`. `@object-ui/layout` provides `ResponsiveGrid` with Tailwind-aligned breakpoints. These building blocks are production-ready but under-adopted across plugin views and the Console app.
+> ✅ **Implementation largely complete.** Remaining items are testing and quality assurance.
 
-#### P5.1 Plugin Views — Mobile-First Layouts
+#### P6.1 Plugin Views — Mobile-First Layouts
 
 Each plugin view must work seamlessly from 320px (small phone) to 2560px (ultrawide).
 
@@ -370,7 +412,7 @@ Each plugin view must work seamlessly from 320px (small phone) to 2560px (ultraw
 - [x] Collapse task details on mobile (show name only, expand on tap)
 - [x] Add responsive zoom levels (day view on mobile, week on tablet, month on desktop)
 
-#### P5.2 Console Pages — Responsive Layouts
+#### P6.2 Console Pages — Responsive Layouts
 
 ##### AppHeader
 - [x] Ensure all header actions are accessible on mobile (overflow menu for hidden actions)
@@ -401,7 +443,7 @@ Each plugin view must work seamlessly from 320px (small phone) to 2560px (ultraw
 - [x] Sticky action buttons at bottom on mobile
 - [x] Add swipe-to-dismiss for mobile dialogs
 
-#### P5.3 Core Component Primitives
+#### P6.3 Core Component Primitives
 
 ##### DataTable (`components/renderers/complex`)
 - [x] Add outer `overflow-x-auto` wrapper with `-webkit-overflow-scrolling: touch`
@@ -421,7 +463,7 @@ Each plugin view must work seamlessly from 320px (small phone) to 2560px (ultraw
 - [x] Tab navigation: horizontal scroll with `overflow-x-auto` for many tabs
 - [x] DropdownMenu: use bottom sheet pattern on mobile via `useIsMobile()` detection
 
-#### P5.4 Mobile Infrastructure Enhancements
+#### P6.4 Mobile Infrastructure Enhancements
 
 ##### Touch & Gesture System
 - [x] Integrate `usePullToRefresh` into all data-fetching views (Grid, List, Timeline, Calendar)
@@ -447,7 +489,7 @@ Each plugin view must work seamlessly from 320px (small phone) to 2560px (ultraw
 - [x] Add viewport meta tag validation in Console HTML template
 - [x] Support safe-area-inset for notched devices (`env(safe-area-inset-*)`)
 
-#### P5.5 Testing & Quality Assurance
+#### P6.5 Testing & Quality Assurance
 
 - [x] Add Playwright mobile viewport tests (iPhone SE 375px, iPhone 14 390px, iPad 768px)
 - [ ] Add visual regression tests for all views at mobile breakpoints
@@ -457,7 +499,7 @@ Each plugin view must work seamlessly from 320px (small phone) to 2560px (ultraw
 - [ ] Test on-screen keyboard interaction for all form fields
 - [ ] Performance benchmark on simulated mobile CPU (4× slowdown) and 3G network
 
-#### P5.6 Mobile-Specific Success Metrics
+#### P6.6 Mobile-Specific Success Metrics
 
 | Metric | Target | How Measured |
 |--------|--------|--------------|
@@ -473,7 +515,7 @@ Each plugin view must work seamlessly from 320px (small phone) to 2560px (ultraw
 
 ## 🔮 Future Vision (Deferred)
 
-> The following items are **not** in the current sprint. They will be re-evaluated once P1–P4 are substantially complete.
+> The following items are **not** in the current sprint. They will be re-evaluated once P0–P1 (v1.0 UI essentials and spec compliance) are complete.
 
 ### Ecosystem & Marketplace
 - Plugin marketplace website with search, ratings, and install count
@@ -501,30 +543,38 @@ Each plugin view must work seamlessly from 320px (small phone) to 2560px (ultraw
 
 ## 📈 Success Metrics
 
-| Metric | Current (Feb 2026) | Short-Term Target | How Measured |
+### v1.0 Release Criteria (P0)
+
+| Metric | Current | v1.0 Target | How Measured |
+|--------|---------|-------------|--------------|
+| **Spec Compliance** | 98% | 100% (UI-facing) | ROADMAP_SPEC.md |
+| **View Navigation** | 6/7 views | 7/7 views (incl. Gallery) | Navigation compliance matrix |
+| **ListView Spec Props** | 0/11 | 3/11 (emptyState, hiddenFields, quickFilters) | Spec property coverage |
+| **Timeline Spec Alignment** | Non-standard | Fully aligned (startDateField, endDateField, etc.) | Type contract audit |
+| **Console CRUD** | Callback-based | ActionEngine pipeline | ActionEngine integration test |
+| **Build Status** | 42/42 pass | 42/42 pass | `pnpm build` |
+
+### Quality Metrics (Ongoing)
+
+| Metric | Current (Feb 2026) | Target | How Measured |
 |--------|--------------------|--------------------|--------------|
-| **Test Coverage** | 80% → 90%+ | 90% | `pnpm test:coverage` |
+| **Test Coverage** | 90%+ | 90%+ | `pnpm test:coverage` |
 | **Test Count** | 3,535+ | 4,000+ | `pnpm test` summary |
-| **Spec Compliance** | 98% | 100% | SPEC_COMPLIANCE_EVALUATION.md |
 | **Storybook Stories** | 78 | 91+ (1 per component) | Story file count |
 | **Package READMEs** | 37/37 (100%) | 37/37 (100%) | README.md presence |
 | **Hooks with JSDoc** | 20+/20+ (100%) | 20+/20+ (100%) | Grep `/** */` in hooks |
 | **Console i18n Coverage** | 100% | 100% | No hardcoded strings |
-| **Build Status** | 42/42 pass | 42/42 pass | `pnpm build` |
 | **WCAG AA Compliance** | Full Console pages | Full Console pages | axe-core audit |
 | **CLI Commands Working** | 11 | 11 (all verified) | `objectui doctor` |
 | **TODO/FIXME Count** | 0 files | 0 | Grep `TODO\|FIXME\|HACK` |
-| **Mobile Responsive Views** | Partial (2/13) | 13/13 (100%) | Playwright mobile tests |
-| **Mobile Lighthouse Score** | Not measured | ≥ 90 | Lighthouse CI mobile preset |
-| **Touch Target Compliance** | Not measured | 100% ≥ 44px | Automated touch target scan |
 
-### DX Success Criteria
+### DX Success Criteria ✅
 - [x] New developer can `git clone` → `pnpm install` → `pnpm dev` → see Console in < 5 minutes
 - [x] `objectui init my-app` creates a buildable project with zero errors
 - [x] Every exported function/hook/type has JSDoc with at least one usage example
 - [x] Invalid schema input produces an error message with fix suggestion and docs link
 
-### UX Success Criteria
+### UX Success Criteria ✅
 - [x] Console loads in < 2s on simulated 3G connection
 - [x] All Console UI strings are internationalized (0 hardcoded strings)
 - [x] Grid view handles 10,000+ records without jank (< 100ms interaction latency)
@@ -543,7 +593,7 @@ Each plugin view must work seamlessly from 320px (small phone) to 2560px (ultraw
 
 | Risk | Mitigation |
 |------|------------|
-| **New developer abandons due to poor onboarding** | P1.1 zero-friction setup; MIGRATION_GUIDE.md; "Hello World" example |
+| **v1.0 ships without spec compliance** | P0 prioritizes UI-facing spec compliance; non-UI spec areas deferred to P1 |
 | **Spec changes (post v3.0.0)** | Strict "import, never redefine" rule; type updates propagate automatically |
 | **Performance regression** | Performance budgets in CI, PerformanceConfigSchema monitoring, 10K-record benchmarks |
 | **i18n regression (new hardcoded strings)** | ESLint rule to detect string literals in JSX; i18n coverage metric in CI |
@@ -556,9 +606,9 @@ Each plugin view must work seamlessly from 320px (small phone) to 2560px (ultraw
 
 ## 📚 Reference Documents
 
-- [SPEC_COMPLIANCE_EVALUATION.md](./SPEC_COMPLIANCE_EVALUATION.md) — Per-package v3.0.0 compliance (98% current)
-- [OBJECTSTACK_CLIENT_EVALUATION.md](./OBJECTSTACK_CLIENT_EVALUATION.md) — Client SDK evaluation (100% protocol coverage)
-- [DESIGNER_UX_ANALYSIS.md](./DESIGNER_UX_ANALYSIS.md) — Designer UX improvement plan
+- [ROADMAP_SPEC.md](./ROADMAP_SPEC.md) — Per-package @objectstack/spec v3.0.0 compliance evaluation (98% current)
+- [ROADMAP_CONSOLE.md](./ROADMAP_CONSOLE.md) — Console development roadmap with phase-by-phase progress
+- [ROADMAP_DESIGNER.md](./ROADMAP_DESIGNER.md) — Designer UX analysis and improvement plan
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — Contribution guidelines
 - [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) — Developer quick reference
 
@@ -575,6 +625,6 @@ Each plugin view must work seamlessly from 320px (small phone) to 2560px (ultraw
 
 ---
 
-**Roadmap Status:** 🎯 Active — Developer Experience · User Experience · Component Excellence · Documentation
+**Roadmap Status:** 🎯 Active — v1.0 UI Essentials · Spec Compliance · Component Excellence
 **Next Review:** March 15, 2026
 **Contact:** hello@objectui.org | https://github.com/objectstack-ai/objectui
