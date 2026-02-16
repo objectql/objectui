@@ -75,9 +75,10 @@ export function FileField({ value, onChange, field, readonly, ...props }: FieldW
     if (accept) {
       const acceptedTypes = accept.split(',').map(t => t.trim().toLowerCase());
       const filtered = droppedFiles.filter(file => {
-        const ext = '.' + file.name.split('.').pop()?.toLowerCase();
+        const parts = file.name.split('.');
+        const ext = parts.length > 1 ? '.' + parts.pop()?.toLowerCase() : '';
         return acceptedTypes.some(t =>
-          t === file.type || t === ext || (t.endsWith('/*') && file.type.startsWith(t.replace('/*', '/')))
+          t === file.type || (ext && t === ext) || (t.endsWith('/*') && file.type.startsWith(t.replace('/*', '/')))
         );
       });
       processFiles(filtered);

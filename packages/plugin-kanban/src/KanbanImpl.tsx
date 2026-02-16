@@ -221,7 +221,7 @@ function QuickAddForm({ columnId, onAdd }: { columnId: string; onAdd: (columnId:
   )
 }
 
-function KanbanColumnComponent({
+function KanbanColumnView({
   column,
   cards,
   onCardClick,
@@ -467,7 +467,7 @@ function KanbanBoardInner({ columns, onCardMove, onCardClick, className, dnd, qu
       </div>
       <div className={cn("flex gap-3 sm:gap-4 overflow-x-auto snap-x snap-mandatory p-2 sm:p-4 [-webkit-overflow-scrolling:touch]", className)} role="region" aria-label="Kanban board">
         {boardColumns.map((column) => (
-          <KanbanColumnComponent
+          <KanbanColumnView
             key={column.id}
             column={column}
             cards={column.cards}

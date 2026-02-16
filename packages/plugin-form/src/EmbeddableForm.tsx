@@ -21,7 +21,7 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
-import type { DataSource } from '@object-ui/types';
+import type { DataSource, FormField } from '@object-ui/types';
 import { ObjectForm } from './ObjectForm';
 
 export interface EmbeddableFormConfig {
@@ -36,14 +36,7 @@ export interface EmbeddableFormConfig {
   /** Fields to include in the form (subset of object fields) */
   fields?: string[];
   /** Custom field definitions for inline forms */
-  customFields?: Array<{
-    name: string;
-    label: string;
-    type: string;
-    required?: boolean;
-    placeholder?: string;
-    options?: Array<{ label: string; value: string }>;
-  }>;
+  customFields?: FormField[];
   /** Branding configuration */
   branding?: {
     logo?: string;
@@ -214,7 +207,7 @@ export const EmbeddableForm: React.FC<EmbeddableFormProps> = ({
               objectName: config.objectName,
               mode: 'create',
               fields: config.fields,
-              customFields: config.customFields as any,
+              customFields: config.customFields,
               initialData,
               onSuccess: handleSubmit,
               submitLabel: submitting ? 'Submitting...' : 'Submit',
