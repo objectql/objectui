@@ -32,6 +32,7 @@ import {
   History, 
   Star,
   StarOff,
+  Check,
 } from 'lucide-react';
 import { DetailSection } from './DetailSection';
 import { DetailTabs } from './DetailTabs';
@@ -46,6 +47,10 @@ export interface DetailViewProps {
   onEdit?: () => void;
   onDelete?: () => void;
   onBack?: () => void;
+  /** Enable inline editing toggle for detail fields */
+  inlineEdit?: boolean;
+  /** Callback when a field value is saved inline */
+  onFieldSave?: (field: string, value: any, record: any) => void | Promise<void>;
 }
 
 export const DetailView: React.FC<DetailViewProps> = ({
@@ -55,10 +60,14 @@ export const DetailView: React.FC<DetailViewProps> = ({
   onEdit,
   onDelete,
   onBack,
+  inlineEdit = false,
+  onFieldSave,
 }) => {
   const [data, setData] = React.useState<any>(schema.data);
   const [loading, setLoading] = React.useState(!schema.data && !!((schema.api && schema.resourceId) || (dataSource && schema.objectName && schema.resourceId)));
   const [isFavorite, setIsFavorite] = React.useState(false);
+  const [isInlineEditing, setIsInlineEditing] = React.useState(false);
+  const [editedValues, setEditedValues] = React.useState<Record<string, any>>({});
 
   // Fetch data if API or DataSource provided
   React.useEffect(() => {
@@ -168,6 +177,26 @@ export const DetailView: React.FC<DetailViewProps> = ({
     setIsFavorite(!isFavorite);
   }, [isFavorite]);
 
+  const handleInlineEditToggle = React.useCallback(() => {
+    if (isInlineEditing) {
+      // Save changes
+      const changes = Object.entries(editedValues);
+      if (changes.length > 0) {
+        const updatedData = { ...data, ...editedValues };
+        setData(updatedData);
+        changes.forEach(([field, value]) => {
+          onFieldSave?.(field, value, updatedData);
+        });
+      }
+      setEditedValues({});
+    }
+    setIsInlineEditing(!isInlineEditing);
+  }, [isInlineEditing, editedValues, data, onFieldSave]);
+
+  const handleInlineFieldChange = React.useCallback((field: string, value: any) => {
+    setEditedValues(prev => ({ ...prev, [field]: value }));
+  }, []);
+
   if (loading || schema.loading) {
     return (
       <div className={cn('space-y-4', className)}>
@@ -231,6 +260,35 @@ export const DetailView: React.FC<DetailViewProps> = ({
             {schema.actions?.map((action, index) => (
               <SchemaRenderer key={index} schema={action} data={data} />
             ))}
+
+            {/* Inline Edit Toggle */}
+            {inlineEdit && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant={isInlineEditing ? 'default' : 'outline'} 
+                    size="sm"
+                    onClick={handleInlineEditToggle}
+                    className="gap-2"
+                  >
+                    {isInlineEditing ? (
+                      <>
+                        <Check className="h-4 w-4" />
+                        <span className="hidden sm:inline">Save</span>
+                      </>
+                    ) : (
+                      <>
+                        <Edit className="h-4 w-4" />
+                        <span className="hidden sm:inline">Edit inline</span>
+                      </>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {isInlineEditing ? 'Save changes' : 'Edit fields inline'}
+                </TooltipContent>
+              </Tooltip>
+            )}
 
             {/* Share Button */}
             <Tooltip>
@@ -311,7 +369,9 @@ export const DetailView: React.FC<DetailViewProps> = ({
             <DetailSection
               key={index}
               section={section}
-              data={data}
+              data={{ ...data, ...editedValues }}
+              isEditing={isInlineEditing}
+              onFieldChange={handleInlineFieldChange}
             />
           ))}
         </div>
@@ -324,7 +384,9 @@ export const DetailView: React.FC<DetailViewProps> = ({
             fields: schema.fields,
             columns: schema.columns || 2,
           }}
-          data={data}
+          data={{ ...data, ...editedValues }}
+          isEditing={isInlineEditing}
+          onFieldChange={handleInlineFieldChange}
         />
       )}
 

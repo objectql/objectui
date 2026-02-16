@@ -1046,6 +1046,56 @@ export interface ListViewSchema extends BaseSchema {
     /** Icon name (Lucide icon identifier) for the empty state */
     icon?: string;
   };
+
+  /**
+   * Quick filter buttons for predefined filter presets.
+   * Each quick filter is rendered as a toggle button in the toolbar.
+   */
+  quickFilters?: Array<{
+    /** Unique identifier for this quick filter */
+    id: string;
+    /** Display label for the filter button */
+    label: string;
+    /** Filter conditions to apply when activated */
+    filters: Array<any[] | string>;
+    /** Icon name (Lucide icon identifier) */
+    icon?: string;
+    /** Default active state */
+    defaultActive?: boolean;
+  }>;
+
+  /**
+   * Fields to hide from the current view.
+   * Hides columns in grid view or fields in other view types.
+   */
+  hiddenFields?: string[];
+
+  /**
+   * Custom field display order. Fields listed first appear first.
+   * Fields not listed are appended in their original order.
+   */
+  fieldOrder?: string[];
+
+  /**
+   * Export options configuration for exporting list data.
+   * Supports csv, xlsx, json, and pdf formats.
+   */
+  exportOptions?: {
+    /** Formats available for export */
+    formats?: Array<'csv' | 'xlsx' | 'json' | 'pdf'>;
+    /** Maximum number of records to export (0 = unlimited) */
+    maxRecords?: number;
+    /** Include column headers in export */
+    includeHeaders?: boolean;
+    /** Custom file name prefix */
+    fileNamePrefix?: string;
+  };
+
+  /**
+   * Density mode for controlling row/item spacing.
+   * Aligned with @objectstack/spec DensityMode.
+   */
+  densityMode?: 'compact' | 'comfortable' | 'spacious';
 }
 
 /**

@@ -31,12 +31,18 @@ export interface DetailSectionProps {
   section: DetailViewSectionType;
   data?: any;
   className?: string;
+  /** Whether inline editing is active */
+  isEditing?: boolean;
+  /** Callback when a field value changes during inline editing */
+  onFieldChange?: (field: string, value: any) => void;
 }
 
 export const DetailSection: React.FC<DetailSectionProps> = ({
   section,
   data,
   className,
+  isEditing = false,
+  onFieldChange,
 }) => {
   const [isCollapsed, setIsCollapsed] = React.useState(section.defaultCollapsed ?? false);
   const [copiedField, setCopiedField] = React.useState<string | null>(null);
@@ -75,6 +81,16 @@ export const DetailSection: React.FC<DetailSectionProps> = ({
         <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           {field.label || field.name}
         </div>
+        {isEditing && !field.readonly ? (
+          <div className="min-h-[44px] sm:min-h-0">
+            <input
+              type={field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : 'text'}
+              className="w-full px-2 py-1.5 text-sm border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+              value={value != null ? String(value) : ''}
+              onChange={(e) => onFieldChange?.(field.name, e.target.value)}
+            />
+          </div>
+        ) : (
         <div
           className={cn(
             "flex items-start justify-between gap-2 min-h-[44px] sm:min-h-0 rounded-md",
@@ -120,6 +136,7 @@ export const DetailSection: React.FC<DetailSectionProps> = ({
             </TooltipProvider>
           )}
         </div>
+        )}
       </div>
     );
   };

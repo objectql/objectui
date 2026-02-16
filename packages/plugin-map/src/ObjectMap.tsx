@@ -47,6 +47,10 @@ export interface ObjectMapProps {
   onRowClick?: (record: any) => void;
   onEdit?: (record: any) => void;
   onDelete?: (record: any) => void;
+  /** Enable marker clustering for dense data */
+  enableClustering?: boolean;
+  /** Cluster radius in pixels (default: 50) */
+  clusterRadius?: number;
 }
 
 interface MapConfig {
@@ -213,6 +217,72 @@ function extractCoordinates(record: any, config: MapConfig): [number, number] | 
   return null;
 }
 
+interface MarkerData {
+  id: string;
+  title: string;
+  description?: string;
+  coordinates: [number, number];
+  data: any;
+}
+
+interface ClusterData {
+  id: string;
+  coordinates: [number, number];
+  markers: MarkerData[];
+  isCluster: boolean;
+}
+
+/**
+ * Simple grid-based marker clustering.
+ * Groups markers that are close to each other at a given zoom level.
+ */
+function clusterMarkers(markers: MarkerData[], zoom: number, radius: number = 50): ClusterData[] {
+  if (markers.length <= 1 || zoom >= 15) {
+    return markers.map(m => ({
+      id: m.id,
+      coordinates: m.coordinates,
+      markers: [m],
+      isCluster: false,
+    }));
+  }
+
+  // Grid cell size based on zoom (larger cells at lower zoom)
+  const cellSize = radius / Math.pow(2, zoom);
+  const grid = new Map<string, MarkerData[]>();
+
+  markers.forEach(marker => {
+    const cellX = Math.floor(marker.coordinates[0] / cellSize);
+    const cellY = Math.floor(marker.coordinates[1] / cellSize);
+    const key = `${cellX}:${cellY}`;
+    if (!grid.has(key)) grid.set(key, []);
+    grid.get(key)!.push(marker);
+  });
+
+  const clusters: ClusterData[] = [];
+  grid.forEach((group, key) => {
+    if (group.length === 1) {
+      clusters.push({
+        id: group[0].id,
+        coordinates: group[0].coordinates,
+        markers: group,
+        isCluster: false,
+      });
+    } else {
+      // Compute centroid
+      const avgLng = group.reduce((sum, m) => sum + m.coordinates[0], 0) / group.length;
+      const avgLat = group.reduce((sum, m) => sum + m.coordinates[1], 0) / group.length;
+      clusters.push({
+        id: `cluster-${key}`,
+        coordinates: [avgLng, avgLat],
+        markers: group,
+        isCluster: true,
+      });
+    }
+  });
+
+  return clusters;
+}
+
 export const ObjectMap: React.FC<ObjectMapProps> = ({
   schema,
   dataSource,
@@ -221,6 +291,8 @@ export const ObjectMap: React.FC<ObjectMapProps> = ({
   onRowClick,
   onEdit,
   onDelete,
+  enableClustering,
+  clusterRadius = 50,
   ...rest
 }) => {
   const [data, setData] = useState<any[]>([]);
@@ -370,6 +442,8 @@ export const ObjectMap: React.FC<ObjectMapProps> = ({
     markers.find(m => m.id === selectedMarkerId),
   [markers, selectedMarkerId]);
 
+  const [currentZoom, setCurrentZoom] = useState(mapConfig.zoom || 3);
+
   const navigation = useNavigationOverlay({
     navigation: (schema as any).navigation,
     objectName: schema.objectName,
@@ -384,6 +458,20 @@ export const ObjectMap: React.FC<ObjectMapProps> = ({
       m.description?.toLowerCase().includes(q)
     );
   }, [markers, searchQuery]);
+
+  // Cluster markers when clustering is enabled
+  const clusteredData = useMemo(() => {
+    const shouldCluster = enableClustering ?? ((schema as any).enableClustering || filteredMarkers.length > 100);
+    if (!shouldCluster) {
+      return filteredMarkers.map(m => ({
+        id: m.id,
+        coordinates: m.coordinates,
+        markers: [m],
+        isCluster: false,
+      }));
+    }
+    return clusterMarkers(filteredMarkers, currentZoom, clusterRadius);
+  }, [filteredMarkers, currentZoom, enableClustering, clusterRadius, schema]);
 
   // Calculate map bounds
   const initialViewState = useMemo(() => {
@@ -457,17 +545,38 @@ export const ObjectMap: React.FC<ObjectMapProps> = ({
             touchZoomRotate={true}
             dragRotate={true}
             touchPitch={true}
+            onZoom={(e) => setCurrentZoom(Math.round(e.viewState.zoom))}
          >
             <NavigationControl position="top-right" showCompass={true} showZoom={true} />
             
-            {filteredMarkers.map(marker => (
+            {clusteredData.map(cluster => (
+              cluster.isCluster ? (
                 <Marker
-                    key={marker.id}
-                    longitude={marker.coordinates[0]}
-                    latitude={marker.coordinates[1]}
+                  key={cluster.id}
+                  longitude={cluster.coordinates[0]}
+                  latitude={cluster.coordinates[1]}
+                  anchor="center"
+                >
+                  <div
+                    className="flex items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-xs cursor-pointer hover:scale-110 transition-transform shadow-md"
+                    style={{
+                      width: Math.min(48, 24 + cluster.markers.length * 2),
+                      height: Math.min(48, 24 + cluster.markers.length * 2),
+                    }}
+                    title={`${cluster.markers.length} markers`}
+                  >
+                    {cluster.markers.length}
+                  </div>
+                </Marker>
+              ) : (
+                <Marker
+                    key={cluster.id}
+                    longitude={cluster.coordinates[0]}
+                    latitude={cluster.coordinates[1]}
                     anchor="bottom"
                     onClick={(e) => {
                         e.originalEvent.stopPropagation();
+                        const marker = cluster.markers[0];
                         setSelectedMarkerId(marker.id);
                         navigation.handleClick(marker.data);
                         onMarkerClick?.(marker.data);
@@ -477,6 +586,7 @@ export const ObjectMap: React.FC<ObjectMapProps> = ({
                         📍
                     </div>
                 </Marker>
+              )
             ))}
 
             {selectedMarker && (

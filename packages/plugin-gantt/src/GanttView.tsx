@@ -58,9 +58,12 @@ export interface GanttViewProps {
   startDate?: Date
   endDate?: Date
   onTaskClick?: (task: GanttTask) => void
+  onTaskUpdate?: (task: GanttTask, changes: Partial<Pick<GanttTask, 'title' | 'start' | 'end' | 'progress'>>) => void
   onViewChange?: (view: GanttViewMode) => void
   onAddClick?: () => void
   className?: string
+  /** Enable inline editing of task fields */
+  inlineEdit?: boolean
 }
 
 export function GanttView({
@@ -69,15 +72,19 @@ export function GanttView({
   startDate,
   endDate,
   onTaskClick,
+  onTaskUpdate,
   onViewChange,
   onAddClick,
-  className
+  className,
+  inlineEdit = false,
 }: GanttViewProps) {
   const [currentDate, setCurrentDate] = React.useState(new Date());
   const [rowHeight, setRowHeight] = React.useState(
     typeof window !== 'undefined' && window.innerWidth < 640 ? 32 : 40
   );
   const [columnWidth, setColumnWidth] = React.useState(getResponsiveColumnWidth());
+  const [editingTask, setEditingTask] = React.useState<string | number | null>(null);
+  const [editValues, setEditValues] = React.useState<Record<string, string>>({});
 
   React.useEffect(() => {
     const handleResize = () => {
@@ -251,28 +258,85 @@ export function GanttView({
             ref={listRef}
             style={{ width: taskListWidth, minWidth: taskListWidth }}
           >
-            {tasks.map((task) => (
+            {tasks.map((task) => {
+              const isEditing = inlineEdit && editingTask === task.id;
+              return (
               <div 
                 key={task.id}
                 className="flex items-center border-b px-2 sm:px-4 hover:bg-accent/50 cursor-pointer transition-colors touch-manipulation"
                 style={{ height: rowHeight }}
-                onClick={() => onTaskClick?.(task)}
+                onClick={() => !isEditing && onTaskClick?.(task)}
+                onDoubleClick={() => {
+                  if (inlineEdit && onTaskUpdate) {
+                    setEditingTask(task.id);
+                    setEditValues({
+                      title: task.title,
+                      start: task.start.toLocaleDateString('en-CA'),
+                      end: task.end.toLocaleDateString('en-CA'),
+                      progress: String(task.progress),
+                    });
+                  }
+                }}
               >
                 <div className="flex-1 truncate font-medium text-xs sm:text-sm flex items-center gap-2">
                   <div 
                     className="w-2 h-2 rounded-full shrink-0"
                     style={{ backgroundColor: task.color || '#3b82f6' }} 
                   />
-                  {task.title}
+                  {isEditing ? (
+                    <input
+                      className="border rounded px-1 py-0.5 text-xs w-full bg-background"
+                      value={editValues.title || ''}
+                      onChange={(e) => setEditValues(prev => ({ ...prev, title: e.target.value }))}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          onTaskUpdate?.(task, {
+                            title: editValues.title,
+                            start: new Date(editValues.start),
+                            end: new Date(editValues.end),
+                            progress: Number(editValues.progress) || 0,
+                          });
+                          setEditingTask(null);
+                        } else if (e.key === 'Escape') {
+                          setEditingTask(null);
+                        }
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      autoFocus
+                    />
+                  ) : (
+                    task.title
+                  )}
                 </div>
                 <div className="w-16 sm:w-20 text-right text-xs text-muted-foreground hidden sm:block">
-                  {task.start.toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}
+                  {isEditing ? (
+                    <input
+                      type="date"
+                      className="border rounded px-1 py-0.5 text-xs w-full bg-background"
+                      value={editValues.start || ''}
+                      onChange={(e) => setEditValues(prev => ({ ...prev, start: e.target.value }))}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  ) : (
+                    task.start.toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })
+                  )}
                 </div>
                 <div className="w-16 sm:w-20 text-right text-xs text-muted-foreground hidden sm:block">
-                  {task.end.toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}
+                  {isEditing ? (
+                    <input
+                      type="date"
+                      className="border rounded px-1 py-0.5 text-xs w-full bg-background"
+                      value={editValues.end || ''}
+                      onChange={(e) => setEditValues(prev => ({ ...prev, end: e.target.value }))}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  ) : (
+                    task.end.toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })
+                  )}
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Right Side: Timeline */}

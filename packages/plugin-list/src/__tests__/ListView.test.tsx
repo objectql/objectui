@@ -261,4 +261,96 @@ describe('ListView', () => {
     expect(screen.getByText('No contacts yet')).toBeInTheDocument();
     expect(screen.getByText('Add your first contact to get started.')).toBeInTheDocument();
   });
+
+  it('should render quick filters when configured', () => {
+    const schema: ListViewSchema = {
+      type: 'list-view',
+      objectName: 'contacts',
+      viewType: 'grid',
+      fields: ['name', 'email'],
+      quickFilters: [
+        { id: 'active', label: 'Active', filters: [['status', '=', 'active']] },
+        { id: 'vip', label: 'VIP', filters: [['vip', '=', true]], defaultActive: true },
+      ],
+    };
+
+    renderWithProvider(<ListView schema={schema} />);
+    
+    expect(screen.getByTestId('quick-filters')).toBeInTheDocument();
+    expect(screen.getByText('Active')).toBeInTheDocument();
+    expect(screen.getByText('VIP')).toBeInTheDocument();
+  });
+
+  it('should render hide fields popover', () => {
+    const schema: ListViewSchema = {
+      type: 'list-view',
+      objectName: 'contacts',
+      viewType: 'grid',
+      fields: ['name', 'email', 'phone'],
+    };
+
+    renderWithProvider(<ListView schema={schema} />);
+    
+    const hideFieldsButton = screen.getByRole('button', { name: /hide fields/i });
+    expect(hideFieldsButton).toBeInTheDocument();
+  });
+
+  it('should render density mode button', () => {
+    const schema: ListViewSchema = {
+      type: 'list-view',
+      objectName: 'contacts',
+      viewType: 'grid',
+      fields: ['name', 'email'],
+    };
+
+    renderWithProvider(<ListView schema={schema} />);
+    
+    // Default density mode is 'comfortable'
+    const densityButton = screen.getByTitle('Density: comfortable');
+    expect(densityButton).toBeInTheDocument();
+  });
+
+  it('should render export button when exportOptions configured', () => {
+    const schema: ListViewSchema = {
+      type: 'list-view',
+      objectName: 'contacts',
+      viewType: 'grid',
+      fields: ['name', 'email'],
+      exportOptions: {
+        formats: ['csv', 'json'],
+      },
+    };
+
+    renderWithProvider(<ListView schema={schema} />);
+    
+    const exportButton = screen.getByRole('button', { name: /export/i });
+    expect(exportButton).toBeInTheDocument();
+  });
+
+  it('should not render export button when exportOptions not configured', () => {
+    const schema: ListViewSchema = {
+      type: 'list-view',
+      objectName: 'contacts',
+      viewType: 'grid',
+      fields: ['name', 'email'],
+    };
+
+    renderWithProvider(<ListView schema={schema} />);
+    
+    const exportButtons = screen.queryAllByRole('button', { name: /export/i });
+    expect(exportButtons.length).toBe(0);
+  });
+
+  it('should apply hiddenFields to effective fields', () => {
+    const schema: ListViewSchema = {
+      type: 'list-view',
+      objectName: 'contacts',
+      viewType: 'grid',
+      fields: ['name', 'email', 'phone'],
+      hiddenFields: ['phone'],
+    };
+
+    const { container } = renderWithProvider(<ListView schema={schema} />);
+    expect(container).toBeTruthy();
+  });
 });

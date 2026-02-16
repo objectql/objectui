@@ -126,6 +126,34 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
   const [useCardView, setUseCardView] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
+  // Column state persistence (order and widths)
+  const columnStorageKey = React.useMemo(() => {
+    return schema.id
+      ? `grid-columns-${schema.objectName}-${schema.id}`
+      : `grid-columns-${schema.objectName}`;
+  }, [schema.objectName, schema.id]);
+
+  const [columnState, setColumnState] = useState<{
+    order?: string[];
+    widths?: Record<string, number>;
+  }>(() => {
+    try {
+      const saved = localStorage.getItem(columnStorageKey);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const saveColumnState = useCallback((state: typeof columnState) => {
+    setColumnState(state);
+    try {
+      localStorage.setItem(columnStorageKey, JSON.stringify(state));
+    } catch (e) {
+      console.warn('Failed to persist column state:', e);
+    }
+  }, [columnStorageKey]);
+
   const handlePullRefresh = useCallback(async () => {
     setRefreshKey(k => k + 1);
   }, []);
@@ -505,11 +533,36 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
   }
 
   const columns = generateColumns();
+
+  // Apply persisted column order and widths
+  let persistedColumns = [...columns];
+  
+  // Apply saved widths
+  if (columnState.widths) {
+    persistedColumns = persistedColumns.map((col: any) => {
+      const savedWidth = columnState.widths?.[col.accessorKey];
+      if (savedWidth) {
+        return { ...col, size: savedWidth };
+      }
+      return col;
+    });
+  }
+  
+  // Apply saved order
+  if (columnState.order && columnState.order.length > 0) {
+    const orderMap = new Map(columnState.order.map((key: string, i: number) => [key, i]));
+    persistedColumns.sort((a: any, b: any) => {
+      const orderA = orderMap.get(a.accessorKey) ?? Infinity;
+      const orderB = orderMap.get(b.accessorKey) ?? Infinity;
+      return orderA - orderB;
+    });
+  }
+
   const operations = 'operations' in schema ? schema.operations : undefined;
   const hasActions = operations && (operations.update || operations.delete);
 
   const columnsWithActions = hasActions ? [
-    ...columns,
+    ...persistedColumns,
     {
       header: 'Actions',
       accessorKey: '_actions',
@@ -539,7 +592,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
       ),
       sortable: false,
     },
-  ] : columns;
+  ] : persistedColumns;
 
   // Determine selection mode (support both new and legacy formats)
   let selectionMode: 'none' | 'single' | 'multiple' | boolean = false;
@@ -587,6 +640,18 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
     onCellChange: onCellChange,
     onRowSave: onRowSave,
     onBatchSave: onBatchSave,
+    onColumnResize: (columnKey: string, width: number) => {
+      saveColumnState({
+        ...columnState,
+        widths: { ...columnState.widths, [columnKey]: width },
+      });
+    },
+    onColumnReorder: (newOrder: string[]) => {
+      saveColumnState({
+        ...columnState,
+        order: newOrder,
+      });
+    },
   };
 
   /** Build a per-group data-table schema (inherits everything except data & pagination). */
