@@ -3,12 +3,16 @@
 > **Last Updated:** February 16, 2026
 > **Package:** `@object-ui/plugin-designer`
 > **Source:** `packages/plugin-designer/src/`
+> **Priority Focus:** 🎯 v1.0 essential designer features — ViewDesigner and DataModelDesigner are the highest priority for first release usability
 
 ## Executive Summary
 
 All 5 designers in `@object-ui/plugin-designer` have functional foundations — component
 palettes, canvas rendering, selection state, and basic CRUD — but need significant UX
-polish to reach enterprise quality. Key gaps identified across the suite:
+polish to reach enterprise quality. **For v1.0**, the ViewDesigner and DataModelDesigner
+are prioritized as they directly affect the core user workflow (defining data models and
+configuring views). PageDesigner, ProcessDesigner, and ReportDesigner are deferred to
+post-v1.0 as advanced authoring tools. Key gaps identified across the suite:
 
 | Gap | Severity | Affected |
 |-----|----------|----------|
@@ -410,7 +414,9 @@ This is the **most complete** designer:
 
 ## 8. Implementation Phases
 
-### Phase 1: Accessibility & Polish (Current Sprint)
+> **Re-prioritized (Feb 16, 2026):** Phase 2 now focuses on v1.0-essential designers (ViewDesigner, DataModelDesigner) first. PageDesigner, ProcessDesigner, and ReportDesigner interaction improvements are deferred to Phase 3.
+
+### Phase 1: Accessibility & Polish ✅ Complete
 
 - [x] Add `aria-label` to all icon-only buttons across all 5 designers
 - [x] Add `role` attributes (`toolbar`, `region`, `tablist`, `tab`, `tabpanel`) to interactive containers
@@ -425,23 +431,42 @@ This is the **most complete** designer:
 
 **Estimated effort:** 3–5 developer days
 
-### Phase 2: Interaction Layer (Next Sprint)
+### Phase 2: v1.0 Essential Interaction (🎯 Current Priority)
 
-- [ ] Implement drag-and-drop for canvas elements using `@dnd-kit/core` (shared with `@object-ui/react`'s `DndProvider`)
-  - PageDesigner: Component drag-to-reorder and drag-to-position
-  - ViewDesigner: Column drag-to-reorder
-  - DataModelDesigner: Entity drag-to-move
-  - ProcessDesigner: Node drag-to-move
-  - ReportDesigner: Element drag-to-reposition within sections
-- [ ] Implement undo/redo via `useDesignerHistory` hook (command pattern with undo/redo stacks)
-- [ ] Add confirmation dialogs for destructive actions (delete entity with cascade, delete node with cascade)
+> Focus on ViewDesigner and DataModelDesigner — the two designers that directly affect the core user workflow.
+
+**ViewDesigner (v1.0 Essential):**
+- [ ] 🎯 Column drag-to-reorder via `@dnd-kit/core` (replace up/down buttons with drag handles)
+- [ ] 🎯 Add `Ctrl+S`/`Cmd+S` keyboard shortcut to save
+- [ ] 🎯 Add field type selector dropdown with icons from `DESIGNER_FIELD_TYPES`
+- [ ] 🎯 Column width validation (min/max/pattern check)
+
+**DataModelDesigner (v1.0 Essential):**
+- [ ] 🎯 Entity drag-to-move on canvas
+- [ ] 🎯 Inline editing for entity labels (click to edit)
+- [ ] 🎯 Field type selector dropdown (replaces hardcoded `'text'` type)
+- [ ] 🎯 Confirmation dialogs for destructive actions (delete entity cascades to relationships)
+
+**Shared Infrastructure:**
+- [ ] 🎯 Implement `useDesignerHistory` hook (command pattern with undo/redo stacks)
+- [ ] 🎯 Wire undo/redo to ViewDesigner and DataModelDesigner
+
+**Estimated effort:** 6–8 developer days
+
+### Phase 2b: Remaining Interaction Layer (Post-v1.0)
+
+> PageDesigner, ProcessDesigner, and ReportDesigner interaction improvements.
+
+- [ ] PageDesigner: Component drag-to-reorder and drag-to-position
+- [ ] ProcessDesigner: Node drag-to-move
+- [ ] ReportDesigner: Element drag-to-reposition within sections
 - [ ] Implement edge creation UI in ProcessDesigner (click source port → click target port)
-- [ ] Add inline editing for entity labels in DataModelDesigner
 - [ ] Add property editing for node labels/types in ProcessDesigner
+- [ ] Add confirmation dialogs for ProcessDesigner destructive actions (delete node cascades to edges)
 
-**Estimated effort:** 8–12 developer days
+**Estimated effort:** 5–7 developer days
 
-### Phase 3: Advanced Features (Q2 2026)
+### Phase 3: Advanced Features (Post-v1.0)
 
 - [ ] Full property editors for all designers:
   - PageDesigner: Component props editor (type-aware)
@@ -460,7 +485,7 @@ This is the **most complete** designer:
 
 **Estimated effort:** 15–25 developer days
 
-### Phase 4: Collaboration Integration (Q3 2026)
+### Phase 4: Collaboration Integration (Deferred)
 
 - [ ] Wire `CollaborationProvider` into each designer's state management
   - Each state mutation calls `sendOperation()` with a typed operation payload
@@ -485,15 +510,16 @@ This is the **most complete** designer:
 
 ## 9. Success Metrics
 
-| Metric | Current | Phase 1 Target | Phase 2 Target | Phase 3 Target |
-|--------|---------|----------------|----------------|----------------|
-| WCAG 2.1 AA compliance | 0% | 80% | 95% | 100% |
-| Keyboard navigable | ❌ No | ⚠️ Partial | ✅ Full | ✅ Full |
-| Undo/Redo functional | ❌ No | ❌ No | ✅ Yes | ✅ Yes |
-| Drag-and-drop functional | ❌ No | ❌ No | ✅ Yes | ✅ Yes |
+| Metric | Current | Phase 1 ✅ | Phase 2 (v1.0) | Phase 3 (Post-v1.0) |
+|--------|---------|------------|----------------|---------------------|
+| WCAG 2.1 AA compliance | 80% | 80% | 90% | 100% |
+| Keyboard navigable | ⚠️ Partial | ⚠️ Partial | ✅ View + DataModel | ✅ Full |
+| Undo/Redo functional | ❌ No | ❌ No | ✅ View + DataModel | ✅ All |
+| Drag-and-drop functional | ❌ No | ❌ No | ✅ View + DataModel | ✅ All |
+| Field type selector | ❌ No | ❌ No | ✅ View + DataModel | ✅ All |
 | i18n ready | ❌ No | ❌ No | ❌ No | ✅ Yes |
-| Responsive panels | ❌ No | ❌ No | ⚠️ Partial | ✅ Yes |
-| Collaboration connected | ❌ No | ⚠️ Status only | ⚠️ Status only | ✅ Full |
+| Responsive panels | ❌ No | ❌ No | ❌ No | ✅ Yes |
+| Collaboration connected | ⚠️ Status only | ⚠️ Status only | ⚠️ Status only | ✅ Full |
 | Property editors complete | ~15% | ~25% | ~50% | ~90% |
 | Empty state guidance | 1/5 | 5/5 | 5/5 | 5/5 |
 | Confirmation on destructive actions | 0/5 | 0/5 | 5/5 | 5/5 |
@@ -857,17 +883,19 @@ by category.
 
 ### 10.7 Priority & Phasing
 
-| Priority | Task | Effort |
-|----------|------|--------|
-| 🔴 P0 | Create `DESIGNER_FIELD_TYPES` constant | 0.5 day |
-| 🔴 P0 | Add field type selector dropdown to DataModelDesigner | 1 day |
-| 🟠 P1 | Add Fields palette category to PageDesigner | 1 day |
-| 🟠 P1 | Add `FieldTypeName` type and update `DataModelField` | 0.5 day |
-| 🟡 P2 | Enhance ViewDesigner field type badges with icons | 0.5 day |
-| 🟡 P2 | Complete `mapFieldTypeToFormType` for all 36 types | 0.5 day |
-| 🟢 P3 | Type-specific property editors per field type | 3–5 days |
+> **Re-prioritized (Feb 16, 2026):** Field type selector for DataModelDesigner and ViewDesigner are v1.0 essentials. PageDesigner palette expansion is post-v1.0.
 
-**Total estimated effort:** 7–9.5 developer days
+| Priority | Task | Effort | v1.0? |
+|----------|------|--------|-------|
+| 🔴 P0 | Create `DESIGNER_FIELD_TYPES` constant | 0.5 day | 🎯 Yes |
+| 🔴 P0 | Add field type selector dropdown to DataModelDesigner | 1 day | 🎯 Yes |
+| 🔴 P0 | Add `FieldTypeName` type and update `DataModelField` | 0.5 day | 🎯 Yes |
+| 🟠 P1 | Enhance ViewDesigner field type badges with icons | 0.5 day | 🎯 Yes |
+| 🟡 P2 | Add Fields palette category to PageDesigner | 1 day | Post-v1.0 |
+| 🟡 P2 | Complete `mapFieldTypeToFormType` for all 36 types | 0.5 day | Post-v1.0 |
+| 🟢 P3 | Type-specific property editors per field type | 3–5 days | Post-v1.0 |
+
+**Total estimated effort:** 7–9.5 developer days (v1.0 portion: ~2.5 days)
 
 ---
 
