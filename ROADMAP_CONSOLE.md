@@ -346,11 +346,11 @@ These were the initial tasks to bring the console prototype to production-qualit
 
 ---
 
-### Phase 5: RBAC & Permission System ✅ Complete
+### Phase 5: RBAC & Permission System ⚠️ Mostly Complete
 
 **Goal:** Integrate object-level, field-level, and row-level permissions into the console.
 
-**Status:** ✅ Complete — `@object-ui/permissions` package provides `usePermissions` hook. Integrated into `ObjectView` (CRUD button gating) and `AppSidebar` (navigation item permission checks).
+**Status:** ⚠️ Mostly Complete — `@object-ui/permissions` package provides `usePermissions` hook. Integrated into `ObjectView` (CRUD button gating) and `AppSidebar` (navigation item permission checks). Row-level security has client-side types (`DataScopeManager`) but no actual filtering applied (server-side enforcement assumed).
 
 | Task | Description | Status |
 |------|-------------|--------|
@@ -359,7 +359,7 @@ These were the initial tasks to bring the console prototype to production-qualit
 | 5.3 | Gate navigation items by `requiredPermissions` | ✅ Done (`AppSidebar.tsx`) |
 | 5.4 | Gate CRUD buttons by permissions | ✅ Done (`can(objectName, 'create')`) |
 | 5.5 | Gate field visibility by permissions | ✅ Done (`useFieldPermissions`) |
-| 5.6 | Row-level security | ⚠️ Partial | Server-side enforcement assumed; client-side `DataScopeManager` has interfaces/types only (no actual filtering applied) |
+| 5.6 | Row-level security | ⚠️ Partial (server-side assumed; client `DataScopeManager` types only) |
 | 5.7 | Permission-denied fallback UI | ✅ Done (`PermissionGuard`) |
 | 5.8 | Integration with ObjectStack RBAC API | ✅ Done |
 
