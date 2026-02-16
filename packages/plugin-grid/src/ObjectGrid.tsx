@@ -520,6 +520,22 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
     const prefix = exportConfig?.fileNamePrefix || schema.objectName || 'export';
     const exportData = maxRecords > 0 ? data.slice(0, maxRecords) : data;
 
+    const downloadFile = (blob: Blob, filename: string) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    const escapeCsvValue = (val: any): string => {
+      const str = val == null ? '' : String(val);
+      return str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')
+        ? `"${str.replace(/"/g, '""')}"`
+        : str;
+    };
+
     if (format === 'csv') {
       const cols = generateColumns().filter((c: any) => c.accessorKey !== '_actions');
       const fields = cols.map((c: any) => c.accessorKey);
@@ -529,27 +545,11 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
         rows.push(headers.join(','));
       }
       exportData.forEach(record => {
-        rows.push(fields.map((f: string) => {
-          const val = record[f];
-          const str = val == null ? '' : String(val);
-          return str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r') ? `"${str.replace(/"/g, '""')}"` : str;
-        }).join(','));
+        rows.push(fields.map((f: string) => escapeCsvValue(record[f])).join(','));
       });
-      const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${prefix}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
+      downloadFile(new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' }), `${prefix}.csv`);
     } else if (format === 'json') {
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${prefix}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
+      downloadFile(new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' }), `${prefix}.json`);
     }
     setShowExport(false);
   }, [data, schema.exportOptions, schema.objectName, generateColumns]);
