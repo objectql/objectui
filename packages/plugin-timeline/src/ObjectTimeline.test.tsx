@@ -15,6 +15,7 @@ vi.mock('@object-ui/react', () => ({
     close: vi.fn(),
     setIsOpen: vi.fn(),
     mode: 'overlay',
+    view: undefined,
   }),
 }));
 
@@ -66,7 +67,7 @@ describe('ObjectTimeline', () => {
             type: 'timeline',
             objectName: 'events',
             titleField: 'name',
-            dateField: 'date' // Mapping needs to be correct in logic
+            dateField: 'date' // Backward-compat: legacy dateField still works
         };
 
         render(<ObjectTimeline schema={schema} dataSource={mockDataSource} />);
@@ -78,5 +79,60 @@ describe('ObjectTimeline', () => {
         await waitFor(() => {
             expect(screen.getByText('Event 1')).toBeDefined();
         });
+    });
+
+    it('uses spec-compliant startDateField property', async () => {
+        const dataWithDates = [
+            { id: '1', name: 'Sprint 1', start_date: '2024-01-01', end_date: '2024-01-14', team: 'Alpha' },
+        ];
+        (mockDataSource.find as any).mockResolvedValue(dataWithDates);
+
+        const schema: any = {
+            type: 'timeline',
+            objectName: 'sprints',
+            titleField: 'name',
+            startDateField: 'start_date',
+            endDateField: 'end_date',
+        };
+
+        render(<ObjectTimeline schema={schema} dataSource={mockDataSource} />);
+
+        await waitFor(() => {
+            expect(screen.getByText('Sprint 1')).toBeDefined();
+        });
+    });
+
+    it('supports groupByField and colorField properties', async () => {
+        const dataWithGroups = [
+            { id: '1', name: 'Task A', start_date: '2024-01-01', team: 'Alpha', priority: 'high' },
+        ];
+        (mockDataSource.find as any).mockResolvedValue(dataWithGroups);
+
+        const schema: any = {
+            type: 'timeline',
+            objectName: 'tasks',
+            titleField: 'name',
+            startDateField: 'start_date',
+            groupByField: 'team',
+            colorField: 'priority',
+        };
+
+        render(<ObjectTimeline schema={schema} dataSource={mockDataSource} />);
+
+        await waitFor(() => {
+            expect(screen.getByText('Task A')).toBeDefined();
+        });
+    });
+
+    it('supports scale property', () => {
+        const schema: any = {
+            type: 'timeline',
+            items: [
+                { title: 'Weekly Event', date: '2024-01-01' }
+            ],
+            scale: 'week',
+        };
+        render(<ObjectTimeline schema={schema} />);
+        expect(screen.getByText('Weekly Event')).toBeDefined();
     });
 });

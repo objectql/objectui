@@ -221,4 +221,44 @@ describe('ListView', () => {
       fireEvent.click(clearButton);
     }
   });
+
+  it('should show default empty state when no data', async () => {
+    mockDataSource.find.mockResolvedValue([]);
+    const schema: ListViewSchema = {
+      type: 'list-view',
+      objectName: 'contacts',
+      viewType: 'grid',
+      fields: ['name', 'email'],
+    };
+
+    renderWithProvider(<ListView schema={schema} />);
+
+    // Wait for data fetch to complete
+    await vi.waitFor(() => {
+      expect(screen.getByTestId('empty-state')).toBeInTheDocument();
+    });
+    expect(screen.getByText('No items found')).toBeInTheDocument();
+  });
+
+  it('should show custom empty state when configured', async () => {
+    mockDataSource.find.mockResolvedValue([]);
+    const schema: ListViewSchema = {
+      type: 'list-view',
+      objectName: 'contacts',
+      viewType: 'grid',
+      fields: ['name', 'email'],
+      emptyState: {
+        title: 'No contacts yet',
+        message: 'Add your first contact to get started.',
+      },
+    };
+
+    renderWithProvider(<ListView schema={schema} />);
+
+    await vi.waitFor(() => {
+      expect(screen.getByTestId('empty-state')).toBeInTheDocument();
+    });
+    expect(screen.getByText('No contacts yet')).toBeInTheDocument();
+    expect(screen.getByText('Add your first contact to get started.')).toBeInTheDocument();
+  });
 });

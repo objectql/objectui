@@ -413,4 +413,64 @@ describe('useNavigationOverlay', () => {
       });
     });
   });
+
+  // ============================================================
+  // navigation.view property
+  // ============================================================
+
+  describe('navigation.view property', () => {
+    it('should expose the view property from config', () => {
+      const { result } = renderHook(() =>
+        useNavigationOverlay({
+          navigation: { mode: 'drawer', view: 'edit_form' },
+          objectName: 'contacts',
+        })
+      );
+
+      expect(result.current.view).toBe('edit_form');
+    });
+
+    it('should pass view to onNavigate for page mode', () => {
+      const onNavigate = vi.fn();
+      const { result } = renderHook(() =>
+        useNavigationOverlay({
+          navigation: { mode: 'page', view: 'detail_view' },
+          objectName: 'contacts',
+          onNavigate,
+        })
+      );
+
+      act(() => {
+        result.current.handleClick({ _id: '123' });
+      });
+
+      expect(onNavigate).toHaveBeenCalledWith('123', 'detail_view');
+    });
+
+    it('should include view in new_window URL', () => {
+      const { result } = renderHook(() =>
+        useNavigationOverlay({
+          navigation: { mode: 'new_window', view: 'edit_form' },
+          objectName: 'contacts',
+        })
+      );
+
+      act(() => {
+        result.current.handleClick({ _id: '123' });
+      });
+
+      expect(mockWindowOpen).toHaveBeenCalledWith('/contacts/123/edit_form', '_blank');
+    });
+
+    it('should return undefined view when not configured', () => {
+      const { result } = renderHook(() =>
+        useNavigationOverlay({
+          navigation: { mode: 'drawer' },
+          objectName: 'contacts',
+        })
+      );
+
+      expect(result.current.view).toBeUndefined();
+    });
+  });
 });

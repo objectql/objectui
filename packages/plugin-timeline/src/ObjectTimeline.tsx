@@ -25,16 +25,33 @@ const TimelineExtensionSchema = z.object({
    mapping: TimelineMappingSchema.optional(),
    objectName: z.string().optional(),
    titleField: z.string().optional(),
+   /** @deprecated Use startDateField instead */
    dateField: z.string().optional(),
+   startDateField: z.string().optional(),
+   endDateField: z.string().optional(),
    descriptionField: z.string().optional(),
+   groupByField: z.string().optional(),
+   colorField: z.string().optional(),
+   scale: z.enum(['hour', 'day', 'week', 'month', 'quarter', 'year']).optional(),
 });
 
 export interface ObjectTimelineProps {
   schema: TimelineSchema & {
     objectName?: string;
     titleField?: string;
+    /** @deprecated Use startDateField instead */
     dateField?: string;
+    /** Spec-compliant: field name for the start date */
+    startDateField?: string;
+    /** Spec-compliant: field name for the end date */
+    endDateField?: string;
     descriptionField?: string;
+    /** Spec-compliant: field name for grouping timeline items */
+    groupByField?: string;
+    /** Spec-compliant: field name for timeline item color */
+    colorField?: string;
+    /** Spec-compliant: time scale for the timeline display */
+    scale?: 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year';
     // Map data fields to timeline item properties
     mapping?: {
       title?: string;
@@ -109,18 +126,25 @@ export const ObjectTimeline: React.FC<ObjectTimelineProps> = ({
   
   if (!effectiveItems && rawData && Array.isArray(rawData)) {
       const titleField = schema.mapping?.title || schema.titleField || 'name';
-      const dateField = schema.mapping?.date || schema.dateField || 'date';
+      // Spec-compliant: prefer startDateField, fallback to dateField for backward compat
+      const startDateField = schema.mapping?.date || schema.startDateField || schema.dateField || 'date';
+      const endDateField = schema.endDateField || startDateField;
       const descField = schema.mapping?.description || schema.descriptionField || 'description';
       const variantField = schema.mapping?.variant || 'variant';
+      const groupByField = schema.groupByField;
+      const colorField = schema.colorField;
 
       effectiveItems = rawData.map(item => ({
           title: item[titleField],
           // Support both 'time' (vertical) and 'startDate' (gantt)
-          time: item[dateField],
-          startDate: item[dateField], 
-          endDate: item[dateField], // Default single point
+          time: item[startDateField],
+          startDate: item[startDateField], 
+          endDate: item[endDateField],
           description: item[descField],
           variant: item[variantField] || 'default',
+          // Spec-compliant: group and color support
+          ...(groupByField ? { group: item[groupByField] } : {}),
+          ...(colorField ? { color: item[colorField] } : {}),
           // Pass original item for click handlers
           _data: item
       }));

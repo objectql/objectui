@@ -64,6 +64,8 @@ export interface NavigationOverlayState {
   width: string | number | undefined;
   /** Whether navigation is an overlay mode (drawer/modal/split/popover) */
   isOverlay: boolean;
+  /** The target view/form name from NavigationConfig */
+  view: string | undefined;
 }
 
 /**
@@ -102,6 +104,7 @@ export function useNavigationOverlay(
 
   const mode: NavigationMode = navigation?.mode ?? 'page';
   const width = navigation?.width;
+  const view = navigation?.view;
   const isOverlay = mode === 'drawer' || mode === 'modal' || mode === 'split' || mode === 'popover';
 
   const close = useCallback(() => {
@@ -126,7 +129,7 @@ export function useNavigationOverlay(
       if (!navigation) {
         const recordId = record._id || record.id;
         if (onNavigate && recordId != null) {
-          onNavigate(recordId as string | number, 'view');
+          onNavigate(recordId as string | number, view ?? 'view');
         }
         return;
       }
@@ -139,7 +142,8 @@ export function useNavigationOverlay(
       // new_window / openNewTab — open in new browser tab
       if (mode === 'new_window' || navigation.openNewTab) {
         const recordId = record._id || record.id;
-        const url = objectName ? `/${objectName}/${recordId}` : `/${recordId}`;
+        const viewPath = view ? `/${view}` : '';
+        const url = objectName ? `/${objectName}/${recordId}${viewPath}` : `/${recordId}${viewPath}`;
         window.open(url, '_blank');
         return;
       }
@@ -148,7 +152,7 @@ export function useNavigationOverlay(
       if (mode === 'page') {
         const recordId = record._id || record.id;
         if (onNavigate && recordId != null) {
-          onNavigate(recordId as string | number, 'view');
+          onNavigate(recordId as string | number, view ?? 'view');
         }
         return;
       }
@@ -173,8 +177,9 @@ export function useNavigationOverlay(
       setIsOpen,
       handleClick,
       width,
+      view,
       isOverlay,
     }),
-    [isOpen, selectedRecord, mode, close, open, handleClick, width, isOverlay]
+    [isOpen, selectedRecord, mode, close, open, handleClick, width, view, isOverlay]
   );
 }
