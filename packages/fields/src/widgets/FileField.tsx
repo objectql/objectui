@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { Button } from '@object-ui/components';
-import { Upload, X, File as FileIcon } from 'lucide-react';
+import { Upload, X, File as FileIcon, ImageIcon } from 'lucide-react';
 import { FieldWidgetProps } from './types';
 
 /**
@@ -12,6 +12,7 @@ export function FileField({ value, onChange, field, readonly, ...props }: FieldW
   const fileField = (field || (props as any).schema) as any;
   const multiple = fileField?.multiple || false;
   const accept = fileField?.accept ? fileField.accept.join(',') : undefined;
+  const [isDragOver, setIsDragOver] = useState(false);
 
   if (readonly) {
     if (!value) return <span className="text-sm">-</span>;
@@ -30,8 +31,7 @@ export function FileField({ value, onChange, field, readonly, ...props }: FieldW
 
   const files = value ? (Array.isArray(value) ? value : [value]) : [];
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(e.target.files || []);
+  const processFiles = useCallback((selectedFiles: File[]) => {
     if (selectedFiles.length === 0) return;
 
     const fileObjects = selectedFiles.map(file => ({
@@ -48,7 +48,43 @@ export function FileField({ value, onChange, field, readonly, ...props }: FieldW
     } else {
       onChange(fileObjects[0]);
     }
+  }, [files, multiple, onChange]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    processFiles(Array.from(e.target.files || []));
   };
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    if (accept) {
+      const acceptedTypes = accept.split(',').map(t => t.trim().toLowerCase());
+      const filtered = droppedFiles.filter(file => {
+        const ext = '.' + file.name.split('.').pop()?.toLowerCase();
+        return acceptedTypes.some(t =>
+          t === file.type || t === ext || (t.endsWith('/*') && file.type.startsWith(t.replace('/*', '/')))
+        );
+      });
+      processFiles(filtered);
+    } else {
+      processFiles(droppedFiles);
+    }
+  }, [accept, processFiles]);
 
   const handleRemove = (index: number) => {
     if (multiple) {
@@ -57,6 +93,11 @@ export function FileField({ value, onChange, field, readonly, ...props }: FieldW
     } else {
       onChange(null);
     }
+  };
+
+  const isImage = (file: any) => {
+    const mime = file.mime_type || '';
+    return mime.startsWith('image/');
   };
 
   return (
@@ -71,20 +112,61 @@ export function FileField({ value, onChange, field, readonly, ...props }: FieldW
       />
       
       <div className="space-y-2">
+        {/* Drag-and-drop zone */}
+        <div
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={() => inputRef.current?.click()}
+          className={`
+            flex flex-col items-center justify-center gap-2 p-6 
+            border-2 border-dashed rounded-lg cursor-pointer
+            transition-colors duration-200
+            ${isDragOver 
+              ? 'border-primary bg-primary/5 text-primary' 
+              : 'border-muted-foreground/25 hover:border-primary/50 text-muted-foreground hover:text-foreground'}
+          `}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              inputRef.current?.click();
+            }
+          }}
+        >
+          <Upload className={`size-8 ${isDragOver ? 'text-primary' : 'text-muted-foreground'}`} />
+          <div className="text-center">
+            <p className="text-sm font-medium">
+              {isDragOver ? 'Drop files here' : 'Drag & drop files here'}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              or click to browse
+            </p>
+          </div>
+        </div>
+
+        {/* File list */}
         {files.length > 0 && (
           <div className="space-y-1">
             {files.map((file: any, idx: number) => (
               <div
                 key={idx}
-                className="flex items-center justify-between gap-2 p-2 bg-gray-50 rounded-md border border-gray-200"
+                className="flex items-center justify-between gap-2 p-2 bg-muted/50 rounded-md border"
               >
                 <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <FileIcon className="size-4 text-gray-500 flex-shrink-0" />
+                  {isImage(file) && file.url ? (
+                    <img src={file.url} alt={file.name} className="size-8 object-cover rounded flex-shrink-0" />
+                  ) : isImage(file) ? (
+                    <ImageIcon className="size-4 text-muted-foreground flex-shrink-0" />
+                  ) : (
+                    <FileIcon className="size-4 text-muted-foreground flex-shrink-0" />
+                  )}
                   <span className="text-sm truncate">
                     {file.name || file.original_name || 'File'}
                   </span>
                   {file.size && (
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-muted-foreground">
                       ({(file.size / 1024).toFixed(1)} KB)
                     </span>
                   )}
@@ -93,7 +175,10 @@ export function FileField({ value, onChange, field, readonly, ...props }: FieldW
                   type="button"
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleRemove(idx)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemove(idx);
+                  }}
                   className="h-6 w-6 p-0"
                 >
                   <X className="size-3" />
@@ -102,16 +187,6 @@ export function FileField({ value, onChange, field, readonly, ...props }: FieldW
             ))}
           </div>
         )}
-        
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => inputRef.current?.click()}
-          className="w-full"
-        >
-          <Upload className="size-4 mr-2" />
-          {files.length > 0 ? 'Add More Files' : 'Upload File'}
-        </Button>
       </div>
     </div>
   );
