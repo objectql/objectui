@@ -24,6 +24,10 @@ export { DrawerForm } from './DrawerForm';
 export type { DrawerFormProps, DrawerFormSchema } from './DrawerForm';
 export { ModalForm } from './ModalForm';
 export type { ModalFormProps, ModalFormSchema } from './ModalForm';
+export { EmbeddableForm } from './EmbeddableForm';
+export type { EmbeddableFormProps, EmbeddableFormConfig } from './EmbeddableForm';
+export { FormAnalytics } from './FormAnalytics';
+export type { FormAnalyticsProps, FormSubmissionMetric } from './FormAnalytics';
 
 // Register object-form component
 const ObjectFormRenderer: React.FC<{ schema: any }> = ({ schema }) => {
@@ -80,3 +84,42 @@ ComponentRegistry.register('form', ObjectFormRenderer, {
 // Note: 'form' type (without namespace) is handled by @object-ui/components Form component
 // This plugin registers as 'view:form' (with view namespace) for the view protocol
 // ObjectForm internally uses { type: 'form' } to render the basic Form component
+
+// Register embeddable-form component for standalone public forms
+import { EmbeddableForm } from './EmbeddableForm';
+
+const EmbeddableFormRenderer: React.FC<{ schema: any }> = ({ schema }) => {
+  return <EmbeddableForm config={schema} />;
+};
+
+ComponentRegistry.register('embeddable-form', EmbeddableFormRenderer, {
+  namespace: 'plugin-form',
+  label: 'Embeddable Form',
+  category: 'plugin',
+  inputs: [
+    { name: 'formId', type: 'string', label: 'Form ID', required: true },
+    { name: 'objectName', type: 'string', label: 'Object Name', required: true },
+    { name: 'title', type: 'string', label: 'Form Title' },
+    { name: 'description', type: 'string', label: 'Description' },
+    { name: 'fields', type: 'array', label: 'Fields' },
+    { name: 'allowMultiple', type: 'boolean', label: 'Allow Multiple Submissions' },
+  ]
+});
+
+// Register form-analytics component for submission dashboards
+import { FormAnalytics } from './FormAnalytics';
+
+const FormAnalyticsRenderer: React.FC<{ schema: any }> = ({ schema }) => {
+  return <FormAnalytics formId={schema.formId} formTitle={schema.formTitle} metrics={schema.metrics || { totalSubmissions: 0 }} />;
+};
+
+ComponentRegistry.register('form-analytics', FormAnalyticsRenderer, {
+  namespace: 'plugin-form',
+  label: 'Form Analytics',
+  category: 'plugin',
+  inputs: [
+    { name: 'formId', type: 'string', label: 'Form ID', required: true },
+    { name: 'formTitle', type: 'string', label: 'Form Title' },
+    { name: 'metrics', type: 'object', label: 'Submission Metrics' },
+  ]
+});
