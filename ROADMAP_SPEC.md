@@ -904,7 +904,7 @@ Each package is rated against three dimensions:
 | Kanban | KanbanConfigSchema | ✅ | groupByField, summarizeField, columns | — (fully compliant) |
 | Calendar | CalendarConfigSchema | ✅ | startDateField, endDateField, titleField, colorField | — (fully compliant) |
 | Gantt | GanttConfigSchema | ✅ | startDateField, endDateField, titleField, progressField, dependenciesField | — (fully compliant; ObjectUI adds colorField beyond spec) |
-| Gallery | GalleryConfigSchema | ⚠️ | coverField, coverFit, cardSize, titleField, visibleFields (implemented but type not exported from @object-ui/types) | Type export missing from index.ts |
+| Gallery | GalleryConfigSchema | ⚠️ | coverField, coverFit, cardSize, titleField, visibleFields | Type implemented but not exported from @object-ui/types index.ts |
 | Timeline | TimelineConfigSchema | ❌ | — | Type NOT defined; uses non-standard `dateField` instead of spec `startDateField`; missing: endDateField, groupByField, colorField, scale |
 | Map | (no spec config) | N/A | locationField, latitudeField, longitudeField, titleField | N/A (no MapConfig in spec) |
 
@@ -934,7 +934,7 @@ Each package is rated against three dimensions:
 | **Focus / Keyboard** | FocusManagementSchema, FocusTrapConfigSchema, KeyboardNavigationConfigSchema, KeyboardShortcutSchema | 🔲 Not Started | Types re-exported; no focus management runtime |
 | **Notifications** | NotificationSchema, NotificationActionSchema, NotificationConfigSchema, NotificationPositionSchema, NotificationSeveritySchema, NotificationTypeSchema | 🔲 Not Started | Types re-exported; no notification system implemented |
 | **Offline / Sync** | OfflineCacheConfigSchema, OfflineConfigSchema, OfflineStrategySchema, SyncConfigSchema, ConflictResolutionSchema, PersistStorageSchema, EvictionPolicySchema | 🔲 Not Started | Service Worker caching in @object-ui/mobile; spec offline schemas not consumed |
-| **View Enhancements** | ColumnSummarySchema, GalleryConfigSchema, GroupingConfigSchema, GroupingFieldSchema, RowColorConfigSchema, RowHeightSchema, ViewSharingSchema, TimelineConfigSchema, DensityMode | ⚠️ Partial | ColumnSummary, Grouping, RowColor consumed in plugin-grid; Gallery implemented in plugin-list but type not exported; **TimelineConfigSchema not consumed** (uses non-standard dateField); RowHeight and DensityMode not yet implemented |
+| **View Enhancements** | ColumnSummarySchema, GalleryConfigSchema, GroupingConfigSchema, GroupingFieldSchema, RowColorConfigSchema, RowHeightSchema, ViewSharingSchema, TimelineConfigSchema, DensityMode | ⚠️ Partial | ColumnSummary, Grouping, RowColor consumed in plugin-grid; Gallery implemented in plugin-list but type not exported; TimelineConfigSchema not consumed (uses non-standard dateField); RowHeight and DensityMode not yet implemented |
 | **Performance** | PerformanceConfigSchema | 🔲 Not Started | Types re-exported; no performance monitoring runtime |
 | **Page** | PageComponentType, PageTransitionSchema | ⚠️ Partial | Page component exists with 4 variants; PageTransitionSchema not consumed |
 
