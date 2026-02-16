@@ -32,7 +32,7 @@ const TimelineExtensionSchema = z.object({
    descriptionField: z.string().optional(),
    groupByField: z.string().optional(),
    colorField: z.string().optional(),
-   scale: z.enum(['hour', 'day', 'week', 'month', 'quarter', 'year']).default('day').optional(),
+   scale: z.enum(['hour', 'day', 'week', 'month', 'quarter', 'year']).optional(),
 });
 
 export interface ObjectTimelineProps {
