@@ -32,7 +32,7 @@
     "@object-ui/types": "workspace:*",
     "ag-grid-community": "^32.3.9",
     "ag-grid-react": "^35.1.0",
-    "fumadocs-core": "16.5.2",
+    "fumadocs-core": "16.6.1",
     "fumadocs-mdx": "14.2.7",
     "fumadocs-ui": "16.5.2",
     "lucide-react": "^0.563.0",
