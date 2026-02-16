@@ -98,7 +98,7 @@ describe('ObjectGallery & ListView Integration', () => {
             );
         });
 
-        expect(screen.getByText('No items to display')).toBeInTheDocument();
+        expect(screen.getByText('No items found')).toBeInTheDocument();
     });
 
     it('should use default configured fields if not specified in schema', async () => {
