@@ -771,20 +771,23 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
   const RowHeightIcon = rowHeightMode === 'compact' ? Rows4 : rowHeightMode === 'tall' ? AlignJustify : Rows3;
 
   // Grid toolbar (row height toggle + export)
-  const hasToolbar = schema.exportOptions || schema.rowHeight !== undefined;
+  const showRowHeightToggle = schema.rowHeight !== undefined;
+  const hasToolbar = schema.exportOptions || showRowHeightToggle;
   const gridToolbar = hasToolbar ? (
     <div className="flex items-center justify-end gap-1 px-2 py-1">
       {/* Row height toggle */}
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-7 px-2 text-muted-foreground hover:text-primary text-xs"
-        onClick={cycleRowHeight}
-        title={`Row height: ${rowHeightMode}`}
-      >
-        <RowHeightIcon className="h-3.5 w-3.5 mr-1.5" />
-        <span className="hidden sm:inline capitalize">{rowHeightMode}</span>
-      </Button>
+      {showRowHeightToggle && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2 text-muted-foreground hover:text-primary text-xs"
+          onClick={cycleRowHeight}
+          title={`Row height: ${rowHeightMode}`}
+        >
+          <RowHeightIcon className="h-3.5 w-3.5 mr-1.5" />
+          <span className="hidden sm:inline capitalize">{rowHeightMode}</span>
+        </Button>
+      )}
 
       {/* Export */}
       {schema.exportOptions && (
