@@ -9,10 +9,11 @@
 import * as React from 'react';
 import { cn, Button, Input, Popover, PopoverContent, PopoverTrigger, FilterBuilder, SortBuilder, NavigationOverlay } from '@object-ui/components';
 import type { SortItem } from '@object-ui/components';
-import { Search, SlidersHorizontal, ArrowUpDown, X, EyeOff, Group, Paintbrush, Ruler, Inbox, icons, type LucideIcon } from 'lucide-react';
+import { Search, SlidersHorizontal, ArrowUpDown, X, EyeOff, Group, Paintbrush, Ruler, Inbox, Download, AlignJustify, icons, type LucideIcon } from 'lucide-react';
 import type { FilterGroup } from '@object-ui/components';
 import { ViewSwitcher, ViewType } from './ViewSwitcher';
 import { SchemaRenderer, useNavigationOverlay } from '@object-ui/react';
+import { useDensityMode } from '@object-ui/react';
 import type { ListViewSchema } from '@object-ui/types';
 import { usePullToRefresh } from '@object-ui/mobile';
 
@@ -113,6 +114,27 @@ export const ListView: React.FC<ListViewProps> = ({
   const [objectDef, setObjectDef] = React.useState<any>(null);
   const [refreshKey, setRefreshKey] = React.useState(0);
 
+  // Quick Filters State
+  const [activeQuickFilters, setActiveQuickFilters] = React.useState<Set<string>>(() => {
+    const defaults = new Set<string>();
+    schema.quickFilters?.forEach(qf => {
+      if (qf.defaultActive) defaults.add(qf.id);
+    });
+    return defaults;
+  });
+
+  // Hidden Fields State (initialized from schema)
+  const [hiddenFields, setHiddenFields] = React.useState<Set<string>>(
+    () => new Set(schema.hiddenFields || [])
+  );
+  const [showHideFields, setShowHideFields] = React.useState(false);
+
+  // Export State
+  const [showExport, setShowExport] = React.useState(false);
+
+  // Density Mode
+  const density = useDensityMode(schema.densityMode || 'comfortable');
+
   const handlePullRefresh = React.useCallback(async () => {
     setRefreshKey(k => k + 1);
   }, []);
@@ -160,13 +182,27 @@ export const ListView: React.FC<ListViewProps> = ({
         const baseFilter = schema.filters || [];
         const userFilter = convertFilterGroupToAST(currentFilters);
         
-        // Merge base filters and user filters
-        if (baseFilter.length > 0 && userFilter.length > 0) {
-            finalFilter = ['and', baseFilter, userFilter];
-        } else if (userFilter.length > 0) {
-            finalFilter = userFilter;
-        } else {
-            finalFilter = baseFilter;
+        // Collect active quick filter conditions
+        const quickFilterConditions: any[] = [];
+        if (schema.quickFilters && activeQuickFilters.size > 0) {
+          schema.quickFilters.forEach(qf => {
+            if (activeQuickFilters.has(qf.id) && qf.filters && qf.filters.length > 0) {
+              quickFilterConditions.push(qf.filters);
+            }
+          });
+        }
+        
+        // Merge base filters, user filters, and quick filters
+        const allFilters = [
+          ...(baseFilter.length > 0 ? [baseFilter] : []),
+          ...(userFilter.length > 0 ? [userFilter] : []),
+          ...quickFilterConditions,
+        ];
+        
+        if (allFilters.length > 1) {
+          finalFilter = ['and', ...allFilters];
+        } else if (allFilters.length === 1) {
+          finalFilter = allFilters[0];
         }
         
         // Convert sort to query format
@@ -207,7 +243,7 @@ export const ListView: React.FC<ListViewProps> = ({
     fetchData();
     
     return () => { isMounted = false; };
-  }, [schema.objectName, dataSource, schema.filters, currentSort, currentFilters, refreshKey]); // Re-fetch on filter/sort change
+  }, [schema.objectName, dataSource, schema.filters, currentSort, currentFilters, activeQuickFilters, refreshKey]); // Re-fetch on filter/sort change
 
   // Available view types based on schema configuration
   const availableViews = React.useMemo(() => {
@@ -297,11 +333,38 @@ export const ListView: React.FC<ListViewProps> = ({
     onRowClick,
   });
 
+  // Apply hiddenFields and fieldOrder to produce effective fields
+  const effectiveFields = React.useMemo(() => {
+    let fields = schema.fields || [];
+    
+    // Remove hidden fields
+    if (hiddenFields.size > 0) {
+      fields = fields.filter((f: any) => {
+        const fieldName = typeof f === 'string' ? f : (f.name || f.fieldName || f.field);
+        return !hiddenFields.has(fieldName);
+      });
+    }
+    
+    // Apply field order
+    if (schema.fieldOrder && schema.fieldOrder.length > 0) {
+      const orderMap = new Map(schema.fieldOrder.map((f, i) => [f, i]));
+      fields = [...fields].sort((a: any, b: any) => {
+        const nameA = typeof a === 'string' ? a : (a.name || a.fieldName || a.field);
+        const nameB = typeof b === 'string' ? b : (b.name || b.fieldName || b.field);
+        const orderA = orderMap.get(nameA) ?? Infinity;
+        const orderB = orderMap.get(nameB) ?? Infinity;
+        return orderA - orderB;
+      });
+    }
+    
+    return fields;
+  }, [schema.fields, hiddenFields, schema.fieldOrder]);
+
   // Generate the appropriate view component schema
   const viewComponentSchema = React.useMemo(() => {
     const baseProps = {
       objectName: schema.objectName,
-      fields: schema.fields,
+      fields: effectiveFields,
       filters: schema.filters,
       sort: currentSort,
       className: "h-full w-full",
@@ -316,7 +379,7 @@ export const ListView: React.FC<ListViewProps> = ({
         return {
           type: 'object-grid',
           ...baseProps,
-          columns: schema.fields,
+          columns: effectiveFields,
           ...(schema.options?.grid || {}),
         };
       case 'kanban':
@@ -326,7 +389,7 @@ export const ListView: React.FC<ListViewProps> = ({
           groupBy: schema.options?.kanban?.groupField || 'status',
           groupField: schema.options?.kanban?.groupField || 'status',
           titleField: schema.options?.kanban?.titleField || 'name',
-          cardFields: schema.fields || [],
+          cardFields: effectiveFields || [],
           ...(schema.options?.kanban || {}),
         };
       case 'calendar':
@@ -375,7 +438,7 @@ export const ListView: React.FC<ListViewProps> = ({
       default:
         return baseProps;
     }
-  }, [currentView, schema, currentSort]);
+  }, [currentView, schema, currentSort, effectiveFields]);
 
   const hasFilters = currentFilters.conditions && currentFilters.conditions.length > 0;
 
@@ -403,6 +466,67 @@ export const ListView: React.FC<ListViewProps> = ({
 
   const [searchExpanded, setSearchExpanded] = React.useState(false);
 
+  // Quick filter toggle handler
+  const toggleQuickFilter = React.useCallback((id: string) => {
+    setActiveQuickFilters(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
+
+  // Export handler
+  const handleExport = React.useCallback((format: 'csv' | 'xlsx' | 'json' | 'pdf') => {
+    const exportConfig = schema.exportOptions;
+    const maxRecords = exportConfig?.maxRecords || 0;
+    const includeHeaders = exportConfig?.includeHeaders !== false;
+    const prefix = exportConfig?.fileNamePrefix || schema.objectName || 'export';
+    const exportData = maxRecords > 0 ? data.slice(0, maxRecords) : data;
+
+    if (format === 'csv') {
+      const fields = effectiveFields.map((f: any) => typeof f === 'string' ? f : (f.name || f.field));
+      const rows: string[] = [];
+      if (includeHeaders) {
+        rows.push(fields.join(','));
+      }
+      exportData.forEach(record => {
+        rows.push(fields.map((f: string) => {
+          const val = record[f];
+          const str = val == null ? '' : String(val);
+          return str.includes(',') || str.includes('"') ? `"${str.replace(/"/g, '""')}"` : str;
+        }).join(','));
+      });
+      const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${prefix}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } else if (format === 'json') {
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${prefix}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    setShowExport(false);
+  }, [data, effectiveFields, schema.exportOptions, schema.objectName]);
+
+  // All available fields for hide/show
+  const allFields = React.useMemo(() => {
+    return (schema.fields || []).map((f: any) => {
+      if (typeof f === 'string') return { name: f, label: f };
+      return { name: f.name || f.fieldName || f.field, label: f.label || f.name || f.field };
+    });
+  }, [schema.fields]);
+
   return (
     <div ref={pullRef} className={cn('flex flex-col h-full bg-background relative', className)}>
       {pullDistance > 0 && (
@@ -428,15 +552,61 @@ export const ListView: React.FC<ListViewProps> = ({
       <div className="border-b px-2 sm:px-4 py-1 flex items-center justify-between gap-1 sm:gap-2 bg-background">
         <div className="flex items-center gap-0.5 overflow-hidden flex-1 min-w-0">
           {/* Hide Fields */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2 text-muted-foreground hover:text-primary text-xs"
-            disabled
-          >
-            <EyeOff className="h-3.5 w-3.5 mr-1.5" />
-            <span className="hidden sm:inline">Hide fields</span>
-          </Button>
+          <Popover open={showHideFields} onOpenChange={setShowHideFields}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "h-7 px-2 text-muted-foreground hover:text-primary text-xs",
+                  hiddenFields.size > 0 && "text-primary"
+                )}
+              >
+                <EyeOff className="h-3.5 w-3.5 mr-1.5" />
+                <span className="hidden sm:inline">Hide fields</span>
+                {hiddenFields.size > 0 && (
+                  <span className="ml-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary/10 text-[10px] font-medium text-primary">
+                    {hiddenFields.size}
+                  </span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-64 p-3">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <h4 className="font-medium text-sm">Hide Fields</h4>
+                  {hiddenFields.size > 0 && (
+                    <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => setHiddenFields(new Set())}>
+                      Show all
+                    </Button>
+                  )}
+                </div>
+                <div className="max-h-60 overflow-y-auto space-y-1">
+                  {allFields.map(field => (
+                    <label key={field.name} className="flex items-center gap-2 text-sm py-1 px-1 rounded hover:bg-muted cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={!hiddenFields.has(field.name)}
+                        onChange={() => {
+                          setHiddenFields(prev => {
+                            const next = new Set(prev);
+                            if (next.has(field.name)) {
+                              next.delete(field.name);
+                            } else {
+                              next.add(field.name);
+                            }
+                            return next;
+                          });
+                        }}
+                        className="rounded border-input"
+                      />
+                      <span className="truncate">{field.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
 
           {/* Filter */}
           <Popover open={showFilters} onOpenChange={setShowFilters}>
@@ -534,16 +704,49 @@ export const ListView: React.FC<ListViewProps> = ({
             <span className="hidden sm:inline">Color</span>
           </Button>
 
-          {/* Row Height */}
+          {/* Row Height / Density Mode */}
           <Button
             variant="ghost"
             size="sm"
             className="h-7 px-2 text-muted-foreground hover:text-primary text-xs hidden lg:flex"
-            disabled
+            onClick={density.cycle}
+            title={`Density: ${density.mode}`}
           >
-            <Ruler className="h-3.5 w-3.5 mr-1.5" />
-            <span className="hidden sm:inline">Row height</span>
+            <AlignJustify className="h-3.5 w-3.5 mr-1.5" />
+            <span className="hidden sm:inline capitalize">{density.mode}</span>
           </Button>
+
+          {/* Export */}
+          {schema.exportOptions && (
+            <Popover open={showExport} onOpenChange={setShowExport}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 text-muted-foreground hover:text-primary text-xs"
+                >
+                  <Download className="h-3.5 w-3.5 mr-1.5" />
+                  <span className="hidden sm:inline">Export</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-48 p-2">
+                <div className="space-y-1">
+                  {(schema.exportOptions.formats || ['csv', 'json']).map(format => (
+                    <Button
+                      key={format}
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start h-8 text-xs"
+                      onClick={() => handleExport(format)}
+                    >
+                      <Download className="h-3.5 w-3.5 mr-2" />
+                      Export as {format.toUpperCase()}
+                    </Button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
         </div>
 
         {/* Right: Search */}
@@ -589,6 +792,32 @@ export const ListView: React.FC<ListViewProps> = ({
 
 
       {/* Filters Panel - Removed as it is now in Popover */}
+
+      {/* Quick Filters Row */}
+      {schema.quickFilters && schema.quickFilters.length > 0 && (
+        <div className="border-b px-2 sm:px-4 py-1 flex items-center gap-1 flex-wrap bg-background" data-testid="quick-filters">
+          {schema.quickFilters.map(qf => {
+            const isActive = activeQuickFilters.has(qf.id);
+            const QfIcon: LucideIcon | null = qf.icon
+              ? ((icons as Record<string, LucideIcon>)[
+                  qf.icon.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('')
+                ] ?? null)
+              : null;
+            return (
+              <Button
+                key={qf.id}
+                variant={isActive ? 'default' : 'outline'}
+                size="sm"
+                className="h-7 px-3 text-xs"
+                onClick={() => toggleQuickFilter(qf.id)}
+              >
+                {QfIcon && <QfIcon className="h-3 w-3 mr-1.5" />}
+                {qf.label}
+              </Button>
+            );
+          })}
+        </div>
+      )}
 
       {/* View Content */}
       <div key={currentView} className="flex-1 min-h-0 bg-background relative overflow-hidden animate-in fade-in-0 duration-200">

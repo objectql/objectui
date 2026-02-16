@@ -70,11 +70,11 @@ const TW_COLORS: Record<string, string> = {
 const resolveColor = (color: string) => TW_COLORS[color] || color;
 
 export interface AdvancedChartImplProps {
-  chartType?: 'bar' | 'line' | 'area' | 'pie' | 'donut' | 'radar' | 'scatter';
+  chartType?: 'bar' | 'line' | 'area' | 'pie' | 'donut' | 'radar' | 'scatter' | 'combo';
   data?: Array<Record<string, any>>;
   config?: ChartConfig;
   xAxisKey?: string;
-  series?: Array<{ dataKey: string }>;
+  series?: Array<{ dataKey: string; chartType?: 'bar' | 'line' | 'area' }>;
   className?: string;
 }
 
@@ -231,13 +231,46 @@ export default function AdvancedChartImpl({
     );
   }
 
+  // Combo chart (mixed bar + line on same chart)
+  if (chartType === 'combo') {
+    return (
+      <ChartContainer config={config} className={className}>
+        <BarChart data={data}>
+          <CartesianGrid vertical={false} />
+          <XAxis
+            dataKey={xAxisKey}
+            tickLine={false}
+            tickMargin={10}
+            axisLine={false}
+            interval={isMobile ? Math.ceil(data.length / 5) : 0}
+            tickFormatter={(value) => (value && typeof value === 'string') ? value.slice(0, 3) : value}
+          />
+          <YAxis yAxisId="left" tickLine={false} axisLine={false} />
+          <YAxis yAxisId="right" orientation="right" tickLine={false} axisLine={false} />
+          <ChartTooltip content={<ChartTooltipContent />} />
+          <ChartLegend
+            content={<ChartLegendContent />}
+            {...(isMobile && { verticalAlign: "bottom", wrapperStyle: { fontSize: '11px', paddingTop: '8px' } })}
+          />
+          {series.map((s: any, index: number) => {
+            const color = resolveColor(config[s.dataKey]?.color || DEFAULT_CHART_COLOR);
+            const seriesType = s.chartType || (index === 0 ? 'bar' : 'line');
+            const yAxisId = seriesType === 'bar' ? 'left' : 'right';
+            
+            if (seriesType === 'line') {
+              return <Line key={s.dataKey} yAxisId={yAxisId} type="monotone" dataKey={s.dataKey} stroke={color} strokeWidth={2} dot={false} />;
+            }
+            if (seriesType === 'area') {
+              return <Area key={s.dataKey} yAxisId={yAxisId} type="monotone" dataKey={s.dataKey} fill={color} stroke={color} fillOpacity={0.4} />;
+            }
+            return <Bar key={s.dataKey} yAxisId={yAxisId} dataKey={s.dataKey} fill={color} radius={4} />;
+          })}
+        </BarChart>
+      </ChartContainer>
+    );
+  }
+
   return (
-    <ChartContainer config={config} className={className}>
-      <ChartComponent data={data}>
-        <CartesianGrid vertical={false} />
-        <XAxis
-          dataKey={xAxisKey}
-          tickLine={false}
           tickMargin={10}
           axisLine={false}
           interval={isMobile ? Math.ceil(data.length / 5) : 0}
