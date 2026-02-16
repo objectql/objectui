@@ -60,9 +60,14 @@ export default defineConfig({
    * Build the console app and serve the production bundle via `vite preview`.
    * This mirrors the Vercel deployment pipeline and catches blank-page issues
    * caused by build-time errors (broken imports, missing polyfills, etc.).
+   *
+   * In CI the "Build Core" job already produces the dist/ artifacts and the
+   * E2E job downloads them, so we skip the build step and only serve.
    */
   webServer: {
-    command: 'pnpm turbo run build --filter=@object-ui/console && pnpm --filter @object-ui/console preview --port 4173',
+    command: process.env.CI
+      ? 'pnpm --filter @object-ui/console preview --port 4173'
+      : 'pnpm turbo run build --filter=@object-ui/console && pnpm --filter @object-ui/console preview --port 4173',
     url: 'http://localhost:4173/console/',
     reuseExistingServer: !process.env.CI,
     timeout: 180 * 1000,
