@@ -962,6 +962,10 @@ export type {
   RowHeight,
   RowHeightSchema,
   DensityMode,
+  TimelineConfig,
+  TimelineConfigSchema,
+  NavigationConfig,
+  NavigationConfigSchema,
   ViewSharing,
   ViewSharingSchema,
 } from '@objectstack/spec/ui';

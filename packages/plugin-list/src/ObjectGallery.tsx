@@ -7,10 +7,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useDataScope, useSchemaContext } from '@object-ui/react';
+import { useDataScope, useSchemaContext, useNavigationOverlay } from '@object-ui/react';
 import { ComponentRegistry } from '@object-ui/core';
-import { cn, Card, CardContent } from '@object-ui/components';
-import type { GalleryConfig } from '@object-ui/types';
+import { cn, Card, CardContent, NavigationOverlay } from '@object-ui/components';
+import type { GalleryConfig, ViewNavigationConfig } from '@object-ui/types';
 
 export interface ObjectGalleryProps {
     schema: {
@@ -20,6 +20,8 @@ export interface ObjectGalleryProps {
         data?: Record<string, unknown>[];
         className?: string;
         gallery?: GalleryConfig;
+        /** Navigation config for item click behavior */
+        navigation?: ViewNavigationConfig;
         /** @deprecated Use gallery.coverField instead */
         imageField?: string;
         /** @deprecated Use gallery.titleField instead */
@@ -29,6 +31,8 @@ export interface ObjectGalleryProps {
     data?: Record<string, unknown>[];
     dataSource?: { find: (name: string, query: unknown) => Promise<unknown> };
     onCardClick?: (record: Record<string, unknown>) => void;
+    /** Callback when a row/item is clicked (overrides NavigationConfig) */
+    onRowClick?: (record: Record<string, unknown>) => void;
 }
 
 const GRID_CLASSES: Record<NonNullable<GalleryConfig['cardSize']>, string> = {
@@ -51,6 +55,13 @@ export const ObjectGallery: React.FC<ObjectGalleryProps> = (props) => {
 
     const [fetchedData, setFetchedData] = useState<Record<string, unknown>[]>([]);
     const [loading, setLoading] = useState(false);
+
+    // --- NavigationConfig support ---
+    const navigation = useNavigationOverlay({
+        navigation: schema.navigation,
+        objectName: schema.objectName,
+        onRowClick: props.onRowClick ?? props.onCardClick,
+    });
 
     // Resolve GalleryConfig with backwards-compatible fallbacks
     const gallery = schema.gallery;
@@ -110,66 +121,84 @@ export const ObjectGallery: React.FC<ObjectGalleryProps> = (props) => {
     if (!items.length) return <div className="p-4 text-sm text-muted-foreground">No items to display</div>;
 
     return (
-        <div
-            className={cn('grid gap-4 p-4', GRID_CLASSES[cardSize], schema.className)}
-            role="list"
-        >
-            {items.map((item, i) => {
-                const id = (item._id ?? item.id ?? i) as string | number;
-                const title = String(item[titleField] ?? 'Untitled');
-                const imageUrl = item[coverField] as string | undefined;
+        <>
+            <div
+                className={cn('grid gap-4 p-4', GRID_CLASSES[cardSize], schema.className)}
+                role="list"
+            >
+                {items.map((item, i) => {
+                    const id = (item._id ?? item.id ?? i) as string | number;
+                    const title = String(item[titleField] ?? 'Untitled');
+                    const imageUrl = item[coverField] as string | undefined;
 
-                return (
-                    <Card
-                        key={id}
-                        role="listitem"
-                        className={cn(
-                            'group overflow-hidden transition-all hover:shadow-md',
-                            props.onCardClick && 'cursor-pointer',
-                        )}
-                        onClick={props.onCardClick ? () => props.onCardClick!(item) : undefined}
-                    >
-                        <div className={cn('w-full overflow-hidden bg-muted relative', ASPECT_CLASSES[cardSize])}>
-                            {imageUrl ? (
-                                <img
-                                    src={imageUrl}
-                                    alt={title}
-                                    className={cn(
-                                        'h-full w-full transition-transform group-hover:scale-105',
-                                        coverFit === 'cover' && 'object-cover',
-                                        coverFit === 'contain' && 'object-contain',
-                                    )}
-                                />
-                            ) : (
-                                <div className="flex h-full w-full items-center justify-center bg-secondary/50 text-muted-foreground">
-                                    <span className="text-4xl font-light opacity-20">
-                                        {title[0]?.toUpperCase()}
+                    return (
+                        <Card
+                            key={id}
+                            role="listitem"
+                            className={cn(
+                                'group overflow-hidden transition-all hover:shadow-md',
+                                (props.onCardClick || props.onRowClick || schema.navigation) && 'cursor-pointer',
+                            )}
+                            onClick={() => navigation.handleClick(item)}
+                        >
+                            <div className={cn('w-full overflow-hidden bg-muted relative', ASPECT_CLASSES[cardSize])}>
+                                {imageUrl ? (
+                                    <img
+                                        src={imageUrl}
+                                        alt={title}
+                                        className={cn(
+                                            'h-full w-full transition-transform group-hover:scale-105',
+                                            coverFit === 'cover' && 'object-cover',
+                                            coverFit === 'contain' && 'object-contain',
+                                        )}
+                                    />
+                                ) : (
+                                    <div className="flex h-full w-full items-center justify-center bg-secondary/50 text-muted-foreground">
+                                        <span className="text-4xl font-light opacity-20">
+                                            {title[0]?.toUpperCase()}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                            <CardContent className="p-3 border-t">
+                                <h3 className="font-medium truncate text-sm" title={title}>
+                                    {title}
+                                </h3>
+                                {visibleFields && visibleFields.length > 0 && (
+                                    <div className="mt-1 space-y-0.5">
+                                        {visibleFields.map((field) => {
+                                            const value = item[field];
+                                            if (value == null) return null;
+                                            return (
+                                                <p key={field} className="text-xs text-muted-foreground truncate">
+                                                    {String(value)}
+                                                </p>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    );
+                })}
+            </div>
+            {navigation.isOverlay && (
+                <NavigationOverlay {...navigation} title="Gallery Item">
+                    {(record) => (
+                        <div className="space-y-3">
+                            {Object.entries(record).map(([key, value]) => (
+                                <div key={key} className="flex flex-col">
+                                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                        {key.replace(/_/g, ' ')}
                                     </span>
+                                    <span className="text-sm">{String(value ?? '—')}</span>
                                 </div>
-                            )}
+                            ))}
                         </div>
-                        <CardContent className="p-3 border-t">
-                            <h3 className="font-medium truncate text-sm" title={title}>
-                                {title}
-                            </h3>
-                            {visibleFields && visibleFields.length > 0 && (
-                                <div className="mt-1 space-y-0.5">
-                                    {visibleFields.map((field) => {
-                                        const value = item[field];
-                                        if (value == null) return null;
-                                        return (
-                                            <p key={field} className="text-xs text-muted-foreground truncate">
-                                                {String(value)}
-                                            </p>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                );
-            })}
-        </div>
+                    )}
+                </NavigationOverlay>
+            )}
+        </>
     );
 };
 

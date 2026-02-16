@@ -9,7 +9,7 @@
 import * as React from 'react';
 import { cn, Button, Input, Popover, PopoverContent, PopoverTrigger, FilterBuilder, SortBuilder, NavigationOverlay } from '@object-ui/components';
 import type { SortItem } from '@object-ui/components';
-import { Search, SlidersHorizontal, ArrowUpDown, X, EyeOff, Group, Paintbrush, Ruler } from 'lucide-react';
+import { Search, SlidersHorizontal, ArrowUpDown, X, EyeOff, Group, Paintbrush, Ruler, Inbox } from 'lucide-react';
 import type { FilterGroup } from '@object-ui/components';
 import { ViewSwitcher, ViewType } from './ViewSwitcher';
 import { SchemaRenderer, useNavigationOverlay } from '@object-ui/react';
@@ -229,7 +229,7 @@ export const ListView: React.FC<ListViewProps> = ({
     }
     
     // Check for Timeline capabilities
-    if (schema.options?.timeline?.dateField || schema.options?.calendar?.startDateField) {
+    if (schema.options?.timeline?.startDateField || schema.options?.timeline?.dateField || schema.options?.calendar?.startDateField) {
       views.push('timeline');
     }
     
@@ -351,7 +351,7 @@ export const ListView: React.FC<ListViewProps> = ({
         return {
           type: 'object-timeline',
           ...baseProps,
-          dateField: schema.options?.timeline?.dateField || 'created_at',
+          startDateField: schema.options?.timeline?.startDateField || schema.options?.timeline?.dateField || 'created_at',
           titleField: schema.options?.timeline?.titleField || 'name',
           ...(schema.options?.timeline || {}),
         };
@@ -592,12 +592,24 @@ export const ListView: React.FC<ListViewProps> = ({
 
       {/* View Content */}
       <div key={currentView} className="flex-1 min-h-0 bg-background relative overflow-hidden animate-in fade-in-0 duration-200">
-        <SchemaRenderer 
-          schema={viewComponentSchema} 
-          {...props} 
-          data={data}
-          loading={loading}
-        />
+        {!loading && data.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full min-h-[200px] text-center p-8" data-testid="empty-state">
+            <Inbox className="h-12 w-12 text-muted-foreground/50 mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-1">
+              {(typeof schema.emptyState?.title === 'string' ? schema.emptyState.title : undefined) ?? 'No items found'}
+            </h3>
+            <p className="text-sm text-muted-foreground max-w-md">
+              {(typeof schema.emptyState?.message === 'string' ? schema.emptyState.message : undefined) ?? 'There are no records to display. Try adjusting your filters or adding new data.'}
+            </p>
+          </div>
+        ) : (
+          <SchemaRenderer 
+            schema={viewComponentSchema} 
+            {...props} 
+            data={data}
+            loading={loading}
+          />
+        )}
       </div>
 
       {/* Navigation Overlay (drawer/modal/popover) */}

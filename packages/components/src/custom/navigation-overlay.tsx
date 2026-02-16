@@ -89,6 +89,8 @@ export interface NavigationOverlayProps {
   width?: string | number;
   /** Whether navigation is an overlay mode */
   isOverlay: boolean;
+  /** Target view/form name from NavigationConfig */
+  view?: string;
   /** Title for the overlay header */
   title?: string;
   /** Description for the overlay header */

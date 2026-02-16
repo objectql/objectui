@@ -1033,6 +1033,19 @@ export interface ListViewSchema extends BaseSchema {
   
   /** Visual Component overrides (legacy, prefer typed configs above) */
   options?: Record<string, any>;
+  
+  /** 
+   * Empty state configuration shown when no data is available.
+   * Aligned with @objectstack/spec ListViewSchema.emptyState.
+   */
+  emptyState?: {
+    /** Title text for the empty state */
+    title?: string;
+    /** Message/description for the empty state */
+    message?: string;
+    /** Icon name (Lucide icon identifier) for the empty state */
+    icon?: string;
+  };
 }
 
 /**
