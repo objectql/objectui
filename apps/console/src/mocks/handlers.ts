@@ -15,12 +15,25 @@ import { http, HttpResponse } from 'msw';
 /**
  * Create MSW request handlers for a given base URL.
  *
- * @param baseUrl - URL prefix, e.g. '/api/v1' (browser) or 'http://localhost:3000/api/v1' (node)
- * @param kernel  - Bootstrapped ObjectKernel with protocol service
- * @param driver  - InMemoryDriver for direct data access
+ * @param baseUrl   - URL prefix, e.g. '/api/v1' (browser) or 'http://localhost:3000/api/v1' (node)
+ * @param kernel    - Bootstrapped ObjectKernel with protocol service
+ * @param driver    - InMemoryDriver for direct data access
+ * @param appConfig - Original stack config (used to enrich protocol responses with listViews)
  */
-export function createHandlers(baseUrl: string, kernel: ObjectKernel, driver: InMemoryDriver) {
+export function createHandlers(baseUrl: string, kernel: ObjectKernel, driver: InMemoryDriver, appConfig?: any) {
   const protocol = kernel.getService('protocol') as any;
+
+  // Build a lookup of listViews by object name from the original config.
+  // The runtime protocol strips listViews from object metadata, so we
+  // re-attach them here to ensure the console can resolve named views.
+  const listViewsByObject: Record<string, Record<string, any>> = {};
+  if (appConfig?.objects) {
+    for (const obj of appConfig.objects) {
+      if (obj.listViews && Object.keys(obj.listViews).length > 0) {
+        listViewsByObject[obj.name] = obj.listViews;
+      }
+    }
+  }
 
   // Determine whether we're in a browser (relative paths, wildcard prefix)
   // or in Node.js tests (absolute URLs)
@@ -56,11 +69,25 @@ export function createHandlers(baseUrl: string, kernel: ObjectKernel, driver: In
     http.get(`${prefix}${baseUrl}/meta/:type`, async ({ params }) => {
       const metadataType = params.type as string;
       const response = await protocol.getMetaItems({ type: metadataType });
+      // Enrich object metadata with listViews from stack config
+      if ((metadataType === 'object' || metadataType === 'objects') && response?.items) {
+        response.items = response.items.map((obj: any) => {
+          const views = listViewsByObject[obj.name];
+          return views ? { ...obj, listViews: { ...(obj.listViews || {}), ...views } } : obj;
+        });
+      }
       return HttpResponse.json(response, { status: 200 });
     }),
     http.get(`${prefix}${baseUrl}/metadata/:type`, async ({ params }) => {
       const metadataType = params.type as string;
       const response = await protocol.getMetaItems({ type: metadataType });
+      // Enrich object metadata with listViews from stack config
+      if ((metadataType === 'object' || metadataType === 'objects') && response?.items) {
+        response.items = response.items.map((obj: any) => {
+          const views = listViewsByObject[obj.name];
+          return views ? { ...obj, listViews: { ...(obj.listViews || {}), ...views } } : obj;
+        });
+      }
       return HttpResponse.json(response, { status: 200 });
     }),
 
@@ -71,7 +98,14 @@ export function createHandlers(baseUrl: string, kernel: ObjectKernel, driver: In
           type: params.type as string,
           name: params.name as string
         });
-        const payload = (response && response.item) ? response.item : response;
+        let payload = (response && response.item) ? response.item : response;
+        // Enrich single object with listViews from stack config
+        if ((params.type === 'object' || params.type === 'objects') && payload && payload.name) {
+          const views = listViewsByObject[payload.name];
+          if (views) {
+            payload = { ...payload, listViews: { ...(payload.listViews || {}), ...views } };
+          }
+        }
         return HttpResponse.json(payload || { error: 'Not found' }, { status: payload ? 200 : 404 });
       } catch (e) {
         return HttpResponse.json({ error: String(e) }, { status: 500 });
@@ -83,7 +117,14 @@ export function createHandlers(baseUrl: string, kernel: ObjectKernel, driver: In
           type: params.type as string,
           name: params.name as string
         });
-        const payload = (response && response.item) ? response.item : response;
+        let payload = (response && response.item) ? response.item : response;
+        // Enrich single object with listViews from stack config
+        if ((params.type === 'object' || params.type === 'objects') && payload && payload.name) {
+          const views = listViewsByObject[payload.name];
+          if (views) {
+            payload = { ...payload, listViews: { ...(payload.listViews || {}), ...views } };
+          }
+        }
         return HttpResponse.json(payload || { error: 'Not found' }, { status: payload ? 200 : 404 });
       } catch (e) {
         return HttpResponse.json({ error: String(e) }, { status: 500 });
