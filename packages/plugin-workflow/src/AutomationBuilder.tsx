@@ -268,9 +268,9 @@ export const AutomationBuilder: React.FC<AutomationBuilderProps> = ({
                 <div className="flex items-center gap-2">
                   {ACTION_ICONS[action.type]}
                   <span className="text-sm font-medium">
-                    {(automation.executionMode ?? 'sequential') === 'sequential' ? `Step ${idx + 1}` : `Action ${idx + 1}`}
+                    {automation.actions.length > 1 && (automation.executionMode ?? 'sequential') === 'sequential' ? `Step ${idx + 1}` : `Action ${idx + 1}`}
                   </span>
-                  {idx > 0 && (automation.executionMode ?? 'sequential') === 'sequential' && (
+                  {idx > 0 && automation.actions.length > 1 && (automation.executionMode ?? 'sequential') === 'sequential' && (
                     <Badge variant="outline" className="text-[10px] px-1">then</Badge>
                   )}
                 </div>
