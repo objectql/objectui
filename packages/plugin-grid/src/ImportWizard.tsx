@@ -34,6 +34,9 @@ export interface ImportResult {
 
 type WizardStep = 'upload' | 'mapping' | 'preview';
 
+/** Maximum number of rows to show in the preview step */
+const PREVIEW_ROW_COUNT = 10;
+
 /** CSV parser with quote handling */
 function parseCSV(text: string): string[][] {
   const rows: string[][] = [];
@@ -211,7 +214,7 @@ const StepPreview: React.FC<{
     Object.entries(mapping).map(([idx, fieldName]) => ({
       csvIdx: Number(idx), header: headers[Number(idx)], field: fields.find((f) => f.name === fieldName)!,
     })), [mapping, headers, fields]);
-  const previewRows = rows.slice(0, 10);
+  const previewRows = rows.slice(0, PREVIEW_ROW_COUNT);
 
   const rowValidations = useMemo(() => previewRows.map((row, rIdx) => {
     const errs: Record<number, string> = {};

@@ -16,6 +16,7 @@ import { SchemaRenderer, useNavigationOverlay } from '@object-ui/react';
 import { useDensityMode } from '@object-ui/react';
 import type { ListViewSchema } from '@object-ui/types';
 import { usePullToRefresh } from '@object-ui/mobile';
+import { ExpressionEvaluator } from '@object-ui/core';
 
 export interface ListViewProps {
   schema: ListViewSchema;
@@ -80,13 +81,12 @@ export function evaluateConditionalFormatting(
   for (const rule of rules) {
     let match = false;
 
-    // Expression-based evaluation (L2 feature)
+    // Expression-based evaluation (L2 feature) using safe ExpressionEvaluator
     if (rule.expression) {
       try {
-        const expr = rule.expression.replace(/^\$\{/, '').replace(/\}$/, '');
-        // Build a safe evaluation context with data fields
-        const fn = new Function('data', `try { return !!(${expr}); } catch { return false; }`);
-        match = fn(record) === true;
+        const evaluator = new ExpressionEvaluator({ data: record });
+        const result = evaluator.evaluate(rule.expression, { throwOnError: true });
+        match = result === true;
       } catch {
         match = false;
       }
