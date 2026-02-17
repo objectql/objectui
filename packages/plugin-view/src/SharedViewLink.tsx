@@ -153,41 +153,45 @@ export const SharedViewLink: React.FC<SharedViewLinkProps> = ({
             </Button>
           </div>
         ) : (
-          <div className="flex items-center gap-2">
-            <Input
-              value={shareUrl}
-              readOnly
-              className="h-8 text-xs"
-              onClick={(e) => (e.target as HTMLInputElement).select()}
-            />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleCopy}
-              className="shrink-0 gap-1"
-            >
-              {copied ? (
-                <Check className="h-4 w-4 text-green-500" />
-              ) : (
-                <Copy className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-          {/* Share options indicators */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {password && (
-              <Badge variant="outline" className="text-xs gap-1">
-                <Lock className="h-3 w-3" />
-                Password protected
-              </Badge>
+          <>
+            <div className="flex items-center gap-2">
+              <Input
+                value={shareUrl}
+                readOnly
+                className="h-8 text-xs"
+                onClick={(e) => (e.target as HTMLInputElement).select()}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopy}
+                className="shrink-0 gap-1"
+              >
+                {copied ? (
+                  <Check className="h-4 w-4 text-green-500" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+            {/* Share options indicators */}
+            {(password || expiresIn) && (
+              <div className="flex items-center gap-2 flex-wrap">
+                {password && (
+                  <Badge variant="outline" className="text-xs gap-1">
+                    <Lock className="h-3 w-3" />
+                    Password protected
+                  </Badge>
+                )}
+                {expiresIn && (
+                  <Badge variant="outline" className="text-xs gap-1">
+                    <Calendar className="h-3 w-3" />
+                    Expires in {expiresIn} day{expiresIn !== '1' ? 's' : ''}
+                  </Badge>
+                )}
+              </div>
             )}
-            {expiresIn && (
-              <Badge variant="outline" className="text-xs gap-1">
-                <Calendar className="h-3 w-3" />
-                Expires in {expiresIn} day{expiresIn !== '1' ? 's' : ''}
-              </Badge>
-            )}
-          </div>
+          </>
         )}
       </PopoverContent>
     </Popover>

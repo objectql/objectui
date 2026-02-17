@@ -96,7 +96,7 @@ export function AppContent() {
   const { execute: executeAction, runner } = useActionRunner();
 
   // Global Undo/Redo with toast notifications (Phase 16 L2)
-  const { redo } = useGlobalUndo({
+  useGlobalUndo({
     dataSource: dataSource ?? undefined,
     onUndo: (op) => {
       toast.info(`Undo: ${op.description}`, {
