@@ -6,11 +6,13 @@
  * the object field definitions.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { DetailView } from '@object-ui/plugin-detail';
 import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
-import { Database } from 'lucide-react';
+import { CommentThread, type Comment } from '@object-ui/collaboration';
+import { useAuth } from '@object-ui/auth';
+import { Database, MessageSquare } from 'lucide-react';
 import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import { SkeletonDetail } from './skeletons';
 
@@ -20,11 +22,41 @@ interface RecordDetailViewProps {
   onEdit: (record: any) => void;
 }
 
+const MOCK_USER = { id: 'current-user', name: 'Demo User' };
+
 export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailViewProps) {
   const { objectName, recordId } = useParams();
   const { showDebug, toggleDebug } = useMetadataInspector();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
+  const [comments, setComments] = useState<Comment[]>([]);
   const objectDef = objects.find((o: any) => o.name === objectName);
+
+  const currentUser = user
+    ? { id: user.id, name: user.name, avatar: user.image }
+    : MOCK_USER;
+
+  const handleAddComment = useCallback(
+    (content: string, mentions: string[], parentId?: string) => {
+      const newComment: Comment = {
+        id: crypto.randomUUID(),
+        author: currentUser,
+        content,
+        mentions,
+        createdAt: new Date().toISOString(),
+        parentId,
+      };
+      setComments(prev => [...prev, newComment]);
+    },
+    [currentUser],
+  );
+
+  const handleDeleteComment = useCallback(
+    (commentId: string) => {
+      setComments(prev => prev.filter(c => c.id !== commentId));
+    },
+    [],
+  );
 
   useEffect(() => {
     // Reset loading on navigation; the actual DetailView handles data fetching
@@ -87,6 +119,21 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
             dataSource={dataSource}
             onEdit={() => onEdit({ _id: recordId, id: recordId })}
           />
+
+          {/* Comments & Discussion */}
+          <div className="mt-6 border-t pt-6">
+            <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Comments & Discussion
+            </h3>
+            <CommentThread
+              threadId={`${objectName}:${recordId}`}
+              comments={comments}
+              currentUser={currentUser}
+              onAddComment={handleAddComment}
+              onDeleteComment={handleDeleteComment}
+            />
+          </div>
         </div>
         <MetadataPanel
           open={showDebug}

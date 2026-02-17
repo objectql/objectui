@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { useState, useEffect, lazy, Suspense, useMemo, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense, useMemo, type ReactNode } from 'react';
 import { ObjectForm } from '@object-ui/plugin-form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
 import { toast } from 'sonner';
-import { SchemaRendererProvider } from '@object-ui/react';
+import { SchemaRendererProvider, useActionRunner } from '@object-ui/react';
 import type { ConnectionState } from './dataSource';
 import { AuthGuard, useAuth, PreviewBanner } from '@object-ui/auth';
 import { MetadataProvider, useMetadata } from './context/MetadataProvider';
@@ -92,6 +92,23 @@ export function AppContent() {
   const [refreshKey, setRefreshKey] = useState(0);
   const { addRecentItem } = useRecentItems();
 
+  // ActionRunner for CRUD dialog callbacks (Phase 2.9)
+  const { execute: executeAction, runner } = useActionRunner();
+
+  useEffect(() => {
+    runner.registerHandler('crud_success', async (action) => {
+      setIsDialogOpen(false);
+      setRefreshKey(k => k + 1);
+      toast.success(action.params?.message ?? 'Record saved successfully');
+      return { success: true, reload: true };
+    });
+
+    runner.registerHandler('dialog_cancel', async () => {
+      setIsDialogOpen(false);
+      return { success: true };
+    });
+  }, [runner]);
+
   // Branding is now applied by AppShell via ConsoleLayout
 
   useEffect(() => {
@@ -122,6 +139,22 @@ export function AppContent() {
   }
 
   const currentObjectDef = allObjects.find((o: any) => o.name === objectNameFromPath);
+
+  const handleCrudSuccess = useCallback(() => {
+    const label = currentObjectDef?.label || 'Record';
+    executeAction({
+      type: 'crud_success',
+      params: {
+        message: editingRecord
+          ? `${label} updated successfully`
+          : `${label} created successfully`,
+      },
+    });
+  }, [executeAction, editingRecord, currentObjectDef?.label]);
+
+  const handleDialogCancel = useCallback(() => {
+    executeAction({ type: 'dialog_cancel' });
+  }, [executeAction]);
 
   // Track recent items on route change
   // Only depend on location.pathname — the sole external trigger.
@@ -323,16 +356,8 @@ export function AppContent() {
                                         .filter(([_, f]: [string, any]) => evaluateVisibility(f.visible, expressionEvaluator))
                                         .map(([key]: [string, any]) => key))
                                 : [],
-                            onSuccess: () => {
-                                setIsDialogOpen(false);
-                                setRefreshKey(k => k + 1);
-                                toast.success(
-                                  editingRecord
-                                    ? `${currentObjectDef?.label} updated successfully`
-                                    : `${currentObjectDef?.label} created successfully`
-                                );
-                            }, 
-                            onCancel: () => setIsDialogOpen(false),
+                            onSuccess: handleCrudSuccess, 
+                            onCancel: handleDialogCancel,
                             showSubmit: true,
                             showCancel: true,
                             submitText: 'Save Record',

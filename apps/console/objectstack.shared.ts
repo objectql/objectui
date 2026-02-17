@@ -1,12 +1,22 @@
 import { defineStack } from '@objectstack/spec';
+import type { ObjectStackDefinition } from '@objectstack/spec';
 import crmConfigImport from '@object-ui/example-crm/objectstack.config';
 import todoConfigImport from '@object-ui/example-todo/objectstack.config';
 import kitchenSinkConfigImport from '@object-ui/example-kitchen-sink/objectstack.config';
 import { hotcrmObjects, hotcrmApps, mergeObjects } from '../../examples/hotcrm-bridge.js';
 
-const crmConfig = (crmConfigImport as any).default || crmConfigImport;
-const todoConfig = (todoConfigImport as any).default || todoConfigImport;
-const kitchenSinkConfig = (kitchenSinkConfigImport as any).default || kitchenSinkConfigImport;
+/** Resolve ESM default-export interop without `as any`. */
+type MaybeDefault<T> = T | { default: T };
+function resolveDefault<T>(mod: MaybeDefault<T>): T {
+  if (mod && typeof mod === 'object' && 'default' in mod) {
+    return (mod as { default: T }).default;
+  }
+  return mod as T;
+}
+
+const crmConfig = resolveDefault<ObjectStackDefinition>(crmConfigImport);
+const todoConfig = resolveDefault<ObjectStackDefinition>(todoConfigImport);
+const kitchenSinkConfig = resolveDefault<ObjectStackDefinition>(kitchenSinkConfigImport);
 
 // Patch CRM App Navigation to include Report using a supported navigation type
 // (type: 'url' passes schema validation while still routing correctly via React Router)
@@ -137,4 +147,4 @@ export const sharedConfig = {
   ]
 };
 
-export default defineStack(sharedConfig as any);
+export default defineStack(sharedConfig as Parameters<typeof defineStack>[0]);
