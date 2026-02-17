@@ -16,7 +16,7 @@ describe('registerServiceWorker', () => {
 
   it('returns null when navigator is undefined', async () => {
     const origNavigator = globalThis.navigator;
-    // @ts-ignore
+    // @ts-expect-error - intentionally setting navigator to undefined for testing
     Object.defineProperty(globalThis, 'navigator', { value: undefined, writable: true, configurable: true });
     const result = await registerServiceWorker();
     expect(result).toBeNull();
@@ -25,7 +25,7 @@ describe('registerServiceWorker', () => {
 
   it('returns null when serviceWorker is not in navigator', async () => {
     const origSW = Object.getOwnPropertyDescriptor(navigator, 'serviceWorker');
-    // @ts-ignore  
+    // @ts-expect-error - intentionally setting serviceWorker to undefined for testing
     Object.defineProperty(navigator, 'serviceWorker', { value: undefined, writable: true, configurable: true });
     const result = await registerServiceWorker();
     expect(result).toBeNull();
