@@ -26,22 +26,22 @@ describe('ReportView Data Loading', () => {
     await adapter.connect();
 
     // Seed test data for the opportunity object
-    const driver = getDriver();
-    await driver.insert('opportunity', {
+    const driver = getDriver()!;
+    await driver.create('opportunity', {
       id: '1',
       name: 'Deal Alpha',
       amount: 50000,
       stage: 'Proposal',
       close_date: '2024-03-31',
     });
-    await driver.insert('opportunity', {
+    await driver.create('opportunity', {
       id: '2',
       name: 'Deal Beta',
       amount: 75000,
       stage: 'Negotiation',
       close_date: '2024-04-15',
     });
-    await driver.insert('opportunity', {
+    await driver.create('opportunity', {
       id: '3',
       name: 'Deal Gamma',
       amount: 100000,

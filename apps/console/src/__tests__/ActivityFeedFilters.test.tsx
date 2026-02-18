@@ -9,7 +9,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import React from 'react';
 
 // Mock UI components – Sheet always renders all children so we can test content
 vi.mock('@object-ui/components', () => ({
