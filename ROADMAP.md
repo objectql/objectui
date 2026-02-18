@@ -363,6 +363,13 @@ Each plugin view must work seamlessly from 320px (small phone) to 2560px (ultraw
 - [x] Mobile card view Stage colored badge (green/red/yellow/blue by pipeline stage)
 - [x] Mobile card view skeleton loading placeholders during async data fetch
 - [x] CRM example Opportunity stage field with color options
+- [x] Airtable-style record count status bar (`{n} records`) in ListView
+- [x] Airtable-style "+ Add record" row (showAddRow / onAddRecord) in data-table
+- [x] Airtable-style compound cells with prefix badge configuration (ListColumn.prefix)
+- [x] Airtable-style datetime split display (date + muted time for created_at/updated_at fields)
+- [x] Airtable-style row refinement (pure white bg, border-border/50, hover:bg-muted/30)
+- [x] Airtable-style inline sort arrows (smaller h-3 icons, hidden until hover, colored when active)
+- [x] Airtable-style column header type icons (Type/Hash/Calendar/Clock/CheckSquare/User/Tag)
 
 ##### ObjectKanban (`plugin-kanban`)
 - [x] Stack columns vertically on mobile with horizontal swipe navigation between columns

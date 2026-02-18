@@ -46,6 +46,7 @@ import {
   GripVertical,
   Save,
   X,
+  Plus,
 } from 'lucide-react';
 
 type SortDirection = 'asc' | 'desc' | null;
@@ -104,6 +105,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
     className,
     frozenColumns = 0,
     showRowNumbers = false,
+    showAddRow = false,
   } = schema;
 
   // Normalize columns to support legacy keys (label/name) from existing JSONs
@@ -265,12 +267,12 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
 
   const getSortIcon = (columnKey: string) => {
     if (sortColumn !== columnKey) {
-      return <ChevronsUpDown className="h-4 w-4 ml-1 opacity-50" />;
+      return <ChevronsUpDown className="h-3 w-3 ml-0.5 opacity-0 group-hover:opacity-50 transition-opacity" />;
     }
     if (sortDirection === 'asc') {
-      return <ChevronUp className="h-4 w-4 ml-1" />;
+      return <ChevronUp className="h-3 w-3 ml-0.5 text-primary" />;
     }
-    return <ChevronDown className="h-4 w-4 ml-1" />;
+    return <ChevronDown className="h-3 w-3 ml-0.5 text-primary" />;
   };
 
   // Column resizing handlers
@@ -664,6 +666,9 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                         {reorderableColumns && (
                           <GripVertical className="h-4 w-4 opacity-0 group-hover:opacity-50 cursor-grab active:cursor-grabbing flex-shrink-0" />
                         )}
+                        {col.headerIcon && (
+                          <span className="text-muted-foreground flex-shrink-0">{col.headerIcon}</span>
+                        )}
                         <span>{col.header}</span>
                         {sortable && col.sortable !== false && getSortIcon(col.accessorKey)}
                       </div>
@@ -711,6 +716,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                       key={rowId} 
                       data-state={isSelected ? 'selected' : undefined}
                       className={cn(
+                        "bg-background border-b border-border/50 hover:bg-muted/30",
                         schema.onRowClick && "cursor-pointer",
                         rowHasChanges && "bg-amber-50 dark:bg-amber-950/20",
                         rowClassName && rowClassName(row, rowIndex)
@@ -845,6 +851,24 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                     </TableRow>
                   );
                 })}
+                {/* Add record row (Airtable-style) */}
+                {showAddRow && (
+                  <TableRow
+                    className="hover:bg-muted/30 cursor-pointer border-b border-border/50"
+                    data-testid="add-record-row"
+                    onClick={() => schema.onAddRecord?.()}
+                  >
+                    <TableCell
+                      colSpan={columns.length + (selectable ? 1 : 0) + (showRowNumbers ? 1 : 0) + (rowActions ? 1 : 0)}
+                      className="h-9 px-3 py-1.5"
+                    >
+                      <span className="flex items-center gap-1.5 text-muted-foreground text-sm hover:text-foreground transition-colors">
+                        <Plus className="h-3.5 w-3.5" />
+                        Add record
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                )}
                 {/* Filler rows to maintain height consistency */}
                 {paginatedData.length > 0 && Array.from({ length: Math.max(0, pageSize - paginatedData.length) }).map((_, i) => (
                   <TableRow key={`empty-${i}`} className="hover:bg-transparent">
