@@ -62,7 +62,7 @@ export async function start(options: StartOptions) {
   app.use(express.static(distPath));
 
   // SPA fallback - serve index.html for all routes
-  app.get('*', (req, res) => {
+  app.get('*', (_req, res) => {
     res.sendFile(indexPath);
   });
 

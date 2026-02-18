@@ -1,7 +1,7 @@
 {
-  "name": "@object-ui/cli",
+  "name": "@objectstack/plugin-ui",
   "version": "3.0.3",
-  "description": "CLI tool for Object UI - Build applications from JSON schemas",
+  "description": "ObjectStack CLI plugin for Object UI — oclif-based UI toolchain commands (os ui dev, os ui build, etc.)",
   "type": "module",
   "homepage": "https://www.objectui.org",
   "repository": {
@@ -28,21 +28,29 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "vitest run"
   },
   "keywords": [
+    "objectstack",
     "object-ui",
+    "oclif-plugin",
     "cli",
     "schema-driven",
     "ui-builder",
     "json"
   ],
-  "author": "ObjectQL Team",
+  "author": "ObjectStack Team",
   "license": "MIT",
+  "oclif": {
+    "commands": "./dist/commands",
+    "hooks": {}
+  },
   "dependencies": {
     "@object-ui/components": "workspace:*",
     "@object-ui/react": "workspace:*",
     "@object-ui/types": "workspace:*",
+    "@oclif/core": "^4.8.0",
     "@types/glob": "^9.0.0",
     "@vitejs/plugin-react": "^5.1.4",
     "chalk": "^5.6.2",
@@ -58,6 +66,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^25.2.3",
     "tsup": "^8.5.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   }
 }

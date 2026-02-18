@@ -573,273 +573,6 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
 
-  examples/hotcrm/packages/ai:
-    dependencies:
-      '@objectstack/spec':
-        specifier: ^3.0.3
-        version: 3.0.6
-      axios:
-        specifier: ^1.13.5
-        version: 1.13.5
-      zod:
-        specifier: ^4.3.6
-        version: 4.3.6
-    devDependencies:
-      '@objectstack/cli':
-        specifier: ^3.0.3
-        version: 3.0.6(@objectstack/core@3.0.6(pino@8.21.0))(esbuild@0.27.3)(pino@8.21.0)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  examples/hotcrm/packages/analytics:
-    dependencies:
-      '@hotcrm/ai':
-        specifier: workspace:*
-        version: link:../ai
-      '@objectstack/spec':
-        specifier: ^3.0.3
-        version: 3.0.6
-      zod:
-        specifier: ^4.3.6
-        version: 4.3.6
-    devDependencies:
-      '@objectstack/cli':
-        specifier: ^3.0.3
-        version: 3.0.6(@objectstack/core@3.0.6(pino@8.21.0))(esbuild@0.27.3)(pino@8.21.0)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  examples/hotcrm/packages/community:
-    dependencies:
-      '@objectstack/spec':
-        specifier: ^3.0.3
-        version: 3.0.6
-      zod:
-        specifier: ^4.3.6
-        version: 4.3.6
-    devDependencies:
-      '@objectstack/cli':
-        specifier: ^3.0.3
-        version: 3.0.6(@objectstack/core@3.0.6(pino@8.21.0))(esbuild@0.27.3)(pino@8.21.0)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  examples/hotcrm/packages/core:
-    dependencies:
-      '@objectstack/spec':
-        specifier: ^3.0.2
-        version: 3.0.6
-      zod:
-        specifier: ^4.3.6
-        version: 4.3.6
-
-  examples/hotcrm/packages/crm:
-    dependencies:
-      '@hotcrm/ai':
-        specifier: workspace:*
-        version: link:../ai
-      '@objectstack/spec':
-        specifier: ^3.0.3
-        version: 3.0.6
-      zod:
-        specifier: ^4.3.6
-        version: 4.3.6
-    devDependencies:
-      '@objectstack/cli':
-        specifier: ^3.0.3
-        version: 3.0.6(@objectstack/core@3.0.6(pino@8.21.0))(esbuild@0.27.3)(pino@8.21.0)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  examples/hotcrm/packages/education:
-    dependencies:
-      '@objectstack/spec':
-        specifier: ^3.0.3
-        version: 3.0.6
-      zod:
-        specifier: ^4.3.6
-        version: 4.3.6
-    devDependencies:
-      '@objectstack/cli':
-        specifier: ^3.0.3
-        version: 3.0.6(@objectstack/core@3.0.6(pino@8.21.0))(esbuild@0.27.3)(pino@8.21.0)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  examples/hotcrm/packages/finance:
-    dependencies:
-      '@objectstack/spec':
-        specifier: ^3.0.3
-        version: 3.0.6
-    devDependencies:
-      '@objectstack/cli':
-        specifier: ^3.0.3
-        version: 3.0.6(@objectstack/core@3.0.6(pino@8.21.0))(esbuild@0.27.3)(pino@8.21.0)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  examples/hotcrm/packages/financial-services:
-    dependencies:
-      '@objectstack/spec':
-        specifier: ^3.0.3
-        version: 3.0.6
-      zod:
-        specifier: ^4.3.6
-        version: 4.3.6
-    devDependencies:
-      '@objectstack/cli':
-        specifier: ^3.0.3
-        version: 3.0.6(@objectstack/core@3.0.6(pino@8.21.0))(esbuild@0.27.3)(pino@8.21.0)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  examples/hotcrm/packages/healthcare:
-    dependencies:
-      '@objectstack/spec':
-        specifier: ^3.0.3
-        version: 3.0.6
-      zod:
-        specifier: ^4.3.6
-        version: 4.3.6
-    devDependencies:
-      '@objectstack/cli':
-        specifier: ^3.0.3
-        version: 3.0.6(@objectstack/core@3.0.6(pino@8.21.0))(esbuild@0.27.3)(pino@8.21.0)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  examples/hotcrm/packages/hr:
-    dependencies:
-      '@objectstack/spec':
-        specifier: ^3.0.3
-        version: 3.0.6
-    devDependencies:
-      '@objectstack/cli':
-        specifier: ^3.0.3
-        version: 3.0.6(@objectstack/core@3.0.6(pino@8.21.0))(esbuild@0.27.3)(pino@8.21.0)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  examples/hotcrm/packages/integration:
-    dependencies:
-      '@hotcrm/ai':
-        specifier: workspace:*
-        version: link:../ai
-      '@objectstack/spec':
-        specifier: ^3.0.3
-        version: 3.0.6
-      zod:
-        specifier: ^4.3.6
-        version: 4.3.6
-    devDependencies:
-      '@objectstack/cli':
-        specifier: ^3.0.3
-        version: 3.0.6(@objectstack/core@3.0.6(pino@8.21.0))(esbuild@0.27.3)(pino@8.21.0)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  examples/hotcrm/packages/marketing:
-    dependencies:
-      '@objectstack/spec':
-        specifier: ^3.0.3
-        version: 3.0.6
-    devDependencies:
-      '@objectstack/cli':
-        specifier: ^3.0.3
-        version: 3.0.6(@objectstack/core@3.0.6(pino@8.21.0))(esbuild@0.27.3)(pino@8.21.0)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  examples/hotcrm/packages/products:
-    dependencies:
-      '@objectstack/spec':
-        specifier: ^3.0.3
-        version: 3.0.6
-    devDependencies:
-      '@objectstack/cli':
-        specifier: ^3.0.3
-        version: 3.0.6(@objectstack/core@3.0.6(pino@8.21.0))(esbuild@0.27.3)(pino@8.21.0)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  examples/hotcrm/packages/real-estate:
-    dependencies:
-      '@objectstack/spec':
-        specifier: ^3.0.3
-        version: 3.0.6
-      zod:
-        specifier: ^4.3.6
-        version: 4.3.6
-    devDependencies:
-      '@objectstack/cli':
-        specifier: ^3.0.3
-        version: 3.0.6(@objectstack/core@3.0.6(pino@8.21.0))(esbuild@0.27.3)(pino@8.21.0)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  examples/hotcrm/packages/server:
-    dependencies:
-      '@objectstack/cli':
-        specifier: ^3.0.2
-        version: 3.0.6(@objectstack/core@3.0.6(pino@10.3.1))(esbuild@0.27.3)(pino@10.3.1)
-      '@objectstack/core':
-        specifier: ^3.0.2
-        version: 3.0.6(pino@10.3.1)
-      '@objectstack/metadata':
-        specifier: ^3.0.2
-        version: 3.0.6(pino@10.3.1)
-      '@objectstack/objectql':
-        specifier: ^3.0.2
-        version: 3.0.6(pino@10.3.1)
-      '@objectstack/plugin-hono-server':
-        specifier: ^3.0.2
-        version: 3.0.6(pino@10.3.1)
-      '@objectstack/runtime':
-        specifier: ^3.0.2
-        version: 3.0.6(pino@10.3.1)
-      '@objectstack/spec':
-        specifier: ^3.0.2
-        version: 3.0.6
-      pino:
-        specifier: ^10.3.1
-        version: 10.3.1
-    devDependencies:
-      '@types/js-yaml':
-        specifier: ^4.0.9
-        version: 4.0.9
-      ts-node:
-        specifier: ^10.9.2
-        version: 10.9.2(@swc/core@1.15.11)(@types/node@25.2.3)(typescript@5.9.3)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  examples/hotcrm/packages/support:
-    dependencies:
-      '@objectstack/spec':
-        specifier: ^3.0.3
-        version: 3.0.6
-    devDependencies:
-      '@objectstack/cli':
-        specifier: ^3.0.3
-        version: 3.0.6(@objectstack/core@3.0.6(pino@8.21.0))(esbuild@0.27.3)(pino@8.21.0)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
   examples/kitchen-sink:
     dependencies:
       '@objectstack/spec':
@@ -960,6 +693,9 @@ importers:
       '@object-ui/types':
         specifier: workspace:*
         version: link:../types
+      '@oclif/core':
+        specifier: ^4.8.0
+        version: 4.8.0
       '@types/glob':
         specifier: ^9.0.0
         version: 9.0.0
@@ -1003,6 +739,9 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+      vitest:
+        specifier: ^4.0.18
+        version: 4.0.18(@types/node@25.2.3)(@vitest/ui@4.0.18)(happy-dom@20.6.1)(jiti@2.6.1)(jsdom@28.1.0(@noble/hashes@2.0.1))(lightningcss@1.30.2)(msw@2.12.10(@types/node@25.2.3)(typescript@5.9.3))(tsx@4.21.0)(yaml@2.8.2)
 
   packages/collaboration:
     dependencies:
@@ -4206,12 +3945,6 @@ packages:
     peerDependencies:
       '@objectstack/core': 3.0.4
 
-  '@objectstack/cli@3.0.6':
-    resolution: {integrity: sha512-DZFL2R7PQ+CNQKCtHrdIuYONxrcklaFmKXepTFuZN4biFIMmLZm+5X5oJfQKrpYVh3Ls104OqX/LWFlK+E2cIg==}
-    hasBin: true
-    peerDependencies:
-      '@objectstack/core': 3.0.6
-
   '@objectstack/client-react@3.0.4':
     resolution: {integrity: sha512-PxmylYXdv1/fstowp3OK5o6a25pKGanbS1gkGZgK/Nn1kZmCOPcBHqoOXi3sbgwliCeBZ6HCP3ufTdXSiWV/ow==}
     peerDependencies:
@@ -4242,14 +3975,8 @@ packages:
   '@objectstack/driver-memory@3.0.4':
     resolution: {integrity: sha512-Ip01vkdfknT0cJQmhR7CLYSaR/C6pWTgPc/KP0UNx7+WZ/cTcKEMhBHsWCN7SDCY/Pfo7T4m6N5uv1nqqGWQVQ==}
 
-  '@objectstack/driver-memory@3.0.6':
-    resolution: {integrity: sha512-jvP5RI1yXsOl2vajEAGCUTp+qBaRWWBxUZJxoIL03S4z/syJBcUK5Wd4acJaWpu7Q9eWf2RYqYBV7ZkmTJT1eQ==}
-
   '@objectstack/metadata@3.0.4':
     resolution: {integrity: sha512-1Gwa3tqwho6Vt3cPObfZA6FFDh8xgd/qi/70BMuNHLpUZOJAJoJKEchYugX2zHmaBcgPs6MI0rA8PZrvWYafGA==}
-
-  '@objectstack/metadata@3.0.6':
-    resolution: {integrity: sha512-SJKoZ9dI3Tzb4hxfR4GqVr49oBWTII9tNEZyHyiiGYfFpUee27dwCcHGDDPm8K9TUO69m5MiKdO8J8juORb4+Q==}
 
   '@objectstack/objectql@3.0.4':
     resolution: {integrity: sha512-FnvaDCXV6FTgCOLBQfC+LN+GtOVSgC+xB5rYe6jQlCkwz11BR0G+OwYQH1+ANyNCIe8XfQovI++7EeeHEVm2xw==}
@@ -4262,9 +3989,6 @@ packages:
 
   '@objectstack/plugin-hono-server@3.0.4':
     resolution: {integrity: sha512-Ie4Rf+b7PEhGRWyHXc0ZmDAsa/Wn9V6k/tGPUZEB5JgpzOOAx0RRGEdGzAIU7+z8IWmXQIIm+EbOSBjWqGHesg==}
-
-  '@objectstack/plugin-hono-server@3.0.6':
-    resolution: {integrity: sha512-Rf69KqMq+aH+Wtg7H1cXeTu1pIJwdJkh6Bjkisf7SHoLXyxZ6mRveyKt2poqPigBjk6ZPk3lwfPwZm/eKq8PFw==}
 
   '@objectstack/plugin-msw@3.0.4':
     resolution: {integrity: sha512-Sov1svbMp1hWL5AuauwIM38GDFE8uaI1TzaT9GN5woxykEpTfMgNlbhhnkabnY+tfn4VGqzquzOp9K3vbv5XFQ==}
@@ -4279,14 +4003,8 @@ packages:
   '@objectstack/rest@3.0.4':
     resolution: {integrity: sha512-e1KLLG6p/DrY646T+1heMuRlAgjwZcyhjnyKqM7xirvUZEPa+X2PFlKhG6Z+QhlYRvm57K+zI0vpCzju3oP3tA==}
 
-  '@objectstack/rest@3.0.6':
-    resolution: {integrity: sha512-+6qFp4XhNSTJtVWt+n5XYvawU2xIoSseJEbwY80TKyfxWVkvMSwg1unFzPM4RZi+EZ4dzL4TvPppTYBKpVbz7w==}
-
   '@objectstack/runtime@3.0.4':
     resolution: {integrity: sha512-vmSnC3FESFK9l5mj3Lf0IGu5LZ8lIr6J3l5FVlKJQslMrCpOC4/Bhipql0kjxxzozeBuHZ+cnmXLpm2Q0Cpwsg==}
-
-  '@objectstack/runtime@3.0.6':
-    resolution: {integrity: sha512-Nh9xBiTNZ/a3Oix4DsGJsOe4IzD7gl4YobZqhYv3ko4Ue6/rUtBQW7dPHiraKYdEbFPdi/2vY2oM638c4sVxAQ==}
 
   '@objectstack/spec@3.0.4':
     resolution: {integrity: sha512-Uwg+jJ9VQJF2oX6sAMf00hIlMHOo+bz4sbORYseZj4YbENbL3CyudObmWm7yeMEFWqJh3g6YBTNW/5Du7b79lw==}
@@ -4305,6 +4023,10 @@ packages:
   '@objectstack/types@3.0.6':
     resolution: {integrity: sha512-WdjERHfM73faJDDWu61BouqJ/w4MCf/YtvOEwru6590jM7pXEcNA8b/uYFnXydsYBpXaIVfRd/rn7iFCLI1GqQ==}
 
+  '@oclif/core@4.8.0':
+    resolution: {integrity: sha512-jteNUQKgJHLHFbbz806aGZqf+RJJ7t4gwF4MYa8fCwCxQ8/klJNWc0MvaJiBebk7Mc+J39mdlsB4XraaCKznFw==}
+    engines: {node: '>=18.0.0'}
+
   '@open-draft/deferred-promise@2.2.0':
     resolution: {integrity: sha512-CecwLWx3rhxVQF6V4bAgPS5t+So2sTbPgAzafKkVizyi7tlwpcFpdFqq+wqF2OwNBmqFuu6tOyouTuxgpMfzmA==}
 
@@ -4317,9 +4039,6 @@ packages:
   '@orama/orama@3.1.18':
     resolution: {integrity: sha512-a61ljmRVVyG5MC/698C8/FfFDw5a8LOIvyOLW5fztgUXqUpc1jOfQzOitSCbge657OgXXThmY3Tk8fpiDb4UcA==}
     engines: {node: '>= 20.0.0'}
-
-  '@pinojs/redact@0.4.0':
-    resolution: {integrity: sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -6487,6 +6206,10 @@ packages:
     resolution: {integrity: sha512-4Dj6M28JB+oAH8kFkTLUo+a2jwOFkuqb3yucU0CANcRRUbxS0cP0nZYCGjcc3BNXwRIsUVmDGgzawme7zvJHvg==}
     engines: {node: '>=12'}
 
+  ansis@3.17.0:
+    resolution: {integrity: sha512-0qWUglt9JEqLFr3w1I1pbrChn1grhaiAR2ocX1PP/flRmxgtwTzPFFFnfIlD6aMOLQZgSuCRlidD70lvx8yhzg==}
+    engines: {node: '>=14'}
+
   ansis@4.2.0:
     resolution: {integrity: sha512-HqZ5rWlFjGiV0tDm3UxxgNRqsOTniqoKZu0pIAfh7TZQMGuZK+hH0drySty0si0QXj1ieop4+SkSfPZBPPkHig==}
     engines: {node: '>=14'}
@@ -6561,6 +6284,9 @@ packages:
   astring@1.9.0:
     resolution: {integrity: sha512-LElXdjswlqjWrPpJFg1Fx4wpkOCxj1TDHlSV4PlaRxHGWko024xICaa97ZkMfs6DRKlCguiAI+rbXv5GWwXIkg==}
     hasBin: true
+
+  async@3.2.6:
+    resolution: {integrity: sha512-htCUDlxyyCLMgaM3xXg0C0LW2xqfuQ6p05pCEIsXuyQ+a1koYKTuBMzRNwmybfLgvJDMd0r1LTn4+E0Ti6C2AA==}
 
   asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
@@ -6921,6 +6647,10 @@ packages:
   clean-stack@2.2.0:
     resolution: {integrity: sha512-4diC9HaTE+KRAMWhDhrGOECgWZxoevMc5TlkObMqNSsVU62PYzXZ/SMTjzyGAFF1YusgxGcSWTEXBhp0CPwQ1A==}
     engines: {node: '>=6'}
+
+  clean-stack@3.0.1:
+    resolution: {integrity: sha512-lR9wNiMRcVQjSB3a7xXGLuz4cr4wJuuXlaAEbRutGowQTmlp7R72/DOgN21e8jdwblMWl9UOJMJXarX94pzKdg==}
+    engines: {node: '>=10'}
 
   cli-cursor@5.0.0:
     resolution: {integrity: sha512-aCj4O5wKyszjMmDT4tZj93kxyydN/K5zPWSCe6/0AV/AA1pqe5ZBIw0a2ZfPQV7lL5/yb5HsUreJ6UFAF1tEQw==}
@@ -7407,6 +7137,11 @@ packages:
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
 
+  ejs@3.1.10:
+    resolution: {integrity: sha512-UeJmFfOrAQS8OJWPZ4qtgHyWExa088/MtK5UEyoJGFH67cDEXkZSviOiKRCZ4Xij0zxI3JECgYs3oKx+AizQBA==}
+    engines: {node: '>=0.10.0'}
+    hasBin: true
+
   electron-to-chromium@1.5.286:
     resolution: {integrity: sha512-9tfDXhJ4RKFNerfjdCcZfufu49vg620741MNs26a9+bhLThdB+plgMeou98CAaHu/WATj2iHOOHTp1hWtABj2A==}
 
@@ -7813,6 +7548,9 @@ packages:
   file-entry-cache@8.0.0:
     resolution: {integrity: sha512-XXTUwCvisa5oacNGRP9SfNtYBNAMi+RPwBFmblZEF7N7swHYQS6/Zfk7SRwx4D5j3CH211YNRco1DEMNVfZCnQ==}
     engines: {node: '>=16.0.0'}
+
+  filelist@1.0.4:
+    resolution: {integrity: sha512-w1cEuf3S+DrLCQL7ET6kz+gmlJdbq9J7yXCSjK/OZCPA+qEN1WyF4ZAf0YYJa4/shHJra2t/d/r8SV4Ji+x+8Q==}
 
   fill-range@7.1.1:
     resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
@@ -8669,6 +8407,11 @@ packages:
     resolution: {integrity: sha512-ykkVRwrYvFm1nb2AJfKKYPr0emF6IiXDYUaFx4Zn9ZuIH7MrzEZ3sD5RlqGXNRpHtvUHJyOnCEFxOlNDtGo7wg==}
     engines: {node: 20 || >=22}
 
+  jake@10.9.4:
+    resolution: {integrity: sha512-wpHYzhxiVQL+IV05BLE2Xn34zW1S223hvjtqk0+gsPrwd/8JNLXJgZZM/iPFsYc1xyphF+6M6EvdE5E9MBGkDA==}
+    engines: {node: '>=10'}
+    hasBin: true
+
   jest-changed-files@30.2.0:
     resolution: {integrity: sha512-L8lR1ChrRnSdfeOvTrwZMlnWV8G/LLjQ0nG9MBclwWZidA2N5FviRki0Bvh20WRMOX31/JYvzdqTJrk5oBdydQ==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
@@ -9466,6 +9209,10 @@ packages:
   minimatch@3.1.2:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
 
+  minimatch@5.1.6:
+    resolution: {integrity: sha512-lKwV/1brpG6mBUFHtb7NUmtABCb2WZZmm2wNiOA5hAb8VdCS4B3dtMWyvcoViccwAW/COERjXLt0zP1zXUN26g==}
+    engines: {node: '>=10'}
+
   minimatch@9.0.5:
     resolution: {integrity: sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==}
     engines: {node: '>=16 || 14 >=14.17'}
@@ -9940,13 +9687,6 @@ packages:
   pino-std-serializers@6.2.2:
     resolution: {integrity: sha512-cHjPPsE+vhj/tnhCy/wiMh3M3z3h/j15zHQX+S9GkTBgqJuTuJzYJ4gUyACLhDaJ7kk9ba9iRDmbH2tJU03OiA==}
 
-  pino-std-serializers@7.1.0:
-    resolution: {integrity: sha512-BndPH67/JxGExRgiX1dX0w1FvZck5Wa4aal9198SrRhZjH3GxKQUKIBnYJTdj2HDN3UQAS06HlfcSbQj2OHmaw==}
-
-  pino@10.3.1:
-    resolution: {integrity: sha512-r34yH/GlQpKZbU1BvFFqOjhISRo1MNx1tWYsYvmj6KIRHSPMT2+yHOEb1SG6NMvRoHRF0a07kCOox/9yakl1vg==}
-    hasBin: true
-
   pino@8.21.0:
     resolution: {integrity: sha512-ip4qdzjkAyDDZklUaZkcRFb2iA118H9SgRh8yzTkSQK8HilsOJF7rSY8HoW5+I0M46AZgX/pxbprf2vvzQCE0Q==}
     hasBin: true
@@ -10079,9 +9819,6 @@ packages:
 
   process-warning@3.0.0:
     resolution: {integrity: sha512-mqn0kFRl0EoqhnL0GQ0veqFHyIN1yig9RHh/InzORTUiZHFRAur+aMtRkELNwGs9aNwKS6tg/An4NYBPGwvtzQ==}
-
-  process-warning@5.0.0:
-    resolution: {integrity: sha512-a39t9ApHNx2L4+HBnQKqxxHNs1r7KF+Intd8Q/g1bUh6q0WIp9voPXJ/x0j+ZL45KF1pJd9+q2jLIRMfvEshkA==}
 
   process@0.11.10:
     resolution: {integrity: sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==}
@@ -11042,10 +10779,6 @@ packages:
   thread-stream@2.7.0:
     resolution: {integrity: sha512-qQiRWsU/wvNolI6tbbCKd9iKaTnCXsTwVxhhKM6nctPdujTyztjlbUkUTUymidWcMnZ5pWR0ej4a0tjsW021vw==}
 
-  thread-stream@4.0.0:
-    resolution: {integrity: sha512-4iMVL6HAINXWf1ZKZjIPcz5wYaOdPhtO8ATvZ+Xqp3BTdaqtAwQkNmKORqcIo5YkQqGXq5cwfswDwMqqQNrpJA==}
-    engines: {node: '>=20'}
-
   tiny-invariant@1.3.3:
     resolution: {integrity: sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg==}
 
@@ -11792,9 +11525,16 @@ packages:
     engines: {node: '>=8'}
     hasBin: true
 
+  widest-line@3.1.0:
+    resolution: {integrity: sha512-NsmoXalsWVDMGupxZ5R08ka9flZjjiLvHVAWYOKtiKM8ujtZWr9cRffak+uSE48+Ob8ObalXpwyeUiyDD6QFgg==}
+    engines: {node: '>=8'}
+
   word-wrap@1.2.5:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
     engines: {node: '>=0.10.0'}
+
+  wordwrap@1.0.0:
+    resolution: {integrity: sha512-gvVzJFlPycKc5dZN4yPkP8w7Dc37BtP1yczEneOb4uq34pXZcvrtRTmWV8W+Ume+XCxKgbjM+nevkyFPMybd4Q==}
 
   wrap-ansi@6.2.0:
     resolution: {integrity: sha512-r6lPcBGxZXlIcymEu7InxDMhdW0KDxpLgoFLcguasxCaJ/SOIZwINatK9KY/tf+ZrlywOKU0UDj3ATXUBfxJXA==}
@@ -12084,7 +11824,7 @@ snapshots:
       '@babel/types': 7.29.0
       '@jridgewell/remapping': 2.3.5
       convert-source-map: 2.0.0
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -12327,7 +12067,7 @@ snapshots:
       '@babel/parser': 7.29.0
       '@babel/template': 7.28.6
       '@babel/types': 7.29.0
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -12512,6 +12252,7 @@ snapshots:
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
+    optional: true
 
   '@csstools/color-helpers@6.0.1': {}
 
@@ -12829,7 +12570,7 @@ snapshots:
   '@eslint/config-array@0.21.1':
     dependencies:
       '@eslint/object-schema': 2.1.7
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       minimatch: 3.1.2
     transitivePeerDependencies:
       - supports-color
@@ -12845,7 +12586,7 @@ snapshots:
   '@eslint/eslintrc@3.3.3':
     dependencies:
       ajv: 6.12.6
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       espree: 10.4.0
       globals: 14.0.0
       ignore: 5.3.2
@@ -13324,6 +13065,7 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+    optional: true
 
   '@manypkg/find-root@1.1.0':
     dependencies:
@@ -13639,42 +13381,6 @@ snapshots:
       - esbuild
       - pino
 
-  '@objectstack/cli@3.0.6(@objectstack/core@3.0.6(pino@10.3.1))(esbuild@0.27.3)(pino@10.3.1)':
-    dependencies:
-      '@objectstack/core': 3.0.6(pino@10.3.1)
-      '@objectstack/driver-memory': 3.0.6(pino@10.3.1)
-      '@objectstack/objectql': 3.0.6(pino@10.3.1)
-      '@objectstack/plugin-hono-server': 3.0.6(pino@10.3.1)
-      '@objectstack/rest': 3.0.6(pino@10.3.1)
-      '@objectstack/runtime': 3.0.6(pino@10.3.1)
-      '@objectstack/spec': 3.0.6
-      bundle-require: 5.1.0(esbuild@0.27.3)
-      chalk: 5.6.2
-      commander: 14.0.3
-      tsx: 4.21.0
-      zod: 4.3.6
-    transitivePeerDependencies:
-      - esbuild
-      - pino
-
-  '@objectstack/cli@3.0.6(@objectstack/core@3.0.6(pino@8.21.0))(esbuild@0.27.3)(pino@8.21.0)':
-    dependencies:
-      '@objectstack/core': 3.0.6(pino@8.21.0)
-      '@objectstack/driver-memory': 3.0.6(pino@8.21.0)
-      '@objectstack/objectql': 3.0.6(pino@8.21.0)
-      '@objectstack/plugin-hono-server': 3.0.6(pino@8.21.0)
-      '@objectstack/rest': 3.0.6(pino@8.21.0)
-      '@objectstack/runtime': 3.0.6(pino@8.21.0)
-      '@objectstack/spec': 3.0.6
-      bundle-require: 5.1.0(esbuild@0.27.3)
-      chalk: 5.6.2
-      commander: 14.0.3
-      tsx: 4.21.0
-      zod: 4.3.6
-    transitivePeerDependencies:
-      - esbuild
-      - pino
-
   '@objectstack/client-react@3.0.4(pino@8.21.0)(react@19.2.4)':
     dependencies:
       '@objectstack/client': 3.0.4(pino@8.21.0)
@@ -13706,14 +13412,6 @@ snapshots:
     optionalDependencies:
       pino: 8.21.0
 
-  '@objectstack/core@3.0.6(pino@10.3.1)':
-    dependencies:
-      '@objectstack/spec': 3.0.6
-      pino-pretty: 13.1.3
-      zod: 4.3.6
-    optionalDependencies:
-      pino: 10.3.1
-
   '@objectstack/core@3.0.6(pino@8.21.0)':
     dependencies:
       '@objectstack/spec': 3.0.6
@@ -13730,22 +13428,6 @@ snapshots:
     transitivePeerDependencies:
       - pino
 
-  '@objectstack/driver-memory@3.0.6(pino@10.3.1)':
-    dependencies:
-      '@objectstack/core': 3.0.6(pino@10.3.1)
-      '@objectstack/spec': 3.0.6
-      mingo: 7.2.0
-    transitivePeerDependencies:
-      - pino
-
-  '@objectstack/driver-memory@3.0.6(pino@8.21.0)':
-    dependencies:
-      '@objectstack/core': 3.0.6(pino@8.21.0)
-      '@objectstack/spec': 3.0.6
-      mingo: 7.2.0
-    transitivePeerDependencies:
-      - pino
-
   '@objectstack/metadata@3.0.4(pino@8.21.0)':
     dependencies:
       '@objectstack/core': 3.0.4(pino@8.21.0)
@@ -13758,31 +13440,11 @@ snapshots:
     transitivePeerDependencies:
       - pino
 
-  '@objectstack/metadata@3.0.6(pino@10.3.1)':
-    dependencies:
-      '@objectstack/core': 3.0.6(pino@10.3.1)
-      '@objectstack/spec': 3.0.6
-      '@objectstack/types': 3.0.6
-      chokidar: 5.0.0
-      glob: 13.0.5
-      js-yaml: 4.1.1
-      zod: 4.3.6
-    transitivePeerDependencies:
-      - pino
-
   '@objectstack/objectql@3.0.4(pino@8.21.0)':
     dependencies:
       '@objectstack/core': 3.0.4(pino@8.21.0)
       '@objectstack/spec': 3.0.4
       '@objectstack/types': 3.0.4
-    transitivePeerDependencies:
-      - pino
-
-  '@objectstack/objectql@3.0.6(pino@10.3.1)':
-    dependencies:
-      '@objectstack/core': 3.0.6(pino@10.3.1)
-      '@objectstack/spec': 3.0.6
-      '@objectstack/types': 3.0.6
     transitivePeerDependencies:
       - pino
 
@@ -13830,24 +13492,6 @@ snapshots:
     transitivePeerDependencies:
       - pino
 
-  '@objectstack/plugin-hono-server@3.0.6(pino@10.3.1)':
-    dependencies:
-      '@hono/node-server': 1.19.9(hono@4.11.9)
-      '@objectstack/core': 3.0.6(pino@10.3.1)
-      '@objectstack/spec': 3.0.6
-      hono: 4.11.9
-    transitivePeerDependencies:
-      - pino
-
-  '@objectstack/plugin-hono-server@3.0.6(pino@8.21.0)':
-    dependencies:
-      '@hono/node-server': 1.19.9(hono@4.11.9)
-      '@objectstack/core': 3.0.6(pino@8.21.0)
-      '@objectstack/spec': 3.0.6
-      hono: 4.11.9
-    transitivePeerDependencies:
-      - pino
-
   '@objectstack/plugin-msw@3.0.4(@objectstack/runtime@3.0.4(pino@8.21.0))(@types/node@25.2.3)(pino@8.21.0)(typescript@5.9.3)':
     dependencies:
       '@objectstack/core': 3.0.4(pino@8.21.0)
@@ -13882,48 +13526,12 @@ snapshots:
     transitivePeerDependencies:
       - pino
 
-  '@objectstack/rest@3.0.6(pino@10.3.1)':
-    dependencies:
-      '@objectstack/core': 3.0.6(pino@10.3.1)
-      '@objectstack/spec': 3.0.6
-      zod: 4.3.6
-    transitivePeerDependencies:
-      - pino
-
-  '@objectstack/rest@3.0.6(pino@8.21.0)':
-    dependencies:
-      '@objectstack/core': 3.0.6(pino@8.21.0)
-      '@objectstack/spec': 3.0.6
-      zod: 4.3.6
-    transitivePeerDependencies:
-      - pino
-
   '@objectstack/runtime@3.0.4(pino@8.21.0)':
     dependencies:
       '@objectstack/core': 3.0.4(pino@8.21.0)
       '@objectstack/rest': 3.0.4(pino@8.21.0)
       '@objectstack/spec': 3.0.4
       '@objectstack/types': 3.0.4
-      zod: 4.3.6
-    transitivePeerDependencies:
-      - pino
-
-  '@objectstack/runtime@3.0.6(pino@10.3.1)':
-    dependencies:
-      '@objectstack/core': 3.0.6(pino@10.3.1)
-      '@objectstack/rest': 3.0.6(pino@10.3.1)
-      '@objectstack/spec': 3.0.6
-      '@objectstack/types': 3.0.6
-      zod: 4.3.6
-    transitivePeerDependencies:
-      - pino
-
-  '@objectstack/runtime@3.0.6(pino@8.21.0)':
-    dependencies:
-      '@objectstack/core': 3.0.6(pino@8.21.0)
-      '@objectstack/rest': 3.0.6(pino@8.21.0)
-      '@objectstack/spec': 3.0.6
-      '@objectstack/types': 3.0.6
       zod: 4.3.6
     transitivePeerDependencies:
       - pino
@@ -13983,6 +13591,27 @@ snapshots:
     dependencies:
       '@objectstack/spec': 3.0.6
 
+  '@oclif/core@4.8.0':
+    dependencies:
+      ansi-escapes: 4.3.2
+      ansis: 3.17.0
+      clean-stack: 3.0.1
+      cli-spinners: 2.9.2
+      debug: 4.4.3(supports-color@8.1.1)
+      ejs: 3.1.10
+      get-package-type: 0.1.0
+      indent-string: 4.0.0
+      is-wsl: 2.2.0
+      lilconfig: 3.1.3
+      minimatch: 9.0.5
+      semver: 7.7.4
+      string-width: 4.2.3
+      supports-color: 8.1.1
+      tinyglobby: 0.2.15
+      widest-line: 3.1.0
+      wordwrap: 1.0.0
+      wrap-ansi: 7.0.0
+
   '@open-draft/deferred-promise@2.2.0': {}
 
   '@open-draft/logger@0.3.0':
@@ -13993,8 +13622,6 @@ snapshots:
   '@open-draft/until@2.1.0': {}
 
   '@orama/orama@3.1.18': {}
-
-  '@pinojs/redact@0.4.0': {}
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -14882,7 +14509,7 @@ snapshots:
       '@secretlint/resolver': 10.2.2
       '@secretlint/types': 10.2.2
       ajv: 8.17.1
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       rc-config-loader: 4.1.3
     transitivePeerDependencies:
       - supports-color
@@ -14891,7 +14518,7 @@ snapshots:
     dependencies:
       '@secretlint/profiler': 10.2.2
       '@secretlint/types': 10.2.2
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       structured-source: 4.0.0
     transitivePeerDependencies:
       - supports-color
@@ -14904,7 +14531,7 @@ snapshots:
       '@textlint/module-interop': 15.5.1
       '@textlint/types': 15.5.1
       chalk: 5.6.2
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       pluralize: 8.0.0
       strip-ansi: 7.1.2
       table: 6.9.0
@@ -14920,7 +14547,7 @@ snapshots:
       '@secretlint/profiler': 10.2.2
       '@secretlint/source-creator': 10.2.2
       '@secretlint/types': 10.2.2
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       p-map: 7.0.4
     transitivePeerDependencies:
       - supports-color
@@ -15493,7 +15120,7 @@ snapshots:
       '@textlint/resolver': 15.5.1
       '@textlint/types': 15.5.1
       chalk: 4.1.2
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       js-yaml: 4.1.1
       lodash: 4.17.23
       pluralize: 2.0.0
@@ -15518,13 +15145,17 @@ snapshots:
       minimatch: 10.2.1
       path-browserify: 1.0.1
 
-  '@tsconfig/node10@1.0.12': {}
+  '@tsconfig/node10@1.0.12':
+    optional: true
 
-  '@tsconfig/node12@1.0.11': {}
+  '@tsconfig/node12@1.0.11':
+    optional: true
 
-  '@tsconfig/node14@1.0.3': {}
+  '@tsconfig/node14@1.0.3':
+    optional: true
 
-  '@tsconfig/node16@1.0.4': {}
+  '@tsconfig/node16@1.0.4':
+    optional: true
 
   '@tybys/wasm-util@0.10.1':
     dependencies:
@@ -15785,7 +15416,7 @@ snapshots:
       '@typescript-eslint/types': 8.55.0
       '@typescript-eslint/typescript-estree': 8.55.0(typescript@5.9.3)
       '@typescript-eslint/visitor-keys': 8.55.0
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       eslint: 9.39.2(jiti@2.6.1)
       typescript: 5.9.3
     transitivePeerDependencies:
@@ -15795,7 +15426,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/tsconfig-utils': 8.55.0(typescript@5.9.3)
       '@typescript-eslint/types': 8.55.0
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
@@ -15814,7 +15445,7 @@ snapshots:
       '@typescript-eslint/types': 8.55.0
       '@typescript-eslint/typescript-estree': 8.55.0(typescript@5.9.3)
       '@typescript-eslint/utils': 8.55.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       eslint: 9.39.2(jiti@2.6.1)
       ts-api-utils: 2.4.0(typescript@5.9.3)
       typescript: 5.9.3
@@ -15829,7 +15460,7 @@ snapshots:
       '@typescript-eslint/tsconfig-utils': 8.55.0(typescript@5.9.3)
       '@typescript-eslint/types': 8.55.0
       '@typescript-eslint/visitor-keys': 8.55.0
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       minimatch: 9.0.5
       semver: 7.7.4
       tinyglobby: 0.2.15
@@ -16008,14 +15639,14 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.0.3
 
-  '@vitest/mocker@4.0.18(msw@2.12.10(@types/node@25.2.3)(typescript@5.9.3))(vite@6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2))':
+  '@vitest/mocker@4.0.18(msw@2.12.10(@types/node@25.2.3)(typescript@5.9.3))(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
       '@vitest/spy': 4.0.18
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
       msw: 2.12.10(@types/node@25.2.3)(typescript@5.9.3)
-      vite: 6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2)
 
   '@vitest/pretty-format@2.0.5':
     dependencies:
@@ -16382,6 +16013,8 @@ snapshots:
 
   ansi-styles@6.2.3: {}
 
+  ansis@3.17.0: {}
+
   ansis@4.2.0: {}
 
   any-promise@1.3.0: {}
@@ -16397,7 +16030,8 @@ snapshots:
 
   archy@1.0.0: {}
 
-  arg@4.1.3: {}
+  arg@4.1.3:
+    optional: true
 
   argparse@1.0.10:
     dependencies:
@@ -16440,6 +16074,8 @@ snapshots:
   astral-regex@2.0.0: {}
 
   astring@1.9.0: {}
+
+  async@3.2.6: {}
 
   asynckit@0.4.0: {}
 
@@ -16610,7 +16246,7 @@ snapshots:
     dependencies:
       bytes: 3.1.2
       content-type: 1.0.5
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       http-errors: 2.0.1
       iconv-lite: 0.7.2
       on-finished: 2.4.1
@@ -16830,6 +16466,10 @@ snapshots:
 
   clean-stack@2.2.0: {}
 
+  clean-stack@3.0.1:
+    dependencies:
+      escape-string-regexp: 4.0.0
+
   cli-cursor@5.0.0:
     dependencies:
       restore-cursor: 5.1.0
@@ -16970,7 +16610,8 @@ snapshots:
 
   coverage-v8@0.0.1-security: {}
 
-  create-require@1.1.1: {}
+  create-require@1.1.1:
+    optional: true
 
   cross-spawn@7.0.6:
     dependencies:
@@ -17070,9 +16711,11 @@ snapshots:
     dependencies:
       ms: 2.0.0
 
-  debug@4.4.3:
+  debug@4.4.3(supports-color@8.1.1):
     dependencies:
       ms: 2.1.3
+    optionalDependencies:
+      supports-color: 8.1.1
 
   decamelize@1.2.0: {}
 
@@ -17149,7 +16792,8 @@ snapshots:
 
   diff-sequences@29.6.3: {}
 
-  diff@4.0.4: {}
+  diff@4.0.4:
+    optional: true
 
   diff@8.0.3: {}
 
@@ -17240,6 +16884,10 @@ snapshots:
       version-range: 4.15.0
 
   ee-first@1.1.1: {}
+
+  ejs@3.1.10:
+    dependencies:
+      jake: 10.9.4
 
   electron-to-chromium@1.5.286: {}
 
@@ -17339,14 +16987,14 @@ snapshots:
 
   esbuild-register@3.6.0(esbuild@0.25.12):
     dependencies:
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       esbuild: 0.25.12
     transitivePeerDependencies:
       - supports-color
 
   esbuild-register@3.6.0(esbuild@0.27.3):
     dependencies:
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       esbuild: 0.27.3
     transitivePeerDependencies:
       - supports-color
@@ -17498,7 +17146,7 @@ snapshots:
       ajv: 6.12.6
       chalk: 4.1.2
       cross-spawn: 7.0.6
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       escape-string-regexp: 4.0.0
       eslint-scope: 8.4.0
       eslint-visitor-keys: 4.2.1
@@ -17714,7 +17362,7 @@ snapshots:
       content-type: 1.0.5
       cookie: 0.7.2
       cookie-signature: 1.2.2
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       depd: 2.0.0
       encodeurl: 2.0.0
       escape-html: 1.0.3
@@ -17815,6 +17463,10 @@ snapshots:
     dependencies:
       flat-cache: 4.0.1
 
+  filelist@1.0.4:
+    dependencies:
+      minimatch: 5.1.6
+
   fill-range@7.1.1:
     dependencies:
       to-regex-range: 5.0.1
@@ -17833,7 +17485,7 @@ snapshots:
 
   finalhandler@2.1.1:
     dependencies:
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       encodeurl: 2.0.0
       escape-html: 1.0.3
       on-finished: 2.4.1
@@ -18446,14 +18098,14 @@ snapshots:
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.4
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
   https-proxy-agent@7.0.6:
     dependencies:
       agent-base: 7.1.4
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -18700,7 +18352,7 @@ snapshots:
 
   istanbul-lib-source-maps@4.0.1:
     dependencies:
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       istanbul-lib-coverage: 3.2.2
       source-map: 0.6.1
     transitivePeerDependencies:
@@ -18709,7 +18361,7 @@ snapshots:
   istanbul-lib-source-maps@5.0.6:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       istanbul-lib-coverage: 3.2.2
     transitivePeerDependencies:
       - supports-color
@@ -18734,6 +18386,12 @@ snapshots:
   jackspeak@4.2.3:
     dependencies:
       '@isaacs/cliui': 9.0.0
+
+  jake@10.9.4:
+    dependencies:
+      async: 3.2.6
+      filelist: 1.0.4
+      picocolors: 1.1.1
 
   jest-changed-files@30.2.0:
     dependencies:
@@ -19421,7 +19079,8 @@ snapshots:
     dependencies:
       semver: 7.7.4
 
-  make-error@1.3.6: {}
+  make-error@1.3.6:
+    optional: true
 
   makeerror@1.0.12:
     dependencies:
@@ -19901,7 +19560,7 @@ snapshots:
   micromark@4.0.2:
     dependencies:
       '@types/debug': 4.1.12
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       decode-named-character-reference: 1.3.0
       devlop: 1.1.0
       micromark-core-commonmark: 2.0.3
@@ -19971,6 +19630,10 @@ snapshots:
   minimatch@3.1.2:
     dependencies:
       brace-expansion: 1.1.12
+
+  minimatch@5.1.6:
+    dependencies:
+      brace-expansion: 2.0.2
 
   minimatch@9.0.5:
     dependencies:
@@ -20469,22 +20132,6 @@ snapshots:
 
   pino-std-serializers@6.2.2: {}
 
-  pino-std-serializers@7.1.0: {}
-
-  pino@10.3.1:
-    dependencies:
-      '@pinojs/redact': 0.4.0
-      atomic-sleep: 1.0.0
-      on-exit-leak-free: 2.1.2
-      pino-abstract-transport: 3.0.0
-      pino-std-serializers: 7.1.0
-      process-warning: 5.0.0
-      quick-format-unescaped: 4.0.4
-      real-require: 0.2.0
-      safe-stable-stringify: 2.5.0
-      sonic-boom: 4.2.1
-      thread-stream: 4.0.0
-
   pino@8.21.0:
     dependencies:
       atomic-sleep: 1.0.0
@@ -20621,8 +20268,6 @@ snapshots:
 
   process-warning@3.0.0: {}
 
-  process-warning@5.0.0: {}
-
   process@0.11.10: {}
 
   prompts@2.4.2:
@@ -20688,7 +20333,7 @@ snapshots:
 
   rc-config-loader@4.1.3:
     dependencies:
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       js-yaml: 4.1.1
       json5: 2.2.3
       require-from-string: 2.0.2
@@ -21209,7 +20854,7 @@ snapshots:
 
   router@2.2.0:
     dependencies:
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       depd: 2.0.0
       is-promise: 4.0.0
       parseurl: 1.3.3
@@ -21259,7 +20904,7 @@ snapshots:
       '@secretlint/formatter': 10.2.2
       '@secretlint/node': 10.2.2
       '@secretlint/profiler': 10.2.2
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       globby: 14.1.0
       read-pkg: 9.0.1
     transitivePeerDependencies:
@@ -21297,7 +20942,7 @@ snapshots:
 
   send@1.2.1:
     dependencies:
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       encodeurl: 2.0.0
       escape-html: 1.0.3
       etag: 1.8.1
@@ -21832,10 +21477,6 @@ snapshots:
     dependencies:
       real-require: 0.2.0
 
-  thread-stream@4.0.0:
-    dependencies:
-      real-require: 0.2.0
-
   tiny-invariant@1.3.3: {}
 
   tinybench@2.9.0: {}
@@ -21925,6 +21566,7 @@ snapshots:
       yn: 3.1.1
     optionalDependencies:
       '@swc/core': 1.15.11
+    optional: true
 
   tsconfig-paths@4.2.0:
     dependencies:
@@ -21940,7 +21582,7 @@ snapshots:
       cac: 6.7.14
       chokidar: 4.0.3
       consola: 3.4.2
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       esbuild: 0.27.3
       fix-dts-default-cjs-exports: 1.0.1
       joycon: 3.1.1
@@ -22227,7 +21869,8 @@ snapshots:
 
   uuid@9.0.1: {}
 
-  v8-compile-cache-lib@3.0.1: {}
+  v8-compile-cache-lib@3.0.1:
+    optional: true
 
   v8-to-istanbul@9.3.0:
     dependencies:
@@ -22309,7 +21952,7 @@ snapshots:
   vite-node@1.6.1(@types/node@25.2.3)(lightningcss@1.30.2):
     dependencies:
       cac: 6.7.14
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       pathe: 1.1.2
       picocolors: 1.1.1
       vite: 5.4.21(@types/node@25.2.3)(lightningcss@1.30.2)
@@ -22336,7 +21979,7 @@ snapshots:
       '@microsoft/api-extractor': 7.43.0(@types/node@25.2.3)
       '@rollup/pluginutils': 5.3.0(rollup@4.57.1)
       '@vue/language-core': 1.8.27(typescript@5.9.3)
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       kolorist: 1.8.0
       magic-string: 0.30.21
       typescript: 5.9.3
@@ -22355,7 +21998,7 @@ snapshots:
       '@volar/typescript': 2.4.28
       '@vue/language-core': 2.2.0(typescript@5.9.3)
       compare-versions: 6.1.1
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       kolorist: 1.8.0
       local-pkg: 1.1.2
       magic-string: 0.30.21
@@ -22428,7 +22071,7 @@ snapshots:
       '@vitest/utils': 1.6.1
       acorn-walk: 8.3.4
       chai: 4.5.0
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
       execa: 8.0.1
       local-pkg: 0.5.1
       magic-string: 0.30.21
@@ -22459,7 +22102,7 @@ snapshots:
   vitest@4.0.18(@types/node@25.2.3)(@vitest/ui@4.0.18)(happy-dom@20.6.1)(jiti@2.6.1)(jsdom@28.1.0(@noble/hashes@2.0.1))(lightningcss@1.30.2)(msw@2.12.10(@types/node@25.2.3)(typescript@5.9.3))(tsx@4.21.0)(yaml@2.8.2):
     dependencies:
       '@vitest/expect': 4.0.18
-      '@vitest/mocker': 4.0.18(msw@2.12.10(@types/node@25.2.3)(typescript@5.9.3))(vite@6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2))
+      '@vitest/mocker': 4.0.18(msw@2.12.10(@types/node@25.2.3)(typescript@5.9.3))(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2))
       '@vitest/pretty-format': 4.0.18
       '@vitest/runner': 4.0.18
       '@vitest/snapshot': 4.0.18
@@ -22476,7 +22119,7 @@ snapshots:
       tinyexec: 1.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.0.3
-      vite: 6.4.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 25.2.3
@@ -22540,7 +22183,7 @@ snapshots:
     dependencies:
       chalk: 2.4.2
       commander: 3.0.2
-      debug: 4.4.3
+      debug: 4.4.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -22603,7 +22246,13 @@ snapshots:
       siginfo: 2.0.0
       stackback: 0.0.2
 
+  widest-line@3.1.0:
+    dependencies:
+      string-width: 4.2.3
+
   word-wrap@1.2.5: {}
+
+  wordwrap@1.0.0: {}
 
   wrap-ansi@6.2.0:
     dependencies:
@@ -22711,7 +22360,8 @@ snapshots:
     dependencies:
       buffer-crc32: 0.2.13
 
-  yn@3.1.1: {}
+  yn@3.1.1:
+    optional: true
 
   yocto-queue@0.1.0: {}
 
