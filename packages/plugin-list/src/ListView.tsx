@@ -948,6 +948,16 @@ export const ListView: React.FC<ListViewProps> = ({
         )}
       </div>
 
+      {/* Record count status bar (Airtable-style) */}
+      {!loading && data.length > 0 && (
+        <div
+          className="border-t px-4 py-1.5 flex items-center text-xs text-muted-foreground bg-background shrink-0"
+          data-testid="record-count-bar"
+        >
+          {data.length} {data.length === 1 ? 'record' : 'records'}
+        </div>
+      )}
+
       {/* Navigation Overlay (drawer/modal/popover) */}
       {navigation.isOverlay && (
         <NavigationOverlay

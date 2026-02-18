@@ -73,6 +73,10 @@ export const ListColumnSchema = z.object({
   type: z.string().optional().describe('Renderer type override'),
   link: z.boolean().optional().describe('Functions as the primary navigation link (triggers View navigation)'),
   action: z.string().optional().describe('Registered Action ID to execute when clicked'),
+  prefix: z.object({
+    field: z.string().describe('Field name to render as prefix'),
+    type: z.enum(['badge', 'text']).optional().describe('Renderer type for the prefix'),
+  }).optional().describe('Prefix configuration for compound cell rendering (Airtable-style)'),
 });
 
 /**

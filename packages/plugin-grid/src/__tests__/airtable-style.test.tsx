@@ -88,7 +88,7 @@ describe('Auto-type inference: Date fields', () => {
     expect(screen.getByText('Feb 20, 2026')).toBeInTheDocument();
   });
 
-  it('should format created_at fields as dates', async () => {
+  it('should format created_at fields as datetime', async () => {
     renderGrid([
       { field: 'subject', label: 'Subject' },
       { field: 'created_at', label: 'Created At' },
@@ -98,9 +98,10 @@ describe('Auto-type inference: Date fields', () => {
       expect(screen.getByText('Subject')).toBeInTheDocument();
     });
 
-    // Should show human-readable date, not ISO string
+    // Should show human-readable datetime, not ISO string
     expect(screen.queryByText('2026-01-15T10:00:00.000Z')).not.toBeInTheDocument();
-    expect(screen.getByText('Jan 15, 2026')).toBeInTheDocument();
+    // created_at now renders as datetime with split date/time display
+    expect(screen.getByText('1/15/2026')).toBeInTheDocument();
   });
 
   it('should not override explicit type for date-like fields', async () => {

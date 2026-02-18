@@ -207,12 +207,30 @@ export function DateCellRenderer({ value, field }: CellRendererProps): React.Rea
 }
 
 /**
- * DateTime field cell renderer
+ * DateTime field cell renderer (Airtable-style with date and time visually separated)
  */
 export function DateTimeCellRenderer({ value }: CellRendererProps): React.ReactElement {
-  const formatted = formatDateTime(value);
-  
-  return <span className="tabular-nums text-sm">{formatted}</span>;
+  if (!value) return <span className="text-muted-foreground">-</span>;
+  const date = typeof value === 'string' ? new Date(value) : value;
+  if (isNaN(date.getTime())) return <span className="text-muted-foreground">-</span>;
+
+  const datePart = date.toLocaleDateString('en-US', {
+    month: 'numeric',
+    day: 'numeric',
+    year: 'numeric',
+  });
+  const timePart = date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).toLowerCase();
+
+  return (
+    <span className="tabular-nums text-sm whitespace-nowrap">
+      <span>{datePart}</span>
+      <span className="ml-2 text-muted-foreground">{timePart}</span>
+    </span>
+  );
 }
 
 /**

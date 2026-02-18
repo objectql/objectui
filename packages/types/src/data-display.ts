@@ -425,6 +425,15 @@ export interface DataTableSchema extends BaseSchema {
    */
   showRowNumbers?: boolean;
   /**
+   * Show "+ Add record" row at the bottom of the table (Airtable-style)
+   * @default false
+   */
+  showAddRow?: boolean;
+  /**
+   * Callback when the "+ Add record" row is clicked
+   */
+  onAddRecord?: () => void;
+  /**
    * Column resize handler
    * Called when a column is resized
    */

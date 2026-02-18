@@ -31,7 +31,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@object-ui/components';
 import { usePullToRefresh } from '@object-ui/mobile';
-import { Edit, Trash2, MoreVertical, ChevronRight, ChevronDown, Download, Rows3, Rows4, AlignJustify } from 'lucide-react';
+import { Edit, Trash2, MoreVertical, ChevronRight, ChevronDown, Download, Rows3, Rows4, AlignJustify, Type, Hash, Calendar, CheckSquare, User, Tag, Clock } from 'lucide-react';
 import { useRowColor } from './useRowColor';
 import { useGroupedData } from './useGroupedData';
 
@@ -47,6 +47,7 @@ export interface ObjectGridProps {
   onRowSave?: (rowIndex: number, changes: Record<string, any>, row: any) => void | Promise<void>;
   onBatchSave?: (changes: Array<{ rowIndex: number; changes: Record<string, any>; row: any }>) => void | Promise<void>;
   onRowSelect?: (selectedRows: any[]) => void;
+  onAddRecord?: () => void;
 }
 
 /**
@@ -115,6 +116,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
   onCellChange,
   onRowSave,
   onBatchSave,
+  onAddRecord,
   ...rest
 }) => {
   const [data, setData] = useState<any[]>([]);
@@ -342,6 +344,23 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
   const { groups, isGrouped, toggleGroup } = useGroupedData(schema.grouping, data);
 
   const generateColumns = useCallback(() => {
+    // Map field type to column header icon (Airtable-style)
+    const getTypeIcon = (fieldType: string | null): React.ReactNode => {
+      if (!fieldType) return <Type className="h-3.5 w-3.5" />;
+      const iconMap: Record<string, React.ReactNode> = {
+        text: <Type className="h-3.5 w-3.5" />,
+        number: <Hash className="h-3.5 w-3.5" />,
+        currency: <Hash className="h-3.5 w-3.5" />,
+        percent: <Hash className="h-3.5 w-3.5" />,
+        date: <Calendar className="h-3.5 w-3.5" />,
+        datetime: <Clock className="h-3.5 w-3.5" />,
+        boolean: <CheckSquare className="h-3.5 w-3.5" />,
+        user: <User className="h-3.5 w-3.5" />,
+        select: <Tag className="h-3.5 w-3.5" />,
+      };
+      return iconMap[fieldType] || <Type className="h-3.5 w-3.5" />;
+    };
+
     // Auto-infer column type from field name and data values (Airtable-style)
     const inferColumnType = (col: ListColumn): string | null => {
       if (col.type) return col.type; // Explicit type takes priority
@@ -352,6 +371,12 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
       const booleanFields = ['completed', 'is_completed', 'done', 'active', 'enabled', 'archived'];
       if (booleanFields.some(f => fieldLower === f || fieldLower === `is_${f}`)) {
         return 'boolean';
+      }
+
+      // Infer datetime fields (fields with time component: created_time, modified_time, *_at patterns)
+      const datetimePatterns = ['created_time', 'modified_time', 'updated_time', 'created_at', 'updated_at', 'modified_at', 'last_login', 'logged_at'];
+      if (datetimePatterns.some(p => fieldLower === p || fieldLower.endsWith(`_${p}`))) {
+        return 'datetime';
       }
 
       // Infer date fields from name patterns
@@ -489,6 +514,27 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
                 );
               }
 
+              // Wrap with prefix compound cell renderer (Airtable-style: [Badge] Text in same cell)
+              const prefixConfig = (col as any).prefix;
+              if (prefixConfig?.field) {
+                const baseCellRenderer = cellRenderer;
+                const PrefixRenderer = prefixConfig.type === 'badge' ? getCellRenderer('select') : null;
+                cellRenderer = (value: any, row: any) => {
+                  const prefixValue = row[prefixConfig.field];
+                  const prefixEl = prefixValue != null && prefixValue !== ''
+                    ? PrefixRenderer
+                      ? <PrefixRenderer value={prefixValue} field={{ name: prefixConfig.field, type: 'select' } as any} />
+                      : <span className="text-muted-foreground text-xs mr-1.5">{String(prefixValue)}</span>
+                    : null;
+                  return (
+                    <span className="flex items-center gap-1.5">
+                      {prefixEl}
+                      {baseCellRenderer(value, row)}
+                    </span>
+                  );
+                };
+              }
+
               // Auto-infer alignment from field type if not explicitly set
               const numericTypes = ['number', 'currency', 'percent'];
               const effectiveType = inferredType || col.type;
@@ -500,6 +546,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
               return {
                 header,
                 accessorKey: col.field,
+                headerIcon: getTypeIcon(inferredType),
                 ...(!isEssential && { className: 'hidden sm:table-cell' }),
                 ...(col.width && { width: col.width }),
                 ...(inferredAlign && { align: inferredAlign }),
@@ -743,6 +790,8 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
         ? 'px-3 py-2.5 text-sm'
         : 'px-3 py-1.5 text-[13px] leading-normal',
     showRowNumbers: true,
+    showAddRow: !!operations?.create,
+    onAddRecord: onAddRecord,
     rowClassName: schema.rowColor ? (row: any, _idx: number) => getRowClassName(row) : undefined,
     frozenColumns: schema.frozenColumns ?? 1,
     onSelectionChange: onRowSelect,
