@@ -8,7 +8,7 @@
  */
 
 import * as React from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
 import {
   Sidebar,
@@ -159,6 +159,7 @@ function getIcon(name?: string): React.ComponentType<any> {
 export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: string, onAppChange: (name: string) => void }) {
   const { isMobile } = useSidebar();
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   // Swipe-from-left-edge gesture to open sidebar on mobile
   React.useEffect(() => {
@@ -407,7 +408,9 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => navigate(`/apps/${activeAppName}/system/profile`)}
+                  >
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
                   </DropdownMenuItem>

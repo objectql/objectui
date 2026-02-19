@@ -125,6 +125,10 @@ vi.mock('../components/PageView', () => ({
     PageView: () => <div data-testid="page-view">Page View</div>
 }));
 
+vi.mock('../pages/system/ProfilePage', () => ({
+    ProfilePage: () => <div data-testid="profile-page">Profile Page</div>
+}));
+
 // Mock complex UI components that might cause issues in JSDOM or are not the focus
 vi.mock('@object-ui/components', async (importOriginal) => {
     const actual = await importOriginal<any>();
@@ -252,5 +256,13 @@ describe('Console App Integration', () => {
         // await waitFor(() => {
         //    expect(screen.getByText('Admin')).toBeInTheDocument(); // Header/Sidebar updated
         // });
+    });
+
+    it('renders profile page at system/profile route', async () => {
+        renderApp('/apps/sales/system/profile');
+
+        await waitFor(() => {
+            expect(screen.getByTestId('profile-page')).toBeInTheDocument();
+        }, { timeout: 10000 });
     });
 });
