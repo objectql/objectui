@@ -26,7 +26,7 @@ import {
 import { ChevronDown, ChevronRight, Copy, Check } from 'lucide-react';
 import { SchemaRenderer } from '@object-ui/react';
 import { getCellRenderer } from '@object-ui/fields';
-import type { DetailViewSection as DetailViewSectionType } from '@object-ui/types';
+import type { DetailViewSection as DetailViewSectionType, DetailViewField, FieldMetadata } from '@object-ui/types';
 
 export interface DetailSectionProps {
   section: DetailViewSectionType;
@@ -56,7 +56,7 @@ export const DetailSection: React.FC<DetailSectionProps> = ({
     });
   }, []);
 
-  const renderField = (field: any) => {
+  const renderField = (field: DetailViewField) => {
     const value = data?.[field.name] ?? field.value;
     
     // If custom renderer provided
@@ -78,7 +78,7 @@ export const DetailSection: React.FC<DetailSectionProps> = ({
       if (field.type) {
         const CellRenderer = getCellRenderer(field.type);
         if (CellRenderer) {
-          return <CellRenderer value={value} field={field} />;
+          return <CellRenderer value={value} field={field as unknown as FieldMetadata} />;
         }
       }
       return String(value);

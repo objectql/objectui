@@ -15,6 +15,7 @@ import { useAuth } from '@object-ui/auth';
 import { Database, MessageSquare, Users } from 'lucide-react';
 import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import { SkeletonDetail } from './skeletons';
+import type { DetailViewSchema } from '@object-ui/types';
 
 interface RecordDetailViewProps {
   dataSource: any;
@@ -134,7 +135,7 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
     );
   }
 
-  const detailSchema = {
+  const detailSchema: DetailViewSchema = {
     type: 'detail-view',
     objectName: objectDef.name,
     resourceId: recordId,

@@ -48,7 +48,7 @@ describe('DetailSection', () => {
     expect(screen.getByText(/15,459\.99/)).toBeInTheDocument();
   });
 
-  it('should render boolean fields with badge', () => {
+  it('should render boolean fields with checkbox', () => {
     const section = {
       title: 'Info',
       fields: [{ name: 'active', label: 'Active', type: 'boolean' }],
