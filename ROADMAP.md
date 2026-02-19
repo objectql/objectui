@@ -1,9 +1,9 @@
 # ObjectUI Development Roadmap
 
-> **Last Updated:** February 16, 2026
+> **Last Updated:** February 19, 2026
 > **Current Version:** v0.5.x
-> **Spec Version:** @objectstack/spec v3.0.0
-> **Client Version:** @objectstack/client v3.0.0
+> **Spec Version:** @objectstack/spec v3.0.7
+> **Client Version:** @objectstack/client v3.0.7
 > **Current Priority:** 🎯 v1.0 UI Essentials · Spec Compliance · Component Excellence · Developer Experience · Mobile UX
 
 ---
