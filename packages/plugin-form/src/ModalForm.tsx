@@ -21,6 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  Skeleton,
   cn,
 } from '@object-ui/components';
 import { FormSection } from './FormSection';
@@ -331,9 +332,13 @@ export const ModalForm: React.FC<ModalFormProps> = ({
 
     if (loading) {
       return (
-        <div className="p-8 text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-          <p className="mt-2 text-sm text-gray-600">Loading form...</p>
+        <div className="space-y-4" data-testid="modal-form-skeleton">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          ))}
         </div>
       );
     }
@@ -380,15 +385,15 @@ export const ModalForm: React.FC<ModalFormProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={schema.onOpenChange}>
-      <DialogContent className={cn(sizeClass, 'max-h-[90vh] overflow-y-auto', className, schema.className)}>
+      <DialogContent className={cn(sizeClass, 'flex flex-col h-[100dvh] sm:h-auto sm:max-h-[90vh] overflow-hidden p-0', className, schema.className)}>
         {(schema.title || schema.description) && (
-          <DialogHeader>
+          <DialogHeader className="shrink-0 px-4 pt-4 sm:px-6 sm:pt-6 pb-2 border-b">
             {schema.title && <DialogTitle>{schema.title}</DialogTitle>}
             {schema.description && <DialogDescription>{schema.description}</DialogDescription>}
           </DialogHeader>
         )}
 
-        <div className="py-2">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
           {renderContent()}
         </div>
       </DialogContent>
