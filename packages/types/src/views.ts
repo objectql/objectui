@@ -20,6 +20,7 @@ import type { BaseSchema, SchemaNode } from './base';
 import type { ActionSchema } from './crud';
 import type { TableColumn } from './data-display';
 import type { FormField } from './form';
+import type { SelectOptionMetadata } from './field-types';
 
 /**
  * View Type
@@ -39,9 +40,14 @@ export interface DetailViewField {
    */
   label?: string;
   /**
-   * Field type for rendering
+   * Field type for rendering.
+   * Supports both display-oriented types (image, link, badge, json, html, markdown, custom)
+   * and data-oriented types (number, currency, percent, boolean, select, lookup, master_detail,
+   * email, url, phone, user) for type-aware cell rendering via getCellRenderer.
    */
-  type?: 'text' | 'image' | 'link' | 'badge' | 'date' | 'datetime' | 'json' | 'html' | 'markdown' | 'custom';
+  type?: 'text' | 'number' | 'currency' | 'percent' | 'boolean' | 'select' | 'lookup' | 'master_detail'
+    | 'email' | 'url' | 'phone' | 'user'
+    | 'image' | 'link' | 'badge' | 'date' | 'datetime' | 'json' | 'html' | 'markdown' | 'custom';
   /**
    * Format string (e.g., date format)
    */
@@ -66,6 +72,22 @@ export interface DetailViewField {
    * Span across columns (for grid layout)
    */
   span?: number;
+  /**
+   * Options for select/lookup fields
+   */
+  options?: SelectOptionMetadata[];
+  /**
+   * Referenced object name for lookup/master_detail fields
+   */
+  reference_to?: string;
+  /**
+   * Display field on the referenced object for lookup/master_detail fields
+   */
+  reference_field?: string;
+  /**
+   * Currency code for currency fields (e.g. 'USD', 'EUR')
+   */
+  currency?: string;
 }
 
 /**
