@@ -7,12 +7,13 @@
  */
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, Button } from '@object-ui/components';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, Button, Badge, Skeleton } from '@object-ui/components';
 import { SchemaRenderer } from '@object-ui/react';
 import { ComponentRegistry } from '@object-ui/core';
 import type { ReportViewerSchema, ReportSection, ReportExportFormat, ReportField } from '@object-ui/types';
 import { Download, Printer, RefreshCw } from 'lucide-react';
 import { exportReport } from './ReportExportEngine';
+import { formatValue } from './formatValue';
 
 export interface ReportViewerProps {
   schema: ReportViewerSchema;
@@ -65,6 +66,18 @@ export const ReportViewer: React.FC<ReportViewerProps> = ({ schema, onRefresh })
       case 'max': return values.length > 0 ? Math.max(...values) : 0;
       default: return '';
     }
+  };
+
+  const renderCellValue = (value: any, field: ReportField): React.ReactNode => {
+    if (value == null || value === '') return '';
+
+    // Badge rendering for fields with renderAs='badge'
+    if (field.renderAs === 'badge') {
+      const colorClass = field.colorMap?.[String(value)] || '';
+      return <Badge className={colorClass}>{String(value)}</Badge>;
+    }
+
+    return formatValue(value, field);
   };
 
   if (!report) {
@@ -141,8 +154,25 @@ export const ReportViewer: React.FC<ReportViewerProps> = ({ schema, onRefresh })
         </CardHeader>
         <CardContent className="space-y-6">
           {loading && (
-            <div className="text-center py-8 text-muted-foreground">
-              Loading report data...
+            <div className="space-y-6">
+              {/* Skeleton summary cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[1, 2, 3].map((i) => (
+                  <Card key={i}>
+                    <CardContent className="p-4 space-y-2">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-8 w-28" />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              {/* Skeleton table */}
+              <div className="space-y-2">
+                <Skeleton className="h-10 w-full" />
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Skeleton key={i} className="h-8 w-full" />
+                ))}
+              </div>
             </div>
           )}
 
@@ -154,8 +184,8 @@ export const ReportViewer: React.FC<ReportViewerProps> = ({ schema, onRefresh })
 
             return (
               <div key={index} className="space-y-2">
-                {/* Section Title */}
-                {section.title && (
+                {/* Section Title - skip for header type since it renders its own title */}
+                {section.title && section.type !== 'header' && (
                   <h3 className="text-lg font-semibold border-b pb-2">{section.title}</h3>
                 )}
 
@@ -173,7 +203,7 @@ export const ReportViewer: React.FC<ReportViewerProps> = ({ schema, onRefresh })
                           <CardContent className="p-4">
                             <div className="text-sm text-muted-foreground">{field.label || field.name}</div>
                             <div className="text-2xl font-bold">
-                              {computeAggregation(field.name, field.aggregation)}
+                              {formatValue(computeAggregation(field.name, field.aggregation), field)}
                             </div>
                           </CardContent>
                         </Card>
@@ -228,12 +258,12 @@ export const ReportViewer: React.FC<ReportViewerProps> = ({ schema, onRefresh })
                 )}
 
                 {section.type === 'table' && (
-                  <div className="border rounded-lg overflow-hidden">
-                    <table className="w-full text-sm">
+                  <div className="border rounded-lg overflow-x-auto">
+                    <table className="w-full text-sm min-w-[600px]">
                       <thead className="bg-muted">
                         <tr>
                           {section.columns?.map((col: ReportField, idx: number) => (
-                            <th key={idx} className="px-4 py-2 text-left font-medium">
+                            <th key={idx} className={`px-4 py-2 font-medium ${col.type === 'number' ? 'text-right' : 'text-left'}`}>
                               {col.label || col.name}
                             </th>
                           ))}
@@ -241,10 +271,10 @@ export const ReportViewer: React.FC<ReportViewerProps> = ({ schema, onRefresh })
                       </thead>
                       <tbody>
                         {data?.map((row: Record<string, any>, rowIdx: number) => (
-                          <tr key={rowIdx} className="border-t">
+                          <tr key={rowIdx} className="border-t hover:bg-muted/50 even:bg-muted/20">
                             {section.columns?.map((col: ReportField, colIdx: number) => (
-                              <td key={colIdx} className="px-4 py-2">
-                                {row[col.name]}
+                              <td key={colIdx} className={`px-4 py-2 ${col.type === 'number' ? 'text-right tabular-nums' : ''}`}>
+                                {renderCellValue(row[col.name], col)}
                               </td>
                             ))}
                           </tr>
@@ -273,12 +303,12 @@ export const ReportViewer: React.FC<ReportViewerProps> = ({ schema, onRefresh })
 
           {/* Fallback: Show data if no sections defined */}
           {!report.sections && data && data.length > 0 && (
-            <div className="border rounded-lg overflow-hidden">
-              <table className="w-full text-sm">
+            <div className="border rounded-lg overflow-x-auto">
+              <table className="w-full text-sm min-w-[600px]">
                 <thead className="bg-muted">
                   <tr>
                     {report.fields?.map((field: ReportField, idx: number) => (
-                      <th key={idx} className="px-4 py-2 text-left font-medium">
+                      <th key={idx} className={`px-4 py-2 font-medium ${field.type === 'number' ? 'text-right' : 'text-left'}`}>
                         {field.label || field.name}
                       </th>
                     ))}
@@ -286,10 +316,10 @@ export const ReportViewer: React.FC<ReportViewerProps> = ({ schema, onRefresh })
                 </thead>
                 <tbody>
                   {data.map((row: Record<string, any>, rowIdx: number) => (
-                    <tr key={rowIdx} className="border-t">
+                    <tr key={rowIdx} className="border-t hover:bg-muted/50 even:bg-muted/20">
                       {report.fields?.map((field: ReportField, colIdx: number) => (
-                        <td key={colIdx} className="px-4 py-2">
-                          {row[field.name]}
+                        <td key={colIdx} className={`px-4 py-2 ${field.type === 'number' ? 'text-right tabular-nums' : ''}`}>
+                          {renderCellValue(row[field.name], field)}
                         </td>
                       ))}
                     </tr>
