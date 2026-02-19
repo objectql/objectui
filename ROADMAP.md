@@ -305,6 +305,15 @@ All 4 phases complete across 5 designers (Page, View, DataModel, Process, Report
 - [x] Test responsive layout on tablet (768px) and mobile (375px)
 - [x] Verify inline editing in grid view with save/cancel/validation feedback
 
+#### P4.6 Report Page Visual & Interaction Polish ✅
+- [x] Add `formatValue` utility for number (thousand sep), currency, percent, and date formatting
+- [x] Format summary card values and all table cells via `formatValue`
+- [x] Format ISO date strings to readable `yyyy-MM-dd` format
+- [x] Fix duplicate title rendering in header sections
+- [x] Add table horizontal scroll (`overflow-x-auto`), zebra stripes, row hover, and number right-alignment
+- [x] Support `renderAs: 'badge'` with `colorMap` on `ReportField` for status fields
+- [x] Replace loading text with Skeleton placeholders for modern loading UX
+
 ### P5. Documentation 📖 (Completed Foundation)
 
 **Goal:** Comprehensive, accurate, and easy-to-navigate documentation.

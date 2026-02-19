@@ -215,6 +215,10 @@ export function ReportView({ dataSource }: { dataSource?: DataSource }) {
       mapped.fields = mapped.columns.map((col: any) => ({
         name: col.field || col.name,
         label: col.label,
+        type: col.type,
+        format: col.format,
+        renderAs: col.renderAs,
+        colorMap: col.colorMap,
         ...(col.aggregate ? { aggregation: col.aggregate, showInSummary: true } : {}),
       }));
     }
@@ -226,7 +230,14 @@ export function ReportView({ dataSource }: { dataSource?: DataSource }) {
         {
           type: 'table',
           title: 'Details',
-          columns: mapped.fields.map((f: any) => ({ name: f.name, label: f.label })),
+          columns: mapped.fields.map((f: any) => ({
+            name: f.name,
+            label: f.label,
+            type: f.type,
+            format: f.format,
+            renderAs: f.renderAs,
+            colorMap: f.colorMap,
+          })),
         },
       ];
     }

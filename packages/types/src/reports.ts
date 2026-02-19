@@ -69,6 +69,16 @@ export interface ReportField {
    * Sort order
    */
   sortOrder?: number;
+
+  /**
+   * Custom render style (e.g., 'badge' for status fields)
+   */
+  renderAs?: 'badge' | 'text';
+
+  /**
+   * Color mapping for badge rendering (value → CSS class or color)
+   */
+  colorMap?: Record<string, string>;
 }
 
 /**
