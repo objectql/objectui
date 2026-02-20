@@ -156,12 +156,11 @@ describe('ModalForm Mobile UX', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Create Event')).toBeInTheDocument();
+      expect(screen.getByTestId('modal-form-footer')).toBeInTheDocument();
     });
 
     // Footer should exist as a sibling to the scroll area, not inside it
     const footer = screen.getByTestId('modal-form-footer');
-    expect(footer).toBeInTheDocument();
     expect(footer.className).toContain('border-t');
     expect(footer.className).toContain('shrink-0');
 
