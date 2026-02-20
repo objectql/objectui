@@ -30,7 +30,7 @@ export default defineStack({
           type: 'grid',
           data: { provider: 'object', object: 'account' },
           columns: ['name', 'industry', 'type', 'annual_revenue', 'rating', 'owner'],
-          sort: [{ field: 'name', direction: 'asc' }],
+          sort: [{ field: 'name', order: 'asc' }],
         },
         active_accounts: {
           name: 'active_accounts',
@@ -39,7 +39,7 @@ export default defineStack({
           data: { provider: 'object', object: 'account' },
           columns: ['name', 'industry', 'annual_revenue', 'phone', 'owner'],
           filter: ['type', '=', 'Customer'],
-          sort: [{ field: 'annual_revenue', direction: 'desc' }],
+          sort: [{ field: 'annual_revenue', order: 'desc' }],
         },
       },
     },
@@ -52,7 +52,7 @@ export default defineStack({
           type: 'grid',
           data: { provider: 'object', object: 'contact' },
           columns: ['name', 'email', 'phone', 'title', 'account', 'status', 'priority'],
-          sort: [{ field: 'name', direction: 'asc' }],
+          sort: [{ field: 'name', order: 'asc' }],
         },
         active_contacts: {
           name: 'active_contacts',
@@ -73,7 +73,7 @@ export default defineStack({
           type: 'grid',
           data: { provider: 'object', object: 'opportunity' },
           columns: ['name', 'amount', 'stage', 'close_date', 'probability', 'forecast_category'],
-          sort: [{ field: 'close_date', direction: 'asc' }],
+          sort: [{ field: 'close_date', order: 'asc' }],
         },
         pipeline: {
           name: 'pipeline',
@@ -92,7 +92,7 @@ export default defineStack({
           type: 'grid',
           data: { provider: 'object', object: 'opportunity' },
           columns: ['name', 'amount', 'stage', 'close_date', 'probability'],
-          sort: [{ field: 'close_date', direction: 'asc' }],
+          sort: [{ field: 'close_date', order: 'asc' }],
         },
       },
     },
@@ -105,7 +105,7 @@ export default defineStack({
           type: 'grid',
           data: { provider: 'object', object: 'product' },
           columns: ['name', 'sku', 'category', 'price', 'stock', 'is_active'],
-          sort: [{ field: 'name', direction: 'asc' }],
+          sort: [{ field: 'name', order: 'asc' }],
         },
         active_products: {
           name: 'active_products',
@@ -126,7 +126,7 @@ export default defineStack({
           type: 'grid',
           data: { provider: 'object', object: 'order' },
           columns: ['name', 'customer', 'amount', 'status', 'order_date', 'payment_method'],
-          sort: [{ field: 'order_date', direction: 'desc' }],
+          sort: [{ field: 'order_date', order: 'desc' }],
         },
         pending_orders: {
           name: 'pending_orders',
@@ -147,7 +147,7 @@ export default defineStack({
           type: 'grid',
           data: { provider: 'object', object: 'user' },
           columns: ['name', 'email', 'role', 'department', 'active'],
-          sort: [{ field: 'name', direction: 'asc' }],
+          sort: [{ field: 'name', order: 'asc' }],
         },
         active_users: {
           name: 'active_users',
@@ -168,7 +168,7 @@ export default defineStack({
           type: 'grid',
           data: { provider: 'object', object: 'event' },
           columns: ['subject', 'start', 'end', 'location', 'type', 'status'],
-          sort: [{ field: 'start', direction: 'asc' }],
+          sort: [{ field: 'start', order: 'asc' }],
         },
         calendar: {
           name: 'calendar',
@@ -189,7 +189,7 @@ export default defineStack({
           data: { provider: 'object', object: 'event' },
           columns: ['subject', 'start', 'location', 'organizer'],
           filter: ['type', '=', 'meeting'],
-          sort: [{ field: 'start', direction: 'asc' }],
+          sort: [{ field: 'start', order: 'asc' }],
         },
       },
     },
@@ -202,7 +202,7 @@ export default defineStack({
           type: 'grid',
           data: { provider: 'object', object: 'project_task' },
           columns: ['name', 'status', 'priority', 'start_date', 'end_date', 'progress', 'assignee'],
-          sort: [{ field: 'start_date', direction: 'asc' }],
+          sort: [{ field: 'start_date', order: 'asc' }],
         },
         board: {
           name: 'board',
@@ -931,12 +931,12 @@ export default defineStack({
           object: 'event',
           mode: 'upsert',
           records: [
-              { _id: "e1", subject: "Weekly Standup", start: new Date("2024-02-05T09:00:00"), end: new Date("2024-02-05T10:00:00"), location: "Conference Room A", type: "meeting", status: "completed", organizer: "1", reminder: "15 minutes", description: "Team synchronization regarding Project Alpha" },
-              { _id: "e2", subject: "Client Call - TechCorp", start: new Date("2024-02-06T14:00:00"), end: new Date("2024-02-06T15:00:00"), location: "Zoom", type: "call", status: "completed", organizer: "2", reminder: "5 minutes", description: "Reviewing Q1 Goals and Roadblocks" },
-              { _id: "e3", subject: "Project Review", start: new Date("2024-02-08T10:00:00"), end: new Date("2024-02-08T11:30:00"), location: "Board Room", type: "meeting", status: "completed", organizer: "1", reminder: "30 minutes", description: "Milestone review with stakeholders" },
+              { _id: "e1", subject: "Weekly Standup", start: new Date("2024-02-05T09:00:00"), end: new Date("2024-02-05T10:00:00"), location: "Conference Room A", type: "meeting", status: "completed", organizer: "1", reminder: "min_15", description: "Team synchronization regarding Project Alpha" },
+              { _id: "e2", subject: "Client Call - TechCorp", start: new Date("2024-02-06T14:00:00"), end: new Date("2024-02-06T15:00:00"), location: "Zoom", type: "call", status: "completed", organizer: "2", reminder: "min_5", description: "Reviewing Q1 Goals and Roadblocks" },
+              { _id: "e3", subject: "Project Review", start: new Date("2024-02-08T10:00:00"), end: new Date("2024-02-08T11:30:00"), location: "Board Room", type: "meeting", status: "completed", organizer: "1", reminder: "min_30", description: "Milestone review with stakeholders" },
               { _id: "e4", subject: "Lunch with Partners", start: new Date("2024-02-09T12:00:00"), end: new Date("2024-02-09T13:30:00"), location: "Downtown Cafe", type: "other", status: "completed", organizer: "2", description: "Networking event" },
-              { _id: "e5", subject: "Product Demo - Berlin Auto", start: new Date("2024-03-10T11:00:00"), end: new Date("2024-03-10T12:30:00"), location: "Online", type: "meeting", status: "scheduled", organizer: "1", reminder: "1 hour", is_private: false, description: "Showcasing the new automation suite capabilities" },
-              { _id: "e6", subject: "Internal Training", start: new Date("2024-03-15T09:00:00"), end: new Date("2024-03-15T16:00:00"), location: "Training Center", type: "other", status: "scheduled", organizer: "1", is_all_day: true, reminder: "1 day", description: "Security compliance training for all staff" }
+              { _id: "e5", subject: "Product Demo - Berlin Auto", start: new Date("2024-03-10T11:00:00"), end: new Date("2024-03-10T12:30:00"), location: "Online", type: "meeting", status: "scheduled", organizer: "1", reminder: "hour_1", is_private: false, description: "Showcasing the new automation suite capabilities" },
+              { _id: "e6", subject: "Internal Training", start: new Date("2024-03-15T09:00:00"), end: new Date("2024-03-15T16:00:00"), location: "Training Center", type: "other", status: "scheduled", organizer: "1", is_all_day: true, reminder: "day_1", description: "Security compliance training for all staff" }
           ]
       }
     ]

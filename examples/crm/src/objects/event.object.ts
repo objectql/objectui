@@ -15,10 +15,10 @@ export const EventObject = ObjectSchema.create({
     participants: Field.lookup('contact', { label: 'Participants', multiple: true }),
     organizer: Field.lookup('user', { label: 'Organizer' }),
     type: Field.select([
-      { value: 'Meeting', label: 'Meeting', color: 'blue' },
-      { value: 'Call', label: 'Call', color: 'green' },
-      { value: 'Email', label: 'Email', color: 'purple' },
-      { value: 'Other', label: 'Other', color: 'gray' },
+      { value: 'meeting', label: 'Meeting', color: 'blue' },
+      { value: 'call', label: 'Call', color: 'green' },
+      { value: 'email', label: 'Email', color: 'purple' },
+      { value: 'other', label: 'Other', color: 'gray' },
     ], { label: 'Type' }),
     status: Field.select([
       { value: 'scheduled', label: 'Scheduled', color: 'blue' },
@@ -26,6 +26,13 @@ export const EventObject = ObjectSchema.create({
       { value: 'cancelled', label: 'Cancelled', color: 'red' },
     ], { label: 'Status', defaultValue: 'scheduled' }),
     is_private: Field.boolean({ label: 'Private', defaultValue: false, helpText: 'Private events are only visible to the organizer' }),
-    reminder: Field.select(['None', '5 minutes', '15 minutes', '30 minutes', '1 hour', '1 day'], { label: 'Reminder', defaultValue: '15 minutes' })
+    reminder: Field.select([
+      { value: 'none', label: 'None' },
+      { value: 'min_5', label: '5 minutes' },
+      { value: 'min_15', label: '15 minutes' },
+      { value: 'min_30', label: '30 minutes' },
+      { value: 'hour_1', label: '1 hour' },
+      { value: 'day_1', label: '1 day' },
+    ], { label: 'Reminder', defaultValue: 'min_15' })
   }
 });

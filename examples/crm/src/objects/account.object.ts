@@ -9,9 +9,9 @@ export const AccountObject = ObjectSchema.create({
     name: Field.text({ label: 'Account Name', required: true, searchable: true, placeholder: 'Enter company name' }),
     industry: Field.select(['Technology', 'Finance', 'Healthcare', 'Retail', 'Manufacturing', 'Services'], { label: 'Industry', helpText: 'Primary industry vertical' }),
     rating: Field.select([
-      { value: 'Hot', label: 'Hot', color: 'red' },
-      { value: 'Warm', label: 'Warm', color: 'yellow' },
-      { value: 'Cold', label: 'Cold', color: 'blue' },
+      { value: 'hot', label: 'Hot', color: 'red' },
+      { value: 'warm', label: 'Warm', color: 'yellow' },
+      { value: 'cold', label: 'Cold', color: 'blue' },
     ], { label: 'Rating', helpText: 'Account engagement temperature' }),
     type: Field.select(['Customer', 'Partner', 'Reseller', 'Vendor'], { label: 'Type', defaultValue: 'Customer' }),
     annual_revenue: Field.currency({ label: 'Annual Revenue', helpText: 'Estimated yearly revenue in USD' }),
