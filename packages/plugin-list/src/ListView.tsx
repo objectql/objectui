@@ -53,6 +53,49 @@ function mapOperator(op: string) {
   }
 }
 
+/**
+ * Normalize a single filter condition: convert `in`/`not in` operators
+ * into backend-compatible `or`/`and` of equality conditions.
+ * E.g., ['status', 'in', ['a','b']] → ['or', ['status','=','a'], ['status','=','b']]
+ */
+export function normalizeFilterCondition(condition: any[]): any[] {
+  if (!Array.isArray(condition) || condition.length < 3) return condition;
+
+  const [field, op, value] = condition;
+
+  // Recurse into logical groups
+  if (typeof field === 'string' && (field === 'and' || field === 'or')) {
+    return [field, ...condition.slice(1).map((c: any) =>
+      Array.isArray(c) ? normalizeFilterCondition(c) : c
+    )];
+  }
+
+  if (op === 'in' && Array.isArray(value)) {
+    if (value.length === 0) return [];
+    if (value.length === 1) return [field, '=', value[0]];
+    return ['or', ...value.map((v: any) => [field, '=', v])];
+  }
+
+  if (op === 'not in' && Array.isArray(value)) {
+    if (value.length === 0) return [];
+    if (value.length === 1) return [field, '!=', value[0]];
+    return ['and', ...value.map((v: any) => [field, '!=', v])];
+  }
+
+  return condition;
+}
+
+/**
+ * Normalize an array of filter conditions, expanding `in`/`not in` operators
+ * and ensuring consistent AST structure.
+ */
+export function normalizeFilters(filters: any[]): any[] {
+  if (!Array.isArray(filters) || filters.length === 0) return [];
+  return filters
+    .map(f => Array.isArray(f) ? normalizeFilterCondition(f) : f)
+    .filter(f => Array.isArray(f) && f.length > 0);
+}
+
 function convertFilterGroupToAST(group: FilterGroup): any[] {
   if (!group || !group.conditions || group.conditions.length === 0) return [];
 
@@ -62,9 +105,12 @@ function convertFilterGroupToAST(group: FilterGroup): any[] {
     return [c.field, mapOperator(c.operator), c.value];
   });
 
-  if (conditions.length === 1) return conditions[0];
+  // Normalize in/not-in conditions for backend compatibility
+  const normalized = normalizeFilters(conditions);
+  if (normalized.length === 0) return [];
+  if (normalized.length === 1) return normalized[0];
   
-  return [group.logic, ...conditions];
+  return [group.logic, ...normalized];
 }
 
 /**
@@ -132,6 +178,17 @@ export function evaluateConditionalFormatting(
 const LIST_DEFAULT_TRANSLATIONS: Record<string, string> = {
   'list.recordCount': '{{count}} records',
   'list.recordCountOne': '{{count}} record',
+  'list.noItems': 'No items found',
+  'list.noItemsMessage': 'There are no records to display. Try adjusting your filters or adding new data.',
+  'list.search': 'Search',
+  'list.filter': 'Filter',
+  'list.sort': 'Sort',
+  'list.export': 'Export',
+  'list.hideFields': 'Hide fields',
+  'list.showAll': 'Show all',
+  'list.pullToRefresh': 'Pull to refresh',
+  'list.refreshing': 'Refreshing…',
+  'list.dataLimitReached': 'Showing first {{limit}} records. More data may be available.',
 };
 
 /**
@@ -224,6 +281,10 @@ export const ListView: React.FC<ListViewProps> = ({
   const [loading, setLoading] = React.useState(false);
   const [objectDef, setObjectDef] = React.useState<any>(null);
   const [refreshKey, setRefreshKey] = React.useState(0);
+  const [dataLimitReached, setDataLimitReached] = React.useState(false);
+
+  // Request counter for debounce — only the latest request writes data
+  const fetchRequestIdRef = React.useRef(0);
 
   // Quick Filters State
   const [activeQuickFilters, setActiveQuickFilters] = React.useState<Set<string>>(() => {
@@ -328,6 +389,7 @@ export const ListView: React.FC<ListViewProps> = ({
   // Fetch data effect
   React.useEffect(() => {
     let isMounted = true;
+    const requestId = ++fetchRequestIdRef.current;
     
     const fetchData = async () => {
       if (!dataSource || !schema.objectName) return;
@@ -349,13 +411,16 @@ export const ListView: React.FC<ListViewProps> = ({
           });
         }
         
-        // Merge base filters, user filters, quick filters, and user filter bar conditions
+        // Normalize userFilter conditions (convert `in` to `or` of `=`)
+        const normalizedUserFilterConditions = normalizeFilters(userFilterConditions);
+
+        // Merge all filter sources with consistent structure
         const allFilters = [
           ...(baseFilter.length > 0 ? [baseFilter] : []),
           ...(userFilter.length > 0 ? [userFilter] : []),
           ...quickFilterConditions,
-          ...userFilterConditions,
-        ];
+          ...normalizedUserFilterConditions,
+        ].filter(f => Array.isArray(f) && f.length > 0);
         
         if (allFilters.length > 1) {
           finalFilter = ['and', ...allFilters];
@@ -371,11 +436,17 @@ export const ListView: React.FC<ListViewProps> = ({
               .map(item => ({ field: item.field, order: item.order }))
           : undefined;
 
+        // Configurable page size from schema.pagination, default 100
+        const pageSize = schema.pagination?.pageSize || 100;
+
         const results = await dataSource.find(schema.objectName, {
            $filter: finalFilter,
            $orderby: sort,
-           $top: 100 // Default pagination limit
+           $top: pageSize,
         });
+
+        // Stale request guard: only apply the latest request's results
+        if (!isMounted || requestId !== fetchRequestIdRef.current) return;
         
         let items: any[] = [];
         if (Array.isArray(results)) {
@@ -388,20 +459,24 @@ export const ListView: React.FC<ListViewProps> = ({
            }
         }
         
-        if (isMounted) {
-          setData(items);
-        }
+        setData(items);
+        setDataLimitReached(items.length >= pageSize);
       } catch (err) {
-        console.error("ListView data fetch error:", err);
+        // Only log errors from the latest request
+        if (requestId === fetchRequestIdRef.current) {
+          console.error("ListView data fetch error:", err);
+        }
       } finally {
-        if (isMounted) setLoading(false);
+        if (isMounted && requestId === fetchRequestIdRef.current) {
+          setLoading(false);
+        }
       }
     };
 
     fetchData();
     
     return () => { isMounted = false; };
-  }, [schema.objectName, dataSource, schema.filters, currentSort, currentFilters, activeQuickFilters, userFilterConditions, refreshKey]); // Re-fetch on filter/sort change
+  }, [schema.objectName, dataSource, schema.filters, schema.pagination?.pageSize, currentSort, currentFilters, activeQuickFilters, userFilterConditions, refreshKey]); // Re-fetch on filter/sort change
 
   // Available view types based on schema configuration
   const availableViews = React.useMemo(() => {
@@ -494,12 +569,17 @@ export const ListView: React.FC<ListViewProps> = ({
   // Apply hiddenFields and fieldOrder to produce effective fields
   const effectiveFields = React.useMemo(() => {
     let fields = schema.fields || [];
+
+    // Defensive: ensure fields is an array of strings/objects
+    if (!Array.isArray(fields)) {
+      fields = [];
+    }
     
     // Remove hidden fields
     if (hiddenFields.size > 0) {
       fields = fields.filter((f: any) => {
-        const fieldName = typeof f === 'string' ? f : (f.name || f.fieldName || f.field);
-        return !hiddenFields.has(fieldName);
+        const fieldName = typeof f === 'string' ? f : (f?.name || f?.fieldName || f?.field);
+        return fieldName != null && !hiddenFields.has(fieldName);
       });
     }
     
@@ -507,8 +587,8 @@ export const ListView: React.FC<ListViewProps> = ({
     if (schema.fieldOrder && schema.fieldOrder.length > 0) {
       const orderMap = new Map(schema.fieldOrder.map((f, i) => [f, i]));
       fields = [...fields].sort((a: any, b: any) => {
-        const nameA = typeof a === 'string' ? a : (a.name || a.fieldName || a.field);
-        const nameB = typeof b === 'string' ? b : (b.name || b.fieldName || b.field);
+        const nameA = typeof a === 'string' ? a : (a?.name || a?.fieldName || a?.field);
+        const nameB = typeof b === 'string' ? b : (b?.name || b?.fieldName || b?.field);
         const orderA = orderMap.get(nameA) ?? Infinity;
         const orderB = orderMap.get(nameB) ?? Infinity;
         return orderA - orderB;
@@ -656,8 +736,23 @@ export const ListView: React.FC<ListViewProps> = ({
       exportData.forEach(record => {
         rows.push(fields.map((f: string) => {
           const val = record[f];
-          const str = val == null ? '' : String(val);
-          return str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r') ? `"${str.replace(/"/g, '""')}"` : str;
+          // Type-safe serialization: handle arrays, objects, null/undefined
+          let str: string;
+          if (val == null) {
+            str = '';
+          } else if (Array.isArray(val)) {
+            str = val.map(v =>
+              (v != null && typeof v === 'object') ? JSON.stringify(v) : String(v ?? ''),
+            ).join('; ');
+          } else if (typeof val === 'object') {
+            str = JSON.stringify(val);
+          } else {
+            str = String(val);
+          }
+          // Escape CSV special characters
+          const needsQuoting = str.includes(',') || str.includes('"')
+            || str.includes('\n') || str.includes('\r');
+          return needsQuoting ? `"${str.replace(/"/g, '""')}"` : str;
         }).join(','));
       });
       const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
@@ -1047,10 +1142,15 @@ export const ListView: React.FC<ListViewProps> = ({
       {/* Record count status bar (Airtable-style) */}
       {!loading && data.length > 0 && (
         <div
-          className="border-t px-4 py-1.5 flex items-center text-xs text-muted-foreground bg-background shrink-0"
+          className="border-t px-4 py-1.5 flex items-center gap-2 text-xs text-muted-foreground bg-background shrink-0"
           data-testid="record-count-bar"
         >
-          {data.length === 1 ? t('list.recordCountOne', { count: data.length }) : t('list.recordCount', { count: data.length })}
+          <span>{data.length === 1 ? t('list.recordCountOne', { count: data.length }) : t('list.recordCount', { count: data.length })}</span>
+          {dataLimitReached && (
+            <span className="text-amber-600" data-testid="data-limit-warning">
+              {t('list.dataLimitReached', { limit: schema.pagination?.pageSize || 100 })}
+            </span>
+          )}
         </div>
       )}
 

@@ -55,7 +55,11 @@ export function usePullToRefresh<T extends HTMLElement = HTMLElement>(
 
   const handleTouchEnd = useCallback(async () => {
     if (!enabled || isRefreshing) return;
-    if (pullDistance >= threshold) {
+    // Capture distance and reset UI immediately to prevent lock during async refresh
+    const distance = pullDistance;
+    setPullDistance(0);
+    startYRef.current = 0;
+    if (distance >= threshold) {
       setIsRefreshing(true);
       try {
         await onRefresh();
@@ -63,8 +67,6 @@ export function usePullToRefresh<T extends HTMLElement = HTMLElement>(
         setIsRefreshing(false);
       }
     }
-    setPullDistance(0);
-    startYRef.current = 0;
   }, [enabled, isRefreshing, pullDistance, threshold, onRefresh]);
 
   useEffect(() => {
