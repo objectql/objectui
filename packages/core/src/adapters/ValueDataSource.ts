@@ -41,22 +41,22 @@ function getRecordId(record: any, idField?: string): string | number | undefined
  * Supports conditions like ['field', 'op', value] and logical
  * combinations like ['and', ...conditions] or ['or', ...conditions].
  */
-function matchesASTFilter(record: any, ast: any[]): boolean {
-  if (!ast || ast.length === 0) return true;
+function matchesASTFilter(record: any, filterNode: any[]): boolean {
+  if (!filterNode || filterNode.length === 0) return true;
 
-  const head = ast[0];
+  const head = filterNode[0];
 
   // Logical operators: ['and', ...conditions] or ['or', ...conditions]
   if (head === 'and') {
-    return ast.slice(1).every((sub: any) => matchesASTFilter(record, sub));
+    return filterNode.slice(1).every((sub: any) => matchesASTFilter(record, sub));
   }
   if (head === 'or') {
-    return ast.slice(1).some((sub: any) => matchesASTFilter(record, sub));
+    return filterNode.slice(1).some((sub: any) => matchesASTFilter(record, sub));
   }
 
   // Condition node: [field, operator, value]
-  if (ast.length === 3 && typeof head === 'string') {
-    const [field, operator, target] = ast;
+  if (filterNode.length === 3 && typeof head === 'string') {
+    const [field, operator, target] = filterNode;
     const value = record[field];
 
     switch (operator) {
@@ -75,14 +75,20 @@ function matchesASTFilter(record: any, ast: any[]): boolean {
       case 'in':
         return Array.isArray(target) && target.includes(value);
       case 'not in':
-      case 'notin':
+      case 'notin': // alias used by convertFiltersToAST
         return Array.isArray(target) && !target.includes(value);
-      case 'contains':
-        return typeof value === 'string' && value.toLowerCase().includes(String(target).toLowerCase());
-      case 'notcontains':
-        return typeof value === 'string' && !value.toLowerCase().includes(String(target).toLowerCase());
-      case 'startswith':
-        return typeof value === 'string' && value.toLowerCase().startsWith(String(target).toLowerCase());
+      case 'contains': {
+        const lv = typeof value === 'string' ? value.toLowerCase() : '';
+        return typeof value === 'string' && lv.includes(String(target).toLowerCase());
+      }
+      case 'notcontains': {
+        const lv = typeof value === 'string' ? value.toLowerCase() : '';
+        return typeof value === 'string' && !lv.includes(String(target).toLowerCase());
+      }
+      case 'startswith': {
+        const lv = typeof value === 'string' ? value.toLowerCase() : '';
+        return typeof value === 'string' && lv.startsWith(String(target).toLowerCase());
+      }
       case 'between':
         return Array.isArray(target) && target.length === 2 && value >= target[0] && value <= target[1];
       default:
