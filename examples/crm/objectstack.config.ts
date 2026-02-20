@@ -42,6 +42,32 @@ export default defineStack({
           sort: [{ field: 'annual_revenue', order: 'desc' }],
         },
       },
+      form: {
+        data: { provider: 'object', object: 'account' },
+        sections: [
+          {
+            label: 'Basic Information',
+            columns: '2',
+            fields: ['name', 'industry', 'type', 'rating', 'website', 'phone', 'employees', 'owner'],
+          },
+          {
+            label: 'Financial',
+            columns: '2',
+            fields: ['annual_revenue', 'tags'],
+          },
+          {
+            label: 'Address',
+            columns: '2',
+            fields: ['billing_address', 'shipping_address', 'latitude', 'longitude'],
+          },
+          {
+            label: 'Additional Details',
+            columns: '1',
+            collapsible: true,
+            fields: ['linkedin_url', 'founded_date', 'description', 'created_at'],
+          },
+        ],
+      },
     },
     // --- Contact Views ---
     {
@@ -62,6 +88,32 @@ export default defineStack({
           columns: ['name', 'email', 'title', 'account', 'status'],
           filter: ['is_active', '=', true],
         },
+      },
+      form: {
+        data: { provider: 'object', object: 'contact' },
+        sections: [
+          {
+            label: 'Personal Information',
+            columns: '2',
+            fields: ['avatar', 'name', 'email', 'phone', 'title', 'department', 'company'],
+          },
+          {
+            label: 'Account & Status',
+            columns: '2',
+            fields: ['account', 'status', 'priority', 'lead_source', 'is_active', 'do_not_call'],
+          },
+          {
+            label: 'Address & Social',
+            columns: '2',
+            fields: ['address', 'linkedin', 'birthdate', 'latitude', 'longitude'],
+          },
+          {
+            label: 'Notes',
+            columns: '1',
+            collapsible: true,
+            fields: ['notes'],
+          },
+        ],
       },
     },
     // --- Opportunity Views ---
@@ -95,6 +147,32 @@ export default defineStack({
           sort: [{ field: 'close_date', order: 'asc' }],
         },
       },
+      form: {
+        data: { provider: 'object', object: 'opportunity' },
+        sections: [
+          {
+            label: 'Deal Information',
+            columns: '2',
+            fields: ['name', 'account', 'contacts', 'type', 'lead_source', 'campaign_source'],
+          },
+          {
+            label: 'Financials & Stage',
+            columns: '2',
+            fields: ['amount', 'expected_revenue', 'probability', 'stage', 'forecast_category'],
+          },
+          {
+            label: 'Timeline',
+            columns: '2',
+            fields: ['close_date', 'next_step'],
+          },
+          {
+            label: 'Description',
+            columns: '1',
+            collapsible: true,
+            fields: ['description'],
+          },
+        ],
+      },
     },
     // --- Product Views ---
     {
@@ -115,6 +193,27 @@ export default defineStack({
           columns: ['name', 'sku', 'category', 'price', 'stock', 'tags'],
           filter: ['is_active', '=', true],
         },
+      },
+      form: {
+        data: { provider: 'object', object: 'product' },
+        sections: [
+          {
+            label: 'Product Details',
+            columns: '2',
+            fields: ['name', 'sku', 'category', 'manufacturer', 'is_active', 'tags'],
+          },
+          {
+            label: 'Pricing & Inventory',
+            columns: '2',
+            fields: ['price', 'stock', 'weight'],
+          },
+          {
+            label: 'Media & Description',
+            columns: '1',
+            collapsible: true,
+            fields: ['image', 'description'],
+          },
+        ],
       },
     },
     // --- Order Views ---
@@ -137,6 +236,32 @@ export default defineStack({
           filter: ['status', '=', 'pending'],
         },
       },
+      form: {
+        data: { provider: 'object', object: 'order' },
+        sections: [
+          {
+            label: 'Order Information',
+            columns: '2',
+            fields: ['name', 'customer', 'account', 'order_date', 'status', 'payment_method'],
+          },
+          {
+            label: 'Financials',
+            columns: '2',
+            fields: ['amount', 'discount'],
+          },
+          {
+            label: 'Shipping',
+            columns: '2',
+            fields: ['shipping_address', 'tracking_number'],
+          },
+          {
+            label: 'Notes',
+            columns: '1',
+            collapsible: true,
+            fields: ['notes'],
+          },
+        ],
+      },
     },
     // --- User Views ---
     {
@@ -157,6 +282,27 @@ export default defineStack({
           columns: ['name', 'email', 'role', 'title'],
           filter: ['active', '=', true],
         },
+      },
+      form: {
+        data: { provider: 'object', object: 'user' },
+        sections: [
+          {
+            label: 'Profile',
+            columns: '2',
+            fields: ['avatar', 'name', 'email', 'username', 'phone'],
+          },
+          {
+            label: 'Role & Department',
+            columns: '2',
+            fields: ['role', 'title', 'department', 'active'],
+          },
+          {
+            label: 'Bio',
+            columns: '1',
+            collapsible: true,
+            fields: ['bio'],
+          },
+        ],
       },
     },
     // --- Event Views ---
@@ -191,6 +337,32 @@ export default defineStack({
           filter: ['type', '=', 'meeting'],
           sort: [{ field: 'start', order: 'asc' }],
         },
+      },
+      form: {
+        data: { provider: 'object', object: 'event' },
+        sections: [
+          {
+            label: 'Event Details',
+            columns: '2',
+            fields: ['subject', 'type', 'status', 'location', 'is_all_day', 'is_private'],
+          },
+          {
+            label: 'Schedule',
+            columns: '2',
+            fields: ['start', 'end', 'reminder'],
+          },
+          {
+            label: 'Participants',
+            columns: '2',
+            fields: ['organizer', 'participants'],
+          },
+          {
+            label: 'Description',
+            columns: '1',
+            collapsible: true,
+            fields: ['description'],
+          },
+        ],
       },
     },
     // --- Project Task Views ---
@@ -230,9 +402,309 @@ export default defineStack({
           columns: ['name', 'start_date', 'status'],
         },
       },
+      form: {
+        data: { provider: 'object', object: 'project_task' },
+        sections: [
+          {
+            label: 'Task Information',
+            columns: '2',
+            fields: ['name', 'status', 'priority', 'color', 'manager', 'assignee'],
+          },
+          {
+            label: 'Timeline & Progress',
+            columns: '2',
+            fields: ['start_date', 'end_date', 'progress', 'estimated_hours', 'actual_hours'],
+          },
+          {
+            label: 'Details',
+            columns: '1',
+            collapsible: true,
+            fields: ['dependencies', 'description'],
+          },
+        ],
+      },
     },
   ],
   reports: [],
+  actions: [
+    // --- Account Actions ---
+    {
+      name: 'account_send_email',
+      label: 'Send Email',
+      icon: 'mail',
+      type: 'api',
+      locations: ['record_header', 'list_item'],
+      params: [
+        { name: 'to', label: 'To Email', type: 'email', required: true },
+        { name: 'subject', label: 'Subject', type: 'text', required: true },
+        { name: 'body', label: 'Message', type: 'textarea' },
+      ],
+      successMessage: 'Email sent successfully',
+    },
+    {
+      name: 'account_assign_owner',
+      label: 'Assign Owner',
+      icon: 'user-plus',
+      type: 'api',
+      locations: ['record_header', 'list_item'],
+      params: [
+        { name: 'owner_id', label: 'New Owner', type: 'lookup', required: true },
+      ],
+      refreshAfter: true,
+      successMessage: 'Owner assigned successfully',
+    },
+    {
+      name: 'account_merge',
+      label: 'Merge Accounts',
+      icon: 'git-merge',
+      type: 'api',
+      locations: ['record_more'],
+      confirmText: 'Are you sure you want to merge these accounts? This action cannot be undone.',
+      variant: 'danger',
+      refreshAfter: true,
+    },
+    // --- Contact Actions ---
+    {
+      name: 'contact_send_email',
+      label: 'Send Email',
+      icon: 'mail',
+      type: 'api',
+      locations: ['record_header', 'list_item'],
+      params: [
+        { name: 'subject', label: 'Subject', type: 'text', required: true },
+        { name: 'body', label: 'Message', type: 'textarea' },
+      ],
+      successMessage: 'Email sent successfully',
+    },
+    {
+      name: 'contact_convert_to_customer',
+      label: 'Convert to Customer',
+      icon: 'user-check',
+      type: 'api',
+      locations: ['record_header'],
+      confirmText: 'Convert this contact to a customer?',
+      refreshAfter: true,
+      successMessage: 'Contact converted to customer',
+    },
+    {
+      name: 'contact_log_call',
+      label: 'Log a Call',
+      icon: 'phone',
+      type: 'api',
+      locations: ['record_header', 'list_item'],
+      params: [
+        { name: 'call_subject', label: 'Subject', type: 'text', required: true },
+        { name: 'call_notes', label: 'Notes', type: 'textarea' },
+        { name: 'call_duration', label: 'Duration (min)', type: 'number' },
+      ],
+      successMessage: 'Call logged successfully',
+    },
+    // --- Opportunity Actions ---
+    {
+      name: 'opportunity_change_stage',
+      label: 'Change Stage',
+      icon: 'arrow-right-circle',
+      type: 'api',
+      locations: ['record_header', 'list_item'],
+      params: [
+        {
+          name: 'new_stage', label: 'New Stage', type: 'select', required: true,
+          options: [
+            { label: 'Prospecting', value: 'prospecting' },
+            { label: 'Qualification', value: 'qualification' },
+            { label: 'Proposal', value: 'proposal' },
+            { label: 'Negotiation', value: 'negotiation' },
+            { label: 'Closed Won', value: 'closed_won' },
+            { label: 'Closed Lost', value: 'closed_lost' },
+          ],
+        },
+      ],
+      refreshAfter: true,
+      successMessage: 'Stage updated successfully',
+    },
+    {
+      name: 'opportunity_mark_won',
+      label: 'Mark as Won',
+      icon: 'trophy',
+      type: 'api',
+      locations: ['record_header'],
+      variant: 'primary',
+      confirmText: 'Mark this opportunity as Closed Won?',
+      refreshAfter: true,
+      successMessage: 'Opportunity marked as won!',
+    },
+    {
+      name: 'opportunity_mark_lost',
+      label: 'Mark as Lost',
+      icon: 'x-circle',
+      type: 'api',
+      locations: ['record_more'],
+      variant: 'danger',
+      params: [
+        { name: 'loss_reason', label: 'Reason for Loss', type: 'text', required: true },
+      ],
+      confirmText: 'Mark this opportunity as Closed Lost?',
+      refreshAfter: true,
+    },
+    // --- Product Actions ---
+    {
+      name: 'product_toggle_active',
+      label: 'Toggle Active',
+      icon: 'toggle-left',
+      type: 'api',
+      locations: ['record_header', 'list_item'],
+      refreshAfter: true,
+      successMessage: 'Product status updated',
+    },
+    {
+      name: 'product_update_price',
+      label: 'Update Price',
+      icon: 'dollar-sign',
+      type: 'api',
+      locations: ['record_header'],
+      params: [
+        { name: 'new_price', label: 'New Price', type: 'currency', required: true },
+      ],
+      refreshAfter: true,
+      successMessage: 'Price updated successfully',
+    },
+    // --- Order Actions ---
+    {
+      name: 'order_change_status',
+      label: 'Change Status',
+      icon: 'refresh-cw',
+      type: 'api',
+      locations: ['record_header', 'list_item'],
+      params: [
+        {
+          name: 'new_status', label: 'New Status', type: 'select', required: true,
+          options: [
+            { label: 'Draft', value: 'draft' },
+            { label: 'Pending', value: 'pending' },
+            { label: 'Paid', value: 'paid' },
+            { label: 'Shipped', value: 'shipped' },
+            { label: 'Delivered', value: 'delivered' },
+            { label: 'Cancelled', value: 'cancelled' },
+          ],
+        },
+      ],
+      refreshAfter: true,
+      successMessage: 'Order status updated',
+    },
+    {
+      name: 'order_generate_invoice',
+      label: 'Generate Invoice',
+      icon: 'file-text',
+      type: 'api',
+      locations: ['record_header'],
+      confirmText: 'Generate an invoice for this order?',
+      successMessage: 'Invoice generated successfully',
+    },
+    {
+      name: 'order_mark_shipped',
+      label: 'Mark as Shipped',
+      icon: 'truck',
+      type: 'api',
+      locations: ['record_header'],
+      params: [
+        { name: 'tracking_number', label: 'Tracking Number', type: 'text', required: true },
+        { name: 'carrier', label: 'Carrier', type: 'text' },
+      ],
+      refreshAfter: true,
+      successMessage: 'Order marked as shipped',
+    },
+    // --- User Actions ---
+    {
+      name: 'user_reset_password',
+      label: 'Reset Password',
+      icon: 'key',
+      type: 'api',
+      locations: ['record_header', 'record_more'],
+      confirmText: 'Send a password reset link to this user?',
+      successMessage: 'Password reset email sent',
+    },
+    {
+      name: 'user_deactivate',
+      label: 'Deactivate User',
+      icon: 'user-x',
+      type: 'api',
+      locations: ['record_more'],
+      variant: 'danger',
+      confirmText: 'Are you sure you want to deactivate this user?',
+      refreshAfter: true,
+      successMessage: 'User deactivated',
+    },
+    // --- Project Task Actions ---
+    {
+      name: 'task_change_status',
+      label: 'Change Status',
+      icon: 'circle-check',
+      type: 'api',
+      locations: ['record_header', 'list_item'],
+      params: [
+        {
+          name: 'new_status', label: 'New Status', type: 'select', required: true,
+          options: [
+            { label: 'Planned', value: 'planned' },
+            { label: 'In Progress', value: 'in_progress' },
+            { label: 'Completed', value: 'completed' },
+            { label: 'On Hold', value: 'on_hold' },
+          ],
+        },
+      ],
+      refreshAfter: true,
+      successMessage: 'Task status updated',
+    },
+    {
+      name: 'task_assign',
+      label: 'Assign User',
+      icon: 'user-plus',
+      type: 'api',
+      locations: ['record_header', 'list_item'],
+      params: [
+        { name: 'assignee_id', label: 'Assignee', type: 'lookup', required: true },
+      ],
+      refreshAfter: true,
+      successMessage: 'Task assigned successfully',
+    },
+    // --- Event Actions ---
+    {
+      name: 'event_send_invitation',
+      label: 'Send Invitation',
+      icon: 'send',
+      type: 'api',
+      locations: ['record_header'],
+      params: [
+        { name: 'message', label: 'Optional Message', type: 'textarea' },
+      ],
+      successMessage: 'Invitation sent to all participants',
+    },
+    {
+      name: 'event_mark_completed',
+      label: 'Mark as Completed',
+      icon: 'check-circle',
+      type: 'api',
+      locations: ['record_header'],
+      confirmText: 'Mark this event as completed?',
+      refreshAfter: true,
+      successMessage: 'Event marked as completed',
+    },
+    {
+      name: 'event_cancel',
+      label: 'Cancel Event',
+      icon: 'x-circle',
+      type: 'api',
+      locations: ['record_more'],
+      variant: 'danger',
+      params: [
+        { name: 'cancel_reason', label: 'Cancellation Reason', type: 'text' },
+        { name: 'notify_participants', label: 'Notify Participants', type: 'boolean' },
+      ],
+      confirmText: 'Are you sure you want to cancel this event?',
+      refreshAfter: true,
+      successMessage: 'Event cancelled',
+    },
+  ],
   pages: [
     {
       name: 'crm_help',
