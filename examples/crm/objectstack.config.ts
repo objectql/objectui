@@ -8,6 +8,22 @@ import { OrderObject } from './src/objects/order.object';
 import { UserObject } from './src/objects/user.object';
 import { ProjectObject } from './src/objects/project.object';
 import { EventObject } from './src/objects/event.object';
+import { AccountView } from './src/views/account.view';
+import { ContactView } from './src/views/contact.view';
+import { OpportunityView } from './src/views/opportunity.view';
+import { ProductView } from './src/views/product.view';
+import { OrderView } from './src/views/order.view';
+import { UserView } from './src/views/user.view';
+import { EventView } from './src/views/event.view';
+import { ProjectView } from './src/views/project.view';
+import { AccountActions } from './src/actions/account.actions';
+import { ContactActions } from './src/actions/contact.actions';
+import { OpportunityActions } from './src/actions/opportunity.actions';
+import { ProductActions } from './src/actions/product.actions';
+import { OrderActions } from './src/actions/order.actions';
+import { UserActions } from './src/actions/user.actions';
+import { ProjectActions } from './src/actions/project.actions';
+import { EventActions } from './src/actions/event.actions';
 
 export default defineStack({
   objects: [
@@ -21,218 +37,26 @@ export default defineStack({
     EventObject
   ],
   views: [
-    // --- Account Views ---
-    {
-      listViews: {
-        all_accounts: {
-          name: 'all_accounts',
-          label: 'All Accounts',
-          type: 'grid',
-          data: { provider: 'object', object: 'account' },
-          columns: ['name', 'industry', 'type', 'annual_revenue', 'rating', 'owner'],
-          sort: [{ field: 'name', order: 'asc' }],
-        },
-        active_accounts: {
-          name: 'active_accounts',
-          label: 'Active Customers',
-          type: 'grid',
-          data: { provider: 'object', object: 'account' },
-          columns: ['name', 'industry', 'annual_revenue', 'phone', 'owner'],
-          filter: ['type', '=', 'Customer'],
-          sort: [{ field: 'annual_revenue', order: 'desc' }],
-        },
-      },
-    },
-    // --- Contact Views ---
-    {
-      listViews: {
-        all_contacts: {
-          name: 'all_contacts',
-          label: 'All Contacts',
-          type: 'grid',
-          data: { provider: 'object', object: 'contact' },
-          columns: ['name', 'email', 'phone', 'title', 'account', 'status', 'priority'],
-          sort: [{ field: 'name', order: 'asc' }],
-        },
-        active_contacts: {
-          name: 'active_contacts',
-          label: 'Active Contacts',
-          type: 'grid',
-          data: { provider: 'object', object: 'contact' },
-          columns: ['name', 'email', 'title', 'account', 'status'],
-          filter: ['is_active', '=', true],
-        },
-      },
-    },
-    // --- Opportunity Views ---
-    {
-      listViews: {
-        all: {
-          name: 'all',
-          label: 'All Opportunities',
-          type: 'grid',
-          data: { provider: 'object', object: 'opportunity' },
-          columns: ['name', 'amount', 'stage', 'close_date', 'probability', 'forecast_category'],
-          sort: [{ field: 'close_date', order: 'asc' }],
-        },
-        pipeline: {
-          name: 'pipeline',
-          label: 'Pipeline',
-          type: 'kanban',
-          data: { provider: 'object', object: 'opportunity' },
-          columns: ['name', 'amount', 'close_date', 'probability'],
-          kanban: {
-            groupByField: 'stage',
-            columns: ['name', 'amount', 'close_date'],
-          },
-        },
-        closing_this_month: {
-          name: 'closing_this_month',
-          label: 'Closing This Month',
-          type: 'grid',
-          data: { provider: 'object', object: 'opportunity' },
-          columns: ['name', 'amount', 'stage', 'close_date', 'probability'],
-          sort: [{ field: 'close_date', order: 'asc' }],
-        },
-      },
-    },
-    // --- Product Views ---
-    {
-      listViews: {
-        all_products: {
-          name: 'all_products',
-          label: 'All Products',
-          type: 'grid',
-          data: { provider: 'object', object: 'product' },
-          columns: ['name', 'sku', 'category', 'price', 'stock', 'is_active'],
-          sort: [{ field: 'name', order: 'asc' }],
-        },
-        active_products: {
-          name: 'active_products',
-          label: 'Active Products',
-          type: 'grid',
-          data: { provider: 'object', object: 'product' },
-          columns: ['name', 'sku', 'category', 'price', 'stock', 'tags'],
-          filter: ['is_active', '=', true],
-        },
-      },
-    },
-    // --- Order Views ---
-    {
-      listViews: {
-        all_orders: {
-          name: 'all_orders',
-          label: 'All Orders',
-          type: 'grid',
-          data: { provider: 'object', object: 'order' },
-          columns: ['name', 'customer', 'amount', 'status', 'order_date', 'payment_method'],
-          sort: [{ field: 'order_date', order: 'desc' }],
-        },
-        pending_orders: {
-          name: 'pending_orders',
-          label: 'Pending Orders',
-          type: 'grid',
-          data: { provider: 'object', object: 'order' },
-          columns: ['name', 'customer', 'amount', 'order_date'],
-          filter: ['status', '=', 'pending'],
-        },
-      },
-    },
-    // --- User Views ---
-    {
-      listViews: {
-        all_users: {
-          name: 'all_users',
-          label: 'All Users',
-          type: 'grid',
-          data: { provider: 'object', object: 'user' },
-          columns: ['name', 'email', 'role', 'department', 'active'],
-          sort: [{ field: 'name', order: 'asc' }],
-        },
-        active_users: {
-          name: 'active_users',
-          label: 'Active Users',
-          type: 'grid',
-          data: { provider: 'object', object: 'user' },
-          columns: ['name', 'email', 'role', 'title'],
-          filter: ['active', '=', true],
-        },
-      },
-    },
-    // --- Event Views ---
-    {
-      listViews: {
-        all_events: {
-          name: 'all_events',
-          label: 'All Events',
-          type: 'grid',
-          data: { provider: 'object', object: 'event' },
-          columns: ['subject', 'start', 'end', 'location', 'type', 'status'],
-          sort: [{ field: 'start', order: 'asc' }],
-        },
-        calendar: {
-          name: 'calendar',
-          label: 'Calendar',
-          type: 'calendar',
-          data: { provider: 'object', object: 'event' },
-          columns: ['subject', 'start', 'end', 'type'],
-          calendar: {
-            startDateField: 'start',
-            endDateField: 'end',
-            titleField: 'subject',
-          },
-        },
-        upcoming_meetings: {
-          name: 'upcoming_meetings',
-          label: 'Upcoming Meetings',
-          type: 'grid',
-          data: { provider: 'object', object: 'event' },
-          columns: ['subject', 'start', 'location', 'organizer'],
-          filter: ['type', '=', 'meeting'],
-          sort: [{ field: 'start', order: 'asc' }],
-        },
-      },
-    },
-    // --- Project Task Views ---
-    {
-      listViews: {
-        all_tasks: {
-          name: 'all_tasks',
-          label: 'All Tasks',
-          type: 'grid',
-          data: { provider: 'object', object: 'project_task' },
-          columns: ['name', 'status', 'priority', 'start_date', 'end_date', 'progress', 'assignee'],
-          sort: [{ field: 'start_date', order: 'asc' }],
-        },
-        board: {
-          name: 'board',
-          label: 'Board',
-          type: 'kanban',
-          data: { provider: 'object', object: 'project_task' },
-          columns: ['name', 'priority', 'start_date', 'end_date'],
-          kanban: {
-            groupByField: 'status',
-            columns: ['name', 'priority', 'start_date', 'end_date'],
-          },
-        },
-        gantt: {
-          name: 'gantt',
-          label: 'Gantt',
-          type: 'gantt',
-          data: { provider: 'object', object: 'project_task' },
-          columns: ['name', 'start_date', 'end_date', 'progress', 'status'],
-        },
-        timeline: {
-          name: 'timeline',
-          label: 'Timeline',
-          type: 'timeline',
-          data: { provider: 'object', object: 'project_task' },
-          columns: ['name', 'start_date', 'status'],
-        },
-      },
-    },
+    AccountView,
+    ContactView,
+    OpportunityView,
+    ProductView,
+    OrderView,
+    UserView,
+    EventView,
+    ProjectView,
   ],
   reports: [],
+  actions: [
+    ...AccountActions,
+    ...ContactActions,
+    ...OpportunityActions,
+    ...ProductActions,
+    ...OrderActions,
+    ...UserActions,
+    ...ProjectActions,
+    ...EventActions,
+  ],
   pages: [
     {
       name: 'crm_help',
