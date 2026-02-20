@@ -245,7 +245,7 @@ export const ListView: React.FC<ListViewProps> = ({
     // Auto-derive from objectDef for select/multi-select/boolean fields
     if (!objectDef?.fields) return undefined;
 
-    const filterableTypes = new Set(['select', 'multi-select', 'boolean']);
+    const FILTERABLE_FIELD_TYPES = new Set(['select', 'multi-select', 'boolean']);
     const derivedFields: NonNullable<NonNullable<ListViewSchema['userFilters']>['fields']> = [];
 
     const fieldsEntries: Array<[string, any]> = Array.isArray(objectDef.fields)
@@ -253,11 +253,12 @@ export const ListView: React.FC<ListViewProps> = ({
       : Object.entries(objectDef.fields);
 
     for (const [key, field] of fieldsEntries) {
-      if (filterableTypes.has(field.type) || (field.options && !field.type)) {
+      // Include fields with a filterable type, or fields that have options without an explicit type
+      if (FILTERABLE_FIELD_TYPES.has(field.type) || (field.options && !field.type)) {
         derivedFields.push({
           field: key,
           label: field.label || key,
-          type: field.type === 'boolean' ? 'boolean' : 'select',
+          type: field.type === 'boolean' ? 'boolean' : field.type === 'multi-select' ? 'multi-select' : 'select',
         });
       }
     }
