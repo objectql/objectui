@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { waitForReactMount, CONSOLE_BASE } from './helpers';
-import * as fs from 'fs';
-import * as path from 'path';
+import { existsSync } from 'fs';
+import { join } from 'path';
 
 /**
  * P3 Mobile Visual Regression tests.
@@ -22,8 +22,8 @@ const MOBILE_VIEWPORTS = [
 // Keep in sync with Console app route definitions (apps/console/src/routes).
 const ROUTES = ['/', '/dashboard'];
 
-const snapshotsDir = path.join(__dirname, 'mobile-visual-regression.spec.ts-snapshots');
-const hasBaselines = fs.existsSync(snapshotsDir);
+const snapshotsDir = join(__dirname, 'mobile-visual-regression.spec.ts-snapshots');
+const hasBaselines = existsSync(snapshotsDir);
 
 test.describe('Mobile Visual Regression', () => {
   // Skip the entire suite when baselines have not been generated yet
