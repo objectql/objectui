@@ -211,8 +211,8 @@ export const SchemaRenderer = forwardRef<any, { schema: SchemaNode } & Record<st
     hiddenOn: _hiddenOn,
     disabled: _disabled,
     disabledOn: _disabledOn,
-    _hidden: _internalHidden,    // stripped: internal visibility flag
-    _disabled: _internalDisabled, // stripped: internal disabled flag
+    _hidden: __hidden,    // stripped: internal visibility flag
+    _disabled: __disabled, // stripped: internal disabled flag
     ...componentProps
   } = evaluatedSchema;
 
@@ -227,7 +227,7 @@ export const SchemaRenderer = forwardRef<any, { schema: SchemaNode } & Record<st
         ...componentProps,  // Spread non-metadata schema properties as props
         ...(evaluatedSchema.props || {}),  // Override with explicit props if provided
         ...ariaProps,  // Inject ARIA attributes from AriaPropsSchema
-        disabled: _internalDisabled || undefined,
+        disabled: __disabled || undefined,
         className: evaluatedSchema.className,
         'data-obj-id': evaluatedSchema.id,
         'data-obj-type': evaluatedSchema.type,

@@ -58,9 +58,9 @@ export interface ShortcutBinding {
   actionName: string;
 }
 
-/** Normalize a shortcut string for comparison (lowercase, sorted parts) */
+/** Normalize a shortcut string for comparison (lowercase, trimmed, sorted parts) */
 function normalizeShortcut(keys: string): string {
-  return keys.toLowerCase().split('+').sort().join('+');
+  return keys.toLowerCase().split('+').map(k => k.trim()).sort().join('+');
 }
 
 export class ActionEngine {

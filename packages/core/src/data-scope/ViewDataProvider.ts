@@ -101,6 +101,15 @@ export interface ResolvedData {
   error?: string;
 }
 
+/** Extract records array from various common API response shapes */
+function extractRecords(data: any): any[] {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.records)) return data.records;
+  if (Array.isArray(data?.data)) return data.data;
+  if (Array.isArray(data?.items)) return data.items;
+  return [];
+}
+
 /**
  * Resolves ViewData configuration into actual data via a pluggable fetcher.
  *
@@ -187,15 +196,7 @@ export class ViewDataProvider {
       });
 
       // Handle common response shapes
-      const records = Array.isArray(data)
-        ? data
-        : Array.isArray(data?.records)
-          ? data.records
-          : Array.isArray(data?.data)
-            ? data.data
-            : Array.isArray(data?.items)
-              ? data.items
-              : [];
+      const records = extractRecords(data);
       const total = data?.total ?? data?.count ?? records.length;
 
       return {
