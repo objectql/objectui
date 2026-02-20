@@ -79,15 +79,15 @@ function SectionHeader({ title }: { title: string }) {
 function ToggleIndicator({ enabled }: { enabled: boolean }) {
     return (
         <div
-            className={`w-8 h-4.5 rounded-full relative transition-colors ${
+            className={`w-8 h-5 rounded-full relative transition-colors ${
                 enabled ? 'bg-primary' : 'bg-muted'
             }`}
             role="img"
             aria-label={enabled ? 'Enabled' : 'Disabled'}
         >
             <div
-                className={`absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-transform ${
-                    enabled ? 'translate-x-4' : 'translate-x-0.5'
+                className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
+                    enabled ? 'translate-x-3.5' : 'translate-x-0.5'
                 }`}
             />
         </div>
