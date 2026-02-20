@@ -55,6 +55,7 @@ export function usePullToRefresh<T extends HTMLElement = HTMLElement>(
 
   const handleTouchEnd = useCallback(async () => {
     if (!enabled || isRefreshing) return;
+    // Capture distance and reset UI immediately to prevent lock during async refresh
     const distance = pullDistance;
     setPullDistance(0);
     startYRef.current = 0;

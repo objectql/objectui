@@ -91,7 +91,9 @@ export function normalizeFilterCondition(condition: any[]): any[] {
  */
 export function normalizeFilters(filters: any[]): any[] {
   if (!Array.isArray(filters) || filters.length === 0) return [];
-  return filters.map(f => Array.isArray(f) ? normalizeFilterCondition(f) : f).filter(f => Array.isArray(f) && f.length > 0);
+  return filters
+    .map(f => Array.isArray(f) ? normalizeFilterCondition(f) : f)
+    .filter(f => Array.isArray(f) && f.length > 0);
 }
 
 function convertFilterGroupToAST(group: FilterGroup): any[] {
@@ -739,13 +741,18 @@ export const ListView: React.FC<ListViewProps> = ({
           if (val == null) {
             str = '';
           } else if (Array.isArray(val)) {
-            str = val.map(v => (v != null && typeof v === 'object') ? JSON.stringify(v) : String(v ?? '')).join('; ');
+            str = val.map(v =>
+              (v != null && typeof v === 'object') ? JSON.stringify(v) : String(v ?? ''),
+            ).join('; ');
           } else if (typeof val === 'object') {
             str = JSON.stringify(val);
           } else {
             str = String(val);
           }
-          return str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r') ? `"${str.replace(/"/g, '""')}"` : str;
+          // Escape CSV special characters
+          const needsQuoting = str.includes(',') || str.includes('"')
+            || str.includes('\n') || str.includes('\r');
+          return needsQuoting ? `"${str.replace(/"/g, '""')}"` : str;
         }).join(','));
       });
       const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
