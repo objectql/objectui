@@ -158,6 +158,96 @@ describe('ValueDataSource — find', () => {
 });
 
 // ---------------------------------------------------------------------------
+// AST-format filter support
+// ---------------------------------------------------------------------------
+
+describe('ValueDataSource — AST filter', () => {
+  it('should filter with simple AST equality condition', async () => {
+    const ds = createDS();
+    const result = await ds.find('users', {
+      $filter: ['role', '=', 'admin'] as any,
+    });
+    expect(result.data).toHaveLength(2);
+    expect(result.data.every((r: any) => r.role === 'admin')).toBe(true);
+  });
+
+  it('should filter with AST "in" operator', async () => {
+    const ds = createDS();
+    const result = await ds.find('users', {
+      $filter: ['role', 'in', ['admin', 'guest']] as any,
+    });
+    expect(result.data).toHaveLength(3);
+  });
+
+  it('should filter with AST "and" logical operator', async () => {
+    const ds = createDS();
+    const result = await ds.find('users', {
+      $filter: ['and', ['role', '=', 'admin'], ['age', '>', 30]] as any,
+    });
+    expect(result.data).toHaveLength(1);
+    expect(result.data[0].name).toBe('Charlie');
+  });
+
+  it('should filter with AST "or" logical operator', async () => {
+    const ds = createDS();
+    const result = await ds.find('users', {
+      $filter: ['or', ['role', '=', 'guest'], ['name', '=', 'Alice']] as any,
+    });
+    expect(result.data).toHaveLength(2);
+  });
+
+  it('should filter with AST "!=" operator', async () => {
+    const ds = createDS();
+    const result = await ds.find('users', {
+      $filter: ['role', '!=', 'admin'] as any,
+    });
+    expect(result.data).toHaveLength(3);
+  });
+
+  it('should filter with AST "not in" operator', async () => {
+    const ds = createDS();
+    const result = await ds.find('users', {
+      $filter: ['role', 'not in', ['admin', 'guest']] as any,
+    });
+    expect(result.data).toHaveLength(2);
+    expect(result.data.every((r: any) => r.role === 'user')).toBe(true);
+  });
+
+  it('should filter with AST "contains" operator', async () => {
+    const ds = createDS();
+    const result = await ds.find('users', {
+      $filter: ['name', 'contains', 'li'] as any,
+    });
+    expect(result.data).toHaveLength(2); // Alice, Charlie
+  });
+
+  it('should filter with nested AST (and with in operator)', async () => {
+    const ds = createDS();
+    const result = await ds.find('users', {
+      $filter: ['and', ['role', 'in', ['admin', 'user']], ['age', '>=', 28]] as any,
+    });
+    expect(result.data).toHaveLength(3); // Alice (30, admin), Charlie (35, admin), Diana (28, user)
+  });
+
+  it('should return all items with empty AST filter', async () => {
+    const ds = createDS();
+    const result = await ds.find('users', { $filter: [] as any });
+    expect(result.data).toHaveLength(5);
+  });
+
+  it('should combine AST filter with sort', async () => {
+    const ds = createDS();
+    const result = await ds.find('users', {
+      $filter: ['role', '=', 'admin'] as any,
+      $orderby: { age: 'asc' },
+    });
+    expect(result.data).toHaveLength(2);
+    expect(result.data[0].name).toBe('Alice');
+    expect(result.data[1].name).toBe('Charlie');
+  });
+});
+
+// ---------------------------------------------------------------------------
 // findOne
 // ---------------------------------------------------------------------------
 

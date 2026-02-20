@@ -217,6 +217,8 @@ Full adoption of Cloud namespace, contracts/integration/security/studio modules,
 - [x] Implement selection and pagination spec alignment
 - [x] Implement `quickFilters` and `userFilters` spec properties
 - [x] Auto-derive `userFilters` from objectDef (select/multi-select/boolean fields) when not explicitly configured
+- [x] Fix `userFilters` AST filter conditions not evaluated by ValueDataSource (in-memory)
+- [x] Fix demo guest user missing admin role (all features now accessible when auth is disabled)
 - [x] Implement `hiddenFields` and `fieldOrder` spec properties
 - [x] Implement `emptyState` spec property
 
