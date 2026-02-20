@@ -96,4 +96,25 @@ describe('AuthProvider with enabled prop', () => {
 
     expect(screen.getByTestId('has-expiry').textContent).toBe('true');
   });
+
+  it('should assign admin role to guest user when auth is disabled', async () => {
+    function RoleTestComponent() {
+      const auth = useAuth();
+      return (
+        <div>
+          <div data-testid="user-role">{auth.user?.role || 'null'}</div>
+        </div>
+      );
+    }
+
+    render(
+      <AuthProvider authUrl="/api/auth" enabled={false}>
+        <RoleTestComponent />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user-role').textContent).toBe('admin');
+    });
+  });
 });

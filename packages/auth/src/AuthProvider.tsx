@@ -105,11 +105,13 @@ export function AuthProvider({
     }
 
     if (!enabled) {
-      // When auth is disabled, set a guest user and mark as loaded
+      // When auth is disabled, set a guest user with admin role and mark as loaded.
+      // Admin role ensures all features are accessible in demo/dev environments.
       setUser({
         id: 'guest',
         email: 'guest@local',
         name: 'Guest User',
+        role: 'admin',
       });
       setSession({
         token: 'guest-token',

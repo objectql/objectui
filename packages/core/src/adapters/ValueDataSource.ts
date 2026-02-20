@@ -37,6 +37,69 @@ function getRecordId(record: any, idField?: string): string | number | undefined
 }
 
 /**
+ * Evaluate an AST-format filter node against a record.
+ * Supports conditions like ['field', 'op', value] and logical
+ * combinations like ['and', ...conditions] or ['or', ...conditions].
+ */
+function matchesASTFilter(record: any, filterNode: any[]): boolean {
+  if (!filterNode || filterNode.length === 0) return true;
+
+  const head = filterNode[0];
+
+  // Logical operators: ['and', ...conditions] or ['or', ...conditions]
+  if (head === 'and') {
+    return filterNode.slice(1).every((sub: any) => matchesASTFilter(record, sub));
+  }
+  if (head === 'or') {
+    return filterNode.slice(1).some((sub: any) => matchesASTFilter(record, sub));
+  }
+
+  // Condition node: [field, operator, value]
+  if (filterNode.length === 3 && typeof head === 'string') {
+    const [field, operator, target] = filterNode;
+    const value = record[field];
+
+    switch (operator) {
+      case '=':
+        return value === target;
+      case '!=':
+        return value !== target;
+      case '>':
+        return value > target;
+      case '>=':
+        return value >= target;
+      case '<':
+        return value < target;
+      case '<=':
+        return value <= target;
+      case 'in':
+        return Array.isArray(target) && target.includes(value);
+      case 'not in':
+      case 'notin': // alias used by convertFiltersToAST
+        return Array.isArray(target) && !target.includes(value);
+      case 'contains': {
+        const lv = typeof value === 'string' ? value.toLowerCase() : '';
+        return typeof value === 'string' && lv.includes(String(target).toLowerCase());
+      }
+      case 'notcontains': {
+        const lv = typeof value === 'string' ? value.toLowerCase() : '';
+        return typeof value === 'string' && !lv.includes(String(target).toLowerCase());
+      }
+      case 'startswith': {
+        const lv = typeof value === 'string' ? value.toLowerCase() : '';
+        return typeof value === 'string' && lv.startsWith(String(target).toLowerCase());
+      }
+      case 'between':
+        return Array.isArray(target) && target.length === 2 && value >= target[0] && value <= target[1];
+      default:
+        return true;
+    }
+  }
+
+  return true;
+}
+
+/**
  * Simple in-memory filter evaluation.
  * Supports flat key-value equality and basic operators ($gt, $gte, $lt, $lte, $ne, $in).
  */
@@ -177,9 +240,13 @@ export class ValueDataSource<T = any> implements DataSource<T> {
   async find(_resource: string, params?: QueryParams): Promise<QueryResult<T>> {
     let result = [...this.items];
 
-    // Filter
-    if (params?.$filter && Object.keys(params.$filter).length > 0) {
-      result = result.filter((r) => matchesFilter(r, params.$filter!));
+    // Filter — support both MongoDB-style objects and AST-format arrays
+    if (params?.$filter) {
+      if (Array.isArray(params.$filter) && params.$filter.length > 0) {
+        result = result.filter((r) => matchesASTFilter(r, params.$filter as any[]));
+      } else if (!Array.isArray(params.$filter) && Object.keys(params.$filter).length > 0) {
+        result = result.filter((r) => matchesFilter(r, params.$filter!));
+      }
     }
 
     // Search (simple text search across all string fields)
