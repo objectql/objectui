@@ -83,6 +83,9 @@ import type { ViewTabBarConfig } from '@object-ui/types';
 /** Visibility group sort order: private → team → organization → public */
 const VISIBILITY_ORDER: Record<string, number> = { private: 0, team: 1, organization: 2, public: 3 };
 
+/** Minimum drag distance in pixels to activate reorder */
+const DRAG_ACTIVATION_DISTANCE = 5;
+
 /** A single view definition for the tab bar */
 export interface ViewTabItem {
   /** Unique view identifier */
@@ -266,8 +269,8 @@ export const ViewTabBar: React.FC<ViewTabBarProps> = ({
       }
       // Visibility grouping: private → team → organization → public
       if (showVisibilityGroups) {
-        const aOrder = VISIBILITY_ORDER[a.visibility || 'public'] ?? 3;
-        const bOrder = VISIBILITY_ORDER[b.visibility || 'public'] ?? 3;
+        const aOrder = VISIBILITY_ORDER[a.visibility || 'public'] ?? VISIBILITY_ORDER['public'];
+        const bOrder = VISIBILITY_ORDER[b.visibility || 'public'] ?? VISIBILITY_ORDER['public'];
         if (aOrder !== bOrder) return aOrder - bOrder;
       }
       return 0;
@@ -281,7 +284,7 @@ export const ViewTabBar: React.FC<ViewTabBarProps> = ({
 
   // --- Drag-reorder sensors ---
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(PointerSensor, { activationConstraint: { distance: DRAG_ACTIVATION_DISTANCE } }),
     useSensor(KeyboardSensor),
   );
 
