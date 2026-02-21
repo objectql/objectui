@@ -95,7 +95,7 @@ describe('CalendarView', () => {
 
     const triggerButton = dateLabel.closest('button');
     expect(triggerButton).toBeInTheDocument();
-    expect(triggerButton).toHaveClass('text-xl font-semibold');
+    expect(triggerButton).toHaveClass('text-base sm:text-xl font-semibold');
   });
 
   it('opens date picker on click', () => {
