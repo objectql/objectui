@@ -345,6 +345,8 @@ export function AppSchemaRenderer({
     () => areas.length > 0 ? areas[0].id : null,
   );
 
+  const areaIds = areas.map((a) => a.id).join(',');
+
   useEffect(() => {
     if (areas.length > 0) {
       setActiveAreaId((prev) =>
@@ -353,7 +355,7 @@ export function AppSchemaRenderer({
     } else {
       setActiveAreaId(null);
     }
-  }, [schema.name, areas.length]);
+  }, [schema.name, areaIds]);
 
   const activeArea = areas.find((a) => a.id === activeAreaId);
   const resolvedNavigation: NavigationItem[] = activeArea?.navigation ?? flatNavigation;

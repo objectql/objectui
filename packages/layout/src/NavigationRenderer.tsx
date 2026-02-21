@@ -101,6 +101,7 @@ export function resolveIcon(name?: string): React.ComponentType<any> {
   // kebab-case → PascalCase
   const pascal = name
     .split('-')
+    .filter(Boolean)
     .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
     .join('');
   if ((LucideIcons as any)[pascal]) {
