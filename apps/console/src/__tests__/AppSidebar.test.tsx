@@ -72,6 +72,16 @@ vi.mock('../hooks/useFavorites', () => ({
   useFavorites: () => ({ favorites: [], removeFavorite: vi.fn() }),
 }));
 
+vi.mock('../hooks/useNavPins', () => ({
+  useNavPins: () => ({
+    pinnedIds: [],
+    togglePin: vi.fn(),
+    isPinned: () => false,
+    applyPins: (items: any[]) => items,
+    clearPins: vi.fn(),
+  }),
+}));
+
 vi.mock('../utils', () => ({
   resolveI18nLabel: (label: any) => (typeof label === 'string' ? label : label?.en || ''),
 }));
