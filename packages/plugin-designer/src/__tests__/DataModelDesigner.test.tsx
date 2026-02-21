@@ -192,6 +192,8 @@ describe('DataModelDesigner', () => {
       const onChange = vi.fn();
       render(<DataModelDesigner entities={MOCK_ENTITIES} onEntitiesChange={onChange} />);
 
+      const callCountBefore = onChange.mock.calls.length;
+
       const label = screen.getByTestId('entity-label-entity-1');
       fireEvent.doubleClick(label);
 
@@ -199,7 +201,8 @@ describe('DataModelDesigner', () => {
       fireEvent.change(input, { target: { value: '   ' } });
       fireEvent.keyDown(input, { key: 'Enter' });
 
-      // Should not have committed (no onEntitiesChange beyond any prior calls)
+      // Should not have committed (no additional onEntitiesChange call)
+      expect(onChange.mock.calls.length).toBe(callCountBefore);
       // The input should be gone (editing cancelled)
       expect(screen.queryByTestId('entity-label-input-entity-1')).toBeNull();
     });

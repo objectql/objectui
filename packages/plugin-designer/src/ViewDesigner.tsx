@@ -754,12 +754,8 @@ export function ViewDesigner({
                       <label className="text-xs text-muted-foreground">Field Type</label>
                       <select
                         value={availableFields.find((f) => f.name === columns[selectedColumnIndex].field)?.type ?? 'text'}
-                        onChange={(e) => {
-                          if (readOnly) return;
-                          // Field type is informational — stored on the availableField, not the column
-                        }}
-                        className="w-full px-2 py-1 text-sm border rounded bg-background mt-1"
-                        disabled={readOnly}
+                        disabled
+                        className="w-full px-2 py-1 text-sm border rounded bg-muted/50 mt-1"
                         data-testid="column-field-type"
                       >
                         {DESIGNER_FIELD_TYPES.map((ft) => (
@@ -780,7 +776,7 @@ export function ViewDesigner({
                           const val = e.target.value;
                           if (val === '' || val === 'auto') {
                             pushState({
-                              columns: columns.map((c, i) => (i === idx ? { ...c, width: val || undefined } : c)),
+                              columns: columns.map((c, i) => (i === idx ? { ...c, width: val === 'auto' ? 'auto' : undefined } : c)),
                             });
                             return;
                           }
