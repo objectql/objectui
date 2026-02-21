@@ -229,6 +229,22 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 
 ## 🔮 P3 — Future Vision (Deferred)
 
+### CRM Example Metadata Enhancement ✅
+
+> Comprehensive metadata expansion for the CRM reference implementation.
+
+- [x] **P0: Reports** — Sales Report and Pipeline Report with full ReportSchema (fields, groupBy, sections, schedule, export)
+- [x] **P0: Report Navigation** — Native `type: 'report'` navigation items (no shared config hack)
+- [x] **P1: Seed Data — Users** — 7 users covering admin, manager, user, viewer roles + inactive user
+- [x] **P1: Seed Data — Orders** — 7 orders covering all statuses (draft, pending, paid, shipped, delivered, cancelled)
+- [x] **P1: Seed Data — Products** — 2 inactive products (`is_active: false`) for filter testing
+- [x] **P1: Order ↔ Product Junction** — `order_items` object with line items (quantity, price, discount, item_type) + 12 seed records
+- [x] **P1: Opportunity ↔ Contact Junction** — `opportunity_contacts` object with role-based relationships + 7 seed records
+- [x] **P1: Contact ↔ Event Attendees** — `participants` field populated on all event seed data
+- [x] **P2: Dashboard Dynamic Data** — "Revenue by Account" widget using `provider: 'object'` aggregation
+- [x] **P2: App Branding** — `logo`, `favicon`, `backgroundColor` fields on CRM app
+- [x] **P3: Pages** — Settings page (utility) and Getting Started page (onboarding)
+
 ### Ecosystem & Marketplace
 - Plugin marketplace website with search, ratings, and install count
 - Plugin publishing CLI (`os ui publish`) with automated validation
