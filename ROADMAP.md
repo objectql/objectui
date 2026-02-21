@@ -132,6 +132,18 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] i18n for all 11 locales (en, zh, ja, de, fr, es, ar, ru, pt, ko)
 - [ ] Conditional formatting rules
 
+### P1.9 Console — Content Area Layout & Responsiveness
+
+- [x] Add `min-w-0` / `overflow-hidden` to flex layout chain (SidebarInset → AppShell → ObjectView → PluginObjectView) to prevent content overflow
+- [x] Fix Gantt task list width — responsive sizing (120px mobile, 200px tablet, 300px desktop) instead of hardcoded 300px
+- [x] Fix Kanban board overflow containment (`min-w-0` on swimlane and flat containers)
+- [x] Fix Calendar header responsive wrapping and date label sizing
+- [x] Fix Map container overflow containment via `cn()` merge
+- [x] Fix Timeline container `min-w-0` to prevent overflow
+- [x] Fix ListView container `min-w-0 overflow-hidden` to prevent overflow
+- [ ] Mobile/tablet end-to-end testing for all view types
+- [ ] Dynamic width calculation for Gantt task list and Kanban columns based on container width
+
 ---
 
 ## 🧩 P2 — Polish & Advanced Features
