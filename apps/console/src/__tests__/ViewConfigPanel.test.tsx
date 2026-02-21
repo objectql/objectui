@@ -551,4 +551,87 @@ describe('ViewConfigPanel', () => {
         expect(screen.getByTestId('toggle-allowExport')).toHaveAttribute('aria-checked', 'false');
         expect(screen.getByTestId('toggle-addRecordViaForm')).toHaveAttribute('aria-checked', 'true');
     });
+
+    // ── Real-time draft propagation tests (issue fix) ──
+
+    it('keeps dirty state when re-rendered with same view ID but updated activeView', () => {
+        const onViewUpdate = vi.fn();
+        const { rerender } = render(
+            <ViewConfigPanel
+                open={true}
+                onClose={vi.fn()}
+                activeView={mockActiveView}
+                objectDef={mockObjectDef}
+                onViewUpdate={onViewUpdate}
+            />
+        );
+
+        // Toggle showSearch — panel becomes dirty
+        fireEvent.click(screen.getByTestId('toggle-showSearch'));
+        expect(screen.getByTestId('view-config-footer')).toBeInTheDocument();
+
+        // Simulate parent re-rendering with the same view ID but merged draft
+        // (this happens when onViewUpdate propagates to parent viewDraft → activeView)
+        rerender(
+            <ViewConfigPanel
+                open={true}
+                onClose={vi.fn()}
+                activeView={{ ...mockActiveView, showSearch: false }}
+                objectDef={mockObjectDef}
+                onViewUpdate={onViewUpdate}
+            />
+        );
+
+        // Draft footer should still be visible (isDirty should NOT reset for same view ID)
+        expect(screen.getByTestId('view-config-footer')).toBeInTheDocument();
+    });
+
+    it('resets dirty state when activeView changes to a different view ID', () => {
+        const { rerender } = render(
+            <ViewConfigPanel
+                open={true}
+                onClose={vi.fn()}
+                activeView={mockActiveView}
+                objectDef={mockObjectDef}
+            />
+        );
+
+        // Make the panel dirty
+        fireEvent.click(screen.getByTestId('toggle-showSearch'));
+        expect(screen.getByTestId('view-config-footer')).toBeInTheDocument();
+
+        // Switch to a completely different view
+        rerender(
+            <ViewConfigPanel
+                open={true}
+                onClose={vi.fn()}
+                activeView={{ id: 'pipeline', label: 'Pipeline', type: 'kanban', columns: ['name'] }}
+                objectDef={mockObjectDef}
+            />
+        );
+
+        // Draft should reset — footer should be gone
+        expect(screen.queryByTestId('view-config-footer')).not.toBeInTheDocument();
+    });
+
+    it('calls onViewUpdate for each real-time field change to enable live preview', () => {
+        const onViewUpdate = vi.fn();
+        render(
+            <ViewConfigPanel
+                open={true}
+                onClose={vi.fn()}
+                activeView={mockActiveView}
+                objectDef={mockObjectDef}
+                onViewUpdate={onViewUpdate}
+            />
+        );
+
+        // Toggle multiple switches
+        fireEvent.click(screen.getByTestId('toggle-showSearch'));
+        fireEvent.click(screen.getByTestId('toggle-showFilters'));
+
+        expect(onViewUpdate).toHaveBeenCalledTimes(2);
+        expect(onViewUpdate).toHaveBeenCalledWith('showSearch', false);
+        expect(onViewUpdate).toHaveBeenCalledWith('showFilters', false);
+    });
 });

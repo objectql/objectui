@@ -110,11 +110,14 @@ export function ViewConfigPanel({ open, onClose, activeView, objectDef, onViewUp
     const [draft, setDraft] = useState<Record<string, any>>({});
     const [isDirty, setIsDirty] = useState(false);
 
-    // Reset draft when activeView changes (e.g. switching views)
+    // Reset draft when switching to a different view (by ID change only).
+    // We intentionally depend on activeView.id rather than the full activeView
+    // object so that real-time draft propagation (via onViewUpdate → parent
+    // setViewDraft → merged activeView) does not reset isDirty to false.
     useEffect(() => {
         setDraft({ ...activeView });
         setIsDirty(false);
-    }, [activeView]);
+    }, [activeView.id]);
 
     // Focus the panel when it opens for keyboard accessibility
     useEffect(() => {
