@@ -75,8 +75,14 @@ export interface AppSchemaRendererProps {
   /** Slot: top navbar content (rendered beside the sidebar trigger) */
   navbar?: React.ReactNode;
 
+  /** Slot: sidebar header (e.g. app switcher dropdown). Replaces default branding header when provided. */
+  sidebarHeader?: React.ReactNode;
+
   /** Slot: sidebar footer (e.g. user profile menu) */
   sidebarFooter?: React.ReactNode;
+
+  /** Slot: extra sidebar content rendered after navigation (e.g. favorites, recent items) */
+  sidebarExtra?: React.ReactNode;
 
   /** Page content */
   children: React.ReactNode;
@@ -223,7 +229,9 @@ function InternalSidebar({
   evalVis,
   checkPerm,
   onAction,
+  sidebarHeader,
   sidebarFooter,
+  sidebarExtra,
   activeAreaId,
   setActiveAreaId,
   resolvedNavigation,
@@ -238,7 +246,9 @@ function InternalSidebar({
   evalVis: VisibilityEvaluator;
   checkPerm: PermissionChecker;
   onAction?: (item: NavigationItem) => void;
+  sidebarHeader?: React.ReactNode;
   sidebarFooter?: React.ReactNode;
+  sidebarExtra?: React.ReactNode;
   activeAreaId: string | null;
   setActiveAreaId: (id: string) => void;
   resolvedNavigation: NavigationItem[];
@@ -254,35 +264,37 @@ function InternalSidebar({
 
   return (
     <Sidebar collapsible="icon">
-      {/* Header: app name + icon */}
+      {/* Header: custom slot or default branding */}
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" tooltip={schema.title ?? schema.name}>
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                {schema.logo && schema.logo.startsWith('http') ? (
-                  <img
-                    src={schema.logo}
-                    alt={schema.title ?? ''}
-                    className="size-6 object-contain"
-                  />
-                ) : (
-                  <Icon className="size-4" />
-                )}
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">
-                  {schema.title ?? schema.name ?? 'App'}
-                </span>
-                {schema.description && (
-                  <span className="truncate text-xs text-muted-foreground">
-                    {schema.description}
+        {sidebarHeader ?? (
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg" tooltip={schema.title ?? schema.name}>
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                  {schema.logo && schema.logo.startsWith('http') ? (
+                    <img
+                      src={schema.logo}
+                      alt={schema.title ?? ''}
+                      className="size-6 object-contain"
+                    />
+                  ) : (
+                    <Icon className="size-4" />
+                  )}
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">
+                    {schema.title ?? schema.name ?? 'App'}
                   </span>
-                )}
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+                  {schema.description && (
+                    <span className="truncate text-xs text-muted-foreground">
+                      {schema.description}
+                    </span>
+                  )}
+                </div>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        )}
         {/* Search input */}
         {enableSearch && (
           <SidebarInput
@@ -319,6 +331,9 @@ function InternalSidebar({
           enableReorder={enableReorder}
           onReorder={onReorder}
         />
+
+        {/* Extra sidebar content slot (e.g. favorites, recent items) */}
+        {sidebarExtra}
       </SidebarContent>
 
       {/* Optional footer slot */}
@@ -363,7 +378,9 @@ export function AppSchemaRenderer({
   checkPermission: checkPermProp,
   onAction,
   navbar,
+  sidebarHeader,
   sidebarFooter,
+  sidebarExtra,
   children,
   className,
   defaultOpen = true,
@@ -423,7 +440,9 @@ export function AppSchemaRenderer({
       evalVis={evalVis}
       checkPerm={checkPerm}
       onAction={onAction}
+      sidebarHeader={sidebarHeader}
       sidebarFooter={sidebarFooter}
+      sidebarExtra={sidebarExtra}
       activeAreaId={activeAreaId}
       setActiveAreaId={setActiveAreaId}
       resolvedNavigation={resolvedNavigation}
