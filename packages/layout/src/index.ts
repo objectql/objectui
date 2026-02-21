@@ -10,6 +10,8 @@ import { Page } from './Page';
 import { PageCard } from './PageCard';
 import { SidebarNav } from './SidebarNav';
 import { ResponsiveGrid } from './ResponsiveGrid';
+import { NavigationRenderer } from './NavigationRenderer';
+import { AppSchemaRenderer } from './AppSchemaRenderer';
 
 export * from './PageHeader';
 export * from './AppShell';
@@ -17,6 +19,8 @@ export * from './Page';
 export * from './PageCard';
 export * from './SidebarNav';
 export * from './ResponsiveGrid';
+export * from './NavigationRenderer';
+export * from './AppSchemaRenderer';
 
 export function registerLayout() {
   ComponentRegistry.register('page-header', PageHeader, {
@@ -54,6 +58,28 @@ export function registerLayout() {
     inputs: [
       { name: 'columns', type: 'object' },
       { name: 'gap', type: 'number' },
+    ],
+  });
+
+  ComponentRegistry.register('navigation-renderer', NavigationRenderer, {
+    namespace: 'layout',
+    label: 'Navigation Renderer',
+    category: 'Layout',
+    inputs: [
+      { name: 'items', type: 'object' },
+      { name: 'basePath', type: 'string' },
+    ],
+  });
+
+  ComponentRegistry.register('app-schema-renderer', AppSchemaRenderer, {
+    namespace: 'layout',
+    label: 'App Schema Renderer',
+    category: 'Layout',
+    isContainer: true,
+    inputs: [
+      { name: 'schema', type: 'object' },
+      { name: 'basePath', type: 'string' },
+      { name: 'mobileNavMode', type: 'string' },
     ],
   });
 
