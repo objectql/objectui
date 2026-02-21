@@ -333,6 +333,17 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
         );
     }, [activeView, objectDef, objectName, refreshKey]);
 
+    // Memoize the merged views array so PluginObjectView doesn't get a new
+    // reference on every render (which would trigger unnecessary data refetches).
+    const mergedViews = useMemo(() =>
+        views.map((v: any) =>
+            v.id === activeViewId && viewDraft && viewDraft.id === v.id
+                ? { ...v, ...viewDraft }
+                : v
+        ),
+        [views, activeViewId, viewDraft]
+    );
+
     // Build the ObjectViewSchema for the plugin — reads from activeView (which merges draft)
     const objectViewSchema = useMemo(() => ({
         type: 'object-view' as const,
@@ -480,11 +491,7 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
                             key={refreshKey}
                             schema={objectViewSchema}
                             dataSource={dataSource}
-                            views={views.map((v: any) =>
-                                v.id === activeViewId && viewDraft && viewDraft.id === v.id
-                                    ? { ...v, ...viewDraft }
-                                    : v
-                            )}
+                            views={mergedViews}
                             activeViewId={activeViewId}
                             onViewChange={handleViewChange}
                             onEdit={(record: any) => onEdit?.(record)}

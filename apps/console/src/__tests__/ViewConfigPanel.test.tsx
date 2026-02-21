@@ -86,7 +86,7 @@ const mockActiveView = {
     label: 'All Records',
     type: 'grid',
     columns: ['name', 'stage', 'amount'],
-    filter: [{ field: 'stage', operator: '=', value: 'active' }],
+    filter: ['stage', '=', 'active'],  // spec-style single triplet
     sort: [{ field: 'name', order: 'asc' }],
 };
 
@@ -460,7 +460,7 @@ describe('ViewConfigPanel', () => {
         const fb = screen.getByTestId('mock-filter-builder');
         expect(fb).toHaveAttribute('data-condition-count', '1');
         expect(fb).toHaveAttribute('data-field-count', '3');
-        expect(screen.getByTestId('filter-condition-0')).toHaveTextContent('stage = active');
+        expect(screen.getByTestId('filter-condition-0')).toHaveTextContent('stage equals active');
     });
 
     it('renders inline SortBuilder with correct items from activeView', () => {
@@ -700,5 +700,67 @@ describe('ViewConfigPanel', () => {
         expect(onViewUpdate).toHaveBeenCalledTimes(2);
         expect(onViewUpdate).toHaveBeenCalledWith('showSearch', false);
         expect(onViewUpdate).toHaveBeenCalledWith('showFilters', false);
+    });
+
+    // ── Spec-style filter bridge tests ──
+
+    it('parses nested spec-style filter array [[field,op,val],[field,op,val]]', () => {
+        render(
+            <ViewConfigPanel
+                open={true}
+                onClose={vi.fn()}
+                activeView={{
+                    ...mockActiveView,
+                    filter: [['stage', '=', 'active'], ['name', '!=', 'Test']],
+                }}
+                objectDef={mockObjectDef}
+            />
+        );
+
+        const fb = screen.getByTestId('mock-filter-builder');
+        expect(fb).toHaveAttribute('data-condition-count', '2');
+        expect(screen.getByTestId('filter-condition-0')).toHaveTextContent('stage equals active');
+        expect(screen.getByTestId('filter-condition-1')).toHaveTextContent('name notEquals Test');
+    });
+
+    it('parses and/or logic prefix: ["or", [...], [...]]', () => {
+        render(
+            <ViewConfigPanel
+                open={true}
+                onClose={vi.fn()}
+                activeView={{
+                    ...mockActiveView,
+                    filter: ['or', ['stage', '=', 'active'], ['stage', '=', 'pending']],
+                }}
+                objectDef={mockObjectDef}
+            />
+        );
+
+        const fb = screen.getByTestId('mock-filter-builder');
+        expect(fb).toHaveAttribute('data-condition-count', '2');
+    });
+
+    it('normalizes field types for FilterBuilder (currency→number)', () => {
+        render(
+            <ViewConfigPanel
+                open={true}
+                onClose={vi.fn()}
+                activeView={mockActiveView}
+                objectDef={{
+                    ...mockObjectDef,
+                    fields: {
+                        name: { label: 'Name', type: 'text' },
+                        revenue: { label: 'Revenue', type: 'currency' },
+                        created: { label: 'Created', type: 'datetime' },
+                        active: { label: 'Active', type: 'boolean' },
+                        status: { label: 'Status', type: 'picklist' },
+                    },
+                }}
+            />
+        );
+
+        // The mock FilterBuilder receives normalized fields via data-field-count
+        const fb = screen.getByTestId('mock-filter-builder');
+        expect(fb).toHaveAttribute('data-field-count', '5');
     });
 });
