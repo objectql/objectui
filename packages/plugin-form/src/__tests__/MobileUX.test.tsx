@@ -320,4 +320,45 @@ describe('ModalForm Container Query Layout', () => {
     const gridEl = containerEl!.querySelector('[class*="@md:grid-cols"]');
     expect(gridEl).toBeNull();
   });
+
+  it('form element itself declares @container for container query context', async () => {
+    const manyFieldsSchema = {
+      name: 'contacts',
+      fields: {
+        name: { label: 'Name', type: 'text', required: true },
+        email: { label: 'Email', type: 'email', required: false },
+        phone: { label: 'Phone', type: 'phone', required: false },
+        company: { label: 'Company', type: 'text', required: false },
+        department: { label: 'Department', type: 'text', required: false },
+        title: { label: 'Title', type: 'text', required: false },
+      },
+    };
+    const mockDataSource = createMockDataSource();
+    mockDataSource.getObjectSchema.mockResolvedValue(manyFieldsSchema);
+
+    render(
+      <ModalForm
+        schema={{
+          type: 'object-form',
+          formType: 'modal',
+          objectName: 'contacts',
+          mode: 'create',
+          title: 'Create Contact',
+          open: true,
+        }}
+        dataSource={mockDataSource as any}
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Name')).toBeInTheDocument();
+    });
+
+    // The inner <form> element should have @container class so that
+    // container-query grid classes resolve against the form's own width
+    const dialogContent = document.querySelector('[role="dialog"]');
+    const formEl = dialogContent!.querySelector('form');
+    expect(formEl).not.toBeNull();
+    expect(formEl!.className).toContain('@container');
+  });
 });

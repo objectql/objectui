@@ -74,6 +74,7 @@ All 11 plugin views (Grid, Kanban, Form, Dashboard, Calendar, Timeline, List, De
 - `MobileDialogContent` custom component for ModalForm with flex layout (sticky header + scrollable body + sticky footer).
 - ModalForm: skeleton loading state, sticky action buttons, container-query-based grid layout (`@container` + `@md:grid-cols-2`) ensures single-column on narrow mobile modals regardless of viewport width.
 - DrawerForm: container-query-based grid layout matching ModalForm, responsive to actual drawer width.
+- **Form renderer container query migration**: Base form renderer (`form.tsx`) and `FormSection` now use CSS container query breakpoints (`@md:grid-cols-2`, `@lg:grid-cols-3`, `@xl:grid-cols-4`) instead of viewport-based breakpoints (`md:`/`lg:`/`xl:`). The `<form>` element declares `@container` (inline-size containment), so all forms — modal, drawer, and full-page — respond to their actual container width. This eliminates the mobile two-column bug where high-resolution phones with wide viewports would trigger viewport breakpoints even when the modal content area was narrow.
 - Date/DateTime fields use native HTML5 inputs (`type="date"`, `type="datetime-local"`) for optimal mobile picker UX.
 - Form sections supported via `ModalFormSectionConfig` for visual field grouping.
 - Mobile card view optimizations for Opportunity list view:

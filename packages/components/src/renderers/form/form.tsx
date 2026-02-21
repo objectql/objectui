@@ -161,15 +161,15 @@ ComponentRegistry.register('form',
     };
 
     // Determine grid classes based on columns (explicit classes for Tailwind JIT)
-    // Mobile-first: 1 column on mobile, responsive breakpoints for larger screens
+    // Container-query-based: 1 column by default, responsive to container width
     const gridColsClass = 
       columns === 1 ? '' :
-      columns === 2 ? 'md:grid-cols-2' :
-      columns === 3 ? 'md:grid-cols-2 lg:grid-cols-3' :
-      'md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
+      columns === 2 ? '@md:grid-cols-2' :
+      columns === 3 ? '@md:grid-cols-2 @lg:grid-cols-3' :
+      '@md:grid-cols-2 @lg:grid-cols-3 @xl:grid-cols-4';
     
     const gridClass = columns > 1 
-      ? cn('grid gap-4', gridColsClass)
+      ? cn('grid gap-4 grid-cols-1', gridColsClass)
       : 'space-y-4';
 
     // Extract designer-related props and conflicting handlers
@@ -194,7 +194,7 @@ ComponentRegistry.register('form',
       <Form {...form}>
         <form 
             onSubmit={handleSubmit} 
-            className={className} 
+            className={cn('@container', className)} 
             {...formProps}
             // Apply designer props
             data-obj-id={dataObjId}

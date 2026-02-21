@@ -78,7 +78,7 @@ describe('FormSection', () => {
 
     const grid = container.querySelector('.grid');
     expect(grid).toBeInTheDocument();
-    expect(grid?.className).toContain('md:grid-cols-2');
+    expect(grid?.className).toContain('@md:grid-cols-2');
   });
 });
 
