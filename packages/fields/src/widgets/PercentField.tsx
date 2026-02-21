@@ -62,8 +62,9 @@ export function PercentField({ value, onChange, field, readonly, errorMessage, c
         min={0}
         max={100}
         step={1}
-        disabled={props.disabled}
+        disabled={readonly || props.disabled}
         className="w-full"
+        aria-label="Percentage"
         data-testid="percent-slider"
       />
     </div>
