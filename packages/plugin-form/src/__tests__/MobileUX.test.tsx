@@ -191,3 +191,133 @@ describe('ModalForm Mobile UX', () => {
     expect(screen.queryByTestId('modal-form-footer')).not.toBeInTheDocument();
   });
 });
+
+describe('ModalForm Container Query Layout', () => {
+  /** CSS selector for the @container query context element */
+  const CONTAINER_SELECTOR = '.\\@container';
+
+  it('applies @container class on scrollable content area', async () => {
+    const mockDataSource = createMockDataSource();
+
+    render(
+      <ModalForm
+        schema={{
+          type: 'object-form',
+          formType: 'modal',
+          objectName: 'events',
+          mode: 'create',
+          title: 'Create Event',
+          open: true,
+        }}
+        dataSource={mockDataSource as any}
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Create Event')).toBeInTheDocument();
+    });
+
+    // The scrollable content wrapper should be a @container query context
+    const dialogContent = document.querySelector('[role="dialog"]');
+    expect(dialogContent).not.toBeNull();
+    const scrollArea = dialogContent!.querySelector(CONTAINER_SELECTOR);
+    expect(scrollArea).not.toBeNull();
+    expect(scrollArea!.className).toContain('overflow-y-auto');
+  });
+
+  it('uses container-query grid classes for multi-column flat fields', async () => {
+    // Mock schema with enough fields to trigger auto-layout 2-column
+    const manyFieldsSchema = {
+      name: 'contacts',
+      fields: {
+        name: { label: 'Name', type: 'text', required: true },
+        email: { label: 'Email', type: 'email', required: false },
+        phone: { label: 'Phone', type: 'phone', required: false },
+        company: { label: 'Company', type: 'text', required: false },
+        department: { label: 'Department', type: 'text', required: false },
+        title: { label: 'Title', type: 'text', required: false },
+      },
+    };
+    const mockDataSource = createMockDataSource();
+    mockDataSource.getObjectSchema.mockResolvedValue(manyFieldsSchema);
+
+    render(
+      <ModalForm
+        schema={{
+          type: 'object-form',
+          formType: 'modal',
+          objectName: 'contacts',
+          mode: 'create',
+          title: 'Create Contact',
+          open: true,
+        }}
+        dataSource={mockDataSource as any}
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Create Contact')).toBeInTheDocument();
+    });
+
+    // Wait for fields to render
+    await waitFor(() => {
+      expect(screen.getByText('Name')).toBeInTheDocument();
+    });
+
+    // The form field container should use container-query classes (@md:grid-cols-2)
+    // instead of viewport-based classes (md:grid-cols-2)
+    const dialogContent = document.querySelector('[role="dialog"]');
+    const containerEl = dialogContent!.querySelector(CONTAINER_SELECTOR);
+    expect(containerEl).not.toBeNull();
+
+    // Look for the grid container with @md:grid-cols-2
+    const gridEl = containerEl!.querySelector('[class*="@md:grid-cols-2"]');
+    expect(gridEl).not.toBeNull();
+    expect(gridEl!.className).toContain('@md:grid-cols-2');
+    // Should NOT use viewport-based md:grid-cols-2 (without @ prefix)
+    expect(gridEl!.className).not.toContain(' md:grid-cols-2');
+  });
+
+  it('single-column forms do not get container grid override', async () => {
+    // Only 3 fields → auto-layout stays at 1 column
+    const fewFieldsSchema = {
+      name: 'notes',
+      fields: {
+        title: { label: 'Title', type: 'text', required: true },
+        body: { label: 'Body', type: 'textarea', required: false },
+        status: { label: 'Status', type: 'select', required: false, options: [{ value: 'draft', label: 'Draft' }] },
+      },
+    };
+    const mockDataSource = createMockDataSource();
+    mockDataSource.getObjectSchema.mockResolvedValue(fewFieldsSchema);
+
+    render(
+      <ModalForm
+        schema={{
+          type: 'object-form',
+          formType: 'modal',
+          objectName: 'notes',
+          mode: 'create',
+          title: 'Create Note',
+          open: true,
+        }}
+        dataSource={mockDataSource as any}
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Create Note')).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Title')).toBeInTheDocument();
+    });
+
+    // Single column form should not have @md:grid-cols-2
+    const dialogContent = document.querySelector('[role="dialog"]');
+    const containerEl = dialogContent!.querySelector(CONTAINER_SELECTOR);
+    expect(containerEl).not.toBeNull();
+    const gridEl = containerEl!.querySelector('[class*="@md:grid-cols"]');
+    expect(gridEl).toBeNull();
+  });
+});

@@ -28,6 +28,18 @@ import { SchemaRenderer } from '@object-ui/react';
 import { mapFieldTypeToFormType, buildValidationRules } from '@object-ui/fields';
 import { applyAutoLayout } from './autoLayout';
 
+/**
+ * Container-query-based grid classes for form field layout.
+ * Uses @container / @md: / @2xl: / @4xl: variants so that the grid
+ * responds to the drawer's actual width instead of the viewport.
+ */
+const CONTAINER_GRID_COLS: Record<number, string | undefined> = {
+  1: undefined,
+  2: 'grid gap-4 grid-cols-1 @md:grid-cols-2',
+  3: 'grid gap-4 grid-cols-1 @md:grid-cols-2 @2xl:grid-cols-3',
+  4: 'grid gap-4 grid-cols-1 @md:grid-cols-2 @2xl:grid-cols-3 @4xl:grid-cols-4',
+};
+
 export interface DrawerFormSectionConfig {
   name?: string;
   label?: string;
@@ -328,23 +340,27 @@ export const DrawerForm: React.FC<DrawerFormProps> = ({
     if (schema.sections?.length) {
       return (
         <div className="space-y-6">
-          {schema.sections.map((section, index) => (
-            <FormSection
-              key={section.name || section.label || index}
-              label={section.label}
-              description={section.description}
-              columns={section.columns || 1}
-            >
-              <SchemaRenderer
-                schema={{
-                  ...baseFormSchema,
-                  fields: buildSectionFields(section),
-                  showSubmit: index === schema.sections!.length - 1 && baseFormSchema.showSubmit,
-                  showCancel: index === schema.sections!.length - 1 && baseFormSchema.showCancel,
-                }}
-              />
-            </FormSection>
-          ))}
+          {schema.sections.map((section, index) => {
+            const sectionCols = section.columns || 1;
+            return (
+              <FormSection
+                key={section.name || section.label || index}
+                label={section.label}
+                description={section.description}
+                columns={sectionCols}
+                gridClassName={CONTAINER_GRID_COLS[sectionCols]}
+              >
+                <SchemaRenderer
+                  schema={{
+                    ...baseFormSchema,
+                    fields: buildSectionFields(section),
+                    showSubmit: index === schema.sections!.length - 1 && baseFormSchema.showSubmit,
+                    showCancel: index === schema.sections!.length - 1 && baseFormSchema.showCancel,
+                  }}
+                />
+              </FormSection>
+            );
+          })}
         </div>
       );
     }
@@ -352,13 +368,17 @@ export const DrawerForm: React.FC<DrawerFormProps> = ({
     // Apply auto-layout for flat fields (infer columns + colSpan)
     const autoLayoutResult = applyAutoLayout(formFields, objectSchema, schema.columns, schema.mode);
 
-    // Flat fields layout
+    // Flat fields layout — use container-query grid classes so the form
+    // responds to the drawer width, not the viewport width.
+    const containerFieldClass = CONTAINER_GRID_COLS[autoLayoutResult.columns || 1];
+
     return (
       <SchemaRenderer
         schema={{
           ...baseFormSchema,
           fields: autoLayoutResult.fields,
           columns: autoLayoutResult.columns,
+          ...(containerFieldClass ? { fieldContainerClass: containerFieldClass } : {}),
         }}
       />
     );
@@ -378,7 +398,7 @@ export const DrawerForm: React.FC<DrawerFormProps> = ({
           </SheetHeader>
         )}
 
-        <div className="py-4">
+        <div className="@container py-4">
           {renderContent()}
         </div>
       </SheetContent>
