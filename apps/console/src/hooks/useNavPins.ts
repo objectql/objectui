@@ -43,9 +43,10 @@ export function useNavPins() {
 
   const togglePin = useCallback((itemId: string, pinned: boolean) => {
     setPinnedIds(prev => {
+      const filtered = prev.filter(id => id !== itemId);
       const updated = pinned
-        ? [...prev.filter(id => id !== itemId), itemId].slice(0, MAX_PINS)
-        : prev.filter(id => id !== itemId);
+        ? [...filtered, itemId].slice(0, MAX_PINS)
+        : filtered;
       savePins(updated);
       return updated;
     });
