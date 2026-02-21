@@ -55,6 +55,13 @@ export interface FormSectionProps {
    * Additional CSS classes
    */
   className?: string;
+
+  /**
+   * Override the default responsive grid classes.
+   * When provided, replaces the viewport-based grid-cols classes
+   * (e.g. with container-query-based classes like `@md:grid-cols-2`).
+   */
+  gridClassName?: string;
 }
 
 /**
@@ -78,6 +85,7 @@ export const FormSection: React.FC<FormSectionProps> = ({
   columns = 1,
   children,
   className,
+  gridClassName,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(initialCollapsed);
 
@@ -133,7 +141,7 @@ export const FormSection: React.FC<FormSectionProps> = ({
 
       {/* Section Content */}
       {!isCollapsed && (
-        <div className={cn('grid gap-4', gridCols[columns])}>
+        <div className={cn('grid gap-4', gridClassName || gridCols[columns])}>
           {children}
         </div>
       )}

@@ -1,6 +1,6 @@
 # ObjectUI Development Roadmap
 
-> **Last Updated:** February 20, 2026
+> **Last Updated:** February 21, 2026
 > **Current Version:** v0.5.x
 > **Spec Version:** @objectstack/spec v3.0.8
 > **Client Version:** @objectstack/client v3.0.8
@@ -72,7 +72,8 @@ All 11 plugin views (Grid, Kanban, Form, Dashboard, Calendar, Timeline, List, De
 
 - Base `DialogContent` upgraded to mobile-first layout: full-screen on mobile (`inset-0 h-[100dvh]`), centered on desktop (`sm:inset-auto sm:max-w-lg sm:rounded-lg`), close button touch target ≥ 44×44px (WCAG 2.5.5).
 - `MobileDialogContent` custom component for ModalForm with flex layout (sticky header + scrollable body + sticky footer).
-- ModalForm: skeleton loading state, sticky action buttons, form grid forced to 1-column on mobile (`md:` breakpoint for multi-column).
+- ModalForm: skeleton loading state, sticky action buttons, container-query-based grid layout (`@container` + `@md:grid-cols-2`) ensures single-column on narrow mobile modals regardless of viewport width.
+- DrawerForm: container-query-based grid layout matching ModalForm, responsive to actual drawer width.
 - Date/DateTime fields use native HTML5 inputs (`type="date"`, `type="datetime-local"`) for optimal mobile picker UX.
 - Form sections supported via `ModalFormSectionConfig` for visual field grouping.
 

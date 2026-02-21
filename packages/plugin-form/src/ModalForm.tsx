@@ -105,6 +105,19 @@ const modalSizeClasses: Record<string, string> = {
   full: 'max-w-[95vw] w-full',
 };
 
+/**
+ * Container-query-based grid classes for form field layout.
+ * Uses @container / @md: / @2xl: / @4xl: variants so that the grid
+ * responds to the modal's actual width instead of the viewport,
+ * ensuring single-column on narrow mobile modals regardless of viewport size.
+ */
+const CONTAINER_GRID_COLS: Record<number, string | undefined> = {
+  1: undefined, // let the form renderer use its default (space-y-4)
+  2: 'grid gap-4 grid-cols-1 @md:grid-cols-2',
+  3: 'grid gap-4 grid-cols-1 @md:grid-cols-2 @2xl:grid-cols-3',
+  4: 'grid gap-4 grid-cols-1 @md:grid-cols-2 @2xl:grid-cols-3 @4xl:grid-cols-4',
+};
+
 export const ModalForm: React.FC<ModalFormProps> = ({
   schema,
   dataSource,
@@ -364,22 +377,26 @@ export const ModalForm: React.FC<ModalFormProps> = ({
     if (schema.sections?.length) {
       return (
         <div className="space-y-6">
-          {schema.sections.map((section, index) => (
-            <FormSection
-              key={section.name || section.label || index}
-              label={section.label}
-              description={section.description}
-              columns={section.columns || 1}
-            >
-              <SchemaRenderer
-                schema={{
-                  ...baseFormSchema,
-                  fields: buildSectionFields(section),
-                  // Actions are in the sticky footer, not inside sections
-                }}
-              />
-            </FormSection>
-          ))}
+          {schema.sections.map((section, index) => {
+            const sectionCols = section.columns || 1;
+            return (
+              <FormSection
+                key={section.name || section.label || index}
+                label={section.label}
+                description={section.description}
+                columns={sectionCols}
+                gridClassName={CONTAINER_GRID_COLS[sectionCols]}
+              >
+                <SchemaRenderer
+                  schema={{
+                    ...baseFormSchema,
+                    fields: buildSectionFields(section),
+                    // Actions are in the sticky footer, not inside sections
+                  }}
+                />
+              </FormSection>
+            );
+          })}
         </div>
       );
     }
@@ -387,13 +404,17 @@ export const ModalForm: React.FC<ModalFormProps> = ({
     // Reuse pre-computed auto-layout result for flat fields
     const layoutResult = autoLayoutResult ?? applyAutoLayout(formFields, objectSchema, schema.columns, schema.mode);
 
-    // Flat fields layout
+    // Flat fields layout — use container-query grid classes so the form
+    // responds to the modal width, not the viewport width.
+    const containerFieldClass = CONTAINER_GRID_COLS[layoutResult.columns || 1];
+
     return (
       <SchemaRenderer
         schema={{
           ...baseFormSchema,
           fields: layoutResult.fields,
           columns: layoutResult.columns,
+          ...(containerFieldClass ? { fieldContainerClass: containerFieldClass } : {}),
         }}
       />
     );
@@ -411,7 +432,7 @@ export const ModalForm: React.FC<ModalFormProps> = ({
           </DialogHeader>
         )}
 
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
+        <div className="@container flex-1 overflow-y-auto px-4 sm:px-6 py-4">
           {renderContent()}
         </div>
 
