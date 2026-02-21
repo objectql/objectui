@@ -13,10 +13,10 @@
 
 ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind + Shadcn. It renders JSON metadata from the @objectstack/spec protocol into pixel-perfect, accessible, and interactive enterprise interfaces.
 
-**Where We Are:** Foundation is **solid and shipping** — 35 packages, 91+ components, 5,070+ tests, 78 Storybook stories, 42/42 builds passing, ~85% protocol alignment. SpecBridge, Expression Engine, Action Engine, data binding, all view plugins (Grid/Kanban/Calendar/Gantt/Timeline/Map/Gallery), Record components, Report engine, Dashboard BI features, mobile UX, i18n (11 locales), WCAG AA accessibility, Designer Phase 1, and Console through Phase 19 (L3) — all ✅ complete.
+**Where We Are:** Foundation is **solid and shipping** — 35 packages, 91+ components, 5,070+ tests, 78 Storybook stories, 42/42 builds passing, ~85% protocol alignment. SpecBridge, Expression Engine, Action Engine, data binding, all view plugins (Grid/Kanban/Calendar/Gantt/Timeline/Map/Gallery), Record components, Report engine, Dashboard BI features, mobile UX, i18n (11 locales), WCAG AA accessibility, Designer Phase 1, Console through Phase 19 (L3), and **AppShell Navigation Renderer** (P0.1) — all ✅ complete.
 
 **What Remains:** The gap to **Airtable-level UX** is primarily in:
-1. **AppShell** — No dynamic navigation renderer from spec JSON (last P0 blocker)
+1. ~~**AppShell** — No dynamic navigation renderer from spec JSON (last P0 blocker)~~ ✅ Complete
 2. **Designer Interaction** — ViewDesigner and DataModelDesigner need drag-and-drop, undo/redo
 3. **Console Advanced Polish** — Remaining upgrades for forms, import/export, automation, comments
 4. **PWA Sync** — Background sync is simulated only
@@ -29,11 +29,11 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 
 > **Last remaining P0 blocker.** Without this, Console cannot render a sidebar from `AppSchema` JSON.
 
-- [ ] Implement `AppSchema` renderer consuming spec JSON (name, label, icon, branding)
-- [ ] Build navigation tree renderer (7 nav item types: object, dashboard, page, url, report, action, group)
-- [ ] Implement `NavigationAreaSchema` support (business domain partitioning)
-- [ ] Implement mobile navigation modes (drawer/bottom_nav/hamburger)
-- [ ] Add permission guards (`requiredPermissions`, `visible`) on navigation items
+- [x] Implement `AppSchema` renderer consuming spec JSON (name, label, icon, branding)
+- [x] Build navigation tree renderer (7 nav item types: object, dashboard, page, url, report, action, group)
+- [x] Implement `NavigationAreaSchema` support (business domain partitioning)
+- [x] Implement mobile navigation modes (drawer/bottom_nav/hamburger)
+- [x] Add permission guards (`requiredPermissions`, `visible`) on navigation items
 
 ---
 
@@ -204,7 +204,7 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 | Metric | Current | v1.0 Target | How Measured |
 |--------|---------|-------------|--------------|
 | **Protocol Alignment** | ~85% | 90%+ (UI-facing) | Protocol Consistency Assessment |
-| **AppShell Renderer** | ❌ Not started | Sidebar + nav tree from `AppSchema` JSON | Console renders from spec JSON |
+| **AppShell Renderer** | ✅ Complete | Sidebar + nav tree from `AppSchema` JSON | Console renders from spec JSON |
 | **Designer Interaction** | Phase 1 only | ViewDesigner + DataModelDesigner drag/undo | Manual UX testing |
 | **Build Status** | 42/42 pass | 42/42 pass | `pnpm build` |
 | **Test Count** | 5,070+ | 5,500+ | `pnpm test` summary |
