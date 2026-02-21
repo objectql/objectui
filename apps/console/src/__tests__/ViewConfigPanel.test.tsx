@@ -51,7 +51,7 @@ vi.mock('@object-ui/components', () => ({
             {...props}
         />
     ),
-    FilterBuilder: ({ fields, value, onChange, ...props }: any) => {
+    FilterBuilder: ({ fields, value, onChange }: any) => {
         let counter = 0;
         return (
         <div data-testid="mock-filter-builder" data-field-count={fields?.length || 0} data-condition-count={value?.conditions?.length || 0}>
@@ -65,7 +65,7 @@ vi.mock('@object-ui/components', () => ({
         </div>
         );
     },
-    SortBuilder: ({ fields, value, onChange, ...props }: any) => {
+    SortBuilder: ({ fields, value, onChange }: any) => {
         let counter = 0;
         return (
         <div data-testid="mock-sort-builder" data-field-count={fields?.length || 0} data-sort-count={value?.length || 0}>

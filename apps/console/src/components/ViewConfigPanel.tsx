@@ -251,7 +251,7 @@ function SectionHeader({ title }: { title: string }) {
     );
 }
 
-export function ViewConfigPanel({ open, onClose, activeView, objectDef, onViewUpdate, onOpenEditor, onSave }: ViewConfigPanelProps) {
+export function ViewConfigPanel({ open, onClose, activeView, objectDef, onViewUpdate, onSave }: ViewConfigPanelProps) {
     const { t } = useObjectTranslation();
     const panelRef = useRef<HTMLDivElement>(null);
 
