@@ -39,6 +39,13 @@ function getResponsiveColumnWidth() {
   return 60;
 }
 
+function getResponsiveTaskListWidth() {
+  const w = typeof window !== 'undefined' ? window.innerWidth : 1024;
+  if (w < 640) return 120;
+  if (w < 1024) return 200;
+  return 300;
+}
+
 export interface GanttTask {
   id: string | number
   title: string
@@ -138,8 +145,7 @@ export function GanttView({
     return cols;
   }, [timelineRange]);
 
-  // Responsive task list width — narrower on small screens
-  const taskListWidth = typeof window !== 'undefined' && window.innerWidth < 640 ? 120 : typeof window !== 'undefined' && window.innerWidth < 1024 ? 200 : 300;
+  const taskListWidth = getResponsiveTaskListWidth();
   
   const headerRef = React.useRef<HTMLDivElement>(null);
   const listRef = React.useRef<HTMLDivElement>(null);
