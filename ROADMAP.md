@@ -311,9 +311,16 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 
 **Phase 0 — Component Infrastructure:**
 - [x] Extract `ConfigRow` / `SectionHeader` from `ViewConfigPanel` into `@object-ui/components` as reusable primitives
+- [x] Implement `useConfigDraft` generic hook for draft state management (dirty tracking, save/discard)
+- [x] Define `ConfigPanelSchema` / `ConfigSection` / `ConfigField` types for schema-driven panel generation
+- [x] Implement `ConfigFieldRenderer` supporting input/switch/select/checkbox/slider/color/icon-group/field-picker/filter/sort/custom
+- [x] Implement `ConfigPanelRenderer` — schema-driven panel with header, breadcrumb, collapsible sections, sticky footer
+- [x] Add `configPanel` i18n keys to all 10 locale files
 
 **Phase 1 — Dashboard-Level Config Panel:**
-- [ ] Develop `DashboardConfigPanel` supporting data source, layout (columns/gap), filtering, appearance, user filters & actions
+- [x] Develop `DashboardConfigPanel` supporting layout (columns/gap/rowHeight), data (refreshInterval), appearance (title/description/theme)
+- [x] Add Storybook stories for `ConfigPanelRenderer` and `DashboardConfigPanel`
+- [x] Add Vitest tests (65 tests: useConfigDraft 10, ConfigFieldRenderer 22, ConfigPanelRenderer 21, DashboardConfigPanel 12)
 
 **Phase 2 — Widget-Level Configuration:**
 - [ ] Support click-to-select widget → sidebar switches to widget property editor (title, type, data binding, layout)
@@ -324,7 +331,6 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 
 **Phase 4 — Composition & Storybook:**
 - [ ] Build `DashboardWithConfig` composite component (dashboard + config sidebar)
-- [ ] Add Storybook stories for `DashboardConfigPanel` and `DashboardWithConfig`
 
 **Phase 5 — Type Definitions & Validation:**
 - [x] Add `DashboardConfig` types to `@object-ui/types`
