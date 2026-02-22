@@ -684,6 +684,8 @@ export type {
   SortUISchema,
   ViewComponentSchema,
   CommentEntry,
+  MentionNotification,
+  CommentSearchResult,
   ActivityEntry,
 } from './views';
 

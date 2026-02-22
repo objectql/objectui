@@ -29,7 +29,7 @@ export type { DetailSectionProps } from './DetailSection';
 export type { DetailTabsProps } from './DetailTabs';
 export type { RelatedListProps } from './RelatedList';
 export type { RecordCommentsProps } from './RecordComments';
-export type { ActivityTimelineProps } from './ActivityTimeline';
+export type { ActivityTimelineProps, ActivityFilterType } from './ActivityTimeline';
 export type { InlineCreateRelatedProps, RelatedFieldDefinition, RelatedRecordOption } from './InlineCreateRelated';
 export type { RichTextCommentInputProps, MentionSuggestion } from './RichTextCommentInput';
 export type { DiffViewProps, DiffFieldType, DiffMode, DiffLine } from './DiffView';

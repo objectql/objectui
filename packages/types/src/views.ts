@@ -182,6 +182,56 @@ export interface CommentEntry {
   avatarUrl?: string;
   /** Timestamp when the comment was created */
   createdAt: string;
+  /** Whether this comment is pinned/starred */
+  pinned?: boolean;
+  /** Mentioned user IDs extracted from the comment text */
+  mentions?: string[];
+  /** Object/record this comment belongs to (for cross-record search) */
+  objectName?: string;
+  /** Record ID this comment belongs to (for cross-record search) */
+  recordId?: string | number;
+}
+
+/**
+ * Mention notification - delivered when a user is @mentioned in a comment
+ */
+export interface MentionNotification {
+  /** Unique notification ID */
+  id: string;
+  /** Type of notification */
+  type: 'mention';
+  /** ID of the user being notified */
+  recipientId: string;
+  /** The comment that contains the mention */
+  commentId: string | number;
+  /** Author who mentioned the recipient */
+  mentionedBy: string;
+  /** The comment text (or excerpt) */
+  commentText: string;
+  /** Object name the comment belongs to */
+  objectName?: string;
+  /** Record ID the comment belongs to */
+  recordId?: string | number;
+  /** When the mention was created */
+  createdAt: string;
+  /** Whether the notification has been read */
+  read?: boolean;
+  /** Delivery channels */
+  channels?: Array<'in_app' | 'email' | 'push'>;
+}
+
+/**
+ * Comment search result - returned when searching comments across records
+ */
+export interface CommentSearchResult {
+  /** The matching comment */
+  comment: CommentEntry;
+  /** Object name the comment belongs to */
+  objectName: string;
+  /** Record ID the comment belongs to */
+  recordId: string | number;
+  /** Highlighted text snippet with search term marked */
+  highlight?: string;
 }
 
 /**
