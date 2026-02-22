@@ -296,6 +296,17 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
 
         const fullSchema: ListViewSchema = {
             ...listSchema,
+            // Propagate appearance/view-config properties for live preview
+            ...(viewDef.rowHeight ? { rowHeight: viewDef.rowHeight } : {}),
+            ...(viewDef.densityMode ? { densityMode: viewDef.densityMode } : {}),
+            ...(viewDef.color ? { color: viewDef.color } : {}),
+            ...(viewDef.fieldTextColor ? { fieldTextColor: viewDef.fieldTextColor } : {}),
+            ...(viewDef.wrapHeaders != null ? { wrapHeaders: viewDef.wrapHeaders } : {}),
+            ...(viewDef.showDescription != null ? { appearance: { showDescription: viewDef.showDescription } } : {}),
+            ...(viewDef.collapseAllByDefault != null ? { collapseAllByDefault: viewDef.collapseAllByDefault } : {}),
+            ...(viewDef.editRecordsInline != null ? { inlineEdit: viewDef.editRecordsInline } : {}),
+            ...(viewDef.groupBy ? { groupBy: viewDef.groupBy } : {}),
+            ...(viewDef.prefixField ? { prefixField: viewDef.prefixField } : {}),
             options: {
                 kanban: {
                     groupBy: viewDef.kanban?.groupByField || viewDef.kanban?.groupField || 'status',
@@ -378,6 +389,7 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
         layout: 'page' as const,
         showSearch: activeView?.showSearch !== false,
         showFilters: activeView?.showFilters !== false,
+        showSort: activeView?.showSort !== false,
         showCreate: false, // We render our own create button in the header
         showRefresh: true,
         onNavigate: (recordId: string | number, mode: 'view' | 'edit') => {
@@ -385,7 +397,7 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
                 onEdit?.({ _id: recordId, id: recordId });
             }
         },
-    }), [objectDef.name, onEdit, activeView?.showSearch, activeView?.showFilters]);
+    }), [objectDef.name, onEdit, activeView?.showSearch, activeView?.showFilters, activeView?.showSort]);
 
     return (
         <div className="h-full flex flex-col bg-background min-w-0 overflow-hidden">

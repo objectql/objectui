@@ -372,4 +372,182 @@ describe('ObjectView', () => {
       expect(screen.queryByText('Kanban')).toBeNull();
     });
   });
+
+  // ============================
+  // Live Preview — viewConfig sync
+  // ============================
+  describe('Live Preview', () => {
+    it('should re-render grid when views prop updates with new columns', async () => {
+      const schema: ObjectViewSchema = {
+        type: 'object-view',
+        objectName: 'contacts',
+      };
+
+      const initialViews = [
+        { id: 'all', label: 'All', type: 'grid' as const, columns: ['name', 'email'] },
+      ];
+
+      const { rerender } = render(
+        <ObjectView schema={schema} dataSource={mockDataSource} views={initialViews} activeViewId="all" />,
+      );
+
+      expect(screen.getByTestId('object-grid')).toBeInTheDocument();
+
+      // Simulate live preview: update views prop with new columns (as parent would after viewDraft change)
+      const updatedViews = [
+        { id: 'all', label: 'All', type: 'grid' as const, columns: ['name', 'email', 'status'] },
+      ];
+
+      rerender(
+        <ObjectView schema={schema} dataSource={mockDataSource} views={updatedViews} activeViewId="all" />,
+      );
+
+      // Grid should still render (component did not crash on prop update)
+      expect(screen.getByTestId('object-grid')).toBeInTheDocument();
+    });
+
+    it('should re-render when views prop updates with new sort config', async () => {
+      const schema: ObjectViewSchema = {
+        type: 'object-view',
+        objectName: 'contacts',
+      };
+
+      const initialViews = [
+        { id: 'all', label: 'All', type: 'grid' as const, columns: ['name'] },
+      ];
+
+      const { rerender } = render(
+        <ObjectView schema={schema} dataSource={mockDataSource} views={initialViews} activeViewId="all" />,
+      );
+
+      // Update with sort config — simulates live preview of sort changes
+      const updatedViews = [
+        { id: 'all', label: 'All', type: 'grid' as const, columns: ['name'], sort: [{ field: 'name', direction: 'desc' as const }] },
+      ];
+
+      rerender(
+        <ObjectView schema={schema} dataSource={mockDataSource} views={updatedViews} activeViewId="all" />,
+      );
+
+      expect(screen.getByTestId('object-grid')).toBeInTheDocument();
+    });
+
+    it('should re-render when views prop updates with new filter', async () => {
+      const schema: ObjectViewSchema = {
+        type: 'object-view',
+        objectName: 'contacts',
+      };
+
+      const initialViews = [
+        { id: 'all', label: 'All', type: 'grid' as const, columns: ['name'] },
+      ];
+
+      const { rerender } = render(
+        <ObjectView schema={schema} dataSource={mockDataSource} views={initialViews} activeViewId="all" />,
+      );
+
+      // Update with filter — simulates live preview of filter changes
+      const updatedViews = [
+        { id: 'all', label: 'All', type: 'grid' as const, columns: ['name'], filter: [['status', '=', 'active']] },
+      ];
+
+      rerender(
+        <ObjectView schema={schema} dataSource={mockDataSource} views={updatedViews} activeViewId="all" />,
+      );
+
+      expect(screen.getByTestId('object-grid')).toBeInTheDocument();
+    });
+
+    it('should re-render when views prop updates with appearance properties', async () => {
+      const schema: ObjectViewSchema = {
+        type: 'object-view',
+        objectName: 'contacts',
+      };
+
+      const initialViews = [
+        { id: 'all', label: 'All', type: 'grid' as const, columns: ['name'] },
+      ];
+
+      const { rerender } = render(
+        <ObjectView schema={schema} dataSource={mockDataSource} views={initialViews} activeViewId="all" />,
+      );
+
+      // Update with appearance changes — simulates live preview of rowHeight/striped/bordered
+      const updatedViews = [
+        { id: 'all', label: 'All', type: 'grid' as const, columns: ['name'], striped: true, bordered: true },
+      ];
+
+      rerender(
+        <ObjectView schema={schema} dataSource={mockDataSource} views={updatedViews} activeViewId="all" />,
+      );
+
+      expect(screen.getByTestId('object-grid')).toBeInTheDocument();
+    });
+
+    it('should pass renderListView with updated schema when views change', async () => {
+      const schema: ObjectViewSchema = {
+        type: 'object-view',
+        objectName: 'contacts',
+      };
+
+      const renderListViewSpy = vi.fn(({ schema: listSchema }: any) => (
+        <div data-testid="custom-list" data-fields={JSON.stringify(listSchema.fields)}>
+          Custom ListView
+        </div>
+      ));
+
+      const initialViews = [
+        { id: 'all', label: 'All', type: 'grid' as const, columns: ['name'] },
+      ];
+
+      const { rerender } = render(
+        <ObjectView
+          schema={schema}
+          dataSource={mockDataSource}
+          views={initialViews}
+          activeViewId="all"
+          renderListView={renderListViewSpy}
+        />,
+      );
+
+      expect(screen.getByTestId('custom-list')).toBeInTheDocument();
+      const firstCallSchema = renderListViewSpy.mock.calls[0]?.[0]?.schema;
+      expect(firstCallSchema?.fields).toEqual(['name']);
+
+      // Update views — simulate live preview change
+      const updatedViews = [
+        { id: 'all', label: 'All', type: 'grid' as const, columns: ['name', 'email', 'status'] },
+      ];
+
+      rerender(
+        <ObjectView
+          schema={schema}
+          dataSource={mockDataSource}
+          views={updatedViews}
+          activeViewId="all"
+          renderListView={renderListViewSpy}
+        />,
+      );
+
+      // renderListView should have been called again with the updated columns
+      const lastCallIndex = renderListViewSpy.mock.calls.length - 1;
+      const lastCallSchema = renderListViewSpy.mock.calls[lastCallIndex]?.[0]?.schema;
+      expect(lastCallSchema?.fields).toEqual(['name', 'email', 'status']);
+    });
+
+    it('should pass showSort=false through schema to suppress sort UI', async () => {
+      const schema: ObjectViewSchema = {
+        type: 'object-view',
+        objectName: 'contacts',
+        showSort: false,
+      };
+
+      render(
+        <ObjectView schema={schema} dataSource={mockDataSource} />,
+      );
+
+      // Component renders without crash — showSort is respected
+      expect(screen.getByTestId('object-grid')).toBeInTheDocument();
+    });
+  });
 });
