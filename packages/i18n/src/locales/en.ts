@@ -295,6 +295,7 @@ const en = {
       ariaDescribedBy: 'ARIA described by',
       ariaLive: 'ARIA live',
       accessibility: 'Accessibility',
+      viewTabs: 'View Tabs',
     },
     localeSwitcher: {
       label: 'Language',

@@ -295,6 +295,7 @@ const zh = {
       ariaDescribedBy: 'ARIA 描述',
       ariaLive: 'ARIA 实时区域',
       accessibility: '无障碍',
+      viewTabs: '视图标签',
     },
     localeSwitcher: {
       label: '语言',
