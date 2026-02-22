@@ -449,7 +449,7 @@ export function ViewConfigPanel({ open, onClose, mode = 'edit', activeView, obje
 
             {/* Scrollable Content */}
             <div className="flex-1 overflow-auto px-4 pb-4">
-                {/* ── Page/View Config Section ── */}
+                {/* ── Page Config — toolbar, navigation, view shell ── */}
                 <SectionHeader title={t('console.objectView.page')} />
                 <p className="text-[10px] text-muted-foreground mb-1">{t('console.objectView.pageConfigHint')}</p>
                 <div className="space-y-0.5">
@@ -533,7 +533,7 @@ export function ViewConfigPanel({ open, onClose, mode = 'edit', activeView, obje
                     </ConfigRow>
                 </div>
 
-                {/* ── List View Config Section — data, appearance, inline actions ── */}
+                {/* ── Data Section — list-level data, filtering, sorting ── */}
                 <SectionHeader
                     title={t('console.objectView.data')}
                     collapsible
