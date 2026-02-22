@@ -8,12 +8,16 @@
 
 import * as React from 'react';
 import { cn, Button, Card, CardHeader, CardTitle, CardContent } from '@object-ui/components';
-import { MessageSquare, Send } from 'lucide-react';
+import { MessageSquare, Send, Pin, Search, X } from 'lucide-react';
 import type { CommentEntry } from '@object-ui/types';
 
 export interface RecordCommentsProps {
   comments: CommentEntry[];
   onAddComment?: (text: string) => void | Promise<void>;
+  /** Callback to toggle pin/star on a comment */
+  onTogglePin?: (commentId: string | number) => void;
+  /** Enable search input for filtering comments */
+  searchable?: boolean;
   className?: string;
 }
 
@@ -42,10 +46,13 @@ function formatTimestamp(timestamp: string): string {
 export const RecordComments: React.FC<RecordCommentsProps> = ({
   comments,
   onAddComment,
+  onTogglePin,
+  searchable = false,
   className,
 }) => {
   const [newComment, setNewComment] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState('');
 
   const handleSubmit = React.useCallback(async () => {
     const text = newComment.trim();
@@ -70,6 +77,22 @@ export const RecordComments: React.FC<RecordCommentsProps> = ({
     [handleSubmit],
   );
 
+  /** Sort pinned comments first, then by date */
+  const sortedComments = React.useMemo(() => {
+    const filtered = searchQuery.trim()
+      ? comments.filter(c => {
+          const q = searchQuery.trim().toLowerCase();
+          return c.text.toLowerCase().includes(q) || c.author.toLowerCase().includes(q);
+        })
+      : comments;
+
+    return [...filtered].sort((a, b) => {
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      return 0;
+    });
+  }, [comments, searchQuery]);
+
   return (
     <Card className={cn('', className)}>
       <CardHeader>
@@ -82,6 +105,32 @@ export const RecordComments: React.FC<RecordCommentsProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Search Input */}
+        {searchable && (
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <input
+                className="w-full rounded-md border border-input bg-background pl-8 pr-8 py-1.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                placeholder="Search comments…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label="Search comments"
+              />
+              {searchQuery && (
+                <button
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  onClick={() => setSearchQuery('')}
+                  aria-label="Clear search"
+                  type="button"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Comment Input */}
         {onAddComment && (
           <div className="flex gap-2">
@@ -106,14 +155,14 @@ export const RecordComments: React.FC<RecordCommentsProps> = ({
         )}
 
         {/* Comment List */}
-        {comments.length === 0 ? (
+        {sortedComments.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">
-            No comments yet
+            {searchQuery.trim() ? 'No matching comments' : 'No comments yet'}
           </p>
         ) : (
           <div className="space-y-3">
-            {comments.map((comment) => (
-              <div key={comment.id} className="flex gap-3">
+            {sortedComments.map((comment) => (
+              <div key={comment.id} className={cn('flex gap-3', comment.pinned && 'bg-muted/40 rounded-md p-2 -mx-2')}>
                 {/* Avatar */}
                 <div className="shrink-0">
                   {comment.avatarUrl ? (
@@ -135,8 +184,26 @@ export const RecordComments: React.FC<RecordCommentsProps> = ({
                     <span className="text-xs text-muted-foreground">
                       {formatTimestamp(comment.createdAt)}
                     </span>
+                    {comment.pinned && (
+                      <span className="text-xs text-amber-600 flex items-center gap-0.5">
+                        <Pin className="h-3 w-3" />
+                        Pinned
+                      </span>
+                    )}
                   </div>
                   <p className="text-sm whitespace-pre-wrap break-words">{comment.text}</p>
+                  {/* Pin action */}
+                  {onTogglePin && (
+                    <button
+                      type="button"
+                      className="mt-1 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+                      onClick={() => onTogglePin(comment.id)}
+                      aria-label={comment.pinned ? 'Unpin comment' : 'Pin comment'}
+                    >
+                      <Pin className="h-3 w-3" />
+                      {comment.pinned ? 'Unpin' : 'Pin'}
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

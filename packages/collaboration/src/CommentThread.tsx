@@ -39,6 +39,8 @@ export interface CommentThreadProps {
   onResolve?: (resolved: boolean) => void;
   /** Callback when a reaction is toggled */
   onReaction?: (commentId: string, emoji: string) => void;
+  /** Callback when @mentions are detected — for notification delivery (email/push) */
+  onMentionNotify?: (mentionedUserIds: string[], commentContent: string) => void;
   /** Whether the thread is resolved */
   resolved?: boolean;
   /** Additional className */
@@ -326,6 +328,7 @@ export function CommentThread({
   onDeleteComment,
   onResolve,
   onReaction,
+  onMentionNotify,
   resolved = false,
   className,
 }: CommentThreadProps): React.ReactElement {
@@ -384,10 +387,16 @@ export function CommentThread({
 
     const mentions = parseMentions(trimmed, mentionableUsers);
     onAddComment(trimmed, mentions, replyTo ?? undefined);
+
+    // Trigger notification delivery for mentioned users
+    if (mentions.length > 0 && onMentionNotify) {
+      onMentionNotify(mentions, trimmed);
+    }
+
     setInputValue('');
     setReplyTo(null);
     setMentionQuery(null);
-  }, [inputValue, onAddComment, mentionableUsers, replyTo]);
+  }, [inputValue, onAddComment, mentionableUsers, replyTo, onMentionNotify]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (mentionQuery !== null && filteredMentions.length > 0) {

@@ -50,6 +50,18 @@ export {
 } from './CommentThread';
 
 export {
+  useMentionNotifications,
+  type MentionNotificationsConfig,
+  type MentionNotificationsResult,
+} from './useMentionNotifications';
+
+export {
+  useCommentSearch,
+  type CommentSearchConfig,
+  type CommentSearchReturn,
+} from './useCommentSearch';
+
+export {
   LiveCursors,
   type LiveCursorsProps,
 } from './LiveCursors';

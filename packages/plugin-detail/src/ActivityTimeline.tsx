@@ -8,11 +8,17 @@
 
 import * as React from 'react';
 import { cn, Card, CardHeader, CardTitle, CardContent } from '@object-ui/components';
-import { Activity, Edit, PlusCircle, Trash2, MessageSquare, ArrowRightLeft } from 'lucide-react';
+import { Activity, Edit, PlusCircle, Trash2, MessageSquare, ArrowRightLeft, Filter } from 'lucide-react';
 import type { ActivityEntry } from '@object-ui/types';
+
+export type ActivityFilterType = ActivityEntry['type'] | 'all';
 
 export interface ActivityTimelineProps {
   activities: ActivityEntry[];
+  /** Show filter controls for activity types */
+  filterable?: boolean;
+  /** Default filter (defaults to 'all') */
+  defaultFilter?: ActivityFilterType;
   className?: string;
 }
 
@@ -71,10 +77,28 @@ function formatFieldChange(entry: ActivityEntry): string {
   return 'Updated record';
 }
 
+const FILTER_LABELS: Record<ActivityFilterType, string> = {
+  all: 'All',
+  field_change: 'Field Changes',
+  create: 'Creates',
+  delete: 'Deletes',
+  comment: 'Comments',
+  status_change: 'Status Changes',
+};
+
 export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
   activities,
+  filterable = false,
+  defaultFilter = 'all',
   className,
 }) => {
+  const [activeFilter, setActiveFilter] = React.useState<ActivityFilterType>(defaultFilter);
+
+  const filteredActivities = React.useMemo(() => {
+    if (activeFilter === 'all') return activities;
+    return activities.filter(a => a.type === activeFilter);
+  }, [activities, activeFilter]);
+
   return (
     <Card className={cn('', className)}>
       <CardHeader>
@@ -82,12 +106,35 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
           <Activity className="h-4 w-4" />
           Activity
           <span className="text-sm font-normal text-muted-foreground">
-            ({activities.length})
+            ({filteredActivities.length})
           </span>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {activities.length === 0 ? (
+        {/* Filter controls */}
+        {filterable && (
+          <div className="flex flex-wrap gap-1.5 mb-4" role="group" aria-label="Activity type filter">
+            {(Object.keys(FILTER_LABELS) as ActivityFilterType[]).map(type => (
+              <button
+                key={type}
+                type="button"
+                className={cn(
+                  'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors',
+                  activeFilter === type
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80',
+                )}
+                onClick={() => setActiveFilter(type)}
+                aria-pressed={activeFilter === type}
+              >
+                {type !== 'all' && React.createElement(ACTIVITY_ICONS[type] || Edit, { className: 'h-3 w-3' })}
+                {FILTER_LABELS[type]}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {filteredActivities.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">
             No activity recorded
           </p>
@@ -97,7 +144,7 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
             <div className="absolute left-4 top-2 bottom-2 w-px bg-border" />
 
             <div className="space-y-4">
-              {activities.map((entry) => {
+              {filteredActivities.map((entry) => {
                 const Icon = ACTIVITY_ICONS[entry.type] || Edit;
                 const colorClass = ACTIVITY_COLORS[entry.type] || 'bg-gray-100 text-gray-600';
 
