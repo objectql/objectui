@@ -558,8 +558,9 @@ export const ObjectView: React.FC<ObjectViewProps> = ({
   }, [schema.showFilters, schema.filterableFields, objectSchema, filterValues]);
 
   // --- SortUI schema ---
+  const showSort = (schema as ObjectViewSchema).showSort;
   const sortSchema: SortUISchema | null = useMemo(() => {
-    if ((schema as any).showSort === false) return null;
+    if (showSort === false) return null;
 
     const fields = (objectSchema as any)?.fields || {};
     const sortableFields = Object.entries(fields)
@@ -576,7 +577,7 @@ export const ObjectView: React.FC<ObjectViewProps> = ({
       fields: sortableFields,
       sort: sortConfig,
     };
-  }, [objectSchema, sortConfig, (schema as any).showSort]);
+  }, [objectSchema, sortConfig, showSort]);
 
   // --- Generate view component schema for non-grid views ---
   const generateViewSchema = useCallback((viewType: string): any => {

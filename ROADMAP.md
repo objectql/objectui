@@ -1,6 +1,6 @@
 # ObjectUI Development Roadmap
 
-> **Last Updated:** February 21, 2026
+> **Last Updated:** February 22, 2026
 > **Current Version:** v0.5.x
 > **Spec Version:** @objectstack/spec v3.0.8
 > **Client Version:** @objectstack/client v3.0.8
@@ -13,7 +13,7 @@
 
 ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind + Shadcn. It renders JSON metadata from the @objectstack/spec protocol into pixel-perfect, accessible, and interactive enterprise interfaces.
 
-**Where We Are:** Foundation is **solid and shipping** — 35 packages, 91+ components, 5,100+ tests, 78 Storybook stories, 42/42 builds passing, ~85% protocol alignment. SpecBridge, Expression Engine, Action Engine, data binding, all view plugins (Grid/Kanban/Calendar/Gantt/Timeline/Map/Gallery), Record components, Report engine, Dashboard BI features, mobile UX, i18n (11 locales), WCAG AA accessibility, Designer Phase 1 (ViewDesigner drag-to-reorder ✅), Console through Phase 20 (L3), and **AppShell Navigation Renderer** (P0.1) — all ✅ complete.
+**Where We Are:** Foundation is **solid and shipping** — 35 packages, 91+ components, 5,110+ tests, 78 Storybook stories, 42/42 builds passing, ~85% protocol alignment. SpecBridge, Expression Engine, Action Engine, data binding, all view plugins (Grid/Kanban/Calendar/Gantt/Timeline/Map/Gallery), Record components, Report engine, Dashboard BI features, mobile UX, i18n (11 locales), WCAG AA accessibility, Designer Phase 1 (ViewDesigner drag-to-reorder ✅), Console through Phase 20 (L3), and **AppShell Navigation Renderer** (P0.1) — all ✅ complete.
 
 **What Remains:** The gap to **Airtable-level UX** is primarily in:
 1. ~~**AppShell** — No dynamic navigation renderer from spec JSON (last P0 blocker)~~ ✅ Complete
@@ -138,6 +138,12 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] User actions section: Edit records inline, Add/delete records inline, Click into record details
 - [x] Calendar endDateField support
 - [x] i18n for all 11 locales (en, zh, ja, de, fr, es, ar, ru, pt, ko)
+- [x] **Live preview: ViewConfigPanel changes sync in real-time to all list types (Grid/Kanban/Calendar/Timeline/Gallery/Map)**
+  - `showSort` added to `ObjectViewSchema` and propagated through plugin-view
+  - Appearance properties (`rowHeight`, `densityMode`, `color`, etc.) flow through `renderListView` schema
+  - `gridSchema` in plugin-view includes `striped`/`bordered` from active view config
+  - Plugin `renderContent` passes `rowHeight`, `densityMode`, `groupBy` to `renderListView` schema
+  - All `useMemo` dependency arrays expanded to cover full view config
 - [ ] Conditional formatting rules
 
 ### P1.10 Console — Dashboard Config Panel

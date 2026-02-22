@@ -297,16 +297,12 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
         const fullSchema: ListViewSchema = {
             ...listSchema,
             // Propagate appearance/view-config properties for live preview
-            ...(viewDef.rowHeight ? { rowHeight: viewDef.rowHeight } : {}),
-            ...(viewDef.densityMode ? { densityMode: viewDef.densityMode } : {}),
-            ...(viewDef.color ? { color: viewDef.color } : {}),
-            ...(viewDef.fieldTextColor ? { fieldTextColor: viewDef.fieldTextColor } : {}),
-            ...(viewDef.wrapHeaders != null ? { wrapHeaders: viewDef.wrapHeaders } : {}),
-            ...(viewDef.showDescription != null ? { appearance: { showDescription: viewDef.showDescription } } : {}),
-            ...(viewDef.collapseAllByDefault != null ? { collapseAllByDefault: viewDef.collapseAllByDefault } : {}),
-            ...(viewDef.editRecordsInline != null ? { inlineEdit: viewDef.editRecordsInline } : {}),
-            ...(viewDef.groupBy ? { groupBy: viewDef.groupBy } : {}),
-            ...(viewDef.prefixField ? { prefixField: viewDef.prefixField } : {}),
+            rowHeight: viewDef.rowHeight ?? listSchema.rowHeight,
+            densityMode: viewDef.densityMode ?? listSchema.densityMode,
+            inlineEdit: viewDef.editRecordsInline ?? listSchema.inlineEdit,
+            appearance: viewDef.showDescription != null
+                ? { showDescription: viewDef.showDescription }
+                : listSchema.appearance,
             options: {
                 kanban: {
                     groupBy: viewDef.kanban?.groupByField || viewDef.kanban?.groupField || 'status',
