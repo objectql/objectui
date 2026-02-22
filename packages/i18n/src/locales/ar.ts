@@ -242,6 +242,8 @@ const ar = {
       wrapHeaders: 'التفاف العناوين',
       showFieldDescriptions: 'إظهار أوصاف الحقول',
       collapseAllByDefault: 'طي الكل افتراضياً',
+      striped: 'صفوف مخططة',
+      bordered: 'خلايا محاطة بحدود',
       editRecordsInline: 'تحرير السجلات مباشرة',
       addDeleteRecordsInline: 'إضافة/حذف السجلات مباشرة',
       clickIntoRecordDetails: 'انقر لعرض تفاصيل السجل',

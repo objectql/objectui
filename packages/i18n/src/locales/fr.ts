@@ -246,6 +246,8 @@ const fr = {
       wrapHeaders: 'Retour à la ligne des en-têtes',
       showFieldDescriptions: 'Afficher les descriptions des champs',
       collapseAllByDefault: 'Tout réduire par défaut',
+      striped: 'Lignes rayées',
+      bordered: 'Cellules bordées',
       editRecordsInline: 'Modifier les enregistrements en ligne',
       addDeleteRecordsInline: 'Ajouter/supprimer des enregistrements en ligne',
       clickIntoRecordDetails: "Cliquer pour les détails de l'enregistrement",

@@ -246,6 +246,8 @@ const zh = {
       wrapHeaders: '自动换行标题',
       showFieldDescriptions: '显示字段描述',
       collapseAllByDefault: '默认全部折叠',
+      striped: '斑马纹行',
+      bordered: '边框单元格',
       editRecordsInline: '内联编辑记录',
       addDeleteRecordsInline: '内联添加/删除记录',
       clickIntoRecordDetails: '点击进入记录详情',

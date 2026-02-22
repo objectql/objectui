@@ -241,6 +241,8 @@ const ja = {
       wrapHeaders: 'ヘッダーの折り返し',
       showFieldDescriptions: 'フィールド説明を表示',
       collapseAllByDefault: 'デフォルトですべて折りたたむ',
+      striped: 'ストライプ行',
+      bordered: 'ボーダーセル',
       editRecordsInline: 'インラインでレコードを編集',
       addDeleteRecordsInline: 'インラインでレコードを追加/削除',
       clickIntoRecordDetails: 'レコード詳細をクリックで表示',
