@@ -203,6 +203,11 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 | `showSearch` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | `showSort` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | `showFilters` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `showHideFields` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `showGroup` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `showColor` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `showDensity` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `allowExport` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | `rowHeight` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | `densityMode` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | `striped` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
@@ -218,7 +223,10 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 3. ~~**`NamedListView` type:** Missing toolbar/display properties~~ → Added as first-class properties
 4. ~~**Plugin `renderListView` schema missing toolbar flags:** `renderContent` → `renderListView` schema did not include `showSearch`/`showFilters`/`showSort`~~ → Now propagated (PR #771)
 5. ~~**ListView toolbar unconditionally rendered:** Search/Filter/Sort buttons always visible regardless of schema flags~~ → Now conditionally rendered based on `schema.showSearch`/`showFilters`/`showSort` (PR #771)
-6. **No per-view-type integration tests:** Pending — tests verify config reaches `fullSchema`, but per-renderer integration tests still needed
+6. ~~**Hide Fields/Group/Color/Density buttons always visible:** No schema property to control visibility~~ → Added `showHideFields`/`showGroup`/`showColor`/`showDensity` with conditional rendering (Issue #719)
+7. ~~**Export toggle broken:** ViewConfigPanel writes `allowExport: boolean` but ListView checks `exportOptions` object~~ → Export now checks both `exportOptions && allowExport !== false`; Console clears `exportOptions` when `allowExport === false` (Issue #719)
+8. ~~**`hasExport` logic bug:** `draft.allowExport !== false` was always true when undefined~~ → Fixed to `draft.allowExport === true || draft.exportOptions != null` (Issue #719)
+9. **No per-view-type integration tests:** Pending — tests verify config reaches `fullSchema`, but per-renderer integration tests still needed
 
 **Phase 1 — Grid/Table View (baseline, already complete):**
 - [x] `gridSchema` includes `striped`/`bordered` from `activeView`
@@ -226,6 +234,11 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] `useMemo` dependency arrays cover all grid config
 - [x] ListView toolbar buttons conditionally rendered based on `schema.showSearch`/`showFilters`/`showSort` (PR #771)
 - [x] `renderListView` schema includes toolbar toggle flags (`showSearch`/`showFilters`/`showSort`) and display props (`striped`/`bordered`/`color`) (PR #771)
+- [x] Hide Fields/Group/Color/Density toolbar buttons conditionally rendered via `showHideFields`/`showGroup`/`showColor`/`showDensity` (Issue #719)
+- [x] Export button checks both `exportOptions` and `allowExport` (Issue #719)
+- [x] `hasExport` logic fixed — no longer always true when `allowExport` is undefined (Issue #719)
+- [x] ViewConfigPanel includes toggles for `showHideFields`/`showGroup`/`showColor`/`showDensity` (Issue #719)
+- [x] `showHideFields`/`showGroup`/`showColor`/`showDensity`/`allowExport` propagated through Console `fullSchema` and PluginObjectView `renderListView` (Issue #719)
 
 **Phase 2 — Kanban Live Preview:**
 - [x] Propagate `showSort`/`showSearch`/`showFilters` through `generateViewSchema` kanban branch
@@ -253,6 +266,7 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 
 **Phase 6 — Data Flow & Dependency Refactor:**
 - [x] Add `showSearch`/`showSort`/`showFilters`/`striped`/`bordered`/`color` to `NamedListView` type in `@object-ui/types`
+- [x] Add `showHideFields`/`showGroup`/`showColor`/`showDensity`/`allowExport` to `NamedListView` and `ListViewSchema` types and Zod schema (Issue #719)
 - [x] Update Console `renderListView` to pass all config properties in `fullSchema`
 - [ ] Audit all `useMemo`/`useEffect` dependency arrays in `plugin-view/ObjectView.tsx` for missing `activeView` sub-properties
 - [x] Remove hardcoded `showSearch: false` from `generateViewSchema` — use `activeView.showSearch ?? schema.showSearch` instead
