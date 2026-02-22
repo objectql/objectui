@@ -296,6 +296,13 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
 
         const fullSchema: ListViewSchema = {
             ...listSchema,
+            // Propagate appearance/view-config properties for live preview
+            rowHeight: viewDef.rowHeight ?? listSchema.rowHeight,
+            densityMode: viewDef.densityMode ?? listSchema.densityMode,
+            inlineEdit: viewDef.editRecordsInline ?? listSchema.inlineEdit,
+            appearance: viewDef.showDescription != null
+                ? { showDescription: viewDef.showDescription }
+                : listSchema.appearance,
             options: {
                 kanban: {
                     groupBy: viewDef.kanban?.groupByField || viewDef.kanban?.groupField || 'status',
@@ -378,6 +385,7 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
         layout: 'page' as const,
         showSearch: activeView?.showSearch !== false,
         showFilters: activeView?.showFilters !== false,
+        showSort: activeView?.showSort !== false,
         showCreate: false, // We render our own create button in the header
         showRefresh: true,
         onNavigate: (recordId: string | number, mode: 'view' | 'edit') => {
@@ -385,7 +393,7 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
                 onEdit?.({ _id: recordId, id: recordId });
             }
         },
-    }), [objectDef.name, onEdit, activeView?.showSearch, activeView?.showFilters]);
+    }), [objectDef.name, onEdit, activeView?.showSearch, activeView?.showFilters, activeView?.showSort]);
 
     return (
         <div className="h-full flex flex-col bg-background min-w-0 overflow-hidden">

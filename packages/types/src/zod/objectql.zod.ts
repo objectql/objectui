@@ -183,6 +183,7 @@ export const ObjectViewSchema = BaseSchema.extend({
   form: z.lazy(() => ObjectFormSchema.omit({ type: true, objectName: true, mode: true }).partial()).optional().describe('Form config'),
   showSearch: z.boolean().optional().describe('Show search'),
   showFilters: z.boolean().optional().describe('Show filters'),
+  showSort: z.boolean().optional().describe('Show sort controls'),
   showCreate: z.boolean().optional().describe('Show create button'),
   showRefresh: z.boolean().optional().describe('Show refresh button'),
   operations: z.object({

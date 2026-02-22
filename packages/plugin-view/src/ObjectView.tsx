@@ -558,7 +558,10 @@ export const ObjectView: React.FC<ObjectViewProps> = ({
   }, [schema.showFilters, schema.filterableFields, objectSchema, filterValues]);
 
   // --- SortUI schema ---
+  const showSort = (schema as ObjectViewSchema).showSort;
   const sortSchema: SortUISchema | null = useMemo(() => {
+    if (showSort === false) return null;
+
     const fields = (objectSchema as any)?.fields || {};
     const sortableFields = Object.entries(fields)
       .filter(([, f]: [string, any]) => !f.hidden)
@@ -574,7 +577,7 @@ export const ObjectView: React.FC<ObjectViewProps> = ({
       fields: sortableFields,
       sort: sortConfig,
     };
-  }, [objectSchema, sortConfig]);
+  }, [objectSchema, sortConfig, showSort]);
 
   // --- Generate view component schema for non-grid views ---
   const generateViewSchema = useCallback((viewType: string): any => {
@@ -679,6 +682,8 @@ export const ObjectView: React.FC<ObjectViewProps> = ({
     defaultSort: currentNamedViewConfig?.sort || activeView?.sort || schema.table?.defaultSort,
     pageSize: schema.table?.pageSize,
     selectable: schema.table?.selectable,
+    striped: activeView?.striped ?? schema.table?.striped,
+    bordered: activeView?.bordered ?? schema.table?.bordered,
     className: schema.table?.className,
   }), [schema, operations, currentNamedViewConfig, activeView]);
 
@@ -798,6 +803,10 @@ export const ObjectView: React.FC<ObjectViewProps> = ({
           fields: currentNamedViewConfig?.columns || activeView?.columns || schema.table?.fields,
           filters: mergedFilters,
           sort: mergedSort,
+          // Propagate appearance/view-config properties for live preview
+          rowHeight: activeView?.rowHeight,
+          densityMode: activeView?.densityMode,
+          groupBy: activeView?.groupBy,
           options: currentNamedViewConfig?.options || activeView,
         },
         dataSource,

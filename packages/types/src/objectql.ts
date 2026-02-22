@@ -903,6 +903,12 @@ export interface ObjectViewSchema extends BaseSchema {
   showFilters?: boolean;
   
   /**
+   * Show sort controls
+   * @default true
+   */
+  showSort?: boolean;
+  
+  /**
    * Show create button
    * @default true
    */
