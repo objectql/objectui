@@ -817,6 +817,11 @@ export const ObjectView: React.FC<ObjectViewProps> = ({
           showSearch: activeView?.showSearch ?? schema.showSearch,
           showFilters: activeView?.showFilters ?? schema.showFilters,
           showSort: activeView?.showSort ?? schema.showSort,
+          showHideFields: activeView?.showHideFields ?? (schema as any).showHideFields,
+          showGroup: activeView?.showGroup ?? (schema as any).showGroup,
+          showColor: activeView?.showColor ?? (schema as any).showColor,
+          showDensity: activeView?.showDensity ?? (schema as any).showDensity,
+          allowExport: activeView?.allowExport ?? (schema as any).allowExport,
           // Propagate display properties
           striped: activeView?.striped ?? (schema as any).striped,
           bordered: activeView?.bordered ?? (schema as any).bordered,

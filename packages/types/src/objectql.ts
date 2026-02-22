@@ -1010,6 +1010,21 @@ export interface NamedListView {
   /** Show filter controls in toolbar @default true */
   showFilters?: boolean;
 
+  /** Show hide-fields button in toolbar @default true */
+  showHideFields?: boolean;
+
+  /** Show group button in toolbar @default true */
+  showGroup?: boolean;
+
+  /** Show color button in toolbar @default true */
+  showColor?: boolean;
+
+  /** Show density/row-height button in toolbar @default true */
+  showDensity?: boolean;
+
+  /** Allow data export @default undefined */
+  allowExport?: boolean;
+
   /** Show alternating row colors @default false */
   striped?: boolean;
 
@@ -1124,6 +1139,21 @@ export interface ListViewSchema extends BaseSchema {
 
   /** Show filter controls in toolbar @default true */
   showFilters?: boolean;
+
+  /** Show hide-fields button in toolbar @default true */
+  showHideFields?: boolean;
+
+  /** Show group button in toolbar @default true */
+  showGroup?: boolean;
+
+  /** Show color button in toolbar @default true */
+  showColor?: boolean;
+
+  /** Show density/row-height button in toolbar @default true */
+  showDensity?: boolean;
+
+  /** Allow data export @default undefined */
+  allowExport?: boolean;
 
   /** Color field for row/card coloring */
   color?: string;

@@ -814,6 +814,7 @@ export const ListView: React.FC<ListViewProps> = ({
       <div className="border-b px-2 sm:px-4 py-1 flex items-center justify-between gap-1 sm:gap-2 bg-background">
         <div className="flex items-center gap-0.5 overflow-hidden flex-1 min-w-0">
           {/* Hide Fields */}
+          {schema.showHideFields !== false && (
           <Popover open={showHideFields} onOpenChange={setShowHideFields}>
             <PopoverTrigger asChild>
               <Button
@@ -869,6 +870,7 @@ export const ListView: React.FC<ListViewProps> = ({
               </div>
             </PopoverContent>
           </Popover>
+          )}
 
           {/* Filter */}
           {schema.showFilters !== false && (
@@ -910,6 +912,7 @@ export const ListView: React.FC<ListViewProps> = ({
           )}
 
           {/* Group */}
+          {schema.showGroup !== false && (
           <Button
             variant="ghost"
             size="sm"
@@ -919,6 +922,7 @@ export const ListView: React.FC<ListViewProps> = ({
             <Group className="h-3.5 w-3.5 mr-1.5" />
             <span className="hidden sm:inline">Group</span>
           </Button>
+          )}
 
           {/* Sort */}
           {schema.showSort !== false && (
@@ -960,6 +964,7 @@ export const ListView: React.FC<ListViewProps> = ({
           )}
 
           {/* Color */}
+          {schema.showColor !== false && (
           <Button
             variant="ghost"
             size="sm"
@@ -969,8 +974,10 @@ export const ListView: React.FC<ListViewProps> = ({
             <Paintbrush className="h-3.5 w-3.5 mr-1.5" />
             <span className="hidden sm:inline">Color</span>
           </Button>
+          )}
 
           {/* Row Height / Density Mode */}
+          {schema.showDensity !== false && (
           <Button
             variant="ghost"
             size="sm"
@@ -981,9 +988,10 @@ export const ListView: React.FC<ListViewProps> = ({
             <AlignJustify className="h-3.5 w-3.5 mr-1.5" />
             <span className="hidden sm:inline capitalize">{density.mode}</span>
           </Button>
+          )}
 
           {/* Export */}
-          {schema.exportOptions && (
+          {schema.exportOptions && schema.allowExport !== false && (
             <Popover open={showExport} onOpenChange={setShowExport}>
               <PopoverTrigger asChild>
                 <Button
