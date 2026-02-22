@@ -159,15 +159,11 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
           reactions.push({ emoji, count: 1, reacted: true });
         }
         const updated = { ...item, reactions };
-        // Persist reaction update
+        // Persist reaction toggle to backend
         if (dataSource) {
-          const reactionsMap: Record<string, string[]> = {};
-          for (const r of reactions) {
-            reactionsMap[r.emoji] = r.reacted
-              ? [currentUser.id, ...Array(r.count - 1).fill('other')]
-              : Array(r.count).fill('other');
-          }
-          dataSource.update('sys_comment', String(itemId), { reactions: reactionsMap }).catch(() => {});
+          dataSource.update('sys_comment', String(itemId), {
+            $toggleReaction: { emoji, userId: currentUser.id },
+          }).catch(() => {});
         }
         return updated;
       }));
