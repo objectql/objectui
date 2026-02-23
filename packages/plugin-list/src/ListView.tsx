@@ -275,7 +275,7 @@ export const ListView: React.FC<ListViewProps> = ({
       return schema.sort.map(s => {
         // Support legacy string format "field desc"
         if (typeof s === 'string') {
-          const parts = (s as string).trim().split(/\s+/);
+          const parts = s.trim().split(/\s+/);
           return {
             id: crypto.randomUUID(),
             field: parts[0],
@@ -885,7 +885,8 @@ export const ListView: React.FC<ListViewProps> = ({
       {schema.tabs && schema.tabs.length > 0 && (
         <div className="border-b px-2 sm:px-4 py-1 flex items-center gap-1 bg-background" data-testid="view-tabs">
           {schema.tabs
-            .filter(tab => tab.visible !== 'false' && tab.visible !== false as any)
+            // Spec defines visible as string (expression), but also handle boolean false for convenience
+            .filter(tab => tab.visible !== 'false' && tab.visible !== (false as any))
             .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
             .map(tab => {
               const TabIcon: LucideIcon | null = tab.icon
@@ -1302,7 +1303,7 @@ export const ListView: React.FC<ListViewProps> = ({
           {schema.pagination?.pageSizeOptions && schema.pagination.pageSizeOptions.length > 0 && (
             <select
               className="ml-auto h-6 rounded border border-input bg-background px-1 text-xs"
-              value={schema.pagination.pageSize}
+              defaultValue={schema.pagination.pageSize}
               onChange={(e) => {
                 const newSize = Number(e.target.value);
                 if (props.onPageSizeChange) props.onPageSizeChange(newSize);
