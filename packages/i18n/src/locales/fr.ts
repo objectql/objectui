@@ -281,6 +281,7 @@ const fr = {
       systemTheme: 'Thème système',
       actions: 'Actions',
       openFullSearch: 'Ouvrir la page de recherche complète',
+      createApp: 'Créer une nouvelle application',
     },
     errors: {
       somethingWentWrong: "Quelque chose s'est mal passé",

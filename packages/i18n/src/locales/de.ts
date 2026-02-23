@@ -281,6 +281,7 @@ const de = {
       systemTheme: 'Systemdesign',
       actions: 'Aktionen',
       openFullSearch: 'Vollständige Suchseite öffnen',
+      createApp: 'Neue App erstellen',
     },
     errors: {
       somethingWentWrong: 'Etwas ist schiefgelaufen',

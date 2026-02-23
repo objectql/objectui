@@ -277,6 +277,7 @@ const ar = {
       systemTheme: 'مظهر النظام',
       actions: 'الإجراءات',
       openFullSearch: 'فتح صفحة البحث الكاملة',
+      createApp: 'إنشاء تطبيق جديد',
     },
     errors: {
       somethingWentWrong: 'حدث خطأ ما',
