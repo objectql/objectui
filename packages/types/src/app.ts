@@ -163,9 +163,19 @@ export interface AppSchema extends BaseSchema {
   title?: string;
 
   /**
+   * Display Label (used in navigation and app switcher)
+   */
+  label?: string;
+
+  /**
    * Application Description
    */
   description?: string;
+
+  /**
+   * Icon name (Lucide) for app switcher and navigation
+   */
+  icon?: string;
 
   /**
    * Logo URL or Icon name
@@ -176,6 +186,17 @@ export interface AppSchema extends BaseSchema {
    * Favicon URL
    */
   favicon?: string;
+
+  /**
+   * Branding configuration
+   */
+  branding?: BrandingConfig;
+
+  /**
+   * Whether the application is active (visible in app switcher)
+   * @default true
+   */
+  active?: boolean;
 
   /**
    * Global Layout Strategy
@@ -461,9 +482,12 @@ export function wizardDraftToAppSchema(draft: AppWizardDraft): AppSchema {
     type: 'app',
     name: draft.name,
     title: draft.title,
+    label: draft.title,
     description: draft.description,
+    icon: draft.icon,
     logo: draft.branding.logo,
     favicon: draft.branding.favicon,
+    branding: draft.branding,
     layout: draft.layout,
     navigation: draft.navigation,
   };
