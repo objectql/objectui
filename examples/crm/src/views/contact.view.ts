@@ -22,22 +22,22 @@ export const ContactView = {
     sections: [
       {
         label: 'Personal Information',
-        columns: '2' as const,
+        columns: 2,
         fields: ['avatar', 'name', 'email', 'phone', 'title', 'department', 'company'],
       },
       {
         label: 'Account & Status',
-        columns: '2' as const,
+        columns: 2,
         fields: ['account', 'status', 'priority', 'lead_source', 'is_active', 'do_not_call'],
       },
       {
         label: 'Address & Social',
-        columns: '2' as const,
+        columns: 2,
         fields: ['address', 'linkedin', 'birthdate', 'latitude', 'longitude'],
       },
       {
         label: 'Notes',
-        columns: '1' as const,
+        columns: 1,
         collapsible: true,
         fields: ['notes'],
       },

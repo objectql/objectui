@@ -46,3 +46,4 @@ export * from './data/event.data';
 export * from './data/order_item.data';
 export * from './data/opportunity_contact.data';
 export { default as config } from '../objectstack.config';
+export { crmLocales, type CrmLocaleCode, type CrmTranslationKeys } from './i18n';

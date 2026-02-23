@@ -1,4 +1,5 @@
 export const CrmDashboard = {
+  type: 'dashboard' as const,
   name: 'crm_dashboard',
   label: 'CRM Overview',
   widgets: [
