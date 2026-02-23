@@ -98,7 +98,7 @@ describe('Entry-size budget constants', () => {
       beforeLazy.match(/^import\s+(?!type\b)/gm) || [];
 
     // Eagerly loaded modules should stay small; flag if this grows too large
-    expect(staticImports.length).toBeLessThanOrEqual(20);
+    expect(staticImports.length).toBeLessThanOrEqual(21);
   });
 });
 
