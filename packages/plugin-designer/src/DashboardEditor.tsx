@@ -464,7 +464,7 @@ export function DashboardEditor({
       applyChange({ ...currentSchema, widgets: [...widgets, newWidget] });
       setSelectedWidgetId(id);
     },
-    [currentSchema, widgets, applyChange]
+    [currentSchema, widgets, applyChange, setSelectedWidgetId]
   );
 
   const removeWidget = useCallback(
@@ -472,7 +472,7 @@ export function DashboardEditor({
       applyChange({ ...currentSchema, widgets: widgets.filter((w) => w.id !== id) });
       if (selectedWidgetId === id) setSelectedWidgetId(null);
     },
-    [currentSchema, widgets, selectedWidgetId, applyChange]
+    [currentSchema, widgets, selectedWidgetId, applyChange, setSelectedWidgetId]
   );
 
   const moveWidget = useCallback(

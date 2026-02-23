@@ -359,7 +359,9 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] Keyboard navigation: ArrowRight/ArrowDown to next widget, ArrowLeft/ArrowUp to previous, Enter/Space to select, Tab/Shift+Tab for focus
 - [x] Add `selectedWidgetId` and `onWidgetSelect` props to `DashboardEditor` for external controlled selection
 - [x] Sync selection between `DashboardRenderer` (preview) and `DashboardEditor` (drawer) via shared state in `DashboardView`
-- [x] Add Vitest tests (15 tests for DashboardRenderer design mode, 6 tests for DashboardEditor external selection)
+- [x] Property changes in editor panel instantly reflected in preview (live preview path verified end-to-end)
+- [x] Auto-save property changes to backend via DesignDrawer
+- [x] Add Vitest tests (15 DashboardRenderer design mode + 9 DashboardEditor external selection + 8 DashboardView integration = 32 new tests)
 
 ### P1.11 Console — Schema-Driven View Config Panel Migration
 
