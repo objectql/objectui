@@ -14,7 +14,7 @@ export const UserActions = [
     icon: 'user-x',
     type: 'api' as const,
     locations: ['record_more' as const],
-    variant: 'danger' as const,
+    variant: 'destructive' as const,
     confirmText: 'Are you sure you want to deactivate this user?',
     refreshAfter: true,
     successMessage: 'User deactivated',

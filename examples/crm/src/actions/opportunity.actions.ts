@@ -38,7 +38,7 @@ export const OpportunityActions = [
     icon: 'x-circle',
     type: 'api' as const,
     locations: ['record_more' as const],
-    variant: 'danger' as const,
+    variant: 'destructive' as const,
     params: [
       { name: 'loss_reason', label: 'Reason for Loss', type: 'text' as const, required: true },
     ],

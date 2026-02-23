@@ -119,4 +119,4 @@ export default defineStack({
     ]
   },
   plugins: [],
-}, { strict: false }); // Defer validation to `objectstack compile` CLI to avoid Zod double-parse transform bug on form.sections.columns
+}, { strict: false }); // Defer validation to `objectstack compile` CLI

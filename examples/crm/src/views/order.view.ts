@@ -22,22 +22,22 @@ export const OrderView = {
     sections: [
       {
         label: 'Order Information',
-        columns: '2' as const,
+        columns: 2,
         fields: ['name', 'customer', 'account', 'order_date', 'status', 'payment_method'],
       },
       {
         label: 'Financials',
-        columns: '2' as const,
+        columns: 2,
         fields: ['amount', 'discount'],
       },
       {
         label: 'Shipping',
-        columns: '2' as const,
+        columns: 2,
         fields: ['shipping_address', 'tracking_number'],
       },
       {
         label: 'Notes',
-        columns: '1' as const,
+        columns: 1,
         collapsible: true,
         fields: ['notes'],
       },

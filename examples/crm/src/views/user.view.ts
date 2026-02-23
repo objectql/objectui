@@ -22,17 +22,17 @@ export const UserView = {
     sections: [
       {
         label: 'Profile',
-        columns: '2' as const,
+        columns: 2,
         fields: ['avatar', 'name', 'email', 'username', 'phone'],
       },
       {
         label: 'Role & Department',
-        columns: '2' as const,
+        columns: 2,
         fields: ['role', 'title', 'department', 'active'],
       },
       {
         label: 'Bio',
-        columns: '1' as const,
+        columns: 1,
         collapsible: true,
         fields: ['bio'],
       },
