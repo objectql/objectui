@@ -34,6 +34,10 @@ const SearchResultsPage = lazy(() => import('./components/SearchResultsPage').th
 const CreateAppPage = lazy(() => import('./pages/CreateAppPage').then(m => ({ default: m.CreateAppPage })));
 const EditAppPage = lazy(() => import('./pages/EditAppPage').then(m => ({ default: m.EditAppPage })));
 
+// Design Pages (lazy — only needed when editing pages/dashboards)
+const PageDesignPage = lazy(() => import('./pages/PageDesignPage').then(m => ({ default: m.PageDesignPage })));
+const DashboardDesignPage = lazy(() => import('./pages/DashboardDesignPage').then(m => ({ default: m.DashboardDesignPage })));
+
 // Auth Pages (lazy — only needed before login)
 const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const RegisterPage = lazy(() => import('./pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
@@ -356,6 +360,12 @@ export function AppContent() {
         } />
         <Route path="page/:pageName" element={
             <PageView />
+        } />
+        <Route path="design/page/:pageName" element={
+            <PageDesignPage />
+        } />
+        <Route path="design/dashboard/:dashboardName" element={
+            <DashboardDesignPage />
         } />
         <Route path="search" element={
             <SearchResultsPage />

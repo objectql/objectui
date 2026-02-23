@@ -3,16 +3,17 @@
  * Renders a custom page based on the pageName parameter
  */
 
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { SchemaRenderer } from '@object-ui/react';
 import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
-import { FileText } from 'lucide-react';
+import { FileText, Pencil } from 'lucide-react';
 import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import { useMetadata } from '../context/MetadataProvider';
 
 export function PageView() {
   const { pageName } = useParams<{ pageName: string }>();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { showDebug, toggleDebug } = useMetadataInspector();
   
   // Find page definition from API-driven metadata
@@ -42,7 +43,16 @@ export function PageView() {
   return (
     <div className="flex flex-row h-full w-full overflow-hidden relative">
         <div className="flex-1 overflow-auto h-full relative group">
-             <div className={`absolute top-1.5 sm:top-2 right-1.5 sm:right-2 z-50 transition-opacity ${showDebug ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+             <div className={`absolute top-1.5 sm:top-2 right-1.5 sm:right-2 z-50 flex items-center gap-1.5 transition-opacity ${showDebug ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                 <button
+                   type="button"
+                   onClick={() => navigate(`../design/page/${pageName}`)}
+                   className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-2.5 py-1.5 text-xs font-medium text-muted-foreground shadow-sm hover:bg-accent hover:text-accent-foreground"
+                   data-testid="page-edit-button"
+                 >
+                   <Pencil className="h-3.5 w-3.5" />
+                   Edit
+                 </button>
                  <MetadataToggle open={showDebug} onToggle={toggleDebug} />
              </div>
              <SchemaRenderer 
