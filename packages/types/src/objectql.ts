@@ -1210,7 +1210,29 @@ export interface ListViewSchema extends BaseSchema {
   
   /** View Type (grid, kanban, etc.) @default 'grid' */
   viewType?: 'grid' | 'kanban' | 'gallery' | 'calendar' | 'timeline' | 'gantt' | 'map';
-  
+
+  /**
+   * Data Source Configuration.
+   * Aligned with @objectstack/spec ViewDataSchema.
+   * Supports provider: 'object' (fetch from objectName), 'value' (inline items), 'api' (custom endpoint).
+   * If not provided, defaults to fetching from objectName via dataSource.find().
+   */
+  data?: ViewData;
+
+  /**
+   * Grouping Configuration (Airtable-style).
+   * Groups rows by specified fields with collapsible sections.
+   * Aligned with @objectstack/spec GroupingConfigSchema.
+   */
+  grouping?: GroupingConfig;
+
+  /**
+   * Row Color Configuration (Airtable-style).
+   * Colors rows based on field values.
+   * Aligned with @objectstack/spec RowColorConfigSchema.
+   */
+  rowColor?: RowColorConfig;
+
   /** Columns definition (string field names or full column config) */
   columns?: string[] | Array<{
     field: string;
@@ -1224,6 +1246,10 @@ export interface ListViewSchema extends BaseSchema {
     type?: string;
     link?: boolean;
     action?: string;
+    /** Pin column to left or right edge */
+    pinned?: 'left' | 'right';
+    /** Column footer summary/aggregation (e.g., 'count', 'sum', 'avg') */
+    summary?: string | { type: 'count' | 'sum' | 'avg' | 'min' | 'max'; field?: string };
   }>;
   
   /** Fields to fetch/display (alias for simple string[] columns) */
@@ -1404,9 +1430,11 @@ export interface ListViewSchema extends BaseSchema {
 
   /**
    * Export options configuration for exporting list data.
-   * Supports csv, xlsx, json, and pdf formats.
+   * Supports both ObjectUI object format and spec simple string[] format.
+   * Spec format: ['csv', 'xlsx'] (simple array of format strings)
+   * ObjectUI format: { formats, maxRecords, includeHeaders, fileNamePrefix }
    */
-  exportOptions?: {
+  exportOptions?: Array<'csv' | 'xlsx' | 'json' | 'pdf'> | {
     /** Formats available for export */
     formats?: Array<'csv' | 'xlsx' | 'json' | 'pdf'>;
     /** Maximum number of records to export (0 = unlimited) */
@@ -1432,14 +1460,15 @@ export interface ListViewSchema extends BaseSchema {
   /**
    * Conditional formatting rules for row/cell styling.
    * Rules are evaluated in order; first matching rule wins.
+   * Supports both ObjectUI field/operator/value rules and spec expression-based { condition, style } rules.
    */
   conditionalFormatting?: Array<{
-    /** Field to evaluate */
-    field: string;
-    /** Comparison operator */
-    operator: 'equals' | 'not_equals' | 'contains' | 'greater_than' | 'less_than' | 'in';
-    /** Value to compare against */
-    value: unknown;
+    /** Field to evaluate (ObjectUI format) */
+    field?: string;
+    /** Comparison operator (ObjectUI format) */
+    operator?: 'equals' | 'not_equals' | 'contains' | 'greater_than' | 'less_than' | 'in';
+    /** Value to compare against (ObjectUI format) */
+    value?: unknown;
     /** CSS-compatible background color (e.g., '#fee2e2', 'rgb(254,226,226)') */
     backgroundColor?: string;
     /** CSS-compatible text color */
@@ -1448,6 +1477,10 @@ export interface ListViewSchema extends BaseSchema {
     borderColor?: string;
     /** Expression-based condition (e.g., '${data.amount > 1000 && data.status === "urgent"}'). Overrides field/operator/value when provided. */
     expression?: string;
+    /** Spec expression-based condition string (alias for expression) */
+    condition?: string;
+    /** Spec style object (e.g., { backgroundColor: '#fee2e2', color: '#991b1b' }) */
+    style?: Record<string, string>;
   }>;
 
   /**
@@ -1495,13 +1528,18 @@ export interface ListViewSchema extends BaseSchema {
 
   /**
    * View sharing configuration.
+   * Supports both ObjectUI format { visibility, enabled } and spec format { type, lockedBy }.
    * Controls who can see this view and enables share UI.
    */
   sharing?: {
-    /** Visibility level for the view */
+    /** Visibility level for the view (ObjectUI format) */
     visibility?: 'private' | 'team' | 'organization' | 'public';
     /** Whether sharing controls are shown in the toolbar */
     enabled?: boolean;
+    /** Sharing type (spec format: personal or collaborative) */
+    type?: 'personal' | 'collaborative';
+    /** User who locked the view (spec format) */
+    lockedBy?: string;
   };
 
   /**

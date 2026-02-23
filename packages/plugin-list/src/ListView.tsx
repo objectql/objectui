@@ -86,6 +86,14 @@ export function normalizeFilterCondition(condition: any[]): any[] {
 }
 
 /**
+ * Format an action identifier string into a human-readable label.
+ * e.g., 'send_email' → 'Send Email'
+ */
+function formatActionLabel(action: string): string {
+  return action.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+/**
  * Normalize an array of filter conditions, expanding `in`/`not in` operators
  * and ensuring consistent AST structure.
  */
@@ -129,16 +137,19 @@ export function evaluateConditionalFormatting(
   for (const rule of rules) {
     let match = false;
 
+    // Normalize: spec uses 'condition' as alias for 'expression'
+    const expression = rule.expression || rule.condition;
+
     // Expression-based evaluation (L2 feature) using safe ExpressionEvaluator
-    if (rule.expression) {
+    if (expression) {
       try {
         const evaluator = new ExpressionEvaluator({ data: record });
-        const result = evaluator.evaluate(rule.expression, { throwOnError: true });
+        const result = evaluator.evaluate(expression, { throwOnError: true });
         match = result === true;
       } catch {
         match = false;
       }
-    } else {
+    } else if (rule.field && rule.operator) {
       // Standard field/operator/value evaluation
       const fieldValue = record[rule.field];
       switch (rule.operator) {
@@ -164,7 +175,9 @@ export function evaluateConditionalFormatting(
     }
 
     if (match) {
+      // Build style: spec 'style' object is base, individual properties override
       const style: React.CSSProperties = {};
+      if (rule.style) Object.assign(style, rule.style);
       if (rule.backgroundColor) style.backgroundColor = rule.backgroundColor;
       if (rule.textColor) style.color = rule.textColor;
       if (rule.borderColor) style.borderColor = rule.borderColor;
@@ -308,6 +321,21 @@ export const ListView: React.FC<ListViewProps> = ({
   const [refreshKey, setRefreshKey] = React.useState(0);
   const [dataLimitReached, setDataLimitReached] = React.useState(false);
 
+  // Dynamic page size state (wired from pageSizeOptions selector)
+  const [dynamicPageSize, setDynamicPageSize] = React.useState<number | undefined>(undefined);
+  const effectivePageSize = dynamicPageSize ?? schema.pagination?.pageSize ?? 100;
+
+  // Grouping state (initialized from schema, user can add/remove via popover)
+  const [groupingConfig, setGroupingConfig] = React.useState(schema.grouping);
+  const [showGroupPopover, setShowGroupPopover] = React.useState(false);
+
+  // Row color state (initialized from schema, user can configure via popover)
+  const [rowColorConfig, setRowColorConfig] = React.useState(schema.rowColor);
+  const [showColorPopover, setShowColorPopover] = React.useState(false);
+
+  // Bulk action state
+  const [selectedRows, setSelectedRows] = React.useState<any[]>([]);
+
   // Request counter for debounce — only the latest request writes data
   const fetchRequestIdRef = React.useRef(0);
 
@@ -363,6 +391,39 @@ export const ListView: React.FC<ListViewProps> = ({
   // Export State
   const [showExport, setShowExport] = React.useState(false);
 
+  // Normalize quickFilters: support both ObjectUI format { id, label, filters[] }
+  // and spec format { field, operator, value }. Spec items are auto-converted.
+  const normalizedQuickFilters = React.useMemo(() => {
+    if (!schema.quickFilters || schema.quickFilters.length === 0) return undefined;
+    return schema.quickFilters.map((qf: any) => {
+      // Already in ObjectUI format (has id + label + filters)
+      if (qf.id && qf.label && Array.isArray(qf.filters)) return qf;
+      // Spec format: { field, operator, value } → convert to ObjectUI format
+      if (qf.field && qf.operator) {
+        const op = mapOperator(qf.operator);
+        return {
+          id: `${qf.field}-${qf.operator}-${String(qf.value ?? '')}`,
+          label: qf.label || `${qf.field} ${qf.operator} ${String(qf.value ?? '')}`,
+          filters: [[qf.field, op, qf.value]],
+          icon: qf.icon,
+          defaultActive: qf.defaultActive,
+        };
+      }
+      return qf;
+    });
+  }, [schema.quickFilters]);
+
+  // Normalize exportOptions: support both ObjectUI object format and spec string[] format
+  const resolvedExportOptions = React.useMemo(() => {
+    if (!schema.exportOptions) return undefined;
+    // Spec format: simple string[] like ['csv', 'xlsx']
+    if (Array.isArray(schema.exportOptions)) {
+      return { formats: schema.exportOptions as Array<'csv' | 'xlsx' | 'json' | 'pdf'> };
+    }
+    // ObjectUI format: already an object
+    return schema.exportOptions;
+  }, [schema.exportOptions]);
+
   // Density Mode — rowHeight maps to density if densityMode not explicitly set
   const resolvedDensity = React.useMemo(() => {
     if (schema.densityMode) return schema.densityMode;
@@ -413,10 +474,28 @@ export const ListView: React.FC<ListViewProps> = ({
     return () => { isMounted = false; };
   }, [schema.objectName, dataSource]);
 
-  // Fetch data effect
+  // Fetch data effect — supports schema.data (ViewDataSchema) provider modes
   React.useEffect(() => {
     let isMounted = true;
     const requestId = ++fetchRequestIdRef.current;
+
+    // Check for inline data via schema.data provider: 'value'
+    if (schema.data && typeof schema.data === 'object' && !Array.isArray(schema.data)) {
+      const dataConfig = schema.data as any;
+      if (dataConfig.provider === 'value' && Array.isArray(dataConfig.items)) {
+        setData(dataConfig.items);
+        setLoading(false);
+        setDataLimitReached(false);
+        return;
+      }
+    }
+    // Also support schema.data as a plain array (shorthand for value provider)
+    if (Array.isArray(schema.data)) {
+      setData(schema.data as any[]);
+      setLoading(false);
+      setDataLimitReached(false);
+      return;
+    }
     
     const fetchData = async () => {
       if (!dataSource || !schema.objectName) return;
@@ -430,8 +509,8 @@ export const ListView: React.FC<ListViewProps> = ({
         
         // Collect active quick filter conditions
         const quickFilterConditions: any[] = [];
-        if (schema.quickFilters && activeQuickFilters.size > 0) {
-          schema.quickFilters.forEach(qf => {
+        if (normalizedQuickFilters && activeQuickFilters.size > 0) {
+          normalizedQuickFilters.forEach((qf: any) => {
             if (activeQuickFilters.has(qf.id) && qf.filters && qf.filters.length > 0) {
               quickFilterConditions.push(qf.filters);
             }
@@ -463,13 +542,10 @@ export const ListView: React.FC<ListViewProps> = ({
               .map(item => ({ field: item.field, order: item.order }))
           : undefined;
 
-        // Configurable page size from schema.pagination, default 100
-        const pageSize = schema.pagination?.pageSize || 100;
-
         const results = await dataSource.find(schema.objectName, {
            $filter: finalFilter,
            $orderby: sort,
-           $top: pageSize,
+           $top: effectivePageSize,
            ...(searchTerm ? {
              $search: searchTerm,
              ...(schema.searchableFields && schema.searchableFields.length > 0
@@ -493,7 +569,7 @@ export const ListView: React.FC<ListViewProps> = ({
         }
         
         setData(items);
-        setDataLimitReached(items.length >= pageSize);
+        setDataLimitReached(items.length >= effectivePageSize);
       } catch (err) {
         // Only log errors from the latest request
         if (requestId === fetchRequestIdRef.current) {
@@ -509,7 +585,7 @@ export const ListView: React.FC<ListViewProps> = ({
     fetchData();
     
     return () => { isMounted = false; };
-  }, [schema.objectName, dataSource, schema.filters, schema.pagination?.pageSize, currentSort, currentFilters, activeQuickFilters, userFilterConditions, refreshKey, searchTerm, schema.searchableFields]); // Re-fetch on filter/sort/search change
+  }, [schema.objectName, schema.data, dataSource, schema.filters, effectivePageSize, currentSort, currentFilters, activeQuickFilters, normalizedQuickFilters, userFilterConditions, refreshKey, searchTerm, schema.searchableFields]); // Re-fetch on filter/sort/search change
 
   // Available view types based on schema configuration
   const availableViews = React.useMemo(() => {
@@ -667,6 +743,9 @@ export const ListView: React.FC<ListViewProps> = ({
           ...(schema.resizable != null ? { resizable: schema.resizable } : {}),
           ...(schema.selection ? { selection: schema.selection } : {}),
           ...(schema.pagination ? { pagination: schema.pagination } : {}),
+          ...(groupingConfig ? { grouping: groupingConfig } : {}),
+          ...(rowColorConfig ? { rowColor: rowColorConfig } : {}),
+          ...(schema.rowActions ? { rowActions: schema.rowActions } : {}),
           ...(schema.options?.grid || {}),
         };
       case 'kanban':
@@ -792,7 +871,7 @@ export const ListView: React.FC<ListViewProps> = ({
 
   // Export handler
   const handleExport = React.useCallback((format: 'csv' | 'xlsx' | 'json' | 'pdf') => {
-    const exportConfig = schema.exportOptions;
+    const exportConfig = resolvedExportOptions;
     const maxRecords = exportConfig?.maxRecords || 0;
     const includeHeaders = exportConfig?.includeHeaders !== false;
     const prefix = exportConfig?.fileNamePrefix || schema.objectName || 'export';
@@ -843,7 +922,7 @@ export const ListView: React.FC<ListViewProps> = ({
       URL.revokeObjectURL(url);
     }
     setShowExport(false);
-  }, [data, effectiveFields, schema.exportOptions, schema.objectName]);
+  }, [data, effectiveFields, resolvedExportOptions, schema.objectName]);
 
   // All available fields for hide/show
   const allFields = React.useMemo(() => {
@@ -1020,15 +1099,62 @@ export const ListView: React.FC<ListViewProps> = ({
 
           {/* Group */}
           {toolbarFlags.showGroup && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2 text-muted-foreground hover:text-primary text-xs"
-            disabled
-          >
-            <Group className="h-3.5 w-3.5 mr-1.5" />
-            <span className="hidden sm:inline">Group</span>
-          </Button>
+          <Popover open={showGroupPopover} onOpenChange={setShowGroupPopover}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "h-7 px-2 text-muted-foreground hover:text-primary text-xs",
+                  groupingConfig && "text-primary"
+                )}
+              >
+                <Group className="h-3.5 w-3.5 mr-1.5" />
+                <span className="hidden sm:inline">Group</span>
+                {groupingConfig && groupingConfig.fields?.length > 0 && (
+                  <span className="ml-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary/10 text-[10px] font-medium text-primary">
+                    {groupingConfig.fields.length}
+                  </span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-64 p-3">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <h4 className="font-medium text-sm">Group By</h4>
+                  {groupingConfig && (
+                    <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => setGroupingConfig(undefined)} data-testid="clear-grouping">
+                      Clear
+                    </Button>
+                  )}
+                </div>
+                <div className="max-h-60 overflow-y-auto space-y-1" data-testid="group-field-list">
+                  {allFields.map(field => {
+                    const isGrouped = groupingConfig?.fields?.some(f => f.field === field.name);
+                    return (
+                      <label key={field.name} className="flex items-center gap-2 text-sm py-1 px-1 rounded hover:bg-muted cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={!!isGrouped}
+                          onChange={() => {
+                            if (isGrouped) {
+                              const newFields = (groupingConfig?.fields || []).filter(f => f.field !== field.name);
+                              setGroupingConfig(newFields.length > 0 ? { fields: newFields } : undefined);
+                            } else {
+                              const existing = groupingConfig?.fields || [];
+                              setGroupingConfig({ fields: [...existing, { field: field.name, order: 'asc' }] });
+                            }
+                          }}
+                          className="rounded border-input"
+                        />
+                        <span className="truncate">{field.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
           )}
 
           {/* Sort */}
@@ -1072,15 +1198,54 @@ export const ListView: React.FC<ListViewProps> = ({
 
           {/* Color */}
           {toolbarFlags.showColor && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2 text-muted-foreground hover:text-primary text-xs"
-            disabled
-          >
-            <Paintbrush className="h-3.5 w-3.5 mr-1.5" />
-            <span className="hidden sm:inline">Color</span>
-          </Button>
+          <Popover open={showColorPopover} onOpenChange={setShowColorPopover}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "h-7 px-2 text-muted-foreground hover:text-primary text-xs",
+                  rowColorConfig && "text-primary"
+                )}
+              >
+                <Paintbrush className="h-3.5 w-3.5 mr-1.5" />
+                <span className="hidden sm:inline">Color</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-64 p-3">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <h4 className="font-medium text-sm">Row Color</h4>
+                  {rowColorConfig && (
+                    <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => setRowColorConfig(undefined)} data-testid="clear-row-color">
+                      Clear
+                    </Button>
+                  )}
+                </div>
+                <div className="space-y-2" data-testid="color-field-list">
+                  <label className="text-xs text-muted-foreground">Color by field</label>
+                  <select
+                    className="w-full h-8 rounded border border-input bg-background px-2 text-xs"
+                    value={rowColorConfig?.field || ''}
+                    onChange={(e) => {
+                      const field = e.target.value;
+                      if (!field) {
+                        setRowColorConfig(undefined);
+                      } else {
+                        setRowColorConfig({ field, colors: rowColorConfig?.colors || {} });
+                      }
+                    }}
+                    data-testid="color-field-select"
+                  >
+                    <option value="">None</option>
+                    {allFields.map(field => (
+                      <option key={field.name} value={field.name}>{field.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
           )}
 
           {/* Row Height / Density Mode */}
@@ -1098,7 +1263,7 @@ export const ListView: React.FC<ListViewProps> = ({
           )}
 
           {/* Export */}
-          {schema.exportOptions && schema.allowExport !== false && (
+          {resolvedExportOptions && schema.allowExport !== false && (
             <Popover open={showExport} onOpenChange={setShowExport}>
               <PopoverTrigger asChild>
                 <Button
@@ -1112,7 +1277,7 @@ export const ListView: React.FC<ListViewProps> = ({
               </PopoverTrigger>
               <PopoverContent align="start" className="w-48 p-2">
                 <div className="space-y-1">
-                  {(schema.exportOptions.formats || ['csv', 'json']).map(format => (
+                  {(resolvedExportOptions.formats || ['csv', 'json']).map(format => (
                     <Button
                       key={format}
                       variant="ghost"
@@ -1129,13 +1294,13 @@ export const ListView: React.FC<ListViewProps> = ({
             </Popover>
           )}
 
-          {/* Share */}
-          {schema.sharing?.enabled && (
+          {/* Share — supports both ObjectUI visibility model and spec personal/collaborative model */}
+          {(schema.sharing?.enabled || schema.sharing?.type) && (
             <Button
               variant="ghost"
               size="sm"
               className="h-7 px-2 text-muted-foreground hover:text-primary text-xs"
-              title={`Sharing: ${schema.sharing.visibility || 'private'}`}
+              title={`Sharing: ${schema.sharing?.visibility || schema.sharing?.type || 'private'}`}
               data-testid="share-button"
             >
               <Share2 className="h-3.5 w-3.5 mr-1.5" />
@@ -1219,9 +1384,9 @@ export const ListView: React.FC<ListViewProps> = ({
       {/* Filters Panel - Removed as it is now in Popover */}
 
       {/* Quick Filters Row */}
-      {schema.quickFilters && schema.quickFilters.length > 0 && (
+      {normalizedQuickFilters && normalizedQuickFilters.length > 0 && (
         <div className="border-b px-2 sm:px-4 py-1 flex items-center gap-1 flex-wrap bg-background" data-testid="quick-filters">
-          {schema.quickFilters.map(qf => {
+          {normalizedQuickFilters.map((qf: any) => {
             const isActive = activeQuickFilters.has(qf.id);
             const QfIcon: LucideIcon | null = qf.icon
               ? ((icons as Record<string, LucideIcon>)[
@@ -1288,6 +1453,38 @@ export const ListView: React.FC<ListViewProps> = ({
         )}
       </div>
 
+      {/* Bulk Actions Bar */}
+      {schema.bulkActions && schema.bulkActions.length > 0 && selectedRows.length > 0 && (
+        <div
+          className="border-t px-4 py-1.5 flex items-center gap-2 text-xs bg-primary/5 shrink-0"
+          data-testid="bulk-actions-bar"
+        >
+          <span className="text-muted-foreground font-medium">{selectedRows.length} selected</span>
+          <div className="flex items-center gap-1 ml-2">
+            {schema.bulkActions.map(action => (
+              <Button
+                key={action}
+                variant="outline"
+                size="sm"
+                className="h-6 px-2 text-xs"
+                onClick={() => props.onBulkAction?.(action, selectedRows)}
+                data-testid={`bulk-action-${action}`}
+              >
+                {formatActionLabel(action)}
+              </Button>
+            ))}
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 px-2 text-xs ml-auto"
+            onClick={() => setSelectedRows([])}
+          >
+            Clear
+          </Button>
+        </div>
+      )}
+
       {/* Record count status bar (Airtable-style) */}
       {!loading && data.length > 0 && schema.showRecordCount !== false && (
         <div
@@ -1297,15 +1494,16 @@ export const ListView: React.FC<ListViewProps> = ({
           <span>{data.length === 1 ? t('list.recordCountOne', { count: data.length }) : t('list.recordCount', { count: data.length })}</span>
           {dataLimitReached && (
             <span className="text-amber-600" data-testid="data-limit-warning">
-              {t('list.dataLimitReached', { limit: schema.pagination?.pageSize || 100 })}
+              {t('list.dataLimitReached', { limit: effectivePageSize })}
             </span>
           )}
           {schema.pagination?.pageSizeOptions && schema.pagination.pageSizeOptions.length > 0 && (
             <select
               className="ml-auto h-6 rounded border border-input bg-background px-1 text-xs"
-              defaultValue={schema.pagination.pageSize}
+              value={effectivePageSize}
               onChange={(e) => {
                 const newSize = Number(e.target.value);
+                setDynamicPageSize(newSize);
                 if (props.onPageSizeChange) props.onPageSizeChange(newSize);
               }}
               data-testid="page-size-selector"
