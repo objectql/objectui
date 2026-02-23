@@ -43,6 +43,7 @@ import {
     toSortItems,
     SPEC_TO_BUILDER_OP,
     BUILDER_TO_SPEC_OP,
+    ROW_HEIGHT_OPTIONS,
 } from '../utils/view-config-utils';
 
 import { buildViewConfigSchema } from '../utils/view-config-schema';
@@ -439,6 +440,7 @@ describe('buildViewConfigSchema', () => {
             const schema = buildSchema();
             const section = schema.sections.find(s => s.key === 'userActions')!;
             const fieldKeys = section.fields.map(f => f.key);
+            expect(fieldKeys).toContain('clickIntoRecordDetails');
             expect(fieldKeys).toContain('inlineEdit');
             expect(fieldKeys).toContain('addDeleteRecordsInline');
             expect(fieldKeys).toContain('_rowActions');
@@ -523,5 +525,69 @@ describe('buildViewConfigSchema', () => {
                 expect(typeof field.render).toBe('function');
             }
         }
+    });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 3. Spec-alignment validation
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('spec alignment', () => {
+    // ── ROW_HEIGHT_OPTIONS matches spec RowHeight enum ───────────────────
+    describe('ROW_HEIGHT_OPTIONS', () => {
+        it('contains all 5 spec RowHeight values', () => {
+            const values = ROW_HEIGHT_OPTIONS.map(o => o.value);
+            expect(values).toEqual(['compact', 'short', 'medium', 'tall', 'extra_tall']);
+        });
+
+        it('each option has a gapClass', () => {
+            for (const opt of ROW_HEIGHT_OPTIONS) {
+                expect(opt.gapClass).toBeDefined();
+                expect(typeof opt.gapClass).toBe('string');
+            }
+        });
+    });
+
+    // ── NamedListView field coverage ────────────────────────────────────
+    describe('NamedListView spec field coverage', () => {
+        function buildSchema() {
+            return buildViewConfigSchema({
+                t: mockT,
+                fieldOptions: mockFieldOptions,
+                objectDef: mockObjectDef,
+                updateField: mockUpdateField,
+                filterGroupValue: mockFilterGroup,
+                sortItemsValue: mockSortItems,
+            });
+        }
+
+        function allFieldKeys() {
+            const schema = buildSchema();
+            return schema.sections.flatMap(s => s.fields.map(f => f.key));
+        }
+
+        it('covers clickIntoRecordDetails from NamedListView spec', () => {
+            expect(allFieldKeys()).toContain('clickIntoRecordDetails');
+        });
+
+        it('covers all NamedListView toolbar toggles', () => {
+            const keys = allFieldKeys();
+            const toolbarFields = [
+                'showSearch', 'showFilters', 'showSort',
+                'showHideFields', 'showGroup', 'showColor', 'showDensity',
+            ];
+            for (const field of toolbarFields) {
+                expect(keys).toContain(field);
+            }
+        });
+
+        it('covers all NamedListView boolean toggles in userActions', () => {
+            const schema = buildSchema();
+            const section = schema.sections.find(s => s.key === 'userActions')!;
+            const keys = section.fields.map(f => f.key);
+            expect(keys).toContain('clickIntoRecordDetails');
+            expect(keys).toContain('inlineEdit');
+            expect(keys).toContain('addDeleteRecordsInline');
+        });
     });
 });

@@ -287,7 +287,7 @@ export const ListViewSchema = BaseSchema.extend({
   filterableFields: z.array(z.string()).optional().describe('Filterable fields'),
   resizable: z.boolean().optional().describe('Allow column resizing'),
   densityMode: z.enum(['compact', 'comfortable', 'spacious']).optional().describe('Density mode'),
-  rowHeight: z.enum(['compact', 'medium', 'tall']).optional().describe('Row height'),
+  rowHeight: z.enum(['compact', 'short', 'medium', 'tall', 'extra_tall']).optional().describe('Row height'),
   hiddenFields: z.array(z.string()).optional().describe('Hidden fields'),
   exportOptions: z.object({
     formats: z.array(z.enum(['csv', 'xlsx', 'json', 'pdf'])).optional(),

@@ -2227,7 +2227,7 @@ describe('ViewConfigPanel', () => {
         expect(screen.getByTestId('bulk-actions-selector')).toBeInTheDocument();
     });
 
-    it('renders row height buttons with spec-aligned values (compact/medium/tall)', () => {
+    it('renders row height buttons with all 5 spec-aligned values', () => {
         const onViewUpdate = vi.fn();
         render(
             <ViewConfigPanel
@@ -2240,11 +2240,10 @@ describe('ViewConfigPanel', () => {
         );
 
         expect(screen.getByTestId('row-height-compact')).toBeInTheDocument();
+        expect(screen.getByTestId('row-height-short')).toBeInTheDocument();
         expect(screen.getByTestId('row-height-medium')).toBeInTheDocument();
         expect(screen.getByTestId('row-height-tall')).toBeInTheDocument();
-        // Old values should not exist
-        expect(screen.queryByTestId('row-height-short')).not.toBeInTheDocument();
-        expect(screen.queryByTestId('row-height-extraTall')).not.toBeInTheDocument();
+        expect(screen.getByTestId('row-height-extra_tall')).toBeInTheDocument();
 
         // Click compact and verify update
         fireEvent.click(screen.getByTestId('row-height-compact'));

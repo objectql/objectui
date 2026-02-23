@@ -1214,6 +1214,7 @@ function buildUserActionsSection(
         title: t('console.objectView.userActions'),
         collapsible: true,
         fields: [
+            buildSwitchField('clickIntoRecordDetails', t('console.objectView.clickIntoRecordDetails'), 'toggle-clickIntoRecordDetails', true),
             buildSwitchField('inlineEdit', t('console.objectView.inlineEdit'), 'toggle-inlineEdit', true),
             buildSwitchField('addDeleteRecordsInline', t('console.objectView.addDeleteRecordsInline'), 'toggle-addDeleteRecordsInline', true),
             // Row actions
