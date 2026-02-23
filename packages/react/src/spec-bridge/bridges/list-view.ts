@@ -168,7 +168,17 @@ export const bridgeListView: BridgeFn<ListViewSpec> = (
 
   // P1.6 — i18n & ARIA
   if (spec.aria) node.aria = spec.aria;
-  if (spec.sharing) node.sharing = spec.sharing;
+  if (spec.sharing) {
+    // Normalize spec sharing format: map type → visibility, set enabled = true
+    const sharing: Record<string, any> = { ...spec.sharing };
+    if (sharing.type && !sharing.visibility) {
+      sharing.visibility = sharing.type === 'collaborative' ? 'team' : 'private';
+    }
+    if (sharing.type && sharing.enabled == null) {
+      sharing.enabled = true;
+    }
+    node.sharing = sharing;
+  }
   if (spec.hiddenFields) node.hiddenFields = spec.hiddenFields;
   if (spec.fieldOrder) node.fieldOrder = spec.fieldOrder;
   if (spec.description) node.description = spec.description;

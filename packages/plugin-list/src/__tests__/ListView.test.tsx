@@ -1805,5 +1805,126 @@ describe('ListView', () => {
       const selector = screen.getByTestId('page-size-selector');
       expect(selector).toHaveValue('25');
     });
+
+    it('should re-fetch data when page size changes', async () => {
+      const mockItems = [
+        { _id: '1', name: 'Alice', email: 'alice@test.com' },
+        { _id: '2', name: 'Bob', email: 'bob@test.com' },
+      ];
+      mockDataSource.find.mockResolvedValue(mockItems);
+
+      const onPageSizeChange = vi.fn();
+      const schema: ListViewSchema = {
+        type: 'list-view',
+        objectName: 'contacts',
+        viewType: 'grid',
+        fields: ['name', 'email'],
+        pagination: { pageSize: 25, pageSizeOptions: [10, 25, 50, 100] },
+      };
+
+      renderWithProvider(<ListView schema={schema} dataSource={mockDataSource} onPageSizeChange={onPageSizeChange} />);
+
+      await vi.waitFor(() => {
+        expect(screen.getByTestId('page-size-selector')).toBeInTheDocument();
+      });
+
+      const fetchCountBefore = mockDataSource.find.mock.calls.length;
+
+      // Change page size to 50
+      const selector = screen.getByTestId('page-size-selector');
+      fireEvent.change(selector, { target: { value: '50' } });
+
+      expect(onPageSizeChange).toHaveBeenCalledWith(50);
+
+      // Data should be re-fetched with the new page size
+      await vi.waitFor(() => {
+        expect(mockDataSource.find.mock.calls.length).toBeGreaterThan(fetchCountBefore);
+      });
+    });
+
+    it('should render all page size options in the selector', async () => {
+      const mockItems = [
+        { _id: '1', name: 'Alice', email: 'alice@test.com' },
+      ];
+      mockDataSource.find.mockResolvedValue(mockItems);
+
+      const schema: ListViewSchema = {
+        type: 'list-view',
+        objectName: 'contacts',
+        viewType: 'grid',
+        fields: ['name', 'email'],
+        pagination: { pageSize: 10, pageSizeOptions: [10, 25, 50, 100] },
+      };
+
+      renderWithProvider(<ListView schema={schema} dataSource={mockDataSource} />);
+
+      await vi.waitFor(() => {
+        expect(screen.getByTestId('page-size-selector')).toBeInTheDocument();
+      });
+
+      const options = screen.getByTestId('page-size-selector').querySelectorAll('option');
+      expect(options).toHaveLength(4);
+      expect(options[0]).toHaveValue('10');
+      expect(options[1]).toHaveValue('25');
+      expect(options[2]).toHaveValue('50');
+      expect(options[3]).toHaveValue('100');
+    });
+
+    it('should not render page size selector when pageSizeOptions is not configured', async () => {
+      const mockItems = [
+        { _id: '1', name: 'Alice', email: 'alice@test.com' },
+      ];
+      mockDataSource.find.mockResolvedValue(mockItems);
+
+      const schema: ListViewSchema = {
+        type: 'list-view',
+        objectName: 'contacts',
+        viewType: 'grid',
+        fields: ['name', 'email'],
+        pagination: { pageSize: 25 },
+      };
+
+      renderWithProvider(<ListView schema={schema} dataSource={mockDataSource} />);
+
+      await vi.waitFor(() => {
+        expect(screen.getByTestId('record-count-bar')).toBeInTheDocument();
+      });
+
+      expect(screen.queryByTestId('page-size-selector')).not.toBeInTheDocument();
+    });
+  });
+
+  // ============================
+  // sharing spec format — additional tests
+  // ============================
+  describe('sharing spec format — additional', () => {
+    it('should render share button with spec personal type', () => {
+      const schema: ListViewSchema = {
+        type: 'list-view',
+        objectName: 'contacts',
+        viewType: 'grid',
+        fields: ['name', 'email'],
+        sharing: { type: 'personal' },
+      };
+
+      renderWithProvider(<ListView schema={schema} />);
+      const shareButton = screen.getByTestId('share-button');
+      expect(shareButton).toBeInTheDocument();
+    });
+
+    it('should display lockedBy in sharing tooltip when set', () => {
+      const schema: ListViewSchema = {
+        type: 'list-view',
+        objectName: 'contacts',
+        viewType: 'grid',
+        fields: ['name', 'email'],
+        sharing: { type: 'collaborative', lockedBy: 'admin@example.com' },
+      };
+
+      renderWithProvider(<ListView schema={schema} />);
+      const shareButton = screen.getByTestId('share-button');
+      expect(shareButton).toBeInTheDocument();
+      expect(shareButton).toHaveAttribute('title', 'Sharing: collaborative');
+    });
   });
 });

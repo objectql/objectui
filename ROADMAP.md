@@ -703,8 +703,9 @@ The `FlowDesigner` is a canvas-based flow editor that bridges the gap between th
 **P2 — Advanced Features:**
 - [x] `rowActions`: Row-level dropdown action menu per row in ObjectGrid. `schema.rowActions` string array items rendered as dropdown menu items, dispatched via `executeAction`.
 - [x] `bulkActions`: Bulk action bar rendered in ListView when rows are selected and `schema.bulkActions` is configured. Fires `onBulkAction` callback with action name and selected rows.
-- [x] `sharing` schema reconciliation: Supports both ObjectUI `{ visibility, enabled }` and spec `{ type: personal/collaborative, lockedBy }` models. Share button renders when either `enabled: true` or `type` is set.
-- [x] `pagination.pageSizeOptions` backend integration: Page size selector is now a controlled component that dynamically updates `effectivePageSize`, triggering data re-fetch.
+- [x] `sharing` schema reconciliation: Supports both ObjectUI `{ visibility, enabled }` and spec `{ type: personal/collaborative, lockedBy }` models. Share button renders when either `enabled: true` or `type` is set. Zod validator updated with `type` and `lockedBy` fields. Bridge normalizes spec format: `type: personal` → `visibility: private`, `type: collaborative` → `visibility: team`, auto-sets `enabled: true`.
+- [x] `exportOptions` schema reconciliation: Zod validator updated to accept both spec `string[]` format and ObjectUI object format via `z.union()`. ListView normalizes string[] to `{ formats }` at render time.
+- [x] `pagination.pageSizeOptions` backend integration: Page size selector is now a controlled component that dynamically updates `effectivePageSize`, triggering data re-fetch. `onPageSizeChange` callback fires on selection. Full test coverage for selector rendering, option enumeration, and data reload.
 
 ### P2.5 PWA & Offline (Real Sync)
 

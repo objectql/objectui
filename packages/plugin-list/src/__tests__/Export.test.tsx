@@ -55,6 +55,25 @@ describe('ListView Export', () => {
     expect(exportButton).toBeInTheDocument();
   });
 
+  it('should render export button with spec string[] format', () => {
+    const schema: ListViewSchema = {
+      type: 'list-view',
+      objectName: 'contacts',
+      viewType: 'grid',
+      fields: ['name', 'email'],
+      exportOptions: ['csv', 'xlsx'],
+    };
+
+    renderWithProvider(<ListView schema={schema} />);
+    const exportButton = screen.getByRole('button', { name: /export/i });
+    expect(exportButton).toBeInTheDocument();
+
+    // Click to open the popover and verify formats
+    fireEvent.click(exportButton);
+    expect(screen.getByRole('button', { name: /export as csv/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /export as xlsx/i })).toBeInTheDocument();
+  });
+
   it('should handle export with complex object fields in CSV safely', async () => {
     const mockItems = [
       { _id: '1', name: 'Alice', tags: ['admin', 'user'], metadata: { role: 'lead' } },

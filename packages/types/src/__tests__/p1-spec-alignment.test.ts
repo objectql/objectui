@@ -144,6 +144,90 @@ describe('P1.1 ListView Spec Alignment', () => {
     expect(schema.virtualScroll).toBe(true);
     expect(schema.rowSpecActions).toEqual(['edit', 'delete']);
   });
+
+  // P2: Sharing / ExportOptions / Pagination protocol alignment tests
+  it('should accept sharing in spec format { type, lockedBy }', () => {
+    const schema: ListViewSchema = {
+      type: 'list-view',
+      objectName: 'Account',
+      sharing: {
+        type: 'collaborative',
+        lockedBy: 'admin@example.com',
+      },
+    };
+    expect(schema.sharing?.type).toBe('collaborative');
+    expect(schema.sharing?.lockedBy).toBe('admin@example.com');
+  });
+
+  it('should accept sharing in ObjectUI format { visibility, enabled }', () => {
+    const schema: ListViewSchema = {
+      type: 'list-view',
+      objectName: 'Account',
+      sharing: {
+        visibility: 'team',
+        enabled: true,
+      },
+    };
+    expect(schema.sharing?.visibility).toBe('team');
+    expect(schema.sharing?.enabled).toBe(true);
+  });
+
+  it('should accept sharing with both spec and ObjectUI fields merged', () => {
+    const schema: ListViewSchema = {
+      type: 'list-view',
+      objectName: 'Account',
+      sharing: {
+        type: 'personal',
+        visibility: 'private',
+        enabled: true,
+        lockedBy: 'user@example.com',
+      },
+    };
+    expect(schema.sharing?.type).toBe('personal');
+    expect(schema.sharing?.visibility).toBe('private');
+    expect(schema.sharing?.enabled).toBe(true);
+    expect(schema.sharing?.lockedBy).toBe('user@example.com');
+  });
+
+  it('should accept exportOptions as spec string[] format', () => {
+    const schema: ListViewSchema = {
+      type: 'list-view',
+      objectName: 'Account',
+      exportOptions: ['csv', 'xlsx'],
+    };
+    expect(Array.isArray(schema.exportOptions)).toBe(true);
+    expect(schema.exportOptions).toEqual(['csv', 'xlsx']);
+  });
+
+  it('should accept exportOptions as ObjectUI object format', () => {
+    const schema: ListViewSchema = {
+      type: 'list-view',
+      objectName: 'Account',
+      exportOptions: {
+        formats: ['csv', 'json', 'pdf'],
+        maxRecords: 5000,
+        includeHeaders: true,
+        fileNamePrefix: 'accounts_export',
+      },
+    };
+    expect(Array.isArray(schema.exportOptions)).toBe(false);
+    const opts = schema.exportOptions as { formats?: string[]; maxRecords?: number };
+    expect(opts.formats).toEqual(['csv', 'json', 'pdf']);
+    expect(opts.maxRecords).toBe(5000);
+  });
+
+  it('should accept pagination with pageSizeOptions', () => {
+    const schema: ListViewSchema = {
+      type: 'list-view',
+      objectName: 'Account',
+      pagination: {
+        pageSize: 25,
+        pageSizeOptions: [10, 25, 50, 100],
+      },
+    };
+    expect(schema.pagination?.pageSize).toBe(25);
+    expect(schema.pagination?.pageSizeOptions).toEqual([10, 25, 50, 100]);
+  });
 });
 
 // ============================================================================
