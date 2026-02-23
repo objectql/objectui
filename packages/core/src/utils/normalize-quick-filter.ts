@@ -16,14 +16,10 @@
  * Both formats are accepted; spec-format items are auto-converted to ObjectUI format.
  */
 
+import type { QuickFilterItem, ObjectUIQuickFilterItem } from '@object-ui/types';
+
 /** Normalized ObjectUI QuickFilter shape (output of normalizeQuickFilter) */
-export interface NormalizedQuickFilter {
-  id: string;
-  label: string;
-  filters: Array<any[] | string>;
-  icon?: string;
-  defaultActive?: boolean;
-}
+export type NormalizedQuickFilter = ObjectUIQuickFilterItem;
 
 /**
  * Map a human-readable / spec operator to the ObjectStack AST operator.
@@ -51,13 +47,13 @@ function mapSpecOperator(op: string): string {
  * - If it's already in ObjectUI format (has id + label + filters), return as-is.
  * - If it's in Spec format (has field + operator), convert to ObjectUI format.
  */
-export function normalizeQuickFilter(item: any): NormalizedQuickFilter {
+export function normalizeQuickFilter(item: QuickFilterItem): NormalizedQuickFilter {
   // Already in ObjectUI format
-  if (item.id && item.label && Array.isArray(item.filters)) {
+  if ('id' in item && 'filters' in item && item.label && Array.isArray(item.filters)) {
     return item as NormalizedQuickFilter;
   }
   // Spec format: { field, operator, value }
-  if (item.field && item.operator) {
+  if ('field' in item && 'operator' in item) {
     const op = mapSpecOperator(item.operator);
     return {
       id: `${item.field}-${item.operator}-${String(item.value ?? '')}`,
@@ -68,14 +64,14 @@ export function normalizeQuickFilter(item: any): NormalizedQuickFilter {
     };
   }
   // Unknown format — return as-is
-  return item;
+  return item as NormalizedQuickFilter;
 }
 
 /**
  * Normalize an array of QuickFilter items (mixed formats accepted).
  */
 export function normalizeQuickFilters(
-  items: any[] | undefined,
+  items: QuickFilterItem[] | undefined,
 ): NormalizedQuickFilter[] | undefined {
   if (!items || items.length === 0) return undefined;
   return items.map(normalizeQuickFilter);

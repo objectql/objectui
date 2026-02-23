@@ -394,7 +394,7 @@ export const ListView: React.FC<ListViewProps> = ({
   // Normalize quickFilters: support both ObjectUI format { id, label, filters[] }
   // and spec format { field, operator, value }. Spec items are auto-converted.
   const normalizedQuickFilters = React.useMemo(
-    () => normalizeQuickFilters(schema.quickFilters as any[]),
+    () => normalizeQuickFilters(schema.quickFilters),
     [schema.quickFilters],
   );
 
