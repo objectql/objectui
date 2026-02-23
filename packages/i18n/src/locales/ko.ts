@@ -397,6 +397,11 @@ const ko = {
       inlineEdit: '인라인으로 레코드 편집',
       addDeleteRecordsInline: '인라인으로 레코드 추가/삭제',
       clickIntoRecordDetails: '레코드 상세 보기 클릭',
+      navigationMode: '탐색 모드',
+      navigationWidth: '탐색 너비',
+      navigationWidthHint: 'Available for drawer, modal, and split navigation modes',
+      openNewTab: '새 탭에서 열기',
+      openNewTabHint: 'Available for page and new window navigation modes',
     },
     localeSwitcher: {
       label: '언어',

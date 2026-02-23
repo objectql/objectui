@@ -397,6 +397,11 @@ const ja = {
       inlineEdit: 'インラインでレコードを編集',
       addDeleteRecordsInline: 'インラインでレコードを追加/削除',
       clickIntoRecordDetails: 'レコード詳細をクリックで表示',
+      navigationMode: 'ナビゲーションモード',
+      navigationWidth: 'ナビゲーション幅',
+      navigationWidthHint: 'Available for drawer, modal, and split navigation modes',
+      openNewTab: '新しいタブで開く',
+      openNewTabHint: 'Available for page and new window navigation modes',
     },
     localeSwitcher: {
       label: '言語',

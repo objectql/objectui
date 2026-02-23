@@ -397,6 +397,11 @@ const pt = {
       inlineEdit: 'Editar registros em linha',
       addDeleteRecordsInline: 'Adicionar/excluir registros em linha',
       clickIntoRecordDetails: 'Clique para detalhes do registro',
+      navigationMode: 'Modo de navegação',
+      navigationWidth: 'Largura de navegação',
+      navigationWidthHint: 'Available for drawer, modal, and split navigation modes',
+      openNewTab: 'Abrir em nova aba',
+      openNewTabHint: 'Available for page and new window navigation modes',
     },
     localeSwitcher: {
       label: 'Idioma',

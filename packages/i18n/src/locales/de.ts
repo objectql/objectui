@@ -402,6 +402,11 @@ const de = {
       inlineEdit: 'Datensätze inline bearbeiten',
       addDeleteRecordsInline: 'Datensätze inline hinzufügen/löschen',
       clickIntoRecordDetails: 'Klicken für Datensatzdetails',
+      navigationMode: 'Navigationsmodus',
+      navigationWidth: 'Navigationsbreite',
+      navigationWidthHint: 'Available for drawer, modal, and split navigation modes',
+      openNewTab: 'In neuem Tab öffnen',
+      openNewTabHint: 'Available for page and new window navigation modes',
     },
     localeSwitcher: {
       label: 'Sprache',
