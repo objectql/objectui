@@ -300,6 +300,10 @@ export type {
   ListViewGalleryConfig,
   ListViewTimelineConfig,
   SortConfig,
+  // QuickFilter dual-format types
+  ObjectUIQuickFilterItem,
+  SpecQuickFilterItem,
+  QuickFilterItem,
   // Component schemas
   ObjectMapSchema,
   ObjectGanttSchema,

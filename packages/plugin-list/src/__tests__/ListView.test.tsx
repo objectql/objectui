@@ -1598,7 +1598,7 @@ describe('ListView', () => {
         viewType: 'grid',
         fields: ['name', 'email', 'status'],
         quickFilters: [
-          { field: 'status', operator: 'equals', value: 'active', label: 'Active' } as any,
+          { field: 'status', operator: 'equals', value: 'active', label: 'Active' },
         ],
       };
 
@@ -1623,6 +1623,73 @@ describe('ListView', () => {
       expect(screen.getByTestId('quick-filters')).toBeInTheDocument();
       expect(screen.getByText('Active')).toBeInTheDocument();
       expect(screen.getByText('VIP')).toBeInTheDocument();
+    });
+
+    it('should handle mixed format arrays (ObjectUI + Spec items together)', () => {
+      const schema: ListViewSchema = {
+        type: 'list-view',
+        objectName: 'contacts',
+        viewType: 'grid',
+        fields: ['name', 'email', 'status'],
+        quickFilters: [
+          { id: 'active', label: 'Active', filters: [['status', '=', 'active']] },
+          { field: 'priority', operator: 'eq', value: 'high', label: 'High Priority' },
+        ],
+      };
+
+      renderWithProvider(<ListView schema={schema} />);
+      expect(screen.getByTestId('quick-filters')).toBeInTheDocument();
+      expect(screen.getByText('Active')).toBeInTheDocument();
+      expect(screen.getByText('High Priority')).toBeInTheDocument();
+    });
+
+    it('should handle spec shorthand operator "eq"', () => {
+      const schema: ListViewSchema = {
+        type: 'list-view',
+        objectName: 'contacts',
+        viewType: 'grid',
+        fields: ['name', 'status'],
+        quickFilters: [
+          { field: 'status', operator: 'eq', value: 'active', label: 'Active' },
+        ],
+      };
+
+      renderWithProvider(<ListView schema={schema} />);
+      expect(screen.getByTestId('quick-filters')).toBeInTheDocument();
+      expect(screen.getByText('Active')).toBeInTheDocument();
+    });
+
+    it('should auto-generate label when label is omitted in spec format', () => {
+      const schema: ListViewSchema = {
+        type: 'list-view',
+        objectName: 'contacts',
+        viewType: 'grid',
+        fields: ['name', 'status'],
+        quickFilters: [
+          { field: 'status', operator: 'eq', value: 'active' },
+        ],
+      };
+
+      renderWithProvider(<ListView schema={schema} />);
+      expect(screen.getByTestId('quick-filters')).toBeInTheDocument();
+      // Auto-generated label: "status eq active"
+      expect(screen.getByText('status eq active')).toBeInTheDocument();
+    });
+
+    it('should handle spec format with missing value', () => {
+      const schema: ListViewSchema = {
+        type: 'list-view',
+        objectName: 'contacts',
+        viewType: 'grid',
+        fields: ['name', 'archived'],
+        quickFilters: [
+          { field: 'archived', operator: 'eq', value: null, label: 'Not Archived' },
+        ],
+      };
+
+      renderWithProvider(<ListView schema={schema} />);
+      expect(screen.getByTestId('quick-filters')).toBeInTheDocument();
+      expect(screen.getByText('Not Archived')).toBeInTheDocument();
     });
   });
 

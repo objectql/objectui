@@ -161,6 +161,52 @@ export interface SortConfig {
   order: 'asc' | 'desc';
 }
 
+// ============================================================================
+// QuickFilter Types — Dual-format support
+// ============================================================================
+
+/**
+ * ObjectUI-native QuickFilter format.
+ * Each quick filter renders as a toggle button with explicit id, label, and filter conditions.
+ */
+export interface ObjectUIQuickFilterItem {
+  /** Unique identifier for this quick filter */
+  id: string;
+  /** Display label for the filter button */
+  label: string;
+  /** Filter conditions to apply when activated */
+  filters: Array<any[] | string>;
+  /** Icon name (Lucide icon identifier) */
+  icon?: string;
+  /** Default active state */
+  defaultActive?: boolean;
+}
+
+/**
+ * Spec-format QuickFilter item (from @objectstack/spec).
+ * A single field-level predicate: `{ field, operator, value }`.
+ * Automatically converted to ObjectUI format at runtime.
+ */
+export interface SpecQuickFilterItem {
+  /** Field name to filter on */
+  field: string;
+  /** Filter operator (e.g. 'eq', 'equals', 'contains', 'gt', etc.) */
+  operator: string;
+  /** Value to compare against */
+  value: unknown;
+  /** Optional display label (auto-generated if omitted) */
+  label?: string;
+  /** Icon name (Lucide icon identifier) */
+  icon?: string;
+  /** Default active state */
+  defaultActive?: boolean;
+}
+
+/**
+ * Union type for QuickFilter items — accepts both ObjectUI and Spec formats.
+ */
+export type QuickFilterItem = ObjectUIQuickFilterItem | SpecQuickFilterItem;
+
 /**
  * ObjectGrid Schema
  * A specialized grid component that automatically fetches and displays data from ObjectQL objects.
@@ -1155,14 +1201,9 @@ export interface NamedListView {
     expression?: string;
   }>;
 
-  /** Quick filter buttons for predefined filter presets */
-  quickFilters?: Array<{
-    id: string;
-    label: string;
-    filters: Array<any[] | string>;
-    icon?: string;
-    defaultActive?: boolean;
-  }>;
+  /** Quick filter buttons for predefined filter presets.
+   * Supports both ObjectUI format and Spec format (auto-converted at runtime). */
+  quickFilters?: QuickFilterItem[];
 
   /** Show total record count @default false */
   showRecordCount?: boolean;
@@ -1397,20 +1438,9 @@ export interface ListViewSchema extends BaseSchema {
 
   /**
    * Quick filter buttons for predefined filter presets.
-   * Each quick filter is rendered as a toggle button in the toolbar.
+   * Supports both ObjectUI format and Spec format (auto-converted at runtime).
    */
-  quickFilters?: Array<{
-    /** Unique identifier for this quick filter */
-    id: string;
-    /** Display label for the filter button */
-    label: string;
-    /** Filter conditions to apply when activated */
-    filters: Array<any[] | string>;
-    /** Icon name (Lucide icon identifier) */
-    icon?: string;
-    /** Default active state */
-    defaultActive?: boolean;
-  }>;
+  quickFilters?: QuickFilterItem[];
 
   /**
    * Fields to hide from the current view.
