@@ -1,0 +1,130 @@
+/**
+ * ObjectUI
+ * Copyright (c) 2024-present ObjectStack Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+import { describe, it, expect } from 'vitest';
+import { isValidAppName, wizardDraftToAppSchema } from '@object-ui/types';
+import type {
+  AppWizardDraft,
+  AppWizardStep,
+  BrandingConfig,
+  ObjectSelection,
+  EditorMode,
+  AppSchema,
+} from '@object-ui/types';
+
+describe('App Creation Types', () => {
+  describe('isValidAppName', () => {
+    it('should accept simple snake_case names', () => {
+      expect(isValidAppName('my_app')).toBe(true);
+      expect(isValidAppName('crm')).toBe(true);
+      expect(isValidAppName('sales_dashboard')).toBe(true);
+      expect(isValidAppName('app123')).toBe(true);
+    });
+
+    it('should reject invalid names', () => {
+      expect(isValidAppName('')).toBe(false);
+      expect(isValidAppName('My App')).toBe(false);
+      expect(isValidAppName('my-app')).toBe(false);
+      expect(isValidAppName('MyApp')).toBe(false);
+      expect(isValidAppName('123app')).toBe(false);
+      expect(isValidAppName('_app')).toBe(false);
+      expect(isValidAppName('app_')).toBe(false);
+      expect(isValidAppName('app__name')).toBe(false);
+    });
+
+    it('should accept multi-segment snake_case', () => {
+      expect(isValidAppName('my_cool_app')).toBe(true);
+      expect(isValidAppName('a_b_c_d')).toBe(true);
+    });
+  });
+
+  describe('wizardDraftToAppSchema', () => {
+    it('should convert draft to AppSchema', () => {
+      const draft: AppWizardDraft = {
+        name: 'test_app',
+        title: 'Test Application',
+        description: 'A test app',
+        icon: 'LayoutDashboard',
+        layout: 'sidebar',
+        objects: [],
+        navigation: [
+          { id: 'nav_1', type: 'object', label: 'Contacts', objectName: 'contacts' },
+        ],
+        branding: {
+          logo: 'https://example.com/logo.svg',
+          primaryColor: '#3b82f6',
+          favicon: 'https://example.com/favicon.ico',
+        },
+      };
+
+      const schema: AppSchema = wizardDraftToAppSchema(draft);
+      expect(schema.type).toBe('app');
+      expect(schema.name).toBe('test_app');
+      expect(schema.title).toBe('Test Application');
+      expect(schema.description).toBe('A test app');
+      expect(schema.logo).toBe('https://example.com/logo.svg');
+      expect(schema.favicon).toBe('https://example.com/favicon.ico');
+      expect(schema.layout).toBe('sidebar');
+      expect(schema.navigation).toHaveLength(1);
+      expect(schema.navigation![0].id).toBe('nav_1');
+    });
+
+    it('should handle draft with empty navigation', () => {
+      const draft: AppWizardDraft = {
+        name: 'empty_app',
+        title: 'Empty',
+        layout: 'header',
+        objects: [],
+        navigation: [],
+        branding: {},
+      };
+
+      const schema = wizardDraftToAppSchema(draft);
+      expect(schema.navigation).toEqual([]);
+      expect(schema.layout).toBe('header');
+    });
+  });
+
+  describe('Type Shape Verification', () => {
+    it('should accept valid AppWizardStep', () => {
+      const step: AppWizardStep = {
+        id: 'basic',
+        label: 'Basic Info',
+        description: 'Enter app details',
+        icon: 'Settings',
+      };
+      expect(step.id).toBe('basic');
+      expect(step.label).toBe('Basic Info');
+    });
+
+    it('should accept valid BrandingConfig', () => {
+      const config: BrandingConfig = {
+        logo: 'https://example.com/logo.png',
+        primaryColor: '#ff5733',
+        favicon: 'https://example.com/favicon.ico',
+        fontFamily: 'Inter',
+      };
+      expect(config.primaryColor).toBe('#ff5733');
+    });
+
+    it('should accept valid ObjectSelection', () => {
+      const obj: ObjectSelection = {
+        name: 'contacts',
+        label: 'Contacts',
+        icon: 'Users',
+        selected: true,
+      };
+      expect(obj.selected).toBe(true);
+    });
+
+    it('should accept valid EditorMode', () => {
+      const modes: EditorMode[] = ['edit', 'preview', 'code'];
+      expect(modes).toHaveLength(3);
+    });
+  });
+});

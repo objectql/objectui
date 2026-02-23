@@ -13,6 +13,12 @@ import { ProcessDesigner } from './ProcessDesigner';
 import { ReportDesigner } from './ReportDesigner';
 import { CollaborationProvider, ConnectionStatusIndicator } from './CollaborationProvider';
 import { ViewDesigner } from './ViewDesigner';
+import { AppCreationWizard } from './AppCreationWizard';
+import { NavigationDesigner } from './NavigationDesigner';
+import { EditorModeToggle } from './EditorModeToggle';
+import { DashboardEditor } from './DashboardEditor';
+import { PageCanvasEditor } from './PageCanvasEditor';
+import { ObjectViewConfigurator } from './ObjectViewConfigurator';
 
 export {
   PageDesigner,
@@ -22,9 +28,21 @@ export {
   CollaborationProvider,
   ConnectionStatusIndicator,
   ViewDesigner,
+  AppCreationWizard,
+  NavigationDesigner,
+  EditorModeToggle,
+  DashboardEditor,
+  PageCanvasEditor,
+  ObjectViewConfigurator,
 };
 
 export type { ViewDesignerProps, ViewDesignerConfig } from './ViewDesigner';
+export type { AppCreationWizardProps } from './AppCreationWizard';
+export type { NavigationDesignerProps } from './NavigationDesigner';
+export type { EditorModeToggleProps } from './EditorModeToggle';
+export type { DashboardEditorProps } from './DashboardEditor';
+export type { PageCanvasEditorProps, CanvasComponent } from './PageCanvasEditor';
+export type { ObjectViewConfiguratorProps, ViewConfig, ViewColumn, ViewType } from './ObjectViewConfigurator';
 
 // Shared hooks
 export { useUndoRedo } from './hooks/useUndoRedo';
@@ -121,6 +139,78 @@ ComponentRegistry.register(
       { name: 'viewId', type: 'string', label: 'View ID' },
       { name: 'viewLabel', type: 'string', label: 'View Label' },
       { name: 'viewType', type: 'string', label: 'View Type', defaultValue: 'grid' },
+      { name: 'readOnly', type: 'boolean', label: 'Read Only', defaultValue: false },
+    ],
+  }
+);
+
+// Register app creation wizard component
+ComponentRegistry.register(
+  'app-creation-wizard',
+  AppCreationWizard,
+  {
+    label: 'App Creation Wizard',
+    category: 'Designer',
+    inputs: [
+      { name: 'availableObjects', type: 'code', label: 'Available Objects' },
+      { name: 'templates', type: 'code', label: 'Templates' },
+      { name: 'readOnly', type: 'boolean', label: 'Read Only', defaultValue: false },
+    ],
+  }
+);
+
+// Register navigation designer component
+ComponentRegistry.register(
+  'navigation-designer',
+  NavigationDesigner,
+  {
+    label: 'Navigation Designer',
+    category: 'Designer',
+    inputs: [
+      { name: 'items', type: 'code', label: 'Navigation Items' },
+      { name: 'showPreview', type: 'boolean', label: 'Show Preview', defaultValue: true },
+      { name: 'readOnly', type: 'boolean', label: 'Read Only', defaultValue: false },
+    ],
+  }
+);
+
+// Register dashboard editor component
+ComponentRegistry.register(
+  'dashboard-editor',
+  DashboardEditor,
+  {
+    label: 'Dashboard Editor',
+    category: 'Designer',
+    inputs: [
+      { name: 'schema', type: 'code', label: 'Dashboard Schema' },
+      { name: 'readOnly', type: 'boolean', label: 'Read Only', defaultValue: false },
+    ],
+  }
+);
+
+// Register page canvas editor component
+ComponentRegistry.register(
+  'page-canvas-editor',
+  PageCanvasEditor,
+  {
+    label: 'Page Canvas Editor',
+    category: 'Designer',
+    inputs: [
+      { name: 'schema', type: 'code', label: 'Page Schema' },
+      { name: 'readOnly', type: 'boolean', label: 'Read Only', defaultValue: false },
+    ],
+  }
+);
+
+// Register object view configurator component
+ComponentRegistry.register(
+  'object-view-configurator',
+  ObjectViewConfigurator,
+  {
+    label: 'Object View Configurator',
+    category: 'Designer',
+    inputs: [
+      { name: 'config', type: 'code', label: 'View Config' },
       { name: 'readOnly', type: 'boolean', label: 'Read Only', defaultValue: false },
     ],
   }
