@@ -402,6 +402,11 @@ const fr = {
       inlineEdit: 'Modifier les enregistrements en ligne',
       addDeleteRecordsInline: 'Ajouter/supprimer des enregistrements en ligne',
       clickIntoRecordDetails: "Cliquer pour les détails de l'enregistrement",
+      navigationMode: 'Mode de navigation',
+      navigationWidth: 'Largeur de navigation',
+      navigationWidthHint: 'Disponible pour les modes de navigation tiroir, modale et partagée',
+      openNewTab: 'Ouvrir dans un nouvel onglet',
+      openNewTabHint: 'Disponible pour les modes de navigation page et nouvelle fenêtre',
     },
     localeSwitcher: {
       label: 'Langue',

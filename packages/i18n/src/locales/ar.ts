@@ -398,6 +398,11 @@ const ar = {
       inlineEdit: 'تحرير السجلات مباشرة',
       addDeleteRecordsInline: 'إضافة/حذف السجلات مباشرة',
       clickIntoRecordDetails: 'انقر لعرض تفاصيل السجل',
+      navigationMode: 'وضع التنقل',
+      navigationWidth: 'عرض التنقل',
+      navigationWidthHint: 'متاح لأوضاع التنقل: الدرج والنافذة المنبثقة والعرض المقسم',
+      openNewTab: 'فتح في علامة تبويب جديدة',
+      openNewTabHint: 'متاح لأوضاع التنقل: الصفحة والنافذة الجديدة',
     },
     localeSwitcher: {
       label: 'اللغة',

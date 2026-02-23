@@ -57,55 +57,61 @@ export function ConfigFieldRenderer({
     return null;
   }
 
+  const effectiveDisabled = field.disabled || (field.disabledWhen ? field.disabledWhen(draft) : false);
   const effectiveValue = value ?? field.defaultValue;
+
+  let content: React.ReactNode = null;
 
   switch (field.type) {
     case 'input':
-      return (
+      content = (
         <ConfigRow label={field.label}>
           <Input
             data-testid={`config-field-${field.key}`}
             className="h-7 w-32 text-xs"
             value={effectiveValue ?? ''}
             placeholder={field.placeholder}
-            disabled={field.disabled}
+            disabled={effectiveDisabled}
             onChange={(e) => onChange(e.target.value)}
           />
         </ConfigRow>
       );
+      break;
 
     case 'switch':
-      return (
+      content = (
         <ConfigRow label={field.label}>
           <Switch
             data-testid={`config-field-${field.key}`}
             checked={!!effectiveValue}
-            disabled={field.disabled}
+            disabled={effectiveDisabled}
             onCheckedChange={(checked) => onChange(checked)}
             className="scale-75"
           />
         </ConfigRow>
       );
+      break;
 
     case 'checkbox':
-      return (
+      content = (
         <ConfigRow label={field.label}>
           <Checkbox
             data-testid={`config-field-${field.key}`}
             checked={!!effectiveValue}
-            disabled={field.disabled}
+            disabled={effectiveDisabled}
             onCheckedChange={(checked) => onChange(checked)}
           />
         </ConfigRow>
       );
+      break;
 
     case 'select':
-      return (
+      content = (
         <ConfigRow label={field.label}>
           <Select
             value={String(effectiveValue ?? '')}
             onValueChange={(val) => onChange(val)}
-            disabled={field.disabled}
+            disabled={effectiveDisabled}
           >
             <SelectTrigger
               data-testid={`config-field-${field.key}`}
@@ -123,9 +129,10 @@ export function ConfigFieldRenderer({
           </Select>
         </ConfigRow>
       );
+      break;
 
     case 'slider':
-      return (
+      content = (
         <ConfigRow label={field.label}>
           <div className="flex items-center gap-2 w-32">
             <Slider
@@ -134,7 +141,7 @@ export function ConfigFieldRenderer({
               min={field.min ?? 0}
               max={field.max ?? 100}
               step={field.step ?? 1}
-              disabled={field.disabled}
+              disabled={effectiveDisabled}
               onValueChange={(vals) => onChange(vals[0])}
               aria-label={field.label}
             />
@@ -144,23 +151,25 @@ export function ConfigFieldRenderer({
           </div>
         </ConfigRow>
       );
+      break;
 
     case 'color':
-      return (
+      content = (
         <ConfigRow label={field.label}>
           <input
             data-testid={`config-field-${field.key}`}
             type="color"
             className="h-7 w-10 rounded border cursor-pointer"
             value={effectiveValue ?? '#000000'}
-            disabled={field.disabled}
+            disabled={effectiveDisabled}
             onChange={(e) => onChange(e.target.value)}
           />
         </ConfigRow>
       );
+      break;
 
     case 'icon-group':
-      return (
+      content = (
         <ConfigRow label={field.label}>
           <div className="flex items-center gap-0.5" data-testid={`config-field-${field.key}`}>
             {(field.options ?? []).map((opt) => (
@@ -170,7 +179,7 @@ export function ConfigFieldRenderer({
                 size="sm"
                 variant={effectiveValue === opt.value ? 'default' : 'ghost'}
                 className={cn('h-7 w-7 p-0', effectiveValue === opt.value && 'ring-1 ring-primary')}
-                disabled={field.disabled}
+                disabled={effectiveDisabled}
                 onClick={() => onChange(opt.value)}
                 title={opt.label}
               >
@@ -180,20 +189,22 @@ export function ConfigFieldRenderer({
           </div>
         </ConfigRow>
       );
+      break;
 
     case 'field-picker':
-      return (
+      content = (
         <ConfigRow
           label={field.label}
           value={effectiveValue ?? field.placeholder ?? 'Select field…'}
-          onClick={field.disabled ? undefined : () => {
+          onClick={effectiveDisabled ? undefined : () => {
             /* open field picker - consumers should use type='custom' for full integration */
           }}
         />
       );
+      break;
 
     case 'filter':
-      return (
+      content = (
         <div data-testid={`config-field-${field.key}`}>
           <ConfigRow label={field.label} />
           <FilterBuilder
@@ -204,9 +215,10 @@ export function ConfigFieldRenderer({
           />
         </div>
       );
+      break;
 
     case 'sort':
-      return (
+      content = (
         <div data-testid={`config-field-${field.key}`}>
           <ConfigRow label={field.label} />
           <SortBuilder
@@ -217,14 +229,29 @@ export function ConfigFieldRenderer({
           />
         </div>
       );
+      break;
 
     case 'custom':
       if (field.render) {
-        return <>{field.render(effectiveValue, onChange, draft)}</>;
+        content = <>{field.render(effectiveValue, onChange, draft)}</>;
       }
-      return null;
+      break;
 
     default:
-      return null;
+      break;
   }
+
+  if (!content) return null;
+
+  // Wrap with helpText when provided
+  if (field.helpText) {
+    return (
+      <div>
+        {content}
+        <p className="text-[10px] text-muted-foreground mt-0.5 mb-1">{field.helpText}</p>
+      </div>
+    );
+  }
+
+  return <>{content}</>;
 }

@@ -397,6 +397,11 @@ const ru = {
       inlineEdit: 'Редактировать записи встроенно',
       addDeleteRecordsInline: 'Добавлять/удалять записи встроенно',
       clickIntoRecordDetails: 'Нажмите для просмотра деталей записи',
+      navigationMode: 'Режим навигации',
+      navigationWidth: 'Ширина навигации',
+      navigationWidthHint: 'Доступно для режимов навигации: выдвижная панель, модальное окно и разделённый вид',
+      openNewTab: 'Открыть в новой вкладке',
+      openNewTabHint: 'Доступно для режимов навигации: страница и новое окно',
     },
     localeSwitcher: {
       label: 'Язык',
