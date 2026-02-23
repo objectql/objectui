@@ -43,6 +43,7 @@ import {
     toSortItems,
     SPEC_TO_BUILDER_OP,
     BUILDER_TO_SPEC_OP,
+    ROW_HEIGHT_OPTIONS,
 } from '../utils/view-config-utils';
 
 import { buildViewConfigSchema } from '../utils/view-config-schema';
@@ -370,79 +371,116 @@ describe('buildViewConfigSchema', () => {
     // ── Page Config Section ─────────────────────────────────────────────
 
     describe('pageConfig section', () => {
-        it('contains expected field keys', () => {
+        it('contains expected field keys in spec order', () => {
             const schema = buildSchema();
             const section = schema.sections.find(s => s.key === 'pageConfig')!;
             const fieldKeys = section.fields.map(f => f.key);
-            expect(fieldKeys).toContain('label');
-            expect(fieldKeys).toContain('description');
-            expect(fieldKeys).toContain('type');
-            expect(fieldKeys).toContain('showSearch');
-            expect(fieldKeys).toContain('showFilters');
-            expect(fieldKeys).toContain('showSort');
-            expect(fieldKeys).toContain('_navigationMode');
-            expect(fieldKeys).toContain('_selectionType');
-            expect(fieldKeys).toContain('_addRecord');
-            expect(fieldKeys).toContain('_export');
+            // Spec order: label, type, showSearch, showSort, showFilters, showHideFields, showGroup, showColor, showDensity,
+            //             allowExport(_export), navigation, selection, addRecord, showRecordCount, allowPrinting
+            // description is UI extension (after label)
+            expect(fieldKeys).toEqual([
+                'label', 'description', 'type',
+                'showSearch', 'showSort', 'showFilters', 'showHideFields', 'showGroup', 'showColor', 'showDensity',
+                '_export',
+                '_navigationMode', '_navigationWidth', '_navigationOpenNewTab',
+                '_selectionType',
+                '_addRecord',
+                'showRecordCount', 'allowPrinting',
+            ]);
+        });
+
+        it('showSort comes before showFilters per spec', () => {
+            const schema = buildSchema();
+            const section = schema.sections.find(s => s.key === 'pageConfig')!;
+            const fieldKeys = section.fields.map(f => f.key);
+            expect(fieldKeys.indexOf('showSort')).toBeLessThan(fieldKeys.indexOf('showFilters'));
+        });
+
+        it('_export comes before _navigationMode per spec', () => {
+            const schema = buildSchema();
+            const section = schema.sections.find(s => s.key === 'pageConfig')!;
+            const fieldKeys = section.fields.map(f => f.key);
+            expect(fieldKeys.indexOf('_export')).toBeLessThan(fieldKeys.indexOf('_navigationMode'));
         });
     });
 
     // ── Data Section ────────────────────────────────────────────────────
 
     describe('data section', () => {
-        it('contains expected field keys', () => {
+        it('contains expected field keys in spec order', () => {
             const schema = buildSchema();
             const section = schema.sections.find(s => s.key === 'data')!;
             const fieldKeys = section.fields.map(f => f.key);
-            expect(fieldKeys).toContain('_source');
-            expect(fieldKeys).toContain('_sortBy');
-            expect(fieldKeys).toContain('_groupBy');
-            expect(fieldKeys).toContain('prefixField');
-            expect(fieldKeys).toContain('_columns');
-            expect(fieldKeys).toContain('_filterBy');
-            expect(fieldKeys).toContain('_pageSize');
-            expect(fieldKeys).toContain('_pageSizeOptions');
-            expect(fieldKeys).toContain('_searchableFields');
-            expect(fieldKeys).toContain('_filterableFields');
-            expect(fieldKeys).toContain('_hiddenFields');
-            expect(fieldKeys).toContain('_quickFilters');
-            expect(fieldKeys).toContain('virtualScroll');
-            expect(fieldKeys).toContain('_typeOptions');
+            // Spec order: columns, filter, sort, prefixField, pagination, searchableFields, filterableFields,
+            //             hiddenFields, quickFilters, virtualScroll
+            // _source is UI extension (first), _groupBy is UI extension (after prefixField), _typeOptions is UI extension (last)
+            expect(fieldKeys).toEqual([
+                '_source',
+                '_columns', '_filterBy', '_sortBy',
+                'prefixField', '_groupBy',
+                '_pageSize', '_pageSizeOptions',
+                '_searchableFields', '_filterableFields', '_hiddenFields',
+                '_quickFilters',
+                'virtualScroll',
+                '_typeOptions',
+            ]);
+        });
+
+        it('_columns comes before _filterBy and _sortBy per spec', () => {
+            const schema = buildSchema();
+            const section = schema.sections.find(s => s.key === 'data')!;
+            const fieldKeys = section.fields.map(f => f.key);
+            expect(fieldKeys.indexOf('_columns')).toBeLessThan(fieldKeys.indexOf('_filterBy'));
+            expect(fieldKeys.indexOf('_filterBy')).toBeLessThan(fieldKeys.indexOf('_sortBy'));
         });
     });
 
     // ── Appearance Section ──────────────────────────────────────────────
 
     describe('appearance section', () => {
-        it('contains expected field keys', () => {
+        it('contains expected field keys in spec order', () => {
             const schema = buildSchema();
             const section = schema.sections.find(s => s.key === 'appearance')!;
             const fieldKeys = section.fields.map(f => f.key);
-            expect(fieldKeys).toContain('color');
-            expect(fieldKeys).toContain('fieldTextColor');
-            expect(fieldKeys).toContain('rowHeight');
-            expect(fieldKeys).toContain('wrapHeaders');
-            expect(fieldKeys).toContain('showDescription');
-            expect(fieldKeys).toContain('striped');
-            expect(fieldKeys).toContain('bordered');
-            expect(fieldKeys).toContain('resizable');
-            expect(fieldKeys).toContain('densityMode');
-            expect(fieldKeys).toContain('_conditionalFormatting');
-            expect(fieldKeys).toContain('_emptyState');
+            // Spec order: striped, bordered, color, wrapHeaders, collapseAllByDefault, fieldTextColor,
+            //             showDescription, resizable, densityMode, rowHeight, conditionalFormatting, emptyState
+            expect(fieldKeys).toEqual([
+                'striped', 'bordered', 'color',
+                'wrapHeaders', 'collapseAllByDefault',
+                'fieldTextColor', 'showDescription',
+                'resizable', 'densityMode', 'rowHeight',
+                '_conditionalFormatting', '_emptyState',
+            ]);
+        });
+
+        it('striped and bordered come before color per spec', () => {
+            const schema = buildSchema();
+            const section = schema.sections.find(s => s.key === 'appearance')!;
+            const fieldKeys = section.fields.map(f => f.key);
+            expect(fieldKeys.indexOf('striped')).toBeLessThan(fieldKeys.indexOf('color'));
+            expect(fieldKeys.indexOf('bordered')).toBeLessThan(fieldKeys.indexOf('color'));
         });
     });
 
     // ── User Actions Section ────────────────────────────────────────────
 
     describe('userActions section', () => {
-        it('contains expected field keys', () => {
+        it('contains expected field keys in spec order', () => {
             const schema = buildSchema();
             const section = schema.sections.find(s => s.key === 'userActions')!;
             const fieldKeys = section.fields.map(f => f.key);
-            expect(fieldKeys).toContain('inlineEdit');
-            expect(fieldKeys).toContain('addDeleteRecordsInline');
-            expect(fieldKeys).toContain('_rowActions');
-            expect(fieldKeys).toContain('_bulkActions');
+            // Spec order: inlineEdit, clickIntoRecordDetails, addDeleteRecordsInline, rowActions, bulkActions
+            expect(fieldKeys).toEqual([
+                'inlineEdit', 'clickIntoRecordDetails', 'addDeleteRecordsInline',
+                '_rowActions', '_bulkActions',
+            ]);
+        });
+
+        it('inlineEdit comes before clickIntoRecordDetails per spec', () => {
+            const schema = buildSchema();
+            const section = schema.sections.find(s => s.key === 'userActions')!;
+            const fieldKeys = section.fields.map(f => f.key);
+            expect(fieldKeys.indexOf('inlineEdit')).toBeLessThan(fieldKeys.indexOf('clickIntoRecordDetails'));
         });
     });
 
@@ -523,5 +561,139 @@ describe('buildViewConfigSchema', () => {
                 expect(typeof field.render).toBe('function');
             }
         }
+    });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 3. Spec-alignment validation
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('spec alignment', () => {
+    // ── ROW_HEIGHT_OPTIONS matches spec RowHeight enum ───────────────────
+    describe('ROW_HEIGHT_OPTIONS', () => {
+        it('contains all 5 spec RowHeight values', () => {
+            const values = ROW_HEIGHT_OPTIONS.map(o => o.value);
+            expect(values).toEqual(['compact', 'short', 'medium', 'tall', 'extra_tall']);
+        });
+
+        it('each option has a gapClass', () => {
+            for (const opt of ROW_HEIGHT_OPTIONS) {
+                expect(opt.gapClass).toBeDefined();
+                expect(typeof opt.gapClass).toBe('string');
+            }
+        });
+    });
+
+    // ── NamedListView field coverage ────────────────────────────────────
+    describe('NamedListView spec field coverage', () => {
+        function buildSchema() {
+            return buildViewConfigSchema({
+                t: mockT,
+                fieldOptions: mockFieldOptions,
+                objectDef: mockObjectDef,
+                updateField: mockUpdateField,
+                filterGroupValue: mockFilterGroup,
+                sortItemsValue: mockSortItems,
+            });
+        }
+
+        function allFieldKeys() {
+            const schema = buildSchema();
+            return schema.sections.flatMap(s => s.fields.map(f => f.key));
+        }
+
+        // Comprehensive: every NamedListView spec property must map to a UI field
+        it('covers ALL NamedListView spec properties', () => {
+            const keys = allFieldKeys();
+            // NamedListView properties → UI field keys mapping
+            const specPropertyToFieldKey: Record<string, string> = {
+                label: 'label',
+                type: 'type',
+                columns: '_columns',
+                filter: '_filterBy',
+                sort: '_sortBy',
+                showSearch: 'showSearch',
+                showSort: 'showSort',
+                showFilters: 'showFilters',
+                showHideFields: 'showHideFields',
+                showGroup: 'showGroup',
+                showColor: 'showColor',
+                showDensity: 'showDensity',
+                allowExport: '_export',
+                striped: 'striped',
+                bordered: 'bordered',
+                color: 'color',
+                inlineEdit: 'inlineEdit',
+                wrapHeaders: 'wrapHeaders',
+                clickIntoRecordDetails: 'clickIntoRecordDetails',
+                addRecordViaForm: '_addRecord',  // compound field
+                addDeleteRecordsInline: 'addDeleteRecordsInline',
+                collapseAllByDefault: 'collapseAllByDefault',
+                fieldTextColor: 'fieldTextColor',
+                prefixField: 'prefixField',
+                showDescription: 'showDescription',
+                navigation: '_navigationMode',  // compound: mode/width/openNewTab
+                selection: '_selectionType',
+                pagination: '_pageSize',  // compound: pageSize/pageSizeOptions
+                searchableFields: '_searchableFields',
+                filterableFields: '_filterableFields',
+                resizable: 'resizable',
+                densityMode: 'densityMode',
+                rowHeight: 'rowHeight',
+                hiddenFields: '_hiddenFields',
+                exportOptions: '_export',  // compound with allowExport
+                rowActions: '_rowActions',
+                bulkActions: '_bulkActions',
+                sharing: '_sharingEnabled',  // compound: enabled/visibility
+                addRecord: '_addRecord',  // compound with addRecordViaForm
+                conditionalFormatting: '_conditionalFormatting',
+                quickFilters: '_quickFilters',
+                showRecordCount: 'showRecordCount',
+                allowPrinting: 'allowPrinting',
+                virtualScroll: 'virtualScroll',
+                emptyState: '_emptyState',
+                aria: '_ariaLabel',  // compound: label/describedBy/live
+            };
+            for (const [specProp, fieldKey] of Object.entries(specPropertyToFieldKey)) {
+                expect(keys).toContain(fieldKey);
+            }
+        });
+
+        it('covers all NamedListView toolbar toggles in order', () => {
+            const schema = buildSchema();
+            const section = schema.sections.find(s => s.key === 'pageConfig')!;
+            const keys = section.fields.map(f => f.key);
+            const toolbarFields = [
+                'showSearch', 'showSort', 'showFilters',
+                'showHideFields', 'showGroup', 'showColor', 'showDensity',
+            ];
+            // All present
+            for (const field of toolbarFields) {
+                expect(keys).toContain(field);
+            }
+            // Order matches spec
+            for (let i = 0; i < toolbarFields.length - 1; i++) {
+                expect(keys.indexOf(toolbarFields[i])).toBeLessThan(keys.indexOf(toolbarFields[i + 1]));
+            }
+        });
+
+        it('covers all NamedListView boolean toggles in userActions in spec order', () => {
+            const schema = buildSchema();
+            const section = schema.sections.find(s => s.key === 'userActions')!;
+            const keys = section.fields.map(f => f.key);
+            // Spec order: inlineEdit → clickIntoRecordDetails → addDeleteRecordsInline
+            expect(keys.indexOf('inlineEdit')).toBeLessThan(keys.indexOf('clickIntoRecordDetails'));
+            expect(keys.indexOf('clickIntoRecordDetails')).toBeLessThan(keys.indexOf('addDeleteRecordsInline'));
+        });
+
+        // Protocol suggestions: UI fields not in NamedListView spec
+        it('documents UI extension fields not in NamedListView spec', () => {
+            const keys = allFieldKeys();
+            // These fields are UI extensions — documented as protocol suggestions
+            const uiExtensions = ['description', '_source', '_groupBy', '_typeOptions'];
+            for (const ext of uiExtensions) {
+                expect(keys).toContain(ext);
+            }
+        });
     });
 });

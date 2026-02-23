@@ -186,11 +186,16 @@ export const VIEW_TYPE_LABELS: Record<string, string> = {
 /** All available view type keys */
 export const VIEW_TYPE_OPTIONS = Object.keys(VIEW_TYPE_LABELS);
 
-/** Row height options with Tailwind gap classes for visual icons */
+/**
+ * Row height options with Tailwind gap classes for visual icons.
+ * Aligned with @objectstack/spec RowHeight enum — all 5 values.
+ */
 export const ROW_HEIGHT_OPTIONS: Array<{ value: string; gapClass: string }> = [
     { value: 'compact', gapClass: 'gap-0' },
+    { value: 'short', gapClass: 'gap-px' },
     { value: 'medium', gapClass: 'gap-0.5' },
     { value: 'tall', gapClass: 'gap-1' },
+    { value: 'extra_tall', gapClass: 'gap-1.5' },
 ];
 
 // ---------------------------------------------------------------------------

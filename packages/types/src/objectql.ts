@@ -416,11 +416,12 @@ export interface ObjectGridSchema extends BaseSchema {
   frozenColumns?: number;
 
   /**
-   * Row height preset for the grid
-   * Controls the density of grid rows
+   * Row height preset for the grid.
+   * Controls the density of grid rows.
+   * Aligned with @objectstack/spec RowHeight enum.
    * @default 'medium'
    */
-  rowHeight?: 'compact' | 'medium' | 'tall';
+  rowHeight?: 'compact' | 'short' | 'medium' | 'tall' | 'extra_tall';
 
   /**
    * Export options configuration for exporting grid data.
@@ -1082,8 +1083,11 @@ export interface NamedListView {
   /** Density mode for controlling row/item spacing */
   densityMode?: 'compact' | 'comfortable' | 'spacious';
 
-  /** Row height for list/grid view rows */
-  rowHeight?: 'compact' | 'medium' | 'tall';
+  /**
+   * Row height for list/grid view rows.
+   * Aligned with @objectstack/spec RowHeight enum.
+   */
+  rowHeight?: 'compact' | 'short' | 'medium' | 'tall' | 'extra_tall';
 
   /** Fields to hide from the current view */
   hiddenFields?: string[];
