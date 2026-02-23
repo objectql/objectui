@@ -43,6 +43,24 @@ export interface ConfigPanelRendererProps {
   saveLabel?: string;
   /** Label for discard button (default: "Discard") */
   discardLabel?: string;
+  /** Ref for the panel root element */
+  panelRef?: React.Ref<HTMLDivElement>;
+  /** ARIA role for the panel (e.g. "complementary") */
+  role?: string;
+  /** ARIA label for the panel */
+  ariaLabel?: string;
+  /** tabIndex for the panel root element */
+  tabIndex?: number;
+  /** Override data-testid for the panel root (default: "config-panel") */
+  testId?: string;
+  /** Title for the close button */
+  closeTitle?: string;
+  /** Override data-testid for the footer (default: "config-panel-footer") */
+  footerTestId?: string;
+  /** Override data-testid for the save button (default: "config-panel-save") */
+  saveTestId?: string;
+  /** Override data-testid for the discard button (default: "config-panel-discard") */
+  discardTestId?: string;
 }
 
 /**
@@ -70,6 +88,15 @@ export function ConfigPanelRenderer({
   className,
   saveLabel = 'Save',
   discardLabel = 'Discard',
+  panelRef,
+  role,
+  ariaLabel,
+  tabIndex,
+  testId,
+  closeTitle,
+  footerTestId,
+  saveTestId,
+  discardTestId,
 }: ConfigPanelRendererProps) {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
@@ -84,7 +111,11 @@ export function ConfigPanelRenderer({
 
   return (
     <div
-      data-testid="config-panel"
+      ref={panelRef}
+      data-testid={testId ?? 'config-panel'}
+      role={role}
+      aria-label={ariaLabel}
+      tabIndex={tabIndex}
       className={cn(
         'absolute inset-y-0 right-0 w-full sm:w-72 lg:w-80 sm:relative border-l bg-background flex flex-col shrink-0 z-20',
         className,
@@ -116,6 +147,7 @@ export function ConfigPanelRenderer({
             onClick={onClose}
             className="h-7 w-7 p-0"
             data-testid="config-panel-close"
+            title={closeTitle}
           >
             <X className="h-3.5 w-3.5" />
           </Button>
@@ -165,8 +197,8 @@ export function ConfigPanelRenderer({
 
       {/* ── Footer ─────────────────────────────────────────── */}
       {isDirty && (
-        <div className="px-4 py-2 border-t flex gap-2 shrink-0" data-testid="config-panel-footer">
-          <Button size="sm" onClick={onSave} data-testid="config-panel-save">
+        <div className="px-4 py-2 border-t flex gap-2 shrink-0" data-testid={footerTestId ?? 'config-panel-footer'}>
+          <Button size="sm" onClick={onSave} data-testid={saveTestId ?? 'config-panel-save'}>
             <Save className="h-3.5 w-3.5 mr-1" />
             {saveLabel}
           </Button>
@@ -174,7 +206,7 @@ export function ConfigPanelRenderer({
             size="sm"
             variant="ghost"
             onClick={onDiscard}
-            data-testid="config-panel-discard"
+            data-testid={discardTestId ?? 'config-panel-discard'}
           >
             <RotateCcw className="h-3.5 w-3.5 mr-1" />
             {discardLabel}
