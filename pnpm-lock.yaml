@@ -478,8 +478,8 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
       tailwind-merge:
-        specifier: ^3.4.1
-        version: 3.4.1
+        specifier: ^3.5.0
+        version: 3.5.0
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4.1.18
@@ -900,8 +900,8 @@ importers:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       tailwind-merge:
-        specifier: ^3.4.1
-        version: 3.4.1
+        specifier: ^3.5.0
+        version: 3.5.0
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@4.1.18)
@@ -1066,8 +1066,8 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
       tailwind-merge:
-        specifier: ^3.4.1
-        version: 3.4.1
+        specifier: ^3.5.0
+        version: 3.5.0
     devDependencies:
       '@types/react':
         specifier: 19.2.14
@@ -1146,8 +1146,8 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
       tailwind-merge:
-        specifier: ^3.4.1
-        version: 3.4.1
+        specifier: ^3.5.0
+        version: 3.5.0
     devDependencies:
       '@vitejs/plugin-react':
         specifier: ^5.1.4
@@ -1279,8 +1279,8 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
       tailwind-merge:
-        specifier: ^3.4.1
-        version: 3.4.1
+        specifier: ^3.5.0
+        version: 3.5.0
     devDependencies:
       '@types/node':
         specifier: ^25.2.3
@@ -1487,8 +1487,8 @@ importers:
         specifier: ^2.2.2
         version: 2.2.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       tailwind-merge:
-        specifier: ^3.4.1
-        version: 3.4.1
+        specifier: ^3.5.0
+        version: 3.5.0
     devDependencies:
       '@types/react-grid-layout':
         specifier: ^2.1.0
@@ -1545,8 +1545,8 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
       tailwind-merge:
-        specifier: ^3.4.1
-        version: 3.4.1
+        specifier: ^3.5.0
+        version: 3.5.0
     devDependencies:
       '@types/node':
         specifier: ^25.2.3
@@ -2053,8 +2053,8 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
       tailwind-merge:
-        specifier: ^3.4.1
-        version: 3.4.1
+        specifier: ^3.5.0
+        version: 3.5.0
     devDependencies:
       '@types/node':
         specifier: ^25.2.3
@@ -2215,8 +2215,8 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
       tailwind-merge:
-        specifier: ^3.4.1
-        version: 3.4.1
+        specifier: ^3.5.0
+        version: 3.5.0
     devDependencies:
       '@types/node':
         specifier: ^25.2.3
@@ -2310,8 +2310,8 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
       tailwind-merge:
-        specifier: ^3.4.1
-        version: 3.4.1
+        specifier: ^3.5.0
+        version: 3.5.0
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@4.1.18)
@@ -10740,8 +10740,8 @@ packages:
     resolution: {integrity: sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==}
     engines: {node: '>=20'}
 
-  tailwind-merge@3.4.1:
-    resolution: {integrity: sha512-2OA0rFqWOkITEAOFWSBSApYkDeH9t2B3XSJuI4YztKBzK3mX0737A2qtxDZ7xkw9Zfh0bWl+r34sF3HXV+Ig7Q==}
+  tailwind-merge@3.5.0:
+    resolution: {integrity: sha512-I8K9wewnVDkL1NTGoqWmVEIlUcB9gFriAEkXkfCjX5ib8ezGxtR3xD7iZIxrfArjEsH7F1CHD4RFUtxefdqV/A==}
 
   tailwindcss-animate@1.0.7:
     resolution: {integrity: sha512-bl6mpH3T7I3UFxuvDEXLxy/VuFxBk5bbzplh7tXI68mwMokNYd1t9qPBHlnyTwfa4JGC4zP516I1hYYtQ/vspA==}
@@ -13534,7 +13534,7 @@ snapshots:
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
       react-resizable-panels: 4.6.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      tailwind-merge: 3.4.1
+      tailwind-merge: 3.5.0
     transitivePeerDependencies:
       - '@types/node'
       - '@types/react'
@@ -17682,7 +17682,7 @@ snapshots:
       react-remove-scroll: 2.7.2(@types/react@19.2.14)(react@19.2.4)
       rehype-raw: 7.0.0
       scroll-into-view-if-needed: 3.1.0
-      tailwind-merge: 3.4.1
+      tailwind-merge: 3.5.0
       unist-util-visit: 5.1.0
     optionalDependencies:
       '@types/react': 19.2.14
@@ -20990,7 +20990,7 @@ snapshots:
       prompts: 2.4.2
       recast: 0.23.11
       stringify-object: 5.0.0
-      tailwind-merge: 3.4.1
+      tailwind-merge: 3.5.0
       ts-morph: 26.0.0
       tsconfig-paths: 4.2.0
       validate-npm-package-name: 7.0.2
@@ -21380,7 +21380,7 @@ snapshots:
 
   tagged-tag@1.0.0: {}
 
-  tailwind-merge@3.4.1: {}
+  tailwind-merge@3.5.0: {}
 
   tailwindcss-animate@1.0.7(tailwindcss@4.1.18):
     dependencies:
