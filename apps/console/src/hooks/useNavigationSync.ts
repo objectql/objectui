@@ -399,11 +399,15 @@ export function useNavigationSync(): UseNavigationSyncReturn {
   // All-Apps convenience methods
   // ------------------------------------------------------------------
 
+  /** Safely extract the app name from a metadata entry. */
+  const getAppName = (app: unknown): string | undefined =>
+    app && typeof app === 'object' && 'name' in app ? (app as { name: string }).name : undefined;
+
   /** Add a page nav item to ALL apps that don't already reference it. */
   const syncPageCreatedAllApps = useCallback(
     async (pageName: string, label?: string) => {
       for (const app of apps) {
-        const name = (app as any).name;
+        const name = getAppName(app);
         if (!name) continue;
         await syncPageCreated(name, pageName, label);
       }
@@ -415,7 +419,7 @@ export function useNavigationSync(): UseNavigationSyncReturn {
   const syncDashboardCreatedAllApps = useCallback(
     async (dashboardName: string, label?: string) => {
       for (const app of apps) {
-        const name = (app as any).name;
+        const name = getAppName(app);
         if (!name) continue;
         await syncDashboardCreated(name, dashboardName, label);
       }
@@ -427,7 +431,7 @@ export function useNavigationSync(): UseNavigationSyncReturn {
   const syncPageDeletedAllApps = useCallback(
     async (pageName: string) => {
       for (const app of apps) {
-        const name = (app as any).name;
+        const name = getAppName(app);
         if (!name) continue;
         await syncPageDeleted(name, pageName);
       }
@@ -439,7 +443,7 @@ export function useNavigationSync(): UseNavigationSyncReturn {
   const syncDashboardDeletedAllApps = useCallback(
     async (dashboardName: string) => {
       for (const app of apps) {
-        const name = (app as any).name;
+        const name = getAppName(app);
         if (!name) continue;
         await syncDashboardDeleted(name, dashboardName);
       }
@@ -451,7 +455,7 @@ export function useNavigationSync(): UseNavigationSyncReturn {
   const syncPageRenamedAllApps = useCallback(
     async (oldName: string, newName: string) => {
       for (const app of apps) {
-        const name = (app as any).name;
+        const name = getAppName(app);
         if (!name) continue;
         await syncPageRenamed(name, oldName, newName);
       }
@@ -463,7 +467,7 @@ export function useNavigationSync(): UseNavigationSyncReturn {
   const syncDashboardRenamedAllApps = useCallback(
     async (oldName: string, newName: string) => {
       for (const app of apps) {
-        const name = (app as any).name;
+        const name = getAppName(app);
         if (!name) continue;
         await syncDashboardRenamed(name, oldName, newName);
       }
@@ -519,8 +523,15 @@ export function NavigationSyncEffect(): null {
   const prevPageNamesRef = useRef<Set<string> | null>(null);
   const prevDashNamesRef = useRef<Set<string> | null>(null);
 
-  // Guard against circular refreshes triggered by saveApp → refresh → effect
+  // Guard against circular refreshes and concurrent sync operations.
+  // Incremented on each effect invocation; the async closure captures
+  // its own version and bails out if a newer run has started.
+  const syncVersionRef = useRef(0);
   const syncingRef = useRef(false);
+
+  /** Safely extract the app name from a metadata entry. */
+  const getAppName = (app: unknown): string | undefined =>
+    app && typeof app === 'object' && 'name' in app ? (app as { name: string }).name : undefined;
 
   useEffect(() => {
     if (syncingRef.current) return;
@@ -561,33 +572,48 @@ export function NavigationSyncEffect(): null {
     }
 
     // Sync navigation across all apps
+    const version = ++syncVersionRef.current;
     syncingRef.current = true;
+
+    let cancelled = false;
 
     (async () => {
       try {
         for (const app of apps) {
-          const appName = (app as any).name;
+          if (cancelled || syncVersionRef.current !== version) break;
+          const appName = getAppName(app);
           if (!appName) continue;
 
           for (const pageName of addedPages) {
+            if (cancelled) break;
             await syncPageCreated(appName, pageName);
           }
           for (const pageName of removedPages) {
+            if (cancelled) break;
             await syncPageDeleted(appName, pageName);
           }
           for (const dashName of addedDash) {
+            if (cancelled) break;
             await syncDashboardCreated(appName, dashName);
           }
           for (const dashName of removedDash) {
+            if (cancelled) break;
             await syncDashboardDeleted(appName, dashName);
           }
         }
       } finally {
-        syncingRef.current = false;
-        prevPageNamesRef.current = currentPageNames;
-        prevDashNamesRef.current = currentDashNames;
+        // Only update refs if this is still the latest sync version
+        if (syncVersionRef.current === version) {
+          prevPageNamesRef.current = currentPageNames;
+          prevDashNamesRef.current = currentDashNames;
+          syncingRef.current = false;
+        }
       }
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [pages, dashboards, apps, syncPageCreated, syncDashboardCreated, syncPageDeleted, syncDashboardDeleted]);
 
   return null;
