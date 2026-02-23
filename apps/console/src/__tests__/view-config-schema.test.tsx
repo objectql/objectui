@@ -665,7 +665,7 @@ describe('spec alignment', () => {
                 emptyState: '_emptyState',
                 aria: '_ariaLabel',  // compound: label/describedBy/live
             };
-            for (const [specProp, fieldKey] of Object.entries(specPropertyToFieldKey)) {
+            for (const [_specProp, fieldKey] of Object.entries(specPropertyToFieldKey)) {
                 expect(keys).toContain(fieldKey);
             }
         });

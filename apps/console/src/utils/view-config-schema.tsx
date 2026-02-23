@@ -12,7 +12,7 @@
  */
 
 import React from 'react';
-import { Input, Switch, Checkbox, FilterBuilder, SortBuilder, ConfigRow, SectionHeader } from '@object-ui/components';
+import { Input, Switch, Checkbox, FilterBuilder, SortBuilder, ConfigRow } from '@object-ui/components';
 import type { ConfigPanelSchema, ConfigField } from '@object-ui/components';
 import type { FilterGroup, SortItem } from '@object-ui/components';
 import { ArrowUp, ArrowDown } from 'lucide-react';
@@ -98,7 +98,7 @@ export function buildViewConfigSchema(opts: ViewSchemaFactoryOptions): ConfigPan
 
 function buildPageConfigSection(
     t: ViewSchemaFactoryOptions['t'],
-    fieldOptions: FieldOption[],
+    _fieldOptions: FieldOption[],
     objectDef: ViewSchemaFactoryOptions['objectDef'],
     updateField: ViewSchemaFactoryOptions['updateField'],
 ): ConfigPanelSchema['sections'][number] {
@@ -426,7 +426,7 @@ function buildPageConfigSection(
 function buildDataSection(
     t: ViewSchemaFactoryOptions['t'],
     fieldOptions: FieldOption[],
-    fieldSelectWithNone: Array<{ value: string; label: string }>,
+    _fieldSelectWithNone: Array<{ value: string; label: string }>,
     objectDef: ViewSchemaFactoryOptions['objectDef'],
     updateField: ViewSchemaFactoryOptions['updateField'],
     filterGroupValue: FilterGroup,
@@ -551,7 +551,7 @@ function buildDataSection(
                 key: '_filterBy',
                 label: t('console.objectView.filterBy'),
                 type: 'custom',
-                render: (_value, _onChange, draft) => {
+                render: (_value, _onChange, _draft) => {
                     const filterCount = filterGroupValue.conditions.length;
                     const filterSummary = filterCount > 0
                         ? t('console.objectView.filtersCount', { count: filterCount })
@@ -964,7 +964,7 @@ function buildDataSection(
 function buildAppearanceSection(
     t: ViewSchemaFactoryOptions['t'],
     fieldOptions: FieldOption[],
-    fieldSelectWithNone: Array<{ value: string; label: string }>,
+    _fieldSelectWithNone: Array<{ value: string; label: string }>,
     updateField: ViewSchemaFactoryOptions['updateField'],
 ): ConfigPanelSchema['sections'][number] {
     return {

@@ -51,7 +51,7 @@ vi.mock('@object-ui/components', () => {
 
     // ConfigPanelRenderer mock — renders schema sections with proper collapse/visibility
     function ConfigPanelRenderer({ open, onClose, schema, draft, isDirty, onFieldChange, onSave, onDiscard, panelRef, role, ariaLabel, tabIndex, testId, saveLabel, discardLabel, className }: any) {
-        const [collapsed, setCollapsed] = React.useState<Record<string, boolean>>({});
+        const [collapsed, setCollapsed] = React.useState({});
         if (!open) return null;
 
         return React.createElement('div', {
