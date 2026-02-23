@@ -766,4 +766,90 @@ describe('P1 SpecBridge Protocol Alignment', () => {
       expect(qf.defaultActive).toBe(true);
     });
   });
+
+  // ========================================================================
+  // P2 Sharing / ExportOptions / Pagination Protocol Alignment
+  // ========================================================================
+  describe('P2 sharing/exportOptions/pagination alignment', () => {
+    it('should normalize spec sharing { type: personal } to { visibility: private, enabled: true }', () => {
+      const bridge = new SpecBridge();
+      const node = bridge.transformListView({
+        name: 'personal_view',
+        sharing: { type: 'personal', lockedBy: 'admin@example.com' },
+      });
+
+      expect(node.sharing).toBeDefined();
+      expect(node.sharing.visibility).toBe('private');
+      expect(node.sharing.enabled).toBe(true);
+      expect(node.sharing.type).toBe('personal');
+      expect(node.sharing.lockedBy).toBe('admin@example.com');
+    });
+
+    it('should normalize spec sharing { type: collaborative } to { visibility: team, enabled: true }', () => {
+      const bridge = new SpecBridge();
+      const node = bridge.transformListView({
+        name: 'collab_view',
+        sharing: { type: 'collaborative' },
+      });
+
+      expect(node.sharing.visibility).toBe('team');
+      expect(node.sharing.enabled).toBe(true);
+      expect(node.sharing.type).toBe('collaborative');
+    });
+
+    it('should preserve ObjectUI sharing format without overriding', () => {
+      const bridge = new SpecBridge();
+      const node = bridge.transformListView({
+        name: 'objectui_view',
+        sharing: { visibility: 'organization', enabled: true },
+      });
+
+      expect(node.sharing.visibility).toBe('organization');
+      expect(node.sharing.enabled).toBe(true);
+      expect(node.sharing.type).toBeUndefined();
+    });
+
+    it('should not override explicit visibility when type is set', () => {
+      const bridge = new SpecBridge();
+      const node = bridge.transformListView({
+        name: 'mixed_view',
+        sharing: { type: 'collaborative', visibility: 'public' },
+      });
+
+      expect(node.sharing.visibility).toBe('public');
+      expect(node.sharing.type).toBe('collaborative');
+    });
+
+    it('should pass through exportOptions string[] format', () => {
+      const bridge = new SpecBridge();
+      const node = bridge.transformListView({
+        name: 'export_spec',
+        exportOptions: ['csv', 'xlsx'],
+      });
+
+      expect(node.exportOptions).toEqual(['csv', 'xlsx']);
+    });
+
+    it('should pass through exportOptions object format', () => {
+      const bridge = new SpecBridge();
+      const node = bridge.transformListView({
+        name: 'export_obj',
+        exportOptions: { formats: ['csv', 'json'], maxRecords: 5000 },
+      });
+
+      expect(node.exportOptions.formats).toEqual(['csv', 'json']);
+      expect(node.exportOptions.maxRecords).toBe(5000);
+    });
+
+    it('should pass through pagination with pageSizeOptions', () => {
+      const bridge = new SpecBridge();
+      const node = bridge.transformListView({
+        name: 'paginated',
+        pagination: { pageSize: 25, pageSizeOptions: [10, 25, 50, 100] },
+      });
+
+      expect(node.pagination.pageSize).toBe(25);
+      expect(node.pagination.pageSizeOptions).toEqual([10, 25, 50, 100]);
+    });
+  });
 });

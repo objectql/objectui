@@ -297,17 +297,22 @@ export const ListViewSchema = BaseSchema.extend({
   densityMode: z.enum(['compact', 'comfortable', 'spacious']).optional().describe('Density mode'),
   rowHeight: z.enum(['compact', 'short', 'medium', 'tall', 'extra_tall']).optional().describe('Row height'),
   hiddenFields: z.array(z.string()).optional().describe('Hidden fields'),
-  exportOptions: z.object({
-    formats: z.array(z.enum(['csv', 'xlsx', 'json', 'pdf'])).optional(),
-    maxRecords: z.number().optional(),
-    includeHeaders: z.boolean().optional(),
-    fileNamePrefix: z.string().optional(),
-  }).optional().describe('Export options'),
+  exportOptions: z.union([
+    z.array(z.enum(['csv', 'xlsx', 'json', 'pdf'])),
+    z.object({
+      formats: z.array(z.enum(['csv', 'xlsx', 'json', 'pdf'])).optional(),
+      maxRecords: z.number().optional(),
+      includeHeaders: z.boolean().optional(),
+      fileNamePrefix: z.string().optional(),
+    }),
+  ]).optional().describe('Export options'),
   rowActions: z.array(z.string()).optional().describe('Row action identifiers'),
   bulkActions: z.array(z.string()).optional().describe('Bulk action identifiers'),
   sharing: z.object({
     visibility: z.enum(['private', 'team', 'organization', 'public']).optional(),
     enabled: z.boolean().optional(),
+    type: z.enum(['personal', 'collaborative']).optional(),
+    lockedBy: z.string().optional(),
   }).optional().describe('Sharing configuration'),
   addRecord: z.object({
     enabled: z.boolean().optional(),
