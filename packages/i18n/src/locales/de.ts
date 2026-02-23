@@ -404,9 +404,9 @@ const de = {
       clickIntoRecordDetails: 'Klicken für Datensatzdetails',
       navigationMode: 'Navigationsmodus',
       navigationWidth: 'Navigationsbreite',
-      navigationWidthHint: 'Available for drawer, modal, and split navigation modes',
+      navigationWidthHint: 'Verfügbar für Schublade-, Modal- und Split-Navigationsmodi',
       openNewTab: 'In neuem Tab öffnen',
-      openNewTabHint: 'Available for page and new window navigation modes',
+      openNewTabHint: 'Verfügbar für Seiten- und Neues-Fenster-Navigationsmodi',
     },
     localeSwitcher: {
       label: 'Sprache',

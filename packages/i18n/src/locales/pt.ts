@@ -399,9 +399,9 @@ const pt = {
       clickIntoRecordDetails: 'Clique para detalhes do registro',
       navigationMode: 'Modo de navegação',
       navigationWidth: 'Largura de navegação',
-      navigationWidthHint: 'Available for drawer, modal, and split navigation modes',
+      navigationWidthHint: 'Disponível para os modos de navegação gaveta, modal e dividido',
       openNewTab: 'Abrir em nova aba',
-      openNewTabHint: 'Available for page and new window navigation modes',
+      openNewTabHint: 'Disponível para os modos de navegação página e nova janela',
     },
     localeSwitcher: {
       label: 'Idioma',

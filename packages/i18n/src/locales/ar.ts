@@ -400,9 +400,9 @@ const ar = {
       clickIntoRecordDetails: 'انقر لعرض تفاصيل السجل',
       navigationMode: 'وضع التنقل',
       navigationWidth: 'عرض التنقل',
-      navigationWidthHint: 'Available for drawer, modal, and split navigation modes',
+      navigationWidthHint: 'متاح لأوضاع التنقل: الدرج والنافذة المنبثقة والعرض المقسم',
       openNewTab: 'فتح في علامة تبويب جديدة',
-      openNewTabHint: 'Available for page and new window navigation modes',
+      openNewTabHint: 'متاح لأوضاع التنقل: الصفحة والنافذة الجديدة',
     },
     localeSwitcher: {
       label: 'اللغة',

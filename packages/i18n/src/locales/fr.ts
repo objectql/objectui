@@ -404,9 +404,9 @@ const fr = {
       clickIntoRecordDetails: "Cliquer pour les détails de l'enregistrement",
       navigationMode: 'Mode de navigation',
       navigationWidth: 'Largeur de navigation',
-      navigationWidthHint: 'Available for drawer, modal, and split navigation modes',
+      navigationWidthHint: 'Disponible pour les modes de navigation tiroir, modale et partagée',
       openNewTab: 'Ouvrir dans un nouvel onglet',
-      openNewTabHint: 'Available for page and new window navigation modes',
+      openNewTabHint: 'Disponible pour les modes de navigation page et nouvelle fenêtre',
     },
     localeSwitcher: {
       label: 'Langue',
