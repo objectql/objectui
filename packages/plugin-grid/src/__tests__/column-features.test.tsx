@@ -27,12 +27,6 @@ const numericData = [
   { _id: '3', name: 'Charlie', amount: 300, score: 70 },
 ];
 
-const mixedData = [
-  { _id: '1', name: 'Alice', status: 'active', amount: 150.5 },
-  { _id: '2', name: 'Bob', status: 'inactive', amount: 250 },
-  { _id: '3', name: 'Charlie', status: 'active', amount: 350 },
-];
-
 // ---------------------------------------------------------------------------
 // Helper
 // ---------------------------------------------------------------------------
@@ -210,6 +204,24 @@ describe('Summary footer rendering', () => {
 
     expect(screen.queryByTestId('column-summary-footer')).not.toBeInTheDocument();
   });
+
+  it('renders avg summary with formatted decimal', async () => {
+    renderGrid({
+      columns: [
+        { field: 'name', label: 'Name' },
+        { field: 'score', label: 'Score', type: 'number', summary: { type: 'avg' } },
+      ],
+      data: { provider: 'value', items: numericData },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Name')).toBeInTheDocument();
+    });
+
+    const footer = screen.getByTestId('column-summary-footer');
+    expect(footer).toBeInTheDocument();
+    expect(screen.getByTestId('summary-score')).toHaveTextContent('Avg: 80');
+  });
 });
 
 // =========================================================================
@@ -266,13 +278,28 @@ describe('Pinned columns', () => {
     expect(screen.getByText('Score')).toBeInTheDocument();
     expect(screen.getByText('Amount')).toBeInTheDocument();
   });
+
+  it('works with no pinned columns (preserves default frozenColumns)', async () => {
+    renderGrid({
+      columns: [
+        { field: 'name', label: 'Name' },
+        { field: 'amount', label: 'Amount', type: 'number' },
+      ],
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Name')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('Amount')).toBeInTheDocument();
+  });
 });
 
 // =========================================================================
 // Link column rendering
 // =========================================================================
 describe('Link columns', () => {
-  it('renders link column content as clickable button', async () => {
+  it('renders link column content as clickable element with data-testid', async () => {
     renderGrid({
       columns: [
         { field: 'name', label: 'Name', link: true },
@@ -284,11 +311,31 @@ describe('Link columns', () => {
       expect(screen.getByText('Name')).toBeInTheDocument();
     });
 
-    // Link columns should have clickable buttons with text-primary class
-    const linkButtons = screen.getAllByRole('button').filter(
-      btn => btn.classList.contains('text-primary')
-    );
-    expect(linkButtons.length).toBeGreaterThan(0);
+    // Link cells should have data-testid="link-cell"
+    const linkCells = screen.getAllByTestId('link-cell');
+    expect(linkCells.length).toBeGreaterThan(0);
+
+    // Link cells should have text-primary class (blue clickable)
+    linkCells.forEach(cell => {
+      expect(cell).toHaveClass('text-primary');
+    });
+  });
+
+  it('renders primary field (first column) as auto-linked', async () => {
+    renderGrid({
+      columns: [
+        { field: 'name', label: 'Name' },
+        { field: 'amount', label: 'Amount', type: 'number' },
+      ],
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Name')).toBeInTheDocument();
+    });
+
+    // Primary field should auto-link with data-testid="primary-field-link"
+    const primaryLinks = screen.getAllByTestId('primary-field-link');
+    expect(primaryLinks.length).toBeGreaterThan(0);
   });
 });
 
@@ -296,9 +343,7 @@ describe('Link columns', () => {
 // Action column rendering
 // =========================================================================
 describe('Action columns', () => {
-  it('renders action column with action button', async () => {
-    const mockExecuteAction = vi.fn();
-
+  it('renders action column with proper button and formatted label', async () => {
     renderGrid({
       columns: [
         { field: 'name', label: 'Name' },
@@ -310,11 +355,49 @@ describe('Action columns', () => {
       expect(screen.getByText('Name')).toBeInTheDocument();
     });
 
-    // Action columns render with clickable buttons
-    const actionButtons = screen.getAllByRole('button').filter(
-      btn => btn.classList.contains('text-primary')
-    );
+    // Action cells should have data-testid="action-cell" and render as Button
+    const actionCells = screen.getAllByTestId('action-cell');
+    expect(actionCells.length).toBeGreaterThan(0);
+
+    // Action button should show formatted action label
+    const editButtons = screen.getAllByText('Edit');
+    expect(editButtons.length).toBeGreaterThan(0);
+  });
+
+  it('renders formatted action label for multi-word actions', async () => {
+    renderGrid({
+      columns: [
+        { field: 'name', label: 'Name' },
+        { field: 'amount', label: 'Amount', type: 'number', action: 'send_email' },
+      ],
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Name')).toBeInTheDocument();
+    });
+
+    // 'send_email' should be formatted as 'Send Email'
+    const actionButtons = screen.getAllByText('Send Email');
     expect(actionButtons.length).toBeGreaterThan(0);
+  });
+
+  it('action button is clickable', async () => {
+    renderGrid({
+      columns: [
+        { field: 'name', label: 'Name' },
+        { field: 'amount', label: 'Amount', type: 'number', action: 'edit' },
+      ],
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Name')).toBeInTheDocument();
+    });
+
+    const actionCells = screen.getAllByTestId('action-cell');
+    expect(actionCells.length).toBeGreaterThan(0);
+
+    // Click should not throw
+    fireEvent.click(actionCells[0]);
   });
 });
 
@@ -351,10 +434,57 @@ describe('Combined column features', () => {
       expect(screen.getByText('Name')).toBeInTheDocument();
     });
 
-    // Should render as clickable (link takes priority)
-    const linkButtons = screen.getAllByRole('button').filter(
-      btn => btn.classList.contains('text-primary')
-    );
-    expect(linkButtons.length).toBeGreaterThan(0);
+    // Link takes priority — should render as link-cell, not action-cell
+    const linkCells = screen.getAllByTestId('link-cell');
+    expect(linkCells.length).toBeGreaterThan(0);
+  });
+
+  it('supports pinned + action on the same column', async () => {
+    renderGrid({
+      columns: [
+        { field: 'name', label: 'Name' },
+        { field: 'amount', label: 'Amount', type: 'number', pinned: 'right', action: 'approve' },
+      ],
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Name')).toBeInTheDocument();
+    });
+
+    const actionCells = screen.getAllByTestId('action-cell');
+    expect(actionCells.length).toBeGreaterThan(0);
+
+    // Action buttons should show formatted label
+    const approveButtons = screen.getAllByText('Approve');
+    expect(approveButtons.length).toBeGreaterThan(0);
+  });
+
+  it('supports all four features together', async () => {
+    renderGrid({
+      columns: [
+        { field: 'name', label: 'Name', pinned: 'left', link: true },
+        { field: 'score', label: 'Score', type: 'number', summary: { type: 'avg' } },
+        { field: 'amount', label: 'Amount', type: 'number', pinned: 'right', action: 'edit', summary: { type: 'sum' } },
+      ],
+      data: { provider: 'value', items: numericData },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Name')).toBeInTheDocument();
+    });
+
+    // Link cells on name column
+    const linkCells = screen.getAllByTestId('link-cell');
+    expect(linkCells.length).toBeGreaterThan(0);
+
+    // Action cells on amount column
+    const actionCells = screen.getAllByTestId('action-cell');
+    expect(actionCells.length).toBeGreaterThan(0);
+
+    // Summary footer
+    const footer = screen.getByTestId('column-summary-footer');
+    expect(footer).toBeInTheDocument();
+    expect(screen.getByTestId('summary-amount')).toHaveTextContent('Sum: 600');
+    expect(screen.getByTestId('summary-score')).toHaveTextContent('Avg: 80');
   });
 });

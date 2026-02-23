@@ -485,7 +485,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
                     <button
                       type="button"
                       className="text-primary font-medium underline-offset-4 hover:underline cursor-pointer bg-transparent border-none p-0 text-left font-inherit"
-                      data-testid={isPrimaryField ? 'primary-field-link' : undefined}
+                      data-testid={isPrimaryField ? 'primary-field-link' : 'link-cell'}
                       onClick={(e) => {
                         e.stopPropagation();
                         navigation.handleClick(row);
@@ -505,7 +505,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
                     <button
                       type="button"
                       className="text-primary font-medium underline-offset-4 hover:underline cursor-pointer bg-transparent border-none p-0 text-left font-inherit"
-                      data-testid={isPrimaryField ? 'primary-field-link' : undefined}
+                      data-testid={isPrimaryField ? 'primary-field-link' : 'link-cell'}
                       onClick={(e) => {
                         e.stopPropagation();
                         navigation.handleClick(row);
@@ -516,25 +516,24 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
                   );
                 };
               } else if (col.action) {
-                // Action column: clicking executes the registered action
-                cellRenderer = (value: any, row: any) => {
-                  const displayContent = CellRenderer
-                    ? <CellRenderer value={value} field={{ name: col.field, type: inferredType || 'text' } as any} />
-                    : (value != null && value !== '' ? String(value) : <span className="text-muted-foreground/50 text-xs italic">—</span>);
+                // Action column: render as action button
+                cellRenderer = (_value: any, row: any) => {
                   return (
-                    <button
-                      type="button"
-                      className="text-primary underline-offset-4 hover:underline cursor-pointer bg-transparent border-none p-0 text-left font-inherit"
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 text-xs"
+                      data-testid="action-cell"
                       onClick={(e) => {
                         e.stopPropagation();
                         executeAction({
                           type: col.action!,
-                          params: { record: row, field: col.field, value },
+                          params: { record: row, field: col.field },
                         });
                       }}
                     >
-                      {displayContent}
-                    </button>
+                      {formatActionLabel(col.action!)}
+                    </Button>
                   );
                 };
               } else if (CellRenderer) {
