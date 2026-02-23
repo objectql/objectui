@@ -1598,7 +1598,7 @@ describe('ListView', () => {
         viewType: 'grid',
         fields: ['name', 'email', 'status'],
         quickFilters: [
-          { field: 'status', operator: 'equals', value: 'active', label: 'Active' } as any,
+          { field: 'status', operator: 'equals', value: 'active', label: 'Active' },
         ],
       };
 
@@ -1633,7 +1633,7 @@ describe('ListView', () => {
         fields: ['name', 'email', 'status'],
         quickFilters: [
           { id: 'active', label: 'Active', filters: [['status', '=', 'active']] },
-          { field: 'priority', operator: 'eq', value: 'high', label: 'High Priority' } as any,
+          { field: 'priority', operator: 'eq', value: 'high', label: 'High Priority' },
         ],
       };
 
@@ -1650,7 +1650,7 @@ describe('ListView', () => {
         viewType: 'grid',
         fields: ['name', 'status'],
         quickFilters: [
-          { field: 'status', operator: 'eq', value: 'active', label: 'Active' } as any,
+          { field: 'status', operator: 'eq', value: 'active', label: 'Active' },
         ],
       };
 
@@ -1666,7 +1666,7 @@ describe('ListView', () => {
         viewType: 'grid',
         fields: ['name', 'status'],
         quickFilters: [
-          { field: 'status', operator: 'eq', value: 'active' } as any,
+          { field: 'status', operator: 'eq', value: 'active' },
         ],
       };
 
@@ -1683,7 +1683,7 @@ describe('ListView', () => {
         viewType: 'grid',
         fields: ['name', 'archived'],
         quickFilters: [
-          { field: 'archived', operator: 'eq', value: null, label: 'Not Archived' } as any,
+          { field: 'archived', operator: 'eq', value: null, label: 'Not Archived' },
         ],
       };
 
