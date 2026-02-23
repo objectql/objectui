@@ -661,6 +661,8 @@ The `FlowDesigner` is a canvas-based flow editor that bridges the gap between th
 - [ ] ProcessDesigner: Node drag-to-move
 - [x] ProcessDesigner/FlowDesigner: Support v3.0.9 node types (`parallel_gateway`, `join_gateway`, `boundary_event`) — implemented in FlowDesigner
 - [x] ProcessDesigner/FlowDesigner: Support v3.0.9 conditional edges and default edge marking — implemented in FlowDesigner
+- [x] ReportView: Refactored to left-right split layout (preview + DesignDrawer) — consistent with DashboardView/ListView
+- [x] ReportConfigPanel: Schema-driven config via ConfigPanelRenderer + useConfigDraft (replaces full-page ReportBuilder in edit mode)
 - [ ] ReportDesigner: Element drag-to-reposition within sections
 - [x] FlowDesigner: Edge creation UI (click source port → click target port)
 - [x] FlowDesigner: Property editing for node labels/types + executor config + boundary config

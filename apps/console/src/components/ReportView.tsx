@@ -32,11 +32,7 @@ export function ReportView({ dataSource }: { dataSource?: DataSource }) {
 
   const handleCloseDrawer = useCallback((open: boolean) => {
     setDrawerOpen(open);
-    if (!open && editSchema) {
-      // Apply edits to the reportData when drawer closes
-      setReportData(editSchema);
-    }
-  }, [editSchema]);
+  }, []);
 
   // Sync reportData when metadata finishes loading or reportName changes
   useEffect(() => {
