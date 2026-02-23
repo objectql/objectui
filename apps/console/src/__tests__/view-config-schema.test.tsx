@@ -738,20 +738,26 @@ describe('spec alignment', () => {
             return section.fields.find(f => f.key === fieldKey)!;
         }
 
-        it('collapseAllByDefault defaults to false (explicitTrue)', () => {
+        it('collapseAllByDefault is an explicitTrue switch field', () => {
             // explicitTrue fields only show checked when value === true
             const field = findField('appearance', 'collapseAllByDefault');
             expect(field.render).toBeDefined();
+            expect(field.type).toBe('custom');
+            expect(field.key).toBe('collapseAllByDefault');
         });
 
-        it('showDescription defaults to true (defaultOn)', () => {
+        it('showDescription is a defaultOn switch field', () => {
             const field = findField('appearance', 'showDescription');
             expect(field.render).toBeDefined();
+            expect(field.type).toBe('custom');
+            expect(field.key).toBe('showDescription');
         });
 
-        it('inlineEdit defaults to true (defaultOn)', () => {
+        it('inlineEdit is a defaultOn switch field', () => {
             const field = findField('userActions', 'inlineEdit');
             expect(field.render).toBeDefined();
+            expect(field.type).toBe('custom');
+            expect(field.key).toBe('inlineEdit');
         });
     });
 

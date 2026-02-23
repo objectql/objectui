@@ -2674,6 +2674,25 @@ describe('ViewConfigPanel', () => {
         }));
     });
 
+    it('filters invalid pageSizeOptions values (non-positive, NaN)', () => {
+        const onViewUpdate = vi.fn();
+        render(
+            <ViewConfigPanel
+                open={true}
+                onClose={vi.fn()}
+                activeView={mockActiveView}
+                objectDef={mockObjectDef}
+                onViewUpdate={onViewUpdate}
+            />
+        );
+
+        const input = screen.getByTestId('input-pagination-pageSizeOptions');
+        fireEvent.change(input, { target: { value: 'abc, 50, -10, 0' } });
+        expect(onViewUpdate).toHaveBeenCalledWith('pagination', expect.objectContaining({
+            pageSizeOptions: [50],
+        }));
+    });
+
     // ── Boundary: densityMode enum selection ──
 
     it('changes densityMode to all enum values', () => {
