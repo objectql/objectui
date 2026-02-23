@@ -517,7 +517,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
                 };
               } else if (col.action) {
                 // Action column: render as action button
-                cellRenderer = (_value: any, row: any) => {
+                cellRenderer = (value: any, row: any) => {
                   return (
                     <Button
                       variant="outline"
@@ -528,7 +528,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
                         e.stopPropagation();
                         executeAction({
                           type: col.action!,
-                          params: { record: row, field: col.field },
+                          params: { record: row, field: col.field, value },
                         });
                       }}
                     >
