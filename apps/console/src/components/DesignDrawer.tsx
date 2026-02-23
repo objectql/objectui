@@ -60,8 +60,9 @@ export function DesignDrawer({
           await dataSource.update(collection, recordName, toSave);
           return true;
         }
-      } catch {
-        // Save errors are non-blocking
+      } catch (err) {
+        console.warn('[DesignDrawer] Auto-save failed:', err);
+        // Save errors are non-blocking; user can retry via Ctrl+S
       }
       return false;
     },
@@ -101,7 +102,7 @@ export function DesignDrawer({
         <SheetHeader className="px-4 py-3 border-b shrink-0">
           <SheetTitle>{title}</SheetTitle>
           <SheetDescription className={description ? '' : 'sr-only'}>
-            {description || `Edit panel for ${title}`}
+            {description || `Visual editor — configure and preview ${title}`}
           </SheetDescription>
         </SheetHeader>
         <div className="flex-1 overflow-auto p-4">

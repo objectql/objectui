@@ -28,7 +28,7 @@ export function PageView() {
   const { pages } = useMetadata();
   const page = pages?.find((p: any) => p.name === pageName);
 
-  // Local schema state for live preview — initialised from metadata
+  // Local schema state for live preview — initialized from metadata
   const [editSchema, setEditSchema] = useState<PageSchema | null>(null);
 
   const handleOpenDrawer = useCallback(() => {

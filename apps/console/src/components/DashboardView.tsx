@@ -37,7 +37,7 @@ export function DashboardView({ dataSource }: { dataSource?: any }) {
   const { dashboards } = useMetadata();
   const dashboard = dashboards?.find((d: any) => d.name === dashboardName);
 
-  // Local schema state for live preview — initialised from metadata
+  // Local schema state for live preview — initialized from metadata
   const [editSchema, setEditSchema] = useState<DashboardSchema | null>(null);
 
   const handleOpenDrawer = useCallback(() => {
