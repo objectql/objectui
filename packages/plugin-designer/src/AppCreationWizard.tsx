@@ -288,9 +288,9 @@ function BasicInfoStep({ draft, templates, readOnly, onChange, t }: BasicInfoSte
             className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-50"
           >
             <option value="">None</option>
-            {templates.map((tpl) => (
-              <option key={tpl.id} value={tpl.id}>
-                {tpl.label}
+            {templates.map((template) => (
+              <option key={template.id} value={template.id}>
+                {template.label}
               </option>
             ))}
           </select>
