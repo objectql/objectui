@@ -70,7 +70,7 @@ let widgetCounter = 0;
 
 function createWidgetId(): string {
   widgetCounter += 1;
-  return `widget_${widgetCounter}`;
+  return `widget_${Date.now()}_${widgetCounter}`;
 }
 
 // ============================================================================

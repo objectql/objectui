@@ -446,6 +446,8 @@ export type EditorMode = 'edit' | 'preview' | 'code';
 
 /**
  * Validate an app name is snake_case.
+ * Pattern: starts with lowercase letter, followed by lowercase letters/digits,
+ * with optional underscore-separated segments (no trailing/leading/double underscores).
  */
 export function isValidAppName(name: string): boolean {
   return /^[a-z][a-z0-9]*(_[a-z0-9]+)*$/.test(name);

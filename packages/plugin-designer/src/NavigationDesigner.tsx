@@ -65,7 +65,7 @@ let ndCounter = 0;
 
 function createId(prefix: string): string {
   ndCounter += 1;
-  return `${prefix}_${ndCounter}`;
+  return `${prefix}_${Date.now()}_${ndCounter}`;
 }
 
 const NAV_TYPE_META: Record<NavigationItemType, { label: string; color: string; Icon: React.FC<{ className?: string }> }> = {

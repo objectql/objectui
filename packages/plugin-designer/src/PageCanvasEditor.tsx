@@ -80,7 +80,7 @@ let canvasCounter = 0;
 
 function createComponentId(): string {
   canvasCounter += 1;
-  return `component_${canvasCounter}`;
+  return `component_${Date.now()}_${canvasCounter}`;
 }
 
 // ============================================================================

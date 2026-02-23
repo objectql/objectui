@@ -120,7 +120,7 @@ let navItemCounter = 0;
 
 function createNavId(prefix: string): string {
   navItemCounter += 1;
-  return `${prefix}_${navItemCounter}`;
+  return `${prefix}_${Date.now()}_${navItemCounter}`;
 }
 
 // ============================================================================
