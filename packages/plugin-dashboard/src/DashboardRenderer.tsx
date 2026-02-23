@@ -30,11 +30,17 @@ export interface DashboardRendererProps {
   recordCount?: number;
   /** User actions configuration */
   userActions?: { sort?: boolean; search?: boolean; filter?: boolean };
+  /** Enable design mode — shows selection affordances on widgets */
+  designMode?: boolean;
+  /** Currently selected widget ID (controlled) */
+  selectedWidgetId?: string | null;
+  /** Callback when a widget is clicked in design mode */
+  onWidgetClick?: (widgetId: string | null) => void;
   [key: string]: any;
 }
 
 export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererProps>(
-  ({ schema, className, dataSource, onRefresh, recordCount, userActions, ...props }, ref) => {
+  ({ schema, className, dataSource, onRefresh, recordCount, userActions, designMode, selectedWidgetId, onWidgetClick, ...props }, ref) => {
     const columns = schema.columns || 4; // Default to 4 columns for better density
     const gap = schema.gap || 4;
     const [refreshing, setRefreshing] = useState(false);
@@ -64,6 +70,39 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
         if (intervalRef.current) clearInterval(intervalRef.current);
       };
     }, [schema.refreshInterval, onRefresh, handleRefresh]);
+
+    const handleWidgetClick = useCallback((e: React.MouseEvent, widgetId: string | undefined) => {
+      if (!designMode || !onWidgetClick || !widgetId) return;
+      e.stopPropagation();
+      onWidgetClick(widgetId);
+    }, [designMode, onWidgetClick]);
+
+    const handleWidgetKeyDown = useCallback((e: React.KeyboardEvent, widgetId: string | undefined, index: number) => {
+      if (!designMode || !onWidgetClick) return;
+      const widgets = schema.widgets || [];
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onWidgetClick(widgetId ?? null);
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        const next = index + 1 < widgets.length ? widgets[index + 1] : null;
+        if (next?.id) onWidgetClick(next.id);
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prev = index - 1 >= 0 ? widgets[index - 1] : null;
+        if (prev?.id) onWidgetClick(prev.id);
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        onWidgetClick(null);
+      }
+    }, [designMode, onWidgetClick, schema.widgets]);
+
+    const handleBackgroundClick = useCallback((e: React.MouseEvent) => {
+      if (!designMode || !onWidgetClick) return;
+      if (e.target === e.currentTarget) {
+        onWidgetClick(null);
+      }
+    }, [designMode, onWidgetClick]);
 
     const renderWidget = (widget: DashboardWidgetSchema, index: number, forceMobileFullWidth?: boolean) => {
         const getComponentSchema = () => {
@@ -121,16 +160,39 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
         const componentSchema = getComponentSchema();
         const isSelfContained = widget.type === 'metric';
         const widgetKey = widget.id || widget.title || `widget-${index}`;
+        const isSelected = designMode && selectedWidgetId === widget.id;
+
+        const designModeProps = designMode ? {
+            'data-testid': `dashboard-preview-widget-${widget.id}`,
+            'data-widget-id': widget.id,
+            role: 'button' as const,
+            tabIndex: 0,
+            'aria-selected': isSelected,
+            'aria-label': `Widget: ${widget.title || `Widget ${index + 1}`}`,
+            onClick: (e: React.MouseEvent) => handleWidgetClick(e, widget.id),
+            onKeyDown: (e: React.KeyboardEvent) => handleWidgetKeyDown(e, widget.id, index),
+        } : {};
+
+        const selectionClasses = designMode
+          ? cn(
+              "cursor-pointer rounded-lg transition-all outline-none",
+              "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              isSelected
+                ? "ring-2 ring-primary shadow-md bg-primary/5 dark:bg-primary/10"
+                : "hover:ring-2 hover:ring-primary/40 hover:shadow-sm"
+            )
+          : undefined;
 
         if (isSelfContained) {
             return (
                 <div 
                     key={widgetKey}
-                    className={cn("h-full w-full")}
+                    className={cn("h-full w-full", selectionClasses)}
                     style={!isMobile && widget.layout ? {
                         gridColumn: `span ${widget.layout.w}`,
                         gridRow: `span ${widget.layout.h}`
                     }: undefined}
+                    {...designModeProps}
                 >
                      <SchemaRenderer schema={componentSchema} className="h-full w-full" />
                 </div>
@@ -143,12 +205,14 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                 className={cn(
                     "overflow-hidden border-border/50 shadow-sm transition-all hover:shadow-md",
                     "bg-card/50 backdrop-blur-sm",
-                    forceMobileFullWidth && "w-full"
+                    forceMobileFullWidth && "w-full",
+                    selectionClasses
                 )}
                 style={!isMobile && widget.layout ? {
                     gridColumn: `span ${widget.layout.w}`,
                     gridRow: `span ${widget.layout.h}`
                 }: undefined}
+                {...designModeProps}
             >
                 {widget.title && (
                     <CardHeader className="pb-2 border-b border-border/40 bg-muted/20 px-3 sm:px-6">
@@ -216,20 +280,20 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
       const otherWidgets = schema.widgets?.filter((w: DashboardWidgetSchema) => w.type !== 'metric') || [];
       
       return (
-        <div ref={ref} className={cn("flex flex-col gap-4 px-4", className)} data-user-actions={userActionsAttr} {...props}>
+        <div ref={ref} className={cn("flex flex-col gap-4 px-4", className)} data-user-actions={userActionsAttr} onClick={handleBackgroundClick} {...props}>
           {headerSection}
           {refreshButton}
           
           {/* Metric cards: 2-column grid */}
           {metricWidgets.length > 0 && (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3" onClick={handleBackgroundClick}>
               {metricWidgets.map((widget: DashboardWidgetSchema, index: number) => renderWidget(widget, index))}
             </div>
           )}
           
           {/* Other widgets (charts, tables): full-width vertical stack */}
           {otherWidgets.length > 0 && (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4" onClick={handleBackgroundClick}>
               {otherWidgets.map((widget: DashboardWidgetSchema, index: number) => renderWidget(widget, index, true))}
             </div>
           )}
@@ -250,6 +314,7 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
             gap: `${gap * 0.25}rem`
         }}
         data-user-actions={userActionsAttr}
+        onClick={handleBackgroundClick}
         {...props}
       >
         {headerSection}

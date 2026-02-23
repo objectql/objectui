@@ -70,6 +70,10 @@ export interface DashboardEditorProps {
   onExport?: (schema: DashboardSchema) => void;
   /** Callback when JSON is imported */
   onImport?: (schema: DashboardSchema) => void;
+  /** Externally controlled selected widget ID */
+  selectedWidgetId?: string | null;
+  /** Callback when widget selection changes (for external sync) */
+  onWidgetSelect?: (widgetId: string | null) => void;
 }
 
 // ============================================================================
@@ -406,12 +410,22 @@ export function DashboardEditor({
   className,
   onExport,
   onImport,
+  selectedWidgetId: externalSelectedWidgetId,
+  onWidgetSelect,
 }: DashboardEditorProps) {
   const { t } = useDesignerTranslation();
-  const [selectedWidgetId, setSelectedWidgetId] = useState<string | null>(null);
+  const [internalSelectedWidgetId, setInternalSelectedWidgetId] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Use external selection when controlled, otherwise internal state
+  const isControlled = externalSelectedWidgetId !== undefined;
+  const selectedWidgetId = isControlled ? externalSelectedWidgetId : internalSelectedWidgetId;
+  const setSelectedWidgetId = useCallback((id: string | null) => {
+    if (onWidgetSelect) onWidgetSelect(id);
+    if (!isControlled) setInternalSelectedWidgetId(id);
+  }, [isControlled, onWidgetSelect]);
 
   const {
     current: currentSchema,
