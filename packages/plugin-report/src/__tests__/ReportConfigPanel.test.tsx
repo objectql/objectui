@@ -22,6 +22,12 @@ const defaultConfig = {
   refreshInterval: '0',
 };
 
+const mockAvailableFields = [
+  { value: 'name', label: 'Name', type: 'text' },
+  { value: 'amount', label: 'Amount', type: 'number' },
+  { value: 'stage', label: 'Stage', type: 'text' },
+];
+
 describe('ReportConfigPanel', () => {
   it('should render nothing when closed', () => {
     const { container } = render(
@@ -88,6 +94,34 @@ describe('ReportConfigPanel', () => {
     expect(screen.getByText('Row limit')).toBeDefined();
   });
 
+  it('should display filters section', () => {
+    render(
+      <ReportConfigPanel
+        open={true}
+        onClose={vi.fn()}
+        config={defaultConfig}
+        onSave={vi.fn()}
+        availableFields={mockAvailableFields}
+      />,
+    );
+    expect(screen.getByText('Filters')).toBeDefined();
+    expect(screen.getByText('Conditions')).toBeDefined();
+  });
+
+  it('should display group by section', () => {
+    render(
+      <ReportConfigPanel
+        open={true}
+        onClose={vi.fn()}
+        config={defaultConfig}
+        onSave={vi.fn()}
+        availableFields={mockAvailableFields}
+      />,
+    );
+    expect(screen.getByText('Group By')).toBeDefined();
+    expect(screen.getByText('Grouping')).toBeDefined();
+  });
+
   it('should have export section collapsed by default', () => {
     render(
       <ReportConfigPanel
@@ -115,6 +149,33 @@ describe('ReportConfigPanel', () => {
     fireEvent.click(screen.getByTestId('section-header-export'));
     expect(screen.getByText('Show export buttons')).toBeDefined();
     expect(screen.getByText('Default export format')).toBeDefined();
+  });
+
+  it('should have schedule section collapsed by default', () => {
+    render(
+      <ReportConfigPanel
+        open={true}
+        onClose={vi.fn()}
+        config={defaultConfig}
+        onSave={vi.fn()}
+      />,
+    );
+    expect(screen.getByText('Schedule')).toBeDefined();
+    // Schedule content should be hidden since collapsed by default
+    expect(screen.queryByText('Schedule Configuration')).toBeNull();
+  });
+
+  it('should expand schedule section on click', () => {
+    render(
+      <ReportConfigPanel
+        open={true}
+        onClose={vi.fn()}
+        config={defaultConfig}
+        onSave={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByTestId('section-header-schedule'));
+    expect(screen.getByText('Schedule Configuration')).toBeDefined();
   });
 
   it('should have appearance section collapsed by default', () => {

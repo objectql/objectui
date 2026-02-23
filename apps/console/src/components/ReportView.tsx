@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { ReportViewer, ReportConfigPanel } from '@object-ui/plugin-report';
 import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
@@ -8,13 +8,25 @@ import { DesignDrawer } from './DesignDrawer';
 import { useMetadata } from '../context/MetadataProvider';
 import type { DataSource } from '@object-ui/types';
 
+// Fallback fields when no schema is available
+const FALLBACK_FIELDS = [
+  { value: 'month', label: 'Month', type: 'text' },
+  { value: 'revenue', label: 'Revenue', type: 'number' },
+  { value: 'count', label: 'Count', type: 'number' },
+  { value: 'region', label: 'Region', type: 'text' },
+  { value: 'product', label: 'Product', type: 'text' },
+  { value: 'source', label: 'Lead Source', type: 'text' },
+  { value: 'stage', label: 'Stage', type: 'text' },
+  { value: 'amount', label: 'Amount', type: 'number' },
+];
+
 export function ReportView({ dataSource }: { dataSource?: DataSource }) {
   const { reportName } = useParams<{ reportName: string }>();
   const { showDebug, toggleDebug } = useMetadataInspector();
   const [drawerOpen, setDrawerOpen] = useState(false);
   
   // Find report definition from API-driven metadata
-  const { reports, loading } = useMetadata();
+  const { reports, objects, loading } = useMetadata();
   const initialReport = reports?.find((r: any) => r.name === reportName);
   const [reportData, setReportData] = useState(initialReport);
 
@@ -24,6 +36,30 @@ export function ReportView({ dataSource }: { dataSource?: DataSource }) {
   // State for report runtime data
   const [reportRuntimeData, setReportRuntimeData] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(false);
+
+  // Derive available fields from object schema for filter/sort editors
+  const availableFields = useMemo(() => {
+    const objName = reportData?.objectName || reportData?.dataSource?.object || reportData?.dataSource?.resource;
+    if (objName && objects?.length) {
+      const objDef = objects.find((o: any) => o.name === objName);
+      if (objDef?.fields) {
+        const fields = objDef.fields;
+        if (Array.isArray(fields)) {
+          return fields.map((f: any) =>
+            typeof f === 'string'
+              ? { value: f, label: f, type: 'text' }
+              : { value: f.name, label: f.label || f.name, type: f.type || 'text' },
+          );
+        }
+        return Object.entries(fields).map(([name, def]: [string, any]) => ({
+          value: name,
+          label: def.label || name,
+          type: def.type || 'text',
+        }));
+      }
+    }
+    return FALLBACK_FIELDS;
+  }, [reportData, objects]);
 
   const handleOpenDrawer = useCallback(() => {
     setEditSchema(reportData);
@@ -253,6 +289,7 @@ export function ReportView({ dataSource }: { dataSource?: DataSource }) {
             config={schema}
             onSave={(updated) => onChange(updated)}
             onFieldChange={(field, value) => onChange({ ...schema, [field]: value })}
+            availableFields={availableFields}
           />
         )}
       </DesignDrawer>

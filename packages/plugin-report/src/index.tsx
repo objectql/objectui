@@ -13,6 +13,7 @@ import { ReportBuilder } from './ReportBuilder';
 import { ReportConfigPanel } from './ReportConfigPanel';
 
 export { ReportRenderer, ReportViewer, ReportBuilder, ReportConfigPanel };
+export type { AvailableField } from './ReportConfigPanel';
 export { formatValue } from './formatValue';
 export { exportReport, exportAsCSV, exportAsJSON, exportAsHTML, exportAsPDF, exportAsExcel } from './ReportExportEngine';
 export { ScheduleConfig } from './ScheduleConfig';
