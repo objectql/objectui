@@ -5,7 +5,7 @@
 > **Spec Version:** @objectstack/spec v3.0.9
 > **Client Version:** @objectstack/client v3.0.9
 > **Target UX Benchmark:** 🎯 Airtable parity
-> **Current Priority:** AppShell Navigation · Designer Interaction · View Config Live Preview Sync · Dashboard Config Panel · Airtable UX Polish · **Flow Designer ✅**
+> **Current Priority:** AppShell Navigation · Designer Interaction · View Config Live Preview Sync · Dashboard Config Panel · Airtable UX Polish · **Flow Designer ✅** · **App Creation & Editing Flow ✅**
 
 ---
 
@@ -13,7 +13,7 @@
 
 ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind + Shadcn. It renders JSON metadata from the @objectstack/spec protocol into pixel-perfect, accessible, and interactive enterprise interfaces.
 
-**Where We Are:** Foundation is **solid and shipping** — 35 packages, 99+ components, 5,618+ tests, 78 Storybook stories, 42/42 builds passing, ~85% protocol alignment. SpecBridge, Expression Engine, Action Engine, data binding, all view plugins (Grid/Kanban/Calendar/Gantt/Timeline/Map/Gallery), Record components, Report engine, Dashboard BI features, mobile UX, i18n (11 locales), WCAG AA accessibility, Designer Phase 1 (ViewDesigner drag-to-reorder ✅), Console through Phase 20 (L3), **AppShell Navigation Renderer** (P0.1), **Flow Designer** (P2.4), and **Feed/Chatter UI** (P1.5) — all ✅ complete.
+**Where We Are:** Foundation is **solid and shipping** — 35 packages, 99+ components, 5,700+ tests, 78 Storybook stories, 42/42 builds passing, ~85% protocol alignment. SpecBridge, Expression Engine, Action Engine, data binding, all view plugins (Grid/Kanban/Calendar/Gantt/Timeline/Map/Gallery), Record components, Report engine, Dashboard BI features, mobile UX, i18n (11 locales), WCAG AA accessibility, Designer Phase 1 (ViewDesigner drag-to-reorder ✅), Console through Phase 20 (L3), **AppShell Navigation Renderer** (P0.1), **Flow Designer** (P2.4), **Feed/Chatter UI** (P1.5), and **App Creation & Editing Flow** (P1.11) — all ✅ complete.
 
 **What Remains:** The gap to **Airtable-level UX** is primarily in:
 1. ~~**AppShell** — No dynamic navigation renderer from spec JSON (last P0 blocker)~~ ✅ Complete
@@ -354,6 +354,78 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] Fix ListView container `min-w-0 overflow-hidden` to prevent overflow
 - [ ] Mobile/tablet end-to-end testing for all view types
 - [ ] Dynamic width calculation for Gantt task list and Kanban columns based on container width
+
+### P1.11 App Creation & Editing Flow (Airtable Interface Designer UX)
+
+> Full app creation & editing experience aligned with Airtable Interface Designer UX.
+> Components live in `@object-ui/plugin-designer`, types in `@object-ui/types`.
+
+**Types & Interfaces:**
+- [x] `AppWizardDraft` / `AppWizardStep` / `BrandingConfig` / `ObjectSelection` / `EditorMode` types
+- [x] `isValidAppName()` snake_case validator function
+- [x] `wizardDraftToAppSchema()` draft-to-schema conversion function
+
+**App Creation Wizard (4-step):**
+- [x] Step 1: Basic Info — name (snake_case validated), title, description, icon, template, layout selector
+- [x] Step 2: Object Selection — card grid with search, select all/none, toggle selection
+- [x] Step 3: Navigation Builder — auto-generates NavigationItem[] from selected objects, add group/URL/separator, reorder up/down, remove
+- [x] Step 4: Branding — logo URL, primary color, favicon, live preview card
+- [x] Step indicator with connected progress dots
+- [x] Step validation (step 1 requires valid snake_case name + title)
+- [x] onComplete callback returns full AppWizardDraft
+
+**Navigation Designer:**
+- [x] Recursive NavigationItem tree renderer (supports infinite nesting)
+- [x] Quick add buttons for all 7 nav item types (object, dashboard, page, report, group, URL, separator)
+- [x] Inline label editing (double-click to edit, Enter/Escape to commit/discard)
+- [x] Add child to groups (nested navigation)
+- [x] Reorder items (up/down buttons)
+- [x] Deep tree operations (remove/reorder works at any depth)
+- [x] Live preview sidebar showing navigation as rendered
+- [x] Type badges with color coding
+
+**Page Canvas Editor:**
+- [x] Component palette (Grid, Kanban, Calendar, Gallery, Dashboard, Form, Layout Grid)
+- [x] Component list with drag handles, selection, reorder
+- [x] Property panel for selected component (label, type, ID)
+- [x] Add/remove/reorder components
+- [x] Syncs PageSchema children on every change
+
+**Dashboard Editor:**
+- [x] 6 widget types (KPI Metric, Bar Chart, Line Chart, Pie Chart, Table, Grid)
+- [x] Widget card grid with selection, drag handles, reorder
+- [x] Widget property panel (title, type, data source, value field, aggregate, color variant)
+- [x] Add/remove/reorder widgets
+- [x] Grid layout based on DashboardSchema columns
+
+**Object View Configurator:**
+- [x] 7 view type switcher (Grid, Kanban, Calendar, Gallery, Timeline, Map, Gantt)
+- [x] Column visibility toggle with visible count
+- [x] Column reorder (up/down)
+- [x] Toolbar toggles (showSearch, showFilters, showSort)
+- [x] Appearance section (row height, striped, bordered)
+- [x] Collapsible sections
+
+**Editor Mode Toggle:**
+- [x] Three-way toggle (Edit / Preview / Code)
+- [x] Radio group accessibility (role="radiogroup", aria-checked)
+- [x] Disabled state support
+
+**i18n:**
+- [x] `appDesigner` section with 54 keys added to all 10 locales (en, zh, ja, de, fr, es, ar, ru, pt, ko)
+
+**Testing:**
+- [x] 9 type tests (isValidAppName, wizardDraftToAppSchema, type shapes)
+- [x] 31 AppCreationWizard tests (rendering, steps 1-4, navigation, callbacks, read-only)
+- [x] 18 NavigationDesigner tests (rendering, add, remove, groups, badges, read-only)
+- [x] 7 EditorModeToggle tests (render, active mode, onChange, accessibility, disabled)
+- [x] 14 DashboardEditor tests (rendering, add/remove widgets, property panel, read-only)
+- [x] 10 PageCanvasEditor tests (rendering, add/remove components, property panel, read-only)
+- [x] 14 ObjectViewConfigurator tests (rendering, view type switch, column visibility, toggles, read-only)
+- [x] **Total: 103 new tests, all passing**
+
+**ComponentRegistry:**
+- [x] Registered: `app-creation-wizard`, `navigation-designer`, `dashboard-editor`, `page-canvas-editor`, `object-view-configurator`
 
 ---
 
