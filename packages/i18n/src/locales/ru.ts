@@ -101,6 +101,8 @@ const ru = {
     recordCount: '{{count}} записей',
     recordCountOne: '{{count}} запись',
     addRecord: 'Добавить запись',
+    tabs: 'Вкладки',
+    allRecords: 'Все записи',
   },
   kanban: {
     addCard: 'Добавить карточку',

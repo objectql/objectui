@@ -101,6 +101,8 @@ const fr = {
     recordCount: '{{count}} enregistrements',
     recordCountOne: '{{count}} enregistrement',
     addRecord: 'Ajouter un enregistrement',
+    tabs: 'Onglets',
+    allRecords: 'Tous les enregistrements',
   },
   kanban: {
     addCard: 'Ajouter une carte',

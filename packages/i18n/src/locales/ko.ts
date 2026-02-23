@@ -101,6 +101,8 @@ const ko = {
     recordCount: '{{count}}개 레코드',
     recordCountOne: '{{count}}개 레코드',
     addRecord: '레코드 추가',
+    tabs: '탭',
+    allRecords: '전체 레코드',
   },
   kanban: {
     addCard: '카드 추가',

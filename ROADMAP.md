@@ -704,6 +704,7 @@ The `FlowDesigner` is a canvas-based flow editor that bridges the gap between th
 - [x] Column `summary`: `summary` property added to ListViewSchema column type. Bridge passes through for aggregation rendering. ObjectGrid renders summary footer with count/sum/avg/min/max aggregations via `useColumnSummary` hook. Zod schema updated with `summary` field.
 - [x] Column `link`: ObjectGrid renders click-to-navigate buttons on link-type columns with `navigation.handleClick`. Primary field auto-linked.
 - [x] Column `action`: ObjectGrid renders action dispatch buttons via `executeAction` on action-type columns.
+- [x] `tabs` (ViewTabSchema): TabBar component renders view tabs above the ListView toolbar. Supports icon (Lucide), pinned (always visible), isDefault (auto-selected), visible filtering, order sorting, and active tab state. Tab switch applies filter config. Extracted as reusable `TabBar` component in `packages/plugin-list/src/components/TabBar.tsx`. i18n keys added for all 10 locales.
 
 **P2 — Advanced Features:**
 - [x] `rowActions`: Row-level dropdown action menu per row in ObjectGrid. `schema.rowActions` string array items rendered as dropdown menu items, dispatched via `executeAction`.

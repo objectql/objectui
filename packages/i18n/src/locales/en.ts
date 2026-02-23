@@ -101,6 +101,8 @@ const en = {
     recordCount: '{{count}} records',
     recordCountOne: '{{count}} record',
     addRecord: 'Add record',
+    tabs: 'Tabs',
+    allRecords: 'All Records',
   },
   kanban: {
     addCard: 'Add card',

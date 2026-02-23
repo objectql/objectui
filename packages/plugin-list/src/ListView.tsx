@@ -12,6 +12,8 @@ import type { SortItem } from '@object-ui/components';
 import { Search, SlidersHorizontal, ArrowUpDown, X, EyeOff, Group, Paintbrush, Ruler, Inbox, Download, AlignJustify, Share2, Printer, Plus, icons, type LucideIcon } from 'lucide-react';
 import type { FilterGroup } from '@object-ui/components';
 import { ViewSwitcher, ViewType } from './ViewSwitcher';
+import { TabBar } from './components/TabBar';
+import type { ViewTab } from './components/TabBar';
 import { UserFilters } from './UserFilters';
 import { SchemaRenderer, useNavigationOverlay } from '@object-ui/react';
 import { useDensityMode } from '@object-ui/react';
@@ -203,6 +205,8 @@ const LIST_DEFAULT_TRANSLATIONS: Record<string, string> = {
   'list.refreshing': 'Refreshing…',
   'list.dataLimitReached': 'Showing first {{limit}} records. More data may be available.',
   'list.addRecord': 'Add record',
+  'list.tabs': 'Tabs',
+  'list.allRecords': 'All Records',
 };
 
 /**
@@ -316,6 +320,34 @@ export const ListView: React.FC<ListViewProps> = ({
     logic: 'and',
     conditions: []
   });
+
+  // Tab State
+  const [activeTab, setActiveTab] = React.useState<string | undefined>(() => {
+    if (!schema.tabs || schema.tabs.length === 0) return undefined;
+    const defaultTab = schema.tabs.find(t => t.isDefault);
+    return defaultTab?.name ?? schema.tabs[0]?.name;
+  });
+
+  const handleTabChange = React.useCallback(
+    (tab: ViewTab) => {
+      setActiveTab(tab.name);
+      // Apply tab filter if defined
+      if (tab.filter) {
+        const tabFilters: FilterGroup = {
+          id: 'tab-filter',
+          logic: tab.filter.logic || 'and',
+          conditions: tab.filter.conditions || [],
+        };
+        setCurrentFilters(tabFilters);
+        onFilterChange?.(tabFilters);
+      } else {
+        const emptyFilters: FilterGroup = { id: 'root', logic: 'and', conditions: [] };
+        setCurrentFilters(emptyFilters);
+        onFilterChange?.(emptyFilters);
+      }
+    },
+    [onFilterChange],
+  );
 
   // Data State
   const dataSource = props.dataSource;
@@ -965,31 +997,11 @@ export const ListView: React.FC<ListViewProps> = ({
 
       {/* View Tabs */}
       {schema.tabs && schema.tabs.length > 0 && (
-        <div className="border-b px-2 sm:px-4 py-1 flex items-center gap-1 bg-background" data-testid="view-tabs">
-          {schema.tabs
-            // Spec defines visible as string (expression), but also handle boolean false for convenience
-            .filter(tab => tab.visible !== 'false' && tab.visible !== (false as any))
-            .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-            .map(tab => {
-              const TabIcon: LucideIcon | null = tab.icon
-                ? ((icons as Record<string, LucideIcon>)[
-                    tab.icon.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('')
-                  ] ?? null)
-                : null;
-              return (
-                <Button
-                  key={tab.name}
-                  variant={tab.isDefault ? 'default' : 'ghost'}
-                  size="sm"
-                  className="h-7 px-3 text-xs"
-                  data-testid={`view-tab-${tab.name}`}
-                >
-                  {TabIcon && <TabIcon className="h-3 w-3 mr-1.5" />}
-                  {tab.label}
-                </Button>
-              );
-            })}
-        </div>
+        <TabBar
+          tabs={schema.tabs}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+        />
       )}
 
       {/* View Description */}

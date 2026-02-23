@@ -102,6 +102,8 @@ const ar = {
     recordCount: '{{count}} سجلات',
     recordCountOne: '{{count}} سجل',
     addRecord: 'إضافة سجل',
+    tabs: 'علامات التبويب',
+    allRecords: 'جميع السجلات',
   },
   kanban: {
     addCard: 'إضافة بطاقة',
