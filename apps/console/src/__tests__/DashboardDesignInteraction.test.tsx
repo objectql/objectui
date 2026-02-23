@@ -17,7 +17,7 @@ const { editorCalls, rendererCalls } = vi.hoisted(() => ({
   editorCalls: {
     selectedWidgetId: null as string | null,
     onWidgetSelect: null as ((id: string | null) => void) | null,
-    lastSchema: null as any,
+    lastSchema: null as unknown,
   },
   rendererCalls: {
     designMode: false,

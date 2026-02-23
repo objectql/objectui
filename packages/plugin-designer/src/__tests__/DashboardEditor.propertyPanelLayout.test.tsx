@@ -36,7 +36,7 @@ describe('DashboardEditor property panel layout', () => {
     const widgetCard = screen.getByTestId('dashboard-widget-w1');
 
     // Property panel should appear before the widget cards in DOM order
-    // (compareDocumentPosition returns bitmask, bit 4 = DOCUMENT_POSITION_FOLLOWING)
+    // compareDocumentPosition bit 4 (DOCUMENT_POSITION_FOLLOWING) means widgetCard comes after propertyPanel
     const position = propertyPanel.compareDocumentPosition(widgetCard);
     expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
