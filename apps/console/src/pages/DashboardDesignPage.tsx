@@ -6,7 +6,7 @@
  * Route: /design/dashboard/:dashboardName
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { DashboardEditor } from '@object-ui/plugin-designer';
 import type { DashboardSchema } from '@object-ui/types';
@@ -33,20 +33,45 @@ export function DashboardDesignPage() {
         widgets: [],
       },
   );
+  const schemaRef = useRef(schema);
+  schemaRef.current = schema;
 
-  const handleChange = useCallback(
-    async (updated: DashboardSchema) => {
-      setSchema(updated);
+  const saveSchema = useCallback(
+    async (toSave: DashboardSchema) => {
       try {
         if (dataSource) {
-          await dataSource.update('sys_dashboard', dashboardName!, updated);
+          await dataSource.update('sys_dashboard', dashboardName!, toSave);
+          return true;
         }
       } catch {
         // Save errors are non-blocking; user can retry via export
       }
+      return false;
     },
     [dataSource, dashboardName],
   );
+
+  const handleChange = useCallback(
+    async (updated: DashboardSchema) => {
+      setSchema(updated);
+      await saveSchema(updated);
+    },
+    [saveSchema],
+  );
+
+  // Ctrl+S / Cmd+S keyboard shortcut to explicitly save
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        saveSchema(schemaRef.current).then((ok) => {
+          if (ok) toast.success('Dashboard saved');
+        });
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [saveSchema]);
 
   const handleExport = useCallback(
     (exported: DashboardSchema) => {

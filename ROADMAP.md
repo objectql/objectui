@@ -540,8 +540,9 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] `PageDesignPage` — integrates `PageCanvasEditor` at `/design/page/:pageName` route with auto-save, JSON export/import
 - [x] `DashboardDesignPage` — integrates `DashboardEditor` at `/design/dashboard/:dashboardName` route with auto-save, JSON export/import
 - [x] "Edit" button on `PageView` and `DashboardView` — navigates to corresponding design routes
+- [x] Ctrl+S/Cmd+S keyboard shortcut to explicitly save in both design pages (with toast confirmation)
 - [x] Storybook stories for `PageCanvasEditor` and `DashboardEditor` (Designers/PageCanvasEditor, Designers/DashboardEditor)
-- [x] 10 console design page tests (PageDesignPage + DashboardDesignPage: routes, 404 handling, editor rendering, onChange)
+- [x] 12 console design page tests (PageDesignPage + DashboardDesignPage: routes, 404 handling, editor rendering, onChange, Ctrl+S save)
 
 ### P1.12 System Settings & App Management Center
 

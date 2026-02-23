@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { PageDesignPage } from '../pages/PageDesignPage';
 
@@ -33,9 +33,11 @@ vi.mock('../context/MetadataProvider', () => ({
 }));
 
 // Mock AdapterProvider
+const { mockUpdate } = vi.hoisted(() => ({ mockUpdate: vi.fn() }));
+mockUpdate.mockResolvedValue({});
 vi.mock('../context/AdapterProvider', () => ({
   useAdapter: () => ({
-    update: vi.fn().mockResolvedValue({}),
+    update: mockUpdate,
     create: vi.fn().mockResolvedValue({}),
   }),
 }));
@@ -103,5 +105,16 @@ describe('PageDesignPage', () => {
     fireEvent.click(screen.getByTestId('trigger-change'));
     // After change, editor should reflect updated schema
     expect(screen.getByText(/PageCanvasEditor: Updated/)).toBeInTheDocument();
+  });
+
+  it('should save via Ctrl+S keyboard shortcut', async () => {
+    renderWithRouter('test-page');
+
+    await act(async () => {
+      fireEvent.keyDown(window, { key: 's', ctrlKey: true });
+    });
+
+    // Should call dataSource.update with the page schema
+    expect(mockUpdate).toHaveBeenCalledWith('sys_page', 'test-page', expect.objectContaining({ type: 'page' }));
   });
 });

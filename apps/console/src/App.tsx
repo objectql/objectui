@@ -162,7 +162,7 @@ export function AppContent() {
   const cleanParts = pathParts.filter(p => p);
   // [apps, crm, contact]
   let objectNameFromPath = cleanParts[2];
-  if (objectNameFromPath === 'view' || objectNameFromPath === 'record' || objectNameFromPath === 'page' || objectNameFromPath === 'dashboard') {
+  if (objectNameFromPath === 'view' || objectNameFromPath === 'record' || objectNameFromPath === 'page' || objectNameFromPath === 'dashboard' || objectNameFromPath === 'design') {
       objectNameFromPath = ''; // Not an object root
   }
 
@@ -193,7 +193,7 @@ export function AppContent() {
     if (!activeApp) return;
     const parts = location.pathname.split('/').filter(Boolean);
     let objName = parts[2];
-    if (objName === 'view' || objName === 'record' || objName === 'page' || objName === 'dashboard') {
+    if (objName === 'view' || objName === 'record' || objName === 'page' || objName === 'dashboard' || objName === 'design') {
       objName = '';
     }
     const basePath = `/apps/${activeApp.name}`;

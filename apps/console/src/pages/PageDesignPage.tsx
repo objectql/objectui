@@ -6,7 +6,7 @@
  * Route: /design/page/:pageName
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageCanvasEditor } from '@object-ui/plugin-designer';
 import type { PageSchema } from '@object-ui/types';
@@ -26,20 +26,45 @@ export function PageDesignPage() {
   const [schema, setSchema] = useState<PageSchema>(
     () => (page as PageSchema) || { type: 'page', name: pageName ?? '', title: pageName ?? '', children: [] },
   );
+  const schemaRef = useRef(schema);
+  schemaRef.current = schema;
 
-  const handleChange = useCallback(
-    async (updated: PageSchema) => {
-      setSchema(updated);
+  const saveSchema = useCallback(
+    async (toSave: PageSchema) => {
       try {
         if (dataSource) {
-          await dataSource.update('sys_page', pageName!, updated);
+          await dataSource.update('sys_page', pageName!, toSave);
+          return true;
         }
       } catch {
         // Save errors are non-blocking; user can retry via export
       }
+      return false;
     },
     [dataSource, pageName],
   );
+
+  const handleChange = useCallback(
+    async (updated: PageSchema) => {
+      setSchema(updated);
+      await saveSchema(updated);
+    },
+    [saveSchema],
+  );
+
+  // Ctrl+S / Cmd+S keyboard shortcut to explicitly save
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        saveSchema(schemaRef.current).then((ok) => {
+          if (ok) toast.success('Page saved');
+        });
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [saveSchema]);
 
   const handleExport = useCallback(
     (exported: PageSchema) => {

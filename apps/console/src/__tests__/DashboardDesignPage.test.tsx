@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { DashboardDesignPage } from '../pages/DashboardDesignPage';
 
@@ -35,9 +35,11 @@ vi.mock('../context/MetadataProvider', () => ({
 }));
 
 // Mock AdapterProvider
+const { mockUpdate } = vi.hoisted(() => ({ mockUpdate: vi.fn() }));
+mockUpdate.mockResolvedValue({});
 vi.mock('../context/AdapterProvider', () => ({
   useAdapter: () => ({
-    update: vi.fn().mockResolvedValue({}),
+    update: mockUpdate,
     create: vi.fn().mockResolvedValue({}),
   }),
 }));
@@ -105,5 +107,16 @@ describe('DashboardDesignPage', () => {
     fireEvent.click(screen.getByTestId('trigger-change'));
     // After change, editor should reflect updated schema
     expect(screen.getByText(/DashboardEditor: Updated Dashboard/)).toBeInTheDocument();
+  });
+
+  it('should save via Ctrl+S keyboard shortcut', async () => {
+    renderWithRouter('sales-dashboard');
+
+    await act(async () => {
+      fireEvent.keyDown(window, { key: 's', ctrlKey: true });
+    });
+
+    // Should call dataSource.update with the dashboard schema
+    expect(mockUpdate).toHaveBeenCalledWith('sys_dashboard', 'sales-dashboard', expect.objectContaining({ type: 'dashboard' }));
   });
 });
