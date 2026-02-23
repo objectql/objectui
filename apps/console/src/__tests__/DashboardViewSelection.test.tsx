@@ -114,6 +114,7 @@ vi.mock('@object-ui/plugin-dashboard', () => ({
     return (
       <div data-testid="widget-config-panel">
         <span data-testid="widget-config-title">{props.config?.title ?? 'none'}</span>
+        {props.headerExtra && <div data-testid="widget-config-header-extra">{props.headerExtra}</div>}
         <button
           data-testid="widget-config-save"
           onClick={() => props.onSave?.({ ...props.config, title: 'Updated Revenue' })}
@@ -306,5 +307,57 @@ describe('DashboardView — Selection Sync Integration', () => {
         ]),
       }),
     );
+  });
+
+  it('should delete widget and persist to backend', async () => {
+    await renderDashboardView();
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('dashboard-edit-button'));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('renderer-widget-w1'));
+    });
+
+    // Click delete
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('widget-delete-button'));
+    });
+
+    // Widget removed from preview
+    expect(screen.queryByTestId('renderer-widget-w1')).not.toBeInTheDocument();
+    // Remaining widget still present
+    expect(screen.getByTestId('renderer-widget-w2')).toBeInTheDocument();
+    // Backend should be called without the deleted widget
+    expect(mockUpdate).toHaveBeenCalledWith(
+      'sys_dashboard',
+      'sales',
+      expect.objectContaining({
+        widgets: expect.not.arrayContaining([
+          expect.objectContaining({ id: 'w1' }),
+        ]),
+      }),
+    );
+  });
+
+  it('should update preview live when onFieldChange fires without resetting config panel', async () => {
+    await renderDashboardView();
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('dashboard-edit-button'));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('renderer-widget-w1'));
+    });
+
+    // Simulate live field change
+    await act(async () => {
+      widgetConfigCalls.onFieldChange?.('title', 'Live Preview Title');
+    });
+
+    // Preview should update
+    expect(screen.getByTestId('renderer-widget-w1')).toHaveTextContent('Live Preview Title');
+    // Widget config panel should still be visible
+    expect(screen.getByTestId('widget-config-panel')).toBeInTheDocument();
   });
 });

@@ -115,6 +115,7 @@ vi.mock('@object-ui/plugin-dashboard', () => ({
     return (
       <div data-testid="widget-config-panel">
         <span data-testid="widget-config-title">{props.config?.title ?? 'none'}</span>
+        {props.headerExtra && <div data-testid="widget-config-header-extra">{props.headerExtra}</div>}
         <button data-testid="widget-config-close" onClick={props.onClose}>Close</button>
       </div>
     );
@@ -252,5 +253,59 @@ describe('Dashboard Design Mode — Inline Config Panel', () => {
 
     expect(screen.getByTestId('renderer-design-mode')).toHaveTextContent('false');
     expect(screen.getByTestId('renderer-selected')).toHaveTextContent('none');
+  });
+
+  it('should show delete button in widget config panel header', async () => {
+    await renderDashboardView();
+    await openConfigPanel();
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('renderer-widget-w1'));
+    });
+
+    expect(screen.getByTestId('widget-config-header-extra')).toBeInTheDocument();
+    expect(screen.getByTestId('widget-delete-button')).toBeInTheDocument();
+  });
+
+  it('should remove widget and switch to dashboard config when delete is clicked', async () => {
+    await renderDashboardView();
+    await openConfigPanel();
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('renderer-widget-w1'));
+    });
+    expect(screen.getByTestId('widget-config-panel')).toBeInTheDocument();
+
+    // Click the delete button
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('widget-delete-button'));
+    });
+
+    // Should switch back to dashboard config (widget deselected)
+    expect(screen.getByTestId('dashboard-config-panel')).toBeInTheDocument();
+    expect(screen.queryByTestId('widget-config-panel')).not.toBeInTheDocument();
+    // Deleted widget should be removed from the preview
+    expect(screen.queryByTestId('renderer-widget-w1')).not.toBeInTheDocument();
+    // Backend should be called to persist the deletion
+    expect(mockUpdate).toHaveBeenCalled();
+  });
+
+  it('should preserve live preview when field changes via onFieldChange', async () => {
+    await renderDashboardView();
+    await openConfigPanel();
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('renderer-widget-w1'));
+    });
+
+    // Simulate a live field change via onFieldChange
+    await act(async () => {
+      widgetConfigCalls.onFieldChange?.('title', 'Live Title');
+    });
+
+    // Preview should update live
+    expect(screen.getByTestId('renderer-widget-w1')).toHaveTextContent('Live Title');
+    // Config panel should still show the widget (not reset or disappear)
+    expect(screen.getByTestId('widget-config-panel')).toBeInTheDocument();
   });
 });

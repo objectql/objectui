@@ -12,7 +12,7 @@ import {
   DashboardConfigPanel,
   WidgetConfigPanel,
 } from '@object-ui/plugin-dashboard';
-import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
+import { Empty, EmptyTitle, EmptyDescription, Button } from '@object-ui/components';
 import {
   LayoutDashboard,
   Pencil,
@@ -23,6 +23,7 @@ import {
   Table2,
   LayoutGrid,
   Plus,
+  Trash2,
 } from 'lucide-react';
 import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import { SkeletonDashboard } from './skeletons';
@@ -111,6 +112,8 @@ export function DashboardView({ dataSource }: { dataSource?: any }) {
   const [isLoading, setIsLoading] = useState(true);
   const [configPanelOpen, setConfigPanelOpen] = useState(false);
   const [selectedWidgetId, setSelectedWidgetId] = useState<string | null>(null);
+  // Version counter — incremented on save to refresh the stable config reference
+  const [configVersion, setConfigVersion] = useState(0);
 
   useEffect(() => {
     setIsLoading(true);
@@ -141,6 +144,7 @@ export function DashboardView({ dataSource }: { dataSource?: any }) {
   const handleOpenConfigPanel = useCallback(() => {
     setEditSchema(dashboard as DashboardSchema);
     setConfigPanelOpen(true);
+    setConfigVersion((v) => v + 1);
   }, [dashboard]);
 
   const handleCloseConfigPanel = useCallback(() => {
@@ -168,14 +172,35 @@ export function DashboardView({ dataSource }: { dataSource?: any }) {
       setEditSchema(newSchema);
       saveSchema(newSchema);
       setSelectedWidgetId(id);
+      setConfigVersion((v) => v + 1);
     },
     [editSchema, saveSchema],
   );
 
+  const removeWidget = useCallback(
+    (widgetId: string) => {
+      if (!editSchema) return;
+      const newSchema = {
+        ...editSchema,
+        widgets: editSchema.widgets.filter((w) => w.id !== widgetId),
+      };
+      setEditSchema(newSchema);
+      saveSchema(newSchema);
+      if (selectedWidgetId === widgetId) {
+        setSelectedWidgetId(null);
+      }
+    },
+    [editSchema, selectedWidgetId, saveSchema],
+  );
+
   // ---- Dashboard config panel handlers ------------------------------------
+  // Stabilize config reference: only recompute when panel opens or after save.
+  // This prevents useConfigDraft from resetting the draft on every parent re-render
+  // (same pattern as ViewConfigPanel's stableActiveView).
   const dashboardConfig = useMemo(
     () => extractDashboardConfig(editSchema || (dashboard as DashboardSchema)),
-    [editSchema, dashboard],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dashboardName, configVersion],
   );
 
   const handleDashboardConfigSave = useCallback(
@@ -185,31 +210,40 @@ export function DashboardView({ dataSource }: { dataSource?: any }) {
         ...editSchema,
         columns: config.columns,
         gap: config.gap,
-        rowHeight: config.rowHeight,
         refreshInterval: Number(config.refreshInterval) || 0,
         title: config.title,
-        showDescription: config.showDescription,
-        theme: config.theme,
       } as DashboardSchema;
       setEditSchema(newSchema);
       saveSchema(newSchema);
+      setConfigVersion((v) => v + 1);
     },
     [editSchema, saveSchema],
   );
 
   const handleDashboardFieldChange = useCallback(
     (field: string, value: any) => {
-      setEditSchema((prev) => (prev ? { ...prev, [field]: value } : prev));
+      if (!editSchema) return;
+      // Map config field keys to proper DashboardSchema updates for live preview
+      setEditSchema((prev) => {
+        if (!prev) return prev;
+        if (field === 'refreshInterval') {
+          return { ...prev, refreshInterval: Number(value) || 0 };
+        }
+        return { ...prev, [field]: value };
+      });
     },
-    [],
+    [editSchema],
   );
 
   // ---- Widget config panel handlers ---------------------------------------
   const selectedWidget = editSchema?.widgets?.find((w) => w.id === selectedWidgetId);
 
+  // Stabilize widget config: only recompute when selecting a different widget
+  // or after save — prevents useConfigDraft from resetting the draft on live preview updates.
   const widgetConfig = useMemo(
     () => (selectedWidget ? flattenWidgetConfig(selectedWidget) : {}),
-    [selectedWidget],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [selectedWidgetId, configVersion],
   );
 
   const handleWidgetConfigSave = useCallback(
@@ -224,6 +258,7 @@ export function DashboardView({ dataSource }: { dataSource?: any }) {
       };
       setEditSchema(newSchema);
       saveSchema(newSchema);
+      setConfigVersion((v) => v + 1);
     },
     [editSchema, selectedWidgetId, selectedWidget, saveSchema],
   );
@@ -336,6 +371,18 @@ export function DashboardView({ dataSource }: { dataSource?: any }) {
              config={widgetConfig}
              onSave={handleWidgetConfigSave}
              onFieldChange={handleWidgetFieldChange}
+             headerExtra={
+               <Button
+                 size="sm"
+                 variant="ghost"
+                 onClick={() => removeWidget(selectedWidgetId!)}
+                 className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                 data-testid="widget-delete-button"
+                 title="Delete widget"
+               >
+                 <Trash2 className="h-3.5 w-3.5" />
+               </Button>
+             }
            />
          ) : (
            <DashboardConfigPanel
