@@ -24,7 +24,6 @@ import {
   Star,
   ExternalLink,
   Search,
-  Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useMetadata } from '../../context/MetadataProvider';

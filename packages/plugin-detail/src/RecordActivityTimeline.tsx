@@ -133,7 +133,7 @@ export const RecordActivityTimeline: React.FC<RecordActivityTimelineProps> = ({
   onFilterChange,
   hasMore = false,
   onLoadMore,
-  loading = false,
+  loading: _loading = false,
   onAddComment,
   onAddReply,
   onToggleReaction,

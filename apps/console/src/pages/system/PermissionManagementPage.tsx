@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@object-ui/auth';
-import { Button, Card, CardContent, Badge, Input } from '@object-ui/components';
+import { Button, Badge, Input } from '@object-ui/components';
 import { Plus, Key, Loader2, Trash2, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAdapter } from '../../context/AdapterProvider';
