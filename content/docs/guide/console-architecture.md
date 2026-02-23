@@ -55,6 +55,8 @@ The console uses React Router DOM v7 with a simple flat route structure:
 | `/apps/:appName/:objectName` | `ObjectView` | Object list with view switcher |
 | `/apps/:appName/:objectName/view/:viewId` | `ObjectView` | Specific view for an object |
 | `/apps/:appName/:objectName/record/:recordId` | `RecordDetailView` | Single-record detail |
+| `/apps/:appName/create-app` | `CreateAppPage` | App creation wizard (4-step) |
+| `/apps/:appName/edit-app/:editAppName` | `EditAppPage` | Edit existing app configuration |
 
 ## Key Patterns
 
@@ -101,7 +103,19 @@ The console's `ObjectView` is a **thin wrapper** around `@object-ui/plugin-view`
 - Passes a `renderListView` callback for multi-view rendering (kanban, calendar, chart)
 - Handles console-specific concerns: URL routing, MetadataInspector, record detail Sheet
 
-### 4. Branding
+### 4. App Creation & Editing
+
+The console integrates the `AppCreationWizard` from `@object-ui/plugin-designer` for creating and editing apps:
+
+- **Create App** — `CreateAppPage` at `/apps/:appName/create-app`. Passes metadata objects as `availableObjects`, handles `onComplete` (converts draft via `wizardDraftToAppSchema()`, navigates to new app), `onCancel` (navigate back), and `onSaveDraft` (localStorage persistence).
+- **Edit App** — `EditAppPage` at `/apps/:appName/edit-app/:editAppName`. Loads existing app config as `initialDraft` and updates on completion.
+
+**Entry Points:**
+- AppSidebar app switcher → "Add App" / "Edit App" buttons
+- CommandPalette (⌘+K) → "Create New App" command in Actions group
+- Empty state CTA → "Create Your First App" button when no apps are configured
+
+### 5. Branding
 
 Per-app branding is applied via `AppShell`'s `branding` prop:
 

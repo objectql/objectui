@@ -28,6 +28,7 @@ The console opens at **http://localhost:5175** with MSW (Mock Service Worker) pr
 | **Expression Visibility** | Show/hide navigation items using `visible: "${data.role === 'admin'}"`. |
 | **Branding** | Per-app colors, favicons, and logos via `AppShell` branding. |
 | **Command Palette** | `⌘+K` opens a searchable command bar for quick navigation. |
+| **App Creation Wizard** | 4-step wizard (Basic Info → Objects → Navigation → Branding) to create or edit apps. |
 | **Error Boundary** | Graceful error handling with a retry button. |
 
 ## Configuration
@@ -88,6 +89,9 @@ apps/console/
       ConsoleLayout.tsx        # AppShell wrapper
       ObjectView.tsx           # Object list view (wraps plugin-view)
       RecordDetailView.tsx     # Single-record detail view
+    pages/
+      CreateAppPage.tsx        # App creation wizard page
+      EditAppPage.tsx          # Edit existing app page
     context/
       ExpressionProvider.tsx   # Expression evaluation context
     hooks/

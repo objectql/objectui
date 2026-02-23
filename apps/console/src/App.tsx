@@ -250,14 +250,18 @@ export function AppContent() {
   );
 
   if (!dataSource || metadataLoading) return <LoadingScreen />;
-  if (!activeApp) return (
+
+  // Allow create-app route even when no active app exists
+  const isCreateAppRoute = location.pathname.endsWith('/create-app');
+
+  if (!activeApp && !isCreateAppRoute) return (
     <div className="h-screen flex items-center justify-center">
       <Empty>
         <EmptyTitle>No Apps Configured</EmptyTitle>
         <EmptyDescription>No applications have been registered.</EmptyDescription>
         <button
           className="mt-4 inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-          onClick={() => navigate('/apps/_/create-app')}
+          onClick={() => navigate('create-app')}
           data-testid="create-first-app-btn"
         >
           Create Your First App
@@ -265,6 +269,17 @@ export function AppContent() {
       </Empty>
     </div>
   );
+
+  // When on create-app without an active app, render a minimal layout with just the wizard
+  if (!activeApp && isCreateAppRoute) {
+    return (
+      <Suspense fallback={<LoadingScreen />}>
+        <Routes>
+          <Route path="create-app" element={<CreateAppPage />} />
+        </Routes>
+      </Suspense>
+    );
+  }
 
   // Expression context for dynamic visibility/disabled/hidden expressions
   const expressionUser = user
@@ -436,7 +451,7 @@ function RootRedirect() {
           {!error && (
             <button
               className="mt-4 inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-              onClick={() => navigate('/apps/_/create-app')}
+              onClick={() => navigate('/apps/_new/create-app')}
               data-testid="create-first-app-btn"
             >
               Create Your First App
