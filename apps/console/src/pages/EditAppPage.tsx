@@ -59,10 +59,12 @@ export function EditAppPage() {
     async (draft: AppWizardDraft) => {
       try {
         const appSchema = wizardDraftToAppSchema(draft);
+        // Merge with original app config to preserve fields not maintained in wizard
+        const merged = { ...appToEdit, ...appSchema };
         // Persist app metadata to backend
         const client = adapter?.getClient();
         if (client) {
-          await client.meta.saveItem('app', draft.name, appSchema);
+          await client.meta.saveItem('app', draft.name, merged);
         }
         toast.success(`Application "${draft.title}" updated successfully`);
         await refresh?.();
@@ -71,7 +73,7 @@ export function EditAppPage() {
         toast.error(err?.message || 'Failed to update application');
       }
     },
-    [navigate, refresh, adapter],
+    [navigate, refresh, adapter, appToEdit],
   );
 
   const handleCancel = useCallback(() => {

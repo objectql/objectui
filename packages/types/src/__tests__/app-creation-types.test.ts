@@ -66,9 +66,16 @@ describe('App Creation Types', () => {
       expect(schema.type).toBe('app');
       expect(schema.name).toBe('test_app');
       expect(schema.title).toBe('Test Application');
+      expect(schema.label).toBe('Test Application');
       expect(schema.description).toBe('A test app');
+      expect(schema.icon).toBe('LayoutDashboard');
       expect(schema.logo).toBe('https://example.com/logo.svg');
       expect(schema.favicon).toBe('https://example.com/favicon.ico');
+      expect(schema.branding).toEqual({
+        logo: 'https://example.com/logo.svg',
+        primaryColor: '#3b82f6',
+        favicon: 'https://example.com/favicon.ico',
+      });
       expect(schema.layout).toBe('sidebar');
       expect(schema.navigation).toHaveLength(1);
       expect(schema.navigation![0].id).toBe('nav_1');
@@ -87,6 +94,46 @@ describe('App Creation Types', () => {
       const schema = wizardDraftToAppSchema(draft);
       expect(schema.navigation).toEqual([]);
       expect(schema.layout).toBe('header');
+      expect(schema.label).toBe('Empty');
+    });
+
+    it('should preserve icon and label for sidebar/app-switcher display', () => {
+      const draft: AppWizardDraft = {
+        name: 'sales_crm',
+        title: 'Sales CRM',
+        icon: 'TrendingUp',
+        layout: 'sidebar',
+        objects: [],
+        navigation: [],
+        branding: {
+          logo: 'https://example.com/sales-logo.png',
+          primaryColor: '#10b981',
+        },
+      };
+
+      const schema = wizardDraftToAppSchema(draft);
+      // These fields are critical for AppSidebar and app switcher
+      expect(schema.icon).toBe('TrendingUp');
+      expect(schema.label).toBe('Sales CRM');
+      expect(schema.branding).toEqual({
+        logo: 'https://example.com/sales-logo.png',
+        primaryColor: '#10b981',
+      });
+    });
+
+    it('should handle draft without icon gracefully', () => {
+      const draft: AppWizardDraft = {
+        name: 'no_icon_app',
+        title: 'No Icon',
+        layout: 'sidebar',
+        objects: [],
+        navigation: [],
+        branding: {},
+      };
+
+      const schema = wizardDraftToAppSchema(draft);
+      expect(schema.icon).toBeUndefined();
+      expect(schema.label).toBe('No Icon');
     });
   });
 
