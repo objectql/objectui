@@ -59,6 +59,7 @@ export function SystemHubPage() {
     if (!dataSource) return;
     setLoading(true);
     try {
+      // TODO: Replace with count-specific API endpoint when available
       const [usersRes, orgsRes, rolesRes, permsRes, logsRes] = await Promise.all([
         dataSource.find('sys_user').catch(() => ({ data: [] })),
         dataSource.find('sys_org').catch(() => ({ data: [] })),

@@ -71,9 +71,9 @@ export function AppManagementPage() {
   const handleToggleActive = useCallback(async (app: any) => {
     setProcessing(true);
     try {
-      // Toggle in-memory (metadata refresh will sync)
-      app.active = app.active === false ? true : false;
-      toast.success(`${app.label || app.name} ${app.active ? 'enabled' : 'disabled'}`);
+      const newActive = app.active === false;
+      // TODO: Replace with real API call when backend supports app management
+      toast.success(`${app.label || app.name} ${newActive ? 'enabled' : 'disabled'}`);
       await refresh();
     } catch {
       toast.error('Failed to toggle app status');
@@ -85,9 +85,7 @@ export function AppManagementPage() {
   const handleSetDefault = useCallback(async (app: any) => {
     setProcessing(true);
     try {
-      // Clear default on all, set on target
-      (apps || []).forEach((a: any) => { a.isDefault = false; });
-      app.isDefault = true;
+      // TODO: Replace with real API call when backend supports app management
       toast.success(`${app.label || app.name} set as default`);
       await refresh();
     } catch {
@@ -95,7 +93,7 @@ export function AppManagementPage() {
     } finally {
       setProcessing(false);
     }
-  }, [apps, refresh]);
+  }, [refresh]);
 
   const handleDelete = useCallback(async (appToDelete: any) => {
     if (confirmDelete !== appToDelete.name) {
@@ -104,6 +102,7 @@ export function AppManagementPage() {
     }
     setProcessing(true);
     try {
+      // TODO: Replace with real API call when backend supports app management
       toast.success(`${appToDelete.label || appToDelete.name} deleted`);
       setConfirmDelete(null);
       await refresh();
@@ -117,9 +116,7 @@ export function AppManagementPage() {
   const handleBulkToggle = useCallback(async (active: boolean) => {
     setProcessing(true);
     try {
-      (apps || []).forEach((a: any) => {
-        if (selectedIds.has(a.name)) a.active = active;
-      });
+      // TODO: Replace with real API call when backend supports app management
       toast.success(`${selectedIds.size} apps ${active ? 'enabled' : 'disabled'}`);
       setSelectedIds(new Set());
       await refresh();
@@ -128,7 +125,7 @@ export function AppManagementPage() {
     } finally {
       setProcessing(false);
     }
-  }, [apps, selectedIds, refresh]);
+  }, [selectedIds, refresh]);
 
   return (
     <div className="flex flex-col gap-4 p-4 sm:p-6">
