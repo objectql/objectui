@@ -22,17 +22,17 @@ export const ProductView = {
     sections: [
       {
         label: 'Product Details',
-        columns: 2,
+        columns: '2' as const,
         fields: ['name', 'sku', 'category', 'manufacturer', 'is_active', 'tags'],
       },
       {
         label: 'Pricing & Inventory',
-        columns: 2,
+        columns: '2' as const,
         fields: ['price', 'stock', 'weight'],
       },
       {
         label: 'Media & Description',
-        columns: 1,
+        columns: '1' as const,
         collapsible: true,
         fields: ['image', 'description'],
       },

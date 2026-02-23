@@ -23,22 +23,22 @@ export const AccountView = {
     sections: [
       {
         label: 'Basic Information',
-        columns: 2,
+        columns: '2' as const,
         fields: ['name', 'industry', 'type', 'rating', 'website', 'phone', 'employees', 'owner'],
       },
       {
         label: 'Financial',
-        columns: 2,
+        columns: '2' as const,
         fields: ['annual_revenue', 'tags'],
       },
       {
         label: 'Address',
-        columns: 2,
+        columns: '2' as const,
         fields: ['billing_address', 'shipping_address', 'latitude', 'longitude'],
       },
       {
         label: 'Additional Details',
-        columns: 1,
+        columns: '1' as const,
         collapsible: true,
         fields: ['linkedin_url', 'founded_date', 'description', 'created_at'],
       },

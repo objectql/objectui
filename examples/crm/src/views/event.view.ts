@@ -35,22 +35,22 @@ export const EventView = {
     sections: [
       {
         label: 'Event Details',
-        columns: 2,
+        columns: '2' as const,
         fields: ['subject', 'type', 'status', 'location', 'is_all_day', 'is_private'],
       },
       {
         label: 'Schedule',
-        columns: 2,
+        columns: '2' as const,
         fields: ['start', 'end', 'reminder'],
       },
       {
         label: 'Participants',
-        columns: 2,
+        columns: '2' as const,
         fields: ['organizer', 'participants'],
       },
       {
         label: 'Description',
-        columns: 1,
+        columns: '1' as const,
         collapsible: true,
         fields: ['description'],
       },

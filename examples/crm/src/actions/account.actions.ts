@@ -31,7 +31,7 @@ export const AccountActions = [
     type: 'api' as const,
     locations: ['record_more' as const],
     confirmText: 'Are you sure you want to merge these accounts? This action cannot be undone.',
-    variant: 'destructive' as const,
+    variant: 'danger' as const,
     refreshAfter: true,
   },
 ];

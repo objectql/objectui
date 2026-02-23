@@ -14,7 +14,7 @@ export const OpportunityContactView = {
     sections: [
       {
         label: 'Relationship',
-        columns: 2,
+        columns: '2' as const,
         fields: ['name', 'opportunity', 'contact', 'role', 'is_primary'],
       },
     ],
