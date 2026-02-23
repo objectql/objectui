@@ -82,9 +82,10 @@ export function ViewConfigPanel({ open, onClose, mode = 'edit', activeView, obje
     // Stabilize source reference: only change when view ID changes.
     // This prevents useConfigDraft from resetting on every parent re-render
     // (same behavior as original useEffect with [activeView.id] dependency).
+    const stableKey = mode === 'create' ? 'create' : activeView.id;
     const stableActiveView = useMemo(
         () => ({ ...activeView }),
-        [mode === 'create' ? 'create' : activeView.id], // eslint-disable-line react-hooks/exhaustive-deps
+        [stableKey], // eslint-disable-line react-hooks/exhaustive-deps
     );
     const effectiveActiveView = mode === 'create' ? defaultNewView : stableActiveView;
 
