@@ -469,6 +469,19 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 **ComponentRegistry:**
 - [x] Registered: `app-creation-wizard`, `navigation-designer`, `dashboard-editor`, `page-canvas-editor`, `object-view-configurator`
 
+**Console Integration:**
+- [x] `CreateAppPage` — renders `AppCreationWizard` with `useMetadata()` objects, `onComplete`/`onCancel`/`onSaveDraft` callbacks
+- [x] `EditAppPage` — reuses wizard with `initialDraft` from existing app config
+- [x] Routes: `/apps/:appName/create-app`, `/apps/:appName/edit-app/:editAppName`
+- [x] AppSidebar "Add App" button → navigates to `/create-app`
+- [x] AppSidebar "Edit App" button → navigates to `/edit-app/:appName`
+- [x] CommandPalette "Create New App" command (⌘+K → Actions group)
+- [x] Empty state CTA "Create Your First App" when no apps configured
+- [x] `wizardDraftToAppSchema()` conversion on completion
+- [x] Draft persistence to localStorage with auto-clear on success
+- [x] `createApp` i18n key added to all 10 locales
+- [x] 11 console integration tests (routes, wizard callbacks, draft persistence, CommandPalette)
+
 ---
 
 ## 🧩 P2 — Polish & Advanced Features
