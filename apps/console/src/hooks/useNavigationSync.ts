@@ -9,7 +9,7 @@
  * @module
  */
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import type { NavigationItem, AppSchema } from '@object-ui/types';
 import { useAdapter } from '../context/AdapterProvider';
@@ -121,6 +121,19 @@ export interface UseNavigationSyncReturn {
   syncPageRenamed: (appName: string, oldName: string, newName: string) => Promise<void>;
   /** Call after a dashboard has been renamed. */
   syncDashboardRenamed: (appName: string, oldName: string, newName: string) => Promise<void>;
+
+  /** Convenience: add page to navigation of ALL apps. */
+  syncPageCreatedAllApps: (pageName: string, label?: string) => Promise<void>;
+  /** Convenience: add dashboard to navigation of ALL apps. */
+  syncDashboardCreatedAllApps: (dashboardName: string, label?: string) => Promise<void>;
+  /** Convenience: remove page from navigation of ALL apps. */
+  syncPageDeletedAllApps: (pageName: string) => Promise<void>;
+  /** Convenience: remove dashboard from navigation of ALL apps. */
+  syncDashboardDeletedAllApps: (dashboardName: string) => Promise<void>;
+  /** Convenience: rename page references across ALL apps. */
+  syncPageRenamedAllApps: (oldName: string, newName: string) => Promise<void>;
+  /** Convenience: rename dashboard references across ALL apps. */
+  syncDashboardRenamedAllApps: (oldName: string, newName: string) => Promise<void>;
 }
 
 /**
@@ -382,6 +395,82 @@ export function useNavigationSync(): UseNavigationSyncReturn {
     [findApp, saveApp],
   );
 
+  // ------------------------------------------------------------------
+  // All-Apps convenience methods
+  // ------------------------------------------------------------------
+
+  /** Add a page nav item to ALL apps that don't already reference it. */
+  const syncPageCreatedAllApps = useCallback(
+    async (pageName: string, label?: string) => {
+      for (const app of apps) {
+        const name = (app as any).name;
+        if (!name) continue;
+        await syncPageCreated(name, pageName, label);
+      }
+    },
+    [apps, syncPageCreated],
+  );
+
+  /** Add a dashboard nav item to ALL apps that don't already reference it. */
+  const syncDashboardCreatedAllApps = useCallback(
+    async (dashboardName: string, label?: string) => {
+      for (const app of apps) {
+        const name = (app as any).name;
+        if (!name) continue;
+        await syncDashboardCreated(name, dashboardName, label);
+      }
+    },
+    [apps, syncDashboardCreated],
+  );
+
+  /** Remove a page from navigation across ALL apps. */
+  const syncPageDeletedAllApps = useCallback(
+    async (pageName: string) => {
+      for (const app of apps) {
+        const name = (app as any).name;
+        if (!name) continue;
+        await syncPageDeleted(name, pageName);
+      }
+    },
+    [apps, syncPageDeleted],
+  );
+
+  /** Remove a dashboard from navigation across ALL apps. */
+  const syncDashboardDeletedAllApps = useCallback(
+    async (dashboardName: string) => {
+      for (const app of apps) {
+        const name = (app as any).name;
+        if (!name) continue;
+        await syncDashboardDeleted(name, dashboardName);
+      }
+    },
+    [apps, syncDashboardDeleted],
+  );
+
+  /** Rename page references across ALL apps. */
+  const syncPageRenamedAllApps = useCallback(
+    async (oldName: string, newName: string) => {
+      for (const app of apps) {
+        const name = (app as any).name;
+        if (!name) continue;
+        await syncPageRenamed(name, oldName, newName);
+      }
+    },
+    [apps, syncPageRenamed],
+  );
+
+  /** Rename dashboard references across ALL apps. */
+  const syncDashboardRenamedAllApps = useCallback(
+    async (oldName: string, newName: string) => {
+      for (const app of apps) {
+        const name = (app as any).name;
+        if (!name) continue;
+        await syncDashboardRenamed(name, oldName, newName);
+      }
+    },
+    [apps, syncDashboardRenamed],
+  );
+
   return {
     syncPageCreated,
     syncDashboardCreated,
@@ -389,5 +478,117 @@ export function useNavigationSync(): UseNavigationSyncReturn {
     syncDashboardDeleted,
     syncPageRenamed,
     syncDashboardRenamed,
+    syncPageCreatedAllApps,
+    syncDashboardCreatedAllApps,
+    syncPageDeletedAllApps,
+    syncDashboardDeletedAllApps,
+    syncPageRenamedAllApps,
+    syncDashboardRenamedAllApps,
   };
+}
+
+// ============================================================================
+// NavigationSyncEffect — auto-detect page/dashboard metadata changes
+// ============================================================================
+
+/**
+ * Headless component that watches the `pages` and `dashboards` metadata
+ * arrays.  When items are added or removed it automatically calls the
+ * matching navigation-sync methods for every app.
+ *
+ * Mount once inside the component tree (e.g. inside `AppContent`) where
+ * both `useMetadata` and `useAdapter` are available.
+ *
+ * > **Rename detection** is not possible with a simple diff — callers
+ * > should invoke `syncPageRenamed` / `syncDashboardRenamed` explicitly.
+ */
+export function NavigationSyncEffect(): null {
+  const { pages, dashboards, apps } = useMetadata();
+  const adapter = useAdapter();
+  const adapterRef = useRef(adapter);
+  adapterRef.current = adapter;
+
+  const {
+    syncPageCreated,
+    syncDashboardCreated,
+    syncPageDeleted,
+    syncDashboardDeleted,
+  } = useNavigationSync();
+
+  // Track previous page/dashboard name sets
+  const prevPageNamesRef = useRef<Set<string> | null>(null);
+  const prevDashNamesRef = useRef<Set<string> | null>(null);
+
+  // Guard against circular refreshes triggered by saveApp → refresh → effect
+  const syncingRef = useRef(false);
+
+  useEffect(() => {
+    if (syncingRef.current) return;
+
+    const currentPageNames = new Set(
+      (pages ?? []).map((p: any) => p.name).filter(Boolean) as string[],
+    );
+    const currentDashNames = new Set(
+      (dashboards ?? []).map((d: any) => d.name).filter(Boolean) as string[],
+    );
+
+    const prevPages = prevPageNamesRef.current;
+    const prevDash = prevDashNamesRef.current;
+
+    // First render — seed refs and exit without syncing
+    if (prevPages === null || prevDash === null) {
+      prevPageNamesRef.current = currentPageNames;
+      prevDashNamesRef.current = currentDashNames;
+      return;
+    }
+
+    // Compute diff
+    const addedPages = [...currentPageNames].filter((n) => !prevPages.has(n));
+    const removedPages = [...prevPages].filter((n) => !currentPageNames.has(n));
+    const addedDash = [...currentDashNames].filter((n) => !prevDash.has(n));
+    const removedDash = [...prevDash].filter((n) => !currentDashNames.has(n));
+
+    if (
+      addedPages.length === 0 &&
+      removedPages.length === 0 &&
+      addedDash.length === 0 &&
+      removedDash.length === 0
+    ) {
+      // Nothing changed — update refs and exit
+      prevPageNamesRef.current = currentPageNames;
+      prevDashNamesRef.current = currentDashNames;
+      return;
+    }
+
+    // Sync navigation across all apps
+    syncingRef.current = true;
+
+    (async () => {
+      try {
+        for (const app of apps) {
+          const appName = (app as any).name;
+          if (!appName) continue;
+
+          for (const pageName of addedPages) {
+            await syncPageCreated(appName, pageName);
+          }
+          for (const pageName of removedPages) {
+            await syncPageDeleted(appName, pageName);
+          }
+          for (const dashName of addedDash) {
+            await syncDashboardCreated(appName, dashName);
+          }
+          for (const dashName of removedDash) {
+            await syncDashboardDeleted(appName, dashName);
+          }
+        }
+      } finally {
+        syncingRef.current = false;
+        prevPageNamesRef.current = currentPageNames;
+        prevDashNamesRef.current = currentDashNames;
+      }
+    })();
+  }, [pages, dashboards, apps, syncPageCreated, syncDashboardCreated, syncPageDeleted, syncDashboardDeleted]);
+
+  return null;
 }

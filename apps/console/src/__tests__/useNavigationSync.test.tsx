@@ -38,6 +38,8 @@ const mockSaveItem = vi.fn().mockResolvedValue({ ok: true });
 const mockRefresh = vi.fn().mockResolvedValue(undefined);
 
 let mockApps: any[] = [];
+let mockPages: any[] = [];
+let mockDashboards: any[] = [];
 
 vi.mock('../context/AdapterProvider', () => ({
   useAdapter: () => ({
@@ -50,12 +52,14 @@ vi.mock('../context/AdapterProvider', () => ({
 vi.mock('../context/MetadataProvider', () => ({
   useMetadata: () => ({
     apps: mockApps,
+    pages: mockPages,
+    dashboards: mockDashboards,
     refresh: mockRefresh,
   }),
 }));
 
 // Import after mocks are registered
-const { useNavigationSync } = await import('../hooks/useNavigationSync');
+const { useNavigationSync, NavigationSyncEffect } = await import('../hooks/useNavigationSync');
 
 // ===========================================================================
 // Pure utility tests
@@ -507,5 +511,189 @@ describe('useNavigationSync hook', () => {
     const restoredSchema = mockSaveItem.mock.calls[0][2];
     expect(restoredSchema.navigation).toHaveLength(3); // original 3 items
     expect(toastInfo).toHaveBeenCalledWith('Navigation change undone');
+  });
+});
+
+// ===========================================================================
+// All-Apps convenience method tests
+// ===========================================================================
+
+describe('useNavigationSync all-apps methods', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockApps = [
+      {
+        name: 'crm',
+        type: 'app',
+        title: 'CRM',
+        navigation: [
+          { id: 'n1', type: 'page', label: 'Home', pageName: 'home' },
+        ],
+      },
+      {
+        name: 'hr',
+        type: 'app',
+        title: 'HR',
+        navigation: [
+          { id: 'n2', type: 'page', label: 'Home', pageName: 'home' },
+        ],
+      },
+    ];
+  });
+
+  it('syncPageCreatedAllApps adds page to ALL apps', async () => {
+    const { result } = renderHook(() => useNavigationSync());
+
+    await act(async () => {
+      await result.current.syncPageCreatedAllApps('settings', 'Settings');
+    });
+
+    // Should be called twice — once for each app
+    expect(mockSaveItem).toHaveBeenCalledTimes(2);
+    expect(mockSaveItem.mock.calls[0][1]).toBe('crm');
+    expect(mockSaveItem.mock.calls[1][1]).toBe('hr');
+  });
+
+  it('syncDashboardDeletedAllApps removes from ALL apps', async () => {
+    // Both apps reference a dashboard
+    mockApps = [
+      { name: 'crm', type: 'app', navigation: [{ id: 'n1', type: 'dashboard', label: 'KPI', dashboardName: 'kpi' }] },
+      { name: 'hr', type: 'app', navigation: [{ id: 'n2', type: 'dashboard', label: 'KPI', dashboardName: 'kpi' }] },
+    ];
+
+    const { result } = renderHook(() => useNavigationSync());
+
+    await act(async () => {
+      await result.current.syncDashboardDeletedAllApps('kpi');
+    });
+
+    expect(mockSaveItem).toHaveBeenCalledTimes(2);
+    // Both should have empty navigation (dashboard removed)
+    expect(mockSaveItem.mock.calls[0][2].navigation).toHaveLength(0);
+    expect(mockSaveItem.mock.calls[1][2].navigation).toHaveLength(0);
+  });
+
+  it('syncPageRenamedAllApps renames across ALL apps', async () => {
+    const { result } = renderHook(() => useNavigationSync());
+
+    await act(async () => {
+      await result.current.syncPageRenamedAllApps('home', 'welcome');
+    });
+
+    expect(mockSaveItem).toHaveBeenCalledTimes(2);
+    expect(mockSaveItem.mock.calls[0][2].navigation[0].pageName).toBe('welcome');
+    expect(mockSaveItem.mock.calls[1][2].navigation[0].pageName).toBe('welcome');
+  });
+});
+
+// ===========================================================================
+// NavigationSyncEffect tests
+// ===========================================================================
+
+describe('NavigationSyncEffect', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockApps = [
+      {
+        name: 'crm',
+        type: 'app',
+        title: 'CRM',
+        navigation: [],
+      },
+    ];
+    mockPages = [{ name: 'home' }];
+    mockDashboards = [{ name: 'kpi' }];
+  });
+
+  it('does not sync on first render (seeds refs only)', async () => {
+    const { render } = await import('@testing-library/react');
+    const { container } = render(<NavigationSyncEffect />);
+
+    // No sync on mount — just seed the refs
+    expect(mockSaveItem).not.toHaveBeenCalled();
+    expect(container.innerHTML).toBe('');
+  });
+
+  it('syncs when a new page appears in metadata', async () => {
+    const { render } = await import('@testing-library/react');
+
+    // First render — seed refs
+    const { rerender } = render(<NavigationSyncEffect />);
+    expect(mockSaveItem).not.toHaveBeenCalled();
+
+    // Simulate new page appearing in metadata
+    mockPages = [{ name: 'home' }, { name: 'settings' }];
+    rerender(<NavigationSyncEffect />);
+
+    // Wait for async sync
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 50));
+    });
+
+    expect(mockSaveItem).toHaveBeenCalled();
+    // Should save with navigation that includes the new page
+    const savedSchema = mockSaveItem.mock.calls[0][2];
+    expect(savedSchema.navigation.some((n: any) => n.pageName === 'settings')).toBe(true);
+  });
+
+  it('syncs when a page is removed from metadata', async () => {
+    // Start with two pages
+    mockPages = [{ name: 'home' }, { name: 'about' }];
+    mockApps = [
+      {
+        name: 'crm',
+        type: 'app',
+        navigation: [
+          { id: 'n1', type: 'page', label: 'Home', pageName: 'home' },
+          { id: 'n2', type: 'page', label: 'About', pageName: 'about' },
+        ],
+      },
+    ];
+
+    const { render } = await import('@testing-library/react');
+    const { rerender } = render(<NavigationSyncEffect />);
+    expect(mockSaveItem).not.toHaveBeenCalled();
+
+    // Simulate page removal
+    mockPages = [{ name: 'home' }];
+    rerender(<NavigationSyncEffect />);
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 50));
+    });
+
+    expect(mockSaveItem).toHaveBeenCalled();
+    const savedSchema = mockSaveItem.mock.calls[0][2];
+    expect(savedSchema.navigation.every((n: any) => n.pageName !== 'about')).toBe(true);
+  });
+
+  it('syncs when a new dashboard appears in metadata', async () => {
+    const { render } = await import('@testing-library/react');
+    const { rerender } = render(<NavigationSyncEffect />);
+
+    mockDashboards = [{ name: 'kpi' }, { name: 'revenue' }];
+    rerender(<NavigationSyncEffect />);
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 50));
+    });
+
+    expect(mockSaveItem).toHaveBeenCalled();
+    const savedSchema = mockSaveItem.mock.calls[0][2];
+    expect(savedSchema.navigation.some((n: any) => n.dashboardName === 'revenue')).toBe(true);
+  });
+
+  it('does not sync when metadata has not changed', async () => {
+    const { render } = await import('@testing-library/react');
+    const { rerender } = render(<NavigationSyncEffect />);
+
+    // Rerender with same data
+    rerender(<NavigationSyncEffect />);
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 50));
+    });
+
+    expect(mockSaveItem).not.toHaveBeenCalled();
   });
 });

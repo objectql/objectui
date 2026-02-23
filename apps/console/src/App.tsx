@@ -21,6 +21,7 @@ import { ConditionalAuthWrapper } from './components/ConditionalAuthWrapper';
 import { KeyboardShortcutsDialog } from './components/KeyboardShortcutsDialog';
 import { OnboardingWalkthrough } from './components/OnboardingWalkthrough';
 import { useRecentItems } from './hooks/useRecentItems';
+import { NavigationSyncEffect } from './hooks/useNavigationSync';
 
 // Route-based code splitting — lazy-load less-frequently-used routes
 const RecordDetailView = lazy(() => import('./components/RecordDetailView').then(m => ({ default: m.RecordDetailView })));
@@ -295,6 +296,7 @@ export function AppContent() {
 
   return (
     <ExpressionProvider user={expressionUser} app={activeApp} data={{}}>
+    <NavigationSyncEffect />
     <ConsoleLayout
         activeAppName={activeApp.name}
         activeApp={activeApp}
