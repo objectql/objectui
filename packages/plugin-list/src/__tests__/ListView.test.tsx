@@ -1973,4 +1973,61 @@ describe('ListView', () => {
       expect(shareButton).toHaveAttribute('title', 'Sharing: collaborative');
     });
   });
+
+  // ============================
+  // filterableFields whitelist
+  // ============================
+  describe('filterableFields', () => {
+    it('should render with filterableFields whitelist restricting available fields', () => {
+      const schema: ListViewSchema = {
+        type: 'list-view',
+        objectName: 'contacts',
+        viewType: 'grid',
+        fields: [
+          { name: 'name', label: 'Name', type: 'text' },
+          { name: 'email', label: 'Email', type: 'text' },
+          { name: 'phone', label: 'Phone', type: 'text' },
+        ] as any,
+        filterableFields: ['name', 'email'],
+      };
+
+      renderWithProvider(<ListView schema={schema} />);
+      // Filter button should still be visible
+      const filterButton = screen.getByRole('button', { name: /filter/i });
+      expect(filterButton).toBeInTheDocument();
+    });
+
+    it('should render filter button when filterableFields is not set', () => {
+      const schema: ListViewSchema = {
+        type: 'list-view',
+        objectName: 'contacts',
+        viewType: 'grid',
+        fields: [
+          { name: 'name', label: 'Name', type: 'text' },
+          { name: 'email', label: 'Email', type: 'text' },
+        ] as any,
+      };
+
+      renderWithProvider(<ListView schema={schema} />);
+      const filterButton = screen.getByRole('button', { name: /filter/i });
+      expect(filterButton).toBeInTheDocument();
+    });
+
+    it('should render filter button when filterableFields is empty array', () => {
+      const schema: ListViewSchema = {
+        type: 'list-view',
+        objectName: 'contacts',
+        viewType: 'grid',
+        fields: [
+          { name: 'name', label: 'Name', type: 'text' },
+          { name: 'email', label: 'Email', type: 'text' },
+        ] as any,
+        filterableFields: [],
+      };
+
+      renderWithProvider(<ListView schema={schema} />);
+      const filterButton = screen.getByRole('button', { name: /filter/i });
+      expect(filterButton).toBeInTheDocument();
+    });
+  });
 });
