@@ -202,6 +202,7 @@ const LIST_DEFAULT_TRANSLATIONS: Record<string, string> = {
   'list.pullToRefresh': 'Pull to refresh',
   'list.refreshing': 'Refreshing…',
   'list.dataLimitReached': 'Showing first {{limit}} records. More data may be available.',
+  'list.addRecord': 'Add record',
 };
 
 /**
@@ -1324,8 +1325,8 @@ export const ListView: React.FC<ListViewProps> = ({
 
         {/* Right: Add Record + Search */}
         <div className="flex items-center gap-1">
-          {/* Add Record */}
-          {schema.addRecord?.enabled && (
+          {/* Add Record (top position) */}
+          {schema.addRecord?.enabled && schema.userActions?.addRecordForm !== false && schema.addRecord?.position !== 'bottom' && (
             <Button
               variant="ghost"
               size="sm"
@@ -1334,7 +1335,7 @@ export const ListView: React.FC<ListViewProps> = ({
               onClick={() => props.onAddRecord?.()}
             >
               <Plus className="h-3.5 w-3.5 mr-1.5" />
-              <span className="hidden sm:inline">Add record</span>
+              <span className="hidden sm:inline">{t('list.addRecord')}</span>
             </Button>
           )}
 
@@ -1452,6 +1453,22 @@ export const ListView: React.FC<ListViewProps> = ({
           />
         )}
       </div>
+
+      {/* Add Record (bottom position) */}
+      {schema.addRecord?.enabled && schema.userActions?.addRecordForm !== false && schema.addRecord?.position === 'bottom' && (
+        <div className="border-t px-2 sm:px-4 py-1 bg-background shrink-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-muted-foreground hover:text-primary text-xs"
+            data-testid="add-record-button"
+            onClick={() => props.onAddRecord?.()}
+          >
+            <Plus className="h-3.5 w-3.5 mr-1.5" />
+            <span className="hidden sm:inline">{t('list.addRecord')}</span>
+          </Button>
+        </div>
+      )}
 
       {/* Bulk Actions Bar — skip for grid view since ObjectGrid renders its own BulkActionBar */}
       {schema.bulkActions && schema.bulkActions.length > 0 && selectedRows.length > 0 && currentView !== 'grid' && (
