@@ -4,10 +4,10 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { DashboardRenderer } from '@object-ui/plugin-dashboard';
 import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
-import { LayoutDashboard } from 'lucide-react';
+import { LayoutDashboard, Pencil } from 'lucide-react';
 import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import { SkeletonDashboard } from './skeletons';
 import { useMetadata } from '../context/MetadataProvider';
@@ -15,6 +15,7 @@ import { resolveI18nLabel } from '../utils';
 
 export function DashboardView({ dataSource }: { dataSource?: any }) {
   const { dashboardName } = useParams<{ dashboardName: string }>();
+  const navigate = useNavigate();
   const { showDebug, toggleDebug } = useMetadataInspector();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -59,7 +60,16 @@ export function DashboardView({ dataSource }: { dataSource?: any }) {
             <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{resolveI18nLabel(dashboard.description)}</p>
           )}
         </div>
-        <div className="shrink-0">
+        <div className="shrink-0 flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => navigate(`../design/dashboard/${dashboardName}`)}
+            className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-2.5 py-1.5 text-xs font-medium text-muted-foreground shadow-sm hover:bg-accent hover:text-accent-foreground"
+            data-testid="dashboard-edit-button"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+            Edit
+          </button>
           <MetadataToggle open={showDebug} onToggle={toggleDebug} />
         </div>
       </div>

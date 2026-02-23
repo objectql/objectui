@@ -34,6 +34,10 @@ const SearchResultsPage = lazy(() => import('./components/SearchResultsPage').th
 const CreateAppPage = lazy(() => import('./pages/CreateAppPage').then(m => ({ default: m.CreateAppPage })));
 const EditAppPage = lazy(() => import('./pages/EditAppPage').then(m => ({ default: m.EditAppPage })));
 
+// Design Pages (lazy — only needed when editing pages/dashboards)
+const PageDesignPage = lazy(() => import('./pages/PageDesignPage').then(m => ({ default: m.PageDesignPage })));
+const DashboardDesignPage = lazy(() => import('./pages/DashboardDesignPage').then(m => ({ default: m.DashboardDesignPage })));
+
 // Auth Pages (lazy — only needed before login)
 const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const RegisterPage = lazy(() => import('./pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
@@ -158,7 +162,7 @@ export function AppContent() {
   const cleanParts = pathParts.filter(p => p);
   // [apps, crm, contact]
   let objectNameFromPath = cleanParts[2];
-  if (objectNameFromPath === 'view' || objectNameFromPath === 'record' || objectNameFromPath === 'page' || objectNameFromPath === 'dashboard') {
+  if (objectNameFromPath === 'view' || objectNameFromPath === 'record' || objectNameFromPath === 'page' || objectNameFromPath === 'dashboard' || objectNameFromPath === 'design') {
       objectNameFromPath = ''; // Not an object root
   }
 
@@ -189,7 +193,7 @@ export function AppContent() {
     if (!activeApp) return;
     const parts = location.pathname.split('/').filter(Boolean);
     let objName = parts[2];
-    if (objName === 'view' || objName === 'record' || objName === 'page' || objName === 'dashboard') {
+    if (objName === 'view' || objName === 'record' || objName === 'page' || objName === 'dashboard' || objName === 'design') {
       objName = '';
     }
     const basePath = `/apps/${activeApp.name}`;
@@ -356,6 +360,12 @@ export function AppContent() {
         } />
         <Route path="page/:pageName" element={
             <PageView />
+        } />
+        <Route path="design/page/:pageName" element={
+            <PageDesignPage />
+        } />
+        <Route path="design/dashboard/:dashboardName" element={
+            <DashboardDesignPage />
         } />
         <Route path="search" element={
             <SearchResultsPage />

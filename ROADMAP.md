@@ -13,7 +13,7 @@
 
 ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind + Shadcn. It renders JSON metadata from the @objectstack/spec protocol into pixel-perfect, accessible, and interactive enterprise interfaces.
 
-**Where We Are:** Foundation is **solid and shipping** — 35 packages, 99+ components, 5,700+ tests, 78 Storybook stories, 43/43 builds passing, ~85% protocol alignment. SpecBridge, Expression Engine, Action Engine, data binding, all view plugins (Grid/Kanban/Calendar/Gantt/Timeline/Map/Gallery), Record components, Report engine, Dashboard BI features, mobile UX, i18n (11 locales), WCAG AA accessibility, Designer Phase 1 (ViewDesigner drag-to-reorder ✅), Console through Phase 20 (L3), **AppShell Navigation Renderer** (P0.1), **Flow Designer** (P2.4), **Feed/Chatter UI** (P1.5), **App Creation & Editing Flow** (P1.11), and **System Settings & App Management** (P1.12) — all ✅ complete.
+**Where We Are:** Foundation is **solid and shipping** — 35 packages, 99+ components, 5,700+ tests, 80 Storybook stories, 43/43 builds passing, ~85% protocol alignment. SpecBridge, Expression Engine, Action Engine, data binding, all view plugins (Grid/Kanban/Calendar/Gantt/Timeline/Map/Gallery), Record components, Report engine, Dashboard BI features, mobile UX, i18n (11 locales), WCAG AA accessibility, Designer Phase 1 (ViewDesigner drag-to-reorder ✅), Console through Phase 20 (L3), **AppShell Navigation Renderer** (P0.1), **Flow Designer** (P2.4), **Feed/Chatter UI** (P1.5), **App Creation & Editing Flow** (P1.11), **System Settings & App Management** (P1.12), and **Page/Dashboard Editor Console Integration** (P1.11) — all ✅ complete.
 
 **What Remains:** The gap to **Airtable-level UX** is primarily in:
 1. ~~**AppShell** — No dynamic navigation renderer from spec JSON (last P0 blocker)~~ ✅ Complete
@@ -537,7 +537,13 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] MSW PUT handler for `/meta/:type/:name` — dev/mock mode metadata persistence
 - [x] Draft persistence to localStorage with auto-clear on success
 - [x] `createApp` i18n key added to all 10 locales
-- [x] 14 console integration tests (routes, wizard callbacks, draft persistence, saveItem, merge preservation, CommandPalette)
+- [x] 13 console integration tests (routes, wizard callbacks, draft persistence, saveItem, CommandPalette)
+- [x] `PageDesignPage` — integrates `PageCanvasEditor` at `/design/page/:pageName` route with auto-save, JSON export/import
+- [x] `DashboardDesignPage` — integrates `DashboardEditor` at `/design/dashboard/:dashboardName` route with auto-save, JSON export/import
+- [x] "Edit" button on `PageView` and `DashboardView` — navigates to corresponding design routes
+- [x] Ctrl+S/Cmd+S keyboard shortcut to explicitly save in both design pages (with toast confirmation)
+- [x] Storybook stories for `PageCanvasEditor` and `DashboardEditor` (Designers/PageCanvasEditor, Designers/DashboardEditor)
+- [x] 12 console design page tests (PageDesignPage + DashboardDesignPage: routes, 404 handling, editor rendering, onChange, Ctrl+S save)
 
 ### P1.12 System Settings & App Management Center
 
