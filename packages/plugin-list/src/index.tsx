@@ -12,6 +12,8 @@ import { ViewSwitcher } from './ViewSwitcher';
 import { ObjectGallery } from './ObjectGallery';
 
 export { ListView, ViewSwitcher, ObjectGallery };
+export { TabBar } from './components/TabBar';
+export type { TabBarProps, ViewTab } from './components/TabBar';
 export { UserFilters } from './UserFilters';
 export type { UserFiltersProps } from './UserFilters';
 export { evaluateConditionalFormatting, normalizeFilterCondition, normalizeFilters } from './ListView';

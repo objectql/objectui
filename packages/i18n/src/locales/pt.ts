@@ -101,6 +101,8 @@ const pt = {
     recordCount: '{{count}} registros',
     recordCountOne: '{{count}} registro',
     addRecord: 'Adicionar registro',
+    tabs: 'Abas',
+    allRecords: 'Todos os registros',
   },
   kanban: {
     addCard: 'Adicionar cartão',

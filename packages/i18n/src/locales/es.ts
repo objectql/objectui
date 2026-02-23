@@ -101,6 +101,8 @@ const es = {
     recordCount: '{{count}} registros',
     recordCountOne: '{{count}} registro',
     addRecord: 'Agregar registro',
+    tabs: 'Pestañas',
+    allRecords: 'Todos los registros',
   },
   kanban: {
     addCard: 'Añadir tarjeta',
