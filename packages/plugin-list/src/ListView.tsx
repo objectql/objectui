@@ -129,16 +129,19 @@ export function evaluateConditionalFormatting(
   for (const rule of rules) {
     let match = false;
 
+    // Normalize: spec uses 'condition' as alias for 'expression'
+    const expression = rule.expression || rule.condition;
+
     // Expression-based evaluation (L2 feature) using safe ExpressionEvaluator
-    if (rule.expression) {
+    if (expression) {
       try {
         const evaluator = new ExpressionEvaluator({ data: record });
-        const result = evaluator.evaluate(rule.expression, { throwOnError: true });
+        const result = evaluator.evaluate(expression, { throwOnError: true });
         match = result === true;
       } catch {
         match = false;
       }
-    } else {
+    } else if (rule.field && rule.operator) {
       // Standard field/operator/value evaluation
       const fieldValue = record[rule.field];
       switch (rule.operator) {
@@ -164,7 +167,15 @@ export function evaluateConditionalFormatting(
     }
 
     if (match) {
+      // Merge: spec 'style' object takes precedence, then individual style properties
       const style: React.CSSProperties = {};
+      if (rule.style) {
+        if (rule.style.backgroundColor) style.backgroundColor = rule.style.backgroundColor;
+        if (rule.style.color) style.color = rule.style.color;
+        if (rule.style.borderColor) style.borderColor = rule.style.borderColor;
+        // Spread any additional style properties from spec format
+        Object.assign(style, rule.style);
+      }
       if (rule.backgroundColor) style.backgroundColor = rule.backgroundColor;
       if (rule.textColor) style.color = rule.textColor;
       if (rule.borderColor) style.borderColor = rule.borderColor;
@@ -378,6 +389,39 @@ export const ListView: React.FC<ListViewProps> = ({
   // Export State
   const [showExport, setShowExport] = React.useState(false);
 
+  // Normalize quickFilters: support both ObjectUI format { id, label, filters[] }
+  // and spec format { field, operator, value }. Spec items are auto-converted.
+  const normalizedQuickFilters = React.useMemo(() => {
+    if (!schema.quickFilters || schema.quickFilters.length === 0) return undefined;
+    return schema.quickFilters.map((qf: any) => {
+      // Already in ObjectUI format (has id + label + filters)
+      if (qf.id && qf.label && Array.isArray(qf.filters)) return qf;
+      // Spec format: { field, operator, value } → convert to ObjectUI format
+      if (qf.field && qf.operator) {
+        const op = mapOperator(qf.operator);
+        return {
+          id: `${qf.field}-${qf.operator}-${String(qf.value ?? '')}`,
+          label: qf.label || `${qf.field} ${qf.operator} ${String(qf.value ?? '')}`,
+          filters: [[qf.field, op, qf.value]],
+          icon: qf.icon,
+          defaultActive: qf.defaultActive,
+        };
+      }
+      return qf;
+    });
+  }, [schema.quickFilters]);
+
+  // Normalize exportOptions: support both ObjectUI object format and spec string[] format
+  const resolvedExportOptions = React.useMemo(() => {
+    if (!schema.exportOptions) return undefined;
+    // Spec format: simple string[] like ['csv', 'xlsx']
+    if (Array.isArray(schema.exportOptions)) {
+      return { formats: schema.exportOptions as Array<'csv' | 'xlsx' | 'json' | 'pdf'> };
+    }
+    // ObjectUI format: already an object
+    return schema.exportOptions;
+  }, [schema.exportOptions]);
+
   // Density Mode — rowHeight maps to density if densityMode not explicitly set
   const resolvedDensity = React.useMemo(() => {
     if (schema.densityMode) return schema.densityMode;
@@ -463,8 +507,8 @@ export const ListView: React.FC<ListViewProps> = ({
         
         // Collect active quick filter conditions
         const quickFilterConditions: any[] = [];
-        if (schema.quickFilters && activeQuickFilters.size > 0) {
-          schema.quickFilters.forEach(qf => {
+        if (normalizedQuickFilters && activeQuickFilters.size > 0) {
+          normalizedQuickFilters.forEach((qf: any) => {
             if (activeQuickFilters.has(qf.id) && qf.filters && qf.filters.length > 0) {
               quickFilterConditions.push(qf.filters);
             }
@@ -825,7 +869,7 @@ export const ListView: React.FC<ListViewProps> = ({
 
   // Export handler
   const handleExport = React.useCallback((format: 'csv' | 'xlsx' | 'json' | 'pdf') => {
-    const exportConfig = schema.exportOptions;
+    const exportConfig = resolvedExportOptions;
     const maxRecords = exportConfig?.maxRecords || 0;
     const includeHeaders = exportConfig?.includeHeaders !== false;
     const prefix = exportConfig?.fileNamePrefix || schema.objectName || 'export';
@@ -876,7 +920,7 @@ export const ListView: React.FC<ListViewProps> = ({
       URL.revokeObjectURL(url);
     }
     setShowExport(false);
-  }, [data, effectiveFields, schema.exportOptions, schema.objectName]);
+  }, [data, effectiveFields, resolvedExportOptions, schema.objectName]);
 
   // All available fields for hide/show
   const allFields = React.useMemo(() => {
@@ -1217,7 +1261,7 @@ export const ListView: React.FC<ListViewProps> = ({
           )}
 
           {/* Export */}
-          {schema.exportOptions && schema.allowExport !== false && (
+          {resolvedExportOptions && schema.allowExport !== false && (
             <Popover open={showExport} onOpenChange={setShowExport}>
               <PopoverTrigger asChild>
                 <Button
@@ -1231,7 +1275,7 @@ export const ListView: React.FC<ListViewProps> = ({
               </PopoverTrigger>
               <PopoverContent align="start" className="w-48 p-2">
                 <div className="space-y-1">
-                  {(schema.exportOptions.formats || ['csv', 'json']).map(format => (
+                  {(resolvedExportOptions.formats || ['csv', 'json']).map(format => (
                     <Button
                       key={format}
                       variant="ghost"
@@ -1248,13 +1292,13 @@ export const ListView: React.FC<ListViewProps> = ({
             </Popover>
           )}
 
-          {/* Share */}
-          {schema.sharing?.enabled && (
+          {/* Share — supports both ObjectUI visibility model and spec personal/collaborative model */}
+          {(schema.sharing?.enabled || schema.sharing?.type) && (
             <Button
               variant="ghost"
               size="sm"
               className="h-7 px-2 text-muted-foreground hover:text-primary text-xs"
-              title={`Sharing: ${schema.sharing.visibility || 'private'}`}
+              title={`Sharing: ${schema.sharing?.visibility || schema.sharing?.type || 'private'}`}
               data-testid="share-button"
             >
               <Share2 className="h-3.5 w-3.5 mr-1.5" />
@@ -1338,9 +1382,9 @@ export const ListView: React.FC<ListViewProps> = ({
       {/* Filters Panel - Removed as it is now in Popover */}
 
       {/* Quick Filters Row */}
-      {schema.quickFilters && schema.quickFilters.length > 0 && (
+      {normalizedQuickFilters && normalizedQuickFilters.length > 0 && (
         <div className="border-b px-2 sm:px-4 py-1 flex items-center gap-1 flex-wrap bg-background" data-testid="quick-filters">
-          {schema.quickFilters.map(qf => {
+          {normalizedQuickFilters.map((qf: any) => {
             const isActive = activeQuickFilters.has(qf.id);
             const QfIcon: LucideIcon | null = qf.icon
               ? ((icons as Record<string, LucideIcon>)[
