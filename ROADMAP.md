@@ -1,6 +1,6 @@
 # ObjectUI Development Roadmap
 
-> **Last Updated:** February 22, 2026
+> **Last Updated:** February 23, 2026
 > **Current Version:** v0.5.x
 > **Spec Version:** @objectstack/spec v3.0.9
 > **Client Version:** @objectstack/client v3.0.9
@@ -343,6 +343,40 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] Add `DashboardConfig` types to `@object-ui/types`
 - [x] Add Zod schema validation for `DashboardConfig`
 
+### P1.11 Console — Schema-Driven View Config Panel Migration
+
+> Migrated the Console ViewConfigPanel from imperative implementation (~1655 lines) to Schema-Driven architecture using `ConfigPanelRenderer` + `useConfigDraft` + `ConfigPanelSchema`, reducing to ~170 lines declarative wrapper + schema factory.
+
+**Phase 1 — Infrastructure & Utils Extraction:**
+- [x] Extract operator mapping (`SPEC_TO_BUILDER_OP`, `BUILDER_TO_SPEC_OP`), `normalizeFieldType`, `parseSpecFilter`, `toSpecFilter` to shared `view-config-utils.ts`
+- [x] Extract `parseCommaSeparated`, `parseNumberList`, `VIEW_TYPE_LABELS`, `ROW_HEIGHT_OPTIONS` to shared utils
+- [x] Add `deriveFieldOptions`, `toFilterGroup`, `toSortItems` bridge helpers
+- [x] Enhance `ConfigPanelRenderer` with accessibility props (`panelRef`, `role`, `ariaLabel`, `tabIndex`)
+- [x] Enhance `ConfigPanelRenderer` with test ID override props (`testId`, `closeTitle`, `footerTestId`, `saveTestId`, `discardTestId`)
+
+**Phase 2 — Schema Factory (All Sections):**
+- [x] Page Config section: label, description, viewType, toolbar toggles (7 switches), navigation mode/width/openNewTab, selection, addRecord sub-editor, export + sub-config, showRecordCount, allowPrinting
+- [x] Data section: source, sortBy (expandable), groupBy, prefixField, columns selector (expandable w/ reorder), filterBy (expandable), pagination, searchable/filterable/hidden fields (expandable), quickFilters (expandable), virtualScroll, type-specific options (kanban/calendar/map/gallery/timeline/gantt)
+- [x] Appearance section: color, fieldTextColor, rowHeight (icon group), wrapHeaders, showDescription, collapseAllByDefault, striped, bordered, resizable, densityMode, conditionalFormatting (expandable), emptyState (title/message/icon)
+- [x] User Actions section: inlineEdit, addDeleteRecordsInline, rowActions (expandable), bulkActions (expandable)
+- [x] Sharing section: sharingEnabled, sharingVisibility (visibleWhen: sharing.enabled)
+- [x] Accessibility section: ariaLabel, ariaDescribedBy, ariaLive
+- [x] `ExpandableWidget` component for hook-safe expandable sub-sections within custom render functions
+
+**Phase 3 — ViewConfigPanel Wrapper:**
+- [x] Rewrite ViewConfigPanel as thin wrapper (~170 lines) using `useConfigDraft` + `buildViewConfigSchema` + `ConfigPanelRenderer`
+- [x] Stabilize source reference with `useMemo` keyed to `activeView.id` (prevents draft reset on parent re-renders)
+- [x] Create/edit mode support preserved (onCreate/onSave, discard behavior)
+- [x] All spec format bridging preserved (filter/sort conversion)
+
+**Phase 4 — Testing & Validation:**
+- [x] All 122 existing ViewConfigPanel tests pass (test mock updated for ConfigPanelRenderer + useConfigDraft)
+- [x] All 23 ObjectView integration tests pass (test ID and title props forwarded)
+- [x] 53 new schema-driven tests (utils + schema factory coverage)
+- [x] Full affected test suite: 2457 tests across 81 files, all pass
+
+**Code Reduction:** ~1655 lines imperative → ~170 lines declarative wrapper + ~1100 lines schema factory + ~180 lines shared utils = **>50% net reduction in component code** with significantly improved maintainability
+
 ### P1.9 Console — Content Area Layout & Responsiveness
 
 - [x] Add `min-w-0` / `overflow-hidden` to flex layout chain (SidebarInset → AppShell → ObjectView → PluginObjectView) to prevent content overflow
@@ -528,6 +562,30 @@ The `FlowDesigner` is a canvas-based flow editor that bridges the gap between th
 - [ ] Support App `engine` field (`{ objectstack: string }`) for version pinning (v3.0.9)
 - [ ] Integrate v3.0.9 package upgrade protocol (`PackageArtifact`, `ArtifactChecksum`, `UpgradeContext`)
 
+### P2.6 ListView Spec Protocol Gaps (Remaining)
+
+> Remaining gaps from the ListView Spec Protocol analysis. Items here require non-trivial implementation (new UI components, schema reconciliation, or grid-level changes).
+
+**P0 — Core Protocol:**
+- [ ] `data` (ViewDataSchema): ListView ignores `data` entirely — `provider: api/value` modes not consumed. Needs DataProvider abstraction to support inline data, API endpoints, and value-mode data.
+- [ ] `grouping` rendering: Group button visible but disabled — needs GroupBy field picker popover + wired `useGroupedData` hook for grouped row rendering in Grid/Kanban/Gallery views. Requires changes in `plugin-grid`, `plugin-list`.
+- [ ] `rowColor` rendering: Color button visible but disabled — needs color-field picker popover + wired `useRowColor` hook for row background coloring. Requires changes in `plugin-grid`, `plugin-list`.
+
+**P1 — Structural Alignment:**
+- [ ] `quickFilters` structure reconciliation: spec uses `{ field, operator, value }` but ObjectUI uses `{ id, label, filters[] }`. Needs adapter layer or dual-format support.
+- [ ] `conditionalFormatting` expression reconciliation: spec uses expression-based `{ condition, style }`, ObjectUI uses field/operator/value rules. Both paths work independently but format adapter needed for full interop.
+- [ ] `exportOptions` schema reconciliation: spec uses simple `string[]` format list, ObjectUI uses `{ formats, maxRecords, includeHeaders, fileNamePrefix }` object. Needs normalization adapter.
+- [ ] Column `pinned`: bridge passes through but ObjectGrid doesn't implement frozen/pinned columns. Needs CSS `position: sticky` column rendering.
+- [ ] Column `summary`: no footer aggregation UI (count, sum, avg). Needs column footer row component.
+- [ ] Column `link`: no click-to-navigate rendering on link columns. Needs cell renderer for link-type columns.
+- [ ] Column `action`: no action dispatch on column click. Needs cell renderer for action-type columns.
+
+**P2 — Advanced Features:**
+- [ ] `rowActions`: row-level action menu UI — dropdown menu per row with configurable actions
+- [ ] `bulkActions`: bulk action bar UI — action bar shown on multi-select with configurable batch actions
+- [ ] `sharing` schema reconciliation: spec uses `personal/collaborative` model vs ObjectUI `visibility` model. Needs schema adapter.
+- [ ] `pagination.pageSizeOptions` backend integration: UI selector exists but backend query needs to use selected page size dynamically.
+
 ### P2.5 PWA & Offline (Real Sync)
 
 - [ ] Background sync queue → real server sync (replace simulation)
@@ -613,6 +671,6 @@ The `FlowDesigner` is a canvas-based flow editor that bridges the gap between th
 
 ---
 
-**Roadmap Status:** 🎯 Active — AppShell · Designer Interaction · View Config Live Preview Sync (P1.8.1) · Dashboard Config Panel · Airtable UX Parity
+**Roadmap Status:** 🎯 Active — AppShell · Designer Interaction · View Config Live Preview Sync (P1.8.1) · Dashboard Config Panel · Schema-Driven View Config Panel ✅ · Airtable UX Parity
 **Next Review:** March 15, 2026
 **Contact:** hello@objectui.org | https://github.com/objectstack-ai/objectui
