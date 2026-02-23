@@ -266,6 +266,7 @@ export const ListView: React.FC<ListViewProps> = ({
   // Resolve toolbar visibility flags: userActions overrides showX flags
   const toolbarFlags = React.useMemo(() => {
     const ua = schema.userActions;
+    const addRecordEnabled = schema.addRecord?.enabled === true && ua?.addRecordForm !== false;
     return {
       showSearch: ua?.search !== undefined ? ua.search : schema.showSearch !== false,
       showSort: ua?.sort !== undefined ? ua.sort : schema.showSort !== false,
@@ -274,8 +275,10 @@ export const ListView: React.FC<ListViewProps> = ({
       showHideFields: schema.showHideFields !== false,
       showGroup: schema.showGroup !== false,
       showColor: schema.showColor !== false,
+      showAddRecord: addRecordEnabled,
+      addRecordPosition: (schema.addRecord?.position === 'bottom' ? 'bottom' : 'top') as 'top' | 'bottom',
     };
-  }, [schema.userActions, schema.showSearch, schema.showSort, schema.showFilters, schema.showDensity, schema.showHideFields, schema.showGroup, schema.showColor]);
+  }, [schema.userActions, schema.showSearch, schema.showSort, schema.showFilters, schema.showDensity, schema.showHideFields, schema.showGroup, schema.showColor, schema.addRecord, schema.userActions?.addRecordForm]);
 
   const [currentView, setCurrentView] = React.useState<ViewType>(
     (schema.viewType as ViewType)
@@ -1326,7 +1329,7 @@ export const ListView: React.FC<ListViewProps> = ({
         {/* Right: Add Record + Search */}
         <div className="flex items-center gap-1">
           {/* Add Record (top position) */}
-          {schema.addRecord?.enabled && schema.userActions?.addRecordForm !== false && schema.addRecord?.position !== 'bottom' && (
+          {toolbarFlags.showAddRecord && toolbarFlags.addRecordPosition === 'top' && (
             <Button
               variant="ghost"
               size="sm"
@@ -1455,7 +1458,7 @@ export const ListView: React.FC<ListViewProps> = ({
       </div>
 
       {/* Add Record (bottom position) */}
-      {schema.addRecord?.enabled && schema.userActions?.addRecordForm !== false && schema.addRecord?.position === 'bottom' && (
+      {toolbarFlags.showAddRecord && toolbarFlags.addRecordPosition === 'bottom' && (
         <div className="border-t px-2 sm:px-4 py-1 bg-background shrink-0">
           <Button
             variant="ghost"
