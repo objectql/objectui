@@ -204,13 +204,14 @@ function WidgetPropertyPanel({
   onChange,
   onClose,
 }: WidgetPropertyPanelProps) {
+  const { t } = useDesignerTranslation();
   return (
     <div
       data-testid="widget-property-panel"
       className="w-72 shrink-0 space-y-4 rounded-lg border border-gray-200 bg-white p-4"
     >
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-gray-800">Widget Properties</h4>
+        <h4 className="text-sm font-semibold text-gray-800">{t('appDesigner.widgetProperties')}</h4>
         <button
           type="button"
           onClick={onClose}
@@ -325,10 +326,10 @@ function WidgetPropertyPanel({
 
       {/* Widget size */}
       <div className="space-y-1">
-        <label className="text-xs font-medium text-gray-600">Layout Size</label>
+        <label className="text-xs font-medium text-gray-600">{t('appDesigner.widgetLayoutSize')}</label>
         <div className="flex gap-2">
           <div className="flex-1">
-            <label htmlFor="widget-width" className="text-[10px] text-gray-400">Width</label>
+            <label htmlFor="widget-width" className="text-[10px] text-gray-400">{t('appDesigner.widgetWidth')}</label>
             <input
               id="widget-width"
               data-testid="widget-prop-width"
@@ -341,7 +342,7 @@ function WidgetPropertyPanel({
             />
           </div>
           <div className="flex-1">
-            <label htmlFor="widget-height" className="text-[10px] text-gray-400">Height</label>
+            <label htmlFor="widget-height" className="text-[10px] text-gray-400">{t('appDesigner.widgetHeight')}</label>
             <input
               id="widget-height"
               data-testid="widget-prop-height"
@@ -364,12 +365,13 @@ function WidgetPropertyPanel({
 // ============================================================================
 
 function DashboardPreview({ schema }: { schema: DashboardSchema }) {
+  const { t } = useDesignerTranslation();
   const widgets = schema.widgets || [];
   return (
     <div data-testid="dashboard-preview" className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-      <h4 className="mb-3 text-sm font-semibold text-gray-700">{schema.title || 'Dashboard Preview'}</h4>
+      <h4 className="mb-3 text-sm font-semibold text-gray-700">{schema.title || t('appDesigner.dashboardPreview')}</h4>
       {widgets.length === 0 ? (
-        <div className="text-xs text-gray-400">No widgets to preview</div>
+        <div className="text-xs text-gray-400">{t('appDesigner.noWidgetsPreview')}</div>
       ) : (
         <div
           className="grid gap-2"
@@ -599,7 +601,7 @@ export function DashboardEditor({
                   onClick={undo}
                   disabled={!canUndo}
                   className="rounded p-1.5 text-gray-400 hover:text-gray-700 disabled:opacity-30"
-                  aria-label="Undo"
+                  aria-label={t('appDesigner.undo')}
                 >
                   <Undo2 className="h-4 w-4" />
                 </button>
@@ -609,7 +611,7 @@ export function DashboardEditor({
                   onClick={redo}
                   disabled={!canRedo}
                   className="rounded p-1.5 text-gray-400 hover:text-gray-700 disabled:opacity-30"
-                  aria-label="Redo"
+                  aria-label={t('appDesigner.redo')}
                 >
                   <Redo2 className="h-4 w-4" />
                 </button>
@@ -655,7 +657,7 @@ export function DashboardEditor({
           <DashboardPreview schema={currentSchema} />
         ) : widgets.length === 0 ? (
           <div className="flex h-48 items-center justify-center rounded-lg border-2 border-dashed border-gray-200 text-sm text-gray-400">
-            No widgets. Click a button above to add one.
+            {t('appDesigner.noWidgets')}
           </div>
         ) : (
           <div

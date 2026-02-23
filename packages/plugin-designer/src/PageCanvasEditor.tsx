@@ -96,8 +96,8 @@ const COMPONENT_PALETTE = [
 ];
 
 const MODE_TABS = [
-  { value: 'page', label: 'Page' },
-  { value: 'dashboard', label: 'Dashboard' },
+  { value: 'page', labelKey: 'appDesigner.modePage' },
+  { value: 'dashboard', labelKey: 'appDesigner.modeDashboard' },
 ] as const;
 
 type CanvasMode = (typeof MODE_TABS)[number]['value'];
@@ -206,13 +206,14 @@ function ComponentPropertyPanel({
   onChange,
   onClose,
 }: ComponentPropertyPanelProps) {
+  const { t } = useDesignerTranslation();
   return (
     <div
       data-testid="component-property-panel"
       className="w-64 shrink-0 space-y-4 rounded-lg border border-gray-200 bg-white p-4"
     >
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-gray-800">Component Properties</h4>
+        <h4 className="text-sm font-semibold text-gray-800">{t('appDesigner.componentProperties')}</h4>
         <button
           type="button"
           onClick={onClose}
@@ -261,11 +262,12 @@ function ComponentPropertyPanel({
 // ============================================================================
 
 function PagePreview({ schema, components }: { schema: PageSchema; components: CanvasComponent[] }) {
+  const { t } = useDesignerTranslation();
   return (
     <div data-testid="page-preview" className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-      <h4 className="mb-3 text-sm font-semibold text-gray-700">{schema.title || 'Page Preview'}</h4>
+      <h4 className="mb-3 text-sm font-semibold text-gray-700">{schema.title || t('appDesigner.pagePreview')}</h4>
       {components.length === 0 ? (
-        <div className="text-xs text-gray-400">No components to preview</div>
+        <div className="text-xs text-gray-400">{t('appDesigner.noComponentsPreview')}</div>
       ) : (
         <div className="space-y-2">
           {components.map((comp) => {
@@ -502,7 +504,7 @@ export function PageCanvasEditor({
                   : 'text-gray-500 hover:text-gray-700'
               )}
             >
-              {tab.label}
+              {t(tab.labelKey)}
             </button>
           ))}
         </div>
@@ -536,7 +538,7 @@ export function PageCanvasEditor({
                   onClick={undo}
                   disabled={!canUndo}
                   className="rounded p-1.5 text-gray-400 hover:text-gray-700 disabled:opacity-30"
-                  aria-label="Undo"
+                  aria-label={t('appDesigner.undo')}
                 >
                   <Undo2 className="h-4 w-4" />
                 </button>
@@ -546,7 +548,7 @@ export function PageCanvasEditor({
                   onClick={redo}
                   disabled={!canRedo}
                   className="rounded p-1.5 text-gray-400 hover:text-gray-700 disabled:opacity-30"
-                  aria-label="Redo"
+                  aria-label={t('appDesigner.redo')}
                 >
                   <Redo2 className="h-4 w-4" />
                 </button>
@@ -592,7 +594,7 @@ export function PageCanvasEditor({
           <PagePreview schema={schema} components={components} />
         ) : components.length === 0 ? (
           <div className="flex h-48 items-center justify-center rounded-lg border-2 border-dashed border-gray-200 text-sm text-gray-400">
-            Empty page. Click a button above to add a component.
+            {t('appDesigner.emptyPage')}
           </div>
         ) : (
           <div className="space-y-2">
