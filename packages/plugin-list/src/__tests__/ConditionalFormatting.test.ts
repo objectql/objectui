@@ -142,6 +142,63 @@ describe('evaluateConditionalFormatting', () => {
   });
 
   // =========================================================================
+  // Spec expression format (plain condition + style object)
+  // =========================================================================
+  describe('spec expression format', () => {
+    it('evaluates a plain condition string via "condition" field', () => {
+      const result = evaluateConditionalFormatting(
+        { status: 'overdue' },
+        [{ condition: "status == 'overdue'", style: { backgroundColor: 'red' } }],
+      );
+      expect(result).toEqual({ backgroundColor: 'red' });
+    });
+
+    it('evaluates a numeric comparison in plain condition', () => {
+      const result = evaluateConditionalFormatting(
+        { amount: 2500 },
+        [{ condition: 'amount > 1000', style: { backgroundColor: '#fee2e2', color: '#991b1b' } }],
+      );
+      expect(result).toEqual({ backgroundColor: '#fee2e2', color: '#991b1b' });
+    });
+
+    it('returns empty when plain condition does not match', () => {
+      const result = evaluateConditionalFormatting(
+        { status: 'active' },
+        [{ condition: "status == 'overdue'", style: { backgroundColor: 'red' } }],
+      );
+      expect(result).toEqual({});
+    });
+
+    it('supports compound conditions with && operator', () => {
+      const result = evaluateConditionalFormatting(
+        { amount: 2000, status: 'urgent' },
+        [{ condition: "amount > 1000 && status === 'urgent'", style: { backgroundColor: '#fee' } }],
+      );
+      expect(result).toEqual({ backgroundColor: '#fee' });
+    });
+
+    it('merges style with individual color properties', () => {
+      const result = evaluateConditionalFormatting(
+        { status: 'overdue' },
+        [{
+          condition: "status == 'overdue'",
+          style: { fontWeight: 'bold' },
+          backgroundColor: '#f00',
+        }],
+      );
+      expect(result).toEqual({ fontWeight: 'bold', backgroundColor: '#f00' });
+    });
+
+    it('does not throw on invalid plain condition', () => {
+      const result = evaluateConditionalFormatting(
+        { status: 'ok' },
+        [{ condition: '!!!invalidSyntax', style: { backgroundColor: 'red' } }],
+      );
+      expect(result).toEqual({});
+    });
+  });
+
+  // =========================================================================
   // Mixed rules (expression + standard) – first match wins
   // =========================================================================
   describe('mixed rules', () => {
@@ -187,6 +244,29 @@ describe('evaluateConditionalFormatting', () => {
         ],
       );
       expect(result).toEqual({ backgroundColor: '#operator_match' });
+    });
+
+    it('handles mixed spec condition + ObjectUI field rules', () => {
+      const result = evaluateConditionalFormatting(
+        { status: 'overdue', priority: 'low' },
+        [
+          { condition: "status == 'overdue'", style: { backgroundColor: 'red' } },
+          { field: 'priority', operator: 'equals', value: 'low', backgroundColor: '#ccc' },
+        ],
+      );
+      // First matching rule wins
+      expect(result).toEqual({ backgroundColor: 'red' });
+    });
+
+    it('falls through non-matching spec condition to ObjectUI field rule', () => {
+      const result = evaluateConditionalFormatting(
+        { status: 'active', priority: 'low' },
+        [
+          { condition: "status == 'overdue'", style: { backgroundColor: 'red' } },
+          { field: 'priority', operator: 'equals', value: 'low', backgroundColor: '#ccc' },
+        ],
+      );
+      expect(result).toEqual({ backgroundColor: '#ccc' });
     });
   });
 

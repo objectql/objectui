@@ -143,10 +143,17 @@ export function evaluateConditionalFormatting(
     const expression = rule.expression || rule.condition;
 
     // Expression-based evaluation (L2 feature) using safe ExpressionEvaluator
+    // Supports both template expressions (${data.field > value}) and
+    // plain Spec expressions (field == 'value').
     if (expression) {
       try {
-        const evaluator = new ExpressionEvaluator({ data: record });
-        const result = evaluator.evaluate(expression, { throwOnError: true });
+        // Spread record fields directly into context so both plain field
+        // references (status) and namespaced references (data.status) work.
+        const evaluator = new ExpressionEvaluator({ data: record, ...record });
+        const isTemplate = expression.includes('${');
+        const result = isTemplate
+          ? evaluator.evaluate(expression, { throwOnError: true })
+          : evaluator.evaluateExpression(expression);
         match = result === true;
       } catch {
         match = false;
