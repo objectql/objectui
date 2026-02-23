@@ -27,8 +27,8 @@ export function DashboardDesignPage() {
     () =>
       (dashboard as DashboardSchema) || {
         type: 'dashboard',
-        name: dashboardName,
-        title: dashboardName,
+        name: dashboardName ?? '',
+        title: dashboardName ?? '',
         columns: 2,
         widgets: [],
       },

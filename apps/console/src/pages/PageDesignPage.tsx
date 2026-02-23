@@ -24,7 +24,7 @@ export function PageDesignPage() {
   const page = pages?.find((p: any) => p.name === pageName);
 
   const [schema, setSchema] = useState<PageSchema>(
-    () => (page as PageSchema) || { type: 'page', name: pageName, title: pageName, children: [] },
+    () => (page as PageSchema) || { type: 'page', name: pageName ?? '', title: pageName ?? '', children: [] },
   );
 
   const handleChange = useCallback(
