@@ -334,7 +334,7 @@ export const ListView: React.FC<ListViewProps> = ({
       // Apply tab filter if defined
       if (tab.filter) {
         const tabFilters: FilterGroup = {
-          id: 'tab-filter',
+          id: `tab-filter-${tab.name}`,
           logic: tab.filter.logic || 'and',
           conditions: tab.filter.conditions || [],
         };

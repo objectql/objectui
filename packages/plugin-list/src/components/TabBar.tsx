@@ -19,7 +19,7 @@ export interface ViewTab {
   order?: number;
   pinned?: boolean;
   isDefault?: boolean;
-  visible?: string;
+  visible?: string | boolean;
 }
 
 export interface TabBarProps {
@@ -48,7 +48,7 @@ function resolveIcon(iconName?: string): LucideIcon | null {
  */
 function getVisibleTabs(tabs: ViewTab[]): ViewTab[] {
   return tabs
-    .filter(tab => tab.pinned || (tab.visible !== 'false' && tab.visible !== (false as any)))
+    .filter(tab => tab.pinned || (tab.visible !== 'false' && tab.visible !== false))
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 }
 
