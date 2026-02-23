@@ -37,19 +37,19 @@ export interface ListViewProps {
 // Helper to convert FilterBuilder group to ObjectStack AST
 function mapOperator(op: string) {
   switch (op) {
-    case 'equals': return '=';
-    case 'notEquals': return '!=';
+    case 'equals': case 'eq': return '=';
+    case 'notEquals': case 'ne': case 'neq': return '!=';
     case 'contains': return 'contains';
     case 'notContains': return 'notcontains';
-    case 'greaterThan': return '>';
-    case 'greaterOrEqual': return '>=';
-    case 'lessThan': return '<';
-    case 'lessOrEqual': return '<=';
+    case 'greaterThan': case 'gt': return '>';
+    case 'greaterOrEqual': case 'gte': return '>=';
+    case 'lessThan': case 'lt': return '<';
+    case 'lessOrEqual': case 'lte': return '<=';
     case 'in': return 'in';
     case 'notIn': return 'not in';
     case 'before': return '<';
     case 'after': return '>';
-    default: return '=';
+    default: return op;
   }
 }
 

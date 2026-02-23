@@ -298,6 +298,10 @@ export type {
   CalendarConfig,
   GanttConfig,
   SortConfig,
+  // QuickFilter dual-format types
+  ObjectUIQuickFilterItem,
+  SpecQuickFilterItem,
+  QuickFilterItem,
   // Component schemas
   ObjectMapSchema,
   ObjectGanttSchema,
