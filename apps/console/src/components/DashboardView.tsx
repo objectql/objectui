@@ -25,6 +25,7 @@ export function DashboardView({ dataSource }: { dataSource?: any }) {
   const { showDebug, toggleDebug } = useMetadataInspector();
   const [isLoading, setIsLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedWidgetId, setSelectedWidgetId] = useState<string | null>(null);
 
   useEffect(() => {
     // Reset loading on navigation; the actual DashboardRenderer handles data fetching
@@ -47,6 +48,7 @@ export function DashboardView({ dataSource }: { dataSource?: any }) {
 
   const handleCloseDrawer = useCallback((open: boolean) => {
     setDrawerOpen(open);
+    if (!open) setSelectedWidgetId(null);
   }, []);
 
   if (isLoading) {
@@ -98,7 +100,13 @@ export function DashboardView({ dataSource }: { dataSource?: any }) {
 
       <div className="flex-1 overflow-hidden flex flex-col sm:flex-row relative">
          <div className="flex-1 overflow-auto p-0 sm:p-6">
-            <DashboardRenderer schema={previewSchema} dataSource={dataSource} />
+            <DashboardRenderer
+              schema={previewSchema}
+              dataSource={dataSource}
+              designMode={drawerOpen}
+              selectedWidgetId={selectedWidgetId}
+              onWidgetClick={setSelectedWidgetId}
+            />
          </div>
 
          <MetadataPanel
@@ -118,7 +126,12 @@ export function DashboardView({ dataSource }: { dataSource?: any }) {
       >
         {(schema, onChange) => (
           <Suspense fallback={<div className="p-4 text-muted-foreground">Loading editor…</div>}>
-            <DashboardEditor schema={schema} onChange={onChange} />
+            <DashboardEditor
+              schema={schema}
+              onChange={onChange}
+              selectedWidgetId={selectedWidgetId}
+              onWidgetSelect={setSelectedWidgetId}
+            />
           </Suspense>
         )}
       </DesignDrawer>
