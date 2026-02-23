@@ -33,22 +33,22 @@ export const OpportunityView = {
     sections: [
       {
         label: 'Deal Information',
-        columns: 2,
+        columns: '2' as const,
         fields: ['name', 'account', 'contacts', 'type', 'lead_source', 'campaign_source'],
       },
       {
         label: 'Financials & Stage',
-        columns: 2,
+        columns: '2' as const,
         fields: ['amount', 'expected_revenue', 'probability', 'stage', 'forecast_category'],
       },
       {
         label: 'Timeline',
-        columns: 2,
+        columns: '2' as const,
         fields: ['close_date', 'next_step'],
       },
       {
         label: 'Description',
-        columns: 1,
+        columns: '1' as const,
         collapsible: true,
         fields: ['description'],
       },

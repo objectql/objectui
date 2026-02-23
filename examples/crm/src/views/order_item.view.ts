@@ -14,17 +14,17 @@ export const OrderItemView = {
     sections: [
       {
         label: 'Item Details',
-        columns: 2,
+        columns: '2' as const,
         fields: ['name', 'order', 'product', 'item_type'],
       },
       {
         label: 'Pricing',
-        columns: 2,
+        columns: '2' as const,
         fields: ['quantity', 'unit_price', 'discount', 'line_total'],
       },
       {
         label: 'Notes',
-        columns: 1,
+        columns: '1' as const,
         collapsible: true,
         fields: ['notes'],
       },

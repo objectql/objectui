@@ -100,11 +100,11 @@ describe('CRM Metadata Spec Compliance', () => {
       }
     });
 
-    it('form section columns are numbers, not strings', () => {
+    it('form section columns are valid string enum values', () => {
       for (const view of allViews) {
         for (const section of view.form.sections) {
           if (section.columns !== undefined) {
-            expect(typeof section.columns).toBe('number');
+            expect(['1', '2', '3', '4']).toContain(section.columns);
           }
         }
       }
@@ -133,18 +133,17 @@ describe('CRM Metadata Spec Compliance', () => {
       }
     });
 
-    it('no action uses variant: "danger" (must use "destructive")', () => {
+    it('action variants use @objectstack/spec allowed values', () => {
       for (const action of allActions) {
         if ('variant' in action) {
-          expect(action.variant).not.toBe('danger');
-          expect(['default', 'primary', 'secondary', 'destructive', 'outline', 'ghost']).toContain(action.variant);
+          expect(['primary', 'secondary', 'danger', 'ghost', 'link']).toContain(action.variant);
         }
       }
     });
 
-    it('destructive actions have confirmText', () => {
+    it('danger actions have confirmText', () => {
       for (const action of allActions) {
-        if ('variant' in action && action.variant === 'destructive') {
+        if ('variant' in action && action.variant === 'danger') {
           expect(action).toHaveProperty('confirmText');
         }
       }

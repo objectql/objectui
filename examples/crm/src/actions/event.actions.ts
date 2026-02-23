@@ -26,7 +26,7 @@ export const EventActions = [
     icon: 'x-circle',
     type: 'api' as const,
     locations: ['record_more' as const],
-    variant: 'destructive' as const,
+    variant: 'danger' as const,
     params: [
       { name: 'cancel_reason', label: 'Cancellation Reason', type: 'text' as const },
       { name: 'notify_participants', label: 'Notify Participants', type: 'boolean' as const },
