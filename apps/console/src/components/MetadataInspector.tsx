@@ -5,9 +5,10 @@
  * Used across ObjectView, DashboardView, PageView, ReportView, and RecordDetailView.
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@object-ui/components';
 import { Code2, Copy, Check, ChevronDown, ChevronRight } from 'lucide-react';
+import { parseDebugFlags } from '@object-ui/core';
 
 interface MetadataSection {
   title: string;
@@ -128,9 +129,19 @@ export function MetadataPanel({ sections, open }: Omit<MetadataInspectorProps, '
 
 /**
  * Hook to manage MetadataInspector open/close state.
+ * Automatically opens when `?__debug` URL parameter is present.
  */
 export function useMetadataInspector() {
-  const [showDebug, setShowDebug] = useState(false);
+  const autoOpen = useMemo(() => {
+    try {
+      return typeof window !== 'undefined'
+        ? parseDebugFlags(window.location.search).enabled
+        : false;
+    } catch {
+      return false;
+    }
+  }, []);
+  const [showDebug, setShowDebug] = useState(autoOpen);
   return {
     showDebug,
     toggleDebug: () => setShowDebug(prev => !prev),

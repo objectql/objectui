@@ -17,6 +17,7 @@ import {
   debugLog,
   debugTime,
   debugTimeEnd,
+  DebugCollector,
 } from '@object-ui/core';
 import { SchemaRendererContext } from './context/SchemaRendererContext';
 import { resolveI18nLabel } from './utils/i18n';
@@ -219,7 +220,18 @@ export const SchemaRenderer = forwardRef<any, { schema: SchemaNode } & Record<st
   // Extract AriaPropsSchema properties for accessibility
   const ariaProps = resolveAriaProps(evaluatedSchema);
 
+  // Debug-mode enhancements: extra data attributes + perf tracking
+  const isDebug = context?.debug || context?.debugFlags?.enabled;
+  const debugAttrs: Record<string, string> = {};
+  if (isDebug) {
+    debugAttrs['data-debug-type'] = evaluatedSchema.type;
+    if (evaluatedSchema.id) {
+      debugAttrs['data-debug-id'] = evaluatedSchema.id;
+    }
+  }
+
   debugTime(`render:${evaluatedSchema.type}:${evaluatedSchema.id ?? 'anon'}`);
+  const renderStart = isDebug ? performance.now() : 0;
   const rendered = (
     <SchemaErrorBoundary componentType={evaluatedSchema.type}>
       {React.createElement(Component, {
@@ -227,6 +239,7 @@ export const SchemaRenderer = forwardRef<any, { schema: SchemaNode } & Record<st
         ...componentProps,  // Spread non-metadata schema properties as props
         ...(evaluatedSchema.props || {}),  // Override with explicit props if provided
         ...ariaProps,  // Inject ARIA attributes from AriaPropsSchema
+        ...debugAttrs, // Debug-mode data attributes
         disabled: __disabled || undefined,
         className: evaluatedSchema.className,
         'data-obj-id': evaluatedSchema.id,
@@ -236,6 +249,18 @@ export const SchemaRenderer = forwardRef<any, { schema: SchemaNode } & Record<st
     </SchemaErrorBoundary>
   );
   debugTimeEnd(`render:${evaluatedSchema.type}:${evaluatedSchema.id ?? 'anon'}`);
+
+  // Report render perf to DebugCollector when debug mode is active
+  if (isDebug && renderStart) {
+    const durationMs = performance.now() - renderStart;
+    DebugCollector.getInstance().addPerf({
+      type: evaluatedSchema.type,
+      id: evaluatedSchema.id,
+      durationMs,
+      timestamp: Date.now(),
+    });
+  }
+
   return rendered;
 });
 SchemaRenderer.displayName = 'SchemaRenderer';
