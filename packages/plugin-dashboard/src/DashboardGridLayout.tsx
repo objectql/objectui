@@ -5,6 +5,7 @@ import { cn, Card, CardHeader, CardTitle, CardContent, Button } from '@object-ui
 import { Edit, GripVertical, Save, X, RefreshCw } from 'lucide-react';
 import { SchemaRenderer, useHasDndProvider, useDnd } from '@object-ui/react';
 import type { DashboardSchema, DashboardWidgetSchema } from '@object-ui/types';
+import { isObjectProvider } from './utils';
 
 /** Bridges editMode transitions to the ObjectUI DnD system when a DndProvider is present. */
 function DndEditModeBridge({ editMode }: { editMode: boolean }) {
@@ -29,16 +30,6 @@ const CHART_COLORS = [
   'hsl(var(--chart-4))',
   'hsl(var(--chart-5))',
 ];
-
-/** Returns true when the widget data config uses provider: 'object' (async data source). */
-function isObjectProvider(widgetData: unknown): widgetData is { provider: 'object'; object?: string; aggregate?: any } {
-  return (
-    widgetData != null &&
-    typeof widgetData === 'object' &&
-    !Array.isArray(widgetData) &&
-    (widgetData as any).provider === 'object'
-  );
-}
 
 export interface DashboardGridLayoutProps {
   schema: DashboardSchema;
@@ -176,7 +167,7 @@ export const DashboardGridLayout: React.FC<DashboardGridLayoutProps> = ({
 
       // provider: 'object' — pass through object config for async data loading
       if (isObjectProvider(widgetData)) {
-        const { data: _dropped, ...restOptions } = options;
+        const { data: _data, ...restOptions } = options;
         return {
           type: 'data-table',
           ...restOptions,
@@ -204,7 +195,7 @@ export const DashboardGridLayout: React.FC<DashboardGridLayoutProps> = ({
 
       // provider: 'object' — pass through object config for async data loading
       if (isObjectProvider(widgetData)) {
-        const { data: _dropped, ...restOptions } = options;
+        const { data: _data, ...restOptions } = options;
         return {
           type: 'pivot',
           ...restOptions,

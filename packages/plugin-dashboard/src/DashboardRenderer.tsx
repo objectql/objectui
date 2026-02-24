@@ -11,6 +11,7 @@ import { SchemaRenderer } from '@object-ui/react';
 import { cn, Card, CardHeader, CardTitle, CardContent, Button } from '@object-ui/components';
 import { forwardRef, useState, useEffect, useCallback, useRef } from 'react';
 import { RefreshCw } from 'lucide-react';
+import { isObjectProvider } from './utils';
 
 // Color palette for charts
 const CHART_COLORS = [
@@ -20,16 +21,6 @@ const CHART_COLORS = [
   'hsl(var(--chart-4))',
   'hsl(var(--chart-5))',
 ];
-
-/** Returns true when the widget data config uses provider: 'object' (async data source). */
-function isObjectProvider(widgetData: unknown): widgetData is { provider: 'object'; object?: string; aggregate?: any } {
-  return (
-    widgetData != null &&
-    typeof widgetData === 'object' &&
-    !Array.isArray(widgetData) &&
-    (widgetData as any).provider === 'object'
-  );
-}
 
 export interface DashboardRendererProps {
   schema: DashboardSchema;
@@ -164,7 +155,7 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
 
                 // provider: 'object' — pass through object config for async data loading
                 if (isObjectProvider(widgetData)) {
-                    const { data: _dropped, ...restOptions } = options;
+                    const { data: _data, ...restOptions } = options;
                     return {
                         type: 'data-table',
                         ...restOptions,
@@ -192,7 +183,7 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
 
                 // provider: 'object' — pass through object config for async data loading
                 if (isObjectProvider(widgetData)) {
-                    const { data: _dropped, ...restOptions } = options;
+                    const { data: _data, ...restOptions } = options;
                     return {
                         type: 'pivot',
                         ...restOptions,
