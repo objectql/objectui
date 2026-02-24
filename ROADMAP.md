@@ -738,6 +738,7 @@ The `FlowDesigner` is a canvas-based flow editor that bridges the gap between th
 - [ ] `@object-ui/components`: ErrorBoundary wrapper per component
 - [ ] `@object-ui/fields`: Inline validation message rendering
 - [ ] `@object-ui/plugin-charts`: Drill-down click handler for chart segments
+- [x] `@object-ui/plugin-charts`: Fix `object-chart` crash when data is non-array — added `Array.isArray()` guards in ObjectChart, ChartRenderer, and AdvancedChartImpl to prevent Recharts `r.slice is not a function` error
 - [x] `@object-ui/plugin-workflow`: **FlowDesigner** — canvas-based flow editor (`flow-designer` component) with drag-to-reposition nodes, edge creation UI, undo/redo, Ctrl+S save, property panel, and BPMN export
 - [x] `@object-ui/plugin-workflow`: Support v3.0.9 BPMN interop types — `FlowBpmnInteropResult` with `bpmnXml` export, `nodeCount`, `edgeCount`, `warnings`
 - [x] `@object-ui/plugin-workflow`: Support v3.0.9 node executor descriptors — `FlowNodeExecutorDescriptor` with `inputSchema`, `outputSchema`, wait event config, retry policy
