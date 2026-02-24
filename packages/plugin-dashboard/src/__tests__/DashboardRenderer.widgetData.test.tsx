@@ -475,4 +475,188 @@ describe('DashboardRenderer widget data extraction', () => {
     // Even though yField is 'total', the series should use aggregate.field ('amount')
     expect(chartSchema.series).toEqual([{ dataKey: 'amount' }]);
   });
+
+  it('should produce object-chart schema for area chart with provider: object aggregate', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      widgets: [
+        {
+          type: 'area',
+          title: 'Revenue Trends',
+          object: 'opportunity',
+          layout: { x: 0, y: 0, w: 3, h: 2 },
+          options: {
+            xField: 'stage',
+            yField: 'expected_revenue',
+            data: {
+              provider: 'object',
+              object: 'opportunity',
+              aggregate: { field: 'expected_revenue', function: 'sum', groupBy: 'stage' },
+            },
+          },
+        },
+      ],
+    } as any;
+
+    const { container } = render(<DashboardRenderer schema={schema} />);
+    const schemas = getRenderedSchemas(container);
+    const chartSchema = schemas.find(s => s.type === 'object-chart');
+
+    expect(chartSchema).toBeDefined();
+    expect(chartSchema.chartType).toBe('area');
+    expect(chartSchema.objectName).toBe('opportunity');
+    expect(chartSchema.aggregate).toEqual({
+      field: 'expected_revenue',
+      function: 'sum',
+      groupBy: 'stage',
+    });
+    expect(chartSchema.xAxisKey).toBe('stage');
+    expect(chartSchema.series).toEqual([{ dataKey: 'expected_revenue' }]);
+    expect(chartSchema.data).toBeUndefined();
+  });
+
+  it('should produce object-chart schema for donut chart with count aggregate', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      widgets: [
+        {
+          type: 'donut',
+          title: 'Lead Source',
+          object: 'opportunity',
+          layout: { x: 0, y: 0, w: 1, h: 2 },
+          options: {
+            xField: 'lead_source',
+            yField: 'count',
+            data: {
+              provider: 'object',
+              object: 'opportunity',
+              aggregate: { field: 'count', function: 'count', groupBy: 'lead_source' },
+            },
+          },
+        },
+      ],
+    } as any;
+
+    const { container } = render(<DashboardRenderer schema={schema} />);
+    const schemas = getRenderedSchemas(container);
+    const chartSchema = schemas.find(s => s.type === 'object-chart');
+
+    expect(chartSchema).toBeDefined();
+    expect(chartSchema.chartType).toBe('donut');
+    expect(chartSchema.objectName).toBe('opportunity');
+    expect(chartSchema.aggregate.function).toBe('count');
+    expect(chartSchema.xAxisKey).toBe('lead_source');
+    expect(chartSchema.series).toEqual([{ dataKey: 'count' }]);
+    expect(chartSchema.data).toBeUndefined();
+  });
+
+  it('should produce object-chart schema for line chart with avg aggregate', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      widgets: [
+        {
+          type: 'line',
+          title: 'Avg Deal Size by Stage',
+          object: 'opportunity',
+          layout: { x: 0, y: 0, w: 2, h: 2 },
+          options: {
+            xField: 'stage',
+            yField: 'amount',
+            data: {
+              provider: 'object',
+              object: 'opportunity',
+              aggregate: { field: 'amount', function: 'avg', groupBy: 'stage' },
+            },
+          },
+        },
+      ],
+    } as any;
+
+    const { container } = render(<DashboardRenderer schema={schema} />);
+    const schemas = getRenderedSchemas(container);
+    const chartSchema = schemas.find(s => s.type === 'object-chart');
+
+    expect(chartSchema).toBeDefined();
+    expect(chartSchema.chartType).toBe('line');
+    expect(chartSchema.aggregate.function).toBe('avg');
+    expect(chartSchema.series).toEqual([{ dataKey: 'amount' }]);
+  });
+
+  it('should produce object-chart schema for cross-object widget (order)', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      widgets: [
+        {
+          type: 'bar',
+          title: 'Orders by Status',
+          object: 'order',
+          layout: { x: 0, y: 0, w: 2, h: 2 },
+          options: {
+            xField: 'status',
+            yField: 'amount',
+            data: {
+              provider: 'object',
+              object: 'order',
+              aggregate: { field: 'amount', function: 'max', groupBy: 'status' },
+            },
+          },
+        },
+      ],
+    } as any;
+
+    const { container } = render(<DashboardRenderer schema={schema} />);
+    const schemas = getRenderedSchemas(container);
+    const chartSchema = schemas.find(s => s.type === 'object-chart');
+
+    expect(chartSchema).toBeDefined();
+    expect(chartSchema.chartType).toBe('bar');
+    expect(chartSchema.objectName).toBe('order');
+    expect(chartSchema.aggregate.function).toBe('max');
+    expect(chartSchema.xAxisKey).toBe('status');
+    expect(chartSchema.series).toEqual([{ dataKey: 'amount' }]);
+  });
+
+  it('should render without errors when widgets array is empty', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Empty Dashboard',
+      widgets: [],
+    } as any;
+
+    const { container } = render(<DashboardRenderer schema={schema} />);
+    expect(container).toBeDefined();
+    expect(container.querySelectorAll('pre').length).toBe(0);
+  });
+
+  it('should handle chart widget with null data gracefully', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      widgets: [
+        {
+          type: 'bar',
+          title: 'Null Data Bar',
+          layout: { x: 0, y: 0, w: 2, h: 2 },
+          options: { xField: 'x', yField: 'y', data: null },
+        },
+      ],
+    } as any;
+
+    const { container } = render(<DashboardRenderer schema={schema} />);
+    const schemas = getRenderedSchemas(container);
+    const chartSchema = schemas.find(s => s.type === 'chart');
+
+    expect(chartSchema).toBeDefined();
+    expect(chartSchema.data).toEqual([]);
+  });
 });

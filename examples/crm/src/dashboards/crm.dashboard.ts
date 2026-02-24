@@ -167,6 +167,44 @@ export const CrmDashboard = {
                 aggregate: { field: 'amount', function: 'sum' as const, groupBy: 'account' }
             }
         },
+    },
+
+    // --- Row 6: Additional aggregate functions (avg, max) + cross-object ---
+    {
+        title: 'Avg Deal Size by Stage',
+        type: 'line' as const,
+        object: 'opportunity',
+        categoryField: 'stage',
+        valueField: 'amount',
+        aggregate: 'avg',
+        layout: { x: 0, y: 9, w: 2, h: 2 },
+        options: {
+            xField: 'stage',
+            yField: 'amount',
+            data: {
+                provider: 'object' as const,
+                object: 'opportunity',
+                aggregate: { field: 'amount', function: 'avg' as const, groupBy: 'stage' }
+            }
+        },
+    },
+    {
+        title: 'Orders by Status',
+        type: 'bar' as const,
+        object: 'order',
+        categoryField: 'status',
+        valueField: 'amount',
+        aggregate: 'max',
+        layout: { x: 2, y: 9, w: 2, h: 2 },
+        options: {
+            xField: 'status',
+            yField: 'amount',
+            data: {
+                provider: 'object' as const,
+                object: 'order',
+                aggregate: { field: 'amount', function: 'max' as const, groupBy: 'status' }
+            }
+        },
     }
   ]
 };

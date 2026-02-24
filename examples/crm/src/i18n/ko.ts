@@ -118,7 +118,7 @@ const ko = {
   },
   dashboard: {
     title: 'CRM 개요',
-    widgets: { totalRevenue: '총 매출', activeDeals: '활성 거래', winRate: '수주율', avgDealSize: '평균 거래 규모', revenueTrends: '매출 추이', leadSource: '리드 소스', pipelineByStage: '단계별 파이프라인', topProducts: '인기 제품', recentOpportunities: '최근 영업기회', revenueByAccount: '거래처별 매출' },
+    widgets: { totalRevenue: '총 매출', activeDeals: '활성 거래', winRate: '수주율', avgDealSize: '평균 거래 규모', revenueTrends: '매출 추이', leadSource: '리드 소스', pipelineByStage: '단계별 파이프라인', topProducts: '인기 제품', recentOpportunities: '최근 영업기회', revenueByAccount: '거래처별 매출', avgDealSizeByStage: '단계별 평균 거래 규모', ordersByStatus: '상태별 주문' },
     trendLabel: '전월 대비',
     columns: { opportunityName: '영업기회명', amount: '금액', stage: '단계', closeDate: '종료일' },
   },

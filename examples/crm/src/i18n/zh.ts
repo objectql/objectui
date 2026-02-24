@@ -378,6 +378,8 @@ const zh = {
       topProducts: '热销产品',
       recentOpportunities: '最近商机',
       revenueByAccount: '按客户营收',
+      avgDealSizeByStage: '按阶段平均交易规模',
+      ordersByStatus: '按状态订单',
     },
     trendLabel: '较上月',
     columns: {

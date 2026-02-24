@@ -96,7 +96,7 @@ const ar = {
   },
   dashboard: {
     title: 'نظرة عامة على CRM',
-    widgets: { totalRevenue: 'إجمالي الإيرادات', activeDeals: 'الصفقات النشطة', winRate: 'معدل الفوز', avgDealSize: 'متوسط حجم الصفقة', revenueTrends: 'اتجاهات الإيرادات', leadSource: 'مصدر العملاء المحتملين', pipelineByStage: 'خط الأنابيب حسب المرحلة', topProducts: 'أفضل المنتجات', recentOpportunities: 'الفرص الأخيرة', revenueByAccount: 'الإيرادات حسب الحساب' },
+    widgets: { totalRevenue: 'إجمالي الإيرادات', activeDeals: 'الصفقات النشطة', winRate: 'معدل الفوز', avgDealSize: 'متوسط حجم الصفقة', revenueTrends: 'اتجاهات الإيرادات', leadSource: 'مصدر العملاء المحتملين', pipelineByStage: 'خط الأنابيب حسب المرحلة', topProducts: 'أفضل المنتجات', recentOpportunities: 'الفرص الأخيرة', revenueByAccount: 'الإيرادات حسب الحساب', avgDealSizeByStage: 'متوسط حجم الصفقة حسب المرحلة', ordersByStatus: 'الطلبات حسب الحالة' },
     trendLabel: 'مقارنة بالشهر الماضي',
     columns: { opportunityName: 'اسم الفرصة', amount: 'المبلغ', stage: 'المرحلة', closeDate: 'تاريخ الإغلاق' },
   },

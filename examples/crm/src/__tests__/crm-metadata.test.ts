@@ -272,12 +272,22 @@ describe('CRM Metadata Spec Compliance', () => {
       }
     });
 
-    it('dashboard covers diverse aggregate functions (sum, count)', () => {
+    it('dashboard covers diverse aggregate functions (sum, count, avg, max)', () => {
       const chartTypes = ['bar', 'area', 'donut', 'line', 'pie'];
       const charts = CrmDashboard.widgets.filter((w) => chartTypes.includes(w.type));
       const aggFns = new Set(charts.map((w) => (w.options as any)?.data?.aggregate?.function));
       expect(aggFns.has('sum')).toBe(true);
       expect(aggFns.has('count')).toBe(true);
+      expect(aggFns.has('avg')).toBe(true);
+      expect(aggFns.has('max')).toBe(true);
+    });
+
+    it('dashboard includes cross-object widgets (order)', () => {
+      const orderWidgets = CrmDashboard.widgets.filter((w) => w.object === 'order');
+      expect(orderWidgets.length).toBeGreaterThanOrEqual(1);
+      const data = (orderWidgets[0].options as any)?.data;
+      expect(data.provider).toBe('object');
+      expect(data.object).toBe('order');
     });
   });
 
@@ -450,6 +460,8 @@ describe('CRM i18n Completeness', () => {
       expect(enLocale.dashboard.widgets.topProducts).toBeDefined();
       expect(enLocale.dashboard.widgets.recentOpportunities).toBeDefined();
       expect(enLocale.dashboard.widgets.revenueByAccount).toBeDefined();
+      expect(enLocale.dashboard.widgets.avgDealSizeByStage).toBeDefined();
+      expect(enLocale.dashboard.widgets.ordersByStatus).toBeDefined();
     });
   });
 });
