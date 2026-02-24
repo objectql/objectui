@@ -111,7 +111,10 @@ export default defineStack({
       label: 'Task Overview',
       widgets: [
         {
+          id: 'todo_total_tasks',
+          title: 'Total Tasks',
           type: 'metric',
+          object: 'todo_task',
           layout: { x: 0, y: 0, w: 1, h: 1 },
           options: {
             label: 'Total Tasks',
@@ -120,7 +123,10 @@ export default defineStack({
           },
         },
         {
+          id: 'todo_in_progress',
+          title: 'In Progress',
           type: 'metric',
+          object: 'todo_task',
           layout: { x: 1, y: 0, w: 1, h: 1 },
           options: {
             label: 'In Progress',
@@ -130,7 +136,10 @@ export default defineStack({
           },
         },
         {
+          id: 'todo_completed',
+          title: 'Completed',
           type: 'metric',
+          object: 'todo_task',
           layout: { x: 2, y: 0, w: 1, h: 1 },
           options: {
             label: 'Completed',
@@ -140,7 +149,10 @@ export default defineStack({
           },
         },
         {
+          id: 'todo_overdue',
+          title: 'Overdue',
           type: 'metric',
+          object: 'todo_task',
           layout: { x: 3, y: 0, w: 1, h: 1 },
           options: {
             label: 'Overdue',
@@ -150,8 +162,13 @@ export default defineStack({
           },
         },
         {
+          id: 'todo_tasks_by_status',
           title: 'Tasks by Status',
           type: 'donut',
+          object: 'todo_task',
+          categoryField: 'status',
+          valueField: 'count',
+          aggregate: 'count',
           layout: { x: 0, y: 1, w: 2, h: 2 },
           options: {
             xField: 'status',
@@ -169,8 +186,13 @@ export default defineStack({
           },
         },
         {
+          id: 'todo_tasks_by_category',
           title: 'Tasks by Category',
           type: 'bar',
+          object: 'todo_task',
+          categoryField: 'category',
+          valueField: 'count',
+          aggregate: 'count',
           layout: { x: 2, y: 1, w: 2, h: 2 },
           options: {
             xField: 'category',

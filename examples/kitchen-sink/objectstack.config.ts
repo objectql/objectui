@@ -73,7 +73,10 @@ export default defineStack({
       widgets: [
         // --- KPI Row ---
         {
+          id: 'ks_total_records',
+          title: 'Total Records',
           type: 'metric',
+          object: 'kitchen_sink',
           layout: { x: 0, y: 0, w: 1, h: 1 },
           options: {
             label: 'Total Records',
@@ -82,7 +85,10 @@ export default defineStack({
           },
         },
         {
+          id: 'ks_active_items',
+          title: 'Active Items',
           type: 'metric',
+          object: 'kitchen_sink',
           layout: { x: 1, y: 0, w: 1, h: 1 },
           options: {
             label: 'Active Items',
@@ -92,7 +98,10 @@ export default defineStack({
           },
         },
         {
+          id: 'ks_total_value',
+          title: 'Total Value',
           type: 'metric',
+          object: 'kitchen_sink',
           layout: { x: 2, y: 0, w: 1, h: 1 },
           options: {
             label: 'Total Value',
@@ -102,7 +111,10 @@ export default defineStack({
           },
         },
         {
+          id: 'ks_avg_rating',
+          title: 'Avg Rating',
           type: 'metric',
+          object: 'kitchen_sink',
           layout: { x: 3, y: 0, w: 1, h: 1 },
           options: {
             label: 'Avg Rating',
@@ -114,8 +126,13 @@ export default defineStack({
 
         // --- Charts Row ---
         {
+          id: 'ks_records_by_category',
           title: 'Records by Category',
           type: 'donut',
+          object: 'kitchen_sink',
+          categoryField: 'category',
+          valueField: 'count',
+          aggregate: 'count',
           layout: { x: 0, y: 1, w: 2, h: 2 },
           options: {
             xField: 'category',
@@ -131,8 +148,13 @@ export default defineStack({
           },
         },
         {
+          id: 'ks_value_distribution',
           title: 'Value Distribution',
           type: 'bar',
+          object: 'kitchen_sink',
+          categoryField: 'name',
+          valueField: 'amount',
+          aggregate: 'sum',
           layout: { x: 2, y: 1, w: 2, h: 2 },
           options: {
             xField: 'name',
@@ -152,8 +174,13 @@ export default defineStack({
 
         // --- Trend Row ---
         {
+          id: 'ks_monthly_trend',
           title: 'Monthly Trend',
           type: 'area',
+          object: 'kitchen_sink',
+          categoryField: 'month',
+          valueField: 'value',
+          aggregate: 'sum',
           layout: { x: 0, y: 3, w: 4, h: 2 },
           options: {
             xField: 'month',
