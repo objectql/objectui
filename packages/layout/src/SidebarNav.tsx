@@ -36,7 +36,7 @@ export function SidebarNav({ items, title = "Application", className, collapsibl
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild isActive={location.pathname === item.href}>
+                  <SidebarMenuButton asChild isActive={location.pathname === item.href} tooltip={item.title}>
                     <NavLink to={item.href}>
                       {item.icon && <item.icon />}
                       <span>{item.title}</span>

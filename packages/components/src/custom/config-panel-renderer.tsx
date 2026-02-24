@@ -12,6 +12,7 @@ import { X, Save, RotateCcw, ChevronRight } from 'lucide-react';
 
 import { cn } from '../lib/utils';
 import { Button } from '../ui/button';
+import { Separator } from '../ui/separator';
 import { SectionHeader } from './section-header';
 import { ConfigFieldRenderer } from './config-field-renderer';
 import type { ConfigPanelSchema } from '../types/config-panel';
@@ -128,7 +129,7 @@ export function ConfigPanelRenderer({
       aria-label={ariaLabel}
       tabIndex={tabIndex}
       className={cn(
-        'absolute inset-y-0 right-0 w-full sm:w-72 lg:w-80 sm:relative border-l bg-background flex flex-col shrink-0 z-20',
+        'absolute inset-y-0 right-0 w-full sm:w-[var(--config-panel-width,280px)] sm:relative border-l bg-background flex flex-col shrink-0 z-20',
         className,
       )}
     >
@@ -167,13 +168,14 @@ export function ConfigPanelRenderer({
 
       {/* ── Scrollable sections ────────────────────────────── */}
       <div className="flex-1 overflow-auto px-4 pb-4">
-        {schema.sections.map((section) => {
+        {schema.sections.map((section, sectionIdx) => {
           if (section.visibleWhen && !section.visibleWhen(draft)) return null;
 
           const sectionCollapsed = isCollapsed(section.key, section.defaultCollapsed);
 
           return (
             <div key={section.key} data-testid={`config-section-${section.key}`}>
+              {sectionIdx > 0 && <Separator className="my-1" />}
               <SectionHeader
                 title={section.title}
                 collapsible={section.collapsible}
