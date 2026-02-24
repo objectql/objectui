@@ -28,6 +28,9 @@ describe('DebugPanel', () => {
     render(<DebugPanel open={true} onClose={vi.fn()} />);
     expect(screen.getByTestId('debug-tab-schema')).toBeInTheDocument();
     expect(screen.getByTestId('debug-tab-data')).toBeInTheDocument();
+    expect(screen.getByTestId('debug-tab-perf')).toBeInTheDocument();
+    expect(screen.getByTestId('debug-tab-expr')).toBeInTheDocument();
+    expect(screen.getByTestId('debug-tab-events')).toBeInTheDocument();
     expect(screen.getByTestId('debug-tab-registry')).toBeInTheDocument();
     expect(screen.getByTestId('debug-tab-flags')).toBeInTheDocument();
   });
@@ -109,5 +112,23 @@ describe('DebugPanel', () => {
     const panel = screen.getByTestId('debug-panel');
     expect(panel).toHaveAttribute('role', 'dialog');
     expect(panel).toHaveAttribute('aria-label', 'Developer Debug Panel');
+  });
+
+  it('should show empty state for Perf tab', () => {
+    render(<DebugPanel open={true} onClose={vi.fn()} />);
+    fireEvent.click(screen.getByTestId('debug-tab-perf'));
+    expect(screen.getByTestId('debug-panel-content').textContent).toContain('No performance data');
+  });
+
+  it('should show empty state for Expr tab', () => {
+    render(<DebugPanel open={true} onClose={vi.fn()} />);
+    fireEvent.click(screen.getByTestId('debug-tab-expr'));
+    expect(screen.getByTestId('debug-panel-content').textContent).toContain('No expression evaluations');
+  });
+
+  it('should show empty state for Events tab', () => {
+    render(<DebugPanel open={true} onClose={vi.fn()} />);
+    fireEvent.click(screen.getByTestId('debug-tab-events'));
+    expect(screen.getByTestId('debug-panel-content').textContent).toContain('No events captured');
   });
 });

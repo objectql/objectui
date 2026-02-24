@@ -8,7 +8,8 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import type { DebugFlags } from '@object-ui/core';
-import { ComponentRegistry } from '@object-ui/core';
+import { ComponentRegistry, DebugCollector } from '@object-ui/core';
+import type { PerfEntry, ExprEntry, EventEntry, DebugEntry } from '@object-ui/core';
 import { cn } from '../lib/utils';
 
 /* ------------------------------------------------------------------ */
@@ -107,6 +108,107 @@ function FlagsTab({ flags }: { flags?: DebugFlags }) {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Collector-backed tabs (Perf / Expr / Events)                      */
+/* ------------------------------------------------------------------ */
+
+function useCollectorEntries(kind?: DebugEntry['kind']): DebugEntry[] {
+  const collector = DebugCollector.getInstance();
+  const [entries, setEntries] = useState<DebugEntry[]>(() => collector.getEntries(kind));
+
+  React.useEffect(() => {
+    // Sync on mount in case entries were added before subscribe
+    setEntries(collector.getEntries(kind));
+    const unsub = collector.subscribe(() => {
+      setEntries(collector.getEntries(kind));
+    });
+    return unsub;
+  }, [collector, kind]);
+
+  return entries;
+}
+
+function PerfTab() {
+  const entries = useCollectorEntries('perf');
+  const perfItems = entries.map((e) => e.data as PerfEntry);
+
+  if (perfItems.length === 0) {
+    return <p className="text-xs text-muted-foreground italic">No performance data collected yet</p>;
+  }
+  return (
+    <div className="space-y-1 max-h-[60vh] overflow-auto">
+      {perfItems.map((p, i) => (
+        <div
+          key={i}
+          className={cn(
+            'flex items-center justify-between px-2 py-1 rounded text-xs font-mono',
+            p.durationMs > 16 ? 'bg-red-50 text-red-700' : 'bg-muted/30',
+          )}
+        >
+          <span className="truncate mr-2">{p.type}{p.id ? `:${p.id}` : ''}</span>
+          <span className="shrink-0 tabular-nums">{p.durationMs.toFixed(2)}ms</span>
+        </div>
+      ))}
+      <p className="text-[10px] text-muted-foreground mt-2">
+        {perfItems.length} render{perfItems.length !== 1 ? 's' : ''} tracked
+      </p>
+    </div>
+  );
+}
+
+function ExprTab() {
+  const entries = useCollectorEntries('expr');
+  const exprItems = entries.map((e) => e.data as ExprEntry);
+
+  if (exprItems.length === 0) {
+    return <p className="text-xs text-muted-foreground italic">No expression evaluations tracked yet</p>;
+  }
+  return (
+    <div className="space-y-1.5 max-h-[60vh] overflow-auto">
+      {exprItems.map((ex, i) => (
+        <div key={i} className="px-2 py-1.5 rounded bg-muted/30 text-xs font-mono">
+          <div className="text-muted-foreground truncate">{ex.expression}</div>
+          <div className="mt-0.5">→ {JSON.stringify(ex.result)}</div>
+        </div>
+      ))}
+      <p className="text-[10px] text-muted-foreground mt-2">
+        {exprItems.length} evaluation{exprItems.length !== 1 ? 's' : ''} tracked
+      </p>
+    </div>
+  );
+}
+
+function EventsTab() {
+  const entries = useCollectorEntries('event');
+  const eventItems = entries.map((e) => e.data as EventEntry);
+
+  if (eventItems.length === 0) {
+    return <p className="text-xs text-muted-foreground italic">No events captured yet</p>;
+  }
+  return (
+    <div className="space-y-1.5 max-h-[60vh] overflow-auto">
+      {eventItems.map((ev, i) => (
+        <div key={i} className="px-2 py-1.5 rounded bg-muted/30 text-xs font-mono">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold">{ev.action}</span>
+            <span className="text-[10px] text-muted-foreground tabular-nums">
+              {new Date(ev.timestamp).toLocaleTimeString()}
+            </span>
+          </div>
+          {ev.payload !== undefined && (
+            <pre className="mt-0.5 text-[10px] text-muted-foreground truncate">
+              {JSON.stringify(ev.payload)}
+            </pre>
+          )}
+        </div>
+      ))}
+      <p className="text-[10px] text-muted-foreground mt-2">
+        {eventItems.length} event{eventItems.length !== 1 ? 's' : ''} captured
+      </p>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  DebugPanel                                                        */
 /* ------------------------------------------------------------------ */
 
@@ -116,6 +218,9 @@ function FlagsTab({ flags }: { flags?: DebugFlags }) {
  * Built-in tabs:
  * - **Schema** — current rendered JSON schema
  * - **Data** — active data context
+ * - **Perf** — component render timing (highlights slow renders >16ms)
+ * - **Expr** — expression evaluation trace
+ * - **Events** — action/event timeline
  * - **Registry** — all registered component types
  * - **Flags** — current debug flags
  *
@@ -133,6 +238,9 @@ export function DebugPanel({
   const builtInTabs: DebugPanelTab[] = useMemo(() => [
     { id: 'schema', label: 'Schema', render: () => <SchemaTab schema={schema} /> },
     { id: 'data', label: 'Data', render: () => <DataTab dataContext={dataContext} /> },
+    { id: 'perf', label: 'Perf', render: () => <PerfTab /> },
+    { id: 'expr', label: 'Expr', render: () => <ExprTab /> },
+    { id: 'events', label: 'Events', render: () => <EventsTab /> },
     { id: 'registry', label: 'Registry', render: () => <RegistryTab /> },
     { id: 'flags', label: 'Flags', render: () => <FlagsTab flags={flags} /> },
   ], [schema, dataContext, flags]);
