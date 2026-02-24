@@ -402,9 +402,9 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 
 **Phase 2 — Schema Factory (All Sections):**
 - [x] Page Config section: label, description, viewType, toolbar toggles (7 switches), navigation mode/width/openNewTab, selection, addRecord sub-editor, export + sub-config, showRecordCount, allowPrinting
-- [x] Data section: source, sortBy (expandable), groupBy, prefixField, columns selector (expandable w/ reorder), filterBy (expandable), pagination, searchable/filterable/hidden fields (expandable), quickFilters (expandable), virtualScroll, type-specific options (kanban/calendar/map/gallery/timeline/gantt)
-- [x] Appearance section: color, fieldTextColor (grid only), rowHeight (icon group, grid only), wrapHeaders, showDescription (grid only), collapseAllByDefault (groupBy-dependent), striped, bordered, resizable, conditionalFormatting (expandable, grid only), emptyState (title/message/icon)
-- [x] User Actions section: inlineEdit, addDeleteRecordsInline, rowActions (expandable), bulkActions (expandable)
+- [x] Data section: source, sortBy (expandable), groupBy (grid/gallery), columns selector (expandable w/ reorder), filterBy (expandable), pagination, searchable/filterable/hidden fields (expandable), quickFilters (expandable), virtualScroll (grid only), type-specific options (kanban/calendar/map/gallery/timeline/gantt)
+- [x] Appearance section: color (grid/calendar/timeline/gantt), rowHeight (icon group, grid only), wrapHeaders (grid only), showDescription, striped/bordered (grid only), resizable (grid only), conditionalFormatting (expandable, grid/kanban), emptyState (title/message/icon)
+- [x] User Actions section: inlineEdit (grid only), addDeleteRecordsInline (grid only), rowActions/bulkActions (expandable, grid/kanban)
 - [x] Sharing section: sharingEnabled, sharingVisibility (visibleWhen: sharing.enabled)
 - [x] Accessibility section: ariaLabel, ariaDescribedBy, ariaLive
 - [x] `ExpandableWidget` component for hook-safe expandable sub-sections within custom render functions
@@ -435,14 +435,20 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 
 **Phase 6 — Config Panel Cleanup (Invalid Items Fix):**
 - [x] Remove `densityMode` field from appearance section (redundant with `rowHeight` which provides finer 5-value granularity)
-- [x] Add `visibleWhen` to toolbar toggles: `showGroup` (grid/kanban only), `showColor` (grid only), `showDensity` (grid only)
-- [x] Add `visibleWhen` to data fields: `prefixField` (grid only), `_groupBy` (hidden for kanban — uses dedicated type-specific `kanban.groupByField`), `searchableFields`/`filterableFields`/`quickFilters`/`virtualScroll` (grid only)
-- [x] Add `visibleWhen` to appearance fields: `collapseAllByDefault` (only when `groupBy` is set), `fieldTextColor`/`showDescription`/`rowHeight`/`conditionalFormatting` (grid only)
+- [x] Remove `prefixField` from data section (not consumed by any runtime renderer)
+- [x] Remove `collapseAllByDefault` from appearance section (not consumed by any runtime renderer)
+- [x] Remove `fieldTextColor` from appearance section (not consumed by any runtime renderer)
+- [x] Remove `clickIntoRecordDetails` from userActions section (controlled implicitly via navigation mode, not directly consumed)
+- [x] Add view-type-aware `visibleWhen` to toolbar toggles: `showGroup` (grid/kanban/gallery), `showColor` (grid/calendar/timeline/gantt), `showDensity` (grid only), `showRecordCount` (grid only), `allowPrinting` (grid only)
+- [x] Add view-type-aware `visibleWhen` to data fields: `_groupBy` (grid/gallery — kanban uses dedicated type-specific option), `virtualScroll` (grid only)
+- [x] Add view-type-aware `visibleWhen` to appearance fields: `striped`/`bordered`/`wrapHeaders`/`resizable`/`rowHeight` (grid only, changed from disabledWhen to visibleWhen), `color` (grid/calendar/timeline/gantt), `conditionalFormatting` (grid/kanban)
+- [x] Add view-type-aware `visibleWhen` to userActions fields: `inlineEdit`/`addDeleteRecordsInline` (grid only), `rowActions`/`bulkActions` (grid/kanban)
+- [x] Correct `searchableFields`/`filterableFields`/`quickFilters`/`showDescription` to universal (all view types) — data fetch/toolbar features not view-specific
 - [x] Extend `buildSwitchField` and `buildFieldMultiSelect` helpers to accept `visibleWhen` parameter
-- [x] 15 new visibleWhen predicate tests covering all new conditional visibility rules
-- [x] 1 new test verifying `densityMode` removal
-- [x] Updated ViewConfigPanel interaction tests to account for new visibility conditions
-- [x] All 244 schema + panel tests pass, 10 config-sync integration tests pass
+- [x] Define semantic predicates: `supportsGrouping`, `supportsColorField`, `supportsConditionalFormatting`, `supportsRowActions`, `supportsGenericGroupBy`
+- [x] 103 schema tests pass (updated field key lists, visibleWhen predicates for all view types, removed field verification)
+- [x] 136 ViewConfigPanel interaction tests pass (removed tests for deleted fields)
+- [x] 10 config-sync integration tests pass
 
 **Code Reduction:** ~1655 lines imperative → ~170 lines declarative wrapper + ~1100 lines schema factory + ~180 lines shared utils = **>50% net reduction in component code** with significantly improved maintainability
 
