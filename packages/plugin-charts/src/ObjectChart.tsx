@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDataScope, useSchemaContext } from '@object-ui/react';
 import { ChartRenderer } from './ChartRenderer';
-import { ComponentRegistry } from '@object-ui/core';
+import { ComponentRegistry, extractRecords } from '@object-ui/core';
 
 /**
  * Client-side aggregation for fetched records.
@@ -49,6 +49,9 @@ export function aggregateRecords(
   });
 }
 
+// Re-export extractRecords from @object-ui/core for backward compatibility
+export { extractRecords } from '@object-ui/core';
+
 export const ObjectChart = (props: any) => {
   const { schema } = props;
   const context = useSchemaContext();
@@ -68,14 +71,7 @@ export const ObjectChart = (props: any) => {
                $filter: schema.filter
             });
             
-            let data: any[] = [];
-            if (Array.isArray(results)) {
-                data = results;
-            } else if (results && typeof results === 'object') {
-                if (Array.isArray((results as any).records)) {
-                    data = (results as any).records;
-                }
-            }
+            let data: any[] = extractRecords(results);
 
             // Apply client-side aggregation when aggregate config is provided
             if (schema.aggregate && data.length > 0) {
