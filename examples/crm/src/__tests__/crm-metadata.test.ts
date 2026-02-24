@@ -175,6 +175,47 @@ describe('CRM Metadata Spec Compliance', () => {
         expect(widget.layout).toHaveProperty('h');
       }
     });
+
+    it('all widgets have unique id', () => {
+      const ids = CrmDashboard.widgets.map((w) => w.id);
+      for (const id of ids) {
+        expect(typeof id).toBe('string');
+        expect(id!.length).toBeGreaterThan(0);
+      }
+      expect(new Set(ids).size).toBe(ids.length);
+    });
+
+    it('all widgets have title', () => {
+      for (const widget of CrmDashboard.widgets) {
+        expect(typeof widget.title).toBe('string');
+        expect(widget.title!.length).toBeGreaterThan(0);
+      }
+    });
+
+    it('metric widgets have title matching options.label', () => {
+      const metrics = CrmDashboard.widgets.filter((w) => w.type === 'metric');
+      for (const widget of metrics) {
+        const opts = widget.options as { label?: string };
+        expect(widget.title).toBe(opts.label);
+      }
+    });
+
+    it('all widgets have object data binding', () => {
+      for (const widget of CrmDashboard.widgets) {
+        expect(typeof widget.object).toBe('string');
+        expect(widget.object!.length).toBeGreaterThan(0);
+      }
+    });
+
+    it('chart widgets have categoryField, valueField, and aggregate', () => {
+      const chartTypes = ['bar', 'area', 'donut', 'line', 'pie'];
+      const charts = CrmDashboard.widgets.filter((w) => chartTypes.includes(w.type));
+      for (const widget of charts) {
+        expect(typeof widget.categoryField).toBe('string');
+        expect(typeof widget.valueField).toBe('string');
+        expect(typeof widget.aggregate).toBe('string');
+      }
+    });
   });
 
   describe('Reports', () => {

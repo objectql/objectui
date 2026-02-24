@@ -5,7 +5,10 @@ export const CrmDashboard = {
   widgets: [
     // --- KPI Row ---
     {
+      id: 'crm_total_revenue',
+      title: 'Total Revenue',
       type: 'metric' as const,
+      object: 'opportunity',
       layout: { x: 0, y: 0, w: 1, h: 1 },
       options: {
         label: 'Total Revenue',
@@ -15,7 +18,10 @@ export const CrmDashboard = {
       }
     },
     {
+      id: 'crm_active_deals',
+      title: 'Active Deals',
       type: 'metric' as const,
+      object: 'opportunity',
       layout: { x: 1, y: 0, w: 1, h: 1 },
       options: {
         label: 'Active Deals',
@@ -25,7 +31,10 @@ export const CrmDashboard = {
       }
     },
     {
+      id: 'crm_win_rate',
+      title: 'Win Rate',
       type: 'metric' as const,
+      object: 'opportunity',
       layout: { x: 2, y: 0, w: 1, h: 1 },
       options: {
         label: 'Win Rate',
@@ -35,7 +44,10 @@ export const CrmDashboard = {
       }
     },
     {
+      id: 'crm_avg_deal_size',
+      title: 'Avg Deal Size',
       type: 'metric' as const,
+      object: 'opportunity',
       layout: { x: 3, y: 0, w: 1, h: 1 },
       options: {
         label: 'Avg Deal Size',
@@ -47,8 +59,13 @@ export const CrmDashboard = {
 
     // --- Row 2: Charts ---
     {
+        id: 'crm_revenue_trends',
         title: 'Revenue Trends',
-        type: 'area' as const, 
+        type: 'area' as const,
+        object: 'opportunity',
+        categoryField: 'month',
+        valueField: 'revenue',
+        aggregate: 'sum',
         layout: { x: 0, y: 1, w: 3, h: 2 },
         options: {
             xField: 'month',
@@ -68,8 +85,13 @@ export const CrmDashboard = {
         },
     },
     {
+        id: 'crm_lead_source',
         title: 'Lead Source',
         type: 'donut' as const,
+        object: 'opportunity',
+        categoryField: 'source',
+        valueField: 'value',
+        aggregate: 'count',
         layout: { x: 3, y: 1, w: 1, h: 2 },
         options: {
             xField: 'source',
@@ -88,8 +110,13 @@ export const CrmDashboard = {
 
     // --- Row 3: More Charts ---
     {
+        id: 'crm_pipeline_by_stage',
         title: 'Pipeline by Stage',
         type: 'bar' as const,
+        object: 'opportunity',
+        categoryField: 'stage',
+        valueField: 'amount',
+        aggregate: 'sum',
         layout: { x: 0, y: 3, w: 2, h: 2 },
         options: {
             xField: 'stage',
@@ -107,8 +134,13 @@ export const CrmDashboard = {
         },
     },
     {
+        id: 'crm_top_products',
         title: 'Top Products',
         type: 'bar' as const,
+        object: 'product',
+        categoryField: 'name',
+        valueField: 'sales',
+        aggregate: 'sum',
         layout: { x: 2, y: 3, w: 2, h: 2 },
         options: {
             xField: 'name',
@@ -127,8 +159,10 @@ export const CrmDashboard = {
 
     // --- Row 4: Table ---
     {
+        id: 'crm_recent_opportunities',
         title: 'Recent Opportunities',
         type: 'table' as const,
+        object: 'opportunity',
         layout: { x: 0, y: 5, w: 4, h: 2 },
         options: {
             columns: [
@@ -152,8 +186,13 @@ export const CrmDashboard = {
 
     // --- Row 5: Dynamic KPI from Object Data ---
     {
+        id: 'crm_revenue_by_account',
         title: 'Revenue by Account',
         type: 'bar' as const,
+        object: 'opportunity',
+        categoryField: 'account',
+        valueField: 'total',
+        aggregate: 'sum',
         layout: { x: 0, y: 7, w: 4, h: 2 },
         options: {
             xField: 'account',
