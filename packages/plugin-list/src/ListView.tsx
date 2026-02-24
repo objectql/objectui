@@ -1012,7 +1012,7 @@ export const ListView: React.FC<ListViewProps> = ({
 
       {/* Airtable-style Toolbar — Row 2: Tool buttons */}
       <div className="border-b px-2 sm:px-4 py-1 flex items-center justify-between gap-1 sm:gap-2 bg-background">
-        <div className="flex items-center gap-0.5 overflow-hidden flex-1 min-w-0">
+        <div className="flex items-center gap-0.5 overflow-x-auto flex-1 min-w-0">
           {/* Hide Fields */}
           {toolbarFlags.showHideFields && (
           <Popover open={showHideFields} onOpenChange={setShowHideFields}>
@@ -1081,7 +1081,7 @@ export const ListView: React.FC<ListViewProps> = ({
                 size="sm"
                 className={cn(
                   "h-7 px-2 text-muted-foreground hover:text-primary text-xs",
-                  hasFilters && "text-primary"
+                  hasFilters && "bg-primary/10 border border-primary/20 text-primary"
                 )}
               >
                 <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5" />
@@ -1120,7 +1120,7 @@ export const ListView: React.FC<ListViewProps> = ({
                 size="sm"
                 className={cn(
                   "h-7 px-2 text-muted-foreground hover:text-primary text-xs",
-                  groupingConfig && "text-primary"
+                  groupingConfig && "bg-primary/10 border border-primary/20 text-primary"
                 )}
               >
                 <Group className="h-3.5 w-3.5 mr-1.5" />
@@ -1180,7 +1180,7 @@ export const ListView: React.FC<ListViewProps> = ({
                 size="sm"
                 className={cn(
                   "h-7 px-2 text-muted-foreground hover:text-primary text-xs",
-                  currentSort.length > 0 && "text-primary"
+                  currentSort.length > 0 && "bg-primary/10 border border-primary/20 text-primary"
                 )}
               >
                 <ArrowUpDown className="h-3.5 w-3.5 mr-1.5" />
@@ -1219,7 +1219,7 @@ export const ListView: React.FC<ListViewProps> = ({
                 size="sm"
                 className={cn(
                   "h-7 px-2 text-muted-foreground hover:text-primary text-xs",
-                  rowColorConfig && "text-primary"
+                  rowColorConfig && "bg-primary/10 border border-primary/20 text-primary"
                 )}
               >
                 <Paintbrush className="h-3.5 w-3.5 mr-1.5" />
@@ -1355,42 +1355,26 @@ export const ListView: React.FC<ListViewProps> = ({
 
           {/* Search */}
           {toolbarFlags.showSearch && (
-            searchExpanded ? (
-            <div className="relative w-36 sm:w-48 lg:w-64">
+            <div className="relative w-48">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input
-                placeholder="Find..."
+                placeholder="Search..."
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 className="pl-7 h-7 text-xs bg-muted/50 border-transparent hover:bg-muted focus:bg-background focus:border-input transition-colors"
-                autoFocus
-                onBlur={() => {
-                  if (!searchTerm) setSearchExpanded(false);
-                }}
               />
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute right-0.5 top-1/2 -translate-y-1/2 h-5 w-5 p-0 hover:bg-muted-foreground/20"
-                onClick={() => {
-                  handleSearchChange('');
-                  setSearchExpanded(false);
-                }}
-              >
-                <X className="h-3 w-3" />
-              </Button>
+              {searchTerm && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0.5 top-1/2 -translate-y-1/2 h-5 w-5 p-0 hover:bg-muted-foreground/20"
+                  onClick={() => handleSearchChange('')}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              )}
             </div>
-          ) : (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 px-2 text-muted-foreground hover:text-primary text-xs"
-              onClick={() => setSearchExpanded(true)}
-            >
-              <Search className="h-3.5 w-3.5 mr-1.5" />
-              <span className="hidden sm:inline">Search</span>
-            </Button>
-          ))}
+          )}
         </div>
       </div>
 
