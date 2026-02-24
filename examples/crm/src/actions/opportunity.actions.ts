@@ -44,5 +44,6 @@ export const OpportunityActions = [
     ],
     confirmText: 'Mark this opportunity as Closed Lost?',
     refreshAfter: true,
+    successMessage: 'Opportunity marked as lost',
   },
 ];
