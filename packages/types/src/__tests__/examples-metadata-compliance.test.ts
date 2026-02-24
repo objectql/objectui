@@ -82,8 +82,30 @@ describe('Example: todo', () => {
     expectValidStack(config, 'todo');
   });
 
-  it('dashboards should have type, name, label, description', () => {
+  it('should have explicit views', () => {
+    expect(Array.isArray(config.views)).toBe(true);
+    expect(config.views.length).toBeGreaterThan(0);
+  });
+
+  it('objects should have name, label, and fields', () => {
+    for (const obj of config.objects) {
+      expect(obj).toHaveProperty('name');
+      expect(obj).toHaveProperty('label');
+      expect(obj).toHaveProperty('fields');
+    }
+  });
+
+  it('dashboards should have name, label, description, and valid widgets', () => {
     assertDashboards(config.dashboards, 'todo');
+  });
+
+  it('pages should have name, label, type, and regions', () => {
+    for (const page of config.pages ?? []) {
+      expect(page).toHaveProperty('name');
+      expect(page).toHaveProperty('label');
+      expect(page).toHaveProperty('type');
+      expect(page).toHaveProperty('regions');
+    }
   });
 
   it('manifest should have required fields', () => {
@@ -112,13 +134,30 @@ describe('Example: kitchen-sink', () => {
     expectValidStack(config, 'kitchen-sink');
   });
 
-  it('dashboards should have type, name, label, description', () => {
-    assertDashboards(config.dashboards, 'kitchen-sink');
+  it('objects should have name, label, and fields', () => {
+    for (const obj of config.objects) {
+      expect(obj).toHaveProperty('name');
+      expect(obj).toHaveProperty('label');
+      expect(obj).toHaveProperty('fields');
+    }
   });
 
   it('should have explicit views', () => {
     expect(Array.isArray(config.views)).toBe(true);
     expect(config.views.length).toBeGreaterThan(0);
+  });
+
+  it('dashboards should have name, label, description, and valid widgets', () => {
+    assertDashboards(config.dashboards, 'kitchen-sink');
+  });
+
+  it('pages should have name, label, type, and regions', () => {
+    for (const page of config.pages ?? []) {
+      expect(page).toHaveProperty('name');
+      expect(page).toHaveProperty('label');
+      expect(page).toHaveProperty('type');
+      expect(page).toHaveProperty('regions');
+    }
   });
 
   it('manifest should have required fields', () => {
@@ -145,8 +184,30 @@ describe('Example: crm', () => {
     expectValidStack(config, 'crm');
   });
 
-  it('dashboards should have type, name, label, description', () => {
+  it('objects should have name, label, and fields', () => {
+    for (const obj of config.objects) {
+      expect(obj).toHaveProperty('name');
+      expect(obj).toHaveProperty('label');
+      expect(obj).toHaveProperty('fields');
+    }
+  });
+
+  it('should have explicit views', () => {
+    expect(Array.isArray(config.views)).toBe(true);
+    expect(config.views.length).toBeGreaterThan(0);
+  });
+
+  it('dashboards should have name, label, description, and valid widgets', () => {
     assertDashboards(config.dashboards, 'crm');
+  });
+
+  it('pages should have name, label, type, and regions', () => {
+    for (const page of config.pages ?? []) {
+      expect(page).toHaveProperty('name');
+      expect(page).toHaveProperty('label');
+      expect(page).toHaveProperty('type');
+      expect(page).toHaveProperty('regions');
+    }
   });
 
   it('manifest should have required fields', () => {

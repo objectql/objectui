@@ -33,5 +33,6 @@ export const AccountActions = [
     confirmText: 'Are you sure you want to merge these accounts? This action cannot be undone.',
     variant: 'danger' as const,
     refreshAfter: true,
+    successMessage: 'Accounts merged successfully',
   },
 ];
