@@ -403,7 +403,7 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 **Phase 2 — Schema Factory (All Sections):**
 - [x] Page Config section: label, description, viewType, toolbar toggles (7 switches), navigation mode/width/openNewTab, selection, addRecord sub-editor, export + sub-config, showRecordCount, allowPrinting
 - [x] Data section: source, sortBy (expandable), groupBy, prefixField, columns selector (expandable w/ reorder), filterBy (expandable), pagination, searchable/filterable/hidden fields (expandable), quickFilters (expandable), virtualScroll, type-specific options (kanban/calendar/map/gallery/timeline/gantt)
-- [x] Appearance section: color, fieldTextColor, rowHeight (icon group), wrapHeaders, showDescription, collapseAllByDefault, striped, bordered, resizable, densityMode, conditionalFormatting (expandable), emptyState (title/message/icon)
+- [x] Appearance section: color, fieldTextColor (grid only), rowHeight (icon group, grid only), wrapHeaders, showDescription (grid only), collapseAllByDefault (groupBy-dependent), striped, bordered, resizable, conditionalFormatting (expandable, grid only), emptyState (title/message/icon)
 - [x] User Actions section: inlineEdit, addDeleteRecordsInline, rowActions (expandable), bulkActions (expandable)
 - [x] Sharing section: sharingEnabled, sharingVisibility (visibleWhen: sharing.enabled)
 - [x] Accessibility section: ariaLabel, ariaDescribedBy, ariaLive
@@ -432,6 +432,17 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] Add `expandedSections` prop to `ConfigPanelRenderer` for external section collapse control (auto-focus/highlight)
 - [x] Add `helpText` to navigation-dependent fields (width/openNewTab) with i18n hints (all 11 locales)
 - [x] 24 new tests: expandedSections override (3), disabledWhen evaluation (2), grid-only disabledWhen predicates (16), helpText validation (2), description spec alignment (1)
+
+**Phase 6 — Config Panel Cleanup (Invalid Items Fix):**
+- [x] Remove `densityMode` field from appearance section (redundant with `rowHeight` which provides finer 5-value granularity)
+- [x] Add `visibleWhen` to toolbar toggles: `showGroup` (grid/kanban only), `showColor` (grid only), `showDensity` (grid only)
+- [x] Add `visibleWhen` to data fields: `prefixField` (grid only), `_groupBy` (hidden for kanban — uses dedicated type-specific `kanban.groupByField`), `searchableFields`/`filterableFields`/`quickFilters`/`virtualScroll` (grid only)
+- [x] Add `visibleWhen` to appearance fields: `collapseAllByDefault` (only when `groupBy` is set), `fieldTextColor`/`showDescription`/`rowHeight`/`conditionalFormatting` (grid only)
+- [x] Extend `buildSwitchField` and `buildFieldMultiSelect` helpers to accept `visibleWhen` parameter
+- [x] 15 new visibleWhen predicate tests covering all new conditional visibility rules
+- [x] 1 new test verifying `densityMode` removal
+- [x] Updated ViewConfigPanel interaction tests to account for new visibility conditions
+- [x] All 244 schema + panel tests pass, 10 config-sync integration tests pass
 
 **Code Reduction:** ~1655 lines imperative → ~170 lines declarative wrapper + ~1100 lines schema factory + ~180 lines shared utils = **>50% net reduction in component code** with significantly improved maintainability
 

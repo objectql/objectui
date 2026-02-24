@@ -1255,7 +1255,7 @@ describe('ViewConfigPanel', () => {
             <ViewConfigPanel
                 open={true}
                 onClose={vi.fn()}
-                activeView={mockActiveView}
+                activeView={{ ...mockActiveView, groupBy: 'stage' }}
                 objectDef={mockObjectDef}
             />
         );
@@ -1349,13 +1349,13 @@ describe('ViewConfigPanel', () => {
         expect(screen.getByTestId('data-prefixField')).toBeInTheDocument();
     });
 
-    it('changes groupBy and propagates to kanban type option', () => {
+    it('changes groupBy for grid view', () => {
         const onViewUpdate = vi.fn();
         render(
             <ViewConfigPanel
                 open={true}
                 onClose={vi.fn()}
-                activeView={{ ...mockActiveView, type: 'kanban' }}
+                activeView={{ ...mockActiveView, type: 'grid' }}
                 objectDef={mockObjectDef}
                 onViewUpdate={onViewUpdate}
             />
@@ -1365,7 +1365,6 @@ describe('ViewConfigPanel', () => {
         fireEvent.change(groupBySelect, { target: { value: 'stage' } });
 
         expect(onViewUpdate).toHaveBeenCalledWith('groupBy', 'stage');
-        expect(onViewUpdate).toHaveBeenCalledWith('kanban', expect.objectContaining({ groupByField: 'stage' }));
     });
 
     // ── Calendar endDateField test ──
@@ -2014,34 +2013,7 @@ describe('ViewConfigPanel', () => {
         expect(onViewUpdate).toHaveBeenCalledWith('resizable', true);
     });
 
-    it('renders density mode select in appearance section', () => {
-        render(
-            <ViewConfigPanel
-                open={true}
-                onClose={vi.fn()}
-                activeView={mockActiveView}
-                objectDef={mockObjectDef}
-            />
-        );
-
-        expect(screen.getByTestId('select-densityMode')).toBeInTheDocument();
-    });
-
-    it('changes densityMode and calls onViewUpdate', () => {
-        const onViewUpdate = vi.fn();
-        render(
-            <ViewConfigPanel
-                open={true}
-                onClose={vi.fn()}
-                activeView={mockActiveView}
-                objectDef={mockObjectDef}
-                onViewUpdate={onViewUpdate}
-            />
-        );
-
-        fireEvent.change(screen.getByTestId('select-densityMode'), { target: { value: 'compact' } });
-        expect(onViewUpdate).toHaveBeenCalledWith('densityMode', 'compact');
-    });
+    // densityMode tests removed — densityMode field was removed (redundant with rowHeight)
 
     it('renders conditional formatting editor when expanded', () => {
         render(
@@ -2442,7 +2414,7 @@ describe('ViewConfigPanel', () => {
             <ViewConfigPanel
                 open={true}
                 onClose={vi.fn()}
-                activeView={mockActiveView}
+                activeView={{ ...mockActiveView, groupBy: 'stage' }}
                 objectDef={mockObjectDef}
                 onViewUpdate={onViewUpdate}
             />
@@ -2693,26 +2665,7 @@ describe('ViewConfigPanel', () => {
         }));
     });
 
-    // ── Boundary: densityMode enum selection ──
-
-    it('changes densityMode to all enum values', () => {
-        const onViewUpdate = vi.fn();
-        render(
-            <ViewConfigPanel
-                open={true}
-                onClose={vi.fn()}
-                activeView={mockActiveView}
-                objectDef={mockObjectDef}
-                onViewUpdate={onViewUpdate}
-            />
-        );
-
-        const select = screen.getByTestId('select-densityMode');
-        ['compact', 'comfortable', 'spacious'].forEach((mode) => {
-            fireEvent.change(select, { target: { value: mode } });
-            expect(onViewUpdate).toHaveBeenCalledWith('densityMode', mode);
-        });
-    });
+    // densityMode enum test removed — densityMode field was removed (redundant with rowHeight)
 
     // ── Conditional rendering: addRecord sub-editor hidden when not enabled ──
 
