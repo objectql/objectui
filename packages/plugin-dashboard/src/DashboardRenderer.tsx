@@ -194,7 +194,7 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                     }: undefined}
                     {...designModeProps}
                 >
-                     <SchemaRenderer schema={componentSchema} className="h-full w-full" />
+                     <SchemaRenderer schema={componentSchema} className={cn("h-full w-full", designMode && "pointer-events-none")} />
                 </div>
             );
         }
@@ -222,7 +222,7 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                     </CardHeader>
                 )}
                 <CardContent className="p-0">
-                    <div className={cn("h-full w-full", "p-3 sm:p-4 md:p-6")}>
+                    <div className={cn("h-full w-full", "p-3 sm:p-4 md:p-6", designMode && "pointer-events-none")}>
                         <SchemaRenderer schema={componentSchema} />
                     </div>
                 </CardContent>

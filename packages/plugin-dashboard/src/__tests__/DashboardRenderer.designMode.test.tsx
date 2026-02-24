@@ -229,6 +229,63 @@ describe('DashboardRenderer design mode', () => {
     });
   });
 
+  describe('Content pointer-events in design mode', () => {
+    it('should apply pointer-events-none to widget content in design mode', () => {
+      render(
+        <DashboardRenderer
+          schema={DASHBOARD_WITH_WIDGETS}
+          designMode
+          selectedWidgetId={null}
+          onWidgetClick={vi.fn()}
+        />,
+      );
+
+      // Card widget (bar chart) — content wrapper should have pointer-events-none
+      const barWidget = screen.getByTestId('dashboard-preview-widget-w2');
+      const contentWrapper = barWidget.querySelector('.pointer-events-none');
+      expect(contentWrapper).toBeInTheDocument();
+    });
+
+    it('should NOT apply pointer-events-none when not in design mode', () => {
+      const { container } = render(<DashboardRenderer schema={DASHBOARD_WITH_WIDGETS} />);
+
+      // No element should have pointer-events-none class
+      expect(container.querySelector('.pointer-events-none')).not.toBeInTheDocument();
+    });
+
+    it('should still call onWidgetClick when clicking on Card-based widget content area', () => {
+      const onWidgetClick = vi.fn();
+      render(
+        <DashboardRenderer
+          schema={DASHBOARD_WITH_WIDGETS}
+          designMode
+          selectedWidgetId={null}
+          onWidgetClick={onWidgetClick}
+        />,
+      );
+
+      // Click on the bar chart widget (Card-based)
+      fireEvent.click(screen.getByTestId('dashboard-preview-widget-w2'));
+      expect(onWidgetClick).toHaveBeenCalledWith('w2');
+    });
+
+    it('should still call onWidgetClick when clicking on table widget', () => {
+      const onWidgetClick = vi.fn();
+      render(
+        <DashboardRenderer
+          schema={DASHBOARD_WITH_WIDGETS}
+          designMode
+          selectedWidgetId={null}
+          onWidgetClick={onWidgetClick}
+        />,
+      );
+
+      // Click on the table widget (Card-based)
+      fireEvent.click(screen.getByTestId('dashboard-preview-widget-w3'));
+      expect(onWidgetClick).toHaveBeenCalledWith('w3');
+    });
+  });
+
   describe('Non-design mode behavior', () => {
     it('should not add design mode attributes when designMode is off', () => {
       const { container } = render(<DashboardRenderer schema={DASHBOARD_WITH_WIDGETS} />);

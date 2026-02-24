@@ -389,6 +389,14 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] `WidgetConfigPanel` — added `headerExtra` prop for custom header actions
 - [x] Update 21 integration tests (10 DashboardDesignInteraction + 11 DashboardViewSelection) to verify inline config panel pattern, widget deletion, live preview sync
 
+**Phase 9 — Design Mode Widget Selection Click-Through Fix:**
+- [x] Fix: Widget content (charts, tables via `SchemaRenderer`) intercepted click events, preventing selection in edit mode
+- [x] Add `pointer-events-none` to `SchemaRenderer` content wrappers in `DashboardRenderer` design mode so clicks pass through to the widget Card/div selection handler
+- [x] Self-contained (metric) widgets: `pointer-events-none` applied to `SchemaRenderer` className in design mode
+- [x] Card-based (chart/table) widgets: `pointer-events-none` applied to `CardContent` inner wrapper in design mode
+- [x] No impact on non-design mode — widgets remain fully interactive when not editing
+- [x] Add 4 new Vitest tests: pointer-events-none presence in design mode, absence in normal mode, click-to-select on Card-based widgets
+
 ### P1.11 Console — Schema-Driven View Config Panel Migration
 
 > Migrated the Console ViewConfigPanel from imperative implementation (~1655 lines) to Schema-Driven architecture using `ConfigPanelRenderer` + `useConfigDraft` + `ConfigPanelSchema`, reducing to ~170 lines declarative wrapper + schema factory.
