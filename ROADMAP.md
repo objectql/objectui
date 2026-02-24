@@ -412,9 +412,9 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 
 **Phase 2 — Schema Factory (All Sections):**
 - [x] Page Config section: label, description, viewType, toolbar toggles (7 switches), navigation mode/width/openNewTab, selection, addRecord sub-editor, export + sub-config, showRecordCount, allowPrinting
-- [x] Data section: source, sortBy (expandable), groupBy, prefixField, columns selector (expandable w/ reorder), filterBy (expandable), pagination, searchable/filterable/hidden fields (expandable), quickFilters (expandable), virtualScroll, type-specific options (kanban/calendar/map/gallery/timeline/gantt)
-- [x] Appearance section: color, fieldTextColor, rowHeight (icon group), wrapHeaders, showDescription, collapseAllByDefault, striped, bordered, resizable, densityMode, conditionalFormatting (expandable), emptyState (title/message/icon)
-- [x] User Actions section: inlineEdit, addDeleteRecordsInline, rowActions (expandable), bulkActions (expandable)
+- [x] Data section: source, sortBy (expandable), groupBy (grid/gallery), columns selector (expandable w/ reorder), filterBy (expandable), pagination, searchable/filterable/hidden fields (expandable), quickFilters (expandable), virtualScroll (grid only), type-specific options (kanban/calendar/map/gallery/timeline/gantt)
+- [x] Appearance section: color (grid/calendar/timeline/gantt), rowHeight (icon group, grid only), wrapHeaders (grid only), showDescription, striped/bordered (grid only), resizable (grid only), conditionalFormatting (expandable, grid/kanban), emptyState (title/message/icon)
+- [x] User Actions section: inlineEdit (grid only), addDeleteRecordsInline (grid only), rowActions/bulkActions (expandable, grid/kanban)
 - [x] Sharing section: sharingEnabled, sharingVisibility (visibleWhen: sharing.enabled)
 - [x] Accessibility section: ariaLabel, ariaDescribedBy, ariaLive
 - [x] `ExpandableWidget` component for hook-safe expandable sub-sections within custom render functions
@@ -442,6 +442,23 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] Add `expandedSections` prop to `ConfigPanelRenderer` for external section collapse control (auto-focus/highlight)
 - [x] Add `helpText` to navigation-dependent fields (width/openNewTab) with i18n hints (all 11 locales)
 - [x] 24 new tests: expandedSections override (3), disabledWhen evaluation (2), grid-only disabledWhen predicates (16), helpText validation (2), description spec alignment (1)
+
+**Phase 6 — Config Panel Cleanup (Invalid Items Fix):**
+- [x] Remove `densityMode` field from appearance section (redundant with `rowHeight` which provides finer 5-value granularity)
+- [x] Remove `prefixField` from data section (not consumed by any runtime renderer)
+- [x] Remove `collapseAllByDefault` from appearance section (not consumed by any runtime renderer)
+- [x] Remove `fieldTextColor` from appearance section (not consumed by any runtime renderer)
+- [x] Remove `clickIntoRecordDetails` from userActions section (controlled implicitly via navigation mode, not directly consumed)
+- [x] Add view-type-aware `visibleWhen` to toolbar toggles: `showGroup` (grid/kanban/gallery), `showColor` (grid/calendar/timeline/gantt), `showDensity` (grid only), `showRecordCount` (grid only), `allowPrinting` (grid only)
+- [x] Add view-type-aware `visibleWhen` to data fields: `_groupBy` (grid/gallery — kanban uses dedicated type-specific option), `virtualScroll` (grid only)
+- [x] Add view-type-aware `visibleWhen` to appearance fields: `striped`/`bordered`/`wrapHeaders`/`resizable`/`rowHeight` (grid only, changed from disabledWhen to visibleWhen), `color` (grid/calendar/timeline/gantt), `conditionalFormatting` (grid/kanban)
+- [x] Add view-type-aware `visibleWhen` to userActions fields: `inlineEdit`/`addDeleteRecordsInline` (grid only), `rowActions`/`bulkActions` (grid/kanban)
+- [x] Correct `searchableFields`/`filterableFields`/`quickFilters`/`showDescription` to universal (all view types) — data fetch/toolbar features not view-specific
+- [x] Extend `buildSwitchField` and `buildFieldMultiSelect` helpers to accept `visibleWhen` parameter
+- [x] Define semantic predicates: `supportsGrouping`, `supportsColorField`, `supportsConditionalFormatting`, `supportsRowActions`, `supportsGenericGroupBy`
+- [x] 103 schema tests pass (updated field key lists, visibleWhen predicates for all view types, removed field verification)
+- [x] 136 ViewConfigPanel interaction tests pass (removed tests for deleted fields)
+- [x] 10 config-sync integration tests pass
 
 **Code Reduction:** ~1655 lines imperative → ~170 lines declarative wrapper + ~1100 lines schema factory + ~180 lines shared utils = **>50% net reduction in component code** with significantly improved maintainability
 

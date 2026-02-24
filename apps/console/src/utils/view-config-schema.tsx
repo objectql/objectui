@@ -60,6 +60,28 @@ export interface ViewSchemaFactoryOptions {
 }
 
 // ---------------------------------------------------------------------------
+// View-type visibility predicates
+// ---------------------------------------------------------------------------
+
+/** True when the view type is grid (or unset, since grid is the default) */
+const isGridView = (draft: Record<string, any>) => draft.type == null || draft.type === 'grid';
+
+/** True for views that support the Group toolbar button (grid/kanban/gallery have grouping support) */
+const supportsGrouping = (draft: Record<string, any>) => draft.type == null || ['grid', 'kanban', 'gallery'].includes(draft.type);
+
+/** True for views where the color field is consumed at runtime (grid, calendar, timeline, gantt) */
+const supportsColorField = (draft: Record<string, any>) => draft.type == null || ['grid', 'calendar', 'timeline', 'gantt'].includes(draft.type);
+
+/** True for views that support conditional formatting (grid, kanban) */
+const supportsConditionalFormatting = (draft: Record<string, any>) => draft.type == null || ['grid', 'kanban'].includes(draft.type);
+
+/** True for views that support row/bulk actions (grid, kanban) */
+const supportsRowActions = (draft: Record<string, any>) => draft.type == null || ['grid', 'kanban'].includes(draft.type);
+
+/** True for views that support generic groupBy (grid, gallery — kanban has dedicated groupByField) */
+const supportsGenericGroupBy = (draft: Record<string, any>) => draft.type == null || ['grid', 'gallery'].includes(draft.type);
+
+// ---------------------------------------------------------------------------
 // Schema factory
 // ---------------------------------------------------------------------------
 
@@ -165,9 +187,12 @@ function buildPageConfigSection(
             buildSwitchField('showSort', t('console.objectView.enableSort'), 'toggle-showSort', true),             // spec: NamedListView.showSort
             buildSwitchField('showFilters', t('console.objectView.enableFilter'), 'toggle-showFilters', true),     // spec: NamedListView.showFilters
             buildSwitchField('showHideFields', t('console.objectView.enableHideFields'), 'toggle-showHideFields', true), // spec: NamedListView.showHideFields
-            buildSwitchField('showGroup', t('console.objectView.enableGroup'), 'toggle-showGroup', true),          // spec: NamedListView.showGroup
-            buildSwitchField('showColor', t('console.objectView.enableColor'), 'toggle-showColor', true),          // spec: NamedListView.showColor
-            buildSwitchField('showDensity', t('console.objectView.enableDensity'), 'toggle-showDensity', true),    // spec: NamedListView.showDensity
+            buildSwitchField('showGroup', t('console.objectView.enableGroup'), 'toggle-showGroup', true,          // spec: NamedListView.showGroup
+                false, undefined, supportsGrouping),
+            buildSwitchField('showColor', t('console.objectView.enableColor'), 'toggle-showColor', true,          // spec: NamedListView.showColor
+                false, undefined, supportsColorField),
+            buildSwitchField('showDensity', t('console.objectView.enableDensity'), 'toggle-showDensity', true,    // spec: NamedListView.showDensity
+                false, undefined, isGridView),
             // spec: NamedListView.allowExport + NamedListView.exportOptions — export toggle + sub-config
             {
                 key: '_export',
@@ -412,10 +437,12 @@ function buildPageConfigSection(
                     );
                 },
             },
-            // spec: NamedListView.showRecordCount
-            buildSwitchField('showRecordCount', t('console.objectView.showRecordCount'), 'toggle-showRecordCount', false, true),
-            // spec: NamedListView.allowPrinting
-            buildSwitchField('allowPrinting', t('console.objectView.allowPrinting'), 'toggle-allowPrinting', false, true),
+            // spec: NamedListView.showRecordCount (grid-only: record count bar is a grid feature)
+            buildSwitchField('showRecordCount', t('console.objectView.showRecordCount'), 'toggle-showRecordCount', false, true,
+                undefined, isGridView),
+            // spec: NamedListView.allowPrinting (grid-only: print renders grid table)
+            buildSwitchField('allowPrinting', t('console.objectView.allowPrinting'), 'toggle-allowPrinting', false, true,
+                undefined, isGridView),
         ],
     };
 }
@@ -621,32 +648,13 @@ function buildDataSection(
                     );
                 },
             },
-            // spec: NamedListView.prefixField
-            {
-                key: 'prefixField',
-                label: t('console.objectView.prefixField'),
-                type: 'custom',
-                render: (value, onChange) => (
-                    <ConfigRow label={t('console.objectView.prefixField')}>
-                        <select
-                            data-testid="data-prefixField"
-                            className="text-xs h-7 rounded-md border border-input bg-background px-2 text-foreground max-w-[120px]"
-                            value={value || ''}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
-                        >
-                            <option value="">{t('console.objectView.none')}</option>
-                            {fieldOptions.map(f => (
-                                <option key={f.value} value={f.value}>{f.label}</option>
-                            ))}
-                        </select>
-                    </ConfigRow>
-                ),
-            },
-            // UI extension: groupBy — not in NamedListView spec. Protocol suggestion: add 'groupBy' to NamedListView.
+            // NOTE: prefixField removed — not consumed by any runtime renderer
+            // UI extension: groupBy — visible for grid/gallery (kanban has dedicated type-specific option).
             {
                 key: '_groupBy',
                 label: t('console.objectView.groupBy'),
                 type: 'custom',
+                visibleWhen: supportsGenericGroupBy,
                 render: (_value, _onChange, draft) => {
                     const viewType = draft.type || 'grid';
                     const groupByValue = draft.kanban?.groupByField || draft.kanban?.groupField || draft.groupBy || '';
@@ -714,13 +722,13 @@ function buildDataSection(
                     </ConfigRow>
                 ),
             },
-            // spec: NamedListView.searchableFields
+            // spec: NamedListView.searchableFields (universal: search applies at data fetch level for all views)
             buildFieldMultiSelect('searchableFields', t('console.objectView.searchableFields'), 'searchable-fields-selector', 'searchable-field', fieldOptions, updateField, 'selected'),
-            // spec: NamedListView.filterableFields
+            // spec: NamedListView.filterableFields (universal: filter field whitelisting applies to all views)
             buildFieldMultiSelect('filterableFields', t('console.objectView.filterableFields'), 'filterable-fields-selector', 'filterable-field', fieldOptions, updateField, 'selected'),
             // spec: NamedListView.hiddenFields
             buildFieldMultiSelect('hiddenFields', t('console.objectView.hiddenFields'), 'hidden-fields-selector', 'hidden-field', fieldOptions, updateField, 'hidden'),
-            // spec: NamedListView.quickFilters
+            // spec: NamedListView.quickFilters (universal: quick filter buttons render in toolbar for all views)
             {
                 key: '_quickFilters',
                 label: t('console.objectView.quickFilters'),
@@ -788,8 +796,9 @@ function buildDataSection(
                     );
                 },
             },
-            // spec: NamedListView.virtualScroll
-            buildSwitchField('virtualScroll', t('console.objectView.virtualScroll'), 'toggle-virtualScroll', false, true),
+            // spec: NamedListView.virtualScroll (grid-only: virtual scrolling applies to grid row rendering)
+            buildSwitchField('virtualScroll', t('console.objectView.virtualScroll'), 'toggle-virtualScroll', false, true,
+                undefined, isGridView),
             // UI extension: type-specific options — maps to NamedListView kanban/calendar/gantt/gallery/timeline/map sub-configs
             {
                 key: '_typeOptions',
@@ -973,17 +982,18 @@ function buildAppearanceSection(
         title: t('console.objectView.appearance'),
         collapsible: true,
         fields: [
-            // spec: NamedListView.striped (grid-only)
+            // spec: NamedListView.striped (grid-only: row striping is a grid concept)
             buildSwitchField('striped', t('console.objectView.striped'), 'toggle-striped', false, true,
-                (draft) => draft.type != null && draft.type !== 'grid'),
-            // spec: NamedListView.bordered (grid-only)
+                undefined, isGridView),
+            // spec: NamedListView.bordered (grid-only: borders are a grid concept)
             buildSwitchField('bordered', t('console.objectView.bordered'), 'toggle-bordered', false, true,
-                (draft) => draft.type != null && draft.type !== 'grid'),
-            // spec: NamedListView.color — field for row/card coloring
+                undefined, isGridView),
+            // spec: NamedListView.color — field for row/card coloring (grid, calendar, timeline, gantt)
             {
                 key: 'color',
                 label: t('console.objectView.color'),
                 type: 'custom',
+                visibleWhen: supportsColorField,
                 render: (value, onChange) => (
                     <ConfigRow label={t('console.objectView.color')}>
                         <select
@@ -1000,62 +1010,23 @@ function buildAppearanceSection(
                     </ConfigRow>
                 ),
             },
-            // spec: NamedListView.wrapHeaders (grid-only)
+            // spec: NamedListView.wrapHeaders (grid-only: column headers are a grid concept)
             buildSwitchField('wrapHeaders', t('console.objectView.wrapHeaders'), 'toggle-wrapHeaders', false, true,
-                (draft) => draft.type != null && draft.type !== 'grid'),
-            // spec: NamedListView.collapseAllByDefault
-            buildSwitchField('collapseAllByDefault', t('console.objectView.collapseAllByDefault'), 'toggle-collapseAllByDefault', false, true),
-            // spec: NamedListView.fieldTextColor
-            {
-                key: 'fieldTextColor',
-                label: t('console.objectView.fieldTextColor'),
-                type: 'custom',
-                render: (value, onChange) => (
-                    <ConfigRow label={t('console.objectView.fieldTextColor')}>
-                        <select
-                            data-testid="appearance-fieldTextColor"
-                            className="text-xs h-7 rounded-md border border-input bg-background px-2 text-foreground max-w-[120px]"
-                            value={value || ''}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
-                        >
-                            <option value="">{t('console.objectView.none')}</option>
-                            {fieldOptions.map(f => (
-                                <option key={f.value} value={f.value}>{f.label}</option>
-                            ))}
-                        </select>
-                    </ConfigRow>
-                ),
-            },
-            // spec: NamedListView.showDescription
+                undefined, isGridView),
+            // NOTE: collapseAllByDefault removed — not consumed by any runtime renderer
+            // NOTE: fieldTextColor removed — not consumed by any runtime renderer
+            // spec: NamedListView.showDescription (universal: view description shown below toolbar for all views)
             buildSwitchField('showDescription', t('console.objectView.showFieldDescriptions'), 'toggle-showDescription', true),
-            // spec: NamedListView.resizable (grid-only)
+            // spec: NamedListView.resizable (grid-only: column resizing is a grid concept)
             buildSwitchField('resizable', t('console.objectView.resizableColumns'), 'toggle-resizable', false, true,
-                (draft) => draft.type != null && draft.type !== 'grid'),
-            // spec: NamedListView.densityMode — compact/comfortable/spacious
-            {
-                key: 'densityMode',
-                label: t('console.objectView.densityMode'),
-                type: 'custom',
-                render: (value, onChange) => (
-                    <ConfigRow label={t('console.objectView.densityMode')}>
-                        <select
-                            data-testid="select-densityMode"
-                            className="text-xs h-7 rounded-md border border-input bg-background px-2 text-foreground max-w-[120px]"
-                            value={value || 'comfortable'}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
-                        >
-                            <option value="compact">{t('console.objectView.densityCompact')}</option>
-                            <option value="comfortable">{t('console.objectView.densityComfortable')}</option>
-                            <option value="spacious">{t('console.objectView.densitySpacious')}</option>
-                        </select>
-                    </ConfigRow>
-                ),
-            },
-            // spec: NamedListView.rowHeight — 5-value enum: compact/short/medium/tall/extra_tall
+                undefined, isGridView),
+            // NOTE: densityMode removed — redundant with rowHeight which provides finer 5-value granularity
+            // spec: NamedListView.rowHeight — 5-value enum: compact/short/medium/tall/extra_tall (grid-only)
             {
                 key: 'rowHeight',
                 label: t('console.objectView.rowHeight'),
                 type: 'custom',
+                visibleWhen: isGridView,
                 render: (value, onChange) => (
                     <ConfigRow label={t('console.objectView.rowHeight')}>
                         <div className="flex gap-0.5" data-testid="appearance-rowHeight" role="radiogroup" aria-label={t('console.objectView.rowHeight')}>
@@ -1086,11 +1057,12 @@ function buildAppearanceSection(
                     </ConfigRow>
                 ),
             },
-            // spec: NamedListView.conditionalFormatting
+            // spec: NamedListView.conditionalFormatting (grid/kanban: both process conditional formatting rules)
             {
                 key: '_conditionalFormatting',
                 label: t('console.objectView.conditionalFormatting'),
                 type: 'custom',
+                visibleWhen: supportsConditionalFormatting,
                 render: (_value, _onChange, draft) => {
                     return (
                         <ExpandableWidget
@@ -1231,17 +1203,19 @@ function buildUserActionsSection(
         title: t('console.objectView.userActions'),
         collapsible: true,
         fields: [
-            // spec: NamedListView.inlineEdit
-            buildSwitchField('inlineEdit', t('console.objectView.inlineEdit'), 'toggle-inlineEdit', true),
-            // spec: NamedListView.clickIntoRecordDetails
-            buildSwitchField('clickIntoRecordDetails', t('console.objectView.clickIntoRecordDetails'), 'toggle-clickIntoRecordDetails', true),
-            // spec: NamedListView.addDeleteRecordsInline
-            buildSwitchField('addDeleteRecordsInline', t('console.objectView.addDeleteRecordsInline'), 'toggle-addDeleteRecordsInline', true),
-            // spec: NamedListView.rowActions
+            // spec: NamedListView.inlineEdit (grid-only: only ObjectGrid supports inline editing)
+            buildSwitchField('inlineEdit', t('console.objectView.inlineEdit'), 'toggle-inlineEdit', true,
+                false, undefined, isGridView),
+            // NOTE: clickIntoRecordDetails removed — behavior is handled by navigation mode config, not consumed as a standalone field by runtime
+            // spec: NamedListView.addDeleteRecordsInline (grid-only: inline add/delete is a grid feature)
+            buildSwitchField('addDeleteRecordsInline', t('console.objectView.addDeleteRecordsInline'), 'toggle-addDeleteRecordsInline', true,
+                false, undefined, isGridView),
+            // spec: NamedListView.rowActions (grid/kanban: row action menus)
             {
                 key: '_rowActions',
                 label: t('console.objectView.rowActions'),
                 type: 'custom',
+                visibleWhen: supportsRowActions,
                 render: (_value, _onChange, draft) => {
                     return (
                         <ExpandableWidget
@@ -1268,11 +1242,12 @@ function buildUserActionsSection(
                     );
                 },
             },
-            // spec: NamedListView.bulkActions
+            // spec: NamedListView.bulkActions (grid/kanban: bulk action bar)
             {
                 key: '_bulkActions',
                 label: t('console.objectView.bulkActions'),
                 type: 'custom',
+                visibleWhen: supportsRowActions,
                 render: (_value, _onChange, draft) => {
                     return (
                         <ExpandableWidget
@@ -1446,6 +1421,7 @@ function buildAccessibilitySection(
  * @param defaultOn - if true, treat undefined/absent as enabled (checked = value !== false)
  * @param explicitTrue - if true, only check when value === true
  * @param disabledWhen - optional predicate to disable the switch based on draft state
+ * @param visibleWhen - optional predicate to conditionally show the switch based on draft state
  */
 function buildSwitchField(
     key: string,
@@ -1454,12 +1430,14 @@ function buildSwitchField(
     defaultOn = false,
     explicitTrue = false,
     disabledWhen?: (draft: Record<string, any>) => boolean,
+    visibleWhen?: (draft: Record<string, any>) => boolean,
 ): ConfigField {
     return {
         key,
         label,
         type: 'custom',
         disabledWhen,
+        visibleWhen,
         render: (value, onChange, draft) => (
             <ConfigRow label={label}>
                 <Switch
@@ -1485,11 +1463,13 @@ function buildFieldMultiSelect(
     fieldOptions: FieldOption[],
     updateField: ViewSchemaFactoryOptions['updateField'],
     countLabel: string,
+    visibleWhen?: (draft: Record<string, any>) => boolean,
 ): ConfigField {
     return {
         key: `_${key}`,
         label,
         type: 'custom',
+        visibleWhen,
         render: (_value, _onChange, draft) => {
             return (
                 <ExpandableWidget

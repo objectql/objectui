@@ -411,13 +411,14 @@ describe('buildViewConfigSchema', () => {
             const schema = buildSchema();
             const section = schema.sections.find(s => s.key === 'data')!;
             const fieldKeys = section.fields.map(f => f.key);
-            // Spec order: columns, filter, sort, prefixField, pagination, searchableFields, filterableFields,
+            // Spec order: columns, filter, sort, pagination, searchableFields, filterableFields,
             //             hiddenFields, quickFilters, virtualScroll
-            // _source is UI extension (first), _groupBy is UI extension (after prefixField), _typeOptions is UI extension (last)
+            // _source is UI extension (first), _groupBy is UI extension (after sort), _typeOptions is UI extension (last)
+            // NOTE: prefixField removed — not consumed by runtime
             expect(fieldKeys).toEqual([
                 '_source',
                 '_columns', '_filterBy', '_sortBy',
-                'prefixField', '_groupBy',
+                '_groupBy',
                 '_pageSize', '_pageSizeOptions',
                 '_searchableFields', '_filterableFields', '_hiddenFields',
                 '_quickFilters',
@@ -442,13 +443,15 @@ describe('buildViewConfigSchema', () => {
             const schema = buildSchema();
             const section = schema.sections.find(s => s.key === 'appearance')!;
             const fieldKeys = section.fields.map(f => f.key);
-            // Spec order: striped, bordered, color, wrapHeaders, collapseAllByDefault, fieldTextColor,
-            //             showDescription, resizable, densityMode, rowHeight, conditionalFormatting, emptyState
+            // Spec order: striped, bordered, color, wrapHeaders,
+            //             showDescription, resizable, rowHeight, conditionalFormatting, emptyState
+            // NOTE: collapseAllByDefault removed — not consumed by runtime
+            // NOTE: fieldTextColor removed — not consumed by runtime
+            // NOTE: densityMode removed (redundant with rowHeight)
             expect(fieldKeys).toEqual([
                 'striped', 'bordered', 'color',
-                'wrapHeaders', 'collapseAllByDefault',
-                'fieldTextColor', 'showDescription',
-                'resizable', 'densityMode', 'rowHeight',
+                'wrapHeaders', 'showDescription',
+                'resizable', 'rowHeight',
                 '_conditionalFormatting', '_emptyState',
             ]);
         });
@@ -469,18 +472,19 @@ describe('buildViewConfigSchema', () => {
             const schema = buildSchema();
             const section = schema.sections.find(s => s.key === 'userActions')!;
             const fieldKeys = section.fields.map(f => f.key);
-            // Spec order: inlineEdit, clickIntoRecordDetails, addDeleteRecordsInline, rowActions, bulkActions
+            // Spec order: inlineEdit, addDeleteRecordsInline, rowActions, bulkActions
+            // NOTE: clickIntoRecordDetails removed — controlled via navigation mode
             expect(fieldKeys).toEqual([
-                'inlineEdit', 'clickIntoRecordDetails', 'addDeleteRecordsInline',
+                'inlineEdit', 'addDeleteRecordsInline',
                 '_rowActions', '_bulkActions',
             ]);
         });
 
-        it('inlineEdit comes before clickIntoRecordDetails per spec', () => {
+        it('inlineEdit comes before addDeleteRecordsInline per spec', () => {
             const schema = buildSchema();
             const section = schema.sections.find(s => s.key === 'userActions')!;
             const fieldKeys = section.fields.map(f => f.key);
-            expect(fieldKeys.indexOf('inlineEdit')).toBeLessThan(fieldKeys.indexOf('clickIntoRecordDetails'));
+            expect(fieldKeys.indexOf('inlineEdit')).toBeLessThan(fieldKeys.indexOf('addDeleteRecordsInline'));
         });
     });
 
@@ -636,12 +640,12 @@ describe('spec alignment', () => {
                 color: 'color',
                 inlineEdit: 'inlineEdit',
                 wrapHeaders: 'wrapHeaders',
-                clickIntoRecordDetails: 'clickIntoRecordDetails',
+                // clickIntoRecordDetails removed — controlled via navigation mode
                 addRecordViaForm: '_addRecord',  // compound field
                 addDeleteRecordsInline: 'addDeleteRecordsInline',
-                collapseAllByDefault: 'collapseAllByDefault',
-                fieldTextColor: 'fieldTextColor',
-                prefixField: 'prefixField',
+                // collapseAllByDefault removed — not consumed by runtime
+                // fieldTextColor removed — not consumed by runtime
+                // prefixField removed — not consumed by runtime
                 showDescription: 'showDescription',
                 navigation: '_navigationMode',  // compound: mode/width/openNewTab
                 selection: '_selectionType',
@@ -649,7 +653,7 @@ describe('spec alignment', () => {
                 searchableFields: '_searchableFields',
                 filterableFields: '_filterableFields',
                 resizable: 'resizable',
-                densityMode: 'densityMode',
+                // densityMode removed — redundant with rowHeight
                 rowHeight: 'rowHeight',
                 hiddenFields: '_hiddenFields',
                 exportOptions: '_export',  // compound with allowExport
@@ -692,9 +696,9 @@ describe('spec alignment', () => {
             const schema = buildSchema();
             const section = schema.sections.find(s => s.key === 'userActions')!;
             const keys = section.fields.map(f => f.key);
-            // Spec order: inlineEdit → clickIntoRecordDetails → addDeleteRecordsInline
-            expect(keys.indexOf('inlineEdit')).toBeLessThan(keys.indexOf('clickIntoRecordDetails'));
-            expect(keys.indexOf('clickIntoRecordDetails')).toBeLessThan(keys.indexOf('addDeleteRecordsInline'));
+            // Spec order: inlineEdit → addDeleteRecordsInline
+            // NOTE: clickIntoRecordDetails removed — controlled via navigation mode
+            expect(keys.indexOf('inlineEdit')).toBeLessThan(keys.indexOf('addDeleteRecordsInline'));
         });
 
         // Protocol suggestions: UI fields not in NamedListView spec
@@ -743,14 +747,6 @@ describe('spec alignment', () => {
             return section.fields.find(f => f.key === fieldKey)!;
         }
 
-        it('collapseAllByDefault is an explicitTrue switch field', () => {
-            // explicitTrue fields only show checked when value === true
-            const field = findField('appearance', 'collapseAllByDefault');
-            expect(field.render).toBeDefined();
-            expect(field.type).toBe('custom');
-            expect(field.key).toBe('collapseAllByDefault');
-        });
-
         it('showDescription is a defaultOn switch field', () => {
             const field = findField('appearance', 'showDescription');
             expect(field.render).toBeDefined();
@@ -763,6 +759,13 @@ describe('spec alignment', () => {
             expect(field.render).toBeDefined();
             expect(field.type).toBe('custom');
             expect(field.key).toBe('inlineEdit');
+        });
+
+        it('densityMode field was removed (redundant with rowHeight)', () => {
+            const schema = buildSpecSchema();
+            const section = schema.sections.find(s => s.key === 'appearance')!;
+            const field = section.fields.find(f => f.key === 'densityMode');
+            expect(field).toBeUndefined();
         });
     });
 
@@ -804,10 +807,146 @@ describe('spec alignment', () => {
             // defaults to page mode when navigation is undefined → visible
             expect(field.visibleWhen!({})).toBe(true);
         });
+
+        // ── Toolbar toggle visibility by view type ──────────────────────
+        it('showGroup visible for grid (default), kanban, and gallery, hidden for others', () => {
+            const schema = buildSpecSchema();
+            const section = schema.sections.find(s => s.key === 'pageConfig')!;
+            const field = section.fields.find(f => f.key === 'showGroup')!;
+            expect(field.visibleWhen).toBeDefined();
+            expect(field.visibleWhen!({})).toBe(true);                    // default = grid
+            expect(field.visibleWhen!({ type: 'grid' })).toBe(true);
+            expect(field.visibleWhen!({ type: 'kanban' })).toBe(true);
+            expect(field.visibleWhen!({ type: 'gallery' })).toBe(true);
+            expect(field.visibleWhen!({ type: 'calendar' })).toBe(false);
+            expect(field.visibleWhen!({ type: 'timeline' })).toBe(false);
+            expect(field.visibleWhen!({ type: 'gantt' })).toBe(false);
+            expect(field.visibleWhen!({ type: 'map' })).toBe(false);
+        });
+
+        it('showColor visible for grid (default), calendar, timeline, gantt, hidden for others', () => {
+            const schema = buildSpecSchema();
+            const section = schema.sections.find(s => s.key === 'pageConfig')!;
+            const field = section.fields.find(f => f.key === 'showColor')!;
+            expect(field.visibleWhen).toBeDefined();
+            expect(field.visibleWhen!({})).toBe(true);                    // default = grid
+            expect(field.visibleWhen!({ type: 'grid' })).toBe(true);
+            expect(field.visibleWhen!({ type: 'calendar' })).toBe(true);
+            expect(field.visibleWhen!({ type: 'timeline' })).toBe(true);
+            expect(field.visibleWhen!({ type: 'gantt' })).toBe(true);
+            expect(field.visibleWhen!({ type: 'kanban' })).toBe(false);
+            expect(field.visibleWhen!({ type: 'gallery' })).toBe(false);
+            expect(field.visibleWhen!({ type: 'map' })).toBe(false);
+        });
+
+        it('showDensity visible only for grid (default), hidden for others', () => {
+            const schema = buildSpecSchema();
+            const section = schema.sections.find(s => s.key === 'pageConfig')!;
+            const field = section.fields.find(f => f.key === 'showDensity')!;
+            expect(field.visibleWhen).toBeDefined();
+            expect(field.visibleWhen!({})).toBe(true);                    // default = grid
+            expect(field.visibleWhen!({ type: 'grid' })).toBe(true);
+            expect(field.visibleWhen!({ type: 'kanban' })).toBe(false);
+            expect(field.visibleWhen!({ type: 'calendar' })).toBe(false);
+        });
+
+        // ── Data section visibility by view type ────────────────────────
+        it('_groupBy visible for grid (default) and gallery, hidden for others', () => {
+            const schema = buildSpecSchema();
+            const section = schema.sections.find(s => s.key === 'data')!;
+            const field = section.fields.find(f => f.key === '_groupBy')!;
+            expect(field.visibleWhen).toBeDefined();
+            expect(field.visibleWhen!({})).toBe(true);                    // default = grid
+            expect(field.visibleWhen!({ type: 'grid' })).toBe(true);
+            expect(field.visibleWhen!({ type: 'gallery' })).toBe(true);
+            expect(field.visibleWhen!({ type: 'kanban' })).toBe(false);   // kanban uses dedicated groupByField
+            expect(field.visibleWhen!({ type: 'calendar' })).toBe(false);
+            expect(field.visibleWhen!({ type: 'timeline' })).toBe(false);
+            expect(field.visibleWhen!({ type: 'gantt' })).toBe(false);
+            expect(field.visibleWhen!({ type: 'map' })).toBe(false);
+        });
+
+        it('searchableFields is universal (no visibleWhen)', () => {
+            const schema = buildSpecSchema();
+            const section = schema.sections.find(s => s.key === 'data')!;
+            const field = section.fields.find(f => f.key === '_searchableFields')!;
+            expect(field.visibleWhen).toBeUndefined();
+        });
+
+        it('filterableFields is universal (no visibleWhen)', () => {
+            const schema = buildSpecSchema();
+            const section = schema.sections.find(s => s.key === 'data')!;
+            const field = section.fields.find(f => f.key === '_filterableFields')!;
+            expect(field.visibleWhen).toBeUndefined();
+        });
+
+        it('quickFilters is universal (no visibleWhen)', () => {
+            const schema = buildSpecSchema();
+            const section = schema.sections.find(s => s.key === 'data')!;
+            const field = section.fields.find(f => f.key === '_quickFilters')!;
+            expect(field.visibleWhen).toBeUndefined();
+        });
+
+        it('virtualScroll visible only for grid', () => {
+            const schema = buildSpecSchema();
+            const section = schema.sections.find(s => s.key === 'data')!;
+            const field = section.fields.find(f => f.key === 'virtualScroll')!;
+            expect(field.visibleWhen).toBeDefined();
+            expect(field.visibleWhen!({})).toBe(true);
+            expect(field.visibleWhen!({ type: 'grid' })).toBe(true);
+            expect(field.visibleWhen!({ type: 'kanban' })).toBe(false);
+        });
+
+        // ── Appearance section visibility by view type / state ──────────
+        it('color visible for grid (default), calendar, timeline, gantt, hidden for others', () => {
+            const schema = buildSpecSchema();
+            const section = schema.sections.find(s => s.key === 'appearance')!;
+            const field = section.fields.find(f => f.key === 'color')!;
+            expect(field.visibleWhen).toBeDefined();
+            expect(field.visibleWhen!({})).toBe(true);                    // default = grid
+            expect(field.visibleWhen!({ type: 'grid' })).toBe(true);
+            expect(field.visibleWhen!({ type: 'calendar' })).toBe(true);
+            expect(field.visibleWhen!({ type: 'timeline' })).toBe(true);
+            expect(field.visibleWhen!({ type: 'gantt' })).toBe(true);
+            expect(field.visibleWhen!({ type: 'kanban' })).toBe(false);
+            expect(field.visibleWhen!({ type: 'gallery' })).toBe(false);
+            expect(field.visibleWhen!({ type: 'map' })).toBe(false);
+        });
+
+        it('showDescription is universal (no visibleWhen)', () => {
+            const schema = buildSpecSchema();
+            const section = schema.sections.find(s => s.key === 'appearance')!;
+            const field = section.fields.find(f => f.key === 'showDescription')!;
+            expect(field.visibleWhen).toBeUndefined();
+        });
+
+        it('rowHeight visible only for grid', () => {
+            const schema = buildSpecSchema();
+            const section = schema.sections.find(s => s.key === 'appearance')!;
+            const field = section.fields.find(f => f.key === 'rowHeight')!;
+            expect(field.visibleWhen).toBeDefined();
+            expect(field.visibleWhen!({})).toBe(true);
+            expect(field.visibleWhen!({ type: 'grid' })).toBe(true);
+            expect(field.visibleWhen!({ type: 'kanban' })).toBe(false);
+        });
+
+        it('conditionalFormatting visible for grid (default) and kanban, hidden for others', () => {
+            const schema = buildSpecSchema();
+            const section = schema.sections.find(s => s.key === 'appearance')!;
+            const field = section.fields.find(f => f.key === '_conditionalFormatting')!;
+            expect(field.visibleWhen).toBeDefined();
+            expect(field.visibleWhen!({})).toBe(true);
+            expect(field.visibleWhen!({ type: 'grid' })).toBe(true);
+            expect(field.visibleWhen!({ type: 'kanban' })).toBe(true);
+            expect(field.visibleWhen!({ type: 'calendar' })).toBe(false);
+            expect(field.visibleWhen!({ type: 'gallery' })).toBe(false);
+            expect(field.visibleWhen!({ type: 'timeline' })).toBe(false);
+            expect(field.visibleWhen!({ type: 'map' })).toBe(false);
+        });
     });
 
-    // ── disabledWhen predicates for grid-only fields ─────────────────────
-    describe('disabledWhen predicates for grid-only fields', () => {
+    // ── visibleWhen predicates for grid-only appearance fields ──────────
+    describe('visibleWhen predicates for grid-only appearance fields', () => {
         function buildSchema() {
             return buildViewConfigSchema({
                 t: mockT,
@@ -822,32 +961,32 @@ describe('spec alignment', () => {
         const gridOnlyFields = ['striped', 'bordered', 'wrapHeaders', 'resizable'];
 
         for (const fieldKey of gridOnlyFields) {
-            it(`${fieldKey} should have disabledWhen predicate`, () => {
+            it(`${fieldKey} should have visibleWhen predicate`, () => {
                 const schema = buildSchema();
                 const section = schema.sections.find(s => s.key === 'appearance')!;
                 const field = section.fields.find(f => f.key === fieldKey)!;
-                expect(field.disabledWhen).toBeDefined();
+                expect(field.visibleWhen).toBeDefined();
             });
 
-            it(`${fieldKey} should be disabled when view type is kanban`, () => {
+            it(`${fieldKey} should be hidden when view type is kanban`, () => {
                 const schema = buildSchema();
                 const section = schema.sections.find(s => s.key === 'appearance')!;
                 const field = section.fields.find(f => f.key === fieldKey)!;
-                expect(field.disabledWhen!({ type: 'kanban' })).toBe(true);
+                expect(field.visibleWhen!({ type: 'kanban' })).toBe(false);
             });
 
-            it(`${fieldKey} should not be disabled when view type is grid`, () => {
+            it(`${fieldKey} should be visible when view type is grid`, () => {
                 const schema = buildSchema();
                 const section = schema.sections.find(s => s.key === 'appearance')!;
                 const field = section.fields.find(f => f.key === fieldKey)!;
-                expect(field.disabledWhen!({ type: 'grid' })).toBe(false);
+                expect(field.visibleWhen!({ type: 'grid' })).toBe(true);
             });
 
-            it(`${fieldKey} should not be disabled when view type is undefined (default grid)`, () => {
+            it(`${fieldKey} should be visible when view type is undefined (default grid)`, () => {
                 const schema = buildSchema();
                 const section = schema.sections.find(s => s.key === 'appearance')!;
                 const field = section.fields.find(f => f.key === fieldKey)!;
-                expect(field.disabledWhen!({})).toBe(false);
+                expect(field.visibleWhen!({})).toBe(true);
             });
         }
     });
