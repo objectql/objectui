@@ -104,7 +104,6 @@ export default defineStack({
   ],
   dashboards: [
     {
-      type: 'dashboard' as const,
       name: 'showcase_dashboard',
       label: 'Platform Showcase',
       description: 'Demonstrating all dashboard widget types',
