@@ -162,7 +162,7 @@ describe('Auto-type inference: Select/Badge fields', () => {
 // 3. Auto-type inference: Boolean/Checkbox fields
 // =========================================================================
 describe('Auto-type inference: Boolean/Checkbox fields', () => {
-  it('should render is_completed as checkbox', async () => {
+  it('should render is_completed as semantic completion indicator', async () => {
     renderGrid([
       { field: 'subject', label: 'Subject' },
       { field: 'is_completed', label: 'Is Completed' },
@@ -172,9 +172,9 @@ describe('Auto-type inference: Boolean/Checkbox fields', () => {
       expect(screen.getByText('Subject')).toBeInTheDocument();
     });
 
-    // Should render checkboxes (role="checkbox")
-    const checkboxes = screen.getAllByRole('checkbox');
-    expect(checkboxes.length).toBeGreaterThan(0);
+    // Should render green circle completion indicators (not checkboxes)
+    const indicators = screen.getAllByTestId('completion-indicator');
+    expect(indicators.length).toBeGreaterThan(0);
   });
 });
 

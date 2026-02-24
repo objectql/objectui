@@ -34,6 +34,19 @@ describe('getCellRenderer', () => {
     expect(container.querySelector('[class*="bg-green"]')).toBeInTheDocument();
   });
 
+  it('should return SelectCellRenderer for status type', () => {
+    const renderer = getCellRenderer('status');
+    expect(renderer).toBeDefined();
+    // Verify it renders a badge (same as select)
+    const { container } = render(
+      React.createElement(renderer, {
+        value: 'Active',
+        field: { name: 'status', type: 'status', options: [{ value: 'Active', label: 'Active', color: 'green' }] } as any,
+      })
+    );
+    expect(container.querySelector('[class*="bg-green"]')).toBeInTheDocument();
+  });
+
   it('should return DateCellRenderer for date type', () => {
     const renderer = getCellRenderer('date');
     expect(renderer).toBeDefined();
@@ -204,14 +217,14 @@ describe('DateCellRenderer', () => {
     expect(screen.getByText('Yesterday')).toBeInTheDocument();
   });
 
-  it('should render recent past date as "X days ago"', () => {
+  it('should render recent past date as "Overdue Xd"', () => {
     render(
       <DateCellRenderer
         value="2026-02-20T08:00:00Z"
         field={{ name: 'due_date', type: 'date' } as any}
       />
     );
-    expect(screen.getByText('4 days ago')).toBeInTheDocument();
+    expect(screen.getByText('Overdue 4d')).toBeInTheDocument();
   });
 
   it('should render overdue date with red text styling', () => {
@@ -313,6 +326,53 @@ describe('BooleanCellRenderer', () => {
     );
     expect(screen.getByText('—')).toBeInTheDocument();
   });
+
+  it('should render green circle indicator for is_completed=true', () => {
+    const { container } = render(
+      <BooleanCellRenderer
+        value={true}
+        field={{ name: 'is_completed', type: 'boolean' } as any}
+      />
+    );
+    const indicator = container.querySelector('[data-testid="completion-indicator"]');
+    expect(indicator).toBeInTheDocument();
+    expect(indicator).toHaveClass('bg-green-500');
+  });
+
+  it('should render empty circle indicator for is_completed=false', () => {
+    const { container } = render(
+      <BooleanCellRenderer
+        value={false}
+        field={{ name: 'is_completed', type: 'boolean' } as any}
+      />
+    );
+    const indicator = container.querySelector('[data-testid="completion-indicator"]');
+    expect(indicator).toBeInTheDocument();
+    expect(indicator).toHaveClass('border-2');
+  });
+
+  it('should render green circle indicator for completed=true', () => {
+    const { container } = render(
+      <BooleanCellRenderer
+        value={true}
+        field={{ name: 'completed', type: 'boolean' } as any}
+      />
+    );
+    const indicator = container.querySelector('[data-testid="completion-indicator"]');
+    expect(indicator).toBeInTheDocument();
+    expect(indicator).toHaveClass('bg-green-500');
+  });
+
+  it('should render standard checkbox for non-completion boolean fields', () => {
+    render(
+      <BooleanCellRenderer
+        value={true}
+        field={{ name: 'active', type: 'boolean' } as any}
+      />
+    );
+    const checkbox = screen.getByRole('checkbox');
+    expect(checkbox).toHaveAttribute('data-state', 'checked');
+  });
 });
 
 // =========================================================================
@@ -353,8 +413,8 @@ describe('formatRelativeDate', () => {
     expect(formatRelativeDate('2026-02-25T08:00:00Z')).toBe('Tomorrow');
   });
 
-  it('should return "X days ago" for 2-7 days ago', () => {
-    expect(formatRelativeDate('2026-02-21T08:00:00Z')).toBe('3 days ago');
+  it('should return "Overdue Xd" for 2-7 days ago', () => {
+    expect(formatRelativeDate('2026-02-21T08:00:00Z')).toBe('Overdue 3d');
   });
 
   it('should return formatted date for >7 days ago', () => {

@@ -123,7 +123,7 @@ export function formatRelativeDate(value: string | Date): string {
   if (diffDays === -1) return 'Yesterday';
   if (diffDays < -1) {
     const absDays = Math.abs(diffDays);
-    if (absDays <= 7) return `${absDays} days ago`;
+    if (absDays <= 7) return `Overdue ${absDays}d`;
     return formatDate(date);
   }
   if (diffDays > 1 && diffDays <= 7) return `In ${diffDays} days`;
@@ -245,11 +245,33 @@ export function PercentCellRenderer({ value, field }: CellRendererProps): React.
 
 /**
  * Boolean field cell renderer (Airtable-style checkbox)
+ * Supports semantic rendering for completion fields (green indicator).
  */
-export function BooleanCellRenderer({ value }: CellRendererProps): React.ReactElement {
+export function BooleanCellRenderer({ value, field }: CellRendererProps): React.ReactElement {
   if (value == null) {
     return <span className="text-muted-foreground/50 text-xs italic flex items-center justify-center">—</span>;
   }
+
+  // Semantic rendering for completion fields (green circle indicator)
+  const fieldName = field?.name?.toLowerCase() || '';
+  const isCompletionField = ['completed', 'is_completed', 'done', 'is_done'].some(
+    f => fieldName === f || fieldName.endsWith(`_${f}`)
+  );
+
+  if (isCompletionField) {
+    return (
+      <div className="flex items-center justify-center">
+        {value ? (
+          <div className="size-5 rounded-full bg-green-500 flex items-center justify-center" data-testid="completion-indicator">
+            <Check className="size-3 text-white" />
+          </div>
+        ) : (
+          <div className="size-5 rounded-full border-2 border-muted-foreground/30" data-testid="completion-indicator" />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center justify-center">
       <Checkbox checked={!!value} disabled className="pointer-events-none" />
@@ -640,6 +662,7 @@ export function getCellRenderer(fieldType: string): React.FC<CellRendererProps> 
     datetime: DateTimeCellRenderer,
     time: TextCellRenderer,
     select: SelectCellRenderer,
+    status: SelectCellRenderer,
     lookup: SelectCellRenderer, // Default fallback
     master_detail: SelectCellRenderer, // Default fallback
     email: EmailCellRenderer,
