@@ -253,20 +253,20 @@ export function BooleanCellRenderer({ value, field }: CellRendererProps): React.
   }
 
   // Semantic rendering for completion fields (green circle indicator)
+  // Only match exact field names to avoid false positives
   const fieldName = field?.name?.toLowerCase() || '';
-  const isCompletionField = ['completed', 'is_completed', 'done', 'is_done'].some(
-    f => fieldName === f || fieldName.endsWith(`_${f}`)
-  );
+  const isCompletionField = fieldName === 'completed' || fieldName === 'is_completed'
+    || fieldName === 'done' || fieldName === 'is_done';
 
   if (isCompletionField) {
     return (
       <div className="flex items-center justify-center">
         {value ? (
-          <div className="size-5 rounded-full bg-green-500 flex items-center justify-center" data-testid="completion-indicator">
+          <div className="size-5 rounded-full bg-green-500 flex items-center justify-center" role="img" aria-label="Completed" data-testid="completion-indicator">
             <Check className="size-3 text-white" />
           </div>
         ) : (
-          <div className="size-5 rounded-full border-2 border-muted-foreground/30" data-testid="completion-indicator" />
+          <div className="size-5 rounded-full border-2 border-muted-foreground/30" role="img" aria-label="Not completed" data-testid="completion-indicator" />
         )}
       </div>
     );
