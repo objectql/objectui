@@ -96,7 +96,7 @@ const pt = {
   },
   dashboard: {
     title: 'Visão geral CRM',
-    widgets: { totalRevenue: 'Receita total', activeDeals: 'Negócios ativos', winRate: 'Taxa de sucesso', avgDealSize: 'Tamanho médio', revenueTrends: 'Tendências de receita', leadSource: 'Fonte de leads', pipelineByStage: 'Pipeline por etapa', topProducts: 'Principais produtos', recentOpportunities: 'Oportunidades recentes', revenueByAccount: 'Receita por conta' },
+    widgets: { totalRevenue: 'Receita total', activeDeals: 'Negócios ativos', winRate: 'Taxa de sucesso', avgDealSize: 'Tamanho médio', revenueTrends: 'Tendências de receita', leadSource: 'Fonte de leads', pipelineByStage: 'Pipeline por etapa', topProducts: 'Principais produtos', recentOpportunities: 'Oportunidades recentes', revenueByAccount: 'Receita por conta', avgDealSizeByStage: 'Tamanho médio por etapa', ordersByStatus: 'Pedidos por status' },
     trendLabel: 'vs mês anterior',
     columns: { opportunityName: 'Nome da oportunidade', amount: 'Valor', stage: 'Etapa', closeDate: 'Data de fechamento' },
   },

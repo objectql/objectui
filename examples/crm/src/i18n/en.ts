@@ -381,6 +381,8 @@ const en = {
       topProducts: 'Top Products',
       recentOpportunities: 'Recent Opportunities',
       revenueByAccount: 'Revenue by Account',
+      avgDealSizeByStage: 'Avg Deal Size by Stage',
+      ordersByStatus: 'Orders by Status',
     },
     trendLabel: 'vs last month',
     columns: {

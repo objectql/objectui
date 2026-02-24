@@ -378,6 +378,8 @@ const ja = {
       topProducts: '人気商品',
       recentOpportunities: '最近の商談',
       revenueByAccount: '取引先別売上',
+      avgDealSizeByStage: 'ステージ別平均取引規模',
+      ordersByStatus: 'ステータス別注文',
     },
     trendLabel: '前月比',
     columns: {

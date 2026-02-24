@@ -118,7 +118,7 @@ const fr = {
   },
   dashboard: {
     title: 'Aperçu CRM',
-    widgets: { totalRevenue: 'Chiffre d\'affaires total', activeDeals: 'Affaires actives', winRate: 'Taux de réussite', avgDealSize: 'Taille moyenne', revenueTrends: 'Tendances du CA', leadSource: 'Source des leads', pipelineByStage: 'Pipeline par étape', topProducts: 'Produits phares', recentOpportunities: 'Opportunités récentes', revenueByAccount: 'CA par compte' },
+    widgets: { totalRevenue: 'Chiffre d\'affaires total', activeDeals: 'Affaires actives', winRate: 'Taux de réussite', avgDealSize: 'Taille moyenne', revenueTrends: 'Tendances du CA', leadSource: 'Source des leads', pipelineByStage: 'Pipeline par étape', topProducts: 'Produits phares', recentOpportunities: 'Opportunités récentes', revenueByAccount: 'CA par compte', avgDealSizeByStage: 'Taille moyenne par étape', ordersByStatus: 'Commandes par statut' },
     trendLabel: 'vs mois précédent',
     columns: { opportunityName: 'Nom de l\'opportunité', amount: 'Montant', stage: 'Étape', closeDate: 'Date de clôture' },
   },

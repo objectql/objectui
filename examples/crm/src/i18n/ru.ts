@@ -96,7 +96,7 @@ const ru = {
   },
   dashboard: {
     title: 'Обзор CRM',
-    widgets: { totalRevenue: 'Общий доход', activeDeals: 'Активные сделки', winRate: 'Процент побед', avgDealSize: 'Средний размер сделки', revenueTrends: 'Тренды дохода', leadSource: 'Источник лидов', pipelineByStage: 'Воронка по стадиям', topProducts: 'Лучшие продукты', recentOpportunities: 'Последние сделки', revenueByAccount: 'Доход по клиентам' },
+    widgets: { totalRevenue: 'Общий доход', activeDeals: 'Активные сделки', winRate: 'Процент побед', avgDealSize: 'Средний размер сделки', revenueTrends: 'Тренды дохода', leadSource: 'Источник лидов', pipelineByStage: 'Воронка по стадиям', topProducts: 'Лучшие продукты', recentOpportunities: 'Последние сделки', revenueByAccount: 'Доход по клиентам', avgDealSizeByStage: 'Средний размер сделки по стадиям', ordersByStatus: 'Заказы по статусу' },
     trendLabel: 'по сравнению с прошлым месяцем',
     columns: { opportunityName: 'Название сделки', amount: 'Сумма', stage: 'Стадия', closeDate: 'Дата закрытия' },
   },

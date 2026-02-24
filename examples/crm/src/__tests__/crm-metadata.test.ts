@@ -212,6 +212,83 @@ describe('CRM Metadata Spec Compliance', () => {
         expect(typeof widget.aggregate).toBe('string');
       }
     });
+
+    it('all chart widgets use provider: object for dynamic data', () => {
+      const chartTypes = ['bar', 'area', 'donut', 'line', 'pie'];
+      const charts = CrmDashboard.widgets.filter((w) => chartTypes.includes(w.type));
+      expect(charts.length).toBeGreaterThanOrEqual(5);
+      for (const widget of charts) {
+        const data = (widget.options as any)?.data;
+        expect(data).toBeDefined();
+        expect(data.provider).toBe('object');
+        expect(typeof data.object).toBe('string');
+        expect(data.object.length).toBeGreaterThan(0);
+      }
+    });
+
+    it('all chart widgets with provider: object have valid aggregate config', () => {
+      const chartTypes = ['bar', 'area', 'donut', 'line', 'pie'];
+      const charts = CrmDashboard.widgets.filter((w) => chartTypes.includes(w.type));
+      for (const widget of charts) {
+        const data = (widget.options as any)?.data;
+        expect(data.aggregate).toBeDefined();
+        expect(typeof data.aggregate.field).toBe('string');
+        expect(typeof data.aggregate.function).toBe('string');
+        expect(typeof data.aggregate.groupBy).toBe('string');
+        expect(['sum', 'count', 'avg', 'min', 'max']).toContain(data.aggregate.function);
+      }
+    });
+
+    it('table widget uses provider: object for dynamic data', () => {
+      const tables = CrmDashboard.widgets.filter((w) => w.type === 'table');
+      expect(tables.length).toBeGreaterThanOrEqual(1);
+      for (const widget of tables) {
+        const data = (widget.options as any)?.data;
+        expect(data).toBeDefined();
+        expect(data.provider).toBe('object');
+        expect(typeof data.object).toBe('string');
+      }
+    });
+
+    it('aggregate groupBy fields align with widget categoryField', () => {
+      const chartTypes = ['bar', 'area', 'donut', 'line', 'pie'];
+      const charts = CrmDashboard.widgets.filter((w) => chartTypes.includes(w.type));
+      for (const widget of charts) {
+        const data = (widget.options as any)?.data;
+        if (data?.aggregate?.groupBy) {
+          expect(data.aggregate.groupBy).toBe(widget.categoryField);
+        }
+      }
+    });
+
+    it('aggregate field names align with widget valueField', () => {
+      const chartTypes = ['bar', 'area', 'donut', 'line', 'pie'];
+      const charts = CrmDashboard.widgets.filter((w) => chartTypes.includes(w.type));
+      for (const widget of charts) {
+        const data = (widget.options as any)?.data;
+        if (data?.aggregate?.field) {
+          expect(data.aggregate.field).toBe(widget.valueField);
+        }
+      }
+    });
+
+    it('dashboard covers diverse aggregate functions (sum, count, avg, max)', () => {
+      const chartTypes = ['bar', 'area', 'donut', 'line', 'pie'];
+      const charts = CrmDashboard.widgets.filter((w) => chartTypes.includes(w.type));
+      const aggFns = new Set(charts.map((w) => (w.options as any)?.data?.aggregate?.function));
+      expect(aggFns.has('sum')).toBe(true);
+      expect(aggFns.has('count')).toBe(true);
+      expect(aggFns.has('avg')).toBe(true);
+      expect(aggFns.has('max')).toBe(true);
+    });
+
+    it('dashboard includes cross-object widgets (order)', () => {
+      const orderWidgets = CrmDashboard.widgets.filter((w) => w.object === 'order');
+      expect(orderWidgets.length).toBeGreaterThanOrEqual(1);
+      const data = (orderWidgets[0].options as any)?.data;
+      expect(data.provider).toBe('object');
+      expect(data.object).toBe('order');
+    });
   });
 
   describe('Reports', () => {
@@ -383,6 +460,8 @@ describe('CRM i18n Completeness', () => {
       expect(enLocale.dashboard.widgets.topProducts).toBeDefined();
       expect(enLocale.dashboard.widgets.recentOpportunities).toBeDefined();
       expect(enLocale.dashboard.widgets.revenueByAccount).toBeDefined();
+      expect(enLocale.dashboard.widgets.avgDealSizeByStage).toBeDefined();
+      expect(enLocale.dashboard.widgets.ordersByStatus).toBeDefined();
     });
   });
 });

@@ -118,7 +118,7 @@ const de = {
   },
   dashboard: {
     title: 'CRM-Übersicht',
-    widgets: { totalRevenue: 'Gesamtumsatz', activeDeals: 'Aktive Geschäfte', winRate: 'Gewinnrate', avgDealSize: 'Ø Geschäftsgröße', revenueTrends: 'Umsatztrends', leadSource: 'Lead-Quelle', pipelineByStage: 'Pipeline nach Phase', topProducts: 'Top-Produkte', recentOpportunities: 'Aktuelle Chancen', revenueByAccount: 'Umsatz nach Konto' },
+    widgets: { totalRevenue: 'Gesamtumsatz', activeDeals: 'Aktive Geschäfte', winRate: 'Gewinnrate', avgDealSize: 'Ø Geschäftsgröße', revenueTrends: 'Umsatztrends', leadSource: 'Lead-Quelle', pipelineByStage: 'Pipeline nach Phase', topProducts: 'Top-Produkte', recentOpportunities: 'Aktuelle Chancen', revenueByAccount: 'Umsatz nach Konto', avgDealSizeByStage: 'Ø Geschäftsgröße nach Phase', ordersByStatus: 'Bestellungen nach Status' },
     trendLabel: 'ggü. Vormonat',
     columns: { opportunityName: 'Chancenname', amount: 'Betrag', stage: 'Phase', closeDate: 'Abschlussdatum' },
   },

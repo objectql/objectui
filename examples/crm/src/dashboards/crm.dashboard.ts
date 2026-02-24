@@ -53,29 +53,22 @@ export const CrmDashboard = {
       }
     },
 
-    // --- Row 2: Charts ---
+    // --- Row 2: Charts (provider: 'object' — dynamic aggregation) ---
     {
         title: 'Revenue Trends',
         type: 'area' as const,
         object: 'opportunity',
-        categoryField: 'month',
-        valueField: 'revenue',
+        categoryField: 'stage',
+        valueField: 'expected_revenue',
         aggregate: 'sum',
         layout: { x: 0, y: 1, w: 3, h: 2 },
         options: {
-            xField: 'month',
-            yField: 'revenue',
+            xField: 'stage',
+            yField: 'expected_revenue',
             data: {
-                provider: 'value' as const,
-                items: [
-                   { month: 'Jan', revenue: 155000 },
-                   { month: 'Feb', revenue: 87000 },
-                   { month: 'Mar', revenue: 48000 },
-                   { month: 'Apr', revenue: 61000 },
-                   { month: 'May', revenue: 55000 },
-                   { month: 'Jun', revenue: 67000 },
-                   { month: 'Jul', revenue: 72000 }
-                ]
+                provider: 'object' as const,
+                object: 'opportunity',
+                aggregate: { field: 'expected_revenue', function: 'sum' as const, groupBy: 'stage' }
             }
         },
     },
@@ -83,26 +76,22 @@ export const CrmDashboard = {
         title: 'Lead Source',
         type: 'donut' as const,
         object: 'opportunity',
-        categoryField: 'source',
-        valueField: 'value',
+        categoryField: 'lead_source',
+        valueField: 'count',
         aggregate: 'count',
         layout: { x: 3, y: 1, w: 1, h: 2 },
         options: {
-            xField: 'source',
-            yField: 'value',
+            xField: 'lead_source',
+            yField: 'count',
             data: {
-                provider: 'value' as const,
-                items: [
-                    { source: 'Web', value: 2 },
-                    { source: 'Referral', value: 1 },
-                    { source: 'Partner', value: 1 },
-                    { source: 'Existing Business', value: 3 }
-                ]
+                provider: 'object' as const,
+                object: 'opportunity',
+                aggregate: { field: 'count', function: 'count' as const, groupBy: 'lead_source' }
             }
         },
     },
 
-    // --- Row 3: More Charts ---
+    // --- Row 3: More Charts (provider: 'object' — dynamic aggregation) ---
     {
         title: 'Pipeline by Stage',
         type: 'bar' as const,
@@ -115,14 +104,9 @@ export const CrmDashboard = {
             xField: 'stage',
             yField: 'amount',
             data: {
-                provider: 'value' as const,
-                items: [
-                    { stage: 'Prospecting', amount: 250000 },
-                    { stage: 'Qualification', amount: 35000 },
-                    { stage: 'Proposal', amount: 85000 },
-                    { stage: 'Negotiation', amount: 45000 },
-                    { stage: 'Closed Won', amount: 225000 }
-                ]
+                provider: 'object' as const,
+                object: 'opportunity',
+                aggregate: { field: 'amount', function: 'sum' as const, groupBy: 'stage' }
             }
         },
     },
@@ -130,26 +114,22 @@ export const CrmDashboard = {
         title: 'Top Products',
         type: 'bar' as const,
         object: 'product',
-        categoryField: 'name',
-        valueField: 'sales',
+        categoryField: 'category',
+        valueField: 'price',
         aggregate: 'sum',
         layout: { x: 2, y: 3, w: 2, h: 2 },
         options: {
-            xField: 'name',
-            yField: 'sales',
+            xField: 'category',
+            yField: 'price',
             data: {
-                provider: 'value' as const,
-                items: [
-                    { name: 'Workstation Pro Laptop', sales: 45000 },
-                    { name: 'Implementation Service', sales: 32000 },
-                    { name: 'Premium Support', sales: 21000 },
-                    { name: 'Executive Mesh Chair', sales: 15000 }
-                ]
+                provider: 'object' as const,
+                object: 'product',
+                aggregate: { field: 'price', function: 'sum' as const, groupBy: 'category' }
             }
         },
     },
 
-    // --- Row 4: Table ---
+    // --- Row 4: Table (provider: 'object' — dynamic data) ---
     {
         title: 'Recent Opportunities',
         type: 'table' as const,
@@ -160,17 +140,11 @@ export const CrmDashboard = {
                 { header: 'Opportunity Name', accessorKey: 'name' }, 
                 { header: 'Amount', accessorKey: 'amount' }, 
                 { header: 'Stage', accessorKey: 'stage' },
-                { header: 'Close Date', accessorKey: 'date' }
+                { header: 'Close Date', accessorKey: 'close_date' }
             ],
             data: {
-                provider: 'value' as const,
-                items: [
-                   { name: 'Berlin Automation Project', amount: '$250,000', stage: 'Prospecting', date: '2024-09-01' },
-                   { name: 'ObjectStack Enterprise License', amount: '$150,000', stage: 'Closed Won', date: '2024-01-15' },
-                   { name: 'London Annual Renewal', amount: '$85,000', stage: 'Proposal', date: '2024-05-15' },
-                   { name: 'SF Tower Expansion', amount: '$75,000', stage: 'Closed Won', date: '2024-02-28' },
-                   { name: 'Global Fin Q1 Upsell', amount: '$45,000', stage: 'Negotiation', date: '2024-03-30' }
-                ]
+                provider: 'object' as const,
+                object: 'opportunity',
             }
         },
     },
@@ -191,6 +165,44 @@ export const CrmDashboard = {
                 provider: 'object' as const,
                 object: 'opportunity',
                 aggregate: { field: 'amount', function: 'sum' as const, groupBy: 'account' }
+            }
+        },
+    },
+
+    // --- Row 6: Additional aggregate functions (avg, max) + cross-object ---
+    {
+        title: 'Avg Deal Size by Stage',
+        type: 'line' as const,
+        object: 'opportunity',
+        categoryField: 'stage',
+        valueField: 'amount',
+        aggregate: 'avg',
+        layout: { x: 0, y: 9, w: 2, h: 2 },
+        options: {
+            xField: 'stage',
+            yField: 'amount',
+            data: {
+                provider: 'object' as const,
+                object: 'opportunity',
+                aggregate: { field: 'amount', function: 'avg' as const, groupBy: 'stage' }
+            }
+        },
+    },
+    {
+        title: 'Orders by Status',
+        type: 'bar' as const,
+        object: 'order',
+        categoryField: 'status',
+        valueField: 'amount',
+        aggregate: 'max',
+        layout: { x: 2, y: 9, w: 2, h: 2 },
+        options: {
+            xField: 'status',
+            yField: 'amount',
+            data: {
+                provider: 'object' as const,
+                object: 'order',
+                aggregate: { field: 'amount', function: 'max' as const, groupBy: 'status' }
             }
         },
     }
