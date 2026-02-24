@@ -231,4 +231,101 @@ describe('WidgetConfigPanel', () => {
     const descInput = screen.getByTestId('config-field-description') as HTMLInputElement;
     expect(descInput.value).toBe('Monthly revenue breakdown');
   });
+
+  // ---- Dynamic dropdown tests (availableObjects / availableFields) --------
+
+  describe('with availableObjects', () => {
+    const objects = [
+      { value: 'accounts', label: 'Accounts' },
+      { value: 'contacts', label: 'Contacts' },
+      { value: 'orders', label: 'Orders' },
+    ];
+
+    it('should render data source as a select when availableObjects provided', () => {
+      render(
+        <WidgetConfigPanel
+          open={true}
+          onClose={vi.fn()}
+          config={defaultWidgetConfig}
+          onSave={vi.fn()}
+          availableObjects={objects}
+        />,
+      );
+      // The data source field should be a select trigger (not a text input)
+      const objectField = screen.getByTestId('config-field-object');
+      expect(objectField.tagName).not.toBe('INPUT');
+    });
+
+    it('should render data source as an input when no availableObjects', () => {
+      render(
+        <WidgetConfigPanel
+          open={true}
+          onClose={vi.fn()}
+          config={defaultWidgetConfig}
+          onSave={vi.fn()}
+        />,
+      );
+      const objectField = screen.getByTestId('config-field-object');
+      expect(objectField.tagName).toBe('INPUT');
+    });
+
+    it('should render category/value fields as selects when availableObjects provided', () => {
+      const fields = [
+        { value: 'name', label: 'Name' },
+        { value: 'status', label: 'Status' },
+      ];
+      render(
+        <WidgetConfigPanel
+          open={true}
+          onClose={vi.fn()}
+          config={defaultWidgetConfig}
+          onSave={vi.fn()}
+          availableObjects={objects}
+          availableFields={fields}
+        />,
+      );
+      const catField = screen.getByTestId('config-field-categoryField');
+      expect(catField.tagName).not.toBe('INPUT');
+      const valField = screen.getByTestId('config-field-valueField');
+      expect(valField.tagName).not.toBe('INPUT');
+    });
+
+    it('should disable field selectors when object is not selected', () => {
+      const configWithNoObject = { ...defaultWidgetConfig, object: '' };
+      render(
+        <WidgetConfigPanel
+          open={true}
+          onClose={vi.fn()}
+          config={configWithNoObject}
+          onSave={vi.fn()}
+          availableObjects={objects}
+        />,
+      );
+      const catField = screen.getByTestId('config-field-categoryField');
+      expect(catField).toHaveAttribute('disabled');
+      const valField = screen.getByTestId('config-field-valueField');
+      expect(valField).toHaveAttribute('disabled');
+    });
+
+    it('should not disable field selectors when object is selected', () => {
+      const fields = [
+        { value: 'name', label: 'Name' },
+        { value: 'amount', label: 'Amount' },
+      ];
+      render(
+        <WidgetConfigPanel
+          open={true}
+          onClose={vi.fn()}
+          config={defaultWidgetConfig}
+          onSave={vi.fn()}
+          availableObjects={objects}
+          availableFields={fields}
+        />,
+      );
+      const catField = screen.getByTestId('config-field-categoryField');
+      expect(catField).not.toHaveAttribute('disabled');
+      const valField = screen.getByTestId('config-field-valueField');
+      expect(valField).not.toHaveAttribute('disabled');
+    });
+  });
 });
