@@ -389,6 +389,16 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] `WidgetConfigPanel` — added `headerExtra` prop for custom header actions
 - [x] Update 21 integration tests (10 DashboardDesignInteraction + 11 DashboardViewSelection) to verify inline config panel pattern, widget deletion, live preview sync
 
+**Phase 9 — Design Mode Widget Selection Click-Through Fix:**
+- [x] Fix: Widget content (charts, tables via `SchemaRenderer`) intercepted click events, preventing selection in edit mode
+- [x] Defense layer 1: `pointer-events-none` on `SchemaRenderer` content wrappers disables chart/table hover and tooltip interactivity in design mode
+- [x] Defense layer 2: Transparent click-capture overlay (`absolute inset-0 z-10`) renders on top of widget content in design mode — guarantees click reaches widget handler even if SVG children override `pointer-events`
+- [x] Self-contained (metric) widgets: both `pointer-events-none` on SchemaRenderer + overlay inside `relative` wrapper
+- [x] Card-based (chart/table) widgets: `pointer-events-none` on `CardContent` inner wrapper + overlay inside `relative` Card
+- [x] No impact on non-design mode — widgets remain fully interactive when not editing
+- [x] Updated SchemaRenderer mock to forward `className` and include interactive child button for more realistic testing
+- [x] Add 9 new Vitest tests: pointer-events-none presence/absence, overlay presence/absence, relative positioning, click-to-select on Card-based widgets
+
 ### P1.11 Console — Schema-Driven View Config Panel Migration
 
 > Migrated the Console ViewConfigPanel from imperative implementation (~1655 lines) to Schema-Driven architecture using `ConfigPanelRenderer` + `useConfigDraft` + `ConfigPanelSchema`, reducing to ~170 lines declarative wrapper + schema factory.

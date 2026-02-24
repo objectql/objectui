@@ -187,14 +187,15 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
             return (
                 <div 
                     key={widgetKey}
-                    className={cn("h-full w-full", selectionClasses)}
+                    className={cn("h-full w-full", designMode && "relative", selectionClasses)}
                     style={!isMobile && widget.layout ? {
                         gridColumn: `span ${widget.layout.w}`,
                         gridRow: `span ${widget.layout.h}`
                     }: undefined}
                     {...designModeProps}
                 >
-                     <SchemaRenderer schema={componentSchema} className="h-full w-full" />
+                     <SchemaRenderer schema={componentSchema} className={cn("h-full w-full", designMode && "pointer-events-none")} />
+                     {designMode && <div className="absolute inset-0 z-10" aria-hidden="true" data-testid="widget-click-overlay" />}
                 </div>
             );
         }
@@ -206,6 +207,7 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                     "overflow-hidden border-border/50 shadow-sm transition-all hover:shadow-md",
                     "bg-card/50 backdrop-blur-sm",
                     forceMobileFullWidth && "w-full",
+                    designMode && "relative",
                     selectionClasses
                 )}
                 style={!isMobile && widget.layout ? {
@@ -222,10 +224,11 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                     </CardHeader>
                 )}
                 <CardContent className="p-0">
-                    <div className={cn("h-full w-full", "p-3 sm:p-4 md:p-6")}>
+                    <div className={cn("h-full w-full", "p-3 sm:p-4 md:p-6", designMode && "pointer-events-none")}>
                         <SchemaRenderer schema={componentSchema} />
                     </div>
                 </CardContent>
+                {designMode && <div className="absolute inset-0 z-10" aria-hidden="true" data-testid="widget-click-overlay" />}
             </Card>
         );
     };
