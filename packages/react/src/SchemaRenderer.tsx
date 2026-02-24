@@ -230,8 +230,8 @@ export const SchemaRenderer = forwardRef<any, { schema: SchemaNode } & Record<st
     }
   }
 
-  const renderStart = isDebug ? performance.now() : 0;
   debugTime(`render:${evaluatedSchema.type}:${evaluatedSchema.id ?? 'anon'}`);
+  const renderStart = isDebug ? performance.now() : 0;
   const rendered = (
     <SchemaErrorBoundary componentType={evaluatedSchema.type}>
       {React.createElement(Component, {

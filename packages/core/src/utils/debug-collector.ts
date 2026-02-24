@@ -94,7 +94,7 @@ export class DebugCollector {
       this.entries = this.entries.slice(-MAX_ENTRIES);
     }
     for (const fn of this.subscribers) {
-      try { fn(entry); } catch { /* swallow subscriber errors */ }
+      try { fn(entry); } catch { /* subscriber errors must not break debug flow */ }
     }
   }
 }
