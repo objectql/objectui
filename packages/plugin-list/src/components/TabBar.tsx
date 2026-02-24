@@ -87,7 +87,7 @@ export const TabBar: React.FC<TabBarProps> = ({
 
   return (
     <div
-      className={cn('border-b px-2 sm:px-4 py-1 flex items-center gap-1 bg-background', className)}
+      className={cn('border-b px-2 sm:px-4 py-1 flex items-center gap-0.5 bg-background', className)}
       data-testid="view-tabs"
       role="tablist"
     >
@@ -97,9 +97,14 @@ export const TabBar: React.FC<TabBarProps> = ({
         return (
           <Button
             key={tab.name}
-            variant={isActive ? 'default' : 'ghost'}
+            variant="ghost"
             size="sm"
-            className="h-7 px-3 text-xs"
+            className={cn(
+              "h-7 px-3 py-1.5 text-xs rounded-none transition-colors duration-150",
+              isActive
+                ? "border-b-2 border-primary font-medium text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            )}
             data-testid={`view-tab-${tab.name}`}
             role="tab"
             aria-selected={isActive}

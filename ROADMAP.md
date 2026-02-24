@@ -781,6 +781,45 @@ The `FlowDesigner` is a canvas-based flow editor that bridges the gap between th
 - [x] `exportOptions` schema reconciliation: Zod validator updated to accept both spec `string[]` format and ObjectUI object format via `z.union()`. ListView normalizes string[] to `{ formats }` at render time.
 - [x] `pagination.pageSizeOptions` backend integration: Page size selector is now a controlled component that dynamically updates `effectivePageSize`, triggering data re-fetch. `onPageSizeChange` callback fires on selection. Full test coverage for selector rendering, option enumeration, and data reload.
 
+### P2.7 Platform UI Consistency & Interaction Optimization ✅
+
+> All items from the UI consistency optimization (Issue #749) have been implemented.
+
+**Global Theme & Design Tokens:**
+- [x] Hardcoded gray colors in `GridField.tsx`, `ReportRenderer.tsx`, and `ObjectGrid.tsx` replaced with theme tokens (`text-muted-foreground`, `bg-muted`, `border-border`, `border-foreground`)
+- [x] Global font-family (`Inter`, ui-sans-serif, system-ui) injected in `index.css` `:root`
+- [x] `--config-panel-width: 280px` CSS custom property added for unified config panel sizing
+- [x] Border radius standardized to `rounded-lg` across report/grid components
+- [x] `transition-colors duration-150` added to all interactive elements (toolbar buttons, tab bar, sidebar menu buttons)
+- [x] `LayoutRenderer.tsx` outer shell `bg-slate-50/50 dark:bg-zinc-950` replaced with `bg-background` theme token
+
+**Sidebar Navigation:**
+- [x] `SidebarMenuButton` active state enhanced with 3px left indicator bar via `before:` pseudo-element
+- [x] `SidebarMenuButton` transition expanded to include `color, background-color` with `duration-150`
+- [x] `SidebarGroupLabel` visual separator added (`border-t border-border/30 pt-3 mt-2`)
+- [x] Collapsed-mode tooltip support in `SidebarNav` via `tooltip={item.title}` prop
+- [ ] `LayoutRenderer.tsx` hand-written sidebar → `SidebarNav` unification (deferred: requires extending SidebarNav to support nested menus, logo, version footer)
+
+**ListView Toolbar:**
+- [x] Search changed from expandable button to always-visible inline `<Input>` (`w-48`)
+- [x] Activated state (`bg-primary/10 border border-primary/20`) added to Filter/Sort/Group/Color buttons when active
+- [x] Toolbar overflow improved with `overflow-x-auto` for responsive behavior
+- [x] `transition-colors duration-150` added to all toolbar buttons
+
+**ObjectGrid Cell Renderers:**
+- [x] `formatRelativeDate()` function added for relative time display ("Today", "2 days ago", "Yesterday")
+- [x] DataTable/VirtualGrid header styling unified: `text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70 bg-muted/30`
+- [x] Remaining hardcoded gray colors in ObjectGrid loading spinner and status badge fallback replaced with theme tokens
+
+**ConfigPanelRenderer:**
+- [x] `<Separator>` added between sections for visual clarity
+- [x] Panel width uses `--config-panel-width` CSS custom property
+
+**View Tab Bar:**
+- [x] Tab spacing tightened (`gap-0.5`, `px-3 py-1.5`)
+- [x] Active tab indicator changed to bottom border (`border-b-2 border-primary font-medium text-foreground`)
+- [x] `transition-colors duration-150` added to tab buttons
+
 ### P2.5 PWA & Offline (Real Sync)
 
 - [ ] Background sync queue → real server sync (replace simulation)
