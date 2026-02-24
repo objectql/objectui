@@ -141,6 +141,10 @@ describe('Example: crm', () => {
     expect(config).toBeDefined();
   });
 
+  it('should pass ObjectStackDefinitionSchema validation', () => {
+    expectValidStack(config, 'crm');
+  });
+
   it('dashboards should have type, name, label, description', () => {
     assertDashboards(config.dashboards, 'crm');
   });
