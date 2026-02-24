@@ -191,7 +191,7 @@ describe('DashboardWithConfig', () => {
     expect(screen.queryByText('Widget')).toBeNull();
   });
 
-  it('should call onWidgetSave when widget config is saved', () => {
+  it('should accept onWidgetSave prop without errors', () => {
     const onWidgetSave = vi.fn();
     render(
       <DashboardWithConfig
@@ -202,8 +202,9 @@ describe('DashboardWithConfig', () => {
         defaultConfigOpen={true}
       />,
     );
-    // Config panel should open showing Dashboard config by default
+    // Config panel should open showing Dashboard config by default (no widget selected)
     expect(screen.getByText('Dashboard')).toBeDefined();
     expect(screen.getByText('Configuration')).toBeDefined();
+    expect(screen.queryByText('Widget')).toBeNull();
   });
 });
