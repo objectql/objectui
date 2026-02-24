@@ -121,6 +121,6 @@ describe('aggregateRecords', () => {
     });
 
     expect(result).toHaveLength(1);
-    expect(result[0].amount).toBe(100); // NaN coerced to 0, then 0 + 100
+    expect(result[0].amount).toBe(100); // non-numeric value coerced to 0, sum is 0 + 100
   });
 });

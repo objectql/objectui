@@ -21,6 +21,16 @@ const CHART_COLORS = [
   'hsl(var(--chart-5))',
 ];
 
+/** Returns true when the widget data config uses provider: 'object' (async data source). */
+function isObjectProvider(widgetData: unknown): widgetData is { provider: 'object'; object?: string; aggregate?: any } {
+  return (
+    widgetData != null &&
+    typeof widgetData === 'object' &&
+    !Array.isArray(widgetData) &&
+    (widgetData as any).provider === 'object'
+  );
+}
+
 export interface DashboardRendererProps {
   schema: DashboardSchema;
   className?: string;
@@ -118,7 +128,7 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                 const yField = options.yField || 'value';
 
                 // provider: 'object' — delegate to ObjectChart for async data loading
-                if (widgetData && typeof widgetData === 'object' && !Array.isArray(widgetData) && widgetData.provider === 'object') {
+                if (isObjectProvider(widgetData)) {
                     return {
                         type: 'object-chart',
                         chartType: widgetType,
@@ -149,7 +159,7 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                 const widgetData = (widget as any).data || options.data;
 
                 // provider: 'object' — pass through object config for async data loading
-                if (widgetData && typeof widgetData === 'object' && !Array.isArray(widgetData) && widgetData.provider === 'object') {
+                if (isObjectProvider(widgetData)) {
                     return {
                         type: 'data-table',
                         ...options,
@@ -175,7 +185,7 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                 const widgetData = (widget as any).data || options.data;
 
                 // provider: 'object' — pass through object config for async data loading
-                if (widgetData && typeof widgetData === 'object' && !Array.isArray(widgetData) && widgetData.provider === 'object') {
+                if (isObjectProvider(widgetData)) {
                     return {
                         type: 'pivot',
                         ...options,
