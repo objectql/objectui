@@ -1581,6 +1581,59 @@ describe('ViewConfigPanel', () => {
         expect(onViewUpdate).toHaveBeenCalledTimes(2);
     });
 
+    it('renders column search input and show/hide all buttons', () => {
+        render(
+            <ViewConfigPanel
+                open={true}
+                onClose={vi.fn()}
+                activeView={mockActiveView}
+                objectDef={mockObjectDef}
+            />
+        );
+
+        fireEvent.click(screen.getByText('console.objectView.fields'));
+
+        expect(screen.getByTestId('column-search-input')).toBeInTheDocument();
+        expect(screen.getByTestId('column-show-all')).toBeInTheDocument();
+        expect(screen.getByTestId('column-hide-all')).toBeInTheDocument();
+    });
+
+    it('clicking Show All selects all fields and calls onViewUpdate', () => {
+        const onViewUpdate = vi.fn();
+        render(
+            <ViewConfigPanel
+                open={true}
+                onClose={vi.fn()}
+                activeView={{ ...mockActiveView, columns: ['name'] }}
+                objectDef={mockObjectDef}
+                onViewUpdate={onViewUpdate}
+            />
+        );
+
+        fireEvent.click(screen.getByText('console.objectView.fields'));
+        fireEvent.click(screen.getByTestId('column-show-all'));
+
+        expect(onViewUpdate).toHaveBeenCalledWith('columns', ['name', 'stage', 'amount']);
+    });
+
+    it('clicking Hide All removes all fields and calls onViewUpdate', () => {
+        const onViewUpdate = vi.fn();
+        render(
+            <ViewConfigPanel
+                open={true}
+                onClose={vi.fn()}
+                activeView={mockActiveView}
+                objectDef={mockObjectDef}
+                onViewUpdate={onViewUpdate}
+            />
+        );
+
+        fireEvent.click(screen.getByText('console.objectView.fields'));
+        fireEvent.click(screen.getByTestId('column-hide-all'));
+
+        expect(onViewUpdate).toHaveBeenCalledWith('columns', []);
+    });
+
     // ── Section Layout Tests: Page vs ListView Config ──
 
     it('renders page-level config items in the Page section (showSearch, showFilters, showSort, navigation, addRecord, allowExport)', () => {

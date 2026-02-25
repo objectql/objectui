@@ -525,6 +525,15 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] 31 ObjectView integration tests pass (updated for section expansion)
 - [x] 10 config-sync integration tests pass
 
+**Phase 8 — Tab Gear Icon, Panel Animation & UX Polish:**
+- [x] Add `onConfigView` prop to ViewTabBar with Settings2 gear icon on active tab
+- [x] Wire gear icon in ObjectView: click opens ViewConfigPanel for that view's settings
+- [x] Panel slide-in/slide-out animation: CSS transition on max-width + opacity (300ms ease-in-out)
+- [x] Auto-sync panel content on view tab switch (ViewConfigPanel resets draft when activeView.id changes)
+- [x] 5 new ViewTabBar gear icon tests (show on active, hide on inactive, callback, event isolation)
+- [x] 3 new ViewConfigPanel tests (search input, Show All, Hide All)
+- [x] 49 ViewTabBar tests pass, 139 ViewConfigPanel tests pass, 31 ObjectView tests pass
+
 **Code Reduction:** ~1655 lines imperative → ~170 lines declarative wrapper + ~1100 lines schema factory + ~180 lines shared utils = **>50% net reduction in component code** with significantly improved maintainability
 
 ### P1.9 Console — Content Area Layout & Responsiveness
