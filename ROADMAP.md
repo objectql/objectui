@@ -19,7 +19,7 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 1. ~~**AppShell** — No dynamic navigation renderer from spec JSON (last P0 blocker)~~ ✅ Complete
 2. **Designer Interaction** — ViewDesigner and DataModelDesigner have undo/redo, field type selectors, inline editing, Ctrl+S save, column drag-to-reorder with dnd-kit ✅
 3. **View Config Live Preview Sync** — Config panel changes sync in real-time for Grid, but `showSort`/`showSearch`/`showFilters`/`striped`/`bordered` not yet propagated to Kanban/Calendar/Timeline/Gallery/Map/Gantt (see P1.8.1)
-4. **Dashboard Config Panel** — Airtable-style right-side configuration panel for dashboards (data source, layout, widget properties, sub-editors, type definitions)
+4. **Dashboard Config Panel** — Airtable-style right-side configuration panel for dashboards (data source, layout, widget properties, sub-editors, type definitions). Widget config live preview sync and scatter chart type switch ✅ fixed (P1.10 Phase 10).
 5. **Console Advanced Polish** — Remaining upgrades for forms, import/export, automation, comments
 6. **PWA Sync** — Background sync is simulated only
 
@@ -400,6 +400,14 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] No impact on non-design mode — widgets remain fully interactive when not editing
 - [x] Updated SchemaRenderer mock to forward `className` and include interactive child button for more realistic testing
 - [x] Add 9 new Vitest tests: pointer-events-none presence/absence, overlay presence/absence, relative positioning, click-to-select on Card-based widgets
+
+**Phase 10 — Widget Config Live Preview Sync & Type Switch Fix:**
+- [x] Fix: `DashboardWithConfig` did not pass `onFieldChange` to `WidgetConfigPanel`, preventing live preview of widget config changes
+- [x] Add internal `liveSchema` state to `DashboardWithConfig` for real-time widget preview during editing
+- [x] Add `configVersion` counter to stabilize `selectedWidgetConfig` and prevent `useConfigDraft` draft reset loops
+- [x] Fix: `scatter` chart type was not handled in `DashboardRenderer` and `DashboardGridLayout` — switching to scatter caused errors
+- [x] Add `scatter` to chart type conditions in both `DashboardRenderer.getComponentSchema()` and `DashboardGridLayout.getComponentSchema()`
+- [x] Add 3 new Vitest tests: scatter chart data extraction, scatter with object-chart provider, DashboardWithConfig live preview support
 
 ### P1.11 Console — Schema-Driven View Config Panel Migration
 
@@ -927,6 +935,6 @@ The `FlowDesigner` is a canvas-based flow editor that bridges the gap between th
 
 ---
 
-**Roadmap Status:** 🎯 Active — AppShell · Designer Interaction · View Config Live Preview Sync (P1.8.1) · Dashboard Config Panel · Schema-Driven View Config Panel ✅ · Right-Side Visual Editor Drawer ✅ · Airtable UX Parity
+**Roadmap Status:** 🎯 Active — AppShell · Designer Interaction · View Config Live Preview Sync (P1.8.1) · Dashboard Config Panel (widget live preview & scatter type switch ✅ fixed) · Schema-Driven View Config Panel ✅ · Right-Side Visual Editor Drawer ✅ · Airtable UX Parity
 **Next Review:** March 15, 2026
 **Contact:** hello@objectui.org | https://github.com/objectstack-ai/objectui
