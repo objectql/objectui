@@ -126,18 +126,67 @@ describe('ReportView — Inline Config Panel', () => {
     await act(async () => {
       fireEvent.click(screen.getByTestId('report-edit-button'));
     });
-    // The ConfigPanelRenderer has a save button
-    const saveButtons = screen.getAllByRole('button');
-    const saveButton = saveButtons.find((b) => b.textContent?.includes('Save'));
-    if (saveButton) {
-      await act(async () => {
-        fireEvent.click(saveButton);
-      });
-      expect(mockUpdate).toHaveBeenCalledWith(
-        'sys_report',
-        'sales_report',
-        expect.any(Object),
-      );
-    }
+
+    // Modify the title field to make the draft dirty — save button only appears when isDirty
+    const titleInput = screen.getByTestId('config-field-title');
+    await act(async () => {
+      fireEvent.change(titleInput, { target: { value: 'Updated Report Title' } });
+    });
+
+    // Save button should now be visible
+    const saveButton = screen.getByTestId('config-panel-save');
+    await act(async () => {
+      fireEvent.click(saveButton);
+    });
+
+    expect(mockUpdate).toHaveBeenCalledWith(
+      'sys_report',
+      'sales_report',
+      expect.objectContaining({ title: 'Updated Report Title' }),
+    );
+  });
+
+  it('should call metadata refresh after save', async () => {
+    await renderReportView();
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('report-edit-button'));
+    });
+
+    // Modify a field to enable save
+    const titleInput = screen.getByTestId('config-field-title');
+    await act(async () => {
+      fireEvent.change(titleInput, { target: { value: 'New Title' } });
+    });
+
+    mockRefresh.mockClear();
+    const saveButton = screen.getByTestId('config-panel-save');
+    await act(async () => {
+      fireEvent.click(saveButton);
+    });
+
+    // Backend save should trigger metadata refresh
+    expect(mockUpdate).toHaveBeenCalled();
+    expect(mockRefresh).toHaveBeenCalled();
+  });
+
+  it('should update preview live when field changes without resetting config panel', async () => {
+    await renderReportView();
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('report-edit-button'));
+    });
+
+    // Config panel should be open
+    expect(screen.getByTestId('config-panel-close')).toBeInTheDocument();
+
+    // Modify the title field for live preview
+    const titleInput = screen.getByTestId('config-field-title');
+    await act(async () => {
+      fireEvent.change(titleInput, { target: { value: 'Live Preview Title' } });
+    });
+
+    // Config panel should still be open (not reset)
+    expect(screen.getByTestId('config-panel-close')).toBeInTheDocument();
+    // The heading should still show the report title from the viewer
+    expect(screen.getAllByText('Sales Report').length).toBeGreaterThanOrEqual(1);
   });
 });
