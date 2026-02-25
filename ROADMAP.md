@@ -407,7 +407,11 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] Add `configVersion` counter to stabilize `selectedWidgetConfig` and prevent `useConfigDraft` draft reset loops
 - [x] Fix: `scatter` chart type was not handled in `DashboardRenderer` and `DashboardGridLayout` — switching to scatter caused errors
 - [x] Add `scatter` to chart type conditions in both `DashboardRenderer.getComponentSchema()` and `DashboardGridLayout.getComponentSchema()`
-- [x] Add 3 new Vitest tests: scatter chart data extraction, scatter with object-chart provider, DashboardWithConfig live preview support
+- [x] Fix: Data binding fields (`categoryField`, `valueField`, `object`, `aggregate`) from config panel did not affect rendering — `getComponentSchema()` only read from `options.xField`/`options.yField`/`options.data`
+- [x] Add widget-level field fallbacks: `widget.categoryField || options.xField`, `widget.valueField || options.yField` in both `DashboardRenderer` and `DashboardGridLayout`
+- [x] Support object-chart construction from widget-level fields when no explicit data provider exists (e.g. newly created widgets via config panel)
+- [x] Support data-table construction from `widget.object` when no data provider exists (table widgets created via config panel)
+- [x] Add 7 new Vitest tests: scatter chart (2), widget-level field fallbacks (2), object-chart from widget fields, data-table from widget.object, DashboardWithConfig live preview
 
 ### P1.11 Console — Schema-Driven View Config Panel Migration
 

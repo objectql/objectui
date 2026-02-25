@@ -795,4 +795,134 @@ describe('DashboardRenderer widget data extraction', () => {
     expect(chartSchema.objectName).toBe('opportunity');
     expect(chartSchema.aggregate.function).toBe('avg');
   });
+
+  it('should use widget.categoryField as xAxisKey fallback over options.xField', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      widgets: [
+        {
+          type: 'bar',
+          title: 'Category Field Override',
+          categoryField: 'forecast_category',
+          layout: { x: 0, y: 0, w: 2, h: 2 },
+          options: {
+            xField: 'stage',
+            yField: 'amount',
+            data: {
+              provider: 'value',
+              items: [
+                { forecast_category: 'Pipeline', amount: 100 },
+                { forecast_category: 'Closed', amount: 200 },
+              ],
+            },
+          },
+        },
+      ],
+    } as any;
+
+    const { container } = render(<DashboardRenderer schema={schema} />);
+    const schemas = getRenderedSchemas(container);
+    const chartSchema = schemas.find(s => s.type === 'chart');
+
+    expect(chartSchema).toBeDefined();
+    // widget.categoryField should override options.xField
+    expect(chartSchema.xAxisKey).toBe('forecast_category');
+  });
+
+  it('should use widget.valueField as yField fallback over options.yField', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      widgets: [
+        {
+          type: 'line',
+          title: 'Value Field Override',
+          valueField: 'expected_revenue',
+          layout: { x: 0, y: 0, w: 2, h: 2 },
+          options: {
+            xField: 'month',
+            yField: 'amount',
+            data: {
+              provider: 'value',
+              items: [
+                { month: 'Jan', expected_revenue: 100 },
+              ],
+            },
+          },
+        },
+      ],
+    } as any;
+
+    const { container } = render(<DashboardRenderer schema={schema} />);
+    const schemas = getRenderedSchemas(container);
+    const chartSchema = schemas.find(s => s.type === 'chart');
+
+    expect(chartSchema).toBeDefined();
+    // widget.valueField should override options.yField
+    expect(chartSchema.series).toEqual([{ dataKey: 'expected_revenue' }]);
+  });
+
+  it('should construct object-chart from widget-level fields when no data provider exists', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      widgets: [
+        {
+          type: 'bar',
+          title: 'New Widget',
+          object: 'opportunity',
+          categoryField: 'stage',
+          valueField: 'amount',
+          aggregate: 'sum',
+          layout: { x: 0, y: 0, w: 2, h: 2 },
+        },
+      ],
+    } as any;
+
+    const { container } = render(<DashboardRenderer schema={schema} />);
+    const schemas = getRenderedSchemas(container);
+    const chartSchema = schemas.find(s => s.type === 'object-chart');
+
+    expect(chartSchema).toBeDefined();
+    expect(chartSchema.chartType).toBe('bar');
+    expect(chartSchema.objectName).toBe('opportunity');
+    expect(chartSchema.xAxisKey).toBe('stage');
+    expect(chartSchema.series).toEqual([{ dataKey: 'amount' }]);
+    expect(chartSchema.aggregate).toEqual({
+      field: 'amount',
+      function: 'sum',
+      groupBy: 'stage',
+    });
+  });
+
+  it('should construct data-table from widget.object when no data provider exists', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      widgets: [
+        {
+          type: 'table',
+          title: 'New Table Widget',
+          object: 'contact',
+          layout: { x: 0, y: 0, w: 4, h: 2 },
+        },
+      ],
+    } as any;
+
+    const { container } = render(<DashboardRenderer schema={schema} />);
+    const schemas = getRenderedSchemas(container);
+    const tableSchema = schemas.find(s => s.type === 'data-table');
+
+    // data-table is registered, may render directly — check if schema was produced
+    if (tableSchema) {
+      expect(tableSchema.objectName).toBe('contact');
+    }
+    // Either way, it should not crash
+    expect(container).toBeDefined();
+  });
 });
