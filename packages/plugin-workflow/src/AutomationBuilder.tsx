@@ -154,7 +154,7 @@ export const AutomationBuilder: React.FC<AutomationBuilderProps> = ({
         <CardContent className="space-y-4">
           <div className="space-y-1">
             <Label className="text-xs">Trigger Type</Label>
-            <Select value={automation.trigger.type} onValueChange={(v) => updateTrigger({ type: v as TriggerConfig['type'] })}>
+            <Select value={automation.trigger.type} onValueChange={(v: string) => updateTrigger({ type: v as TriggerConfig['type'] })}>
               <SelectTrigger><SelectValue placeholder="Select trigger type" /></SelectTrigger>
               <SelectContent>
                 {(Object.keys(TRIGGER_LABELS) as TriggerConfig['type'][]).map(t => (
@@ -167,7 +167,7 @@ export const AutomationBuilder: React.FC<AutomationBuilderProps> = ({
             <div className="space-y-1">
               <Label className="text-xs">Object</Label>
               {objects.length > 0 ? (
-                <Select value={automation.trigger.objectName ?? ''} onValueChange={(v) => updateTrigger({ objectName: v })}>
+                <Select value={automation.trigger.objectName ?? ''} onValueChange={(v: string) => updateTrigger({ objectName: v })}>
                   <SelectTrigger><SelectValue placeholder="Select object" /></SelectTrigger>
                   <SelectContent>
                     {objects.map(o => <SelectItem key={o.name} value={o.name}>{o.label}</SelectItem>)}
@@ -182,7 +182,7 @@ export const AutomationBuilder: React.FC<AutomationBuilderProps> = ({
             <div className="space-y-1">
               <Label className="text-xs">Field</Label>
               {selectedObjectFields ? (
-                <Select value={automation.trigger.fieldName ?? ''} onValueChange={(v) => updateTrigger({ fieldName: v })}>
+                <Select value={automation.trigger.fieldName ?? ''} onValueChange={(v: string) => updateTrigger({ fieldName: v })}>
                   <SelectTrigger><SelectValue placeholder="Select field" /></SelectTrigger>
                   <SelectContent>
                     {Object.keys(selectedObjectFields).map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
@@ -211,7 +211,7 @@ export const AutomationBuilder: React.FC<AutomationBuilderProps> = ({
               <div className="space-y-1">
                 <Label className="text-xs">Field</Label>
                 {selectedObjectFields ? (
-                  <Select value={automation.trigger.conditionField ?? ''} onValueChange={(v) => updateTrigger({ conditionField: v })}>
+                  <Select value={automation.trigger.conditionField ?? ''} onValueChange={(v: string) => updateTrigger({ conditionField: v })}>
                     <SelectTrigger><SelectValue placeholder="Field" /></SelectTrigger>
                     <SelectContent>
                       {Object.keys(selectedObjectFields).map(f => <SelectItem key={f} value={f}>{f}</SelectItem>)}
@@ -223,7 +223,7 @@ export const AutomationBuilder: React.FC<AutomationBuilderProps> = ({
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Operator</Label>
-                <Select value={automation.trigger.conditionOperator ?? 'equals'} onValueChange={(v) => updateTrigger({ conditionOperator: v as TriggerConfig['conditionOperator'] })}>
+                <Select value={automation.trigger.conditionOperator ?? 'equals'} onValueChange={(v: string) => updateTrigger({ conditionOperator: v as TriggerConfig['conditionOperator'] })}>
                   <SelectTrigger><SelectValue placeholder="Operator" /></SelectTrigger>
                   <SelectContent>
                     {(Object.keys(CONDITION_OPERATORS) as NonNullable<TriggerConfig['conditionOperator']>[]).map(op => (
@@ -253,7 +253,7 @@ export const AutomationBuilder: React.FC<AutomationBuilderProps> = ({
           {automation.actions.length > 1 && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Label className="text-xs">Execution</Label>
-              <Select value={automation.executionMode ?? 'sequential'} onValueChange={(v) => setAutomation(prev => ({ ...prev, executionMode: v as 'sequential' | 'parallel' }))}>
+              <Select value={automation.executionMode ?? 'sequential'} onValueChange={(v: string) => setAutomation(prev => ({ ...prev, executionMode: v as 'sequential' | 'parallel' }))}>
                 <SelectTrigger className="h-7 w-36"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="sequential">Sequential</SelectItem>
@@ -280,7 +280,7 @@ export const AutomationBuilder: React.FC<AutomationBuilderProps> = ({
               </div>
               <div className="space-y-1">
                 <Label className="text-xs">Action Type</Label>
-                <Select value={action.type} onValueChange={(v) => updateAction(idx, { type: v as ActionConfig['type'], params: {} })}>
+                <Select value={action.type} onValueChange={(v: string) => updateAction(idx, { type: v as ActionConfig['type'], params: {} })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {(Object.keys(ACTION_LABELS) as ActionConfig['type'][]).map(t => (
