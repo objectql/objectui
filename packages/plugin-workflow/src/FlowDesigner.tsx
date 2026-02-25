@@ -367,7 +367,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
           <Label className="text-xs">Label</Label>
           <Input
             value={node.label}
-            onChange={(e) => onNodeChange({ ...node, label: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onNodeChange({ ...node, label: e.target.value })}
             disabled={readOnly}
             className="h-7 text-xs"
           />
@@ -377,7 +377,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
           <Label className="text-xs">Type</Label>
           <Select
             value={node.type}
-            onValueChange={(v) => onNodeChange({ ...node, type: v as FlowNodeType })}
+            onValueChange={(v: string) => onNodeChange({ ...node, type: v as FlowNodeType })}
             disabled={readOnly}
           >
             <SelectTrigger className="h-7 text-xs">
@@ -397,7 +397,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
           <Label className="text-xs">Description</Label>
           <Input
             value={node.description ?? ''}
-            onChange={(e) => onNodeChange({ ...node, description: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onNodeChange({ ...node, description: e.target.value })}
             disabled={readOnly}
             className="h-7 text-xs"
             placeholder="Optional description"
@@ -414,7 +414,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
               <Label className="text-xs">Executor Type</Label>
               <Input
                 value={node.executor?.type ?? ''}
-                onChange={(e) => onNodeChange({
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onNodeChange({
                   ...node,
                   executor: { ...node.executor, type: e.target.value },
                 })}
@@ -429,7 +429,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                 <Label className="text-xs">Wait Event Type</Label>
                 <Select
                   value={node.executor?.waitEventConfig?.eventType ?? 'timer'}
-                  onValueChange={(v) => onNodeChange({
+                  onValueChange={(v: string) => onNodeChange({
                     ...node,
                     executor: {
                       ...node.executor,
@@ -461,7 +461,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
               <Input
                 type="number"
                 value={node.executor?.timeoutMs ?? ''}
-                onChange={(e) => onNodeChange({
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onNodeChange({
                   ...node,
                   executor: {
                     ...node.executor,
@@ -487,7 +487,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
               <Label className="text-xs">Attached To Node ID</Label>
               <Input
                 value={node.boundaryConfig?.attachedToNodeId ?? ''}
-                onChange={(e) => onNodeChange({
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onNodeChange({
                   ...node,
                   boundaryConfig: {
                     ...node.boundaryConfig,
@@ -505,7 +505,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
               <Label className="text-xs">Event Type</Label>
               <Select
                 value={node.boundaryConfig?.eventType ?? 'error'}
-                onValueChange={(v) => onNodeChange({
+                onValueChange={(v: string) => onNodeChange({
                   ...node,
                   boundaryConfig: {
                     ...node.boundaryConfig,
@@ -540,7 +540,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
           <Label className="text-xs">Label</Label>
           <Input
             value={edge.label ?? ''}
-            onChange={(e) => onEdgeChange({ ...edge, label: e.target.value })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onEdgeChange({ ...edge, label: e.target.value })}
             disabled={readOnly}
             className="h-7 text-xs"
           />
@@ -550,7 +550,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
           <Label className="text-xs">Type</Label>
           <Select
             value={edge.type ?? 'default'}
-            onValueChange={(v) => onEdgeChange({ ...edge, type: v as FlowEdgeType })}
+            onValueChange={(v: string) => onEdgeChange({ ...edge, type: v as FlowEdgeType })}
             disabled={readOnly}
           >
             <SelectTrigger className="h-7 text-xs">
@@ -569,7 +569,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
             <Label className="text-xs">Condition Expression</Label>
             <Input
               value={edge.condition ?? ''}
-              onChange={(e) => onEdgeChange({ ...edge, condition: e.target.value })}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => onEdgeChange({ ...edge, condition: e.target.value })}
               disabled={readOnly}
               className="h-7 text-xs font-mono"
               placeholder="e.g. status === 'approved'"
@@ -582,7 +582,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
             type="checkbox"
             id="edge-isDefault"
             checked={edge.isDefault ?? false}
-            onChange={(e) => onEdgeChange({ ...edge, isDefault: e.target.checked })}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onEdgeChange({ ...edge, isDefault: e.target.checked })}
             disabled={readOnly}
             className="h-3.5 w-3.5"
           />
@@ -865,7 +865,7 @@ export const FlowDesigner: React.FC<FlowDesignerProps> = ({ schema, onSave }) =>
             ) : (
               <Input
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
                 className="h-6 text-sm font-semibold border-0 p-0 focus-visible:ring-0 bg-transparent"
                 aria-label="Flow title"
               />
