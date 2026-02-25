@@ -1,9 +1,9 @@
 # ObjectUI Development Roadmap
 
-> **Last Updated:** February 24, 2026
+> **Last Updated:** February 25, 2026
 > **Current Version:** v0.5.x
-> **Spec Version:** @objectstack/spec v3.0.9
-> **Client Version:** @objectstack/client v3.0.9
+> **Spec Version:** @objectstack/spec v3.0.10
+> **Client Version:** @objectstack/client v3.0.10
 > **Target UX Benchmark:** 🎯 Airtable parity
 > **Current Priority:** AppShell Navigation · Designer Interaction · View Config Live Preview Sync · Dashboard Config Panel · Airtable UX Polish · **Flow Designer ✅** · **App Creation & Editing Flow ✅** · **System Settings & App Management ✅** · **Right-Side Visual Editor Drawer ✅**
 
@@ -46,6 +46,28 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 | **Kernel Enhancements** | `PluginBuildOptions`, `PluginPublishOptions`, `PluginValidateOptions`, `MetadataCategory`, `NamespaceConflictError` | Plugin development tooling (P2.4) |
 
 **UI Sub-Export:** No breaking changes — `@objectstack/spec/ui` types are identical between v3.0.8 and v3.0.9.
+
+---
+
+## 🔄 Spec v3.0.10 Upgrade Summary
+
+> Upgraded from `@objectstack/spec v3.0.9` → `v3.0.10` on February 25, 2026. UI sub-export adds new Zod schemas and `ViewFilterRule` type. Dashboard widgets now require `id` field. View filters must use object format.
+
+**New Protocol Capabilities (v3.0.10):**
+
+| Area | What's New | Impact on ObjectUI |
+|------|------------|-------------------|
+| **UI Schemas** | `DensityModeSchema`, `ThemeModeSchema`, `WcagContrastLevelSchema` Zod schemas | Re-exported from `@object-ui/types` for runtime validation |
+| **View Filter Rules** | `ViewFilterRule`, `ViewFilterRuleSchema` — structured filter format `{ field, operator, value }` | All view filters migrated from tuple `['field', '=', 'value']` to object format |
+| **Dashboard Widgets** | `id` field now required on `DashboardWidgetSchema` | All example dashboard widgets updated with explicit `id` |
+| **Filter AST** | `isFilterAST`, `parseFilterAST`, `VALID_AST_OPERATORS` in data sub-export | Filter engine utilities (P2.4) |
+| **Multi-Tenant** | `TursoMultiTenantConfig`, `TenantResolverStrategy`, `TenantDatabaseLifecycle` | Cloud multi-tenancy (P2.4) |
+| **Contracts** | `IAppLifecycleService`, `IDeployPipelineService`, `IProvisioningService`, `ITenantRouter`, `ISchemaDiffService` | Cloud deployment & lifecycle (P2.4) |
+
+**Breaking Changes Applied:**
+- All CRM view filters converted from `['field', '=', 'value']` to `[{ field, operator: '=', value }]`
+- All dashboard widgets (kitchen-sink, todo, CRM) given explicit `id` fields
+- Todo active filter converted from `[['status', '!=', 'Done']]` to `[{ field: 'status', operator: '!=', value: 'Done' }]`
 
 ---
 

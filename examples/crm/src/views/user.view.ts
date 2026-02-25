@@ -14,7 +14,7 @@ export const UserView = {
       type: 'grid' as const,
       data: { provider: 'object' as const, object: 'user' },
       columns: ['name', 'email', 'role', 'title'],
-      filter: ['active', '=', true],
+      filter: [{ field: 'active', operator: '=', value: true }],
     },
   },
   form: {
