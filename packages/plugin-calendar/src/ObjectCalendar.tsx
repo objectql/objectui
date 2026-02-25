@@ -209,7 +209,7 @@ export const ObjectCalendar: React.FC<ObjectCalendarProps> = ({
             }
         }
 
-        if (!dataSource) {
+        if (!dataSource || typeof dataSource.find !== 'function') {
           throw new Error('DataSource required for object/api providers');
         }
 

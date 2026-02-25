@@ -344,7 +344,7 @@ export const ObjectMap: React.FC<ObjectMapProps> = ({
           return;
         }
 
-        if (!dataSource) {
+        if (!dataSource || typeof dataSource.find !== 'function') {
           throw new Error('DataSource required for object/api providers');
         }
 

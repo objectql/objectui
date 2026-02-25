@@ -168,7 +168,7 @@ export const ObjectGantt: React.FC<ObjectGanttProps> = ({
           return;
         }
 
-        if (!dataSource) {
+        if (!dataSource || typeof dataSource.find !== 'function') {
           throw new Error('DataSource required for object/api providers');
         }
 
@@ -178,7 +178,6 @@ export const ObjectGantt: React.FC<ObjectGanttProps> = ({
             $filter: schema.filter,
             $orderby: convertSortToQueryParams(schema.sort),
           });
-          
           let items: any[] = extractRecords(result);
           setData(items);
         } else if (dataConfig?.provider === 'api') {

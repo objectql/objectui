@@ -38,7 +38,7 @@ export const RelatedList: React.FC<RelatedListProps> = ({
   React.useEffect(() => {
     if (api && !data.length) {
       setLoading(true);
-      if (dataSource) {
+      if (dataSource && typeof dataSource.find === 'function') {
         dataSource.find(api).then((result) => {
           const items = Array.isArray(result)
             ? result
