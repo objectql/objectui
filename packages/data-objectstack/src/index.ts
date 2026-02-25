@@ -692,7 +692,8 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
 
   /**
    * Perform server-side aggregation via the ObjectStack analytics API.
-   * Calls GET /api/v1/analytics/{resource} with category, metric, and agg params.
+   * Uses `this.client.analytics.query()` from @objectstack/client to leverage
+   * the SDK's built-in auth, headers, and fetch configuration.
    * Falls back to client-side aggregation via find() if the analytics endpoint
    * is not available.
    */
@@ -700,27 +701,16 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
     await this.connect();
 
     try {
-      const url = `${this.baseUrl}/api/v1/analytics/${encodeURIComponent(resource)}`;
-      const searchParams = new URLSearchParams({
-        category: params.groupBy,
-        metric: params.field,
-        agg: params.function,
-      });
+      const payload: Record<string, unknown> = {
+        object: resource,
+        measures: [{ field: params.field, function: params.function }],
+        dimensions: [params.groupBy],
+      };
       if (params.filter) {
-        searchParams.set('filter', typeof params.filter === 'string' ? params.filter : JSON.stringify(params.filter));
+        payload.filters = params.filter;
       }
 
-      const headers: Record<string, string> = { 'Accept': 'application/json' };
-      if (this.token) {
-        headers['Authorization'] = `Bearer ${this.token}`;
-      }
-
-      const response = await fetch(`${url}?${searchParams.toString()}`, { headers });
-      if (!response.ok) {
-        throw new Error(`Analytics API returned ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await this.client.analytics.query(payload);
       if (Array.isArray(data)) return data;
       if (data?.data && Array.isArray(data.data)) return data.data;
       if (data?.results && Array.isArray(data.results)) return data.results;
