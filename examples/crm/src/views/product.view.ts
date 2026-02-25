@@ -39,7 +39,7 @@ export const ProductView = {
         { field: 'stock', label: 'STOCK', type: 'number' as const, width: 80, align: 'right' as const },
         { field: 'tags', label: 'TAGS', type: 'select' as const, width: 130 },
       ],
-      filter: ['is_active', '=', true],
+      filter: [{ field: 'is_active', operator: '=', value: true }],
       rowHeight: 'short' as const,
     },
   },

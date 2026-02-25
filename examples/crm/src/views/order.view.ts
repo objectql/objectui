@@ -14,7 +14,7 @@ export const OrderView = {
       type: 'grid' as const,
       data: { provider: 'object' as const, object: 'order' },
       columns: ['name', 'customer', 'amount', 'order_date'],
-      filter: ['status', '=', 'pending'],
+      filter: [{ field: 'status', operator: '=', value: 'pending' }],
     },
   },
   form: {

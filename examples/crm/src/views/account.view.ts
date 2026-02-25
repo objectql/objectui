@@ -14,7 +14,7 @@ export const AccountView = {
       type: 'grid' as const,
       data: { provider: 'object' as const, object: 'account' },
       columns: ['name', 'industry', 'annual_revenue', 'phone', 'owner'],
-      filter: ['type', '=', 'Customer'],
+      filter: [{ field: 'type', operator: '=', value: 'Customer' }],
       sort: [{ field: 'annual_revenue', order: 'desc' as const }],
     },
   },

@@ -110,6 +110,7 @@ export default defineStack({
       widgets: [
         // --- KPI Row ---
         {
+          id: 'total_records',
           title: 'Total Records',
           type: 'metric',
           object: 'kitchen_sink',
@@ -121,6 +122,7 @@ export default defineStack({
           },
         },
         {
+          id: 'active_items',
           title: 'Active Items',
           type: 'metric',
           object: 'kitchen_sink',
@@ -133,6 +135,7 @@ export default defineStack({
           },
         },
         {
+          id: 'total_value',
           title: 'Total Value',
           type: 'metric',
           object: 'kitchen_sink',
@@ -145,6 +148,7 @@ export default defineStack({
           },
         },
         {
+          id: 'avg_rating',
           title: 'Avg Rating',
           type: 'metric',
           object: 'kitchen_sink',
@@ -159,6 +163,7 @@ export default defineStack({
 
         // --- Charts Row ---
         {
+          id: 'records_by_category',
           title: 'Records by Category',
           type: 'donut',
           object: 'kitchen_sink',
@@ -180,6 +185,7 @@ export default defineStack({
           },
         },
         {
+          id: 'value_distribution',
           title: 'Value Distribution',
           type: 'bar',
           object: 'kitchen_sink',
@@ -205,6 +211,7 @@ export default defineStack({
 
         // --- Trend Row ---
         {
+          id: 'monthly_trend',
           title: 'Monthly Trend',
           type: 'area',
           object: 'kitchen_sink',

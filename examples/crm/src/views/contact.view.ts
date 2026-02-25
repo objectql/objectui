@@ -14,7 +14,7 @@ export const ContactView = {
       type: 'grid' as const,
       data: { provider: 'object' as const, object: 'contact' },
       columns: ['name', 'email', 'title', 'account', 'status'],
-      filter: ['is_active', '=', true],
+      filter: [{ field: 'is_active', operator: '=', value: true }],
     },
   },
   form: {

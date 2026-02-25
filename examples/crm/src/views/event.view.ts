@@ -26,7 +26,7 @@ export const EventView = {
       type: 'grid' as const,
       data: { provider: 'object' as const, object: 'event' },
       columns: ['subject', 'start', 'location', 'organizer'],
-      filter: ['type', '=', 'meeting'],
+      filter: [{ field: 'type', operator: '=', value: 'meeting' }],
       sort: [{ field: 'start', order: 'asc' as const }],
     },
   },

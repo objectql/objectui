@@ -49,7 +49,7 @@ export default defineStack({
           type: 'grid',
           data: { provider: 'object', object: 'todo_task' },
           columns: ['subject', 'status', 'priority', 'assignee', 'due_date'],
-          filter: [['status', '!=', 'Done']],
+          filter: [{ field: 'status', operator: '!=', value: 'Done' }],
           sort: [{ field: 'priority', order: 'asc' }],
         },
       },
@@ -112,6 +112,7 @@ export default defineStack({
       description: 'Task metrics, status distribution, and category breakdown',
       widgets: [
         {
+          id: 'total_tasks',
           title: 'Total Tasks',
           type: 'metric',
           object: 'todo_task',
@@ -123,6 +124,7 @@ export default defineStack({
           },
         },
         {
+          id: 'in_progress',
           title: 'In Progress',
           type: 'metric',
           object: 'todo_task',
@@ -135,6 +137,7 @@ export default defineStack({
           },
         },
         {
+          id: 'completed',
           title: 'Completed',
           type: 'metric',
           object: 'todo_task',
@@ -147,6 +150,7 @@ export default defineStack({
           },
         },
         {
+          id: 'overdue',
           title: 'Overdue',
           type: 'metric',
           object: 'todo_task',
@@ -159,6 +163,7 @@ export default defineStack({
           },
         },
         {
+          id: 'tasks_by_status',
           title: 'Tasks by Status',
           type: 'donut',
           object: 'todo_task',
@@ -182,6 +187,7 @@ export default defineStack({
           },
         },
         {
+          id: 'tasks_by_category',
           title: 'Tasks by Category',
           type: 'bar',
           object: 'todo_task',
