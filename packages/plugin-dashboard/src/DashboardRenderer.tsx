@@ -112,11 +112,12 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
             // Handle Shorthand Registry Mappings
             const widgetType = widget.type;
             const options = (widget.options || {}) as Record<string, any>;
-            if (widgetType === 'bar' || widgetType === 'line' || widgetType === 'area' || widgetType === 'pie' || widgetType === 'donut') {
+            if (widgetType === 'bar' || widgetType === 'line' || widgetType === 'area' || widgetType === 'pie' || widgetType === 'donut' || widgetType === 'scatter') {
                 // Support data at widget level or nested inside options
                 const widgetData = (widget as any).data || options.data;
-                const xAxisKey = options.xField || 'name';
-                const yField = options.yField || 'value';
+                // Widget-level fields (from config panel) override options-level fields
+                const xAxisKey = widget.categoryField || options.xField || 'name';
+                const yField = widget.valueField || options.yField || 'value';
 
                 // provider: 'object' — delegate to ObjectChart for async data loading
                 if (isObjectProvider(widgetData)) {
@@ -131,6 +132,26 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                         aggregate: widgetData.aggregate,
                         xAxisKey: xAxisKey,
                         series: [{ dataKey: effectiveYField }],
+                        colors: CHART_COLORS,
+                        className: "h-[200px] sm:h-[250px] md:h-[300px]"
+                    };
+                }
+
+                // No explicit data provider but widget has object binding
+                // (e.g. newly created widget via config panel) — build object-chart
+                if (!widgetData && widget.object) {
+                    const aggregate = widget.aggregate ? {
+                        field: widget.valueField || 'value',
+                        function: widget.aggregate,
+                        groupBy: widget.categoryField || 'name',
+                    } : undefined;
+                    return {
+                        type: 'object-chart',
+                        chartType: widgetType,
+                        objectName: widget.object,
+                        aggregate,
+                        xAxisKey: xAxisKey,
+                        series: [{ dataKey: widget.valueField || 'value' }],
                         colors: CHART_COLORS,
                         className: "h-[200px] sm:h-[250px] md:h-[300px]"
                     };
@@ -161,6 +182,19 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                         ...restOptions,
                         objectName: widgetData.object || widget.object,
                         dataProvider: widgetData,
+                        data: [],
+                        searchable: false,
+                        pagination: false,
+                        className: "border-0"
+                    };
+                }
+
+                // No explicit data provider but widget has object binding
+                if (!widgetData && widget.object) {
+                    return {
+                        type: 'data-table',
+                        ...options,
+                        objectName: widget.object,
                         data: [],
                         searchable: false,
                         pagination: false,
