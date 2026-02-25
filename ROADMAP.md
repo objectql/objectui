@@ -19,7 +19,7 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 1. ~~**AppShell** — No dynamic navigation renderer from spec JSON (last P0 blocker)~~ ✅ Complete
 2. **Designer Interaction** — ViewDesigner and DataModelDesigner have undo/redo, field type selectors, inline editing, Ctrl+S save, column drag-to-reorder with dnd-kit ✅
 3. **View Config Live Preview Sync** — Config panel changes sync in real-time for Grid, but `showSort`/`showSearch`/`showFilters`/`striped`/`bordered` not yet propagated to Kanban/Calendar/Timeline/Gallery/Map/Gantt (see P1.8.1)
-4. **Dashboard Config Panel** — Airtable-style right-side configuration panel for dashboards (data source, layout, widget properties, sub-editors, type definitions). Widget config live preview sync and scatter chart type switch ✅ fixed (P1.10 Phase 10).
+4. **Dashboard Config Panel** — Airtable-style right-side configuration panel for dashboards (data source, layout, widget properties, sub-editors, type definitions). Widget config live preview sync and scatter chart type switch ✅ fixed (P1.10 Phase 10). Dashboard save/refresh metadata sync ✅ fixed (P1.10 Phase 11).
 5. **Console Advanced Polish** — Remaining upgrades for forms, import/export, automation, comments
 6. **PWA Sync** — Background sync is simulated only
 
@@ -434,6 +434,14 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] Support object-chart construction from widget-level fields when no explicit data provider exists (e.g. newly created widgets via config panel)
 - [x] Support data-table construction from `widget.object` when no data provider exists (table widgets created via config panel)
 - [x] Add 7 new Vitest tests: scatter chart (2), widget-level field fallbacks (2), object-chart from widget fields, data-table from widget.object, DashboardWithConfig live preview
+
+**Phase 11 — Dashboard Save/Refresh Metadata Sync:**
+- [x] Fix: `saveSchema` in `DashboardView` did not call `metadata.refresh()` after PATCH — closing config panel showed stale data from cached metadata
+- [x] Fix: `previewSchema` only used `editSchema` when `configPanelOpen=true` — changed to `editSchema || dashboard` so edits remain visible after panel close until metadata refreshes
+- [x] Add `useEffect` to clear stale `editSchema` when metadata refreshes while config panel is closed (seamless transition)
+- [x] Clear `editSchema` and config panel state on dashboard navigation (`dashboardName` change)
+- [x] Fix: `DashboardDesignPage.saveSchema` did not call `metadata.refresh()` — other pages saw stale dashboard data after save
+- [x] Add 5 new Vitest tests: metadata refresh after widget save (2), metadata refresh after widget delete (2), metadata refresh after DashboardDesignPage save (1)
 
 ### P1.11 Console — Schema-Driven View Config Panel Migration
 
@@ -1004,6 +1012,6 @@ The `FlowDesigner` is a canvas-based flow editor that bridges the gap between th
 
 ---
 
-**Roadmap Status:** 🎯 Active — AppShell · Designer Interaction · View Config Live Preview Sync (P1.8.1) · Dashboard Config Panel (widget live preview & scatter type switch ✅ fixed) · Schema-Driven View Config Panel ✅ · Right-Side Visual Editor Drawer ✅ · Airtable UX Parity
+**Roadmap Status:** 🎯 Active — AppShell · Designer Interaction · View Config Live Preview Sync (P1.8.1) · Dashboard Config Panel (widget live preview & scatter type switch ✅ fixed, save/refresh metadata sync ✅ fixed) · Schema-Driven View Config Panel ✅ · Right-Side Visual Editor Drawer ✅ · Airtable UX Parity
 **Next Review:** March 15, 2026
 **Contact:** hello@objectui.org | https://github.com/objectstack-ai/objectui
