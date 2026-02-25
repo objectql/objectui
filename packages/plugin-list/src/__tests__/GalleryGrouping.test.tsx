@@ -24,11 +24,14 @@ const mockNavigationOverlay = {
   open: vi.fn(),
 };
 
-vi.mock('@object-ui/react', () => ({
-  useDataScope: () => undefined,
-  useSchemaContext: () => ({ dataSource: undefined }),
-  useNavigationOverlay: () => mockNavigationOverlay,
-}));
+vi.mock('@object-ui/react', () => {
+  const React = require('react');
+  return {
+    useDataScope: () => undefined,
+    SchemaRendererContext: React.createContext(null),
+    useNavigationOverlay: () => mockNavigationOverlay,
+  };
+});
 
 vi.mock('@object-ui/components', () => ({
   cn: (...args: any[]) => args.filter(Boolean).join(' '),

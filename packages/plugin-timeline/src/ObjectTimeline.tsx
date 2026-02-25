@@ -97,7 +97,7 @@ export const ObjectTimeline: React.FC<ObjectTimelineProps> = ({
 
   useEffect(() => {
     const fetchData = async () => {
-        if (!dataSource || !schema.objectName) return;
+        if (!dataSource || typeof dataSource.find !== 'function' || !schema.objectName) return;
         setLoading(true);
         try {
             const results = await dataSource.find(schema.objectName, {

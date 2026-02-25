@@ -6,8 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useDataScope, useSchemaContext, useNavigationOverlay } from '@object-ui/react';
+import React, { useState, useEffect, useCallback, useMemo, useContext } from 'react';
+import { useDataScope, SchemaRendererContext, useNavigationOverlay } from '@object-ui/react';
 import { ComponentRegistry } from '@object-ui/core';
 import { cn, Card, CardContent, NavigationOverlay } from '@object-ui/components';
 import type { GalleryConfig, ViewNavigationConfig, GroupingConfig } from '@object-ui/types';
@@ -52,8 +52,8 @@ const ASPECT_CLASSES: Record<NonNullable<GalleryConfig['cardSize']>, string> = {
 
 export const ObjectGallery: React.FC<ObjectGalleryProps> = (props) => {
     const { schema } = props;
-    const context = useSchemaContext();
-    const dataSource = props.dataSource || context.dataSource;
+    const context = useContext(SchemaRendererContext);
+    const dataSource = props.dataSource || context?.dataSource;
     const boundData = useDataScope(schema.bind);
 
     const [fetchedData, setFetchedData] = useState<Record<string, unknown>[]>([]);
@@ -83,7 +83,7 @@ export const ObjectGallery: React.FC<ObjectGalleryProps> = (props) => {
         }
 
         const fetchData = async () => {
-            if (!dataSource || !schema.objectName) return;
+            if (!dataSource || typeof dataSource.find !== 'function' || !schema.objectName) return;
             if (isMounted) setLoading(true);
             try {
                 const results = await dataSource.find(schema.objectName, {
