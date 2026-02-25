@@ -798,7 +798,7 @@ The `FlowDesigner` is a canvas-based flow editor that bridges the gap between th
 **Global Theme & Design Tokens:**
 - [x] Hardcoded gray colors in `GridField.tsx`, `ReportRenderer.tsx`, and `ObjectGrid.tsx` replaced with theme tokens (`text-muted-foreground`, `bg-muted`, `border-border`, `border-foreground`)
 - [x] Global font-family (`Inter`, ui-sans-serif, system-ui) injected in `index.css` `:root`
-- [x] `--config-panel-width: 280px` CSS custom property added for unified config panel sizing
+- [x] `--config-panel-width` CSS custom property added for unified config panel sizing (updated to `320px` in P2.8)
 - [x] Border radius standardized to `rounded-lg` across report/grid components
 - [x] `transition-colors duration-150` added to all interactive elements (toolbar buttons, tab bar, sidebar menu buttons)
 - [x] `LayoutRenderer.tsx` outer shell `bg-slate-50/50 dark:bg-zinc-950` replaced with `bg-background` theme token
@@ -832,6 +832,26 @@ The `FlowDesigner` is a canvas-based flow editor that bridges the gap between th
 - [x] Tab spacing tightened (`gap-0.5`, `px-3 py-1.5`)
 - [x] Active tab indicator changed to bottom border (`border-b-2 border-primary font-medium text-foreground`)
 - [x] `transition-colors duration-150` added to tab buttons
+
+### P2.8 Airtable Parity: Product View & UI Detail Optimization
+
+> Product grid view and configuration panel UI/UX optimizations for Airtable-level experience (Issue #768).
+
+**Product Grid (Grid Area):**
+- [x] `IS ACTIVE` column: explicit `type: 'boolean'` rendering as `<Checkbox disabled>` via BooleanCellRenderer
+- [x] Price column: explicit `type: 'currency'` with `formatCurrency` formatting (`$2,499.99`)
+- [x] Price column: `align: 'right'` for numeric alignment
+- [x] Default `rowHeight: 'short'` for compact information density
+- [x] SKU (`width: 120`) and CATEGORY (`width: 110`) columns narrowed; NAME column wider (`width: 250`)
+- [x] Stock=0 rows: red conditional formatting (`backgroundColor: #fee2e2`, `textColor: #991b1b`)
+- [x] Stock<5 rows: warning conditional formatting (`backgroundColor: #fef9c3`, `textColor: #854d0e`)
+- [x] All columns use detailed `ListColumn` config with explicit `field`, `label`, `width`, `type`, `align`
+
+**Config Panel:**
+- [x] `--config-panel-width` CSS variable increased from `280px` to `320px` for wider config panel
+
+**Tests:**
+- [x] 7 new CRM metadata tests validating column types, widths, rowHeight, conditionalFormatting rules
 
 ### P2.5 PWA & Offline (Real Sync)
 
