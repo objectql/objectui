@@ -7,8 +7,8 @@ export const CrmApp = App.create({
   description: 'Sales pipeline, accounts, and customer management',
   branding: {
     primaryColor: '#3B82F6',
-    logo: 'https://objectstack.com/logo.svg',
-    favicon: 'https://objectstack.com/favicon.ico',
+    logo: 'https://objectstack.ai/logo.svg',
+    favicon: 'https://objectstack.ai/logo.svg',
   },
   navigation: [
     {
