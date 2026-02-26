@@ -376,11 +376,11 @@ export function DashboardView({ dataSource }: { dataSource?: any }) {
     );
   }
 
-  const previewSchemaRaw = editSchema || dashboard;
   const previewSchema = useMemo(() => {
-    if (!previewSchemaRaw?.widgets) return previewSchemaRaw;
-    return { ...previewSchemaRaw, widgets: translateCrmDashboardWidgets(previewSchemaRaw.widgets, t) };
-  }, [previewSchemaRaw, t]);
+    const raw = editSchema || dashboard;
+    if (!raw?.widgets) return raw;
+    return { ...raw, widgets: translateCrmDashboardWidgets(raw.widgets, t) };
+  }, [editSchema, dashboard, t]);
 
   return (
     <div className="flex flex-col h-full overflow-hidden bg-background">
