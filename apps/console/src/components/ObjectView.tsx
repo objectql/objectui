@@ -13,7 +13,7 @@ import { useMemo, useState, useCallback, useEffect, type ComponentType } from 'r
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { ObjectChart } from '@object-ui/plugin-charts';
 import { ListView } from '@object-ui/plugin-list';
-import { DetailView } from '@object-ui/plugin-detail';
+import { DetailView, RecordChatterPanel } from '@object-ui/plugin-detail';
 import { ObjectView as PluginObjectView, ViewTabBar } from '@object-ui/plugin-view';
 import type { ViewTabItem, AvailableViewType } from '@object-ui/plugin-view';
 // Import plugins for side-effects (registration)
@@ -230,8 +230,8 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
     }, [dataSource, objectDef.name, refreshKey]);
 
     // Navigation overlay for record detail (supports drawer/modal/split/popover via config)
-    // Priority: activeView.navigation > objectDef.navigation > default drawer
-    const detailNavigation: ViewNavigationConfig = activeView?.navigation ?? objectDef.navigation ?? { mode: 'drawer' };
+    // Priority: activeView.navigation > objectDef.navigation > default page
+    const detailNavigation: ViewNavigationConfig = activeView?.navigation ?? objectDef.navigation ?? { mode: 'page' };
     const drawerRecordId = searchParams.get('recordId');
     const navOverlay = useNavigationOverlay({
         navigation: detailNavigation,
@@ -658,6 +658,22 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
                                  dataSource={dataSource}
                                  onEdit={() => onEdit({ _id: recordId, id: recordId })}
                              />
+                             {/* Discussion panel — collapsible in drawer/overlay mode */}
+                             <div className="mt-6 border-t pt-6">
+                                 <RecordChatterPanel
+                                     config={{
+                                         position: 'bottom',
+                                         collapsible: true,
+                                         defaultCollapsed: true,
+                                         feed: {
+                                             enableReactions: true,
+                                             enableThreading: true,
+                                             showCommentInput: true,
+                                         },
+                                     }}
+                                     items={[]}
+                                 />
+                             </div>
                          </div>
                      );
                  }}

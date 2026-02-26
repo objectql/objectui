@@ -766,4 +766,39 @@ describe('ObjectView Component', () => {
             expect(screen.getByTestId('schema-navigation-mode')).toHaveTextContent('modal');
         });
     });
+
+    it('defaults to page navigation mode when no navigation config is specified', () => {
+        mockUseParams.mockReturnValue({ objectName: 'opportunity' });
+
+        render(<ObjectView dataSource={mockDataSource} objects={mockObjects} onEdit={vi.fn()} />);
+
+        // With default 'page' mode, NavigationOverlay renders nothing (non-overlay mode)
+        // and the grid still renders fine
+        expect(screen.getByTestId('object-grid')).toBeInTheDocument();
+    });
+
+    it('renders RecordChatterPanel inside drawer overlay when navigation mode is drawer', async () => {
+        mockAuthUser = { id: 'u1', name: 'Admin', role: 'admin' };
+        // Provide recordId in URL to trigger overlay open
+        mockSearchParams = new URLSearchParams('recordId=rec-1');
+        const objectsWithDrawer = [
+            {
+                ...mockObjects[0],
+                navigation: { mode: 'drawer' as const },
+            }
+        ];
+        mockUseParams.mockReturnValue({ objectName: 'opportunity' });
+
+        const dataSourceWithFindOne = {
+            ...mockDataSource,
+            findOne: vi.fn().mockResolvedValue({ _id: 'rec-1', id: 'rec-1', name: 'Test' }),
+        };
+
+        render(<ObjectView dataSource={dataSourceWithFindOne} objects={objectsWithDrawer} onEdit={vi.fn()} />);
+
+        // The drawer should render a "Show Discussion" button (ChatterPanel is defaultCollapsed)
+        await vi.waitFor(() => {
+            expect(screen.getByLabelText('Show discussion')).toBeInTheDocument();
+        });
+    });
 });
