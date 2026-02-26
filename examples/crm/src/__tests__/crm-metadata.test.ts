@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
 
+/** Resolve an I18nLabel (string or { key, defaultValue }) to a plain string for test assertions */
+function resolveTitle(title: string | { key: string; defaultValue?: string } | undefined): string {
+  if (!title) return '';
+  if (typeof title === 'string') return title;
+  return title.defaultValue || title.key;
+}
+
 // --- Metadata imports ---
 import { AccountObject } from '../objects/account.object';
 import { ContactObject } from '../objects/contact.object';
@@ -235,7 +242,7 @@ describe('CRM Metadata Spec Compliance', () => {
     });
 
     it('all widgets have unique title', () => {
-      const titles = CrmDashboard.widgets.map((w) => w.title);
+      const titles = CrmDashboard.widgets.map((w) => resolveTitle(w.title));
       for (const title of titles) {
         expect(typeof title).toBe('string');
         expect(title!.length).toBeGreaterThan(0);
@@ -245,8 +252,9 @@ describe('CRM Metadata Spec Compliance', () => {
 
     it('all widgets have title', () => {
       for (const widget of CrmDashboard.widgets) {
-        expect(typeof widget.title).toBe('string');
-        expect(widget.title!.length).toBeGreaterThan(0);
+        const title = resolveTitle(widget.title);
+        expect(typeof title).toBe('string');
+        expect(title!.length).toBeGreaterThan(0);
       }
     });
 
@@ -254,7 +262,7 @@ describe('CRM Metadata Spec Compliance', () => {
       const metrics = CrmDashboard.widgets.filter((w) => w.type === 'metric');
       for (const widget of metrics) {
         const opts = widget.options as { label?: string };
-        expect(widget.title).toBe(opts.label);
+        expect(resolveTitle(widget.title)).toBe(opts.label);
       }
     });
 

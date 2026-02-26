@@ -55,8 +55,8 @@ export interface NavigationItem {
   /** Navigation item type */
   type: NavigationItemType;
 
-  /** Display label */
-  label: string;
+  /** Display label (plain string or I18nLabel object for internationalization) */
+  label: string | { key: string; defaultValue?: string; params?: Record<string, any> };
 
   /** Icon name (Lucide) */
   icon?: string;
@@ -126,8 +126,8 @@ export interface NavigationArea {
   /** Unique identifier */
   id: string;
 
-  /** Display label */
-  label: string;
+  /** Display label (plain string or I18nLabel object for internationalization) */
+  label: string | { key: string; defaultValue?: string; params?: Record<string, any> };
 
   /** Icon name (Lucide) */
   icon?: string;

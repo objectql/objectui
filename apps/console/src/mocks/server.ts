@@ -9,6 +9,7 @@
  * This pattern follows @objectstack/studio — see https://github.com/objectstack-ai/spec
  */
 
+import { http, HttpResponse } from 'msw';
 import { ObjectKernel } from '@objectstack/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { setupServer } from 'msw/node';
@@ -20,6 +21,20 @@ let kernel: ObjectKernel | null = null;
 let driver: InMemoryDriver | null = null;
 let mswPlugin: MSWPlugin | null = null;
 let server: ReturnType<typeof setupServer> | null = null;
+
+/**
+ * Lazy-load CRM locale bundles for the i18n API endpoint.
+ */
+async function loadCrmLocale(lang: string): Promise<Record<string, unknown>> {
+  try {
+    const { crmLocales } = await import('@object-ui/example-crm');
+    const translations = (crmLocales as Record<string, any>)[lang];
+    if (!translations) return {};
+    return { crm: translations };
+  } catch {
+    return {};
+  }
+}
 
 export async function startMockServer() {
   if (kernel) {
@@ -35,6 +50,13 @@ export async function startMockServer() {
       enableBrowser: false,
       baseUrl: '/api/v1',
       logRequests: false,
+      customHandlers: [
+        http.get('/api/v1/i18n/:lang', async ({ params }) => {
+          const lang = params.lang as string;
+          const resources = await loadCrmLocale(lang);
+          return HttpResponse.json(resources);
+        }),
+      ],
     },
   });
   kernel = result.kernel;

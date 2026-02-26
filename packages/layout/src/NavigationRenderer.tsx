@@ -152,6 +152,19 @@ export function resolveIcon(name?: string): React.ComponentType<any> {
 }
 
 // ---------------------------------------------------------------------------
+// I18nLabel resolver
+// ---------------------------------------------------------------------------
+
+/**
+ * Resolve a NavigationItem label to a plain string.
+ * Supports both plain strings and I18nLabel objects { key, defaultValue }.
+ */
+export function resolveLabel(label: string | { key: string; defaultValue?: string; params?: Record<string, any> }): string {
+  if (typeof label === 'string') return label;
+  return label.defaultValue || label.key;
+}
+
+// ---------------------------------------------------------------------------
 // Default evaluators (always-visible, always-permitted)
 // ---------------------------------------------------------------------------
 
@@ -212,7 +225,7 @@ export function filterNavigationItems(
     }
 
     // Leaf items: match label
-    if (item.label.toLowerCase().includes(lowerQuery)) {
+    if (resolveLabel(item.label).toLowerCase().includes(lowerQuery)) {
       acc.push(item);
     }
     return acc;
@@ -325,7 +338,7 @@ function NavigationItemRenderer({
         <SidebarGroup>
           <SidebarGroupLabel asChild>
             <CollapsibleTrigger className="flex w-full items-center justify-between">
-              {item.label}
+              {resolveLabel(item.label)}
               <LucideIcons.ChevronRight
                 className={`ml-auto h-4 w-4 transition-transform ${isOpen ? 'rotate-90' : ''}`}
               />
@@ -365,11 +378,11 @@ function NavigationItemRenderer({
           </span>
         )}
         <SidebarMenuButton
-          tooltip={item.label}
+          tooltip={resolveLabel(item.label)}
           onClick={() => onAction?.(item)}
         >
           <Icon className="h-4 w-4" />
-          <span>{item.label}</span>
+          <span>{resolveLabel(item.label)}</span>
           {item.badge != null && (
             <Badge variant={item.badgeVariant ?? 'default'} className="ml-auto text-[10px] px-1.5 py-0">
               {item.badge}
@@ -379,7 +392,7 @@ function NavigationItemRenderer({
         {enablePinning && onPinToggle && (
           <SidebarMenuAction
             onClick={() => onPinToggle(item.id, !item.pinned)}
-            aria-label={item.pinned ? `Unpin ${item.label}` : `Pin ${item.label}`}
+            aria-label={item.pinned ? `Unpin ${resolveLabel(item.label)}` : `Pin ${resolveLabel(item.label)}`}
           >
             {item.pinned ? (
               <LucideIcons.PinOff className="h-3.5 w-3.5" />
@@ -400,7 +413,7 @@ function NavigationItemRenderer({
   const content = (
     <>
       <Icon className="h-4 w-4" />
-      <span>{item.label}</span>
+      <span>{resolveLabel(item.label)}</span>
       {item.badge != null && (
         <Badge variant={item.badgeVariant ?? 'default'} className="ml-auto text-[10px] px-1.5 py-0">
           {item.badge}
@@ -416,7 +429,7 @@ function NavigationItemRenderer({
           <LucideIcons.GripVertical className="h-3.5 w-3.5" />
         </span>
       )}
-      <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
+      <SidebarMenuButton asChild isActive={isActive} tooltip={resolveLabel(item.label)}>
         {external ? (
           <a href={href} target="_blank" rel="noopener noreferrer">
             {content}
@@ -430,7 +443,7 @@ function NavigationItemRenderer({
       {enablePinning && onPinToggle && (
         <SidebarMenuAction
           onClick={() => onPinToggle(item.id, !item.pinned)}
-          aria-label={item.pinned ? `Unpin ${item.label}` : `Pin ${item.label}`}
+          aria-label={item.pinned ? `Unpin ${resolveLabel(item.label)}` : `Pin ${resolveLabel(item.label)}`}
         >
           {item.pinned ? (
             <LucideIcons.PinOff className="h-3.5 w-3.5" />

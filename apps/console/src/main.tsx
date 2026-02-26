@@ -27,6 +27,20 @@ import '@object-ui/plugin-dashboard';
 import '@object-ui/plugin-report';
 import '@object-ui/plugin-markdown';
 
+/**
+ * Load application-specific translations for a given language from the API.
+ * Falls back gracefully when translations are unavailable.
+ */
+async function loadLanguage(lang: string): Promise<Record<string, unknown>> {
+  try {
+    const res = await fetch(`/api/v1/i18n/${lang}`);
+    if (!res.ok) return {};
+    return await res.json();
+  } catch {
+    return {};
+  }
+}
+
 // Start MSW before rendering the app
 async function bootstrap() {
   // Initialize Mock Service Worker if enabled (lazy-loaded to keep production bundle lean)
@@ -39,7 +53,7 @@ async function bootstrap() {
   ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
       <MobileProvider pwa={{ enabled: true, name: 'ObjectUI Console', shortName: 'Console' }}>
-        <I18nProvider>
+        <I18nProvider loadLanguage={loadLanguage}>
           <App />
         </I18nProvider>
       </MobileProvider>
