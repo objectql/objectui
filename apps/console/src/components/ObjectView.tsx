@@ -658,7 +658,8 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
                                  dataSource={dataSource}
                                  onEdit={() => onEdit({ _id: recordId, id: recordId })}
                              />
-                             {/* Discussion panel — collapsible in drawer/overlay mode */}
+                             {/* Discussion panel — collapsible in drawer/overlay mode.
+                                Items start empty; full data fetching is in RecordDetailView (page mode). */}
                              <div className="mt-6 border-t pt-6">
                                  <RecordChatterPanel
                                      config={{
