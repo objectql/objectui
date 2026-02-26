@@ -920,8 +920,8 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                     </TableCell>
                   </TableRow>
                 )}
-                {/* Filler rows to maintain height consistency */}
-                {paginatedData.length > 0 && Array.from({ length: Math.max(0, pageSize - paginatedData.length) }).map((_, i) => (
+                {/* Filler rows to maintain height consistency (only when pagination is enabled) */}
+                {pagination && paginatedData.length > 0 && Array.from({ length: Math.max(0, pageSize - paginatedData.length) }).map((_, i) => (
                   <TableRow key={`empty-${i}`} className="hover:bg-transparent">
                     <TableCell colSpan={columns.length + (selectable ? 1 : 0) + (rowActions ? 1 : 0)} className="h-[52px] p-0" />
                   </TableRow>

@@ -185,3 +185,55 @@ describe('Row group hover class', () => {
     expect(aliceRow).toHaveClass('group/row');
   });
 });
+
+// =========================================================================
+// 5. Filler rows behavior
+// =========================================================================
+describe('Filler rows', () => {
+  it('should not render filler rows when pagination is disabled', async () => {
+    // pagination: false with pageSize: 10 and only 2 data rows
+    // should NOT produce empty filler rows
+    render(
+      <SchemaRenderer
+        schema={{ ...baseSchema, pagination: false, pageSize: 10 }}
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+    });
+
+    const table = screen.getByRole('table');
+    const tbody = table.querySelector('tbody');
+    const allRows = tbody!.querySelectorAll('tr');
+
+    // Should only have data rows (2) + add-record row if any, no filler rows
+    // With 2 data items and no add-record, expect exactly 2 rows
+    const fillerRows = Array.from(allRows).filter(
+      (row) => row.querySelector('td[class*="p-0"]') && row.textContent === ''
+    );
+    expect(fillerRows).toHaveLength(0);
+  });
+
+  it('should render filler rows when pagination is enabled and page is not full', async () => {
+    render(
+      <SchemaRenderer
+        schema={{ ...baseSchema, pagination: true, pageSize: 5, searchable: false }}
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+    });
+
+    const table = screen.getByRole('table');
+    const tbody = table.querySelector('tbody');
+    const allRows = tbody!.querySelectorAll('tr');
+
+    // With 2 data rows and pageSize 5, expect 3 filler rows (5 - 2 = 3)
+    const fillerRows = Array.from(allRows).filter(
+      (row) => row.querySelector('td[class*="p-0"]') && row.textContent === ''
+    );
+    expect(fillerRows).toHaveLength(3);
+  });
+});
