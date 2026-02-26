@@ -5,11 +5,19 @@
 /**
  * Resolves an I18nLabel to a plain string.
  * I18nLabel can be either a string or an object { key, defaultValue?, params? }.
- * When it's an object, we return the defaultValue or the key as fallback.
+ * When it's an object and a `t` function is provided, it resolves the key
+ * through the i18n translation system. Otherwise returns defaultValue or key.
  */
-export function resolveI18nLabel(label: string | { key: string; defaultValue?: string; params?: Record<string, any> } | undefined): string | undefined {
+export function resolveI18nLabel(
+  label: string | { key: string; defaultValue?: string; params?: Record<string, any> } | undefined,
+  t?: (key: string, options?: any) => string,
+): string | undefined {
   if (label === undefined || label === null) return undefined;
   if (typeof label === 'string') return label;
+  if (t) {
+    const result = t(label.key, { defaultValue: label.defaultValue, ...label.params });
+    if (result && result !== label.key) return result;
+  }
   return label.defaultValue || label.key;
 }
 

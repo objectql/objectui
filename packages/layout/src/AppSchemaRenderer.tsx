@@ -42,6 +42,7 @@ import { AppShell, type AppShellBranding } from './AppShell';
 import {
   NavigationRenderer,
   resolveIcon,
+  resolveLabel,
   type VisibilityEvaluator,
   type PermissionChecker,
 } from './NavigationRenderer';
@@ -151,11 +152,11 @@ function AreaSwitcher({
               <SidebarMenuItem key={area.id}>
                 <SidebarMenuButton
                   isActive={area.id === activeAreaId}
-                  tooltip={area.label}
+                  tooltip={resolveLabel(area.label)}
                   onClick={() => onAreaChange(area.id)}
                 >
                   <AreaIcon className="h-4 w-4" />
-                  <span>{area.label}</span>
+                  <span>{resolveLabel(area.label)}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             );
@@ -211,7 +212,7 @@ function MobileBottomNav({
             }`}
           >
             <NavIcon className="h-5 w-5" />
-            <span className="text-[10px] truncate max-w-[60px]">{item.label}</span>
+            <span className="text-[10px] truncate max-w-[60px]">{resolveLabel(item.label)}</span>
           </Link>
         );
       })}

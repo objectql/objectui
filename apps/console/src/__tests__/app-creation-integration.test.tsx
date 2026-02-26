@@ -235,7 +235,11 @@ vi.mock('../hooks/useNavPins', () => ({
 }));
 
 vi.mock('../utils', () => ({
-  resolveI18nLabel: (label: any) => (typeof label === 'string' ? label : label?.en || ''),
+  resolveI18nLabel: (label: any) => {
+    if (typeof label === 'string') return label;
+    if (label && typeof label === 'object') return label.defaultValue || label.key || '';
+    return '';
+  },
 }));
 
 // Mock i18n
