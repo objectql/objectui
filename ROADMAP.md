@@ -17,7 +17,7 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 
 **What Remains:** The gap to **Airtable-level UX** is primarily in:
 1. ~~**AppShell** — No dynamic navigation renderer from spec JSON (last P0 blocker)~~ ✅ Complete
-2. **Designer Interaction** — DataModelDesigner has undo/redo, field type selectors, inline editing, Ctrl+S save. ViewDesigner has been removed; its capabilities are now part of ViewConfigPanel (right-side config panel) ✅
+2. **Designer Interaction** — DataModelDesigner has undo/redo, field type selectors, inline editing, Ctrl+S save. ViewDesigner has been removed; its capabilities (drag-to-reorder columns via @dnd-kit, undo/redo via useConfigDraft history) are now integrated into ViewConfigPanel (right-side config panel) ✅
 3. **View Config Live Preview Sync** — Config panel changes sync in real-time for Grid, but `showSort`/`showSearch`/`showFilters`/`striped`/`bordered` not yet propagated to Kanban/Calendar/Timeline/Gallery/Map/Gantt (see P1.8.1)
 4. **Dashboard Config Panel** — Airtable-style right-side configuration panel for dashboards (data source, layout, widget properties, sub-editors, type definitions). Widget config live preview sync and scatter chart type switch ✅ fixed (P1.10 Phase 10). Dashboard save/refresh metadata sync ✅ fixed (P1.10 Phase 11). Data provider field override for live preview ✅ fixed (P1.10 Phase 12).
 5. **Console Advanced Polish** — Remaining upgrades for forms, import/export, automation, comments
@@ -99,6 +99,8 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] Add field type selector dropdown with icons from `DESIGNER_FIELD_TYPES`
 - [x] Column width validation (min/max/pattern check)
 - [x] Removed: ViewDesigner replaced by ViewConfigPanel (right-side config panel)
+- [x] ViewConfigPanel upgraded: undo/redo integrated into `useConfigDraft` hook
+- [x] ViewConfigPanel upgraded: drag-and-drop column sorting via `@dnd-kit/sortable`
 
 **DataModelDesigner:**
 - [x] Entity drag-to-move on canvas
