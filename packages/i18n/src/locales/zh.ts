@@ -386,7 +386,6 @@ const zh = {
       discard: '丢弃',
       createView: '创建视图',
       newView: '新视图',
-
       typeOptions: '类型选项',
       groupByField: '分组字段',
       startDateField: '开始日期字段',

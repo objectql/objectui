@@ -386,7 +386,6 @@ const de = {
       discard: 'Verwerfen',
       createView: 'Ansicht erstellen',
       newView: 'Neue Ansicht',
-
       typeOptions: 'Typoptionen',
       groupByField: 'Gruppierungsfeld',
       startDateField: 'Startdatumsfeld',
