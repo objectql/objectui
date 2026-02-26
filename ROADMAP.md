@@ -1031,6 +1031,14 @@ The `FlowDesigner` is a canvas-based flow editor that bridges the gap between th
 
 **Tests:** Added integration test in `ListViewGroupingPropagation.test.tsx` that verifies toggling a group field via the toolbar immediately updates the rendered schema. All 117 ListView tests pass.
 
+### ListView Grouping Mode Empty Rows (February 2026)
+
+**Root Cause:** When grouping is enabled in list view, `buildGroupTableSchema` in `ObjectGrid.tsx` sets `pagination: false` but inherits `pageSize: 10` from the parent schema. The `DataTableRenderer` filler row logic (`Array.from({ length: Math.max(0, pageSize - paginatedData.length) })`) pads each group table with empty rows up to `pageSize`, creating many blank lines.
+
+**Fix:** Added `pagination &&` condition to filler row rendering in `data-table.tsx`. Filler rows only render when pagination is enabled, since their purpose is maintaining consistent page height during paginated views.
+
+**Tests:** Added 2 tests in `data-table-airtable-ux.test.tsx` verifying filler rows are skipped when pagination is off and still rendered when pagination is on. All 59 related tests pass.
+
 ---
 
 ## ⚠️ Risk Management
