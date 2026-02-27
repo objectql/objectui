@@ -86,8 +86,8 @@ describe('buildExpandFields', () => {
   });
 
   it('should return all lookup fields when columns is empty array', () => {
-    // Empty columns array means no column restriction → no expansion
-    // (zero visible columns ⇒ no fields to expand)
+    // Empty columns array does not satisfy the length > 0 check,
+    // so no column restriction is applied → all lookup fields returned
     const result = buildExpandFields(sampleFields, []);
     expect(result).toEqual(['account', 'parent']);
   });
