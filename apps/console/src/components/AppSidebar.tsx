@@ -524,7 +524,10 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
           const NavIcon = getIcon(item.icon);
           const baseUrl = `/apps/${activeAppName}`;
           let href = '#';
-          if (item.type === 'object') href = `${baseUrl}/${item.objectName}`;
+          if (item.type === 'object') {
+            href = `${baseUrl}/${item.objectName}`;
+            if (item.viewName) href += `/view/${item.viewName}`;
+          }
           else if (item.type === 'dashboard') href = item.dashboardName ? `${baseUrl}/dashboard/${item.dashboardName}` : '#';
           else if (item.type === 'page') href = item.pageName ? `${baseUrl}/page/${item.pageName}` : '#';
           return (

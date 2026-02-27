@@ -34,6 +34,36 @@ const baseObjects = [
   ...(kitchenSink.objects || []),
 ];
 
+// Collect all example configs for view merging
+const allConfigs = [crm, todo, kitchenSink];
+
+// ---------------------------------------------------------------------------
+// Merge stack-level views into object definitions.
+// defineStack() strips non-standard properties like listViews from objects.
+// Re-merge listViews after validation so the runtime protocol serves objects
+// with their view definitions (calendar, kanban, etc.).
+// ---------------------------------------------------------------------------
+function mergeViewsIntoObjects(objects: any[], configs: any[]): any[] {
+  const viewsByObject: Record<string, Record<string, any>> = {};
+  for (const config of configs) {
+    if (!Array.isArray(config.views)) continue;
+    for (const view of config.views) {
+      if (!view.listViews) continue;
+      for (const [viewName, listView] of Object.entries(view.listViews as Record<string, any>)) {
+        const objectName = listView?.data?.object;
+        if (!objectName) continue;
+        if (!viewsByObject[objectName]) viewsByObject[objectName] = {};
+        viewsByObject[objectName][viewName] = listView;
+      }
+    }
+  }
+  return objects.map((obj: any) => {
+    const views = viewsByObject[obj.name];
+    if (!views) return obj;
+    return { ...obj, listViews: { ...(obj.listViews || {}), ...views } };
+  });
+}
+
 // Merge all example configs into a single app bundle for AppPlugin
 const mergedApp = defineStack({
   manifest: {
@@ -49,6 +79,11 @@ const mergedApp = defineStack({
     ],
   },
   objects: baseObjects,
+  views: [
+    ...(crm.views || []),
+    ...(todo.views || []),
+    ...(kitchenSink.views || []),
+  ],
   apps: [
     ...(crm.apps || []),
     ...(todo.apps || []),
@@ -69,6 +104,12 @@ const mergedApp = defineStack({
   ],
 } as any);
 
+// Re-merge listViews that defineStack stripped from objects
+const mergedAppWithViews = {
+  ...mergedApp,
+  objects: mergeViewsIntoObjects(mergedApp.objects || [], allConfigs),
+};
+
 // Export only plugins — no top-level objects/manifest/apps.
 // The CLI auto-creates an AppPlugin from the config if it detects objects/manifest/apps,
 // which would conflict with our explicit AppPlugin and skip seed data loading.
@@ -76,7 +117,7 @@ export default {
   plugins: [
     new ObjectQLPlugin(),
     new DriverPlugin(new InMemoryDriver()),
-    new AppPlugin(mergedApp),
+    new AppPlugin(mergedAppWithViews),
     new HonoServerPlugin({ port: 3000 }),
     new ConsolePlugin(),
   ],

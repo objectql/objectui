@@ -66,6 +66,9 @@ export interface NavigationItem {
   /** Target object name (for type: 'object') */
   objectName?: string;
 
+  /** Target view name (for type: 'object') — opens a specific named list view e.g. 'calendar', 'pipeline' */
+  viewName?: string;
+
   /** Target dashboard name (for type: 'dashboard') */
   dashboardName?: string;
 

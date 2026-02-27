@@ -427,7 +427,7 @@ export function AppContent() {
 function findFirstRoute(items: any[]): string {
     if (!items || items.length === 0) return '';
     for (const item of items) {
-        if (item.type === 'object') return `${item.objectName}`;
+        if (item.type === 'object') return item.viewName ? `${item.objectName}/view/${item.viewName}` : `${item.objectName}`;
         if (item.type === 'page') return item.pageName ? `page/${item.pageName}` : '';
         if (item.type === 'dashboard') return item.dashboardName ? `dashboard/${item.dashboardName}` : '';
         if (item.type === 'url') continue; // Skip external URLs

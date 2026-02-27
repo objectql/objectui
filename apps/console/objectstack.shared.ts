@@ -142,4 +142,11 @@ export const sharedConfig = {
   ]
 };
 
-export default defineStack(sharedConfig as Parameters<typeof defineStack>[0]);
+// defineStack() validates the config but strips non-standard properties like
+// listViews from objects. Re-merge listViews after validation so the runtime
+// protocol serves objects with their view definitions (calendar, kanban, etc.).
+const validated = defineStack(sharedConfig as Parameters<typeof defineStack>[0]);
+export default {
+  ...validated,
+  objects: mergeViewsIntoObjects(validated.objects || [], allConfigs),
+};
