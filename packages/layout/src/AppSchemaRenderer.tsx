@@ -195,7 +195,10 @@ function MobileBottomNav({
       {leaves.map((item) => {
         const NavIcon = resolveIcon(item.icon);
         let href = '#';
-        if (item.type === 'object') href = `${basePath}/${item.objectName}`;
+        if (item.type === 'object') {
+          href = `${basePath}/${item.objectName}`;
+          if (item.viewName) href += `/view/${item.viewName}`;
+        }
         else if (item.type === 'dashboard') href = item.dashboardName ? `${basePath}/dashboard/${item.dashboardName}` : '#';
         else if (item.type === 'page') href = item.pageName ? `${basePath}/page/${item.pageName}` : '#';
         else if (item.type === 'report') href = item.reportName ? `${basePath}/report/${item.reportName}` : '#';

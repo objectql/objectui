@@ -110,6 +110,20 @@ describe('NavigationRenderer', () => {
     expect(link?.getAttribute('href')).toBe('/apps/test/account');
   });
 
+  it('renders object navigation item with viewName in href', () => {
+    const calendarItem: NavigationItem = {
+      id: 'nav-calendar',
+      type: 'object',
+      label: 'Calendar',
+      icon: 'Calendar',
+      objectName: 'event',
+      viewName: 'calendar',
+    };
+    renderNav([calendarItem]);
+    const link = screen.getByText('Calendar').closest('a');
+    expect(link?.getAttribute('href')).toBe('/apps/test/event/view/calendar');
+  });
+
   it('renders dashboard navigation item', () => {
     renderNav([dashboardItem]);
     expect(screen.getByText('Sales Dashboard')).toBeTruthy();

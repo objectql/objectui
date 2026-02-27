@@ -184,8 +184,10 @@ const defaultPermission: PermissionChecker = () => true;
 
 function resolveHref(item: NavigationItem, basePath: string): { href: string; external: boolean } {
   switch (item.type) {
-    case 'object':
-      return { href: `${basePath}/${item.objectName ?? ''}`, external: false };
+    case 'object': {
+      const objectPath = `${basePath}/${item.objectName ?? ''}`;
+      return { href: item.viewName ? `${objectPath}/view/${item.viewName}` : objectPath, external: false };
+    }
     case 'dashboard':
       return { href: item.dashboardName ? `${basePath}/dashboard/${item.dashboardName}` : '#', external: false };
     case 'page':

@@ -41,6 +41,7 @@ export const NavigationItemSchema: z.ZodType<any> = z.lazy(() => z.object({
 
   // Type-specific target fields
   objectName: z.string().optional().describe('Target object name (type: object)'),
+  viewName: z.string().optional().describe('Target view name (type: object) — named list view e.g. calendar, pipeline'),
   dashboardName: z.string().optional().describe('Target dashboard name (type: dashboard)'),
   pageName: z.string().optional().describe('Target page name (type: page)'),
   reportName: z.string().optional().describe('Target report name (type: report)'),
