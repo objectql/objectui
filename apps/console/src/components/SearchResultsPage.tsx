@@ -77,7 +77,10 @@ export function SearchResultsPage() {
     const navItems = flattenNavigation(activeApp.navigation || []);
     return navItems.map((item: any) => {
       let href = '#';
-      if (item.type === 'object') href = `${baseUrl}/${item.objectName}`;
+      if (item.type === 'object') {
+        href = `${baseUrl}/${item.objectName}`;
+        if (item.viewName) href += `/view/${item.viewName}`;
+      }
       else if (item.type === 'dashboard') href = `${baseUrl}/dashboard/${item.dashboardName}`;
       else if (item.type === 'page') href = `${baseUrl}/page/${item.pageName}`;
       else if (item.type === 'report') href = `${baseUrl}/report/${item.reportName}`;
