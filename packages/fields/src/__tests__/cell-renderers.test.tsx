@@ -13,6 +13,7 @@ import {
   SelectCellRenderer,
   LookupCellRenderer,
   UserCellRenderer,
+  TextCellRenderer,
   DateCellRenderer,
   BooleanCellRenderer,
   formatDate,
@@ -91,7 +92,42 @@ describe('getCellRenderer', () => {
 });
 
 // =========================================================================
-// 2. SelectCellRenderer
+// 2. TextCellRenderer
+// =========================================================================
+describe('TextCellRenderer', () => {
+  it('should render text value', () => {
+    render(<TextCellRenderer value="hello" field={{ name: 'title', type: 'text' } as any} />);
+    expect(screen.getByText('hello')).toBeInTheDocument();
+  });
+
+  it('should render dash for null', () => {
+    render(<TextCellRenderer value={null} field={{ name: 'title', type: 'text' } as any} />);
+    expect(screen.getByText('-')).toBeInTheDocument();
+  });
+
+  it('should render dash for undefined', () => {
+    render(<TextCellRenderer value={undefined} field={{ name: 'title', type: 'text' } as any} />);
+    expect(screen.getByText('-')).toBeInTheDocument();
+  });
+
+  it('should render dash for empty string', () => {
+    render(<TextCellRenderer value="" field={{ name: 'title', type: 'text' } as any} />);
+    expect(screen.getByText('-')).toBeInTheDocument();
+  });
+
+  it('should render "0" for numeric zero (not dash)', () => {
+    render(<TextCellRenderer value={0} field={{ name: 'count', type: 'text' } as any} />);
+    expect(screen.getByText('0')).toBeInTheDocument();
+  });
+
+  it('should render "false" for boolean false (not dash)', () => {
+    render(<TextCellRenderer value={false} field={{ name: 'flag', type: 'text' } as any} />);
+    expect(screen.getByText('false')).toBeInTheDocument();
+  });
+});
+
+// =========================================================================
+// 3. SelectCellRenderer
 // =========================================================================
 describe('SelectCellRenderer', () => {
   it('should render badge with explicit color from options', () => {

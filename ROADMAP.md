@@ -1077,12 +1077,15 @@ The `FlowDesigner` is a canvas-based flow editor that bridges the gap between th
 - `getCellRenderer` standardMap: `lookup` and `master_detail` now correctly reference `LookupCellRenderer`.
 - `fieldRegistry` now explicitly registers `status` → `SelectCellRenderer`, `user` → `UserCellRenderer`, and `owner` → `UserCellRenderer` alongside the existing `lookup`/`master_detail`/`select` registrations.
 
-**Tests:** Added 30 new tests in `cell-renderers.test.tsx`:
+**Tests:** Added 36 new tests in `cell-renderers.test.tsx`:
 - `getCellRenderer` registry assertions for `lookup`, `master_detail`, `status`, `user`, `owner` types
+- `TextCellRenderer`: null, undefined, empty string, numeric zero (0 renders "0" not "-"), boolean false
 - `LookupCellRenderer`: null, empty-string, primitive ID (number), primitive ID (string), unresolved primitive, object with name/label/_id, array of objects, array of primitive IDs resolved via options
 - `UserCellRenderer`: null, primitive number ID, primitive string ID, object with name, object with username, array of user objects
 
-All 307 `@object-ui/fields` tests pass.
+5. **`TextCellRenderer`** — Used `value || '-'` which incorrectly rendered `'-'` for numeric `0` (falsy zero). Updated to `(value != null && value !== '') ? String(value) : '-'` for consistent null-only suppression.
+
+All 313 `@object-ui/fields` tests pass.
 
 ---
 

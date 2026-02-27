@@ -179,7 +179,7 @@ export function formatDateTime(value: string | Date): string {
  * Text field cell renderer
  */
 export function TextCellRenderer({ value }: CellRendererProps): React.ReactElement {
-  return <span className="truncate">{value || '-'}</span>;
+  return <span className="truncate">{(value != null && value !== '') ? String(value) : '-'}</span>;
 }
 
 /**
