@@ -30,7 +30,7 @@ import {
   Popover, PopoverContent, PopoverTrigger,
 } from '@object-ui/components';
 import { usePullToRefresh } from '@object-ui/mobile';
-import { evaluatePlainCondition } from '@object-ui/core';
+import { evaluatePlainCondition, buildExpandFields } from '@object-ui/core';
 import { ChevronRight, ChevronDown, Download, Rows2, Rows3, Rows4, AlignJustify, Type, Hash, Calendar, CheckSquare, User, Tag, Clock } from 'lucide-react';
 import { useRowColor } from './useRowColor';
 import { useGroupedData } from './useGroupedData';
@@ -306,6 +306,12 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
           } else if (schema.defaultSort) {
             // Legacy support
             params.$orderby = `${(schema.defaultSort as any).field} ${(schema.defaultSort as any).order}`;
+          }
+
+          // Auto-inject $expand for lookup/master_detail fields
+          const expand = buildExpandFields(resolvedSchema?.fields, schemaColumns ?? schemaFields);
+          if (expand.length > 0) {
+            params.$expand = expand;
           }
 
           const result = await dataSource.find(objectName, params);

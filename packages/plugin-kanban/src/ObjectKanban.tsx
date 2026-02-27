@@ -10,7 +10,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import type { DataSource } from '@object-ui/types';
 import { useDataScope, useNavigationOverlay } from '@object-ui/react';
 import { NavigationOverlay } from '@object-ui/components';
-import { extractRecords } from '@object-ui/core';
+import { extractRecords, buildExpandFields } from '@object-ui/core';
 import { KanbanRenderer } from './index';
 import { KanbanSchema } from './types';
 
@@ -61,9 +61,12 @@ export const ObjectKanban: React.FC<ObjectKanbanProps> = ({
         if (!dataSource || typeof dataSource.find !== 'function' || !schema.objectName) return;
         if (isMounted) setLoading(true);
         try {
+            // Auto-inject $expand for lookup/master_detail fields
+            const expand = buildExpandFields(objectDef?.fields);
             const results = await dataSource.find(schema.objectName, {
                 options: { $top: 100 },
-                $filter: schema.filter
+                $filter: schema.filter,
+                ...(expand.length > 0 ? { $expand: expand } : {}),
             });
             
             // Handle { value: [] } OData shape or { data: [] } shape or direct array
@@ -88,7 +91,7 @@ export const ObjectKanban: React.FC<ObjectKanbanProps> = ({
         fetchData();
     }
     return () => { isMounted = false; };
-  }, [schema.objectName, dataSource, boundData, schema.data, schema.filter, (props as any).data]);
+  }, [schema.objectName, dataSource, boundData, schema.data, schema.filter, (props as any).data, objectDef]);
 
   // Determine which data to use: props.data -> bound -> inline -> fetched
   const rawData = (props as any).data || boundData || schema.data || fetchedData;
