@@ -19,7 +19,7 @@ import { SchemaRenderer, useNavigationOverlay } from '@object-ui/react';
 import { useDensityMode } from '@object-ui/react';
 import type { ListViewSchema } from '@object-ui/types';
 import { usePullToRefresh } from '@object-ui/mobile';
-import { evaluatePlainCondition, normalizeQuickFilter, normalizeQuickFilters } from '@object-ui/core';
+import { evaluatePlainCondition, normalizeQuickFilter, normalizeQuickFilters, buildExpandFields } from '@object-ui/core';
 import { useObjectTranslation } from '@object-ui/i18n';
 
 export interface ListViewProps {
@@ -495,6 +495,12 @@ export const ListView: React.FC<ListViewProps> = ({
     return () => { isMounted = false; };
   }, [schema.objectName, dataSource]);
 
+  // Auto-compute $expand fields from objectDef (lookup / master_detail)
+  const expandFields = React.useMemo(
+    () => buildExpandFields(objectDef?.fields, schema.fields),
+    [objectDef?.fields, schema.fields],
+  );
+
   // Fetch data effect — supports schema.data (ViewDataSchema) provider modes
   React.useEffect(() => {
     let isMounted = true;
@@ -567,6 +573,7 @@ export const ListView: React.FC<ListViewProps> = ({
            $filter: finalFilter,
            $orderby: sort,
            $top: effectivePageSize,
+           ...(expandFields.length > 0 ? { $expand: expandFields } : {}),
            ...(searchTerm ? {
              $search: searchTerm,
              ...(schema.searchableFields && schema.searchableFields.length > 0
@@ -606,7 +613,7 @@ export const ListView: React.FC<ListViewProps> = ({
     fetchData();
     
     return () => { isMounted = false; };
-  }, [schema.objectName, schema.data, dataSource, schema.filters, effectivePageSize, currentSort, currentFilters, activeQuickFilters, normalizedQuickFilters, userFilterConditions, refreshKey, searchTerm, schema.searchableFields]); // Re-fetch on filter/sort/search change
+  }, [schema.objectName, schema.data, dataSource, schema.filters, effectivePageSize, currentSort, currentFilters, activeQuickFilters, normalizedQuickFilters, userFilterConditions, refreshKey, searchTerm, schema.searchableFields, expandFields]); // Re-fetch on filter/sort/search change
 
   // Available view types based on schema configuration
   const availableViews = React.useMemo(() => {
