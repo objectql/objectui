@@ -1119,16 +1119,16 @@ export interface NamedListView {
   /** Show filter controls in toolbar @default true */
   showFilters?: boolean;
 
-  /** Show hide-fields button in toolbar @default true */
+  /** Show hide-fields button in toolbar @default false */
   showHideFields?: boolean;
 
   /** Show group button in toolbar @default true */
   showGroup?: boolean;
 
-  /** Show color button in toolbar @default true */
+  /** Show color button in toolbar @default false */
   showColor?: boolean;
 
-  /** Show density/row-height button in toolbar @default true */
+  /** Show density/row-height button in toolbar @default false */
   showDensity?: boolean;
 
   /** Allow data export @default undefined */
@@ -1394,16 +1394,16 @@ export interface ListViewSchema extends BaseSchema {
   /** Show filter controls in toolbar @default true */
   showFilters?: boolean;
 
-  /** Show hide-fields button in toolbar @default true */
+  /** Show hide-fields button in toolbar @default false */
   showHideFields?: boolean;
 
   /** Show group button in toolbar @default true */
   showGroup?: boolean;
 
-  /** Show color button in toolbar @default true */
+  /** Show color button in toolbar @default false */
   showColor?: boolean;
 
-  /** Show density/row-height button in toolbar @default true */
+  /** Show density/row-height button in toolbar @default false */
   showDensity?: boolean;
 
   /** Allow data export @default undefined */
