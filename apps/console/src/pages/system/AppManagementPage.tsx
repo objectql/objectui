@@ -32,7 +32,7 @@ import { resolveI18nLabel } from '../../utils';
 export function AppManagementPage() {
   const navigate = useNavigate();
   const { appName } = useParams();
-  const basePath = `/apps/${appName}`;
+  const basePath = appName ? `/apps/${appName}` : '';
   const { apps, refresh } = useMetadata();
 
   const [searchQuery, setSearchQuery] = useState('');

@@ -41,7 +41,7 @@ interface HubCard {
 export function SystemHubPage() {
   const navigate = useNavigate();
   const { appName } = useParams();
-  const basePath = `/apps/${appName}`;
+  const basePath = appName ? `/apps/${appName}` : '';
   const dataSource = useAdapter();
   const { apps } = useMetadata();
 

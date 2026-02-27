@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useState, useEffect, useCallback, lazy, Suspense, useMemo, type ReactNode } from 'react';
 import { ModalForm } from '@object-ui/plugin-form';
-import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
+import { Empty, EmptyTitle, EmptyDescription, Button } from '@object-ui/components';
 import { toast } from 'sonner';
 import { SchemaRendererProvider, useActionRunner, useGlobalUndo } from '@object-ui/react';
 import type { ConnectionState } from './dataSource';
@@ -261,28 +261,49 @@ export function AppContent() {
   // Allow create-app route even when no active app exists
   const isCreateAppRoute = location.pathname.endsWith('/create-app');
 
-  if (!activeApp && !isCreateAppRoute) return (
+  // Check if we're on a system route (accessible without an active app)
+  const isSystemRoute = location.pathname.includes('/system');
+
+  if (!activeApp && !isCreateAppRoute && !isSystemRoute) return (
     <div className="h-screen flex items-center justify-center">
       <Empty>
         <EmptyTitle>No Apps Configured</EmptyTitle>
-        <EmptyDescription>No applications have been registered.</EmptyDescription>
-        <button
-          className="mt-4 inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-          onClick={() => navigate('create-app')}
-          data-testid="create-first-app-btn"
-        >
-          Create Your First App
-        </button>
+        <EmptyDescription>
+          No applications have been registered. Create your first app or visit System Settings to configure your environment.
+        </EmptyDescription>
+        <div className="mt-4 flex flex-col sm:flex-row items-center gap-3">
+          <Button
+            onClick={() => navigate('/create-app')}
+            data-testid="create-first-app-btn"
+          >
+            Create Your First App
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate('/system')}
+            data-testid="go-to-settings-btn"
+          >
+            System Settings
+          </Button>
+        </div>
       </Empty>
     </div>
   );
 
   // When on create-app without an active app, render a minimal layout with just the wizard
-  if (!activeApp && isCreateAppRoute) {
+  if (!activeApp && (isCreateAppRoute || isSystemRoute)) {
     return (
       <Suspense fallback={<LoadingScreen />}>
         <Routes>
           <Route path="create-app" element={<CreateAppPage />} />
+          <Route path="system" element={<SystemHubPage />} />
+          <Route path="system/apps" element={<AppManagementPage />} />
+          <Route path="system/users" element={<UserManagementPage />} />
+          <Route path="system/organizations" element={<OrgManagementPage />} />
+          <Route path="system/roles" element={<RoleManagementPage />} />
+          <Route path="system/permissions" element={<PermissionManagementPage />} />
+          <Route path="system/audit-log" element={<AuditLogPage />} />
+          <Route path="system/profile" element={<ProfilePage />} />
         </Routes>
       </Suspense>
     );
@@ -455,20 +476,49 @@ function RootRedirect() {
         <Empty>
           <EmptyTitle>{error ? 'Failed to Load Configuration' : 'No Apps Configured'}</EmptyTitle>
           <EmptyDescription>
-            {error ? error.message : 'No applications have been registered. Check your ObjectStack configuration.'}
+            {error
+              ? 'There was an error loading the configuration. You can still create an app or access System Settings.'
+              : 'No applications have been registered. Create your first app or configure your system.'}
           </EmptyDescription>
-          {!error && (
-            <button
-              className="mt-4 inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-              onClick={() => navigate('/apps/_new/create-app')}
+          <div className="mt-4 flex flex-col sm:flex-row items-center gap-3">
+            <Button
+              onClick={() => navigate('/create-app')}
               data-testid="create-first-app-btn"
             >
               Create Your First App
-            </button>
-          )}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/system')}
+              data-testid="go-to-settings-btn"
+            >
+              System Settings
+            </Button>
+          </div>
         </Empty>
       </div>
     );
+}
+
+/**
+ * SystemRoutes — Top-level system admin routes accessible without any app context.
+ * Provides a minimal layout with system navigation sidebar.
+ */
+function SystemRoutes() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <Routes>
+        <Route path="/" element={<SystemHubPage />} />
+        <Route path="apps" element={<AppManagementPage />} />
+        <Route path="users" element={<UserManagementPage />} />
+        <Route path="organizations" element={<OrgManagementPage />} />
+        <Route path="roles" element={<RoleManagementPage />} />
+        <Route path="permissions" element={<PermissionManagementPage />} />
+        <Route path="audit-log" element={<AuditLogPage />} />
+        <Route path="profile" element={<ProfilePage />} />
+      </Routes>
+    </Suspense>
+  );
 }
 
 export function App() {
@@ -483,6 +533,24 @@ export function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                {/* Top-level system routes — accessible without any app */}
+                <Route path="/system/*" element={
+                  <AuthGuard fallback={<Navigate to="/login" />} loadingFallback={<LoadingScreen />}>
+                    <ConnectedShell>
+                      <SystemRoutes />
+                    </ConnectedShell>
+                  </AuthGuard>
+                } />
+                {/* Top-level create-app — accessible without any app */}
+                <Route path="/create-app" element={
+                  <AuthGuard fallback={<Navigate to="/login" />} loadingFallback={<LoadingScreen />}>
+                    <ConnectedShell>
+                      <Suspense fallback={<LoadingScreen />}>
+                        <CreateAppPage />
+                      </Suspense>
+                    </ConnectedShell>
+                  </AuthGuard>
+                } />
                 <Route path="/apps/:appName/*" element={
                   <AuthGuard fallback={<Navigate to="/login" />} loadingFallback={<LoadingScreen />}>
                     <ConnectedShell>

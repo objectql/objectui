@@ -250,7 +250,17 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
     [can],
   );
 
-  const basePath = `/apps/${activeAppName}`;
+  const basePath = activeApp ? `/apps/${activeAppName}` : '';
+
+  // Fallback system navigation when no active app exists
+  const systemFallbackNavigation: NavigationItem[] = React.useMemo(() => [
+    { id: 'sys-settings', label: 'System Settings', type: 'url' as const, url: '/system', icon: 'settings' },
+    { id: 'sys-apps', label: 'Applications', type: 'url' as const, url: '/system/apps', icon: 'layout-grid' },
+    { id: 'sys-users', label: 'Users', type: 'url' as const, url: '/system/users', icon: 'users' },
+    { id: 'sys-orgs', label: 'Organizations', type: 'url' as const, url: '/system/organizations', icon: 'building-2' },
+    { id: 'sys-roles', label: 'Roles', type: 'url' as const, url: '/system/roles', icon: 'shield' },
+    { id: 'sys-create-app', label: 'Create App', type: 'url' as const, url: '/create-app', icon: 'plus' },
+  ], []);
 
   return (
     <>
@@ -258,6 +268,7 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
+            {activeApp ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
@@ -326,129 +337,174 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            ) : (
+            /* No-app fallback header */
+            <SidebarMenuButton
+              size="lg"
+              onClick={() => navigate('/system')}
+              data-testid="system-sidebar-header"
+            >
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <Settings className="size-4" />
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-semibold">System Console</span>
+                <span className="truncate text-xs text-muted-foreground">No apps configured</span>
+              </div>
+            </SidebarMenuButton>
+            )}
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
 
       <SidebarContent>
-         {/* Area Switcher — shown when app defines areas */}
-         {areas.length > 1 && (
-           <SidebarGroup>
+         {activeApp ? (
+           <>
+           {/* Area Switcher — shown when app defines areas */}
+           {areas.length > 1 && (
+             <SidebarGroup>
+               <SidebarGroupLabel className="flex items-center gap-1.5">
+                 <LucideIcons.Layers className="h-3.5 w-3.5" />
+                 Area
+               </SidebarGroupLabel>
+               <SidebarGroupContent>
+                 <SidebarMenu>
+                   {areas.map((area: any) => {
+                     const AreaIcon = getIcon(area.icon);
+                     const isActiveArea = area.id === activeAreaId;
+                     return (
+                       <SidebarMenuItem key={area.id}>
+                         <SidebarMenuButton
+                           isActive={isActiveArea}
+                           tooltip={area.label}
+                           onClick={() => setActiveAreaId(area.id)}
+                         >
+                           <AreaIcon className="h-4 w-4" />
+                           <span>{area.label}</span>
+                         </SidebarMenuButton>
+                       </SidebarMenuItem>
+                     );
+                   })}
+                 </SidebarMenu>
+               </SidebarGroupContent>
+             </SidebarGroup>
+           )}
+
+           {/* Navigation Search */}
+           <SidebarGroup className="py-0">
+             <SidebarGroupContent className="relative">
+               <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none opacity-50" />
+               <SidebarInput
+                 placeholder="Search navigation..."
+                 value={navSearchQuery}
+                 onChange={(e: any) => setNavSearchQuery(e.target.value)}
+                 className="pl-8"
+               />
+             </SidebarGroupContent>
+           </SidebarGroup>
+
+           {/* Navigation tree — delegated to NavigationRenderer (@dnd-kit reorder + pin) */}
+           <NavigationRenderer
+             items={processedNavigation}
+             basePath={basePath}
+             evaluateVisibility={evalVis}
+             checkPermission={checkPerm}
+             searchQuery={navSearchQuery}
+             enablePinning
+             onPinToggle={togglePin}
+             enableReorder
+             onReorder={handleReorder}
+           />
+
+           {/* Record Favorites */}
+           {favorites.length > 0 && (
+             <SidebarGroup>
+               <SidebarGroupLabel className="flex items-center gap-1.5">
+                 <Star className="h-3.5 w-3.5" />
+                 Favorites
+               </SidebarGroupLabel>
+               <SidebarGroupContent>
+                 <SidebarMenu>
+                   {favorites.slice(0, 8).map(item => (
+                     <SidebarMenuItem key={item.id}>
+                       <SidebarMenuButton asChild tooltip={item.label}>
+                         <Link to={item.href}>
+                           <span className="text-muted-foreground">
+                             {item.type === 'dashboard' ? '📊' : item.type === 'report' ? '📈' : item.type === 'page' ? '📄' : '📋'}
+                           </span>
+                           <span className="truncate">{item.label}</span>
+                         </Link>
+                       </SidebarMenuButton>
+                       <SidebarMenuAction
+                         showOnHover
+                         onClick={(e: any) => { e.stopPropagation(); removeFavorite(item.id); }}
+                         aria-label={`Remove ${item.label} from favorites`}
+                       >
+                         <StarOff className="h-3 w-3" />
+                       </SidebarMenuAction>
+                     </SidebarMenuItem>
+                   ))}
+                 </SidebarMenu>
+               </SidebarGroupContent>
+             </SidebarGroup>
+           )}
+
+           {/* Recent Items (default collapsed) */}
+           {recentItems.length > 0 && (
+             <SidebarGroup>
+               <SidebarGroupLabel
+                 className="flex items-center gap-1.5 cursor-pointer select-none"
+                 onClick={() => setRecentExpanded(prev => !prev)}
+               >
+                 <ChevronRight className={`h-3 w-3 transition-transform duration-150 ${recentExpanded ? 'rotate-90' : ''}`} />
+                 <Clock className="h-3.5 w-3.5" />
+                 Recent
+               </SidebarGroupLabel>
+               {recentExpanded && (
+               <SidebarGroupContent>
+                 <SidebarMenu>
+                   {recentItems.slice(0, 5).map(item => (
+                     <SidebarMenuItem key={item.id}>
+                       <SidebarMenuButton asChild tooltip={item.label}>
+                         <Link to={item.href}>
+                           <span className="text-muted-foreground">
+                             {item.type === 'dashboard' ? '📊' : item.type === 'report' ? '📈' : '📄'}
+                           </span>
+                           <span className="truncate">{item.label}</span>
+                         </Link>
+                       </SidebarMenuButton>
+                     </SidebarMenuItem>
+                   ))}
+                 </SidebarMenu>
+               </SidebarGroupContent>
+               )}
+             </SidebarGroup>
+           )}
+           </>
+         ) : (
+           /* Fallback system navigation when no apps are configured */
+           <SidebarGroup data-testid="system-fallback-nav">
              <SidebarGroupLabel className="flex items-center gap-1.5">
-               <LucideIcons.Layers className="h-3.5 w-3.5" />
-               Area
+               <Settings className="h-3.5 w-3.5" />
+               System
              </SidebarGroupLabel>
              <SidebarGroupContent>
                <SidebarMenu>
-                 {areas.map((area: any) => {
-                   const AreaIcon = getIcon(area.icon);
-                   const isActiveArea = area.id === activeAreaId;
+                 {systemFallbackNavigation.map((item) => {
+                   const NavIcon = getIcon(item.icon);
                    return (
-                     <SidebarMenuItem key={area.id}>
-                       <SidebarMenuButton
-                         isActive={isActiveArea}
-                         tooltip={area.label}
-                         onClick={() => setActiveAreaId(area.id)}
-                       >
-                         <AreaIcon className="h-4 w-4" />
-                         <span>{area.label}</span>
+                     <SidebarMenuItem key={item.id}>
+                       <SidebarMenuButton asChild tooltip={typeof item.label === 'string' ? item.label : item.label?.defaultValue ?? ''}>
+                         <Link to={(item as any).url || '/system'}>
+                           <NavIcon className="h-4 w-4" />
+                           <span>{resolveI18nLabel(item.label, t)}</span>
+                         </Link>
                        </SidebarMenuButton>
                      </SidebarMenuItem>
                    );
                  })}
                </SidebarMenu>
              </SidebarGroupContent>
-           </SidebarGroup>
-         )}
-
-         {/* Navigation Search */}
-         <SidebarGroup className="py-0">
-           <SidebarGroupContent className="relative">
-             <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none opacity-50" />
-             <SidebarInput
-               placeholder="Search navigation..."
-               value={navSearchQuery}
-               onChange={(e: any) => setNavSearchQuery(e.target.value)}
-               className="pl-8"
-             />
-           </SidebarGroupContent>
-         </SidebarGroup>
-
-         {/* Navigation tree — delegated to NavigationRenderer (@dnd-kit reorder + pin) */}
-         <NavigationRenderer
-           items={processedNavigation}
-           basePath={basePath}
-           evaluateVisibility={evalVis}
-           checkPermission={checkPerm}
-           searchQuery={navSearchQuery}
-           enablePinning
-           onPinToggle={togglePin}
-           enableReorder
-           onReorder={handleReorder}
-         />
-
-         {/* Record Favorites */}
-         {favorites.length > 0 && (
-           <SidebarGroup>
-             <SidebarGroupLabel className="flex items-center gap-1.5">
-               <Star className="h-3.5 w-3.5" />
-               Favorites
-             </SidebarGroupLabel>
-             <SidebarGroupContent>
-               <SidebarMenu>
-                 {favorites.slice(0, 8).map(item => (
-                   <SidebarMenuItem key={item.id}>
-                     <SidebarMenuButton asChild tooltip={item.label}>
-                       <Link to={item.href}>
-                         <span className="text-muted-foreground">
-                           {item.type === 'dashboard' ? '📊' : item.type === 'report' ? '📈' : item.type === 'page' ? '📄' : '📋'}
-                         </span>
-                         <span className="truncate">{item.label}</span>
-                       </Link>
-                     </SidebarMenuButton>
-                     <SidebarMenuAction
-                       showOnHover
-                       onClick={(e: any) => { e.stopPropagation(); removeFavorite(item.id); }}
-                       aria-label={`Remove ${item.label} from favorites`}
-                     >
-                       <StarOff className="h-3 w-3" />
-                     </SidebarMenuAction>
-                   </SidebarMenuItem>
-                 ))}
-               </SidebarMenu>
-             </SidebarGroupContent>
-           </SidebarGroup>
-         )}
-
-         {/* Recent Items (default collapsed) */}
-         {recentItems.length > 0 && (
-           <SidebarGroup>
-             <SidebarGroupLabel
-               className="flex items-center gap-1.5 cursor-pointer select-none"
-               onClick={() => setRecentExpanded(prev => !prev)}
-             >
-               <ChevronRight className={`h-3 w-3 transition-transform duration-150 ${recentExpanded ? 'rotate-90' : ''}`} />
-               <Clock className="h-3.5 w-3.5" />
-               Recent
-             </SidebarGroupLabel>
-             {recentExpanded && (
-             <SidebarGroupContent>
-               <SidebarMenu>
-                 {recentItems.slice(0, 5).map(item => (
-                   <SidebarMenuItem key={item.id}>
-                     <SidebarMenuButton asChild tooltip={item.label}>
-                       <Link to={item.href}>
-                         <span className="text-muted-foreground">
-                           {item.type === 'dashboard' ? '📊' : item.type === 'report' ? '📈' : '📄'}
-                         </span>
-                         <span className="truncate">{item.label}</span>
-                       </Link>
-                     </SidebarMenuButton>
-                   </SidebarMenuItem>
-                 ))}
-               </SidebarMenu>
-             </SidebarGroupContent>
-             )}
            </SidebarGroup>
          )}
       </SidebarContent>
@@ -498,7 +554,7 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem
-                    onClick={() => navigate(`/apps/${activeAppName}/system`)}
+                    onClick={() => navigate(activeApp ? `/apps/${activeAppName}/system` : '/system')}
                   >
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
@@ -520,10 +576,10 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
     </Sidebar>
     {isMobile && (
       <div className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t bg-background/95 backdrop-blur-sm px-2 py-1 sm:hidden safe-area-bottom">
-        {(resolvedNavigation).filter((n: any) => n.type !== 'group').slice(0, 5).map((item: any) => {
+        {(activeApp ? resolvedNavigation : systemFallbackNavigation).filter((n: any) => n.type !== 'group').slice(0, 5).map((item: any) => {
           const NavIcon = getIcon(item.icon);
-          const baseUrl = `/apps/${activeAppName}`;
-          let href = '#';
+          const baseUrl = activeApp ? `/apps/${activeAppName}` : '';
+          let href = item.url || '#';
           if (item.type === 'object') {
             href = `${baseUrl}/${item.objectName}`;
             if (item.viewName) href += `/view/${item.viewName}`;
