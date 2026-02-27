@@ -1094,6 +1094,18 @@ The `FlowDesigner` is a canvas-based flow editor that bridges the gap between th
 
 All 313 `@object-ui/fields` tests pass.
 
+### ListView Airtable-Style Toolbar Opt-In & Duplicate Record Count (February 2026)
+
+**Root Cause (1 — Toolbar defaults):** `showHideFields`, `showColor`, and `showDensity` in `ListView.tsx` used opt-out logic (`!== false`), making secondary toolbar buttons visible by default. Airtable hides these controls unless explicitly enabled.
+
+**Fix:** Changed default logic from `!== false` (opt-out) to `=== true` (opt-in) for `showHideFields`, `showColor`, and `showDensity` in the `toolbarFlags` computation. Updated `@default` JSDoc comments in `NamedListView` and `ListViewSchema` interfaces from `@default true` to `@default false`.
+
+**Root Cause (2 — Duplicate record count):** Both `ListView.tsx` (`record-count-bar`) and `ObjectView.tsx` (`record-count-footer`) independently rendered the record count at the bottom, causing duplicate display.
+
+**Fix:** Removed the `record-count-footer` from `ObjectView.tsx` since `ListView` already renders the authoritative `record-count-bar`.
+
+**Tests:** Updated 11 tests across `ListView.test.tsx` and `ObjectView.test.tsx`. All 112 ListView tests and 32 ObjectView tests pass.
+
 ---
 
 ## ⚠️ Risk Management

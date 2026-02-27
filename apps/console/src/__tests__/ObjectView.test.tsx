@@ -359,7 +359,7 @@ describe('ObjectView Component', () => {
         expect(screen.queryByTestId('view-config-panel')).not.toBeInTheDocument();
     });
 
-    it('shows record count footer when data is available', async () => {
+    it('does not render duplicate record count footer (ListView handles it)', async () => {
         const mockDsWithTotal = {
             ...mockDataSource,
             find: vi.fn().mockResolvedValue({ data: [], total: 42 }),
@@ -368,9 +368,11 @@ describe('ObjectView Component', () => {
         
         render(<ObjectView dataSource={mockDsWithTotal} objects={mockObjects} onEdit={vi.fn()} />);
         
-        // Wait for the record count to appear
-        const footer = await screen.findByTestId('record-count-footer');
-        expect(footer).toBeInTheDocument();
+        // The record-count-footer should no longer exist in ObjectView
+        // (ListView's record-count-bar handles this)
+        await vi.waitFor(() => {
+            expect(screen.queryByTestId('record-count-footer')).not.toBeInTheDocument();
+        });
     });
 
     it('calls dataSource.updateViewConfig when saving view config', async () => {

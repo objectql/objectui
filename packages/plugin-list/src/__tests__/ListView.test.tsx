@@ -279,6 +279,7 @@ describe('ListView', () => {
       objectName: 'contacts',
       viewType: 'grid',
       fields: ['name', 'email', 'phone'],
+      showHideFields: true,
     };
 
     renderWithProvider(<ListView schema={schema} />);
@@ -293,6 +294,7 @@ describe('ListView', () => {
       objectName: 'contacts',
       viewType: 'grid',
       fields: ['name', 'email'],
+      showDensity: true,
     };
 
     renderWithProvider(<ListView schema={schema} />);
@@ -353,6 +355,7 @@ describe('ListView', () => {
       viewType: 'grid',
       fields: ['name', 'email'],
       rowHeight: 'compact',
+      showDensity: true,
     };
 
     renderWithProvider(<ListView schema={schema} />);
@@ -368,6 +371,7 @@ describe('ListView', () => {
       fields: ['name', 'email'],
       rowHeight: 'compact',
       densityMode: 'spacious',
+      showDensity: true,
     };
 
     renderWithProvider(<ListView schema={schema} />);
@@ -699,7 +703,7 @@ describe('ListView', () => {
       expect(screen.queryByRole('button', { name: /hide fields/i })).not.toBeInTheDocument();
     });
 
-    it('should show Hide Fields button by default (showHideFields undefined)', () => {
+    it('should hide Hide Fields button by default (showHideFields undefined)', () => {
       const schema: ListViewSchema = {
         type: 'list-view',
         objectName: 'contacts',
@@ -708,7 +712,7 @@ describe('ListView', () => {
       };
 
       renderWithProvider(<ListView schema={schema} />);
-      expect(screen.getByRole('button', { name: /hide fields/i })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /hide fields/i })).not.toBeInTheDocument();
     });
 
     // Group visibility
@@ -751,7 +755,7 @@ describe('ListView', () => {
       expect(screen.queryByRole('button', { name: /color/i })).not.toBeInTheDocument();
     });
 
-    it('should show Color button by default (showColor undefined)', () => {
+    it('should hide Color button by default (showColor undefined)', () => {
       const schema: ListViewSchema = {
         type: 'list-view',
         objectName: 'contacts',
@@ -760,7 +764,7 @@ describe('ListView', () => {
       };
 
       renderWithProvider(<ListView schema={schema} />);
-      expect(screen.getByRole('button', { name: /color/i })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /color/i })).not.toBeInTheDocument();
     });
 
     // Density visibility
@@ -777,7 +781,7 @@ describe('ListView', () => {
       expect(screen.queryByTitle(/density/i)).not.toBeInTheDocument();
     });
 
-    it('should show Density button by default (showDensity undefined)', () => {
+    it('should hide Density button by default (showDensity undefined)', () => {
       const schema: ListViewSchema = {
         type: 'list-view',
         objectName: 'contacts',
@@ -786,7 +790,7 @@ describe('ListView', () => {
       };
 
       renderWithProvider(<ListView schema={schema} />);
-      expect(screen.getByTitle(/density/i)).toBeInTheDocument();
+      expect(screen.queryByTitle(/density/i)).not.toBeInTheDocument();
     });
 
     // Export + allowExport
@@ -925,6 +929,7 @@ describe('ListView', () => {
         viewType: 'grid',
         fields: ['name', 'email'],
         rowHeight: 'short',
+        showDensity: true,
       };
 
       renderWithProvider(<ListView schema={schema} />);
@@ -939,6 +944,7 @@ describe('ListView', () => {
         viewType: 'grid',
         fields: ['name', 'email'],
         rowHeight: 'extra_tall',
+        showDensity: true,
       };
 
       renderWithProvider(<ListView schema={schema} />);
@@ -1595,6 +1601,7 @@ describe('ListView', () => {
         objectName: 'contacts',
         viewType: 'grid',
         fields: ['name', 'email'],
+        showColor: true,
       };
 
       renderWithProvider(<ListView schema={schema} />);
@@ -1609,6 +1616,7 @@ describe('ListView', () => {
         objectName: 'contacts',
         viewType: 'grid',
         fields: ['name', 'email'],
+        showColor: true,
       };
 
       renderWithProvider(<ListView schema={schema} />);

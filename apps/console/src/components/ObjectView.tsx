@@ -839,12 +839,7 @@ export function ObjectView({ dataSource, objects, onEdit, onRowClick }: any) {
                             renderListView={renderListView}
                         />
                     </div>
-                    {/* Footer — Record count */}
-                    {typeof recordCount === 'number' && (
-                        <div data-testid="record-count-footer" className="border-t px-3 sm:px-4 py-1.5 text-xs text-muted-foreground bg-muted/5 shrink-0">
-                            {t('console.objectView.recordCount', { count: recordCount })}
-                        </div>
-                    )}
+                    {/* Record count footer removed — ListView already renders record-count-bar */}
                 </div>
                 )}
                 {/* Metadata panel only shows for admin users */}

@@ -274,10 +274,10 @@ export const ListView: React.FC<ListViewProps> = ({
       showSearch: ua?.search !== undefined ? ua.search : schema.showSearch !== false,
       showSort: ua?.sort !== undefined ? ua.sort : schema.showSort !== false,
       showFilters: ua?.filter !== undefined ? ua.filter : schema.showFilters !== false,
-      showDensity: ua?.rowHeight !== undefined ? ua.rowHeight : schema.showDensity !== false,
-      showHideFields: schema.showHideFields !== false,
+      showDensity: ua?.rowHeight !== undefined ? ua.rowHeight : schema.showDensity === true,
+      showHideFields: schema.showHideFields === true,
       showGroup: schema.showGroup !== false,
-      showColor: schema.showColor !== false,
+      showColor: schema.showColor === true,
       showAddRecord: addRecordEnabled,
       addRecordPosition: (schema.addRecord?.position === 'bottom' ? 'bottom' : 'top') as 'top' | 'bottom',
     };
