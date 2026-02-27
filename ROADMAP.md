@@ -1035,6 +1035,14 @@ The `FlowDesigner` is a canvas-based flow editor that bridges the gap between th
 
 **Tests:** Added integration test in `ListViewGroupingPropagation.test.tsx` that verifies toggling a group field via the toolbar immediately updates the rendered schema. All 117 ListView tests pass.
 
+### List View Row Click Not Navigating to Record Detail (February 2026)
+
+**Root Cause:** `onRowClick` in both `PluginObjectView` (line 772) and `renderListView` (line 599) of `ObjectView.tsx` fell back to `onEdit` / `editHandler`, which only opens an edit form. The `navOverlay.handleClick` from `useNavigationOverlay` — which handles drawer/modal/page navigation modes — was never connected to these click handlers. Additionally, the `useNavigationOverlay` hook was missing the `onNavigate` callback needed for `mode: 'page'` to update the URL.
+
+**Fix:** Replaced `onEdit`/`editHandler` fallbacks with `navOverlay.handleClick` in both row click handlers, added `onNavigate` callback to `useNavigationOverlay` that sets the `recordId` URL search parameter, and added `navOverlay` to the `renderListView` useCallback dependency array.
+
+**Tests:** All 32 ObjectView tests and 29 useNavigationOverlay tests pass.
+
 ### ListView Grouping Mode Empty Rows (February 2026)
 
 **Root Cause:** When grouping is enabled in list view, `buildGroupTableSchema` in `ObjectGrid.tsx` sets `pagination: false` but inherits `pageSize: 10` from the parent schema. The `DataTableRenderer` filler row logic (`Array.from({ length: Math.max(0, pageSize - paginatedData.length) })`) pads each group table with empty rows up to `pageSize`, creating many blank lines.
