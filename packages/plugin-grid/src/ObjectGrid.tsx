@@ -971,7 +971,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
     resizableColumns: schema.resizable ?? schema.resizableColumns ?? true,
     reorderableColumns: schema.reorderableColumns ?? false,
     editable: schema.editable ?? false,
-    singleClickEdit: schema.singleClickEdit ?? false,
+    singleClickEdit: schema.singleClickEdit ?? true,
     className: schema.className,
     cellClassName: rowHeightMode === 'compact'
       ? 'px-3 py-1 text-[13px] leading-tight'

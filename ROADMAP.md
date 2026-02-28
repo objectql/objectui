@@ -764,7 +764,13 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 
 **Default Compact Row Height:**
 - [x] ObjectGrid default changed from `'medium'` to `'compact'` (32-36px rows)
+- [x] ListView default density changed from `'comfortable'` to `'compact'`
 - [x] Row height toggle preserved in toolbar
+
+**Single-Click Edit Mode:**
+- [x] Added `singleClickEdit` prop to `DataTableSchema` and `ObjectGridSchema`
+- [x] ObjectGrid defaults `singleClickEdit` to `true` (click-to-edit by default)
+- [x] InlineEditing component already compatible (click-to-edit native)
 
 **Column Header Minimal Style:**
 - [x] Headers use `text-xs font-normal text-muted-foreground` (was `text-[11px] font-semibold uppercase tracking-wider`)
