@@ -72,6 +72,8 @@ const zh = {
     hideColumn: '隐藏列',
     freezeColumn: '冻结列',
     unfreezeColumn: '取消冻结列',
+    pageInfo: '第 {{current}} 页，共 {{total}} 页',
+    totalRecords: '共 {{count}} 条',
   },
   grid: {
     actions: '操作',

@@ -72,6 +72,8 @@ const en = {
     hideColumn: 'Hide column',
     freezeColumn: 'Freeze column',
     unfreezeColumn: 'Unfreeze column',
+    pageInfo: 'Page {{current}} of {{total}}',
+    totalRecords: '{{count}} total',
   },
   grid: {
     actions: 'Actions',

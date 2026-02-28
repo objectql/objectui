@@ -133,6 +133,11 @@ export const ViewSwitcherSchema = BaseSchema.extend({
   onViewChange: z.string().optional().describe('View change callback'),
   persistPreference: z.boolean().optional().describe('Persist view preference'),
   storageKey: z.string().optional().describe('Storage key for persisting view'),
+  allowCreateView: z.boolean().optional().describe('Show "+" button to add/create a new view'),
+  viewActions: z.array(z.object({
+    type: z.enum(['share', 'settings', 'duplicate', 'delete']).describe('Action type'),
+    icon: z.string().optional().describe('Action icon'),
+  })).optional().describe('Per-view action icons'),
 });
 
 /**

@@ -72,6 +72,8 @@ const pt = {
     hideColumn: 'Ocultar coluna',
     freezeColumn: 'Fixar coluna',
     unfreezeColumn: 'Soltar coluna',
+    pageInfo: 'Página {{current}} de {{total}}',
+    totalRecords: '{{count}} no total',
   },
   grid: {
     actions: 'Ações',

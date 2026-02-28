@@ -73,6 +73,8 @@ const ar = {
     hideColumn: 'إخفاء العمود',
     freezeColumn: 'تجميد العمود',
     unfreezeColumn: 'إلغاء تجميد العمود',
+    pageInfo: 'صفحة {{current}} من {{total}}',
+    totalRecords: '{{count}} إجمالي',
   },
   grid: {
     actions: 'إجراءات',

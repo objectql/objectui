@@ -32,6 +32,11 @@ import {
   LayoutGrid,
   List,
   Map,
+  Plus,
+  Share2,
+  Settings,
+  Copy,
+  Trash2,
   icons,
   type LucideIcon,
 } from 'lucide-react';
@@ -42,6 +47,8 @@ export type ViewSwitcherProps = {
   schema: ViewSwitcherSchema;
   className?: string;
   onViewChange?: (view: ViewType) => void;
+  onCreateView?: () => void;
+  onViewAction?: (action: string, view: ViewType) => void;
   [key: string]: any;
 };
 
@@ -155,10 +162,19 @@ function getInitialView(schema: ViewSwitcherSchema): ViewType | undefined {
   return schema.views?.[0]?.type;
 }
 
+const DEFAULT_VIEW_ACTION_ICONS: Record<string, LucideIcon> = {
+  share: Share2,
+  settings: Settings,
+  duplicate: Copy,
+  delete: Trash2,
+};
+
 export const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
   schema,
   className,
   onViewChange,
+  onCreateView,
+  onViewAction,
   ...props
 }) => {
   const storageKey = React.useMemo(() => {
@@ -225,8 +241,42 @@ export const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
   const isVertical = position === 'left' || position === 'right';
   const orientation = isVertical ? 'vertical' : 'horizontal';
 
+  const viewActionButtons = schema.viewActions && schema.viewActions.length > 0 ? (
+    <div className="flex items-center gap-1">
+      {schema.viewActions.map((action, idx) => {
+        const ActionIcon = action.icon
+          ? resolveIcon(action.icon) || DEFAULT_VIEW_ACTION_ICONS[action.type]
+          : DEFAULT_VIEW_ACTION_ICONS[action.type];
+        return (
+          <Button
+            key={`action-${action.type}-${idx}`}
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => onViewAction?.(action.type, currentView!)}
+            title={action.type}
+          >
+            {ActionIcon ? <ActionIcon className="h-3.5 w-3.5" /> : null}
+          </Button>
+        );
+      })}
+    </div>
+  ) : null;
+
+  const createViewButton = schema.allowCreateView ? (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon-sm"
+      onClick={() => onCreateView?.()}
+      title="Create view"
+    >
+      <Plus className="h-3.5 w-3.5" />
+    </Button>
+  ) : null;
+
   const switcher = (
-    <div className={cn(viewSwitcherWidth({ orientation }))}>
+    <div className={cn(viewSwitcherWidth({ orientation }), 'flex items-center gap-1')}>
       {variant === 'dropdown' && (
         <Select value={currentViewValue} onValueChange={(value) => handleViewChange(value as ViewType)}>
           <SelectTrigger className={cn('w-full', isVertical ? 'h-10' : 'h-9')}>
@@ -284,6 +334,9 @@ export const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
           </TabsList>
         </Tabs>
       )}
+
+      {viewActionButtons}
+      {createViewButton}
     </div>
   );
 

@@ -69,6 +69,22 @@ export interface HeaderBarSchema extends BaseSchema {
    */
   nav?: NavLink[];
   /**
+   * Breadcrumb items
+   */
+  crumbs?: BreadcrumbItem[];
+  /**
+   * Search configuration
+   */
+  search?: { enabled: boolean; placeholder?: string; shortcut?: string };
+  /**
+   * Right-side action slots
+   */
+  actions?: SchemaNode[];
+  /**
+   * Custom right content area
+   */
+  rightContent?: SchemaNode;
+  /**
    * Left side content
    */
   left?: SchemaNode | SchemaNode[];
@@ -177,6 +193,10 @@ export interface BreadcrumbItem {
    * Click handler (if not using href)
    */
   onClick?: () => void;
+  /**
+   * Sibling items for dropdown navigation (e.g., quick-switch between objects)
+   */
+  siblings?: Array<{ label: string; href: string }>;
 }
 
 /**

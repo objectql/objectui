@@ -72,6 +72,8 @@ const ko = {
     hideColumn: '열 숨기기',
     freezeColumn: '열 고정',
     unfreezeColumn: '열 고정 해제',
+    pageInfo: '{{total}} 페이지 중 {{current}} 페이지',
+    totalRecords: '총 {{count}}개',
   },
   grid: {
     actions: '작업',

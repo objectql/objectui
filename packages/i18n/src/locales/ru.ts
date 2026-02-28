@@ -72,6 +72,8 @@ const ru = {
     hideColumn: 'Скрыть столбец',
     freezeColumn: 'Закрепить столбец',
     unfreezeColumn: 'Открепить столбец',
+    pageInfo: 'Страница {{current}} из {{total}}',
+    totalRecords: 'Всего {{count}}',
   },
   grid: {
     actions: 'Действия',

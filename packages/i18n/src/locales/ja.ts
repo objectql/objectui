@@ -72,6 +72,8 @@ const ja = {
     hideColumn: '列を非表示',
     freezeColumn: '列を固定',
     unfreezeColumn: '列の固定を解除',
+    pageInfo: '{{total}}ページ中{{current}}ページ',
+    totalRecords: '合計{{count}}件',
   },
   grid: {
     actions: 'アクション',

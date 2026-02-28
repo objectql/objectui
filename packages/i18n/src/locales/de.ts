@@ -72,6 +72,8 @@ const de = {
     hideColumn: 'Spalte ausblenden',
     freezeColumn: 'Spalte fixieren',
     unfreezeColumn: 'Spalte lösen',
+    pageInfo: 'Seite {{current}} von {{total}}',
+    totalRecords: '{{count}} gesamt',
   },
   grid: {
     actions: 'Aktionen',

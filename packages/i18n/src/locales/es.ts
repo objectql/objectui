@@ -72,6 +72,8 @@ const es = {
     hideColumn: 'Ocultar columna',
     freezeColumn: 'Fijar columna',
     unfreezeColumn: 'Desfijar columna',
+    pageInfo: 'Página {{current}} de {{total}}',
+    totalRecords: '{{count}} en total',
   },
   grid: {
     actions: 'Acciones',
