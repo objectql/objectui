@@ -11,6 +11,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { cn } from '../../lib/utils';
 import { ComponentRegistry } from '@object-ui/core';
 import type { DataTableSchema } from '@object-ui/types';
+import { useObjectTranslation } from '@object-ui/react';
 import { 
   Table, 
   TableHeader, 
@@ -51,6 +52,50 @@ import {
 } from 'lucide-react';
 
 type SortDirection = 'asc' | 'desc' | null;
+
+// Default English fallback translations for the data table
+const TABLE_DEFAULT_TRANSLATIONS: Record<string, string> = {
+  'table.rowsPerPage': 'Rows per page',
+  'table.pageInfo': 'Page {{current}} of {{total}}',
+  'table.totalRecords': '{{count}} total',
+};
+
+/**
+ * Safe wrapper for useObjectTranslation that falls back to English defaults
+ * when I18nProvider is not available (e.g., standalone usage).
+ */
+function useTableTranslation() {
+  try {
+    const result = useObjectTranslation();
+    const testValue = result.t('table.rowsPerPage');
+    if (testValue === 'table.rowsPerPage') {
+      return {
+        t: (key: string, options?: Record<string, unknown>) => {
+          let value = TABLE_DEFAULT_TRANSLATIONS[key] || key;
+          if (options) {
+            for (const [k, v] of Object.entries(options)) {
+              value = value.replace(`{{${k}}}`, String(v));
+            }
+          }
+          return value;
+        },
+      };
+    }
+    return { t: result.t };
+  } catch {
+    return {
+      t: (key: string, options?: Record<string, unknown>) => {
+        let value = TABLE_DEFAULT_TRANSLATIONS[key] || key;
+        if (options) {
+          for (const [k, v] of Object.entries(options)) {
+            value = value.replace(`{{${k}}}`, String(v));
+          }
+        }
+        return value;
+      },
+    };
+  }
+}
 
 /**
  * Enterprise-level data table component with Airtable-like features.
@@ -109,6 +154,9 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
     showRowNumbers = false,
     showAddRow = false,
   } = schema;
+
+  // i18n support for pagination labels
+  const { t } = useTableTranslation();
 
   // Ensure data is always an array – provider config objects or null/undefined
   // must not reach array operations like .filter() / .some()
@@ -936,7 +984,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
       {pagination && sortedData.length > 0 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="text-xs sm:text-sm text-muted-foreground">Rows per page:</span>
+            <span className="text-xs sm:text-sm text-muted-foreground">{t('table.rowsPerPage')}:</span>
             <Select
               value={pageSize.toString()}
               onValueChange={(value) => {
@@ -959,7 +1007,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
 
           <div className="flex items-center gap-2">
             <span className="text-xs sm:text-sm text-muted-foreground">
-              Page {currentPage} of {totalPages} <span className="hidden sm:inline">({sortedData.length} total)</span>
+              {t('table.pageInfo', { current: currentPage, total: totalPages })} <span className="hidden sm:inline">({t('table.totalRecords', { count: sortedData.length })})</span>
             </span>
             <div className="flex items-center gap-1">
               <Button

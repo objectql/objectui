@@ -196,8 +196,18 @@ const LIST_DEFAULT_TRANSLATIONS: Record<string, string> = {
   'list.noItemsMessage': 'There are no records to display. Try adjusting your filters or adding new data.',
   'list.search': 'Search',
   'list.filter': 'Filter',
+  'list.filterRecords': 'Filter Records',
   'list.sort': 'Sort',
+  'list.sortRecords': 'Sort Records',
+  'list.group': 'Group',
+  'list.groupBy': 'Group By',
   'list.export': 'Export',
+  'list.exportAs': 'Export as {{format}}',
+  'list.color': 'Color',
+  'list.rowColor': 'Row Color',
+  'list.colorByField': 'Color by field',
+  'list.clear': 'Clear',
+  'list.none': 'None',
   'list.hideFields': 'Hide fields',
   'list.showAll': 'Show all',
   'list.pullToRefresh': 'Pull to refresh',
@@ -1113,7 +1123,7 @@ export const ListView: React.FC<ListViewProps> = ({
                 )}
               >
                 <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5" />
-                <span className="hidden sm:inline">Filter</span>
+                <span className="hidden sm:inline">{t('list.filter')}</span>
                 {hasFilters && (
                   <span className="ml-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary/10 text-[10px] font-medium text-primary">
                     {currentFilters.conditions?.length || 0}
@@ -1124,7 +1134,7 @@ export const ListView: React.FC<ListViewProps> = ({
             <PopoverContent align="start" className="w-[calc(100vw-2rem)] sm:w-[600px] max-w-[600px] p-3 sm:p-4">
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b pb-2">
-                  <h4 className="font-medium text-sm">Filter Records</h4>
+                  <h4 className="font-medium text-sm">{t('list.filterRecords')}</h4>
                 </div>
                 <FilterBuilder
                   fields={filterFields}
@@ -1152,7 +1162,7 @@ export const ListView: React.FC<ListViewProps> = ({
                 )}
               >
                 <Group className="h-3.5 w-3.5 mr-1.5" />
-                <span className="hidden sm:inline">Group</span>
+                <span className="hidden sm:inline">{t('list.group')}</span>
                 {groupingConfig && groupingConfig.fields?.length > 0 && (
                   <span className="ml-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary/10 text-[10px] font-medium text-primary">
                     {groupingConfig.fields.length}
@@ -1163,10 +1173,10 @@ export const ListView: React.FC<ListViewProps> = ({
             <PopoverContent align="start" className="w-64 p-3">
               <div className="space-y-2">
                 <div className="flex items-center justify-between border-b pb-2">
-                  <h4 className="font-medium text-sm">Group By</h4>
+                  <h4 className="font-medium text-sm">{t('list.groupBy')}</h4>
                   {groupingConfig && (
                     <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => setGroupingConfig(undefined)} data-testid="clear-grouping">
-                      Clear
+                      {t('list.clear')}
                     </Button>
                   )}
                 </div>
@@ -1212,7 +1222,7 @@ export const ListView: React.FC<ListViewProps> = ({
                 )}
               >
                 <ArrowUpDown className="h-3.5 w-3.5 mr-1.5" />
-                <span className="hidden sm:inline">Sort</span>
+                <span className="hidden sm:inline">{t('list.sort')}</span>
                 {currentSort.length > 0 && (
                   <span className="ml-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary/10 text-[10px] font-medium text-primary">
                     {currentSort.length}
@@ -1223,7 +1233,7 @@ export const ListView: React.FC<ListViewProps> = ({
             <PopoverContent align="start" className="w-[calc(100vw-2rem)] sm:w-[600px] max-w-[600px] p-3 sm:p-4">
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b pb-2">
-                  <h4 className="font-medium text-sm">Sort Records</h4>
+                  <h4 className="font-medium text-sm">{t('list.sortRecords')}</h4>
                 </div>
                 <SortBuilder
                   fields={filterFields}
@@ -1256,21 +1266,21 @@ export const ListView: React.FC<ListViewProps> = ({
                 )}
               >
                 <Paintbrush className="h-3.5 w-3.5 mr-1.5" />
-                <span className="hidden sm:inline">Color</span>
+                <span className="hidden sm:inline">{t('list.color')}</span>
               </Button>
             </PopoverTrigger>
             <PopoverContent align="start" className="w-64 p-3">
               <div className="space-y-2">
                 <div className="flex items-center justify-between border-b pb-2">
-                  <h4 className="font-medium text-sm">Row Color</h4>
+                  <h4 className="font-medium text-sm">{t('list.rowColor')}</h4>
                   {rowColorConfig && (
                     <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => setRowColorConfig(undefined)} data-testid="clear-row-color">
-                      Clear
+                      {t('list.clear')}
                     </Button>
                   )}
                 </div>
                 <div className="space-y-2" data-testid="color-field-list">
-                  <label className="text-xs text-muted-foreground">Color by field</label>
+                  <label className="text-xs text-muted-foreground">{t('list.colorByField')}</label>
                   <select
                     className="w-full h-8 rounded border border-input bg-background px-2 text-xs"
                     value={rowColorConfig?.field || ''}
@@ -1284,7 +1294,7 @@ export const ListView: React.FC<ListViewProps> = ({
                     }}
                     data-testid="color-field-select"
                   >
-                    <option value="">None</option>
+                    <option value="">{t('list.none')}</option>
                     {allFields.map(field => (
                       <option key={field.name} value={field.name}>{field.label}</option>
                     ))}
@@ -1327,7 +1337,7 @@ export const ListView: React.FC<ListViewProps> = ({
                   className="h-7 px-2 text-muted-foreground hover:text-primary text-xs transition-colors duration-150"
                 >
                   <Download className="h-3.5 w-3.5 mr-1.5" />
-                  <span className="hidden sm:inline">Export</span>
+                  <span className="hidden sm:inline">{t('list.export')}</span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent align="start" className="w-48 p-2">
@@ -1341,7 +1351,7 @@ export const ListView: React.FC<ListViewProps> = ({
                       onClick={() => handleExport(format)}
                     >
                       <Download className="h-3.5 w-3.5 mr-2" />
-                      Export as {format.toUpperCase()}
+                      {t('list.exportAs', { format: format.toUpperCase() })}
                     </Button>
                   ))}
                 </div>
@@ -1397,7 +1407,7 @@ export const ListView: React.FC<ListViewProps> = ({
                     searchTerm && "bg-primary/10 border border-primary/20 text-primary"
                   )}
                   data-testid="search-icon-button"
-                  title="Search"
+                  title={t('list.search')}
                 >
                   <Search className="h-3.5 w-3.5" />
                 </Button>
@@ -1406,7 +1416,7 @@ export const ListView: React.FC<ListViewProps> = ({
                 <div className="relative">
                   <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                   <Input
-                    placeholder="Search..."
+                    placeholder={t('list.search') + '...'}
                     value={searchTerm}
                     onChange={(e) => handleSearchChange(e.target.value)}
                     className="pl-7 h-8 text-xs"

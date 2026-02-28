@@ -35,6 +35,20 @@ export const NavLinkSchema: z.ZodType<any> = z.lazy(() =>
 );
 
 /**
+ * Breadcrumb Item Schema
+ */
+export const BreadcrumbItemSchema = z.object({
+  label: z.string().describe('Breadcrumb label'),
+  href: z.string().optional().describe('Link URL'),
+  icon: z.string().optional().describe('Breadcrumb icon'),
+  onClick: z.function().optional().describe('Click handler'),
+  siblings: z.array(z.object({
+    label: z.string().describe('Sibling label'),
+    href: z.string().describe('Sibling URL'),
+  })).optional().describe('Sibling items for dropdown navigation'),
+});
+
+/**
  * Header Bar Schema - Header/navigation bar component
  */
 export const HeaderBarSchema = BaseSchema.extend({
@@ -42,6 +56,14 @@ export const HeaderBarSchema = BaseSchema.extend({
   title: z.string().optional().describe('Header title'),
   logo: z.union([SchemaNodeSchema, z.array(SchemaNodeSchema)]).optional().describe('Logo content'),
   nav: z.array(NavLinkSchema).optional().describe('Navigation links'),
+  crumbs: z.array(BreadcrumbItemSchema).optional().describe('Breadcrumb items'),
+  search: z.object({
+    enabled: z.boolean().describe('Whether search is enabled'),
+    placeholder: z.string().optional().describe('Search placeholder text'),
+    shortcut: z.string().optional().describe('Keyboard shortcut (e.g., "⌘K")'),
+  }).optional().describe('Search configuration'),
+  actions: z.array(SchemaNodeSchema).optional().describe('Right-side action slots'),
+  rightContent: SchemaNodeSchema.optional().describe('Custom right content area'),
   left: z.union([SchemaNodeSchema, z.array(SchemaNodeSchema)]).optional().describe('Left content'),
   center: z.union([SchemaNodeSchema, z.array(SchemaNodeSchema)]).optional().describe('Center content'),
   right: z.union([SchemaNodeSchema, z.array(SchemaNodeSchema)]).optional().describe('Right content'),
@@ -67,16 +89,6 @@ export const SidebarSchema = BaseSchema.extend({
   collapsedWidth: z.union([z.string(), z.number()]).optional().describe('Collapsed width'),
   onCollapsedChange: z.function().optional().describe('Collapsed change handler'),
   variant: z.enum(['default', 'bordered', 'floating']).optional().describe('Sidebar variant'),
-});
-
-/**
- * Breadcrumb Item Schema
- */
-export const BreadcrumbItemSchema = z.object({
-  label: z.string().describe('Breadcrumb label'),
-  href: z.string().optional().describe('Link URL'),
-  icon: z.string().optional().describe('Breadcrumb icon'),
-  onClick: z.function().optional().describe('Click handler'),
 });
 
 /**

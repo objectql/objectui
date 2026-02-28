@@ -578,6 +578,17 @@ export interface ViewSwitcherSchema extends BaseSchema {
    * Storage key for persisting view
    */
   storageKey?: string;
+  /**
+   * Show "+" button to add/create a new view
+   */
+  allowCreateView?: boolean;
+  /**
+   * Per-view action icons (e.g., share, settings, duplicate, delete)
+   */
+  viewActions?: Array<{
+    type: 'share' | 'settings' | 'duplicate' | 'delete';
+    icon?: string;
+  }>;
 }
 
 /**

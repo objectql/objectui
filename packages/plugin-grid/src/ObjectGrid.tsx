@@ -23,7 +23,7 @@
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import type { ObjectGridSchema, DataSource, ListColumn, ViewData } from '@object-ui/types';
-import { SchemaRenderer, useDataScope, useNavigationOverlay, useAction } from '@object-ui/react';
+import { SchemaRenderer, useDataScope, useNavigationOverlay, useAction, useObjectTranslation } from '@object-ui/react';
 import { getCellRenderer, formatCurrency, formatCompactCurrency, formatDate, formatPercent, humanizeLabel } from '@object-ui/fields';
 import {
   Badge, Button, NavigationOverlay,
@@ -38,6 +38,57 @@ import { GroupRow } from './GroupRow';
 import { useColumnSummary } from './useColumnSummary';
 import { RowActionMenu, formatActionLabel } from './components/RowActionMenu';
 import { BulkActionBar } from './components/BulkActionBar';
+
+// Default English fallback translations for the grid
+const GRID_DEFAULT_TRANSLATIONS: Record<string, string> = {
+  'grid.actions': 'Actions',
+  'grid.edit': 'Edit',
+  'grid.delete': 'Delete',
+  'grid.export': 'Export',
+  'grid.exportAs': 'Export as {{format}}',
+  'grid.loading': 'Loading grid...',
+  'grid.errorLoading': 'Error loading grid',
+  'grid.pullToRefresh': 'Pull to refresh',
+  'grid.refreshing': 'Refreshing…',
+  'grid.openRecord': 'Open record',
+};
+
+/**
+ * Safe wrapper for useObjectTranslation that falls back to English defaults
+ * when I18nProvider is not available (e.g., standalone usage).
+ */
+function useGridTranslation() {
+  try {
+    const result = useObjectTranslation();
+    const testValue = result.t('grid.actions');
+    if (testValue === 'grid.actions') {
+      return {
+        t: (key: string, options?: Record<string, unknown>) => {
+          let value = GRID_DEFAULT_TRANSLATIONS[key] || key;
+          if (options) {
+            for (const [k, v] of Object.entries(options)) {
+              value = value.replace(`{{${k}}}`, String(v));
+            }
+          }
+          return value;
+        },
+      };
+    }
+    return { t: result.t };
+  } catch {
+    return {
+      t: (key: string, options?: Record<string, unknown>) => {
+        let value = GRID_DEFAULT_TRANSLATIONS[key] || key;
+        if (options) {
+          for (const [k, v] of Object.entries(options)) {
+            value = value.replace(`{{${k}}}`, String(v));
+          }
+        }
+        return value;
+      },
+    };
+  }
+}
 
 export interface ObjectGridProps {
   schema: ObjectGridSchema;
@@ -126,6 +177,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const { t } = useGridTranslation();
   const [objectSchema, setObjectSchema] = useState<any>(null);
   const [useCardView, setUseCardView] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -776,7 +828,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
   if (error) {
     return (
       <div className="p-3 sm:p-4 border border-red-300 bg-red-50 rounded-md">
-        <h3 className="text-red-800 font-semibold">Error loading grid</h3>
+        <h3 className="text-red-800 font-semibold">{t('grid.errorLoading')}</h3>
         <p className="text-red-600 text-sm mt-1">{error.message}</p>
       </div>
     );
@@ -802,7 +854,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
     return (
       <div className="p-4 sm:p-8 text-center">
         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>
-        <p className="mt-2 text-sm text-muted-foreground">Loading grid...</p>
+        <p className="mt-2 text-sm text-muted-foreground">{t('grid.loading')}</p>
       </div>
     );
   }
@@ -840,7 +892,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
   const columnsWithActions = (hasActions || hasRowActions) ? [
     ...persistedColumns,
     {
-      header: 'Actions',
+      header: t('grid.actions'),
       accessorKey: '_actions',
       cell: (_value: any, row: any) => (
         <RowActionMenu
@@ -1197,7 +1249,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
               className="h-7 px-2 text-muted-foreground hover:text-primary text-xs"
             >
               <Download className="h-3.5 w-3.5 mr-1.5" />
-              <span className="hidden sm:inline">Export</span>
+              <span className="hidden sm:inline">{t('grid.export')}</span>
             </Button>
           </PopoverTrigger>
           <PopoverContent align="end" className="w-48 p-2">
@@ -1211,7 +1263,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
                   onClick={() => handleExport(format)}
                 >
                   <Download className="h-3.5 w-3.5 mr-2" />
-                  Export as {format.toUpperCase()}
+                  {t('grid.exportAs', { format: format.toUpperCase() })}
                 </Button>
               ))}
             </div>
@@ -1377,7 +1429,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
           className="flex items-center justify-center text-xs text-muted-foreground"
           style={{ height: pullDistance }}
         >
-          {isRefreshing ? 'Refreshing…' : 'Pull to refresh'}
+          {isRefreshing ? t('grid.refreshing') : t('grid.pullToRefresh')}
         </div>
       )}
       {gridToolbar}
