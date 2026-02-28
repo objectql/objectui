@@ -257,6 +257,14 @@ export interface ReportExportConfig {
 }
 
 /**
+ * Report Type
+ * - tabular: flat table
+ * - summary: grouped with subtotals
+ * - matrix: pivot table
+ */
+export type ReportType = 'tabular' | 'summary' | 'matrix';
+
+/**
  * Report Schema - Main report configuration
  */
 export interface ReportSchema extends BaseSchema {
@@ -271,6 +279,11 @@ export interface ReportSchema extends BaseSchema {
    * Report description
    */
   description?: string;
+
+  /**
+   * Report type (tabular, summary, matrix)
+   */
+  reportType?: ReportType;
 
   /**
    * Data source configuration

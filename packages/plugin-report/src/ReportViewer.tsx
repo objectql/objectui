@@ -10,10 +10,45 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, Button, Badge, Skeleton } from '@object-ui/components';
 import { SchemaRenderer } from '@object-ui/react';
 import { ComponentRegistry } from '@object-ui/core';
-import type { ReportViewerSchema, ReportSection, ReportExportFormat, ReportField } from '@object-ui/types';
+import type { ReportViewerSchema, ReportSection, ReportExportFormat, ReportField, ReportGroupBy } from '@object-ui/types';
 import { Download, Printer, RefreshCw } from 'lucide-react';
 import { exportReport } from './ReportExportEngine';
 import { formatValue } from './formatValue';
+
+// ---------------------------------------------------------------------------
+// Client-side grouping utility
+// ---------------------------------------------------------------------------
+
+interface GroupedData {
+  key: string;
+  label: string;
+  rows: Record<string, any>[];
+}
+
+function groupData(data: any[], groupBy: ReportGroupBy[]): GroupedData[] | null {
+  if (!groupBy || groupBy.length === 0 || !data || data.length === 0) return null;
+
+  const firstGroup = groupBy[0];
+  const field = firstGroup.field;
+  const groups: Map<string, Record<string, any>[]> = new Map();
+
+  for (const row of data) {
+    const key = String(row[field] ?? '(empty)');
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(row);
+  }
+
+  const result: GroupedData[] = [];
+  for (const [key, rows] of groups) {
+    result.push({ key, label: `${firstGroup.label || field}: ${key}`, rows });
+  }
+
+  // Sort groups
+  const dir = firstGroup.sort === 'desc' ? -1 : 1;
+  result.sort((a, b) => a.key.localeCompare(b.key) * dir);
+
+  return result;
+}
 
 export interface ReportViewerProps {
   schema: ReportViewerSchema;
@@ -270,15 +305,41 @@ export const ReportViewer: React.FC<ReportViewerProps> = ({ schema, onRefresh })
                         </tr>
                       </thead>
                       <tbody>
-                        {data?.map((row: Record<string, any>, rowIdx: number) => (
-                          <tr key={rowIdx} className="border-t hover:bg-muted/50 even:bg-muted/20">
-                            {section.columns?.map((col: ReportField, colIdx: number) => (
-                              <td key={colIdx} className={`px-4 py-2 ${col.type === 'number' ? 'text-right tabular-nums' : ''}`}>
-                                {renderCellValue(row[col.name], col)}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
+                        {(() => {
+                          const groups = groupData(data || [], report.groupBy || []);
+                          if (groups) {
+                            return groups.map((group) => (
+                              <React.Fragment key={group.key}>
+                                <tr className="bg-muted/60">
+                                  <td
+                                    colSpan={section.columns?.length || 1}
+                                    className="px-4 py-2 font-semibold text-sm"
+                                  >
+                                    {group.label} ({group.rows.length})
+                                  </td>
+                                </tr>
+                                {group.rows.map((row: Record<string, any>, rowIdx: number) => (
+                                  <tr key={rowIdx} className="border-t hover:bg-muted/50 even:bg-muted/20">
+                                    {section.columns?.map((col: ReportField, colIdx: number) => (
+                                      <td key={colIdx} className={`px-4 py-2 ${col.type === 'number' ? 'text-right tabular-nums' : ''}`}>
+                                        {renderCellValue(row[col.name], col)}
+                                      </td>
+                                    ))}
+                                  </tr>
+                                ))}
+                              </React.Fragment>
+                            ));
+                          }
+                          return data?.map((row: Record<string, any>, rowIdx: number) => (
+                            <tr key={rowIdx} className="border-t hover:bg-muted/50 even:bg-muted/20">
+                              {section.columns?.map((col: ReportField, colIdx: number) => (
+                                <td key={colIdx} className={`px-4 py-2 ${col.type === 'number' ? 'text-right tabular-nums' : ''}`}>
+                                  {renderCellValue(row[col.name], col)}
+                                </td>
+                              ))}
+                            </tr>
+                          ));
+                        })()}
                       </tbody>
                     </table>
                   </div>

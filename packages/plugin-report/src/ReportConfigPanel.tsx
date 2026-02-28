@@ -10,6 +10,8 @@ import * as React from 'react';
 import {
   ConfigPanelRenderer,
   useConfigDraft,
+  Checkbox,
+  Label,
 } from '@object-ui/components';
 import type { ConfigPanelSchema } from '@object-ui/components';
 import { ScheduleConfig } from './ScheduleConfig';
@@ -24,6 +26,73 @@ export type AvailableField = {
   type?: string;
   options?: Array<{ value: string; label: string }>;
 };
+
+// ---------------------------------------------------------------------------
+// FieldPicker — inline multi-select field picker for report columns
+// ---------------------------------------------------------------------------
+
+function FieldPicker({
+  availableFields,
+  value,
+  onChange,
+}: {
+  availableFields: AvailableField[];
+  value: any;
+  onChange: (v: any) => void;
+}) {
+  const selectedFields: string[] = Array.isArray(value)
+    ? value.map((f: any) => (typeof f === 'string' ? f : f.name || f.field || f.value))
+    : [];
+
+  const toggleField = (fieldValue: string) => {
+    const isSelected = selectedFields.includes(fieldValue);
+    let updated: string[];
+    if (isSelected) {
+      updated = selectedFields.filter((f) => f !== fieldValue);
+    } else {
+      updated = [...selectedFields, fieldValue];
+    }
+    // Emit as array of {name, label, type} objects for downstream consumption
+    onChange(
+      updated.map((fv) => {
+        const def = availableFields.find((af) => af.value === fv);
+        return { name: fv, label: def?.label || fv, type: def?.type || 'string' };
+      }),
+    );
+  };
+
+  if (availableFields.length === 0) {
+    return (
+      <div className="text-xs text-muted-foreground py-2" data-testid="field-picker-empty">
+        No fields available
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-1 py-1" data-testid="field-picker">
+      {availableFields.map((field) => {
+        const checked = selectedFields.includes(field.value);
+        return (
+          <label
+            key={field.value}
+            className="flex items-center gap-2 px-1 py-0.5 rounded hover:bg-muted/50 cursor-pointer text-xs"
+          >
+            <Checkbox
+              checked={checked}
+              onCheckedChange={() => toggleField(field.value)}
+              data-testid={`field-picker-${field.value}`}
+            />
+            <span className="flex-1">{field.label}</span>
+            {field.type && (
+              <span className="text-[10px] text-muted-foreground">{field.type}</span>
+            )}
+          </label>
+        );
+      })}
+    </div>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Schema builder — produces schema from available fields
@@ -51,6 +120,18 @@ function buildReportSchema(
             type: 'input',
             placeholder: 'Report description',
           },
+          {
+            key: 'reportType',
+            label: 'Report type',
+            type: 'select',
+            defaultValue: 'tabular',
+            options: [
+              { value: 'tabular', label: 'Tabular' },
+              { value: 'summary', label: 'Summary' },
+              { value: 'matrix', label: 'Matrix' },
+            ],
+            helpText: 'Tabular: flat table. Summary: grouped with subtotals. Matrix: pivot table.',
+          },
         ],
       },
       {
@@ -75,6 +156,26 @@ function buildReportSchema(
         ],
       },
       {
+        key: 'columns',
+        title: 'Columns',
+        collapsible: true,
+        hint: 'Select fields to display as report columns',
+        fields: [
+          {
+            key: 'fields',
+            label: 'Report columns',
+            type: 'custom',
+            render: (value: any, onChange: (v: any) => void) => (
+              <FieldPicker
+                availableFields={availableFields}
+                value={value}
+                onChange={onChange}
+              />
+            ),
+          },
+        ],
+      },
+      {
         key: 'filters',
         title: 'Filters',
         collapsible: true,
@@ -92,7 +193,7 @@ function buildReportSchema(
         key: 'groupBy',
         title: 'Group By',
         collapsible: true,
-        hint: 'Group and sort report data',
+        hint: 'Group report data and compute aggregations',
         fields: [
           {
             key: 'groupBy',
@@ -219,7 +320,7 @@ export function ReportConfigPanel({
   onFieldChange,
   availableFields,
 }: ReportConfigPanelProps) {
-  const { draft, isDirty, updateField, discard } = useConfigDraft(config, {
+  const { draft, isDirty, updateField, discard, undo, redo, canUndo, canRedo } = useConfigDraft(config, {
     onUpdate: onFieldChange,
   });
 
@@ -238,6 +339,10 @@ export function ReportConfigPanel({
       onFieldChange={updateField}
       onSave={() => onSave(draft)}
       onDiscard={discard}
+      onUndo={undo}
+      onRedo={redo}
+      canUndo={canUndo}
+      canRedo={canRedo}
     />
   );
 }
