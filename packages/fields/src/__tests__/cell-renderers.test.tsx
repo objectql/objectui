@@ -16,6 +16,8 @@ import {
   TextCellRenderer,
   DateCellRenderer,
   BooleanCellRenderer,
+  PercentCellRenderer,
+  humanizeLabel,
   formatDate,
   formatRelativeDate,
 } from '../index';
@@ -738,7 +740,6 @@ describe('UserCellRenderer', () => {
 // =========================================================================
 // 9. humanizeLabel
 // =========================================================================
-import { humanizeLabel, PercentCellRenderer } from '../index';
 
 describe('humanizeLabel', () => {
   it('should convert snake_case to Title Case', () => {

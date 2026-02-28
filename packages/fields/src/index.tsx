@@ -223,6 +223,9 @@ export function CurrencyCellRenderer({ value, field }: CellRendererProps): React
   return <span className="tabular-nums font-medium whitespace-nowrap">{formatted}</span>;
 }
 
+// Fields that store percentage values as whole numbers (0-100) rather than fractions (0-1)
+const WHOLE_PERCENT_FIELD_PATTERN = /progress|completion/;
+
 /**
  * Percent field cell renderer with mini progress bar
  */
@@ -234,7 +237,7 @@ export function PercentCellRenderer({ value, field }: CellRendererProps): React.
   const numValue = Number(value);
   // Use field name to disambiguate 0-1 fraction vs 0-100 whole number:
   // Fields like "progress" or "completion" store values as 0-100, not 0-1
-  const isWholePercentField = /progress|completion/.test(field?.name?.toLowerCase() || '');
+  const isWholePercentField = WHOLE_PERCENT_FIELD_PATTERN.test(field?.name?.toLowerCase() || '');
   const barValue = isWholePercentField
     ? numValue
     : (numValue > -1 && numValue < 1) ? numValue * 100 : numValue;
