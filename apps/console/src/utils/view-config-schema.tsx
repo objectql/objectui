@@ -345,6 +345,7 @@ function buildToolbarSection(
         title: t('console.objectView.toolbar'),
         hint: t('console.objectView.toolbarHint'),
         collapsible: true,
+        defaultCollapsed: true,
         fields: [
             // Toolbar toggles — ordered per spec: showSearch, showSort, showFilters, showHideFields, showGroup, showColor, showDensity
             buildSwitchField('showSearch', t('console.objectView.enableSearch'), 'toggle-showSearch', true),       // spec: NamedListView.showSearch
@@ -374,6 +375,7 @@ function buildNavigationSection(
         title: t('console.objectView.navigationSection'),
         hint: t('console.objectView.navigationHint'),
         collapsible: true,
+        defaultCollapsed: true,
         fields: [
             // spec: NamedListView.navigation — navigation mode/width/openNewTab
             {
@@ -470,6 +472,7 @@ function buildRecordsSection(
         title: t('console.objectView.records'),
         hint: t('console.objectView.recordsHint'),
         collapsible: true,
+        defaultCollapsed: true,
         fields: [
             // spec: NamedListView.selection — row selection mode
             {
@@ -1224,6 +1227,7 @@ function buildAppearanceSection(
         key: 'appearance',
         title: t('console.objectView.appearance'),
         collapsible: true,
+        defaultCollapsed: true,
         fields: [
             // spec: NamedListView.striped (grid-only: row striping is a grid concept)
             buildSwitchField('striped', t('console.objectView.striped'), 'toggle-striped', false, true,
