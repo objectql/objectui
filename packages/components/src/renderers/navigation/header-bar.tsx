@@ -9,6 +9,7 @@
 import React from 'react';
 import { ComponentRegistry } from '@object-ui/core';
 import type { HeaderBarSchema } from '@object-ui/types';
+import { resolveI18nLabel } from '@object-ui/react';
 import {
   SidebarTrigger,
   Separator,
@@ -19,13 +20,6 @@ import {
   BreadcrumbSeparator,
   BreadcrumbPage
 } from '../../ui';
-
-/** Resolve a label that may be a plain string or an I18nLabel object */
-function resolveCrumbLabel(label: string | { key?: string; defaultValue?: string } | undefined): string {
-  if (!label) return '';
-  if (typeof label === 'string') return label;
-  return label.defaultValue || label.key || '';
-}
 
 ComponentRegistry.register('header-bar', 
   ({ schema }: { schema: HeaderBarSchema }) => (
@@ -38,9 +32,9 @@ ComponentRegistry.register('header-bar',
             <React.Fragment key={idx}>
               <BreadcrumbItem>
                 {idx === schema.crumbs.length - 1 ? (
-                   <BreadcrumbPage>{resolveCrumbLabel(crumb.label)}</BreadcrumbPage>
+                   <BreadcrumbPage>{resolveI18nLabel(crumb.label) ?? ''}</BreadcrumbPage>
                 ) : (
-                   <BreadcrumbLink href={crumb.href || '#'}>{resolveCrumbLabel(crumb.label)}</BreadcrumbLink>
+                   <BreadcrumbLink href={crumb.href || '#'}>{resolveI18nLabel(crumb.label) ?? ''}</BreadcrumbLink>
                 )}
               </BreadcrumbItem>
               {idx < schema.crumbs.length - 1 && <BreadcrumbSeparator />}

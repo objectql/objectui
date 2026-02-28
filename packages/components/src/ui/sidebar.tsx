@@ -42,6 +42,8 @@ const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 const SIDEBAR_WIDTH_STORAGE_KEY = "sidebar_width"
 const SIDEBAR_MIN_WIDTH = 200 // px
 const SIDEBAR_MAX_WIDTH = 480 // px
+const SIDEBAR_DEFAULT_WIDTH_PX = 256 // 16rem in px
+const SIDEBAR_CLICK_THRESHOLD_PX = 5
 
 type SidebarContextProps = {
   state: "expanded" | "collapsed"
@@ -95,7 +97,10 @@ const SidebarProvider = React.forwardRef<
     const [sidebarWidth, setSidebarWidthState] = React.useState<number | null>(() => {
       try {
         const stored = localStorage.getItem(SIDEBAR_WIDTH_STORAGE_KEY)
-        return stored ? Number(stored) : null
+        if (!stored) return null
+        const value = Number(stored)
+        if (isNaN(value)) return null
+        return Math.max(SIDEBAR_MIN_WIDTH, Math.min(SIDEBAR_MAX_WIDTH, value))
       } catch { return null }
     })
     const setSidebarWidth = React.useCallback((width: number | null) => {
@@ -349,8 +354,8 @@ const SidebarRail = React.forwardRef<
     // Get the current sidebar width from computed CSS variable
     const wrapper = (e.target as HTMLElement).closest('[style*="--sidebar-width"]') as HTMLElement | null
     startWidth.current = wrapper
-      ? parseInt(getComputedStyle(wrapper).getPropertyValue('--sidebar-width')) || 256
-      : 256
+      ? parseInt(getComputedStyle(wrapper).getPropertyValue('--sidebar-width')) || SIDEBAR_DEFAULT_WIDTH_PX
+      : SIDEBAR_DEFAULT_WIDTH_PX
 
     const onPointerMove = (ev: PointerEvent) => {
       if (!dragging.current) return
@@ -371,7 +376,7 @@ const SidebarRail = React.forwardRef<
 
   const handleClick = React.useCallback((e: React.MouseEvent) => {
     // Only toggle on click (not at end of drag)
-    if (Math.abs(e.clientX - startX.current) < 5) {
+    if (Math.abs(e.clientX - startX.current) < SIDEBAR_CLICK_THRESHOLD_PX) {
       toggleSidebar()
     }
   }, [toggleSidebar])
