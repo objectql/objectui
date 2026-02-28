@@ -53,6 +53,16 @@ import {
 
 type SortDirection = 'asc' | 'desc' | null;
 
+/** Number of skeleton rows shown when the table has no data */
+const GHOST_ROW_COUNT = 3;
+
+/** Returns a Tailwind width class for ghost cell placeholders to create visual variety */
+function ghostCellWidth(columnIndex: number, totalColumns: number): string {
+  if (columnIndex === 0) return 'w-3/4';
+  if (columnIndex === totalColumns - 1) return 'w-1/3';
+  return 'w-1/2';
+}
+
 // Default English fallback translations for the data table
 const TABLE_DEFAULT_TRANSLATIONS: Record<string, string> = {
   'table.rowsPerPage': 'Rows per page',
@@ -806,14 +816,14 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                     </div>
                   </TableCell>
                 </TableRow>
-                {/* Ghost placeholder rows */}
-                {Array.from({ length: 3 }).map((_, i) => (
+                {/* Ghost placeholder rows – visual skeleton to maintain table height when empty */}
+                {Array.from({ length: GHOST_ROW_COUNT }).map((_, i) => (
                   <TableRow key={`ghost-${i}`} className="hover:bg-transparent opacity-[0.15] pointer-events-none" data-testid="ghost-row">
                     {selectable && <TableCell className="p-3"><div className="h-4 w-4 rounded border border-muted-foreground/30" /></TableCell>}
                     {showRowNumbers && <TableCell className="text-center p-3"><div className="h-3 w-6 mx-auto rounded bg-muted-foreground/30" /></TableCell>}
                     {columns.map((_col, ci) => (
                       <TableCell key={ci} className="p-3">
-                        <div className={cn("h-3 rounded bg-muted-foreground/30", ci === 0 ? "w-3/4" : ci === columns.length - 1 ? "w-1/3" : "w-1/2")} />
+                        <div className={cn("h-3 rounded bg-muted-foreground/30", ghostCellWidth(ci, columns.length))} />
                       </TableCell>
                     ))}
                     {rowActions && <TableCell className="p-3"><div className="h-3 w-8 rounded bg-muted-foreground/30" /></TableCell>}
