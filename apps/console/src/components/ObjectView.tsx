@@ -484,7 +484,7 @@ export function ObjectView({ dataSource, objects, onEdit }: any) {
     }, [drawerRecordId]);
 
     // Render multi-view content via ListView plugin (for kanban, calendar, etc.)
-    const renderListView = useCallback(({ schema: listSchema, dataSource: ds, onEdit: editHandler, onRowClick: rowClickHandler, className }: any) => {
+    const renderListView = useCallback(({ schema: listSchema, dataSource: ds, onEdit: editHandler, className }: any) => {
         const key = `${objectName}-${activeView.id}-${refreshKey}`;
         const viewDef = activeView;
 
