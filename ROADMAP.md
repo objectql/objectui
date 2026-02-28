@@ -849,6 +849,12 @@ The `FlowDesigner` is a canvas-based flow editor that bridges the gap between th
 - [x] ReportView: Live preview linkage fix — config panel changes instantly refresh report preview (title, description, fields, filters, groupBy)
 - [x] ReportViewer: Client-side grouping — groupBy config renders grouped table with group headers and row counts
 - [x] ReportType added to ReportSchema types (tabular/summary/matrix)
+- [x] ReportConfigPanel: Per-column aggregation (sum/avg/count/min/max) in field picker
+- [x] ReportConfigPanel: Visual chart editor — chart type selection + X/Y axis field mapping (no JSON editing)
+- [x] ReportConfigPanel: Conditional formatting UI — rule builder with field/operator/value + background color
+- [x] ReportConfigPanel: Section/block manager — add/remove/reorder header, summary, table, chart, text sections
+- [x] ReportViewer: Conditional formatting applied to table cells (background/text color)
+- [x] ReportView: Chart config from panel auto-generates chart section in preview
 - [ ] ReportDesigner: Element drag-to-reposition within sections
 - [x] FlowDesigner: Edge creation UI (click source port → click target port)
 - [x] FlowDesigner: Property editing for node labels/types + executor config + boundary config

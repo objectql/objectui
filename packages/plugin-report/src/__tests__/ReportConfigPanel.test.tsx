@@ -408,4 +408,129 @@ describe('ReportConfigPanel', () => {
     const saved = onSave.mock.calls[0][0];
     expect(saved.reportType).toBe('summary');
   });
+
+  it('should show per-column aggregation dropdown when field is selected', () => {
+    const onFieldChange = vi.fn();
+    render(
+      <ReportConfigPanel
+        open={true}
+        onClose={vi.fn()}
+        config={{ ...defaultConfig, fields: [{ name: 'amount', label: 'Amount', type: 'number' }] }}
+        onSave={vi.fn()}
+        onFieldChange={onFieldChange}
+        availableFields={mockAvailableFields}
+      />,
+    );
+    // Amount field is pre-selected, so aggregation dropdown should be visible
+    expect(screen.getByTestId('field-agg-amount')).toBeInTheDocument();
+  });
+
+  it('should display chart section', () => {
+    render(
+      <ReportConfigPanel
+        open={true}
+        onClose={vi.fn()}
+        config={defaultConfig}
+        onSave={vi.fn()}
+        availableFields={mockAvailableFields}
+      />,
+    );
+    expect(screen.getByText('Chart')).toBeInTheDocument();
+  });
+
+  it('should display chart config when chart section is expanded', () => {
+    render(
+      <ReportConfigPanel
+        open={true}
+        onClose={vi.fn()}
+        config={defaultConfig}
+        onSave={vi.fn()}
+        availableFields={mockAvailableFields}
+      />,
+    );
+    expect(screen.getByTestId('chart-config')).toBeInTheDocument();
+    expect(screen.getByTestId('chart-type-select')).toBeInTheDocument();
+  });
+
+  it('should display conditional format section', () => {
+    render(
+      <ReportConfigPanel
+        open={true}
+        onClose={vi.fn()}
+        config={defaultConfig}
+        onSave={vi.fn()}
+        availableFields={mockAvailableFields}
+      />,
+    );
+    // Expand collapsed section
+    fireEvent.click(screen.getByTestId('section-header-conditionalFormatting'));
+    expect(screen.getByTestId('conditional-format-rules')).toBeInTheDocument();
+    expect(screen.getByTestId('cf-add-rule')).toBeInTheDocument();
+  });
+
+  it('should add and remove conditional format rules', () => {
+    const onFieldChange = vi.fn();
+    render(
+      <ReportConfigPanel
+        open={true}
+        onClose={vi.fn()}
+        config={defaultConfig}
+        onSave={vi.fn()}
+        onFieldChange={onFieldChange}
+        availableFields={mockAvailableFields}
+      />,
+    );
+    // Expand section
+    fireEvent.click(screen.getByTestId('section-header-conditionalFormatting'));
+    // Add a rule
+    fireEvent.click(screen.getByTestId('cf-add-rule'));
+    expect(onFieldChange).toHaveBeenCalledWith(
+      'conditionalFormatting',
+      expect.arrayContaining([
+        expect.objectContaining({ field: 'name', operator: 'equals' }),
+      ]),
+    );
+  });
+
+  it('should display sections manager', () => {
+    render(
+      <ReportConfigPanel
+        open={true}
+        onClose={vi.fn()}
+        config={defaultConfig}
+        onSave={vi.fn()}
+        availableFields={mockAvailableFields}
+      />,
+    );
+    // Expand collapsed sections section
+    fireEvent.click(screen.getByTestId('section-header-sections'));
+    expect(screen.getByTestId('section-manager')).toBeInTheDocument();
+    // Should have add buttons for each section type
+    expect(screen.getByTestId('section-add-header')).toBeInTheDocument();
+    expect(screen.getByTestId('section-add-table')).toBeInTheDocument();
+    expect(screen.getByTestId('section-add-chart')).toBeInTheDocument();
+  });
+
+  it('should add and remove report sections', () => {
+    const onFieldChange = vi.fn();
+    render(
+      <ReportConfigPanel
+        open={true}
+        onClose={vi.fn()}
+        config={defaultConfig}
+        onSave={vi.fn()}
+        onFieldChange={onFieldChange}
+        availableFields={mockAvailableFields}
+      />,
+    );
+    fireEvent.click(screen.getByTestId('section-header-sections'));
+    // Add a header section
+    fireEvent.click(screen.getByTestId('section-add-header'));
+    expect(onFieldChange).toHaveBeenCalledWith(
+      'sections',
+      expect.arrayContaining([
+        expect.objectContaining({ type: 'header', title: 'New header' }),
+      ]),
+    );
+  });
 });

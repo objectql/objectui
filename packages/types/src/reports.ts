@@ -354,6 +354,26 @@ export interface ReportSchema extends BaseSchema {
    * Report data
    */
   data?: any[];
+
+  /**
+   * Conditional formatting rules
+   */
+  conditionalFormatting?: Array<{
+    field: string;
+    operator: 'equals' | 'not_equals' | 'contains' | 'greater_than' | 'less_than';
+    value: any;
+    backgroundColor?: string;
+    textColor?: string;
+  }>;
+
+  /**
+   * Chart configuration (visual chart editor output)
+   */
+  chartConfig?: {
+    chartType?: string;
+    xAxisField?: string;
+    yAxisFields?: string[];
+  };
 }
 
 /**

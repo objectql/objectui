@@ -103,6 +103,33 @@ export const ReportViewer: React.FC<ReportViewerProps> = ({ schema, onRefresh })
     }
   };
 
+  // Evaluate conditional formatting rules for a cell
+  const getCellStyle = (fieldName: string, value: any): React.CSSProperties | undefined => {
+    const rules = report?.conditionalFormatting;
+    if (!rules || !Array.isArray(rules)) return undefined;
+
+    for (const rule of rules) {
+      if (rule.field !== fieldName) continue;
+      const strValue = String(value ?? '');
+      const ruleValue = String(rule.value ?? '');
+      let match = false;
+      switch (rule.operator) {
+        case 'equals': match = strValue === ruleValue; break;
+        case 'not_equals': match = strValue !== ruleValue; break;
+        case 'contains': match = strValue.includes(ruleValue); break;
+        case 'greater_than': match = Number(value) > Number(rule.value); break;
+        case 'less_than': match = Number(value) < Number(rule.value); break;
+      }
+      if (match) {
+        const style: React.CSSProperties = {};
+        if (rule.backgroundColor) style.backgroundColor = rule.backgroundColor;
+        if (rule.textColor) style.color = rule.textColor;
+        return style;
+      }
+    }
+    return undefined;
+  };
+
   const renderCellValue = (value: any, field: ReportField): React.ReactNode => {
     if (value == null || value === '') return '';
 
@@ -321,7 +348,7 @@ export const ReportViewer: React.FC<ReportViewerProps> = ({ schema, onRefresh })
                                 {group.rows.map((row: Record<string, any>, rowIdx: number) => (
                                   <tr key={rowIdx} className="border-t hover:bg-muted/50 even:bg-muted/20">
                                     {section.columns?.map((col: ReportField, colIdx: number) => (
-                                      <td key={colIdx} className={`px-4 py-2 ${col.type === 'number' ? 'text-right tabular-nums' : ''}`}>
+                                      <td key={colIdx} className={`px-4 py-2 ${col.type === 'number' ? 'text-right tabular-nums' : ''}`} style={getCellStyle(col.name, row[col.name])}>
                                         {renderCellValue(row[col.name], col)}
                                       </td>
                                     ))}
@@ -333,7 +360,7 @@ export const ReportViewer: React.FC<ReportViewerProps> = ({ schema, onRefresh })
                           return data?.map((row: Record<string, any>, rowIdx: number) => (
                             <tr key={rowIdx} className="border-t hover:bg-muted/50 even:bg-muted/20">
                               {section.columns?.map((col: ReportField, colIdx: number) => (
-                                <td key={colIdx} className={`px-4 py-2 ${col.type === 'number' ? 'text-right tabular-nums' : ''}`}>
+                                <td key={colIdx} className={`px-4 py-2 ${col.type === 'number' ? 'text-right tabular-nums' : ''}`} style={getCellStyle(col.name, row[col.name])}>
                                   {renderCellValue(row[col.name], col)}
                                 </td>
                               ))}
@@ -379,7 +406,7 @@ export const ReportViewer: React.FC<ReportViewerProps> = ({ schema, onRefresh })
                   {data.map((row: Record<string, any>, rowIdx: number) => (
                     <tr key={rowIdx} className="border-t hover:bg-muted/50 even:bg-muted/20">
                       {report.fields?.map((field: ReportField, colIdx: number) => (
-                        <td key={colIdx} className={`px-4 py-2 ${field.type === 'number' ? 'text-right tabular-nums' : ''}`}>
+                        <td key={colIdx} className={`px-4 py-2 ${field.type === 'number' ? 'text-right tabular-nums' : ''}`} style={getCellStyle(field.name, row[field.name])}>
                           {renderCellValue(row[field.name], field)}
                         </td>
                       ))}

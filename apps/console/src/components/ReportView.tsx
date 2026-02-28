@@ -301,9 +301,22 @@ export function ReportView({ dataSource }: { dataSource?: DataSource }) {
           colorMap: f.colorMap,
         })),
       });
+      // Generate chart section from chartConfig if configured
+      if (mapped.chartConfig?.chartType) {
+        sections.push({
+          type: 'chart',
+          title: 'Chart',
+          chart: {
+            type: 'chart',
+            chartType: mapped.chartConfig.chartType,
+            xAxisField: mapped.chartConfig.xAxisField,
+            yAxisFields: mapped.chartConfig.yAxisFields,
+          },
+        });
+      }
       // Preserve any user-defined chart sections from the original schema
       if (Array.isArray(src.sections)) {
-        const chartSections = src.sections.filter((s: any) => s.type === 'chart');
+        const chartSections = src.sections.filter((s: any) => s.type === 'chart' && !mapped.chartConfig?.chartType);
         sections.push(...chartSections);
       }
       mapped.sections = sections;

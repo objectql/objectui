@@ -372,6 +372,48 @@ describe('ReportViewer', () => {
     const groupHeaders = container.querySelectorAll('.bg-muted\\/60');
     expect(groupHeaders).toHaveLength(0);
   });
+
+  it('should apply conditional formatting styles to table cells', () => {
+    const schema: ReportViewerSchema = {
+      type: 'report-viewer',
+      report: {
+        type: 'report',
+        title: 'CF Report',
+        fields: [
+          { name: 'name', label: 'Name' },
+          { name: 'status', label: 'Status' },
+        ],
+        conditionalFormatting: [
+          { field: 'status', operator: 'equals', value: 'Won', backgroundColor: '#bbf7d0' },
+        ] as any,
+        sections: [
+          {
+            type: 'table',
+            title: 'Details',
+            columns: [
+              { name: 'name', label: 'Name' },
+              { name: 'status', label: 'Status' },
+            ],
+          },
+        ],
+      },
+      data: [
+        { name: 'Deal A', status: 'Won' },
+        { name: 'Deal B', status: 'Lost' },
+      ],
+    };
+
+    const { container } = render(<ReportViewer schema={schema} />);
+    // The cell with 'Won' should have a green background
+    const cells = container.querySelectorAll('td');
+    const wonCell = Array.from(cells).find((td) => td.textContent === 'Won');
+    expect(wonCell).toBeDefined();
+    expect(wonCell?.style.backgroundColor).toBe('rgb(187, 247, 208)');
+
+    // The cell with 'Lost' should NOT have background styling
+    const lostCell = Array.from(cells).find((td) => td.textContent === 'Lost');
+    expect(lostCell?.style.backgroundColor).toBe('');
+  });
 });
 
 describe('formatValue', () => {
