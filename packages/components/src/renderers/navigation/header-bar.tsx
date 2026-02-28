@@ -9,6 +9,7 @@
 import React from 'react';
 import { ComponentRegistry } from '@object-ui/core';
 import type { HeaderBarSchema } from '@object-ui/types';
+import { resolveI18nLabel } from '@object-ui/react';
 import {
   SidebarTrigger,
   Separator,
@@ -31,9 +32,9 @@ ComponentRegistry.register('header-bar',
             <React.Fragment key={idx}>
               <BreadcrumbItem>
                 {idx === schema.crumbs.length - 1 ? (
-                   <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                   <BreadcrumbPage>{resolveI18nLabel(crumb.label) ?? ''}</BreadcrumbPage>
                 ) : (
-                   <BreadcrumbLink href={crumb.href || '#'}>{crumb.label}</BreadcrumbLink>
+                   <BreadcrumbLink href={crumb.href || '#'}>{resolveI18nLabel(crumb.label) ?? ''}</BreadcrumbLink>
                 )}
               </BreadcrumbItem>
               {idx < schema.crumbs.length - 1 && <BreadcrumbSeparator />}

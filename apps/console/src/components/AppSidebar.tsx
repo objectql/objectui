@@ -393,7 +393,7 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
            {/* Navigation Search */}
            <SidebarGroup className="py-0">
              <SidebarGroupContent className="relative">
-               <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none opacity-50" />
+               <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none opacity-70" />
                <SidebarInput
                  placeholder="Search navigation..."
                  value={navSearchQuery}
@@ -415,6 +415,38 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
              enableReorder
              onReorder={handleReorder}
            />
+
+           {/* Recent Items (elevated position for quick access) */}
+           {recentItems.length > 0 && (
+             <SidebarGroup>
+               <SidebarGroupLabel
+                 className="flex items-center gap-1.5 cursor-pointer select-none"
+                 onClick={() => setRecentExpanded(prev => !prev)}
+               >
+                 <ChevronRight className={`h-3 w-3 transition-transform duration-150 ${recentExpanded ? 'rotate-90' : ''}`} />
+                 <Clock className="h-3.5 w-3.5" />
+                 Recent
+               </SidebarGroupLabel>
+               {recentExpanded && (
+               <SidebarGroupContent>
+                 <SidebarMenu>
+                   {recentItems.slice(0, 5).map(item => (
+                     <SidebarMenuItem key={item.id}>
+                       <SidebarMenuButton asChild tooltip={item.label}>
+                         <Link to={item.href}>
+                           <span className="text-muted-foreground">
+                             {item.type === 'dashboard' ? '📊' : item.type === 'report' ? '📈' : '📄'}
+                           </span>
+                           <span className="truncate">{item.label}</span>
+                         </Link>
+                       </SidebarMenuButton>
+                     </SidebarMenuItem>
+                   ))}
+                 </SidebarMenu>
+               </SidebarGroupContent>
+               )}
+             </SidebarGroup>
+           )}
 
            {/* Record Favorites */}
            {favorites.length > 0 && (
@@ -446,38 +478,6 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
                    ))}
                  </SidebarMenu>
                </SidebarGroupContent>
-             </SidebarGroup>
-           )}
-
-           {/* Recent Items (default collapsed) */}
-           {recentItems.length > 0 && (
-             <SidebarGroup>
-               <SidebarGroupLabel
-                 className="flex items-center gap-1.5 cursor-pointer select-none"
-                 onClick={() => setRecentExpanded(prev => !prev)}
-               >
-                 <ChevronRight className={`h-3 w-3 transition-transform duration-150 ${recentExpanded ? 'rotate-90' : ''}`} />
-                 <Clock className="h-3.5 w-3.5" />
-                 Recent
-               </SidebarGroupLabel>
-               {recentExpanded && (
-               <SidebarGroupContent>
-                 <SidebarMenu>
-                   {recentItems.slice(0, 5).map(item => (
-                     <SidebarMenuItem key={item.id}>
-                       <SidebarMenuButton asChild tooltip={item.label}>
-                         <Link to={item.href}>
-                           <span className="text-muted-foreground">
-                             {item.type === 'dashboard' ? '📊' : item.type === 'report' ? '📈' : '📄'}
-                           </span>
-                           <span className="truncate">{item.label}</span>
-                         </Link>
-                       </SidebarMenuButton>
-                     </SidebarMenuItem>
-                   ))}
-                 </SidebarMenu>
-               </SidebarGroupContent>
-               )}
              </SidebarGroup>
            )}
            </>

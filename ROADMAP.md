@@ -1,6 +1,6 @@
 # ObjectUI Development Roadmap
 
-> **Last Updated:** February 26, 2026
+> **Last Updated:** February 27, 2026
 > **Current Version:** v0.5.x
 > **Spec Version:** @objectstack/spec v3.0.10
 > **Client Version:** @objectstack/client v3.0.10
@@ -971,6 +971,38 @@ The `FlowDesigner` is a canvas-based flow editor that bridges the gap between th
 - [x] 136 ViewConfigPanel tests updated for defaultCollapsed sections (expand before access)
 - [x] 411 ListView + ViewTabBar tests passing (255 plugin-list tests including 9 new toolbar/collapse tests)
 - [x] 11 AppSidebar tests passing
+
+### P2.9 Platform UI Navigation & Table Optimization ✅
+
+> Platform-level sidebar, navigation, and grid/table UX improvements (Issue #XX).
+
+**Sidebar Navigation:**
+- [x] Pin icons show-on-hover: `SidebarMenuAction` in `NavigationRenderer` now uses `showOnHover={!item.pinned}` — unpinned items show pin icon only on hover; pinned items always show unpin icon. Applied to both `action` and leaf navigation item types.
+- [x] Search placeholder contrast: Search icon in AppSidebar improved from `opacity-50` → `opacity-70` for better readability.
+- [x] Recent section position: Recent items section moved above Record Favorites in AppSidebar for quicker access to recently visited items.
+- [x] Favorites section: Already hides automatically when no pinned items exist (verified).
+- [x] Resizable sidebar width: `SidebarRail` enhanced with pointer-event drag-to-resize (min 200px, max 480px). Width persisted to `localStorage`. Click toggles sidebar, double-click resets to default. `useSidebar()` hook now exposes `sidebarWidth` and `setSidebarWidth`.
+
+**Grid/Table Field Inference:**
+- [x] Percent field auto-inference: `inferColumnType()` in ObjectGrid now detects fields with names containing `probability`, `percent`, `percentage`, `completion`, `progress`, `rate` and assigns `PercentCellRenderer` with progress bar display.
+- [x] ISO datetime fallback: ObjectGrid `inferColumnType()` now detects ISO 8601 datetime strings (`YYYY-MM-DDTHH:MM`) in data values as a catch-all for fields whose names don't match date/datetime patterns.
+- [x] Date/datetime human-friendly display: `DateCellRenderer` (relative format) and `DateTimeCellRenderer` (split date/time) already registered in field registry for all grid/table views.
+- [x] Currency/status/boolean renderers: Already implemented with proper formatting (currency symbol, Badge colors, checkbox display).
+
+**Header & Breadcrumb i18n:**
+- [x] AppHeader breadcrumb labels (`Dashboards`, `Pages`, `Reports`, `System`) now use `t()` translation via `useObjectTranslation`.
+- [x] `console.breadcrumb` i18n keys added to all 11 locales (en, zh, ja, ko, de, fr, es, pt, ru, ar).
+- [x] `header-bar` renderer: `resolveCrumbLabel()` handles both string and `I18nLabel` objects for breadcrumb labels.
+- [x] `breadcrumb` renderer: `resolveItemLabel()` handles both string and `I18nLabel` objects for item labels.
+
+**Tests:**
+- [x] 46 NavigationRenderer tests passing (pin/favorites/search/reorder)
+- [x] 75 field cell renderer tests passing (date/datetime/select/boolean/percent)
+- [x] 263 ObjectGrid tests passing (inference, rendering, accessibility)
+- [x] 28 DataTable tests passing
+- [x] 78 Layout tests passing (NavigationRenderer + AppSchemaRenderer)
+- [x] 11 AppSidebar tests passing
+- [x] 32 i18n tests passing
 
 ### P2.5 PWA & Offline (Real Sync)
 

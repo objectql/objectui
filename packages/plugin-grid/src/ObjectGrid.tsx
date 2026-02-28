@@ -449,6 +449,17 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
         return 'date';
       }
 
+      // Infer percent fields from name patterns
+      const percentFields = ['probability', 'percent', 'percentage', 'completion', 'progress', 'rate'];
+      if (percentFields.some(f => fieldLower.includes(f))) {
+        if (data.length > 0) {
+          const sample = data.find(row => row[col.field] != null)?.[col.field];
+          if (typeof sample === 'number') {
+            return 'percent';
+          }
+        }
+      }
+
       // Infer select/badge fields (status, priority, category, etc.)
       const selectFields = ['status', 'priority', 'category', 'stage', 'type', 'severity', 'level'];
       if (selectFields.some(f => fieldLower.includes(f))) {
@@ -474,6 +485,14 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
           if (typeof sample === 'number') {
             return 'currency';
           }
+        }
+      }
+
+      // Fallback: detect ISO date strings in data values (catch-all for unmatched field names)
+      if (data.length > 0) {
+        const sample = data.find(row => row[col.field] != null)?.[col.field];
+        if (typeof sample === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(sample)) {
+          return 'datetime';
         }
       }
 
