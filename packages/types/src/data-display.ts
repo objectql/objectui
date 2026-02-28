@@ -389,6 +389,12 @@ export interface DataTableSchema extends BaseSchema {
    */
   editable?: boolean;
   /**
+   * Enable single-click editing mode
+   * When true with editable, clicking a cell enters edit mode (instead of double-click)
+   * @default false
+   */
+  singleClickEdit?: boolean;
+  /**
    * Cell value change handler
    * Called when a cell value is edited
    */

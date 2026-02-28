@@ -147,6 +147,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
     resizableColumns = true,
     reorderableColumns = true,
     editable = false,
+    singleClickEdit = false,
     rowClassName,
     rowStyle,
     className,
@@ -745,7 +746,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                         {col.headerIcon && (
                           <span className="text-muted-foreground flex-shrink-0">{col.headerIcon}</span>
                         )}
-                        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">{col.header}</span>
+                        <span className="text-xs font-normal text-muted-foreground">{col.header}</span>
                         {sortable && col.sortable !== false && getSortIcon(col.accessorKey)}
                       </div>
                       {resizableColumns && col.resizable !== false && (
@@ -766,18 +767,33 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
           </TableHeader>
           <TableBody>
             {paginatedData.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length + (selectable ? 1 : 0) + (showRowNumbers ? 1 : 0) + (rowActions ? 1 : 0)}
-                  className="h-96 text-center text-muted-foreground"
-                >
-                  <div className="flex flex-col items-center justify-center gap-2">
-                    <Search className="h-8 w-8 text-muted-foreground/50" />
-                    <p>No results found</p>
-                    <p className="text-xs text-muted-foreground/50">Try adjusting your filters or search query.</p>
-                  </div>
-                </TableCell>
-              </TableRow>
+              <>
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length + (selectable ? 1 : 0) + (showRowNumbers ? 1 : 0) + (rowActions ? 1 : 0)}
+                    className="h-24 text-center text-muted-foreground"
+                  >
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <Search className="h-8 w-8 text-muted-foreground/50" />
+                      <p>No results found</p>
+                      <p className="text-xs text-muted-foreground/50">Try adjusting your filters or search query.</p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+                {/* Ghost placeholder rows */}
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <TableRow key={`ghost-${i}`} className="hover:bg-transparent opacity-[0.15] pointer-events-none" data-testid="ghost-row">
+                    {selectable && <TableCell className="p-3"><div className="h-4 w-4 rounded border border-muted-foreground/30" /></TableCell>}
+                    {showRowNumbers && <TableCell className="text-center p-3"><div className="h-3 w-6 mx-auto rounded bg-muted-foreground/30" /></TableCell>}
+                    {columns.map((col, ci) => (
+                      <TableCell key={ci} className="p-3">
+                        <div className={cn("h-3 rounded bg-muted-foreground/30", ci === 0 ? "w-3/4" : ci === columns.length - 1 ? "w-1/3" : "w-1/2")} />
+                      </TableCell>
+                    ))}
+                    {rowActions && <TableCell className="p-3"><div className="h-3 w-8 rounded bg-muted-foreground/30" /></TableCell>}
+                  </TableRow>
+                ))}
+              </>
             ) : (
               <>
                 {paginatedData.map((row, rowIndex) => {
@@ -833,7 +849,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                           ) : schema.onRowClick && (
                             <button
                               type="button"
-                              className="absolute inset-0 hidden group-hover/row:flex items-center justify-center text-muted-foreground hover:text-primary"
+                              className="absolute inset-0 hidden group-hover/row:flex items-center justify-center gap-0.5 text-xs font-medium text-primary hover:text-primary/80"
                               data-testid="row-expand-button"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -841,7 +857,8 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                               }}
                               title="Open record"
                             >
-                              <Expand className="h-3.5 w-3.5" />
+                              <span>Open</span>
+                              <ChevronRight className="h-3 w-3" />
                             </button>
                           )}
                         </TableCell>
@@ -882,7 +899,8 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                               maxWidth: columnWidth,
                               ...(isFrozen && { left: frozenOffset }),
                             }}
-                            onDoubleClick={() => isEditable && startEdit(rowIndex, col.accessorKey)}
+                            onDoubleClick={() => isEditable && !singleClickEdit && startEdit(rowIndex, col.accessorKey)}
+                            onClick={() => isEditable && singleClickEdit && startEdit(rowIndex, col.accessorKey)}
                             onKeyDown={(e) => handleCellKeyDown(e, rowIndex, col.accessorKey)}
                             tabIndex={0}
                           >
