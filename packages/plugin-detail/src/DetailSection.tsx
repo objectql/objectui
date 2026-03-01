@@ -153,9 +153,20 @@ export const DetailSection: React.FC<DetailSectionProps> = ({
     );
   };
 
+  // Filter out empty fields when hideEmpty is set
+  const visibleFields = section.hideEmpty
+    ? section.fields.filter((field) => {
+        const value = data?.[field.name] ?? field.value;
+        return value !== null && value !== undefined && value !== '';
+      })
+    : section.fields;
+
+  // Hide entire section when all fields are empty
+  if (visibleFields.length === 0) return null;
+
   // Apply auto-layout: infer columns and auto-span wide fields
   const { fields: layoutFields, columns: effectiveColumns } = applyDetailAutoLayout(
-    section.fields,
+    visibleFields,
     section.columns
   );
 
@@ -164,9 +175,9 @@ export const DetailSection: React.FC<DetailSectionProps> = ({
       className={cn(
         "grid gap-3 sm:gap-4",
         effectiveColumns === 1 ? "grid-cols-1" :
-        effectiveColumns === 2 ? "grid-cols-1 sm:grid-cols-2" :
-        effectiveColumns === 3 ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3" :
-        "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
+        effectiveColumns === 2 ? "grid-cols-1 md:grid-cols-2" :
+        effectiveColumns === 3 ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" :
+        "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
       )}
     >
       {layoutFields.map(renderField)}

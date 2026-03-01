@@ -9,6 +9,7 @@
 import * as React from 'react';
 import { 
   cn, 
+  Badge,
   Button, 
   Skeleton,
   DropdownMenu,
@@ -248,8 +249,19 @@ export const DetailView: React.FC<DetailViewProps> = ({
               </Tooltip>
             )}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-bold truncate">{schema.title || 'Details'}</h1>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-xl sm:text-2xl font-bold truncate">
+                  {(schema.primaryField && data?.[schema.primaryField]) || schema.title || 'Details'}
+                </h1>
+                {schema.summaryFields?.map((fieldName) => {
+                  const val = data?.[fieldName];
+                  if (val === null || val === undefined || val === '') return null;
+                  return (
+                    <Badge key={fieldName} variant="secondary" className="text-xs">
+                      {String(val)}
+                    </Badge>
+                  );
+                })}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button 

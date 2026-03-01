@@ -115,7 +115,7 @@ describe('DetailSection', () => {
     // The grid container should have the sm:grid-cols-2 class
     const grid = container.querySelector('.grid');
     expect(grid).toBeTruthy();
-    expect(grid!.className).toContain('sm:grid-cols-2');
+    expect(grid!.className).toContain('md:grid-cols-2');
   });
 
   it('should auto-infer 3 columns when columns is not set and 11+ fields exist', () => {
@@ -132,7 +132,7 @@ describe('DetailSection', () => {
     );
     const grid = container.querySelector('.grid');
     expect(grid).toBeTruthy();
-    expect(grid!.className).toContain('md:grid-cols-3');
+    expect(grid!.className).toContain('lg:grid-cols-3');
   });
 
   it('should keep 1 column when columns is not set and ≤3 fields exist', () => {
@@ -169,5 +169,87 @@ describe('DetailSection', () => {
     expect(grid).toBeTruthy();
     expect(grid!.className).toContain('grid-cols-1');
     expect(grid!.className).not.toContain('sm:grid-cols-2');
+  });
+
+  it('should hide empty fields when hideEmpty is true', () => {
+    const section = {
+      title: 'Info',
+      hideEmpty: true,
+      fields: [
+        { name: 'name', label: 'Name', type: 'text' },
+        { name: 'email', label: 'Email', type: 'text' },
+        { name: 'phone', label: 'Phone', type: 'text' },
+      ],
+      columns: 1,
+    };
+    render(<DetailSection section={section} data={{ name: 'Alice', email: null, phone: '' }} />);
+    expect(screen.getByText('Alice')).toBeInTheDocument();
+    expect(screen.queryByText('Email')).not.toBeInTheDocument();
+    expect(screen.queryByText('Phone')).not.toBeInTheDocument();
+  });
+
+  it('should hide entire section when all fields are empty and hideEmpty is true', () => {
+    const section = {
+      title: 'Empty Section',
+      hideEmpty: true,
+      fields: [
+        { name: 'a', label: 'A', type: 'text' },
+        { name: 'b', label: 'B', type: 'text' },
+      ],
+      columns: 1,
+    };
+    const { container } = render(<DetailSection section={section} data={{ a: null, b: undefined }} />);
+    // Section should be hidden entirely
+    expect(container.innerHTML).toBe('');
+  });
+
+  it('should still show empty fields when hideEmpty is not set', () => {
+    const section = {
+      title: 'Info',
+      fields: [
+        { name: 'name', label: 'Name', type: 'text' },
+        { name: 'missing', label: 'Missing', type: 'text' },
+      ],
+      columns: 1,
+    };
+    render(<DetailSection section={section} data={{ name: 'Alice' }} />);
+    expect(screen.getByText('Alice')).toBeInTheDocument();
+    expect(screen.getByText('-')).toBeInTheDocument();
+  });
+
+  it('should use md: breakpoint for 2-column layouts', () => {
+    const section = {
+      title: 'Responsive',
+      fields: Array.from({ length: 6 }, (_, i) => ({
+        name: `field_${i}`,
+        label: `Field ${i}`,
+        type: 'text',
+      })),
+    };
+    const { container } = render(
+      <DetailSection section={section} data={{}} />
+    );
+    const grid = container.querySelector('.grid');
+    expect(grid).toBeTruthy();
+    expect(grid!.className).toContain('md:grid-cols-2');
+    expect(grid!.className).not.toContain('sm:grid-cols-2');
+  });
+
+  it('should use lg: breakpoint for 3-column layouts', () => {
+    const section = {
+      title: 'Responsive',
+      fields: Array.from({ length: 12 }, (_, i) => ({
+        name: `field_${i}`,
+        label: `Field ${i}`,
+        type: 'text',
+      })),
+    };
+    const { container } = render(
+      <DetailSection section={section} data={{}} />
+    );
+    const grid = container.querySelector('.grid');
+    expect(grid).toBeTruthy();
+    expect(grid!.className).toContain('lg:grid-cols-3');
+    expect(grid!.className).not.toContain('md:grid-cols-3');
   });
 });

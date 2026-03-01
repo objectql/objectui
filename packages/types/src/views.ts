@@ -136,6 +136,11 @@ export interface DetailViewSection {
    * @example 'muted', 'primary/10'
    */
   headerColor?: string;
+  /**
+   * When true, hide fields whose value is null, undefined, or empty string.
+   * If all fields are hidden, the entire section is hidden.
+   */
+  hideEmpty?: boolean;
 }
 
 /**
@@ -395,6 +400,15 @@ export interface DetailViewSchema extends BaseSchema {
    * Data to display (if not fetching from API)
    */
   data?: any;
+  /**
+   * Primary field name whose value is displayed as the record title in the header.
+   * Falls back to `title` when not set or when the field value is empty.
+   */
+  primaryField?: string;
+  /**
+   * Field names whose values are rendered as summary Badges next to the header title.
+   */
+  summaryFields?: string[];
   /**
    * Layout mode
    */
