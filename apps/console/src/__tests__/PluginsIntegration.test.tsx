@@ -70,10 +70,11 @@ describe('Plugins Integration Test', () => {
         }
     };
 
+    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
     const mockData = [
-        { id: '1', name: 'Task 1', status: 'new', due_date: '2026-02-15T12:00:00' },
-        { id: '2', name: 'Task 2', status: 'working', due_date: '2026-02-16T12:00:00' },
-        { id: '3', name: 'Task 3', status: 'done', due_date: '2026-02-17T12:00:00' }
+        { id: '1', name: 'Task 1', status: 'new', due_date: new Date(Date.now() + ONE_DAY_MS).toISOString() },
+        { id: '2', name: 'Task 2', status: 'working', due_date: new Date(Date.now() + 2 * ONE_DAY_MS).toISOString() },
+        { id: '3', name: 'Task 3', status: 'done', due_date: new Date(Date.now() + 3 * ONE_DAY_MS).toISOString() }
     ];
 
     const mockDataSource = {

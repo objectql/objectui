@@ -186,7 +186,7 @@ describe('ReportView — Inline Config Panel', () => {
 
     // Config panel should still be open (not reset)
     expect(screen.getByTestId('config-panel-close')).toBeInTheDocument();
-    // The heading should still show the report title from the viewer
-    expect(screen.getAllByText('Sales Report').length).toBeGreaterThanOrEqual(1);
+    // The heading should reflect the live preview title update
+    expect(screen.getAllByText('Live Preview Title').length).toBeGreaterThanOrEqual(1);
   });
 });
