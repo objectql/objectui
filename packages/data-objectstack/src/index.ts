@@ -277,15 +277,15 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
     // because data.get() (GET) does not support expand through the client SDK.
     if (params?.$expand && params.$expand.length > 0) {
       try {
-        const expand: Record<string, object> = {};
+        const expand: Record<string, { object: string }> = {};
         for (const field of params.$expand) {
-          expand[field] = {};
+          expand[field] = { object: field };
         }
         const result: unknown = await this.client.data.query<T>(resource, {
-          filters: [['_id', '=', String(id)]],
+          where: { _id: String(id) },
           expand,
           limit: 1,
-        });
+        } as any);
         const resultObj = result as { records?: T[] };
         const records = resultObj.records || [];
         return records[0] || null;
@@ -576,9 +576,9 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
 
     // Expand — build expand map for query AST
     if (params.$expand && params.$expand.length > 0) {
-      const expand: Record<string, object> = {};
+      const expand: Record<string, { object: string }> = {};
       for (const field of params.$expand) {
-        expand[field] = {};
+        expand[field] = { object: field };
       }
       query.expand = expand;
     }

@@ -122,9 +122,10 @@ export const DetailView: React.FC<DetailViewProps> = ({
             return;
           }
           // Fallback: try alternate ID format for backward compatibility
-          const altId = resourceId.startsWith(prefix)
-            ? resourceId.slice(prefix.length)   // strip prefix
-            : `${prefix}${resourceId}`;          // prepend prefix
+          const resIdStr = String(resourceId);
+          const altId = resIdStr.startsWith(prefix)
+            ? resIdStr.slice(prefix.length)   // strip prefix
+            : `${prefix}${resIdStr}`;          // prepend prefix
           return dataSource.findOne(objectName, altId, params).then((fallbackResult) => {
             if (isMounted) {
               setData(fallbackResult);

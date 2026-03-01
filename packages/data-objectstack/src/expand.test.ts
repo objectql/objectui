@@ -56,8 +56,8 @@ describe('ObjectStackAdapter $expand support', () => {
 
       expect(mockClient.data.query).toHaveBeenCalledWith('order', expect.objectContaining({
         expand: {
-          customer: {},
-          account: {},
+          customer: { object: 'customer' },
+          account: { object: 'account' },
         },
         limit: 10,
       }));
@@ -82,7 +82,7 @@ describe('ObjectStackAdapter $expand support', () => {
         sort: ['name'],
         limit: 50,
         offset: 10,
-        expand: { customer: {} },
+        expand: { customer: { object: 'customer' } },
       }));
     });
 
@@ -117,10 +117,10 @@ describe('ObjectStackAdapter $expand support', () => {
       });
 
       expect(mockClient.data.query).toHaveBeenCalledWith('order', expect.objectContaining({
-        filters: [['_id', '=', 'order-1']],
+        where: { _id: 'order-1' },
         expand: {
-          customer: {},
-          account: {},
+          customer: { object: 'customer' },
+          account: { object: 'account' },
         },
         limit: 1,
       }));
