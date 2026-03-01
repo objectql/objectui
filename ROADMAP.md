@@ -836,6 +836,16 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] Verified: Console `ObjectView` does NOT override `rowHeight`, `density`, or `singleClickEdit`
 - [x] Engine defaults (`compact` rows, `singleClickEdit: true`, browser locale dates) flow through correctly
 
+### P1.15 Convention-based Auto-resolution for Object & Field Label i18n ✅
+
+- [x] `useObjectLabel` hook in `@object-ui/i18n` — convention-based resolver (`objectLabel`, `objectDescription`, `fieldLabel`)
+- [x] Wired into Console `ObjectView` (breadcrumb, page title, description, drawer title)
+- [x] Wired into `ObjectGrid` column headers (ListColumn, string[], auto-generated paths)
+- [x] Wired into `NavigationRenderer` via optional `resolveObjectLabel` prop
+- [x] Wired into Console `AppSidebar` to pass resolver to NavigationRenderer
+- [x] 10 unit tests for `useObjectLabel` hook
+- [x] Zero changes to object metadata files or translation files
+
 ---
 
 ## 🧩 P2 — Polish & Advanced Features
