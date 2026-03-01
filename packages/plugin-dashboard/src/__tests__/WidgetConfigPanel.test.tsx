@@ -59,7 +59,8 @@ describe('WidgetConfigPanel', () => {
       />,
     );
     expect(screen.getByText('Dashboard')).toBeDefined();
-    expect(screen.getByText('Widget')).toBeDefined();
+    // Breadcrumb adapts to widget type — 'bar' type shows "Chart"
+    expect(screen.getByText('Chart')).toBeDefined();
   });
 
   it('should display general section with title, description, and type fields', () => {

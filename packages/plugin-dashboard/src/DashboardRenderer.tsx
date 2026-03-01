@@ -113,6 +113,10 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
     }, [designMode, onWidgetClick]);
 
     const renderWidget = (widget: DashboardWidgetSchema, index: number, forceMobileFullWidth?: boolean) => {
+        // Clamp widget span to grid columns to prevent overflow
+        const clampedW = widget.layout?.w ? Math.min(widget.layout.w, columns) : undefined;
+        const clampedLayout = widget.layout ? { ...widget.layout, w: clampedW ?? widget.layout.w } : undefined;
+
         const getComponentSchema = () => {
             if (widget.component) return widget.component;
 
@@ -240,6 +244,16 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                     };
                 }
 
+                // No explicit data provider but widget has object binding
+                if (!widgetData && widget.object) {
+                    return {
+                        type: 'pivot',
+                        ...options,
+                        objectName: widget.object,
+                        data: [],
+                    };
+                }
+
                 return {
                     type: 'pivot',
                     ...options,
@@ -256,6 +270,7 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
         const componentSchema = getComponentSchema();
         const isSelfContained = widget.type === 'metric';
         const resolvedTitle = resolveLabel(widget.title);
+        const resolvedDescription = resolveLabel(widget.description);
         const widgetKey = widget.id || resolvedTitle || `widget-${index}`;
         const isSelected = designMode && selectedWidgetId === widget.id;
 
@@ -285,9 +300,9 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                 <div 
                     key={widgetKey}
                     className={cn("h-full w-full", designMode && "relative", selectionClasses)}
-                    style={!isMobile && widget.layout ? {
-                        gridColumn: `span ${widget.layout.w}`,
-                        gridRow: `span ${widget.layout.h}`
+                    style={!isMobile && clampedLayout ? {
+                        gridColumn: `span ${clampedLayout.w}`,
+                        gridRow: `span ${clampedLayout.h}`
                     }: undefined}
                     {...designModeProps}
                 >
@@ -307,9 +322,9 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                     designMode && "relative",
                     selectionClasses
                 )}
-                style={!isMobile && widget.layout ? {
-                    gridColumn: `span ${widget.layout.w}`,
-                    gridRow: `span ${widget.layout.h}`
+                style={!isMobile && clampedLayout ? {
+                    gridColumn: `span ${clampedLayout.w}`,
+                    gridRow: `span ${clampedLayout.h}`
                 }: undefined}
                 {...designModeProps}
             >
@@ -318,6 +333,9 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                         <CardTitle className="text-sm sm:text-base font-medium tracking-tight truncate" title={resolvedTitle}>
                             {resolvedTitle}
                         </CardTitle>
+                        {resolvedDescription && (
+                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{resolvedDescription}</p>
+                        )}
                     </CardHeader>
                 )}
                 <CardContent className="p-0">

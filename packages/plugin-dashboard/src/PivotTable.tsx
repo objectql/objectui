@@ -172,6 +172,25 @@ export const PivotTable: React.FC<PivotTableProps> = ({ schema, className }) => 
 
   const fmt = (v: number) => formatValue(v, format);
 
+  if (data.length === 0) {
+    return (
+      <div className={cn('overflow-auto', className)}>
+        {title && (
+          <h3 className="text-sm font-semibold mb-2">{title}</h3>
+        )}
+        <div className="flex flex-col items-center justify-center py-8 text-muted-foreground" data-testid="pivot-empty-state">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mb-2 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+          </svg>
+          <p className="text-xs">No data available</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={cn('overflow-auto', className)}>
       {title && (

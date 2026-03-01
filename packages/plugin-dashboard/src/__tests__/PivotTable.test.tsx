@@ -127,10 +127,10 @@ describe('PivotTable', () => {
   it('should handle empty data gracefully', () => {
     const { container } = render(<PivotTable schema={makeSchema({ data: [] })} />);
 
-    // Should render a table with header row but no body rows
-    const tbody = container.querySelector('tbody');
-    expect(tbody).toBeInTheDocument();
-    expect(tbody!.children.length).toBe(0);
+    // Should render a friendly empty state instead of an empty table
+    const emptyState = container.querySelector('[data-testid="pivot-empty-state"]');
+    expect(emptyState).toBeInTheDocument();
+    expect(screen.getByText('No data available')).toBeInTheDocument();
   });
 
   it('should handle missing values in data as 0', () => {
