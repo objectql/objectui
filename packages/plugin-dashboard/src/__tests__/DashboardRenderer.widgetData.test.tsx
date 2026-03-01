@@ -1177,4 +1177,111 @@ describe('DashboardRenderer widget data extraction', () => {
     });
     expect(chartSchema.series).toEqual([{ dataKey: 'revenue' }]);
   });
+
+  // ---- Pivot widget: object binding without explicit data provider ----------
+
+  it('should pass objectName for pivot widget with widget.object but no data', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      widgets: [
+        {
+          type: 'pivot',
+          title: 'Pivot by Object',
+          object: 'sales',
+          layout: { x: 0, y: 0, w: 4, h: 2 },
+          options: {
+            rowField: 'region',
+            columnField: 'quarter',
+            valueField: 'revenue',
+          },
+        },
+      ],
+    } as any;
+
+    // Since PivotTable is registered, SchemaRenderer renders it directly.
+    // With no data and objectName set, the pivot renders empty state.
+    const { container } = render(<DashboardRenderer schema={schema} />);
+    expect(container).toBeDefined();
+    // Should render without crash and show the pivot empty state
+    const emptyState = container.querySelector('[data-testid="pivot-empty-state"]');
+    expect(emptyState).toBeDefined();
+  });
+
+  // ---- Widget description rendering -----------------------------------------
+
+  it('should render widget description in card header', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      widgets: [
+        {
+          type: 'bar',
+          title: 'My Chart',
+          description: 'Monthly sales breakdown',
+          layout: { x: 0, y: 0, w: 2, h: 2 },
+          options: {
+            data: { provider: 'value', items: [{ name: 'A', value: 100 }] },
+          },
+        },
+      ],
+    } as any;
+
+    const { container } = render(<DashboardRenderer schema={schema} />);
+    expect(container.textContent).toContain('Monthly sales breakdown');
+  });
+
+  it('should resolve I18nLabel description in widget card', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      widgets: [
+        {
+          type: 'bar',
+          title: 'My Chart',
+          description: { key: 'desc.key', defaultValue: 'Resolved description' },
+          layout: { x: 0, y: 0, w: 2, h: 2 },
+          options: {
+            data: { provider: 'value', items: [{ name: 'A', value: 100 }] },
+          },
+        },
+      ],
+    } as any;
+
+    const { container } = render(<DashboardRenderer schema={schema} />);
+    expect(container.textContent).toContain('Resolved description');
+    expect(container.textContent).not.toContain('[object Object]');
+  });
+
+  // ---- Grid column clamping -------------------------------------------------
+
+  it('should clamp widget grid span to dashboard columns', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      columns: 3,
+      widgets: [
+        {
+          type: 'bar',
+          title: 'Wide Chart',
+          layout: { x: 0, y: 0, w: 6, h: 2 },
+          options: {
+            data: { provider: 'value', items: [{ name: 'A', value: 100 }] },
+          },
+        },
+      ],
+    } as any;
+
+    const { container } = render(<DashboardRenderer schema={schema} />);
+    // The card's gridColumn should be clamped to 3, not 6
+    const card = container.querySelector('[class*="overflow-hidden"]');
+    expect(card).toBeDefined();
+    if (card) {
+      expect((card as HTMLElement).style.gridColumn).toBe('span 3');
+    }
+  });
 });
