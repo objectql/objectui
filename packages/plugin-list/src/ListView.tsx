@@ -20,7 +20,7 @@ import { useDensityMode } from '@object-ui/react';
 import type { ListViewSchema } from '@object-ui/types';
 import { usePullToRefresh } from '@object-ui/mobile';
 import { evaluatePlainCondition, normalizeQuickFilter, normalizeQuickFilters, buildExpandFields } from '@object-ui/core';
-import { useObjectTranslation } from '@object-ui/i18n';
+import { useObjectTranslation, useObjectLabel } from '@object-ui/i18n';
 
 export interface ListViewProps {
   schema: ListViewSchema;
@@ -256,6 +256,20 @@ function useListViewTranslation() {
   }
 }
 
+/**
+ * Safe wrapper for useObjectLabel that falls back to identity when I18nProvider is unavailable.
+ */
+function useListFieldLabel() {
+  try {
+    const { fieldLabel } = useObjectLabel();
+    return { fieldLabel };
+  } catch {
+    return {
+      fieldLabel: (_objectName: string, _fieldName: string, fallback: string) => fallback,
+    };
+  }
+}
+
 export const ListView: React.FC<ListViewProps> = ({
   schema: propSchema,
   className,
@@ -269,6 +283,7 @@ export const ListView: React.FC<ListViewProps> = ({
 }) => {
   // i18n support for record count and other labels
   const { t } = useListViewTranslation();
+  const { fieldLabel: resolveFieldLabel } = useListFieldLabel();
 
   // Kernel level default: Ensure viewType is always defined (default to 'grid')
   const schema = React.useMemo(() => ({
@@ -418,7 +433,7 @@ export const ListView: React.FC<ListViewProps> = ({
       if (FILTERABLE_FIELD_TYPES.has(field.type) || (field.options && !field.type)) {
         derivedFields.push({
           field: key,
-          label: field.label || key,
+          label: schema.objectName ? resolveFieldLabel(schema.objectName, key, field.label || key) : (field.label || key),
           type: field.type === 'boolean' ? 'boolean' : field.type === 'multi-select' ? 'multi-select' : 'select',
         });
       }
@@ -884,7 +899,7 @@ export const ListView: React.FC<ListViewProps> = ({
            if (typeof f === 'string') return { value: f, label: f, type: 'text' };
            return {
               value: f.name || f.fieldName,
-              label: f.label || f.name,
+              label: schema.objectName ? resolveFieldLabel(schema.objectName, f.name || f.fieldName, f.label || f.name) : (f.label || f.name),
               type: f.type || 'text',
               options: f.options
            };
@@ -892,7 +907,7 @@ export const ListView: React.FC<ListViewProps> = ({
     } else {
         fields = Object.entries(objectDef.fields).map(([key, field]: [string, any]) => ({
             value: key,
-            label: field.label || key,
+            label: schema.objectName ? resolveFieldLabel(schema.objectName, key, field.label || key) : (field.label || key),
             type: field.type || 'text',
             options: field.options
         }));
@@ -975,13 +990,19 @@ export const ListView: React.FC<ListViewProps> = ({
     setShowExport(false);
   }, [data, effectiveFields, resolvedExportOptions, schema.objectName]);
 
-  // All available fields for hide/show
+  // All available fields for hide/show (with i18n)
   const allFields = React.useMemo(() => {
     return (schema.fields || []).map((f: any) => {
-      if (typeof f === 'string') return { name: f, label: f };
-      return { name: f.name || f.fieldName || f.field, label: f.label || f.name || f.field };
+      if (typeof f === 'string') {
+        const label = schema.objectName ? resolveFieldLabel(schema.objectName, f, f) : f;
+        return { name: f, label };
+      }
+      const name = f.name || f.fieldName || f.field;
+      const rawLabel = f.label || f.name || f.field;
+      const label = schema.objectName ? resolveFieldLabel(schema.objectName, name, rawLabel) : rawLabel;
+      return { name, label };
     });
-  }, [schema.fields]);
+  }, [schema.fields, schema.objectName, resolveFieldLabel]);
 
   return (
     <div
