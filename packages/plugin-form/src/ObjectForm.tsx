@@ -15,7 +15,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import type { ObjectFormSchema, FormField, FormSchema, DataSource } from '@object-ui/types';
-import { SchemaRenderer } from '@object-ui/react';
+import { SchemaRenderer, useObjectLabel } from '@object-ui/react';
 import { mapFieldTypeToFormType, buildValidationRules, evaluateCondition, formatFileSize } from '@object-ui/fields';
 import { TabbedForm } from './TabbedForm';
 import { WizardForm } from './WizardForm';
@@ -24,6 +24,20 @@ import { DrawerForm } from './DrawerForm';
 import { ModalForm } from './ModalForm';
 import { FormSection } from './FormSection';
 import { applyAutoLayout } from './autoLayout';
+
+/**
+ * Safe wrapper for useObjectLabel that falls back to identity when I18nProvider is unavailable.
+ */
+function useFormFieldLabel() {
+  try {
+    const { fieldLabel } = useObjectLabel();
+    return { fieldLabel };
+  } catch {
+    return {
+      fieldLabel: (_objectName: string, _fieldName: string, fallback: string) => fallback,
+    };
+  }
+}
 
 export interface ObjectFormProps {
   /**
@@ -202,6 +216,7 @@ const SimpleObjectForm: React.FC<ObjectFormProps> = ({
   schema,
   dataSource,
 }) => {
+  const { fieldLabel } = useFormFieldLabel();
 
   const [objectSchema, setObjectSchema] = useState<any>(null);
   const [formFields, setFormFields] = useState<FormField[]>([]);
@@ -333,7 +348,7 @@ const SimpleObjectForm: React.FC<ObjectFormProps> = ({
         // Auto-generate field from schema
         const formField: FormField = {
           name: name,
-          label: field.label || fieldName,
+          label: fieldLabel(schema.objectName, name, field.label || fieldName),
           type: mapFieldTypeToFormType(field.type),
           required: field.required || false,
           disabled: schema.readOnly || schema.mode === 'view' || field.readonly,

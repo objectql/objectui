@@ -416,6 +416,7 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
              enableReorder
              onReorder={handleReorder}
              resolveObjectLabel={(objectName, fallback) => resolveNavObjectLabel({ name: objectName, label: fallback })}
+             t={t}
            />
 
            {/* Recent Items (elevated position for quick access) */}

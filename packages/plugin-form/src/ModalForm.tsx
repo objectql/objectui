@@ -27,9 +27,23 @@ import {
 } from '@object-ui/components';
 import { Loader2 } from 'lucide-react';
 import { FormSection } from './FormSection';
-import { SchemaRenderer } from '@object-ui/react';
+import { SchemaRenderer, useObjectLabel } from '@object-ui/react';
 import { mapFieldTypeToFormType, buildValidationRules } from '@object-ui/fields';
 import { applyAutoLayout, inferModalSize } from './autoLayout';
+
+/**
+ * Safe wrapper for useObjectLabel that falls back to identity when I18nProvider is unavailable.
+ */
+function useModalFieldLabel() {
+  try {
+    const { fieldLabel } = useObjectLabel();
+    return { fieldLabel };
+  } catch {
+    return {
+      fieldLabel: (_objectName: string, _fieldName: string, fallback: string) => fallback,
+    };
+  }
+}
 
 export interface ModalFormSectionConfig {
   name?: string;
@@ -123,6 +137,7 @@ export const ModalForm: React.FC<ModalFormProps> = ({
   dataSource,
   className,
 }) => {
+  const { fieldLabel } = useModalFieldLabel();
   const [objectSchema, setObjectSchema] = useState<any>(null);
   const [formFields, setFormFields] = useState<FormField[]>([]);
   const [formData, setFormData] = useState<Record<string, any>>({});
@@ -218,7 +233,7 @@ export const ModalForm: React.FC<ModalFormProps> = ({
         const field = objectSchema.fields[fieldName];
         fields.push({
           name: fieldName,
-          label: field.label || fieldName,
+          label: fieldLabel(schema.objectName, fieldName, field.label || fieldName),
           type: mapFieldTypeToFormType(field.type),
           required: field.required || false,
           disabled: schema.readOnly || schema.mode === 'view' || field.readonly,
@@ -269,7 +284,7 @@ export const ModalForm: React.FC<ModalFormProps> = ({
 
       generated.push({
         name,
-        label: field.label || name,
+        label: fieldLabel(schema.objectName, name, field.label || name),
         type: mapFieldTypeToFormType(field.type),
         required: field.required || false,
         disabled: schema.readOnly || schema.mode === 'view' || field.readonly,
