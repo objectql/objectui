@@ -306,7 +306,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
       } catch (err) {
         // Schema fetch failure for inline data is non-fatal; columns will
         // still fall back to heuristic inference.
-        console.warn('[ObjectGrid] Failed to fetch objectSchema for inline data:', err);
+        console.warn(`[ObjectGrid] Failed to fetch objectSchema for inline data (objectName: ${objectName}):`, err);
       }
     };
 
