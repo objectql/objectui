@@ -1,6 +1,6 @@
 # ObjectUI Development Roadmap
 
-> **Last Updated:** February 27, 2026
+> **Last Updated:** March 1, 2026
 > **Current Version:** v0.5.x
 > **Spec Version:** @objectstack/spec v3.0.10
 > **Client Version:** @objectstack/client v3.0.10
@@ -1269,6 +1269,37 @@ All 313 `@object-ui/fields` tests pass.
 **Fix:** Removed the `record-count-footer` from `ObjectView.tsx` since `ListView` already renders the authoritative `record-count-bar`.
 
 **Tests:** Updated 11 tests across `ListView.test.tsx` and `ObjectView.test.tsx`. All 112 ListView tests and 32 ObjectView tests pass.
+
+---
+
+### DetailView Rendering Optimization (March 2026)
+
+> Platform-level DetailView enhancements: auto-grouping from form sections, empty value hiding, smart header with primaryField/summaryFields, responsive breakpoint fix, and activity timeline collapse.
+
+**Types (`@object-ui/types`):**
+- [x] `DetailViewSection.hideEmpty?: boolean` — filter null/undefined/empty string fields; hide empty sections
+- [x] `DetailViewSchema.primaryField?: string` — record-level title from data field
+- [x] `DetailViewSchema.summaryFields?: string[]` — render key attributes as Badge in header
+
+**DetailSection (`@object-ui/plugin-detail`):**
+- [x] `hideEmpty` filtering: fields with null/undefined/empty string values are removed; section returns null when all fields hidden
+- [x] Responsive breakpoint fix: `sm:grid-cols-2` → `md:grid-cols-2`, `sm:grid-cols-2 md:grid-cols-3` → `md:grid-cols-2 lg:grid-cols-3` (correct behavior on iPad+sidebar)
+
+**DetailView Header (`@object-ui/plugin-detail`):**
+- [x] Header renders `data[primaryField]` as h1 title (falls back to `schema.title`)
+- [x] `summaryFields` rendered as `<Badge variant="secondary">` next to title
+
+**RecordActivityTimeline (`@object-ui/plugin-detail`):**
+- [x] `collapseWhenEmpty` prop: suppress "No activity recorded" message when true, showing only comment input
+
+**RecordDetailView (`apps/console`):**
+- [x] Read `objectDef.views?.form?.sections` for section grouping; fallback to flat field list
+- [x] Remove `columns: 2` hardcode — let `autoLayout` infer optimal columns
+- [x] Auto-detect `primaryField` from object fields (name/title)
+
+**Tests:** 94 tests passing (11 new) covering hideEmpty filtering, empty section hiding, primaryField/summaryFields rendering, responsive breakpoints, collapseWhenEmpty, autoLayout undefined-columns regression.
+
+**Storybook:** Added `PrimaryFieldWithBadges` and `HideEmptyFields` stories.
 
 ---
 
