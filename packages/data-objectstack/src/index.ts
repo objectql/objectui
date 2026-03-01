@@ -262,8 +262,7 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
     // lookup/master_detail field expansion.
     if (params?.$expand && params.$expand.length > 0) {
       const queryOptions = this.convertQueryParams(params);
-      const innerQuery: Record<string, unknown> = { ...queryOptions };
-      innerQuery.populate = params.$expand.join(',');
+      const innerQuery = { ...queryOptions, populate: params.$expand.join(',') };
       const result: unknown = await this.client.data.query<T>(resource, { query: innerQuery } as any);
       return this.normalizeQueryResult(result, params);
     }
