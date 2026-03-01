@@ -514,7 +514,6 @@ describe('DetailView', () => {
     };
 
     const { findByText } = render(<DetailView schema={schema} dataSource={mockDataSource} />);
-    
     expect(await findByText('Record not found')).toBeInTheDocument();
     expect(await findByText(/does not exist or may have been deleted/)).toBeInTheDocument();
   });
@@ -535,7 +534,6 @@ describe('DetailView', () => {
     };
 
     const { findByText } = render(<DetailView schema={schema} dataSource={mockDataSource} onBack={onBack} />);
-    
     const goBackBtn = await findByText('Go back');
     fireEvent.click(goBackBtn);
     expect(onBack).toHaveBeenCalled();
