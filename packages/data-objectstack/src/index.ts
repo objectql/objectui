@@ -254,11 +254,17 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
   async find(resource: string, params?: QueryParams): Promise<QueryResult<T>> {
     await this.connect();
 
-    // When $expand is requested, use data.query() (POST) which supports the full
-    // query AST including expand. The simpler data.find() (GET) does not support expand.
+    // When $expand is requested, use data.query() (POST) with the query options
+    // wrapped inside a `query` property. The server's findData handler reads from
+    // request.query, and the runtime spreads the POST body into the request object,
+    // so we nest the options under `query` for them to be accessible. We use
+    // `populate` (comma-separated field names) which the server processes for
+    // lookup/master_detail field expansion.
     if (params?.$expand && params.$expand.length > 0) {
-      const queryBody = this.buildQueryAST(resource, params);
-      const result: unknown = await this.client.data.query<T>(resource, queryBody);
+      const queryOptions = this.convertQueryParams(params);
+      const innerQuery: Record<string, unknown> = { ...queryOptions };
+      innerQuery.populate = params.$expand.join(',');
+      const result: unknown = await this.client.data.query<T>(resource, { query: innerQuery } as any);
       return this.normalizeQueryResult(result, params);
     }
 
@@ -273,21 +279,19 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
   async findOne(resource: string, id: string | number, params?: QueryParams): Promise<T | null> {
     await this.connect();
 
-    // When $expand is requested, use data.query() (POST) with an ID filter
-    // because data.get() (GET) does not support expand through the client SDK.
+    // When $expand is requested, use data.query() (POST) with an ID filter and populate.
+    // The server's findData handler reads from request.query, so we wrap options under
+    // `query` and use `populate` (comma-separated) for lookup field expansion.
     if (params?.$expand && params.$expand.length > 0) {
       try {
-        const expand: Record<string, { object: string }> = {};
-        for (const field of params.$expand) {
-          expand[field] = { object: field };
-        }
-        const result: unknown = await this.client.data.query<T>(resource, {
-          where: { _id: String(id) },
-          expand,
-          limit: 1,
-        } as any);
-        const resultObj = result as { records?: T[] };
-        const records = resultObj.records || [];
+        const innerQuery: Record<string, unknown> = {
+          filter: { _id: String(id) },
+          populate: params.$expand.join(','),
+          top: 1,
+        };
+        const result: unknown = await this.client.data.query<T>(resource, { query: innerQuery } as any);
+        const resultObj = result as { records?: T[]; value?: T[] };
+        const records = resultObj.records || resultObj.value || [];
         return records[0] || null;
       } catch (error: unknown) {
         if ((error as Record<string, unknown>)?.status === 404) {
@@ -526,64 +530,6 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
       pageSize: params?.$top,
       hasMore: params?.$top ? records.length === params.$top : false,
     };
-  }
-
-  /**
-   * Build a query AST for data.query() from ObjectUI QueryParams.
-   * Used when $expand is required (data.find() does not support expand).
-   */
-  private buildQueryAST(_resource: string, params: QueryParams): Record<string, unknown> {
-    const query: Record<string, unknown> = {};
-
-    // Selection
-    if (params.$select) {
-      query.select = params.$select;
-    }
-
-    // Filtering
-    if (params.$filter) {
-      if (Array.isArray(params.$filter)) {
-        query.filters = params.$filter;
-      } else {
-        query.filters = convertFiltersToAST(params.$filter);
-      }
-    }
-
-    // Sorting - convert to AST sort nodes
-    if (params.$orderby) {
-      if (Array.isArray(params.$orderby)) {
-        query.sort = params.$orderby.map((item: any) => {
-          if (typeof item === 'string') return item;
-          const field = item.field;
-          const order = item.order || 'asc';
-          return order === 'desc' ? `-${field}` : field;
-        });
-      } else {
-        const sortArray = Object.entries(params.$orderby).map(([field, order]) => {
-          return order === 'desc' ? `-${field}` : field;
-        });
-        query.sort = sortArray;
-      }
-    }
-
-    // Pagination
-    if (params.$skip !== undefined) {
-      query.offset = params.$skip;
-    }
-    if (params.$top !== undefined) {
-      query.limit = params.$top;
-    }
-
-    // Expand — build expand map for query AST
-    if (params.$expand && params.$expand.length > 0) {
-      const expand: Record<string, { object: string }> = {};
-      for (const field of params.$expand) {
-        expand[field] = { object: field };
-      }
-      query.expand = expand;
-    }
-
-    return query;
   }
 
   /**

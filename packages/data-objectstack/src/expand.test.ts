@@ -55,11 +55,10 @@ describe('ObjectStackAdapter $expand support', () => {
       });
 
       expect(mockClient.data.query).toHaveBeenCalledWith('order', expect.objectContaining({
-        expand: {
-          customer: { object: 'customer' },
-          account: { object: 'account' },
-        },
-        limit: 10,
+        query: expect.objectContaining({
+          populate: 'customer,account',
+          top: 10,
+        }),
       }));
       expect(mockClient.data.find).not.toHaveBeenCalled();
       expect(result.data).toHaveLength(1);
@@ -78,11 +77,13 @@ describe('ObjectStackAdapter $expand support', () => {
       });
 
       expect(mockClient.data.query).toHaveBeenCalledWith('order', expect.objectContaining({
-        filters: [['status', '=', 'active']],
-        sort: ['name'],
-        limit: 50,
-        offset: 10,
-        expand: { customer: { object: 'customer' } },
+        query: expect.objectContaining({
+          filters: [['status', '=', 'active']],
+          sort: ['name'],
+          top: 50,
+          skip: 10,
+          populate: 'customer',
+        }),
       }));
     });
 
@@ -117,12 +118,11 @@ describe('ObjectStackAdapter $expand support', () => {
       });
 
       expect(mockClient.data.query).toHaveBeenCalledWith('order', expect.objectContaining({
-        where: { _id: 'order-1' },
-        expand: {
-          customer: { object: 'customer' },
-          account: { object: 'account' },
-        },
-        limit: 1,
+        query: expect.objectContaining({
+          filter: { _id: 'order-1' },
+          populate: 'customer,account',
+          top: 1,
+        }),
       }));
       expect(mockClient.data.get).not.toHaveBeenCalled();
       expect(result).toEqual({ _id: 'order-1', name: 'Order 1', customer: { _id: '2', name: 'Alice' } });
