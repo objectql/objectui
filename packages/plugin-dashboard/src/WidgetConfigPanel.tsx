@@ -85,7 +85,6 @@ function buildFieldCombobox(
   label: string,
   placeholder: string,
   availableFields: SelectOption[] | undefined,
-  hasFields: boolean,
 ): ConfigField {
   return {
     key,
@@ -95,7 +94,7 @@ function buildFieldCombobox(
       <ConfigRow label={label}>
         <div data-testid={`config-field-${key}`}>
           <Combobox
-            options={hasFields ? (availableFields ?? []) : []}
+            options={availableFields ?? []}
             value={value ?? ''}
             onValueChange={onChange}
             placeholder={placeholder}
@@ -116,7 +115,6 @@ function buildWidgetSchema(
   widgetType?: string,
 ): ConfigPanelSchema {
   const hasObjects = availableObjects && availableObjects.length > 0;
-  const hasFields = availableFields && availableFields.length > 0;
 
   const objectField: ConfigField = hasObjects
     ? {
@@ -149,7 +147,7 @@ function buildWidgetSchema(
   // --- Chart-specific field selectors (category / value / aggregate) --------
 
   const categoryFieldDef: ConfigField = hasObjects
-    ? buildFieldCombobox('categoryField', 'Category field', 'Select field…', availableFields, !!hasFields)
+    ? buildFieldCombobox('categoryField', 'Category field', 'Select field…', availableFields)
     : {
         key: 'categoryField',
         label: 'Category field',
@@ -158,7 +156,7 @@ function buildWidgetSchema(
       };
 
   const valueFieldDef: ConfigField = hasObjects
-    ? buildFieldCombobox('valueField', 'Value field', 'Select field…', availableFields, !!hasFields)
+    ? buildFieldCombobox('valueField', 'Value field', 'Select field…', availableFields)
     : {
         key: 'valueField',
         label: 'Value field',
@@ -169,23 +167,25 @@ function buildWidgetSchema(
   // --- Pivot-specific field selectors (row / column / value) ----------------
 
   const pivotRowField: ConfigField = hasObjects
-    ? buildFieldCombobox('rowField', 'Field', 'Select row field…', availableFields, !!hasFields)
+    ? buildFieldCombobox('rowField', 'Field', 'Select row field…', availableFields)
     : { key: 'rowField', label: 'Field', type: 'input', placeholder: 'e.g. owner' };
 
   const pivotColumnField: ConfigField = hasObjects
-    ? buildFieldCombobox('columnField', 'Field', 'Select column field…', availableFields, !!hasFields)
+    ? buildFieldCombobox('columnField', 'Field', 'Select column field…', availableFields)
     : { key: 'columnField', label: 'Field', type: 'input', placeholder: 'e.g. stage' };
 
   const pivotValueField: ConfigField = hasObjects
-    ? buildFieldCombobox('pivotValueField', 'Field', 'Select value field…', availableFields, !!hasFields)
+    ? buildFieldCombobox('pivotValueField', 'Field', 'Select value field…', availableFields)
     : { key: 'pivotValueField', label: 'Field', type: 'input', placeholder: 'e.g. amount' };
 
   // ---- Breadcrumb varies by widget type ------------------------------------
 
-  const typeName = widgetType === 'pivot' ? 'Pivot table'
-    : widgetType === 'table' ? 'Table'
-    : isChartType(widgetType) ? 'Chart'
-    : 'Widget';
+  const BREADCRUMB_LABELS: Record<string, string> = {
+    pivot: 'Pivot table',
+    table: 'Table',
+  };
+  const typeName = BREADCRUMB_LABELS[widgetType ?? '']
+    ?? (isChartType(widgetType) ? 'Chart' : 'Widget');
 
   return {
     breadcrumb: ['Dashboard', typeName],
@@ -497,12 +497,11 @@ export function WidgetConfigPanel({
   availableFields,
 }: WidgetConfigPanelProps) {
   // Pre-process config to resolve any I18nLabel values for title/description
-  const normalizedConfig = React.useMemo(() => {
-    const c = { ...config };
-    if (c.title && typeof c.title === 'object') c.title = resolveLabel(c.title);
-    if (c.description && typeof c.description === 'object') c.description = resolveLabel(c.description);
-    return c;
-  }, [config]);
+  const normalizedConfig = React.useMemo(() => ({
+    ...config,
+    title: typeof config.title === 'object' ? resolveLabel(config.title) : config.title,
+    description: typeof config.description === 'object' ? resolveLabel(config.description) : config.description,
+  }), [config]);
 
   const { draft, isDirty, updateField, discard } = useConfigDraft(normalizedConfig, {
     onUpdate: onFieldChange,

@@ -114,8 +114,9 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
 
     const renderWidget = (widget: DashboardWidgetSchema, index: number, forceMobileFullWidth?: boolean) => {
         // Clamp widget span to grid columns to prevent overflow
-        const clampedW = widget.layout?.w ? Math.min(widget.layout.w, columns) : undefined;
-        const clampedLayout = widget.layout ? { ...widget.layout, w: clampedW ?? widget.layout.w } : undefined;
+        const clampedLayout = widget.layout
+          ? { ...widget.layout, w: Math.min(widget.layout.w, columns) }
+          : undefined;
 
         const getComponentSchema = () => {
             if (widget.component) return widget.component;
