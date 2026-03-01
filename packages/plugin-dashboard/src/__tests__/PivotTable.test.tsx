@@ -127,10 +127,10 @@ describe('PivotTable', () => {
   it('should handle empty data gracefully', () => {
     const { container } = render(<PivotTable schema={makeSchema({ data: [] })} />);
 
-    // Should render a table with header row but no body rows
-    const tbody = container.querySelector('tbody');
-    expect(tbody).toBeInTheDocument();
-    expect(tbody!.children.length).toBe(0);
+    // Should render a friendly empty state instead of an empty table
+    const emptyState = container.querySelector('[data-testid="pivot-empty-state"]');
+    expect(emptyState).toBeInTheDocument();
+    expect(screen.getByText('No data available')).toBeInTheDocument();
   });
 
   it('should handle missing values in data as 0', () => {
@@ -143,5 +143,20 @@ describe('PivotTable', () => {
     // Alice × B = 0, Bob × A = 0 should appear
     const zeroCells = screen.getAllByText('0');
     expect(zeroCells.length).toBe(2);
+  });
+
+  it('should show title in empty state', () => {
+    render(<PivotTable schema={makeSchema({ data: [], title: 'Empty Pivot' })} />);
+
+    expect(screen.getByText('Empty Pivot')).toBeInTheDocument();
+    expect(screen.getByText('No data available')).toBeInTheDocument();
+  });
+
+  it('should treat non-array data (e.g. provider config) as empty', () => {
+    const schema = makeSchema({ data: { provider: 'object', object: 'sales' } as any });
+    const { container } = render(<PivotTable schema={schema} />);
+
+    const emptyState = container.querySelector('[data-testid="pivot-empty-state"]');
+    expect(emptyState).toBeInTheDocument();
   });
 });

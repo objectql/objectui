@@ -28,6 +28,7 @@ const WIDGET_TYPE_OPTIONS = [
   { value: 'area', label: 'Area Chart' },
   { value: 'scatter', label: 'Scatter Plot' },
   { value: 'table', label: 'Table' },
+  { value: 'pivot', label: 'Pivot Table' },
   { value: 'list', label: 'List' },
   { value: 'custom', label: 'Custom' },
 ];
@@ -52,18 +53,68 @@ const AGGREGATE_OPTIONS = [
 ];
 
 // ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+const CHART_TYPES = ['bar', 'line', 'area', 'pie', 'donut', 'scatter'];
+
+function isChartType(t: string | undefined): boolean {
+  return !!t && CHART_TYPES.includes(t);
+}
+
+const SORT_BY_OPTIONS = [
+  { value: 'group', label: 'Group' },
+  { value: 'value', label: 'Value' },
+];
+
+const SORT_ORDER_OPTIONS = [
+  { value: 'asc', label: '↑' },
+  { value: 'desc', label: '↓' },
+];
+
+// ---------------------------------------------------------------------------
 // Schema builder — creates a ConfigPanelSchema with dynamic options for
-// object/field selectors when metadata is available.
+// object/field selectors when metadata is available.  Sections are shown or
+// hidden based on the current widget type via `visibleWhen`.
 // ---------------------------------------------------------------------------
 
 export type SelectOption = { value: string; label: string };
 
+function buildFieldCombobox(
+  key: string,
+  label: string,
+  placeholder: string,
+  availableFields: SelectOption[] | undefined,
+): ConfigField {
+  return {
+    key,
+    label,
+    type: 'custom',
+    render: (value: any, onChange: (v: any) => void, draft: Record<string, any>) => (
+      <ConfigRow label={label}>
+        <div data-testid={`config-field-${key}`}>
+          <Combobox
+            options={availableFields ?? []}
+            value={value ?? ''}
+            onValueChange={onChange}
+            placeholder={placeholder}
+            searchPlaceholder="Search fields…"
+            emptyText="No fields found."
+            className="h-7 w-32 text-xs"
+            disabled={!draft.object}
+          />
+        </div>
+      </ConfigRow>
+    ),
+  };
+}
+
 function buildWidgetSchema(
   availableObjects?: SelectOption[],
   availableFields?: SelectOption[],
+  widgetType?: string,
 ): ConfigPanelSchema {
   const hasObjects = availableObjects && availableObjects.length > 0;
-  const hasFields = availableFields && availableFields.length > 0;
 
   const objectField: ConfigField = hasObjects
     ? {
@@ -93,28 +144,10 @@ function buildWidgetSchema(
         placeholder: 'Object name',
       };
 
+  // --- Chart-specific field selectors (category / value / aggregate) --------
+
   const categoryFieldDef: ConfigField = hasObjects
-    ? {
-        key: 'categoryField',
-        label: 'Category field',
-        type: 'custom',
-        render: (value: any, onChange: (v: any) => void, draft: Record<string, any>) => (
-          <ConfigRow label="Category field">
-            <div data-testid="config-field-categoryField">
-              <Combobox
-                options={hasFields ? availableFields : []}
-                value={value ?? ''}
-                onValueChange={onChange}
-                placeholder="Select field…"
-                searchPlaceholder="Search fields…"
-                emptyText="No fields found."
-                className="h-7 w-32 text-xs"
-                disabled={!draft.object}
-              />
-            </div>
-          </ConfigRow>
-        ),
-      }
+    ? buildFieldCombobox('categoryField', 'Category field', 'Select field…', availableFields)
     : {
         key: 'categoryField',
         label: 'Category field',
@@ -123,27 +156,7 @@ function buildWidgetSchema(
       };
 
   const valueFieldDef: ConfigField = hasObjects
-    ? {
-        key: 'valueField',
-        label: 'Value field',
-        type: 'custom',
-        render: (value: any, onChange: (v: any) => void, draft: Record<string, any>) => (
-          <ConfigRow label="Value field">
-            <div data-testid="config-field-valueField">
-              <Combobox
-                options={hasFields ? availableFields : []}
-                value={value ?? ''}
-                onValueChange={onChange}
-                placeholder="Select field…"
-                searchPlaceholder="Search fields…"
-                emptyText="No fields found."
-                className="h-7 w-32 text-xs"
-                disabled={!draft.object}
-              />
-            </div>
-          </ConfigRow>
-        ),
-      }
+    ? buildFieldCombobox('valueField', 'Value field', 'Select field…', availableFields)
     : {
         key: 'valueField',
         label: 'Value field',
@@ -151,9 +164,33 @@ function buildWidgetSchema(
         placeholder: 'e.g. amount',
       };
 
+  // --- Pivot-specific field selectors (row / column / value) ----------------
+
+  const pivotRowField: ConfigField = hasObjects
+    ? buildFieldCombobox('rowField', 'Field', 'Select row field…', availableFields)
+    : { key: 'rowField', label: 'Field', type: 'input', placeholder: 'e.g. owner' };
+
+  const pivotColumnField: ConfigField = hasObjects
+    ? buildFieldCombobox('columnField', 'Field', 'Select column field…', availableFields)
+    : { key: 'columnField', label: 'Field', type: 'input', placeholder: 'e.g. stage' };
+
+  const pivotValueField: ConfigField = hasObjects
+    ? buildFieldCombobox('pivotValueField', 'Field', 'Select value field…', availableFields)
+    : { key: 'pivotValueField', label: 'Field', type: 'input', placeholder: 'e.g. amount' };
+
+  // ---- Breadcrumb varies by widget type ------------------------------------
+
+  const BREADCRUMB_LABELS: Record<string, string> = {
+    pivot: 'Pivot table',
+    table: 'Table',
+  };
+  const typeName = BREADCRUMB_LABELS[widgetType ?? '']
+    ?? (isChartType(widgetType) ? 'Chart' : 'Widget');
+
   return {
-    breadcrumb: ['Dashboard', 'Widget'],
+    breadcrumb: ['Dashboard', typeName],
     sections: [
+      // ----- General (always visible) -------------------------------------
       {
         key: 'general',
         title: 'General',
@@ -179,10 +216,13 @@ function buildWidgetSchema(
           },
         ],
       },
+
+      // ----- Data Binding (chart / metric / table / list / custom) ---------
       {
         key: 'data',
         title: 'Data Binding',
         collapsible: true,
+        visibleWhen: (d: Record<string, any>) => d.type !== 'pivot',
         fields: [
           objectField,
           categoryFieldDef,
@@ -196,6 +236,167 @@ function buildWidgetSchema(
           },
         ],
       },
+
+      // ----- Pivot: Data source -------------------------------------------
+      {
+        key: 'pivot-data',
+        title: 'Data',
+        collapsible: true,
+        visibleWhen: (d: Record<string, any>) => d.type === 'pivot',
+        fields: [
+          objectField,
+        ],
+      },
+
+      // ----- Pivot: Rows --------------------------------------------------
+      {
+        key: 'pivot-rows',
+        title: 'Rows',
+        collapsible: true,
+        visibleWhen: (d: Record<string, any>) => d.type === 'pivot',
+        fields: [
+          pivotRowField,
+          {
+            key: 'rowSortBy',
+            label: 'Sort by',
+            type: 'icon-group',
+            options: SORT_BY_OPTIONS,
+            defaultValue: 'group',
+          },
+          {
+            key: 'rowSortOrder',
+            label: 'Sort order',
+            type: 'icon-group',
+            options: SORT_ORDER_OPTIONS,
+            defaultValue: 'asc',
+          },
+          {
+            key: 'showRowLabels',
+            label: 'Show label',
+            type: 'switch',
+            defaultValue: true,
+          },
+          {
+            key: 'showRowTotals',
+            label: 'Show totals',
+            type: 'switch',
+            defaultValue: false,
+          },
+        ],
+      },
+
+      // ----- Pivot: Columns -----------------------------------------------
+      {
+        key: 'pivot-columns',
+        title: 'Columns',
+        collapsible: true,
+        visibleWhen: (d: Record<string, any>) => d.type === 'pivot',
+        fields: [
+          pivotColumnField,
+          {
+            key: 'columnSortBy',
+            label: 'Sort by',
+            type: 'icon-group',
+            options: SORT_BY_OPTIONS,
+            defaultValue: 'group',
+          },
+          {
+            key: 'columnSortOrder',
+            label: 'Sort order',
+            type: 'icon-group',
+            options: SORT_ORDER_OPTIONS,
+            defaultValue: 'asc',
+          },
+          {
+            key: 'showColumnLabels',
+            label: 'Show label',
+            type: 'switch',
+            defaultValue: true,
+          },
+          {
+            key: 'showColumnTotals',
+            label: 'Show totals',
+            type: 'switch',
+            defaultValue: false,
+          },
+        ],
+      },
+
+      // ----- Pivot: Values ------------------------------------------------
+      {
+        key: 'pivot-values',
+        title: 'Values',
+        collapsible: true,
+        visibleWhen: (d: Record<string, any>) => d.type === 'pivot',
+        fields: [
+          pivotValueField,
+          {
+            key: 'aggregation',
+            label: 'Aggregation',
+            type: 'select',
+            options: AGGREGATE_OPTIONS,
+            defaultValue: 'sum',
+          },
+          {
+            key: 'format',
+            label: 'Number format',
+            type: 'input',
+            placeholder: 'e.g. $,.2f',
+          },
+        ],
+      },
+
+      // ----- Chart: Axis & Series (visible for chart types) ---------------
+      {
+        key: 'chart-axis',
+        title: 'Axis & Series',
+        collapsible: true,
+        visibleWhen: (d: Record<string, any>) => isChartType(d.type),
+        fields: [
+          {
+            key: 'xAxisLabel',
+            label: 'X-axis label',
+            type: 'input',
+            placeholder: 'e.g. Month',
+          },
+          {
+            key: 'yAxisLabel',
+            label: 'Y-axis label',
+            type: 'input',
+            placeholder: 'e.g. Revenue',
+          },
+          {
+            key: 'showLegend',
+            label: 'Show legend',
+            type: 'switch',
+            defaultValue: true,
+          },
+        ],
+      },
+
+      // ----- Table: Column config (visible for table type) ----------------
+      {
+        key: 'table-columns',
+        title: 'Columns',
+        collapsible: true,
+        visibleWhen: (d: Record<string, any>) => d.type === 'table',
+        fields: [
+          {
+            key: 'searchable',
+            label: 'Searchable',
+            type: 'switch',
+            defaultValue: false,
+          },
+          {
+            key: 'pagination',
+            label: 'Pagination',
+            type: 'switch',
+            defaultValue: false,
+          },
+        ],
+      },
+
+      // ----- Layout (always visible) --------------------------------------
       {
         key: 'layout',
         title: 'Layout',
@@ -221,6 +422,8 @@ function buildWidgetSchema(
           },
         ],
       },
+
+      // ----- Appearance (always visible, collapsed by default) ------------
       {
         key: 'appearance',
         title: 'Appearance',
@@ -273,6 +476,17 @@ export interface WidgetConfigPanelProps {
 // Component
 // ---------------------------------------------------------------------------
 
+/** Resolve an I18nLabel (string or {key, defaultValue}) to a plain string. */
+function resolveLabel(v: unknown): string {
+  if (v === undefined || v === null) return '';
+  if (typeof v === 'string') return v;
+  if (typeof v === 'object') {
+    const obj = v as Record<string, any>;
+    return obj.defaultValue || obj.key || '';
+  }
+  return String(v);
+}
+
 /**
  * WidgetConfigPanel — Schema-driven configuration panel for individual
  * dashboard widgets.
@@ -280,6 +494,9 @@ export interface WidgetConfigPanelProps {
  * Supports editing: title, description, type, data binding (object,
  * categoryField, valueField, aggregate), layout (width, height),
  * appearance (colorVariant, actionUrl).
+ *
+ * Sections are context-aware: pivot, table, and chart types each show
+ * their own dedicated config sections via `visibleWhen` predicates.
  */
 export function WidgetConfigPanel({
   open,
@@ -291,13 +508,20 @@ export function WidgetConfigPanel({
   availableObjects,
   availableFields,
 }: WidgetConfigPanelProps) {
-  const { draft, isDirty, updateField, discard } = useConfigDraft(config, {
+  // Pre-process config to resolve any I18nLabel values for title/description
+  const normalizedConfig = React.useMemo(() => ({
+    ...config,
+    title: typeof config.title === 'object' ? resolveLabel(config.title) : config.title,
+    description: typeof config.description === 'object' ? resolveLabel(config.description) : config.description,
+  }), [config]);
+
+  const { draft, isDirty, updateField, discard } = useConfigDraft(normalizedConfig, {
     onUpdate: onFieldChange,
   });
 
   const schema = React.useMemo(
-    () => buildWidgetSchema(availableObjects, availableFields),
-    [availableObjects, availableFields],
+    () => buildWidgetSchema(availableObjects, availableFields, draft.type),
+    [availableObjects, availableFields, draft.type],
   );
 
   return (

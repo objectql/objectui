@@ -59,7 +59,8 @@ describe('WidgetConfigPanel', () => {
       />,
     );
     expect(screen.getByText('Dashboard')).toBeDefined();
-    expect(screen.getByText('Widget')).toBeDefined();
+    // Breadcrumb adapts to widget type — 'bar' type shows "Chart"
+    expect(screen.getByText('Chart')).toBeDefined();
   });
 
   it('should display general section with title, description, and type fields', () => {
@@ -332,5 +333,160 @@ describe('WidgetConfigPanel', () => {
       const valBtn = valWrapper.querySelector('[role="combobox"]');
       expect(valBtn).not.toHaveAttribute('disabled');
     });
+  });
+
+  // ---- Context-aware sections (visibleWhen) ---------------------------------
+
+  describe('context-aware sections', () => {
+    it('should show pivot-specific sections when type is pivot', () => {
+      const pivotConfig = { ...defaultWidgetConfig, type: 'pivot' };
+      render(
+        <WidgetConfigPanel
+          open={true}
+          onClose={vi.fn()}
+          config={pivotConfig}
+          onSave={vi.fn()}
+        />,
+      );
+      // Pivot sections should be visible
+      expect(screen.getByText('Rows')).toBeDefined();
+      expect(screen.getByText('Columns')).toBeDefined();
+      expect(screen.getByText('Values')).toBeDefined();
+      // Data Binding (chart/metric section) should NOT be visible
+      expect(screen.queryByText('Data Binding')).toBeNull();
+    });
+
+    it('should show chart-specific sections when type is bar', () => {
+      render(
+        <WidgetConfigPanel
+          open={true}
+          onClose={vi.fn()}
+          config={defaultWidgetConfig}
+          onSave={vi.fn()}
+        />,
+      );
+      // Chart Axis & Series section should be visible
+      expect(screen.getByText('Axis & Series')).toBeDefined();
+      // Pivot sections should NOT be visible
+      expect(screen.queryByText('Rows')).toBeNull();
+      expect(screen.queryByText('Values')).toBeNull();
+    });
+
+    it('should show table-specific sections when type is table', () => {
+      const tableConfig = { ...defaultWidgetConfig, type: 'table' };
+      render(
+        <WidgetConfigPanel
+          open={true}
+          onClose={vi.fn()}
+          config={tableConfig}
+          onSave={vi.fn()}
+        />,
+      );
+      // Table Columns section should be visible
+      expect(screen.getByText('Columns')).toBeDefined();
+      // Chart Axis & Series should NOT be visible
+      expect(screen.queryByText('Axis & Series')).toBeNull();
+      // Pivot sections should NOT be visible
+      expect(screen.queryByText('Rows')).toBeNull();
+    });
+
+    it('should hide chart/pivot/table sections for metric type', () => {
+      const metricConfig = { ...defaultWidgetConfig, type: 'metric' };
+      render(
+        <WidgetConfigPanel
+          open={true}
+          onClose={vi.fn()}
+          config={metricConfig}
+          onSave={vi.fn()}
+        />,
+      );
+      expect(screen.queryByText('Axis & Series')).toBeNull();
+      expect(screen.queryByText('Rows')).toBeNull();
+      expect(screen.queryByText('Values')).toBeNull();
+      // Data Binding should still be visible
+      expect(screen.getByText('Data Binding')).toBeDefined();
+    });
+
+    it('should show breadcrumb "Pivot table" for pivot type', () => {
+      const pivotConfig = { ...defaultWidgetConfig, type: 'pivot' };
+      render(
+        <WidgetConfigPanel
+          open={true}
+          onClose={vi.fn()}
+          config={pivotConfig}
+          onSave={vi.fn()}
+        />,
+      );
+      expect(screen.getByText('Pivot table')).toBeDefined();
+    });
+
+    it('should show breadcrumb "Table" for table type', () => {
+      const tableConfig = { ...defaultWidgetConfig, type: 'table' };
+      render(
+        <WidgetConfigPanel
+          open={true}
+          onClose={vi.fn()}
+          config={tableConfig}
+          onSave={vi.fn()}
+        />,
+      );
+      // "Table" appears in both breadcrumb and the select option
+      const tableElements = screen.getAllByText('Table');
+      expect(tableElements.length).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  // ---- I18nLabel resolution -------------------------------------------------
+
+  describe('I18nLabel resolution', () => {
+    it('should resolve I18nLabel object for title field', () => {
+      const configWithI18n = {
+        ...defaultWidgetConfig,
+        title: { key: 'widget.title', defaultValue: 'Revenue Chart (i18n)' },
+      };
+      render(
+        <WidgetConfigPanel
+          open={true}
+          onClose={vi.fn()}
+          config={configWithI18n}
+          onSave={vi.fn()}
+        />,
+      );
+      const titleInput = screen.getByTestId('config-field-title') as HTMLInputElement;
+      expect(titleInput.value).toBe('Revenue Chart (i18n)');
+    });
+
+    it('should resolve I18nLabel object for description field', () => {
+      const configWithI18n = {
+        ...defaultWidgetConfig,
+        description: { key: 'widget.desc', defaultValue: 'Description from i18n' },
+      };
+      render(
+        <WidgetConfigPanel
+          open={true}
+          onClose={vi.fn()}
+          config={configWithI18n}
+          onSave={vi.fn()}
+        />,
+      );
+      const descInput = screen.getByTestId('config-field-description') as HTMLInputElement;
+      expect(descInput.value).toBe('Description from i18n');
+    });
+  });
+
+  // ---- Pivot Table type in widget options -----------------------------------
+
+  it('should include Pivot Table in widget type options', () => {
+    const pivotConfig = { ...defaultWidgetConfig, type: 'pivot' };
+    render(
+      <WidgetConfigPanel
+        open={true}
+        onClose={vi.fn()}
+        config={pivotConfig}
+        onSave={vi.fn()}
+      />,
+    );
+    // The select should contain pivot option
+    expect(screen.getByText('Pivot Table')).toBeDefined();
   });
 });

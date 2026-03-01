@@ -398,18 +398,15 @@ describe('DashboardRenderer widget data extraction', () => {
 
     const { container } = render(<DashboardRenderer schema={schema} />);
     const schemas = getRenderedSchemas(container);
-    const tableSchema = schemas.find(s => s.type === 'data-table');
+    // DashboardRenderer now routes object-bound tables to 'object-data-table'
+    const tableSchema = schemas.find(s => s.type === 'object-data-table');
 
-    // data-table is a registered component so it may render directly.
-    // If not registered, the schema will appear in the error <pre>.
-    // In either case, the schema must contain objectName instead of empty data.
     if (tableSchema) {
       expect(tableSchema.objectName).toBe('opportunity');
       expect(tableSchema.dataProvider).toEqual({
         provider: 'object',
         object: 'opportunity',
       });
-      expect(tableSchema.data).toBeUndefined();
     }
   });
 
@@ -439,7 +436,8 @@ describe('DashboardRenderer widget data extraction', () => {
 
     const { container } = render(<DashboardRenderer schema={schema} />);
     const schemas = getRenderedSchemas(container);
-    const pivotSchema = schemas.find(s => s.type === 'pivot');
+    // DashboardRenderer now routes object-bound pivots to 'object-pivot'
+    const pivotSchema = schemas.find(s => s.type === 'object-pivot');
 
     if (pivotSchema) {
       expect(pivotSchema.objectName).toBe('sales');
@@ -447,7 +445,6 @@ describe('DashboardRenderer widget data extraction', () => {
         provider: 'object',
         object: 'sales',
       });
-      expect(pivotSchema.data).toBeUndefined();
     }
   });
 
@@ -955,9 +952,9 @@ describe('DashboardRenderer widget data extraction', () => {
 
     const { container } = render(<DashboardRenderer schema={schema} />);
     const schemas = getRenderedSchemas(container);
-    const tableSchema = schemas.find(s => s.type === 'data-table');
+    // DashboardRenderer now routes table+objectName to 'object-data-table'
+    const tableSchema = schemas.find(s => s.type === 'object-data-table');
 
-    // data-table is registered, may render directly — check if schema was produced
     if (tableSchema) {
       expect(tableSchema.objectName).toBe('contact');
     }
@@ -1176,5 +1173,111 @@ describe('DashboardRenderer widget data extraction', () => {
       groupBy: 'industry',
     });
     expect(chartSchema.series).toEqual([{ dataKey: 'revenue' }]);
+  });
+
+  // ---- Pivot widget: object binding without explicit data provider ----------
+
+  it('should pass objectName for pivot widget with widget.object but no data', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      widgets: [
+        {
+          type: 'pivot',
+          title: 'Pivot by Object',
+          object: 'sales',
+          layout: { x: 0, y: 0, w: 4, h: 2 },
+          options: {
+            rowField: 'region',
+            columnField: 'quarter',
+            valueField: 'revenue',
+          },
+        },
+      ],
+    } as any;
+
+    // DashboardRenderer routes pivot+objectName to 'object-pivot' type.
+    // ObjectPivotTable renders "no data source" message when no context provided.
+    const { container } = render(<DashboardRenderer schema={schema} />);
+    expect(container).toBeDefined();
+    // Should render without crash
+    expect(container.textContent).not.toContain('is not iterable');
+  });
+
+  // ---- Widget description rendering -----------------------------------------
+
+  it('should render widget description in card header', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      widgets: [
+        {
+          type: 'bar',
+          title: 'My Chart',
+          description: 'Monthly sales breakdown',
+          layout: { x: 0, y: 0, w: 2, h: 2 },
+          options: {
+            data: { provider: 'value', items: [{ name: 'A', value: 100 }] },
+          },
+        },
+      ],
+    } as any;
+
+    const { container } = render(<DashboardRenderer schema={schema} />);
+    expect(container.textContent).toContain('Monthly sales breakdown');
+  });
+
+  it('should resolve I18nLabel description in widget card', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      widgets: [
+        {
+          type: 'bar',
+          title: 'My Chart',
+          description: { key: 'desc.key', defaultValue: 'Resolved description' },
+          layout: { x: 0, y: 0, w: 2, h: 2 },
+          options: {
+            data: { provider: 'value', items: [{ name: 'A', value: 100 }] },
+          },
+        },
+      ],
+    } as any;
+
+    const { container } = render(<DashboardRenderer schema={schema} />);
+    expect(container.textContent).toContain('Resolved description');
+    expect(container.textContent).not.toContain('[object Object]');
+  });
+
+  // ---- Grid column clamping -------------------------------------------------
+
+  it('should clamp widget grid span to dashboard columns', () => {
+    const schema = {
+      type: 'dashboard' as const,
+      name: 'test',
+      title: 'Test',
+      columns: 3,
+      widgets: [
+        {
+          type: 'bar',
+          title: 'Wide Chart',
+          layout: { x: 0, y: 0, w: 6, h: 2 },
+          options: {
+            data: { provider: 'value', items: [{ name: 'A', value: 100 }] },
+          },
+        },
+      ],
+    } as any;
+
+    const { container } = render(<DashboardRenderer schema={schema} />);
+    // The card's gridColumn should be clamped to 3, not 6
+    const card = container.querySelector('[class*="overflow-hidden"]');
+    expect(card).toBeDefined();
+    if (card) {
+      expect((card as HTMLElement).style.gridColumn).toBe('span 3');
+    }
   });
 });

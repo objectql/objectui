@@ -529,7 +529,7 @@ export type DashboardColorVariant = (typeof DASHBOARD_COLOR_VARIANTS)[number];
 
 /** All supported widget visualization types */
 export const DASHBOARD_WIDGET_TYPES = [
-  'metric', 'bar', 'line', 'pie', 'donut', 'area', 'scatter', 'table', 'list', 'custom',
+  'metric', 'bar', 'line', 'pie', 'donut', 'area', 'scatter', 'table', 'pivot', 'list', 'custom',
 ] as const;
 
 /** Widget visualization type */

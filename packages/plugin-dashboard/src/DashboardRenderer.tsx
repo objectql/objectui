@@ -113,6 +113,11 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
     }, [designMode, onWidgetClick]);
 
     const renderWidget = (widget: DashboardWidgetSchema, index: number, forceMobileFullWidth?: boolean) => {
+        // Clamp widget span to grid columns to prevent overflow
+        const clampedLayout = widget.layout
+          ? { ...widget.layout, w: Math.min(widget.layout.w, columns) }
+          : undefined;
+
         const getComponentSchema = () => {
             if (widget.component) return widget.component;
 
@@ -187,17 +192,17 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                 // Support data at widget level or nested inside options
                 const widgetData = (widget as any).data || options.data;
 
-                // provider: 'object' — pass through object config for async data loading
+                // provider: 'object' — use ObjectDataTable for async data loading
                 if (isObjectProvider(widgetData)) {
                     const { data: _data, ...restOptions } = options;
                     return {
-                        type: 'data-table',
+                        type: 'object-data-table',
                         ...restOptions,
                         objectName: widget.object || widgetData.object,
                         dataProvider: widgetData,
-                        data: [],
-                        searchable: false,
-                        pagination: false,
+                        filter: widgetData.filter || widget.filter,
+                        searchable: widget.searchable ?? false,
+                        pagination: widget.pagination ?? false,
                         className: "border-0"
                     };
                 }
@@ -205,12 +210,12 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                 // No explicit data provider but widget has object binding
                 if (!widgetData && widget.object) {
                     return {
-                        type: 'data-table',
+                        type: 'object-data-table',
                         ...options,
                         objectName: widget.object,
-                        data: [],
-                        searchable: false,
-                        pagination: false,
+                        filter: widget.filter,
+                        searchable: widget.searchable ?? false,
+                        pagination: widget.pagination ?? false,
                         className: "border-0"
                     };
                 }
@@ -228,15 +233,25 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
             if (widgetType === 'pivot') {
                 const widgetData = (widget as any).data || options.data;
 
-                // provider: 'object' — pass through object config for async data loading
+                // provider: 'object' — use ObjectPivotTable for async data loading
                 if (isObjectProvider(widgetData)) {
                     const { data: _data, ...restOptions } = options;
                     return {
-                        type: 'pivot',
+                        type: 'object-pivot',
                         ...restOptions,
                         objectName: widget.object || widgetData.object,
                         dataProvider: widgetData,
-                        data: [],
+                        filter: widgetData.filter || widget.filter,
+                    };
+                }
+
+                // No explicit data provider but widget has object binding
+                if (!widgetData && widget.object) {
+                    return {
+                        type: 'object-pivot',
+                        ...options,
+                        objectName: widget.object,
+                        filter: widget.filter,
                     };
                 }
 
@@ -256,6 +271,7 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
         const componentSchema = getComponentSchema();
         const isSelfContained = widget.type === 'metric';
         const resolvedTitle = resolveLabel(widget.title);
+        const resolvedDescription = resolveLabel(widget.description);
         const widgetKey = widget.id || resolvedTitle || `widget-${index}`;
         const isSelected = designMode && selectedWidgetId === widget.id;
 
@@ -285,9 +301,9 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                 <div 
                     key={widgetKey}
                     className={cn("h-full w-full", designMode && "relative", selectionClasses)}
-                    style={!isMobile && widget.layout ? {
-                        gridColumn: `span ${widget.layout.w}`,
-                        gridRow: `span ${widget.layout.h}`
+                    style={!isMobile && clampedLayout ? {
+                        gridColumn: `span ${clampedLayout.w}`,
+                        gridRow: `span ${clampedLayout.h}`
                     }: undefined}
                     {...designModeProps}
                 >
@@ -307,9 +323,9 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                     designMode && "relative",
                     selectionClasses
                 )}
-                style={!isMobile && widget.layout ? {
-                    gridColumn: `span ${widget.layout.w}`,
-                    gridRow: `span ${widget.layout.h}`
+                style={!isMobile && clampedLayout ? {
+                    gridColumn: `span ${clampedLayout.w}`,
+                    gridRow: `span ${clampedLayout.h}`
                 }: undefined}
                 {...designModeProps}
             >
@@ -318,6 +334,9 @@ export const DashboardRenderer = forwardRef<HTMLDivElement, DashboardRendererPro
                         <CardTitle className="text-sm sm:text-base font-medium tracking-tight truncate" title={resolvedTitle}>
                             {resolvedTitle}
                         </CardTitle>
+                        {resolvedDescription && (
+                            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{resolvedDescription}</p>
+                        )}
                     </CardHeader>
                 )}
                 <CardContent className="p-0">
