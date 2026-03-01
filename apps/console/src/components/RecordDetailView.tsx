@@ -198,6 +198,55 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
     );
   }
 
+  // Auto-detect primary field: prefer objectDef metadata, then 'name' or 'title' heuristic
+  const primaryField = objectDef.primaryField
+    || Object.keys(objectDef.fields || {}).find(
+      (key) => key === 'name' || key === 'title'
+    );
+
+  // Build sections: prefer form sections from objectDef, fallback to flat field list
+  const formSections = objectDef.views?.form?.sections;
+  const sections = formSections && formSections.length > 0
+    ? formSections.map((sec: any) => ({
+        title: sec.title,
+        collapsible: sec.collapsible,
+        defaultCollapsed: sec.defaultCollapsed,
+        fields: (sec.fields || []).map((f: any) => {
+          const fieldName = typeof f === 'string' ? f : f.name;
+          const fieldDef = objectDef.fields[fieldName];
+          if (!fieldDef) {
+            console.warn(`[RecordDetailView] Field "${fieldName}" not found in ${objectDef.name} definition`);
+            return { name: fieldName, label: fieldName };
+          }
+          return {
+            name: fieldName,
+            label: fieldDef.label || fieldName,
+            type: fieldDef.type || 'text',
+            ...(fieldDef.options && { options: fieldDef.options }),
+            ...(fieldDef.reference_to && { reference_to: fieldDef.reference_to }),
+            ...(fieldDef.reference_field && { reference_field: fieldDef.reference_field }),
+            ...(fieldDef.currency && { currency: fieldDef.currency }),
+          };
+        }),
+      }))
+    : [
+        {
+          title: 'Details',
+          fields: Object.keys(objectDef.fields || {}).map(key => {
+            const fieldDef = objectDef.fields[key];
+            return {
+              name: key,
+              label: fieldDef.label || key,
+              type: fieldDef.type || 'text',
+              ...(fieldDef.options && { options: fieldDef.options }),
+              ...(fieldDef.reference_to && { reference_to: fieldDef.reference_to }),
+              ...(fieldDef.reference_field && { reference_field: fieldDef.reference_field }),
+              ...(fieldDef.currency && { currency: fieldDef.currency }),
+            };
+          }),
+        },
+      ];
+
   const detailSchema: DetailViewSchema = {
     type: 'detail-view',
     objectName: objectDef.name,
@@ -206,24 +255,8 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
     onBack: 'history',
     showEdit: true,
     title: objectDef.label,
-    sections: [
-      {
-        title: 'Details',
-        fields: Object.keys(objectDef.fields || {}).map(key => {
-          const fieldDef = objectDef.fields[key];
-          return {
-            name: key,
-            label: fieldDef.label || key,
-            type: fieldDef.type || 'text',
-            ...(fieldDef.options && { options: fieldDef.options }),
-            ...(fieldDef.reference_to && { reference_to: fieldDef.reference_to }),
-            ...(fieldDef.reference_field && { reference_field: fieldDef.reference_field }),
-            ...(fieldDef.currency && { currency: fieldDef.currency }),
-          };
-        }),
-        columns: 2,
-      },
-    ],
+    primaryField,
+    sections,
   };
 
   return (

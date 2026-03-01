@@ -56,6 +56,8 @@ export interface RecordActivityTimelineProps {
   subscription?: RecordSubscription;
   /** Called when user toggles subscription */
   onToggleSubscription?: (subscribed: boolean) => void | Promise<void>;
+  /** When true, collapse to only the comment input when there are no items */
+  collapseWhenEmpty?: boolean;
   className?: string;
 }
 
@@ -139,6 +141,7 @@ export const RecordActivityTimeline: React.FC<RecordActivityTimelineProps> = ({
   onToggleReaction,
   subscription,
   onToggleSubscription,
+  collapseWhenEmpty = false,
   className,
 }) => {
   const [internalFilter, setInternalFilter] = React.useState<FeedFilterMode>('all');
@@ -286,9 +289,11 @@ export const RecordActivityTimeline: React.FC<RecordActivityTimelineProps> = ({
 
         {/* Timeline */}
         {filtered.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            No activity recorded
-          </p>
+          collapseWhenEmpty ? null : (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              No activity recorded
+            </p>
+          )
         ) : (
           <div className="relative">
             {/* Timeline line */}

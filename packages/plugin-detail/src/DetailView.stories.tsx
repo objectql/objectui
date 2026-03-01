@@ -256,3 +256,79 @@ export const WithFieldCounts: Story = {
     ],
   } as any,
 };
+
+/**
+ * Primary Field + Summary Badges — record name as header, key attributes as badges
+ */
+export const PrimaryFieldWithBadges: Story = {
+  render: renderStory,
+  args: {
+    type: 'detail-view',
+    title: 'Contact',
+    primaryField: 'name',
+    summaryFields: ['status', 'department'],
+    objectName: 'Contact',
+    resourceId: 'CNT-042',
+    showBack: true,
+    showEdit: true,
+    data: {
+      name: 'Sarah Johnson',
+      email: 'sarah@example.com',
+      phone: '+1 (555) 123-4567',
+      status: 'Active',
+      department: 'Engineering',
+      title: 'Senior Engineer',
+    },
+    fields: [
+      { name: 'email', label: 'Email' },
+      { name: 'phone', label: 'Phone' },
+      { name: 'title', label: 'Job Title' },
+      { name: 'status', label: 'Status' },
+      { name: 'department', label: 'Department' },
+    ],
+  } as any,
+};
+
+/**
+ * Hide Empty Fields — sections with hideEmpty filter out null/undefined/empty fields
+ */
+export const HideEmptyFields: Story = {
+  render: renderStory,
+  args: {
+    type: 'detail-view',
+    title: 'Contact',
+    primaryField: 'name',
+    showBack: true,
+    data: {
+      name: 'Mike Ross',
+      email: 'mike@techcorp.io',
+      phone: null,
+      department: '',
+      title: 'VP Engineering',
+      website: undefined,
+      linkedin: 'linkedin.com/in/mikeross',
+    },
+    sections: [
+      {
+        title: 'Contact Info',
+        hideEmpty: true,
+        fields: [
+          { name: 'email', label: 'Email' },
+          { name: 'phone', label: 'Phone' },
+          { name: 'title', label: 'Job Title' },
+          { name: 'department', label: 'Department' },
+          { name: 'website', label: 'Website' },
+          { name: 'linkedin', label: 'LinkedIn' },
+        ],
+      },
+      {
+        title: 'Empty Section (hidden)',
+        hideEmpty: true,
+        fields: [
+          { name: 'fax', label: 'Fax' },
+          { name: 'pager', label: 'Pager' },
+        ],
+      },
+    ],
+  } as any,
+};

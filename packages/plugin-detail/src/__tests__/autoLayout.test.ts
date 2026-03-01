@@ -170,5 +170,15 @@ describe('Detail Auto-Layout', () => {
       // textarea field should span full row
       expect(result.fields[4].span).toBe(2);
     });
+
+    it('should infer columns correctly when schemaColumns is undefined (no regression)', () => {
+      // Ensure that removing explicit columns: 2 from RecordDetailView still gives good defaults
+      const fields = Array.from({ length: 8 }, (_, i) => ({
+        name: `f${i}`, label: `F${i}`, type: 'text',
+      }));
+      const result = applyDetailAutoLayout(fields, undefined);
+      expect(result.columns).toBe(2);
+      expect(result.fields.length).toBe(8);
+    });
   });
 });

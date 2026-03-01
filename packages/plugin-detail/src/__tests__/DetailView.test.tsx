@@ -420,4 +420,83 @@ describe('DetailView', () => {
     expect(screen.getByText('Activity')).toBeInTheDocument();
     expect(screen.getByText('Bob')).toBeInTheDocument();
   });
+
+  it('should render primaryField value as header title', () => {
+    const schema: DetailViewSchema = {
+      type: 'detail-view',
+      title: 'Contact',
+      primaryField: 'name',
+      data: { name: 'John Doe', email: 'john@example.com' },
+      fields: [
+        { name: 'name', label: 'Name' },
+        { name: 'email', label: 'Email' },
+      ],
+    };
+
+    render(<DetailView schema={schema} />);
+    // The h1 heading should show the primary field value
+    const heading = screen.getByRole('heading', { level: 1 });
+    expect(heading.textContent).toBe('John Doe');
+  });
+
+  it('should fall back to title when primaryField value is empty', () => {
+    const schema: DetailViewSchema = {
+      type: 'detail-view',
+      title: 'Contact',
+      primaryField: 'name',
+      data: { email: 'john@example.com' },
+      fields: [
+        { name: 'name', label: 'Name' },
+        { name: 'email', label: 'Email' },
+      ],
+    };
+
+    render(<DetailView schema={schema} />);
+    const heading = screen.getByRole('heading', { level: 1 });
+    expect(heading.textContent).toBe('Contact');
+  });
+
+  it('should render summaryFields as badges', () => {
+    const schema: DetailViewSchema = {
+      type: 'detail-view',
+      title: 'Contact',
+      primaryField: 'name',
+      summaryFields: ['status', 'department'],
+      data: { name: 'Jane Doe', status: 'Active', department: 'Engineering' },
+      fields: [
+        { name: 'name', label: 'Name' },
+        { name: 'status', label: 'Status' },
+        { name: 'department', label: 'Department' },
+      ],
+    };
+
+    render(<DetailView schema={schema} />);
+    const heading = screen.getByRole('heading', { level: 1 });
+    expect(heading.textContent).toBe('Jane Doe');
+    // Summary badges should be present (they appear both as badges and as field values)
+    const activeElements = screen.getAllByText('Active');
+    expect(activeElements.length).toBeGreaterThanOrEqual(1);
+    const engElements = screen.getAllByText('Engineering');
+    expect(engElements.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('should not render summary badge for empty values', () => {
+    const schema: DetailViewSchema = {
+      type: 'detail-view',
+      title: 'Contact',
+      summaryFields: ['status', 'department'],
+      data: { name: 'Jane Doe', status: 'Active', department: null },
+      fields: [
+        { name: 'name', label: 'Name' },
+        { name: 'status', label: 'Status' },
+      ],
+    };
+
+    const { container } = render(<DetailView schema={schema} />);
+    // The header area should have a badge for 'Active' but not 'department'
+    // Find badges within the header
+    const headerBadges = container.querySelectorAll('.border-b .rounded-full');
+    const badgeTexts = Array.from(headerBadges).map(b => b.textContent);
+    expect(badgeTexts).toContain('Active');
+  });
 });

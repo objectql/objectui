@@ -92,6 +92,11 @@ describe('RecordActivityTimeline', () => {
     expect(screen.getByText('No activity recorded')).toBeInTheDocument();
   });
 
+  it('should not show "No activity recorded" when collapseWhenEmpty is true', () => {
+    render(<RecordActivityTimeline items={[]} collapseWhenEmpty />);
+    expect(screen.queryByText('No activity recorded')).not.toBeInTheDocument();
+  });
+
   it('should filter to comments only', () => {
     render(
       <RecordActivityTimeline items={mockItems} filterMode="comments_only" />,
