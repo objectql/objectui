@@ -10,7 +10,7 @@ import React from 'react';
 import type { FieldMetadata, SelectOptionMetadata } from '@object-ui/types';
 import { ComponentRegistry } from '@object-ui/core';
 import { Badge, Avatar, AvatarFallback, Button, Checkbox } from '@object-ui/components';
-import { Check, X } from 'lucide-react';
+import { Check, X, Copy, Phone as PhoneIcon } from 'lucide-react';
 
 import { TextField } from './widgets/TextField';
 import { NumberField } from './widgets/NumberField';
@@ -265,7 +265,8 @@ export function PercentCellRenderer({ value, field }: CellRendererProps): React.
 
 /**
  * Boolean field cell renderer (Airtable-style checkbox)
- * Supports semantic rendering for completion fields (green indicator).
+ * Supports semantic rendering for completion fields (green indicator)
+ * and warning badge for active/enabled fields when false.
  */
 export function BooleanCellRenderer({ value, field }: CellRendererProps): React.ReactElement {
   if (value == null) {
@@ -289,6 +290,19 @@ export function BooleanCellRenderer({ value, field }: CellRendererProps): React.
           <div className="size-5 rounded-full border-2 border-muted-foreground/30" role="img" aria-label="Not completed" data-testid="completion-indicator" />
         )}
       </div>
+    );
+  }
+
+  // Warning badge for active/enabled fields when false
+  const isStatusField = fieldName === 'active' || fieldName === 'is_active'
+    || fieldName === 'enabled' || fieldName === 'is_enabled'
+    || fieldName === 'verified' || fieldName === 'is_verified';
+
+  if (isStatusField && !value) {
+    return (
+      <Badge variant="destructive" className="text-xs" data-testid="boolean-warning-badge">
+        {field?.label || humanizeLabel(field?.name || 'Inactive')} — Off
+      </Badge>
     );
   }
 
@@ -436,19 +450,44 @@ export function SelectCellRenderer({ value, field }: CellRendererProps): React.R
 export function EmailCellRenderer({ value }: CellRendererProps): React.ReactElement {
   if (!value) return <span>-</span>;
   
+  const [copied, setCopied] = React.useState(false);
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    navigator.clipboard.writeText(String(value)).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  
   return (
-    <Button
-      variant="link"
-      className="p-0 h-auto font-normal text-blue-600 hover:text-blue-800"
-      asChild
-    >
-      <a
-        href={`mailto:${value}`}
-        onClick={(e) => e.stopPropagation()}
+    <span className="inline-flex items-center gap-1 group/email">
+      <Button
+        variant="link"
+        className="p-0 h-auto font-normal text-blue-600 hover:text-blue-800"
+        asChild
       >
-        {value}
-      </a>
-    </Button>
+        <a
+          href={`mailto:${value}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {value}
+        </a>
+      </Button>
+      <button
+        type="button"
+        className="opacity-0 group-hover/email:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted"
+        onClick={handleCopy}
+        aria-label="Copy email"
+      >
+        {copied ? (
+          <Check className="h-3 w-3 text-green-600" />
+        ) : (
+          <Copy className="h-3 w-3 text-muted-foreground" />
+        )}
+      </button>
+    </span>
   );
 }
 
@@ -482,14 +521,40 @@ export function UrlCellRenderer({ value }: CellRendererProps): React.ReactElemen
 export function PhoneCellRenderer({ value }: CellRendererProps): React.ReactElement {
   if (!value) return <span>-</span>;
   
+  const [copied, setCopied] = React.useState(false);
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    navigator.clipboard.writeText(String(value)).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  
   return (
-    <a
-      href={`tel:${value}`}
-      className="text-blue-600 hover:text-blue-800"
-      onClick={(e) => e.stopPropagation()}
-    >
-      {value}
-    </a>
+    <span className="inline-flex items-center gap-1 group/phone">
+      <a
+        href={`tel:${value}`}
+        className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <PhoneIcon className="h-3 w-3" />
+        {value}
+      </a>
+      <button
+        type="button"
+        className="opacity-0 group-hover/phone:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted"
+        onClick={handleCopy}
+        aria-label="Copy phone number"
+      >
+        {copied ? (
+          <Check className="h-3 w-3 text-green-600" />
+        ) : (
+          <Copy className="h-3 w-3 text-muted-foreground" />
+        )}
+      </button>
+    </span>
   );
 }
 

@@ -23,17 +23,30 @@ describe('BooleanCellRenderer', () => {
     expect(checkbox).toHaveAttribute('data-state', 'checked');
   });
 
-  it('should render an unchecked checkbox for false values', () => {
+  it('should render an unchecked checkbox for false values (non-status field)', () => {
     render(
       <BooleanCellRenderer
         value={false}
-        field={{ name: 'active', type: 'boolean' } as any}
+        field={{ name: 'flagged', type: 'boolean' } as any}
       />
     );
 
     const checkbox = screen.getByRole('checkbox');
     expect(checkbox).toBeInTheDocument();
     expect(checkbox).toHaveAttribute('data-state', 'unchecked');
+  });
+
+  it('should render warning badge for active=false', () => {
+    const { container } = render(
+      <BooleanCellRenderer
+        value={false}
+        field={{ name: 'active', type: 'boolean', label: 'Active' } as any}
+      />
+    );
+
+    const badge = container.querySelector('[data-testid="boolean-warning-badge"]');
+    expect(badge).toBeInTheDocument();
+    expect(badge?.textContent).toContain('Off');
   });
 
   it('should render dash for null/undefined values', () => {

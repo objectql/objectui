@@ -16,6 +16,8 @@ import {
   TextCellRenderer,
   DateCellRenderer,
   BooleanCellRenderer,
+  EmailCellRenderer,
+  PhoneCellRenderer,
   PercentCellRenderer,
   humanizeLabel,
   formatDate,
@@ -365,7 +367,7 @@ describe('BooleanCellRenderer', () => {
     render(
       <BooleanCellRenderer
         value={false}
-        field={{ name: 'active', type: 'boolean' } as any}
+        field={{ name: 'flagged', type: 'boolean' } as any}
       />
     );
     const checkbox = screen.getByRole('checkbox');
@@ -437,6 +439,91 @@ describe('BooleanCellRenderer', () => {
     );
     const checkbox = screen.getByRole('checkbox');
     expect(checkbox).toHaveAttribute('data-state', 'checked');
+  });
+});
+
+// =========================================================================
+// 4b. BooleanCellRenderer — Warning badge for status fields
+// =========================================================================
+describe('BooleanCellRenderer warning badge', () => {
+  it('should render warning badge for active=false', () => {
+    const { container } = render(
+      <BooleanCellRenderer
+        value={false}
+        field={{ name: 'active', type: 'boolean', label: 'Active' } as any}
+      />
+    );
+    const badge = container.querySelector('[data-testid="boolean-warning-badge"]');
+    expect(badge).toBeInTheDocument();
+    expect(badge?.textContent).toContain('Off');
+  });
+
+  it('should render warning badge for is_enabled=false', () => {
+    const { container } = render(
+      <BooleanCellRenderer
+        value={false}
+        field={{ name: 'is_enabled', type: 'boolean', label: 'Enabled' } as any}
+      />
+    );
+    const badge = container.querySelector('[data-testid="boolean-warning-badge"]');
+    expect(badge).toBeInTheDocument();
+  });
+
+  it('should render normal checkbox for active=true', () => {
+    render(
+      <BooleanCellRenderer
+        value={true}
+        field={{ name: 'active', type: 'boolean' } as any}
+      />
+    );
+    const checkbox = screen.getByRole('checkbox');
+    expect(checkbox).toHaveAttribute('data-state', 'checked');
+  });
+});
+
+// =========================================================================
+// 4c. EmailCellRenderer — mailto + copy button
+// =========================================================================
+describe('EmailCellRenderer', () => {
+  it('should render mailto link', () => {
+    render(<EmailCellRenderer value="test@example.com" field={{ name: 'email', type: 'email' } as any} />);
+    const link = screen.getByRole('link');
+    expect(link).toHaveAttribute('href', 'mailto:test@example.com');
+    expect(screen.getByText('test@example.com')).toBeInTheDocument();
+  });
+
+  it('should render copy button', () => {
+    render(<EmailCellRenderer value="test@example.com" field={{ name: 'email', type: 'email' } as any} />);
+    const copyBtn = screen.getByLabelText('Copy email');
+    expect(copyBtn).toBeInTheDocument();
+  });
+
+  it('should render dash for empty value', () => {
+    render(<EmailCellRenderer value={null} field={{ name: 'email', type: 'email' } as any} />);
+    expect(screen.getByText('-')).toBeInTheDocument();
+  });
+});
+
+// =========================================================================
+// 4d. PhoneCellRenderer — tel link + call icon + copy
+// =========================================================================
+describe('PhoneCellRenderer', () => {
+  it('should render tel link with phone icon', () => {
+    render(<PhoneCellRenderer value="+1-555-1234" field={{ name: 'phone', type: 'phone' } as any} />);
+    const link = screen.getByRole('link');
+    expect(link).toHaveAttribute('href', 'tel:+1-555-1234');
+    expect(screen.getByText('+1-555-1234')).toBeInTheDocument();
+  });
+
+  it('should render copy button', () => {
+    render(<PhoneCellRenderer value="+1-555-1234" field={{ name: 'phone', type: 'phone' } as any} />);
+    const copyBtn = screen.getByLabelText('Copy phone number');
+    expect(copyBtn).toBeInTheDocument();
+  });
+
+  it('should render dash for empty value', () => {
+    render(<PhoneCellRenderer value={null} field={{ name: 'phone', type: 'phone' } as any} />);
+    expect(screen.getByText('-')).toBeInTheDocument();
   });
 });
 

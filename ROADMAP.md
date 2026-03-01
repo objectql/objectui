@@ -1297,7 +1297,12 @@ All 313 `@object-ui/fields` tests pass.
 - [x] Remove `columns: 2` hardcode — let `autoLayout` infer optimal columns
 - [x] Auto-detect `primaryField` from object fields (name/title)
 
-**Tests:** 94 tests passing (11 new) covering hideEmpty filtering, empty section hiding, primaryField/summaryFields rendering, responsive breakpoints, collapseWhenEmpty, autoLayout undefined-columns regression.
+**Field Renderers (`@object-ui/fields`):**
+- [x] `EmailCellRenderer`: mailto link + hover copy-to-clipboard button
+- [x] `PhoneCellRenderer`: tel link with call icon + hover copy-to-clipboard button
+- [x] `BooleanCellRenderer`: warning Badge for active/enabled/verified fields when false (e.g. "Active — Off")
+
+**Tests:** 94 plugin-detail tests passing (11 new), 100 field renderer tests passing (12 new) covering hideEmpty filtering, empty section hiding, primaryField/summaryFields rendering, responsive breakpoints, collapseWhenEmpty, autoLayout undefined-columns regression, email copy, phone copy+icon, boolean warning badge.
 
 **Storybook:** Added `PrimaryFieldWithBadges` and `HideEmptyFields` stories.
 
