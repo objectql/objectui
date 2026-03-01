@@ -9,21 +9,32 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ObjectStackAdapter } from './index';
 
-// We test the adapter's $expand handling by mocking the underlying ObjectStack client.
+// We test the adapter's $expand handling.
+// When $expand is present, the adapter makes a raw GET request to the REST API
+// with `populate` as a URL query param (since the client SDK's data.find()
+// QueryOptions does not support populate/expand).
 // The key scenarios:
-//   1. find() with $expand should use data.query() (POST) instead of data.find() (GET)
-//   2. find() without $expand should use data.find() (GET) as before
-//   3. findOne() with $expand should use data.query() with an _id filter
-//   4. findOne() without $expand should use data.get() as before
+//   1. find() with $expand → raw GET /api/v1/data/:object?populate=...
+//   2. find() without $expand → client.data.find() (GET) as before
+//   3. findOne() with $expand → raw GET /api/v1/data/:object?filter={_id:...}&populate=...
+//   4. findOne() without $expand → client.data.get() as before
 
 describe('ObjectStackAdapter $expand support', () => {
   let adapter: ObjectStackAdapter;
   let mockClient: any;
+  let mockFetch: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
+    // Create a mock fetch that returns a successful response
+    mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ records: [], total: 0 }),
+    });
+
     adapter = new ObjectStackAdapter({
       baseUrl: 'http://localhost:3000',
       autoReconnect: false,
+      fetch: mockFetch,
     });
 
     // Mock the internal client after construction
@@ -43,10 +54,13 @@ describe('ObjectStackAdapter $expand support', () => {
   });
 
   describe('find() with $expand', () => {
-    it('should use data.query() when $expand is present', async () => {
-      mockClient.data.query.mockResolvedValue({
-        records: [{ _id: '1', name: 'Order 1', customer: { _id: '2', name: 'Alice' } }],
-        total: 1,
+    it('should make a raw GET request with populate query param when $expand is present', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          records: [{ _id: '1', name: 'Order 1', customer: { _id: '2', name: 'Alice' } }],
+          total: 1,
+        }),
       });
 
       const result = await adapter.find('order', {
@@ -54,37 +68,38 @@ describe('ObjectStackAdapter $expand support', () => {
         $expand: ['customer', 'account'],
       });
 
-      expect(mockClient.data.query).toHaveBeenCalledWith('order', expect.objectContaining({
-        query: expect.objectContaining({
-          populate: 'customer,account',
-          top: 10,
-        }),
-      }));
+      // Should use raw fetch, not client.data.query or client.data.find
+      expect(mockFetch).toHaveBeenCalled();
+      const fetchUrl = mockFetch.mock.calls[0][0] as string;
+      expect(fetchUrl).toContain('/api/v1/data/order');
+      expect(fetchUrl).toContain('populate=customer%2Caccount');
+      expect(fetchUrl).toContain('top=10');
       expect(mockClient.data.find).not.toHaveBeenCalled();
       expect(result.data).toHaveLength(1);
       expect(result.data[0].customer).toEqual({ _id: '2', name: 'Alice' });
     });
 
-    it('should pass filters and sort to data.query()', async () => {
-      mockClient.data.query.mockResolvedValue({ records: [], total: 0 });
+    it('should pass filters and sort as query params', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ records: [], total: 0 }),
+      });
 
       await adapter.find('order', {
-        $filter: [['status', '=', 'active']],
+        $filter: { status: 'active' },
         $orderby: [{ field: 'name', order: 'asc' }],
         $top: 50,
         $skip: 10,
         $expand: ['customer'],
       });
 
-      expect(mockClient.data.query).toHaveBeenCalledWith('order', expect.objectContaining({
-        query: expect.objectContaining({
-          filters: [['status', '=', 'active']],
-          sort: ['name'],
-          top: 50,
-          skip: 10,
-          populate: 'customer',
-        }),
-      }));
+      expect(mockFetch).toHaveBeenCalled();
+      const fetchUrl = mockFetch.mock.calls[0][0] as string;
+      expect(fetchUrl).toContain('populate=customer');
+      expect(fetchUrl).toContain('top=50');
+      expect(fetchUrl).toContain('skip=10');
+      expect(fetchUrl).toContain('sort=name');
+      expect(fetchUrl).toContain('filter=');
     });
 
     it('should use data.find() when $expand is not present', async () => {
@@ -93,7 +108,6 @@ describe('ObjectStackAdapter $expand support', () => {
       const result = await adapter.find('order', { $top: 10 });
 
       expect(mockClient.data.find).toHaveBeenCalled();
-      expect(mockClient.data.query).not.toHaveBeenCalled();
       expect(result.data).toHaveLength(1);
     });
 
@@ -103,33 +117,42 @@ describe('ObjectStackAdapter $expand support', () => {
       await adapter.find('order', { $top: 10, $expand: [] });
 
       expect(mockClient.data.find).toHaveBeenCalled();
-      expect(mockClient.data.query).not.toHaveBeenCalled();
     });
   });
 
   describe('findOne() with $expand', () => {
-    it('should use data.query() with _id filter when $expand is present', async () => {
-      mockClient.data.query.mockResolvedValue({
-        records: [{ _id: 'order-1', name: 'Order 1', customer: { _id: '2', name: 'Alice' } }],
+    it('should make a raw GET request with _id filter and populate when $expand is present', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          records: [{ _id: 'order-1', name: 'Order 1', customer: { _id: '2', name: 'Alice' } }],
+        }),
       });
 
       const result = await adapter.findOne('order', 'order-1', {
         $expand: ['customer', 'account'],
       });
 
-      expect(mockClient.data.query).toHaveBeenCalledWith('order', expect.objectContaining({
-        query: expect.objectContaining({
-          filter: { _id: 'order-1' },
-          populate: 'customer,account',
-          top: 1,
-        }),
-      }));
+      expect(mockFetch).toHaveBeenCalled();
+      const fetchUrl = mockFetch.mock.calls[0][0] as string;
+      expect(fetchUrl).toContain('/api/v1/data/order');
+      expect(fetchUrl).toContain('populate=customer%2Caccount');
+      expect(fetchUrl).toContain('top=1');
+      expect(fetchUrl).toContain('filter=');
+      // Verify the filter contains _id
+      const filterParam = new URL(fetchUrl).searchParams.get('filter');
+      expect(filterParam).toBeTruthy();
+      const parsedFilter = JSON.parse(filterParam!);
+      expect(parsedFilter).toEqual({ _id: 'order-1' });
       expect(mockClient.data.get).not.toHaveBeenCalled();
       expect(result).toEqual({ _id: 'order-1', name: 'Order 1', customer: { _id: '2', name: 'Alice' } });
     });
 
-    it('should return null when data.query() returns no records', async () => {
-      mockClient.data.query.mockResolvedValue({ records: [] });
+    it('should return null when raw request returns no records', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ records: [] }),
+      });
 
       const result = await adapter.findOne('order', 'nonexistent', {
         $expand: ['customer'],
@@ -144,7 +167,6 @@ describe('ObjectStackAdapter $expand support', () => {
       const result = await adapter.findOne('order', '1');
 
       expect(mockClient.data.get).toHaveBeenCalledWith('order', '1');
-      expect(mockClient.data.query).not.toHaveBeenCalled();
       expect(result).toEqual({ _id: '1', name: 'Test' });
     });
 
@@ -154,6 +176,44 @@ describe('ObjectStackAdapter $expand support', () => {
       const result = await adapter.findOne('order', 'nonexistent');
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe('raw request format', () => {
+    it('should include Authorization header when token is set', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ records: [], total: 0 }),
+      });
+
+      (adapter as any).token = 'test-token';
+
+      await adapter.find('order', {
+        $expand: ['customer'],
+      });
+
+      expect(mockFetch).toHaveBeenCalled();
+      const fetchInit = mockFetch.mock.calls[0][1];
+      expect(fetchInit.headers.Authorization).toBe('Bearer test-token');
+    });
+
+    it('should unwrap response envelope with success/data wrapper', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          success: true,
+          data: {
+            records: [{ _id: '1', name: 'Order' }],
+            total: 1,
+          },
+        }),
+      });
+
+      const result = await adapter.find('order', {
+        $expand: ['customer'],
+      });
+
+      expect(result.data).toHaveLength(1);
     });
   });
 });
