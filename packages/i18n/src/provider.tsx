@@ -3,7 +3,7 @@
  *
  * Provides I18nProvider and useObjectTranslation hook for React components.
  */
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { I18nextProvider, useTranslation } from 'react-i18next';
 import type { i18n as I18nInstance } from 'i18next';
 import { createI18n, getDirection, type I18nConfig } from './i18n';
@@ -67,6 +67,10 @@ export function I18nProvider({ config, instance: externalInstance, loadLanguage,
   const [language, setLanguage] = useState(i18nInstance.language || 'en');
   const direction = getDirection(language);
 
+  // Track which languages have had app-specific translations loaded
+  // (separate from built-in locales that ship with the library)
+  const loadedAppLangs = useRef<Set<string>>(new Set());
+
   useEffect(() => {
     const handleLanguageChanged = (lng: string) => {
       setLanguage(lng);
@@ -83,12 +87,28 @@ export function I18nProvider({ config, instance: externalInstance, loadLanguage,
     };
   }, [i18nInstance]);
 
+  // Load app-specific translations for the initial language on mount
+  useEffect(() => {
+    if (!loadLanguage) return;
+    const currentLang = i18nInstance.language || 'en';
+    if (loadedAppLangs.current.has(currentLang)) return;
+    loadedAppLangs.current.add(currentLang);
+    loadLanguage(currentLang).then((resources) => {
+      if (resources && Object.keys(resources).length > 0) {
+        i18nInstance.addResourceBundle(currentLang, 'translation', resources, true, true);
+        // Force re-render so components pick up newly loaded translations
+        setLanguage(currentLang);
+      }
+    }).catch(() => { /* graceful degradation — use built-in translations */ });
+  }, [i18nInstance, loadLanguage]);
+
   const contextValue = useMemo<I18nContextValue>(
     () => ({
       language,
       changeLanguage: async (lang: string) => {
         // Dynamic language pack loading (v2.0.7)
-        if (loadLanguage && !i18nInstance.hasResourceBundle(lang, 'translation')) {
+        if (loadLanguage && !loadedAppLangs.current.has(lang)) {
+          loadedAppLangs.current.add(lang);
           const resources = await loadLanguage(lang);
           i18nInstance.addResourceBundle(lang, 'translation', resources, true, true);
         }
