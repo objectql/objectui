@@ -85,9 +85,35 @@ export const DetailView: React.FC<DetailViewProps> = ({
 
     if (dataSource && schema.objectName && schema.resourceId) {
       setLoading(true);
-      dataSource.findOne(schema.objectName, schema.resourceId).then((result) => {
-         setData(result);
-         setLoading(false);
+      const objectName = schema.objectName;
+      const resourceId = schema.resourceId;
+      const prefix = `${objectName}-`;
+
+      dataSource.findOne(objectName, resourceId).then((result) => {
+        if (result) {
+          setData(result);
+          setLoading(false);
+          return;
+        }
+        // Fallback: if not found and resourceId starts with objectName prefix,
+        // retry with the prefix stripped (handles legacy ID conventions)
+        if (resourceId.startsWith(prefix)) {
+          const strippedId = resourceId.slice(prefix.length);
+          return dataSource.findOne(objectName, strippedId).then((fallbackResult) => {
+            setData(fallbackResult);
+            setLoading(false);
+          });
+        }
+        // Fallback: if not found and resourceId does NOT have the prefix,
+        // retry with the prefix prepended (handles bare IDs)
+        if (!resourceId.startsWith(prefix)) {
+          return dataSource.findOne(objectName, `${prefix}${resourceId}`).then((fallbackResult) => {
+            setData(fallbackResult);
+            setLoading(false);
+          });
+        }
+        setData(null);
+        setLoading(false);
       }).catch((err) => {
          console.error('Failed to fetch detail data:', err);
          setLoading(false);

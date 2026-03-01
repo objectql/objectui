@@ -1,8 +1,9 @@
 /**
- * RecordDetailView — Edit recordId stripping tests
+ * RecordDetailView — recordId handling tests
  *
- * Validates that when editing from the detail page, the objectName prefix
- * is stripped from the URL-based recordId before passing to the onEdit callback.
+ * Validates that the URL-based recordId is passed through as-is to the
+ * findOne API and onEdit callback. The navigation code puts the actual
+ * record._id into the URL, so no prefix stripping is needed.
  *
  * Related: objectstack-ai/objectui — "Record not found" bug
  */
@@ -29,7 +30,7 @@ function createMockDataSource(): DataSource {
         },
       };
     },
-    findOne: vi.fn().mockResolvedValue({ id: '1772350253615-4', name: 'Alice' }),
+    findOne: vi.fn().mockResolvedValue({ id: 'contact-1772350253615-4', name: 'Alice' }),
     find: vi.fn().mockResolvedValue({ data: [] }),
     create: vi.fn().mockResolvedValue({ id: '1' }),
     update: vi.fn().mockResolvedValue({ id: '1' }),
@@ -75,8 +76,8 @@ function renderDetailView(
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
-describe('RecordDetailView — onEdit recordId stripping', () => {
-  it('strips objectName prefix from recordId when editing', async () => {
+describe('RecordDetailView — recordId handling', () => {
+  it('passes URL recordId as-is to findOne (with objectName prefix)', async () => {
     const onEdit = vi.fn();
     const ds = createMockDataSource();
 
@@ -87,18 +88,18 @@ describe('RecordDetailView — onEdit recordId stripping', () => {
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Alice');
     });
 
-    // findOne should be called with the stripped ID (no objectName prefix)
-    expect(ds.findOne).toHaveBeenCalledWith('contact', '1772350253615-4');
+    // findOne should be called with the FULL URL recordId (no stripping)
+    expect(ds.findOne).toHaveBeenCalledWith('contact', 'contact-1772350253615-4');
 
     // Click the Edit button
     const editButton = await screen.findByRole('button', { name: /edit/i });
     await userEvent.click(editButton);
 
-    // The onEdit callback should receive the STRIPPED recordId (no objectName prefix)
+    // The onEdit callback should receive the FULL recordId
     expect(onEdit).toHaveBeenCalledWith(
       expect.objectContaining({
-        id: '1772350253615-4',
-        _id: '1772350253615-4',
+        id: 'contact-1772350253615-4',
+        _id: 'contact-1772350253615-4',
       }),
     );
   });
@@ -113,13 +114,13 @@ describe('RecordDetailView — onEdit recordId stripping', () => {
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Alice');
     });
 
-    // findOne should be called with the original ID (no prefix to strip)
+    // findOne should be called with the original ID unchanged
     expect(ds.findOne).toHaveBeenCalledWith('contact', 'plain-id-12345');
 
     const editButton = await screen.findByRole('button', { name: /edit/i });
     await userEvent.click(editButton);
 
-    // No prefix to strip — should pass the original recordId unchanged
+    // Should pass the original recordId unchanged
     expect(onEdit).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 'plain-id-12345',

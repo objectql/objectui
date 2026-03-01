@@ -34,10 +34,10 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
   const [recordViewers, setRecordViewers] = useState<PresenceUser[]>([]);
   const objectDef = objects.find((o: any) => o.name === objectName);
 
-  // Strip objectName prefix from URL-based recordId (e.g. "contact-123" → "123")
-  const pureRecordId = recordId && objectName && recordId.startsWith(`${objectName}-`)
-    ? recordId.slice(objectName.length + 1)
-    : recordId;
+  // Use the URL recordId as-is — it contains the actual record _id.
+  // Navigation code passes `record._id || record.id` directly into the URL
+  // without adding any prefix, so no stripping is needed.
+  const pureRecordId = recordId;
 
   const currentUser = user
     ? { id: user.id, name: user.name, avatar: user.image }
