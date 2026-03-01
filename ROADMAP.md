@@ -19,7 +19,7 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 1. ~~**AppShell** — No dynamic navigation renderer from spec JSON (last P0 blocker)~~ ✅ Complete
 2. **Designer Interaction** — DataModelDesigner has undo/redo, field type selectors, inline editing, Ctrl+S save. ViewDesigner has been removed; its capabilities (drag-to-reorder columns via @dnd-kit, undo/redo via useConfigDraft history) are now integrated into ViewConfigPanel (right-side config panel) ✅
 3. ~~**View Config Live Preview Sync** — Config panel changes sync in real-time for Grid, but `showSort`/`showSearch`/`showFilters`/`striped`/`bordered` not yet propagated to Kanban/Calendar/Timeline/Gallery/Map/Gantt (see P1.8.1)~~ ✅ Complete — all 7 phases of P1.8.1 done, 100% coverage across all view types
-4. **Dashboard Config Panel** — Airtable-style right-side configuration panel for dashboards (data source, layout, widget properties, sub-editors, type definitions). Widget config live preview sync and scatter chart type switch ✅ fixed (P1.10 Phase 10). Dashboard save/refresh metadata sync ✅ fixed (P1.10 Phase 11). Data provider field override for live preview ✅ fixed (P1.10 Phase 12).
+4. **Dashboard Config Panel** — Airtable-style right-side configuration panel for dashboards (data source, layout, widget properties, sub-editors, type definitions). Widget config live preview sync and scatter chart type switch ✅ fixed (P1.10 Phase 10). Dashboard save/refresh metadata sync ✅ fixed (P1.10 Phase 11). Data provider field override for live preview ✅ fixed (P1.10 Phase 12). Table/Pivot widget enhancements and context-aware config panel ✅ (P1.10 Phase 13).
 5. **Console Advanced Polish** — Remaining upgrades for forms, import/export, automation, comments
 6. **PWA Sync** — Background sync is simulated only
 
@@ -459,6 +459,21 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] Fix: `objectName` for table/pivot widgets used `widgetData.object || widget.object` — reversed to `widget.object || widgetData.object` so config panel edits to data source are reflected immediately
 - [x] Fix: `DashboardWithConfig` did not pass `designMode`, `selectedWidgetId`, or `onWidgetClick` to `DashboardRenderer` — widgets could not be selected or live-previewed in the plugin-level component
 - [x] Add 10 new Vitest tests: widget-level field overrides for aggregate groupBy/field/function (3), objectName precedence for chart/table (2), simultaneous field overrides (1), DashboardWithConfig design mode and widget selection (2), existing live preview tests (2)
+
+**Phase 13 — Table/Pivot Widget Enhancements & Context-Aware Config Panel:**
+- [x] Add `pivot` to `DASHBOARD_WIDGET_TYPES` constant and `WidgetConfigPanel` type options dropdown
+- [x] Context-aware `WidgetConfigPanel`: sections shown/hidden via `visibleWhen` based on widget type — Pivot shows Rows/Columns/Values/Totals, Chart shows Axis & Series, Table shows Columns config
+- [x] Pivot-specific config: Row field, Column field, Value field, Sort by (Group/Value), Sort order (Asc/Desc), Show totals toggle for both rows and columns, Aggregation, Number format
+- [x] Chart-specific config: X-axis label, Y-axis label, Show legend toggle
+- [x] Table-specific config: Searchable toggle, Pagination toggle
+- [x] Breadcrumb adapts to widget type ("Pivot table", "Table", "Chart", "Widget")
+- [x] I18nLabel resolution: `WidgetConfigPanel` pre-processes `title` and `description` config values via `resolveLabel()` to prevent `[object Object]` display
+- [x] `DashboardRenderer`: widget description rendered in card headers with `line-clamp-2`; I18nLabel resolved via `resolveLabel()`
+- [x] `DashboardRenderer`: pivot widget with `widget.object` but no explicit `data` provider now correctly sets `objectName` and empty `data: []` (parity with table/chart)
+- [x] `DashboardRenderer`: grid column clamping — widget `layout.w` clamped to `Math.min(w, columns)` preventing layout overflow
+- [x] `MetricWidget`: overflow protection — `overflow-hidden` on Card, `truncate` on label/value/description, `shrink-0` on icon/trend
+- [x] `PivotTable`: friendly empty state with grid icon + "No data available" message instead of empty table body
+- [x] Add 15 new Vitest tests: context-aware sections (6), I18nLabel resolution (2), pivot type option (1), pivot object binding (1), widget description rendering (2), grid column clamping (1), pivot empty state (2)
 
 ### P1.11 Console — Schema-Driven View Config Panel Migration
 
