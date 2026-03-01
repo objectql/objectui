@@ -71,9 +71,9 @@ describe('Plugins Integration Test', () => {
     };
 
     const mockData = [
-        { id: '1', name: 'Task 1', status: 'new', due_date: '2026-02-15T12:00:00' },
-        { id: '2', name: 'Task 2', status: 'working', due_date: '2026-02-16T12:00:00' },
-        { id: '3', name: 'Task 3', status: 'done', due_date: '2026-02-17T12:00:00' }
+        { id: '1', name: 'Task 1', status: 'new', due_date: new Date(Date.now() + 86400000).toISOString() },
+        { id: '2', name: 'Task 2', status: 'working', due_date: new Date(Date.now() + 172800000).toISOString() },
+        { id: '3', name: 'Task 3', status: 'done', due_date: new Date(Date.now() + 259200000).toISOString() }
     ];
 
     const mockDataSource = {

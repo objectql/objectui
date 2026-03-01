@@ -22,7 +22,7 @@
  * - Works with object/api/value data providers
  */
 
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import type { ObjectGridSchema, DataSource, ViewData, CalendarConfig } from '@object-ui/types';
 import { CalendarView, type CalendarEvent } from './CalendarView';
 import { usePullToRefresh } from '@object-ui/mobile';
@@ -183,6 +183,10 @@ export const ObjectCalendar: React.FC<ObjectCalendarProps> = ({
   ]);
   const hasInlineData = dataConfig?.provider === 'value';
 
+  // Use ref for objectSchema to avoid double-fetch on mount
+  const objectSchemaRef = useRef<any>(null);
+  objectSchemaRef.current = objectSchema;
+
   // Fetch data based on provider
   useEffect(() => {
     let isMounted = true;
@@ -216,7 +220,7 @@ export const ObjectCalendar: React.FC<ObjectCalendarProps> = ({
         if (dataConfig?.provider === 'object') {
           const objectName = dataConfig.object;
           // Auto-inject $expand for lookup/master_detail fields
-          const expand = buildExpandFields(objectSchema?.fields);
+          const expand = buildExpandFields(objectSchemaRef.current?.fields);
           const result = await dataSource.find(objectName, {
             $filter: schema.filter,
             $orderby: convertSortToQueryParams(schema.sort),
@@ -245,7 +249,7 @@ export const ObjectCalendar: React.FC<ObjectCalendarProps> = ({
 
     fetchData();
     return () => { isMounted = false; };
-  }, [dataConfig, dataSource, hasInlineData, schema.filter, schema.sort, refreshKey, objectSchema]);
+  }, [dataConfig, dataSource, hasInlineData, schema.filter, schema.sort, refreshKey]);
 
   // Fetch object schema for field metadata
   useEffect(() => {
