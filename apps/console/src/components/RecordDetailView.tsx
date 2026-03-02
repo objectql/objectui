@@ -13,7 +13,7 @@ import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
 import { PresenceAvatars, type PresenceUser } from '@object-ui/collaboration';
 import { useAuth } from '@object-ui/auth';
 import { Database, Users } from 'lucide-react';
-import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
+import { MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import { SkeletonDetail } from './skeletons';
 import type { DetailViewSchema, FeedItem } from '@object-ui/types';
 
@@ -27,7 +27,7 @@ const FALLBACK_USER = { id: 'current-user', name: 'Demo User' };
 
 export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailViewProps) {
   const { objectName, recordId } = useParams();
-  const { showDebug, toggleDebug } = useMetadataInspector();
+  const { showDebug } = useMetadataInspector();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
@@ -286,7 +286,6 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
             <PresenceAvatars users={recordViewers} size="sm" maxVisible={4} showStatus />
           </div>
         )}
-        <MetadataToggle open={showDebug} onToggle={toggleDebug} />
       </div>
 
       <div className="flex-1 overflow-hidden flex flex-row">

@@ -9,7 +9,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { SchemaRenderer } from '@object-ui/react';
 import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
 import { FileText, Pencil } from 'lucide-react';
-import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
+import { MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import { useMetadata } from '../context/MetadataProvider';
 import { DesignDrawer } from './DesignDrawer';
 import type { PageSchema } from '@object-ui/types';
@@ -21,7 +21,7 @@ const PageCanvasEditor = lazy(() =>
 export function PageView() {
   const { pageName } = useParams<{ pageName: string }>();
   const [searchParams] = useSearchParams();
-  const { showDebug, toggleDebug } = useMetadataInspector();
+  const { showDebug } = useMetadataInspector();
   const [drawerOpen, setDrawerOpen] = useState(false);
   
   // Find page definition from API-driven metadata
@@ -80,7 +80,6 @@ export function PageView() {
                    <Pencil className="h-3.5 w-3.5" />
                    Edit
                  </button>
-                 <MetadataToggle open={showDebug} onToggle={toggleDebug} />
              </div>
              <SchemaRenderer 
                 schema={{

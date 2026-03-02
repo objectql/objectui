@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { ReportViewer, ReportConfigPanel } from '@object-ui/plugin-report';
 import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
 import { Pencil, BarChart3, Loader2 } from 'lucide-react';
-import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
+import { MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import { useMetadata } from '../context/MetadataProvider';
 import { useAdapter } from '../context/AdapterProvider';
 import type { DataSource } from '@object-ui/types';
@@ -22,7 +22,7 @@ const FALLBACK_FIELDS = [
 
 export function ReportView({ dataSource }: { dataSource?: DataSource }) {
   const { reportName } = useParams<{ reportName: string }>();
-  const { showDebug, toggleDebug } = useMetadataInspector();
+  const { showDebug } = useMetadataInspector();
   const adapter = useAdapter();
   const [configPanelOpen, setConfigPanelOpen] = useState(false);
   // Version counter — incremented on save to refresh the stable config reference
@@ -358,7 +358,6 @@ export function ReportView({ dataSource }: { dataSource?: DataSource }) {
              <Pencil className="h-3.5 w-3.5" />
              Edit
            </button>
-           <MetadataToggle open={showDebug} onToggle={toggleDebug} />
         </div>
       </div>
 
