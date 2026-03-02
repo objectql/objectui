@@ -1,6 +1,6 @@
 {
   "name": "@object-ui/example-crm",
-  "version": "1.0.0",
+  "version": "3.1.0",
   "description": "CRM Metadata Example using ObjectStack Protocol",
   "private": true,
   "type": "module",
