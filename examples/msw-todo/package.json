@@ -1,6 +1,6 @@
 {
   "name": "@object-ui/example-msw-todo",
-  "version": "1.0.0",
+  "version": "3.1.0",
   "description": "Complete MSW integration example with React CRUD components using ObjectStack Client",
   "private": true,
   "type": "module",
