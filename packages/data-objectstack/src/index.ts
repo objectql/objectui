@@ -98,6 +98,7 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
   private reconnectAttempts: number = 0;
   private baseUrl: string;
   private token?: string;
+  private fetchImpl: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 
   constructor(config: {
     baseUrl: string;
@@ -118,6 +119,7 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
     this.reconnectDelay = config.reconnectDelay ?? 1000;
     this.baseUrl = config.baseUrl;
     this.token = config.token;
+    this.fetchImpl = config.fetch || globalThis.fetch.bind(globalThis);
   }
 
   /**
@@ -254,38 +256,49 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
   async find(resource: string, params?: QueryParams): Promise<QueryResult<T>> {
     await this.connect();
 
-    const queryOptions = this.convertQueryParams(params);
-    const result: unknown = await this.client.data.find<T>(resource, queryOptions);
-
-    // Handle legacy/raw array response (e.g. from some mock servers or non-OData endpoints)
-    if (Array.isArray(result)) {
-      return {
-        data: result,
-        total: result.length,
-        page: 1,
-        pageSize: result.length,
-        hasMore: false,
-      };
+    // When $expand is requested, use a raw GET request to the REST API with
+    // `populate` as a URL query param. The server's REST plugin routes
+    // GET /data/:object to protocol.findData({ object, query: req.query }),
+    // which parses `populate` (comma-separated) into an array for lookup expansion.
+    // We use a raw request because the client SDK's data.find() QueryOptions
+    // interface does not include populate/expand fields.
+    if (params?.$expand && params.$expand.length > 0) {
+      const result = await this.rawFindWithPopulate(resource, params);
+      return this.normalizeQueryResult(result, params);
     }
 
-    const resultObj = result as { records?: T[]; total?: number; value?: T[]; count?: number };
-    const records = resultObj.records || resultObj.value || [];
-    const total = resultObj.total ?? resultObj.count ?? records.length;
-    return {
-      data: records,
-      total,
-      // Calculate page number safely
-      page: params?.$skip && params.$top ? Math.floor(params.$skip / params.$top) + 1 : 1,
-      pageSize: params?.$top,
-      hasMore: params?.$top ? records.length === params.$top : false,
-    };
+    const queryOptions = this.convertQueryParams(params);
+    const result: unknown = await this.client.data.find<T>(resource, queryOptions);
+    return this.normalizeQueryResult(result, params);
   }
 
   /**
    * Find a single record by ID.
    */
-  async findOne(resource: string, id: string | number, _params?: QueryParams): Promise<T | null> {
+  async findOne(resource: string, id: string | number, params?: QueryParams): Promise<T | null> {
     await this.connect();
+
+    // When $expand is requested, use a raw GET request with a filter by _id
+    // and populate. The installed server v3.0.10's getData() does not support
+    // expand/populate, so we route through findData which does.
+    if (params?.$expand && params.$expand.length > 0) {
+      try {
+        const findParams: QueryParams = {
+          ...params,
+          $filter: { _id: String(id) },
+          $top: 1,
+        };
+        const result = await this.rawFindWithPopulate(resource, findParams);
+        const resultObj = result as { records?: T[]; value?: T[] };
+        const records = resultObj.records || resultObj.value || [];
+        return records[0] || null;
+      } catch (error: unknown) {
+        if ((error as Record<string, unknown>)?.status === 404) {
+          return null;
+        }
+        throw error;
+      }
+    }
 
     try {
       const result = await this.client.data.get<T>(resource, String(id));
@@ -488,6 +501,115 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
         { resource, originalError: error }
       );
     }
+  }
+
+  /**
+   * Normalize the result from data.find() or data.query() into a consistent QueryResult.
+   */
+  private normalizeQueryResult(result: unknown, params?: QueryParams): QueryResult<T> {
+    // Handle legacy/raw array response (e.g. from some mock servers or non-OData endpoints)
+    if (Array.isArray(result)) {
+      return {
+        data: result,
+        total: result.length,
+        page: 1,
+        pageSize: result.length,
+        hasMore: false,
+      };
+    }
+
+    const resultObj = result as { records?: T[]; total?: number; value?: T[]; count?: number };
+    const records = resultObj.records || resultObj.value || [];
+    const total = resultObj.total ?? resultObj.count ?? records.length;
+    return {
+      data: records,
+      total,
+      // Calculate page number safely
+      page: params?.$skip && params.$top ? Math.floor(params.$skip / params.$top) + 1 : 1,
+      pageSize: params?.$top,
+      hasMore: params?.$top ? records.length === params.$top : false,
+    };
+  }
+
+  /**
+   * Make a raw GET request to the data API with `populate` as a URL query param.
+   * Used when $expand is needed, since the client SDK's data.find() does not
+   * support populate/expand. The server's REST API routes GET /data/:object
+   * to findData({ object, query: req.query }) which processes `populate`.
+   */
+  private async rawFindWithPopulate(resource: string, params: QueryParams): Promise<unknown> {
+    const queryParams = new URLSearchParams();
+
+    // Populate: comma-separated field names for lookup expansion
+    if (params.$expand && params.$expand.length > 0) {
+      queryParams.set('populate', params.$expand.join(','));
+    }
+
+    // Pagination
+    if (params.$top !== undefined) {
+      queryParams.set('top', String(params.$top));
+    }
+    if (params.$skip !== undefined) {
+      queryParams.set('skip', String(params.$skip));
+    }
+
+    // Selection
+    if (params.$select && params.$select.length > 0) {
+      queryParams.set('select', params.$select.join(','));
+    }
+
+    // Sorting
+    if (params.$orderby) {
+      if (Array.isArray(params.$orderby)) {
+        const sortStr = params.$orderby.map(item => {
+          if (typeof item === 'string') return item;
+          const field = item.field;
+          const order = item.order || 'asc';
+          return order === 'desc' ? `-${field}` : field;
+        }).join(',');
+        queryParams.set('sort', sortStr);
+      } else {
+        const sortStr = Object.entries(params.$orderby)
+          .map(([field, order]) => order === 'desc' ? `-${field}` : field)
+          .join(',');
+        queryParams.set('sort', sortStr);
+      }
+    }
+
+    // Filter
+    if (params.$filter) {
+      queryParams.set('filter', JSON.stringify(params.$filter));
+    }
+
+    const baseUrl = this.baseUrl.replace(/\/$/, '');
+    const qs = queryParams.toString();
+    // Avoid doubling /api/v1 if baseUrl already includes it
+    const hasApiVersionSuffix = /\/api\/v\d+$/i.test(baseUrl);
+    const dataPath = hasApiVersionSuffix ? '/data' : '/api/v1/data';
+    const url = `${baseUrl}${dataPath}/${resource}${qs ? `?${qs}` : ''}`;
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+
+    const res = await this.fetchImpl(url, { method: 'GET', headers });
+
+    if (!res.ok) {
+      const errorBody = await res.json().catch(() => ({ message: res.statusText }));
+      const err = new Error(errorBody?.error?.message || errorBody?.message || res.statusText) as any;
+      err.status = res.status;
+      throw err;
+    }
+
+    const body = await res.json();
+    // Unwrap standard response envelope { success, data }
+    if (body && typeof body.success === 'boolean' && 'data' in body) {
+      return body.data;
+    }
+    return body;
   }
 
   /**
