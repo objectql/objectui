@@ -84,7 +84,7 @@ export const DetailSection: React.FC<DetailSectionProps> = ({
       const resolvedType = field.type || objectDefField?.type;
       const enrichedField: Record<string, any> = { ...field };
       if (objectDefField) {
-        if (!enrichedField.type && objectDefField.type) enrichedField.type = objectDefField.type;
+        if (!field.type && objectDefField.type) enrichedField.type = objectDefField.type;
         if (objectDefField.options && !enrichedField.options) enrichedField.options = objectDefField.options;
         if (objectDefField.currency && !enrichedField.currency) enrichedField.currency = objectDefField.currency;
         if (objectDefField.precision !== undefined && enrichedField.precision === undefined) enrichedField.precision = objectDefField.precision;
