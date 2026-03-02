@@ -25,7 +25,7 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
-import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
+import { MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import { SkeletonDashboard } from './skeletons';
 import { useMetadata } from '../context/MetadataProvider';
 import { resolveI18nLabel } from '../utils';
@@ -129,7 +129,7 @@ function extractDashboardConfig(schema: DashboardSchema): Record<string, any> {
 
 export function DashboardView({ dataSource }: { dataSource?: any }) {
   const { dashboardName } = useParams<{ dashboardName: string }>();
-  const { showDebug, toggleDebug } = useMetadataInspector();
+  const { showDebug } = useMetadataInspector();
   const adapter = useAdapter();
   const { t } = useObjectTranslation();
   const [isLoading, setIsLoading] = useState(true);
@@ -416,7 +416,6 @@ export function DashboardView({ dataSource }: { dataSource?: any }) {
             <Pencil className="h-3.5 w-3.5" />
             Edit
           </button>
-          <MetadataToggle open={showDebug} onToggle={toggleDebug} />
         </div>
       </div>
 
