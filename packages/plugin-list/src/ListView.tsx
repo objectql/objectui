@@ -514,6 +514,9 @@ export const ListView: React.FC<ListViewProps> = ({
   // Fetch object definition
   React.useEffect(() => {
     let isMounted = true;
+    // Reset loaded flag so data fetch waits for the new schema
+    setObjectDefLoaded(false);
+    setObjectDef(null);
     const fetchObjectDef = async () => {
       if (!dataSource || !schema.objectName) {
         setObjectDefLoaded(true);

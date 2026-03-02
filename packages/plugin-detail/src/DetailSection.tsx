@@ -78,12 +78,13 @@ export const DetailSection: React.FC<DetailSectionProps> = ({
 
     const displayValue = (() => {
       if (value === null || value === undefined) return '-';
-      // Enrich field with objectSchema metadata when field.type is not set
+      // Enrich field with objectSchema metadata — merge missing properties
+      // even when field.type is explicitly set (e.g., type: 'lookup' without reference_to)
       const objectDefField = objectSchema?.fields?.[field.name];
       const resolvedType = field.type || objectDefField?.type;
       const enrichedField: Record<string, any> = { ...field };
-      if (!field.type && objectDefField) {
-        if (objectDefField.type) enrichedField.type = objectDefField.type;
+      if (objectDefField) {
+        if (!enrichedField.type && objectDefField.type) enrichedField.type = objectDefField.type;
         if (objectDefField.options && !enrichedField.options) enrichedField.options = objectDefField.options;
         if (objectDefField.currency && !enrichedField.currency) enrichedField.currency = objectDefField.currency;
         if (objectDefField.precision !== undefined && enrichedField.precision === undefined) enrichedField.precision = objectDefField.precision;

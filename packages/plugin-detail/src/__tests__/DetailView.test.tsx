@@ -600,7 +600,8 @@ describe('DetailView', () => {
     render(<DetailView schema={schema} dataSource={mockDataSource} />);
 
     await waitFor(() => {
-      expect(mockDataSource.findOne).toHaveBeenCalledWith('contact', 'c1', undefined);
+      // When no lookup fields exist, findOne should be called without $expand params
+      expect(mockDataSource.findOne).toHaveBeenCalledWith('contact', 'c1');
     });
   });
 

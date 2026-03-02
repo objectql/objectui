@@ -583,7 +583,10 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
 
     const baseUrl = this.baseUrl.replace(/\/$/, '');
     const qs = queryParams.toString();
-    const url = `${baseUrl}/api/v1/data/${resource}${qs ? `?${qs}` : ''}`;
+    // Avoid doubling /api/v1 if baseUrl already includes it
+    const hasApiVersionSuffix = /\/api\/v\d+$/i.test(baseUrl);
+    const dataPath = hasApiVersionSuffix ? '/data' : '/api/v1/data';
+    const url = `${baseUrl}${dataPath}/${resource}${qs ? `?${qs}` : ''}`;
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',

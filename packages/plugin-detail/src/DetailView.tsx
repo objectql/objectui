@@ -89,6 +89,9 @@ export const DetailView: React.FC<DetailViewProps> = ({
 
     if (dataSource && schema.objectName && schema.resourceId) {
       setLoading(true);
+      // Clear stale state when navigating between objects/records
+      setObjectSchema(null);
+      setData(null);
       const objectName = schema.objectName;
       const resourceId = schema.resourceId;
       const prefix = `${objectName}-`;
@@ -106,15 +109,17 @@ export const DetailView: React.FC<DetailViewProps> = ({
 
       schemaPromise.then((resolvedSchema) => {
         if (!isMounted) return;
-        if (resolvedSchema) {
-          setObjectSchema(resolvedSchema);
-        }
+        setObjectSchema(resolvedSchema);
 
         // Compute $expand from objectSchema
         const expandFields = buildExpandFields(resolvedSchema?.fields, allFields);
         const params = expandFields.length > 0 ? { $expand: expandFields } : undefined;
 
-        return dataSource.findOne(objectName, resourceId, params).then((result) => {
+        const findOnePromise = params
+          ? dataSource.findOne(objectName, resourceId, params)
+          : dataSource.findOne(objectName, resourceId);
+
+        return findOnePromise.then((result) => {
           if (!isMounted) return;
           if (result) {
             setData(result);
@@ -126,7 +131,10 @@ export const DetailView: React.FC<DetailViewProps> = ({
           const altId = resIdStr.startsWith(prefix)
             ? resIdStr.slice(prefix.length)   // strip prefix
             : `${prefix}${resIdStr}`;          // prepend prefix
-          return dataSource.findOne(objectName, altId, params).then((fallbackResult) => {
+          return (params
+            ? dataSource.findOne(objectName, altId, params)
+            : dataSource.findOne(objectName, altId)
+          ).then((fallbackResult) => {
             if (isMounted) {
               setData(fallbackResult);
               setLoading(false);

@@ -215,5 +215,31 @@ describe('ObjectStackAdapter $expand support', () => {
 
       expect(result.data).toHaveLength(1);
     });
+
+    it('should not double /api/v1 when baseUrl already includes it', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ records: [], total: 0 }),
+      });
+
+      // Create adapter with /api/v1 in baseUrl
+      const apiAdapter = new ObjectStackAdapter({
+        baseUrl: 'http://localhost:3000/api/v1',
+        autoReconnect: false,
+        fetch: mockFetch,
+      });
+      (apiAdapter as any).client = mockClient;
+      (apiAdapter as any).connected = true;
+
+      await apiAdapter.find('order', {
+        $expand: ['customer'],
+      });
+
+      expect(mockFetch).toHaveBeenCalled();
+      const fetchUrl = mockFetch.mock.calls[0][0] as string;
+      // Should be /api/v1/data/order not /api/v1/api/v1/data/order
+      expect(fetchUrl).toBe('http://localhost:3000/api/v1/data/order?populate=customer');
+      expect(fetchUrl).not.toContain('/api/v1/api/v1');
+    });
   });
 });
