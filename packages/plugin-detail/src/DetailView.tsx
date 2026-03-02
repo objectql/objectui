@@ -42,9 +42,86 @@ import { DetailTabs } from './DetailTabs';
 import { RelatedList } from './RelatedList';
 import { RecordComments } from './RecordComments';
 import { ActivityTimeline } from './ActivityTimeline';
-import { SchemaRenderer } from '@object-ui/react';
+import { SchemaRenderer, useObjectTranslation } from '@object-ui/react';
 import { buildExpandFields } from '@object-ui/core';
 import type { DetailViewSchema, DataSource } from '@object-ui/types';
+
+/**
+ * Default English translations for the detail view.
+ * Used as fallback when no I18nProvider is available.
+ */
+const DETAIL_DEFAULT_TRANSLATIONS: Record<string, string> = {
+  'detail.back': 'Back',
+  'detail.edit': 'Edit',
+  'detail.editInline': 'Edit inline',
+  'detail.save': 'Save',
+  'detail.saveChanges': 'Save changes',
+  'detail.editFieldsInline': 'Edit fields inline',
+  'detail.share': 'Share',
+  'detail.duplicate': 'Duplicate',
+  'detail.export': 'Export',
+  'detail.viewHistory': 'View history',
+  'detail.delete': 'Delete',
+  'detail.moreActions': 'More actions',
+  'detail.addToFavorites': 'Add to favorites',
+  'detail.removeFromFavorites': 'Remove from favorites',
+  'detail.previousRecord': 'Previous record',
+  'detail.nextRecord': 'Next record',
+  'detail.recordOf': '{{current}} of {{total}}',
+  'detail.recordNotFound': 'Record not found',
+  'detail.recordNotFoundDescription': 'The record you are looking for does not exist or may have been deleted.',
+  'detail.goBack': 'Go back',
+  'detail.details': 'Details',
+  'detail.related': 'Related',
+  'detail.relatedRecords': '{{count}} records',
+  'detail.relatedRecordOne': '{{count}} record',
+  'detail.noRelatedRecords': 'No related records found',
+  'detail.loading': 'Loading...',
+  'detail.copyToClipboard': 'Copy to clipboard',
+  'detail.copied': 'Copied!',
+  'detail.deleteConfirmation': 'Are you sure you want to delete this record?',
+  'detail.editRecord': 'Edit record',
+  'detail.viewAll': 'View All',
+  'detail.new': 'New',
+  'detail.emptyValue': '—',
+};
+
+/**
+ * Safe wrapper for useObjectTranslation that falls back to English defaults
+ * when I18nProvider is not available (e.g., standalone usage).
+ */
+function useDetailTranslation() {
+  try {
+    const result = useObjectTranslation();
+    const testValue = result.t('detail.back');
+    if (testValue === 'detail.back') {
+      return {
+        t: (key: string, options?: Record<string, unknown>) => {
+          let value = DETAIL_DEFAULT_TRANSLATIONS[key] || key;
+          if (options) {
+            for (const [k, v] of Object.entries(options)) {
+              value = value.replace(`{{${k}}}`, String(v));
+            }
+          }
+          return value;
+        },
+      };
+    }
+    return { t: result.t };
+  } catch {
+    return {
+      t: (key: string, options?: Record<string, unknown>) => {
+        let value = DETAIL_DEFAULT_TRANSLATIONS[key] || key;
+        if (options) {
+          for (const [k, v] of Object.entries(options)) {
+            value = value.replace(`{{${k}}}`, String(v));
+          }
+        }
+        return value;
+      },
+    };
+  }
+}
 
 export interface DetailViewProps {
   schema: DetailViewSchema;
@@ -75,6 +152,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
   const [isInlineEditing, setIsInlineEditing] = React.useState(false);
   const [editedValues, setEditedValues] = React.useState<Record<string, any>>({});
   const [objectSchema, setObjectSchema] = React.useState<any>(null);
+  const { t } = useDetailTranslation();
 
   // Fetch objectSchema + data with $expand when DataSource is provided
   React.useEffect(() => {
@@ -199,7 +277,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
   }, [onEdit, schema]);
 
   const handleDelete = React.useCallback(() => {
-    const confirmMessage = schema.deleteConfirmation || 'Are you sure you want to delete this record?';
+    const confirmMessage = schema.deleteConfirmation || t('detail.deleteConfirmation');
     // Use window.confirm as fallback — the ActionProvider's onConfirm handler
     // will intercept this if wired up via the action system.
     if (window.confirm(confirmMessage)) {
@@ -215,7 +293,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
     // Share functionality - could trigger share dialog or copy link
     if (navigator.share && schema.objectName && schema.resourceId) {
       navigator.share({
-        title: schema.title || 'Record Details',
+        title: schema.title || t('detail.details'),
         text: `${schema.objectName} #${schema.resourceId}`,
         url: window.location.href,
       }).catch((err) => console.log('Share failed:', err));
@@ -299,14 +377,14 @@ export const DetailView: React.FC<DetailViewProps> = ({
   if (!data && !schema.data) {
     return (
       <div className={cn('flex flex-col items-center justify-center py-16 text-center', className)}>
-        <p className="text-lg font-semibold">Record not found</p>
+        <p className="text-lg font-semibold">{t('detail.recordNotFound')}</p>
         <p className="text-sm text-muted-foreground mt-1">
-          The record you are looking for does not exist or may have been deleted.
+          {t('detail.recordNotFoundDescription')}
         </p>
         {(schema.showBack ?? true) && (
           <Button variant="outline" size="sm" onClick={handleBack} className="mt-4 gap-2">
             <ArrowLeft className="h-4 w-4" />
-            Go back
+            {t('detail.goBack')}
           </Button>
         )}
       </div>
@@ -326,13 +404,13 @@ export const DetailView: React.FC<DetailViewProps> = ({
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Back</TooltipContent>
+                <TooltipContent>{t('detail.back')}</TooltipContent>
               </Tooltip>
             )}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-xl sm:text-2xl font-bold truncate">
-                  {(schema.primaryField && data?.[schema.primaryField]) || schema.title || 'Details'}
+                  {(schema.primaryField && data?.[schema.primaryField]) || schema.title || t('detail.details')}
                 </h1>
                 {schema.summaryFields?.map((fieldName) => {
                   const val = data?.[fieldName];
@@ -359,7 +437,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                    {isFavorite ? t('detail.removeFromFavorites') : t('detail.addToFavorites')}
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -394,10 +472,10 @@ export const DetailView: React.FC<DetailViewProps> = ({
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Previous record</TooltipContent>
+                  <TooltipContent>{t('detail.previousRecord')}</TooltipContent>
                 </Tooltip>
                 <span className="text-xs text-muted-foreground whitespace-nowrap px-1">
-                  {schema.recordNavigation.currentIndex + 1} of {schema.recordNavigation.recordIds.length}
+                  {t('detail.recordOf', { current: schema.recordNavigation.currentIndex + 1, total: schema.recordNavigation.recordIds.length })}
                 </span>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -416,7 +494,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Next record</TooltipContent>
+                  <TooltipContent>{t('detail.nextRecord')}</TooltipContent>
                 </Tooltip>
               </div>
             )}
@@ -438,18 +516,18 @@ export const DetailView: React.FC<DetailViewProps> = ({
                     {isInlineEditing ? (
                       <>
                         <Check className="h-4 w-4" />
-                        <span className="hidden sm:inline">Save</span>
+                        <span className="hidden sm:inline">{t('detail.save')}</span>
                       </>
                     ) : (
                       <>
                         <Edit className="h-4 w-4" />
-                        <span className="hidden sm:inline">Edit inline</span>
+                        <span className="hidden sm:inline">{t('detail.editInline')}</span>
                       </>
                     )}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {isInlineEditing ? 'Save changes' : 'Edit fields inline'}
+                  {isInlineEditing ? t('detail.saveChanges') : t('detail.editFieldsInline')}
                 </TooltipContent>
               </Tooltip>
             )}
@@ -461,7 +539,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
                   <Share2 className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Share</TooltipContent>
+              <TooltipContent>{t('detail.share')}</TooltipContent>
             </Tooltip>
 
             {/* Edit Button */}
@@ -470,10 +548,10 @@ export const DetailView: React.FC<DetailViewProps> = ({
                 <TooltipTrigger asChild>
                   <Button variant="default" onClick={handleEdit} className="gap-2">
                     <Edit className="h-4 w-4" />
-                    <span className="hidden sm:inline">Edit</span>
+                    <span className="hidden sm:inline">{t('detail.edit')}</span>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Edit record</TooltipContent>
+                <TooltipContent>{t('detail.editRecord')}</TooltipContent>
               </Tooltip>
             )}
 
@@ -487,20 +565,20 @@ export const DetailView: React.FC<DetailViewProps> = ({
                     </Button>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
-                <TooltipContent>More actions</TooltipContent>
+                <TooltipContent>{t('detail.moreActions')}</TooltipContent>
               </Tooltip>
               <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] sm:w-48 max-h-[60vh] overflow-y-auto">
                 <DropdownMenuItem onClick={handleDuplicate}>
                   <Copy className="h-4 w-4 mr-2" />
-                  Duplicate
+                  {t('detail.duplicate')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleExport}>
                   <Download className="h-4 w-4 mr-2" />
-                  Export
+                  {t('detail.export')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleViewHistory}>
                   <History className="h-4 w-4 mr-2" />
-                  View history
+                  {t('detail.viewHistory')}
                 </DropdownMenuItem>
                 {schema.showDelete && (
                   <>
@@ -510,7 +588,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
                       className="text-destructive focus:text-destructive"
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
-                      Delete
+                      {t('detail.delete')}
                     </DropdownMenuItem>
                   </>
                 )}
@@ -564,7 +642,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
       {/* Related Lists */}
       {schema.related && schema.related.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Related</h2>
+          <h2 className="text-xl font-semibold">{t('detail.related')}</h2>
           {schema.related.map((related, index) => (
             <RelatedList
               key={index}

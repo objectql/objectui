@@ -7,9 +7,52 @@
  */
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@object-ui/components';
-import { SchemaRenderer } from '@object-ui/react';
+import { Card, CardHeader, CardTitle, CardContent, Button } from '@object-ui/components';
+import { SchemaRenderer, useObjectTranslation } from '@object-ui/react';
+import { Plus, ExternalLink } from 'lucide-react';
 import type { DataSource } from '@object-ui/types';
+
+const RELATED_TRANSLATIONS: Record<string, string> = {
+  'detail.relatedRecords': '{{count}} records',
+  'detail.relatedRecordOne': '{{count}} record',
+  'detail.noRelatedRecords': 'No related records found',
+  'detail.loading': 'Loading...',
+  'detail.viewAll': 'View All',
+  'detail.new': 'New',
+};
+
+function useRelatedTranslation() {
+  try {
+    const result = useObjectTranslation();
+    const testValue = result.t('detail.loading');
+    if (testValue === 'detail.loading') {
+      return {
+        t: (key: string, options?: Record<string, unknown>) => {
+          let value = RELATED_TRANSLATIONS[key] || key;
+          if (options) {
+            for (const [k, v] of Object.entries(options)) {
+              value = value.replace(`{{${k}}}`, String(v));
+            }
+          }
+          return value;
+        },
+      };
+    }
+    return { t: result.t };
+  } catch {
+    return {
+      t: (key: string, options?: Record<string, unknown>) => {
+        let value = RELATED_TRANSLATIONS[key] || key;
+        if (options) {
+          for (const [k, v] of Object.entries(options)) {
+            value = value.replace(`{{${k}}}`, String(v));
+          }
+        }
+        return value;
+      },
+    };
+  }
+}
 
 export interface RelatedListProps {
   title: string;
@@ -20,6 +63,10 @@ export interface RelatedListProps {
   columns?: any[];
   className?: string;
   dataSource?: DataSource;
+  /** Callback when "New" button is clicked */
+  onNew?: () => void;
+  /** Callback when "View All" button is clicked */
+  onViewAll?: () => void;
 }
 
 export const RelatedList: React.FC<RelatedListProps> = ({
@@ -31,9 +78,12 @@ export const RelatedList: React.FC<RelatedListProps> = ({
   columns,
   className,
   dataSource,
+  onNew,
+  onViewAll,
 }) => {
   const [relatedData, setRelatedData] = React.useState(data);
   const [loading, setLoading] = React.useState(false);
+  const { t } = useRelatedTranslation();
 
   React.useEffect(() => {
     if (api && !data.length) {
@@ -90,24 +140,44 @@ export const RelatedList: React.FC<RelatedListProps> = ({
     }
   }, [type, relatedData, columns, schema]);
 
+  const recordCountText = relatedData.length === 1
+    ? t('detail.relatedRecordOne', { count: relatedData.length })
+    : t('detail.relatedRecords', { count: relatedData.length });
+
   return (
     <Card className={className}>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>{title}</span>
-          <span className="text-sm font-normal text-muted-foreground">
-            {relatedData.length} record{relatedData.length !== 1 ? 's' : ''}
-          </span>
+          <div className="flex items-center gap-2">
+            <span>{title}</span>
+            <span className="text-sm font-normal text-muted-foreground">
+              {recordCountText}
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            {onNew && (
+              <Button variant="ghost" size="sm" onClick={onNew} className="gap-1 h-7 text-xs">
+                <Plus className="h-3.5 w-3.5" />
+                {t('detail.new')}
+              </Button>
+            )}
+            {onViewAll && (
+              <Button variant="ghost" size="sm" onClick={onViewAll} className="gap-1 h-7 text-xs">
+                {t('detail.viewAll')}
+                <ExternalLink className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (
           <div className="flex items-center justify-center py-8 text-muted-foreground">
-            Loading...
+            {t('detail.loading')}
           </div>
         ) : relatedData.length === 0 ? (
           <div className="flex items-center justify-center py-8 text-muted-foreground text-sm">
-            No related records found
+            {t('detail.noRelatedRecords')}
           </div>
         ) : (
           <SchemaRenderer schema={viewSchema} />
