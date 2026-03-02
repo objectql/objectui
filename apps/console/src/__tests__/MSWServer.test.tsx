@@ -109,14 +109,16 @@ describe('MSW Server Integration', () => {
 
     // Seed data defines _id "101" for the first opportunity.
     // After syncDriverIds, id must equal _id (both "101").
-    const first = opportunities.find((r: any) => r._id === '101');
-    expect(first).toBeDefined();
-    expect(first.id).toBe('101');
-    expect(first._id).toBe('101');
+    const targetOpportunity = opportunities.find((r: any) => r._id === '101');
+    expect(targetOpportunity).toBeDefined();
+    expect(targetOpportunity.id).toBe('101');
+    expect(targetOpportunity._id).toBe('101');
   });
 
   it('should fetch a seed record by _id via HTTP', async () => {
-    // GET /data/opportunity/101 — uses the stable seed _id
+    // GET /data/opportunity/101 — uses the stable seed _id.
+    // Response may be wrapped in { success, data: { record } } (HttpDispatcher)
+    // or returned as { record } (direct protocol).
     const res = await fetch('http://localhost/api/v1/data/opportunity/101');
     expect(res.ok).toBe(true);
     const body = await res.json();
