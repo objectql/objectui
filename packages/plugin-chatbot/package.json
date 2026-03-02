@@ -37,7 +37,7 @@
     "@object-ui/types": "workspace:*",
     "lucide-react": "^0.575.0",
     "react-markdown": "^10.1.0",
-    "react-syntax-highlighter": "^16.1.0",
+    "react-syntax-highlighter": "^16.1.1",
     "remark-gfm": "^4.0.1"
   },
   "peerDependencies": {
