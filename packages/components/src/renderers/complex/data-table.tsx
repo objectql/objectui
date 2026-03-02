@@ -68,6 +68,20 @@ const TABLE_DEFAULT_TRANSLATIONS: Record<string, string> = {
   'table.rowsPerPage': 'Rows per page',
   'table.pageInfo': 'Page {{current}} of {{total}}',
   'table.totalRecords': '{{count}} total',
+  'table.noResults': 'No results found',
+  'table.noResultsHint': 'Try adjusting your filters or search query.',
+  'table.sortAsc': 'Sort ascending',
+  'table.sortDesc': 'Sort descending',
+  'table.hideColumn': 'Hide column',
+  'table.cancelAll': 'Cancel All',
+  'table.saveAll': 'Save All ({{count}})',
+  'table.exportCSV': 'Export CSV',
+  'table.addRecord': 'Add record',
+  'table.open': 'Open',
+  'table.search': 'Search...',
+  'table.modified': '{{count}} row modified',
+  'table.selected': '{{count}} selected',
+  'common.actions': 'Actions',
 };
 
 /**
@@ -650,7 +664,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
               <div className="relative w-full sm:max-w-sm flex-1">
                 <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search..."
+                  placeholder={t('table.search')}
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
@@ -666,7 +680,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
             {hasPendingChanges && (
               <>
                 <div className="text-sm text-muted-foreground">
-                  {pendingChanges.size} row{pendingChanges.size > 1 ? 's' : ''} modified
+                  {t('table.modified', { count: pendingChanges.size })}
                 </div>
                 <Button
                   variant="outline"
@@ -675,7 +689,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                   disabled={isSaving}
                 >
                   <X className="h-4 w-4 mr-2" />
-                  Cancel All
+                  {t('table.cancelAll')}
                 </Button>
                 <Button
                   variant="default"
@@ -684,7 +698,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                   disabled={isSaving}
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  Save All ({pendingChanges.size})
+                  {t('table.saveAll', { count: pendingChanges.size })}
                 </Button>
               </>
             )}
@@ -697,13 +711,13 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                 disabled={sortedData.length === 0}
               >
                 <Download className="h-4 w-4 mr-2" />
-                Export CSV
+                {t('table.exportCSV')}
               </Button>
             )}
             
             {selectable && selectedRowIds.size > 0 && (
               <div className="text-sm text-muted-foreground">
-                {selectedRowIds.size} selected
+                {t('table.selected', { count: selectedRowIds.size })}
               </div>
             )}
           </div>
@@ -717,7 +731,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
           <TableHeader className="sticky top-0 bg-muted/30 z-10">
             <TableRow>
               {selectable && (
-                <TableHead className={cn("w-12 bg-muted/30", frozenColumns > 0 && "sticky left-0 z-20")}>
+                <TableHead className={cn("w-10 bg-muted/30", frozenColumns > 0 && "sticky left-0 z-20")}>
                   <Checkbox
                     checked={allPageRowsSelected ? true : somePageRowsSelected ? 'indeterminate' : false}
                     onCheckedChange={handleSelectAll}
@@ -725,7 +739,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                 </TableHead>
               )}
               {showRowNumbers && (
-                <TableHead className={cn("w-12 bg-muted/30 text-center", frozenColumns > 0 && "sticky z-20")} style={frozenColumns > 0 ? { left: selectable ? 48 : 0 } : undefined}>
+                <TableHead className={cn("w-10 bg-muted/30 text-center", frozenColumns > 0 && "sticky z-20")} style={frozenColumns > 0 ? { left: selectable ? 40 : 0 } : undefined}>
                   <span className="text-xs text-muted-foreground">#</span>
                 </TableHead>
               )}
@@ -741,7 +755,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                         return sum + (typeof w === 'number' ? w : w ? parseInt(String(w), 10) || 150 : 150);
                       }
                       return sum;
-                    }, (selectable ? 48 : 0) + (showRowNumbers ? 48 : 0))
+                    }, (selectable ? 40 : 0) + (showRowNumbers ? 40 : 0))
                   : undefined;
                 
                 return (
@@ -797,7 +811,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                 );
               })}
               {rowActions && (
-                <TableHead className="w-24 text-right bg-muted/30">Actions</TableHead>
+                <TableHead className="w-24 text-right bg-muted/30">{t('common.actions')}</TableHead>
               )}
             </TableRow>
           </TableHeader>
@@ -811,8 +825,8 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                   >
                     <div className="flex flex-col items-center justify-center gap-2">
                       <Search className="h-8 w-8 text-muted-foreground/50" />
-                      <p>No results found</p>
-                      <p className="text-xs text-muted-foreground/50">Try adjusting your filters or search query.</p>
+                      <p>{t('table.noResults')}</p>
+                      <p className="text-xs text-muted-foreground/50">{t('table.noResultsHint')}</p>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -844,7 +858,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                       key={rowId} 
                       data-state={isSelected ? 'selected' : undefined}
                       className={cn(
-                        "bg-background border-b border-border/50 hover:bg-muted/30 group/row",
+                        "bg-background border-b border-border hover:bg-muted/30 group/row",
                         schema.onRowClick && "cursor-pointer",
                         rowHasChanges && "bg-amber-50 dark:bg-amber-950/20",
                         rowClassName && rowClassName(row, rowIndex)
@@ -879,7 +893,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                         </TableCell>
                       )}
                       {showRowNumbers && (
-                        <TableCell className={cn("text-center w-12 relative", frozenColumns > 0 && "sticky z-10 bg-background")} style={frozenColumns > 0 ? { left: selectable ? 48 : 0 } : undefined}>
+                        <TableCell className={cn("text-center w-10 relative", frozenColumns > 0 && "sticky z-10 bg-background")} style={frozenColumns > 0 ? { left: selectable ? 40 : 0 } : undefined}>
                           <span className={cn("text-xs text-muted-foreground tabular-nums select-none", selectable ? "group-hover/row:hidden" : "group-hover/row:invisible")}>
                             {globalIndex + 1}
                           </span>
@@ -902,7 +916,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                               }}
                               title="Open record"
                             >
-                              <span>Open</span>
+                              <span>{t('table.open')}</span>
                               <ChevronRight className="h-3 w-3" />
                             </button>
                           )}
@@ -923,7 +937,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                                 return sum + (typeof w === 'number' ? w : w ? parseInt(String(w), 10) || 150 : 150);
                               }
                               return sum;
-                            }, (selectable ? 48 : 0) + (showRowNumbers ? 48 : 0))
+                            }, (selectable ? 40 : 0) + (showRowNumbers ? 40 : 0))
                           : undefined;
                         
                         return (
@@ -1016,7 +1030,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                 {/* Add record row (Airtable-style) */}
                 {showAddRow && (
                   <TableRow
-                    className="hover:bg-muted/30 cursor-pointer border-b border-border/50"
+                    className="hover:bg-muted/30 cursor-pointer border-b border-border"
                     data-testid="add-record-row"
                     onClick={() => schema.onAddRecord?.()}
                   >
@@ -1026,7 +1040,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                     >
                       <span className="flex items-center gap-1.5 text-muted-foreground text-sm hover:text-foreground transition-colors">
                         <Plus className="h-3.5 w-3.5" />
-                        Add record
+                        {t('table.addRecord')}
                       </span>
                     </TableCell>
                   </TableRow>
@@ -1034,7 +1048,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                 {/* Filler rows to maintain height consistency (only when pagination is enabled) */}
                 {pagination && paginatedData.length > 0 && Array.from({ length: Math.max(0, pageSize - paginatedData.length) }).map((_, i) => (
                   <TableRow key={`empty-${i}`} className="hover:bg-transparent">
-                    <TableCell colSpan={columns.length + (selectable ? 1 : 0) + (rowActions ? 1 : 0)} className="h-[52px] p-0" />
+                    <TableCell colSpan={columns.length + (selectable ? 1 : 0) + (showRowNumbers ? 1 : 0) + (rowActions ? 1 : 0)} className="h-[52px] p-0" />
                   </TableRow>
                 ))}
               </>
@@ -1130,7 +1144,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                 }}
               >
                 <ChevronUp className="h-3.5 w-3.5" />
-                Sort ascending
+                {t('table.sortAsc')}
               </button>
               <button
                 type="button"
@@ -1142,7 +1156,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                 }}
               >
                 <ChevronDown className="h-3.5 w-3.5" />
-                Sort descending
+                {t('table.sortDesc')}
               </button>
               <div className="my-1 h-px bg-border" />
             </>
@@ -1153,7 +1167,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
             onClick={() => hideColumn(contextMenu.columnKey)}
           >
             <X className="h-3.5 w-3.5" />
-            Hide column
+            {t('table.hideColumn')}
           </button>
         </div>
       )}

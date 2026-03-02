@@ -216,6 +216,9 @@ const LIST_DEFAULT_TRANSLATIONS: Record<string, string> = {
   'list.addRecord': 'Add record',
   'list.tabs': 'Tabs',
   'list.allRecords': 'All Records',
+  'list.share': 'Share',
+  'list.print': 'Print',
+  'list.hideFieldsTitle': 'Hide Fields',
 };
 
 /**
@@ -1038,7 +1041,7 @@ export const ListView: React.FC<ListViewProps> = ({
           className="flex items-center justify-center text-xs text-muted-foreground"
           style={{ height: pullDistance }}
         >
-          {isRefreshing ? 'Refreshing…' : 'Pull to refresh'}
+          {isRefreshing ? t('list.refreshing') : t('list.pullToRefresh')}
         </div>
       )}
       {/* Airtable-style Toolbar — Row 1: View tabs */}
@@ -1100,7 +1103,7 @@ export const ListView: React.FC<ListViewProps> = ({
                 )}
               >
                 <EyeOff className="h-3.5 w-3.5 mr-1.5" />
-                <span className="hidden sm:inline">Hide fields</span>
+                <span className="hidden sm:inline">{t('list.hideFields')}</span>
                 {hiddenFields.size > 0 && (
                   <span className="ml-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary/10 text-[10px] font-medium text-primary">
                     {hiddenFields.size}
@@ -1111,10 +1114,10 @@ export const ListView: React.FC<ListViewProps> = ({
             <PopoverContent align="start" className="w-64 p-3">
               <div className="space-y-2">
                 <div className="flex items-center justify-between border-b pb-2">
-                  <h4 className="font-medium text-sm">Hide Fields</h4>
+                  <h4 className="font-medium text-sm">{t('list.hideFieldsTitle')}</h4>
                   {hiddenFields.size > 0 && (
                     <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => setHiddenFields(new Set())}>
-                      Show all
+                      {t('list.showAll')}
                     </Button>
                   )}
                 </div>
@@ -1410,7 +1413,7 @@ export const ListView: React.FC<ListViewProps> = ({
               data-testid="share-button"
             >
               <Share2 className="h-3.5 w-3.5 mr-1.5" />
-              <span className="hidden sm:inline">Share</span>
+              <span className="hidden sm:inline">{t('list.share')}</span>
             </Button>
           )}
 
@@ -1424,7 +1427,7 @@ export const ListView: React.FC<ListViewProps> = ({
               data-testid="print-button"
             >
               <Printer className="h-3.5 w-3.5 mr-1.5" />
-              <span className="hidden sm:inline">Print</span>
+              <span className="hidden sm:inline">{t('list.print')}</span>
             </Button>
           )}
 

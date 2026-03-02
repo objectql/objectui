@@ -1065,12 +1065,18 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
     : (schema.frozenColumns ?? 1);
 
   // Determine selection mode (support both new and legacy formats)
+  // Auto-enable 'multiple' selection when bulk actions are defined
+  const effectiveBulkActions = schema.batchActions ?? (schema as any).bulkActions;
+  const hasBulkActions = effectiveBulkActions && effectiveBulkActions.length > 0;
   let selectionMode: 'none' | 'single' | 'multiple' | boolean = false;
   if (schema.selection?.type) {
     selectionMode = schema.selection.type === 'none' ? false : schema.selection.type;
   } else if (schema.selectable !== undefined) {
     // Legacy support
     selectionMode = schema.selectable;
+  } else if (hasBulkActions) {
+    // Auto-enable multi-select when bulk actions exist
+    selectionMode = 'multiple';
   }
 
   // Determine pagination settings (support both new and legacy formats)
@@ -1502,9 +1508,6 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
       </div>
     </div>
   ) : null;
-
-  // Bulk actions — support both batchActions (ObjectUI) and bulkActions (spec) names
-  const effectiveBulkActions = schema.batchActions ?? (schema as any).bulkActions;
 
   // Render grid content: grouped (multiple tables with headers) or flat (single table)
   const gridContent = isGrouped ? (
