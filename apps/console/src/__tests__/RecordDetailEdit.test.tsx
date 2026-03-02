@@ -89,7 +89,7 @@ describe('RecordDetailView — recordId handling', () => {
     });
 
     // findOne should be called with the FULL URL recordId (no stripping)
-    expect(ds.findOne).toHaveBeenCalledWith('contact', 'contact-1772350253615-4');
+    expect(ds.findOne).toHaveBeenCalledWith('contact', 'contact-1772350253615-4', undefined);
 
     // Click the Edit button
     const editButton = await screen.findByRole('button', { name: /edit/i });
@@ -115,7 +115,7 @@ describe('RecordDetailView — recordId handling', () => {
     });
 
     // findOne should be called with the original ID unchanged
-    expect(ds.findOne).toHaveBeenCalledWith('contact', 'plain-id-12345');
+    expect(ds.findOne).toHaveBeenCalledWith('contact', 'plain-id-12345', undefined);
 
     const editButton = await screen.findByRole('button', { name: /edit/i });
     await userEvent.click(editButton);

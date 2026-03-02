@@ -77,7 +77,7 @@ describe('ObjectPivotTable', () => {
 
     await waitFor(() => {
       const errorEl = container.querySelector('[data-testid="pivot-error"]');
-      expect(errorEl).toBeDefined();
+      expect(errorEl).not.toBeNull();
     });
 
     expect(screen.getByText('Network error')).toBeDefined();
