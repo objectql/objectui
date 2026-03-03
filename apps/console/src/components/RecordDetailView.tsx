@@ -6,7 +6,7 @@
  * the object field definitions.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { DetailView, RecordChatterPanel } from '@object-ui/plugin-detail';
 import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
@@ -35,12 +35,52 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
   const [isLoading, setIsLoading] = useState(true);
   const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
   const [recordViewers, setRecordViewers] = useState<PresenceUser[]>([]);
+  const [childRelatedData, setChildRelatedData] = useState<Record<string, any[]>>({});
   const objectDef = objects.find((o: any) => o.name === objectName);
 
   // Use the URL recordId as-is — it contains the actual record _id.
   // Navigation code passes `record._id || record.id` directly into the URL
   // without adding any prefix, so no stripping is needed.
   const pureRecordId = recordId;
+
+  // Discover reverse references: other objects with lookup/master_detail fields
+  // pointing to the current object (e.g., order_item.order → order).
+  const childRelations = useMemo(() => {
+    if (!objectDef || !objects) return [];
+    const relations: Array<{ childObject: string; childLabel: string; referenceField: string }> = [];
+    for (const obj of objects) {
+      if (obj.name === objectDef.name) continue;
+      for (const [fieldName, fieldDef] of Object.entries<any>(obj.fields || {})) {
+        if (
+          fieldDef &&
+          (fieldDef.type === 'lookup' || fieldDef.type === 'master_detail') &&
+          fieldDef.reference_to === objectDef.name
+        ) {
+          relations.push({
+            childObject: obj.name,
+            childLabel: obj.label || obj.name,
+            referenceField: fieldName,
+          });
+        }
+      }
+    }
+    return relations;
+  }, [objectDef, objects]);
+
+  // Fetch related child records for each reverse reference
+  useEffect(() => {
+    if (!dataSource || !pureRecordId || childRelations.length === 0) return;
+    for (const { childObject, referenceField } of childRelations) {
+      dataSource.find(childObject, {
+        $filter: `${referenceField} eq '${pureRecordId}'`,
+      })
+        .then((res: any) => {
+          const items = Array.isArray(res) ? res : res?.data || [];
+          setChildRelatedData(prev => ({ ...prev, [childObject]: items }));
+        })
+        .catch(() => {});
+    }
+  }, [dataSource, pureRecordId, childRelations]);
 
   const currentUser = user
     ? { id: user.id, name: user.name, avatar: user.image }
@@ -275,6 +315,13 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
   const sectionGroups: SectionGroup[] | undefined =
     objectDef.views?.detail?.sectionGroups ?? objectDef.views?.form?.sectionGroups;
 
+  // Build related entries from reverse-reference child objects
+  const related = childRelations.map(({ childObject, childLabel }) => ({
+    title: childLabel,
+    type: 'table' as const,
+    data: childRelatedData[childObject] || [],
+  }));
+
   const detailSchema: DetailViewSchema = {
     type: 'detail-view',
     objectName: objectDef.name,
@@ -287,6 +334,7 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
     sections,
     autoTabs: true,
     autoDiscoverRelated: true,
+    ...(related.length > 0 && { related }),
     ...(highlightFields.length > 0 && { highlightFields }),
     ...(sectionGroups && sectionGroups.length > 0 && { sectionGroups }),
     ...(recordHeaderActions.length > 0 && {

@@ -324,6 +324,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
     return discoveredRelated.map((r) => ({
       title: r.title,
       type: r.type,
+      api: r.objectName,
       data: [] as any[],
     }));
   }, [schema.related, discoveredRelated]);

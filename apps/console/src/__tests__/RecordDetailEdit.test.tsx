@@ -193,6 +193,94 @@ describe('RecordDetailView — detail schema features', () => {
     const activeElements = screen.getAllByText('Active');
     expect(activeElements.length).toBeGreaterThanOrEqual(1);
   });
+  it('discovers and renders reverse-reference child objects (e.g., order_item → order)', async () => {
+    const orderItemData = [
+      { id: 'item-1', name: 'Widget A', quantity: 2 },
+      { id: 'item-2', name: 'Widget B', quantity: 5 },
+    ];
+
+    const ds: DataSource = {
+      async getObjectSchema() {
+        return {
+          name: 'order',
+          label: 'Order',
+          fields: {
+            name: { name: 'name', label: 'Name', type: 'text' },
+          },
+        };
+      },
+      findOne: vi.fn().mockResolvedValue({ id: 'order-1', name: 'Order #1' }),
+      find: vi.fn().mockImplementation((objectName: string) => {
+        if (objectName === 'order_item') {
+          return Promise.resolve({ data: orderItemData });
+        }
+        return Promise.resolve({ data: [] });
+      }),
+      create: vi.fn().mockResolvedValue({ id: '1' }),
+      update: vi.fn().mockResolvedValue({ id: '1' }),
+      delete: vi.fn().mockResolvedValue(true),
+    } as any;
+
+    const objectsWithChild = [
+      {
+        name: 'order',
+        label: 'Order',
+        fields: {
+          name: { name: 'name', label: 'Name', type: 'text' },
+        },
+      },
+      {
+        name: 'order_item',
+        label: 'Order Item',
+        fields: {
+          name: { name: 'name', label: 'Line Item', type: 'text' },
+          order: { name: 'order', label: 'Order', type: 'lookup', reference_to: 'order' },
+          quantity: { name: 'quantity', label: 'Quantity', type: 'number' },
+        },
+      },
+    ];
+
+    render(
+      <MemoryRouter initialEntries={['/order/record/order-1']}>
+        <Routes>
+          <Route
+            path="/:objectName/record/:recordId"
+            element={
+              <RecordDetailView
+                dataSource={ds}
+                objects={objectsWithChild}
+                onEdit={vi.fn()}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Order #1');
+    });
+
+    // Should fetch child records filtered by parent ID
+    await waitFor(() => {
+      expect(ds.find).toHaveBeenCalledWith('order_item', {
+        $filter: "order eq 'order-1'",
+      });
+    });
+
+    // Related tab should appear (child object discovered)
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: /Related/ })).toBeInTheDocument();
+    });
+
+    // Click on the Related tab to reveal its content
+    await userEvent.click(screen.getByRole('tab', { name: /Related/ }));
+
+    // The child object title should appear in the related list card
+    await waitFor(() => {
+      expect(screen.getByText('Order Item')).toBeInTheDocument();
+    });
+  });
 });
 
 describe('RecordDetailView — recordId handling', () => {
