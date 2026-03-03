@@ -68,9 +68,9 @@ export const BUILDER_TO_SPEC_OP: Record<string, string> = {
 export function normalizeFieldType(rawType?: string): 'text' | 'number' | 'boolean' | 'date' | 'select' {
     const t = (rawType || '').toLowerCase();
     if (['integer', 'int', 'float', 'double', 'number', 'currency', 'money', 'percent', 'rating'].includes(t)) return 'number';
-    if (['date', 'datetime', 'datetime_tz', 'timestamp'].includes(t)) return 'date';
+    if (['date', 'datetime', 'datetime_tz', 'timestamp', 'time'].includes(t)) return 'date';
     if (['boolean', 'bool', 'checkbox', 'switch'].includes(t)) return 'boolean';
-    if (['select', 'picklist', 'single_select', 'multi_select', 'enum'].includes(t)) return 'select';
+    if (['select', 'picklist', 'single_select', 'multi_select', 'enum', 'status', 'lookup', 'master_detail', 'user', 'owner'].includes(t)) return 'select';
     return 'text';
 }
 

@@ -68,6 +68,12 @@ const dateOperators = ["equals", "notEquals", "before", "after", "between", "isE
 const selectOperators = ["equals", "notEquals", "in", "notIn", "isEmpty", "isNotEmpty"]
 const lookupOperators = ["equals", "notEquals", "in", "notIn", "isEmpty", "isNotEmpty"]
 
+/** Field types that share the same operator/input behavior */
+const numberLikeTypes = ["number", "currency", "percent", "rating"]
+const dateLikeTypes = ["date", "datetime", "time"]
+const selectLikeTypes = ["select", "status"]
+const lookupLikeTypes = ["lookup", "master_detail", "user", "owner"]
+
 /** Normalize a filter value into an array for multi-select scenarios */
 function normalizeToArray(value: FilterCondition["value"]): (string | number | boolean)[] {
   if (Array.isArray(value)) return value
@@ -148,22 +154,22 @@ function FilterBuilder({
     const field = fields.find((f) => f.value === fieldValue)
     const fieldType = field?.type || "text"
 
-    switch (fieldType) {
-      case "number":
-        return defaultOperators.filter((op) => numberOperators.includes(op.value))
-      case "boolean":
-        return defaultOperators.filter((op) => booleanOperators.includes(op.value))
-      case "date":
-        return defaultOperators.filter((op) => dateOperators.includes(op.value))
-      case "select":
-        return defaultOperators.filter((op) => selectOperators.includes(op.value))
-      case "lookup":
-      case "master_detail":
-        return defaultOperators.filter((op) => lookupOperators.includes(op.value))
-      case "text":
-      default:
-        return defaultOperators.filter((op) => textOperators.includes(op.value))
+    if (numberLikeTypes.includes(fieldType)) {
+      return defaultOperators.filter((op) => numberOperators.includes(op.value))
     }
+    if (fieldType === "boolean") {
+      return defaultOperators.filter((op) => booleanOperators.includes(op.value))
+    }
+    if (dateLikeTypes.includes(fieldType)) {
+      return defaultOperators.filter((op) => dateOperators.includes(op.value))
+    }
+    if (selectLikeTypes.includes(fieldType)) {
+      return defaultOperators.filter((op) => selectOperators.includes(op.value))
+    }
+    if (lookupLikeTypes.includes(fieldType)) {
+      return defaultOperators.filter((op) => lookupOperators.includes(op.value))
+    }
+    return defaultOperators.filter((op) => textOperators.includes(op.value))
   }
 
   const needsValueInput = (operator: string) => {
@@ -174,14 +180,11 @@ function FilterBuilder({
     const field = fields.find((f) => f.value === fieldValue)
     const fieldType = field?.type || "text"
     
-    switch (fieldType) {
-      case "number":
-        return "number"
-      case "date":
-        return "date"
-      default:
-        return "text"
-    }
+    if (numberLikeTypes.includes(fieldType)) return "number"
+    if (fieldType === "date") return "date"
+    if (fieldType === "datetime") return "datetime-local"
+    if (fieldType === "time") return "time"
+    return "text"
   }
 
   const renderValueInput = (condition: FilterCondition) => {
@@ -221,7 +224,7 @@ function FilterBuilder({
     }
 
     // For select/lookup fields with options (single select)
-    if (field?.options && (field.type === "select" || field.type === "lookup" || field.type === "master_detail")) {
+    if (field?.options && (selectLikeTypes.includes(field.type || "") || lookupLikeTypes.includes(field.type || ""))) {
       return (
         <Select
           value={String(condition.value || "")}
@@ -280,9 +283,9 @@ function FilterBuilder({
     const handleValueChange = (newValue: string) => {
       let convertedValue: string | number | boolean = newValue
       
-      if (field?.type === "number" && newValue !== "") {
+      if (numberLikeTypes.includes(field?.type || "") && newValue !== "") {
         convertedValue = parseFloat(newValue) || 0
-      } else if (field?.type === "date") {
+      } else if (dateLikeTypes.includes(field?.type || "")) {
         convertedValue = newValue // Keep as ISO string
       }
       

@@ -237,4 +237,173 @@ describe('FilterBuilder', () => {
       expect(screen.queryAllByRole('checkbox').length).toBe(0);
     });
   });
+
+  describe('currency/percent/rating fields use number input', () => {
+    const numericFields = [
+      { value: 'amount', label: 'Amount', type: 'currency' },
+      { value: 'rate', label: 'Rate', type: 'percent' },
+      { value: 'score', label: 'Score', type: 'rating' },
+    ];
+
+    it('renders number input for currency field', () => {
+      const onChange = vi.fn();
+      render(
+        <FilterBuilder
+          fields={numericFields}
+          value={{
+            id: 'root',
+            logic: 'and',
+            conditions: [
+              { id: 'c1', field: 'amount', operator: 'equals', value: '' },
+            ],
+          }}
+          onChange={onChange}
+        />,
+      );
+
+      const input = screen.getByPlaceholderText('Value') as HTMLInputElement;
+      expect(input.type).toBe('number');
+    });
+
+    it('renders number input for percent field', () => {
+      const onChange = vi.fn();
+      render(
+        <FilterBuilder
+          fields={numericFields}
+          value={{
+            id: 'root',
+            logic: 'and',
+            conditions: [
+              { id: 'c1', field: 'rate', operator: 'equals', value: '' },
+            ],
+          }}
+          onChange={onChange}
+        />,
+      );
+
+      const input = screen.getByPlaceholderText('Value') as HTMLInputElement;
+      expect(input.type).toBe('number');
+    });
+  });
+
+  describe('datetime/time fields use appropriate input types', () => {
+    const dateTimeFields = [
+      { value: 'created_at', label: 'Created At', type: 'datetime' },
+      { value: 'start_time', label: 'Start Time', type: 'time' },
+    ];
+
+    it('renders datetime-local input for datetime field', () => {
+      const onChange = vi.fn();
+      render(
+        <FilterBuilder
+          fields={dateTimeFields}
+          value={{
+            id: 'root',
+            logic: 'and',
+            conditions: [
+              { id: 'c1', field: 'created_at', operator: 'equals', value: '' },
+            ],
+          }}
+          onChange={onChange}
+        />,
+      );
+
+      const input = screen.getByPlaceholderText('Value') as HTMLInputElement;
+      expect(input.type).toBe('datetime-local');
+    });
+
+    it('renders time input for time field', () => {
+      const onChange = vi.fn();
+      render(
+        <FilterBuilder
+          fields={dateTimeFields}
+          value={{
+            id: 'root',
+            logic: 'and',
+            conditions: [
+              { id: 'c1', field: 'start_time', operator: 'equals', value: '' },
+            ],
+          }}
+          onChange={onChange}
+        />,
+      );
+
+      const input = screen.getByPlaceholderText('Value') as HTMLInputElement;
+      expect(input.type).toBe('time');
+    });
+  });
+
+  describe('status field uses select operators and dropdown', () => {
+    const statusFields = [
+      {
+        value: 'pipeline',
+        label: 'Pipeline Stage',
+        type: 'status',
+        options: [
+          { value: 'lead', label: 'Lead' },
+          { value: 'qualified', label: 'Qualified' },
+          { value: 'won', label: 'Won' },
+        ],
+      },
+    ];
+
+    it('renders multi-select checkboxes for status field with "in" operator', () => {
+      const onChange = vi.fn();
+      render(
+        <FilterBuilder
+          fields={statusFields}
+          value={{
+            id: 'root',
+            logic: 'and',
+            conditions: [
+              { id: 'c1', field: 'pipeline', operator: 'in', value: [] },
+            ],
+          }}
+          onChange={onChange}
+        />,
+      );
+
+      const checkboxes = screen.getAllByRole('checkbox');
+      expect(checkboxes.length).toBe(3);
+      expect(screen.getByText('Lead')).toBeInTheDocument();
+      expect(screen.getByText('Qualified')).toBeInTheDocument();
+      expect(screen.getByText('Won')).toBeInTheDocument();
+    });
+  });
+
+  describe('user/owner field uses lookup operators and dropdown', () => {
+    const userFields = [
+      {
+        value: 'assigned_to',
+        label: 'Assigned To',
+        type: 'user',
+        options: [
+          { value: 'user1', label: 'Alice' },
+          { value: 'user2', label: 'Bob' },
+        ],
+      },
+    ];
+
+    it('renders multi-select checkboxes for user field with "in" operator', () => {
+      const onChange = vi.fn();
+      render(
+        <FilterBuilder
+          fields={userFields}
+          value={{
+            id: 'root',
+            logic: 'and',
+            conditions: [
+              { id: 'c1', field: 'assigned_to', operator: 'in', value: [] },
+            ],
+          }}
+          onChange={onChange}
+        />,
+      );
+
+      const checkboxes = screen.getAllByRole('checkbox');
+      expect(checkboxes.length).toBe(2);
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+      expect(screen.getByText('Bob')).toBeInTheDocument();
+    });
+  });
 });
