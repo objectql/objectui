@@ -70,16 +70,31 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
   // Fetch related child records for each reverse reference
   useEffect(() => {
     if (!dataSource || !pureRecordId || childRelations.length === 0) return;
-    for (const { childObject, referenceField } of childRelations) {
-      dataSource.find(childObject, {
-        $filter: `${referenceField} eq '${pureRecordId}'`,
-      })
-        .then((res: any) => {
-          const items = Array.isArray(res) ? res : res?.data || [];
-          setChildRelatedData(prev => ({ ...prev, [childObject]: items }));
+    let cancelled = false;
+    const sanitizedId = pureRecordId.replace(/'/g, "''");
+    Promise.all(
+      childRelations.map(({ childObject, referenceField }) =>
+        dataSource.find(childObject, {
+          $filter: `${referenceField} eq '${sanitizedId}'`,
         })
-        .catch(() => {});
-    }
+          .then((res: any) => {
+            const items = Array.isArray(res) ? res : res?.data || [];
+            return { childObject, items };
+          })
+          .catch((err: any) => {
+            console.warn(`[RecordDetailView] Failed to fetch related ${childObject}:`, err);
+            return { childObject, items: [] as any[] };
+          })
+      )
+    ).then((results) => {
+      if (cancelled) return;
+      const data: Record<string, any[]> = {};
+      for (const { childObject, items } of results) {
+        data[childObject] = items;
+      }
+      setChildRelatedData(data);
+    });
+    return () => { cancelled = true; };
   }, [dataSource, pureRecordId, childRelations]);
 
   const currentUser = user
