@@ -40,6 +40,14 @@ function preloadCriticalChunks(): Plugin {
 // auto-mount slug. Override with VITE_BASE_PATH only if deploying standalone.
 const basePath = process.env.VITE_BASE_PATH || '/console/';
 
+// On Vercel/CI the turbo pipeline already builds every workspace package to
+// dist/ before Vite runs, so we can skip the memory-hungry src/ aliases and
+// let Vite resolve each @object-ui/* package through its normal package.json
+// "exports" → dist/.  We also skip the compression and visualizer plugins
+// because the Vercel CDN handles gzip/brotli automatically and bundle analysis
+// is not needed during CI builds.  Together this reduces peak memory by ~2 GB.
+const isCI = !!(process.env.VERCEL || process.env.CI);
+
 // https://vitejs.dev/config/
 export default defineConfig({
   base: basePath,
@@ -54,29 +62,33 @@ export default defineConfig({
     react(),
     // Inject <link rel="modulepreload"> for critical chunks
     preloadCriticalChunks(),
-    // Gzip compression for production assets
-    compression({
-      algorithm: 'gzip',
-      exclude: [/\.(br)$/, /\.(gz)$/],
-      threshold: 1024,
-    }),
-    // Brotli compression for modern browsers
-    compression({
-      algorithm: 'brotliCompress',
-      exclude: [/\.(br)$/, /\.(gz)$/],
-      threshold: 1024,
-    }),
-    // Bundle analysis (generates stats.html in dist/)
-    visualizer({
-      filename: 'dist/stats.html',
-      gzipSize: true,
-      brotliSize: true,
-      open: false,
-    }),
+    // Gzip/Brotli compression & bundle visualizer are skipped on Vercel/CI to
+    // reduce memory usage — Vercel's CDN compresses assets automatically.
+    ...(!isCI ? [
+      compression({
+        algorithm: 'gzip',
+        exclude: [/\.(br)$/, /\.(gz)$/],
+        threshold: 1024,
+      }),
+      compression({
+        algorithm: 'brotliCompress',
+        exclude: [/\.(br)$/, /\.(gz)$/],
+        threshold: 1024,
+      }),
+      visualizer({
+        filename: 'dist/stats.html',
+        gzipSize: true,
+        brotliSize: true,
+        open: false,
+      }),
+    ] : []),
   ],
   resolve: {
     extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json'],
-    alias: {
+    // In CI/Vercel builds, all workspace packages are pre-built to dist/ by
+    // turbo so Vite resolves them through package.json "exports".  During local
+    // dev, src/ aliases give us instant HMR without a prior build step.
+    alias: isCI ? {} : {
       '@object-ui/components': path.resolve(__dirname, '../../packages/components/src'),
       '@object-ui/core': path.resolve(__dirname, '../../packages/core/src'),
       '@object-ui/fields': path.resolve(__dirname, '../../packages/fields/src'),
@@ -93,8 +105,8 @@ export default defineConfig({
       '@object-ui/collaboration': path.resolve(__dirname, '../../packages/collaboration/src'),
       '@object-ui/tenant': path.resolve(__dirname, '../../packages/tenant/src'),
       '@object-ui/i18n': path.resolve(__dirname, '../../packages/i18n/src'),
-      
-      // Missing Plugin Aliases
+
+      // Plugin Aliases
       '@object-ui/plugin-aggrid': path.resolve(__dirname, '../../packages/plugin-aggrid/src'),
       '@object-ui/plugin-calendar': path.resolve(__dirname, '../../packages/plugin-calendar/src'),
       '@object-ui/plugin-charts': path.resolve(__dirname, '../../packages/plugin-charts/src'),
@@ -108,8 +120,6 @@ export default defineConfig({
       '@object-ui/plugin-markdown': path.resolve(__dirname, '../../packages/plugin-markdown/src'),
       '@object-ui/plugin-timeline': path.resolve(__dirname, '../../packages/plugin-timeline/src'),
       '@object-ui/plugin-view': path.resolve(__dirname, '../../packages/plugin-view/src'),
-
-
     },
   },
   optimizeDeps: {
