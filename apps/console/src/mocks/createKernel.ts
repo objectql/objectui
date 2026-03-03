@@ -25,6 +25,16 @@ export interface KernelOptions {
   skipSystemValidation?: boolean;
   /** MSWPlugin options; when provided, MSWPlugin is added to the kernel. */
   mswOptions?: MSWPluginOptions;
+  /**
+   * InMemoryDriver persistence configuration.
+   *
+   * - `'auto'` (default) — auto-detect environment (browser → localStorage, Node.js → file)
+   * - `'local'` — force localStorage persistence (browser only)
+   * - `false` — disable persistence entirely (useful in tests)
+   *
+   * When omitted, defaults to `'auto'`.
+   */
+  persistence?: false | 'auto' | 'local' | 'file';
 }
 
 export interface KernelResult {
@@ -154,9 +164,11 @@ function patchDriverCreate(driver: InMemoryDriver): void {
  * so that kernel setup logic is not duplicated.
  */
 export async function createKernel(options: KernelOptions): Promise<KernelResult> {
-  const { appConfig, skipSystemValidation = true, mswOptions } = options;
+  const { appConfig, skipSystemValidation = true, mswOptions, persistence } = options;
 
-  const driver = new InMemoryDriver();
+  const driver = new InMemoryDriver(
+    persistence !== undefined ? { persistence } : undefined,
+  );
 
   const kernel = new ObjectKernel({
     skipSystemValidation
@@ -189,6 +201,17 @@ export async function createKernel(options: KernelOptions): Promise<KernelResult
   if (mswOptions) {
     await installBrokerShim(kernel);
   }
+
+  // Initialise persistence adapter and load any previously persisted data.
+  // On first load this is a no-op (empty localStorage); on subsequent page
+  // refreshes the persisted data overwrites the seed data so that user
+  // changes survive a browser reload.
+  await driver.connect();
+
+  // Ensure the current database state (seed data on first load, or the
+  // just-restored persisted snapshot) is flushed to the persistence layer
+  // so that localStorage always contains the latest data.
+  await driver.flush();
 
   return { kernel, driver, mswPlugin };
 }

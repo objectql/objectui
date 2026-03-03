@@ -47,6 +47,7 @@ export async function startMockServer() {
 
   const result = await createKernel({
     appConfig,
+    persistence: false,
     mswOptions: {
       enableBrowser: false,
       baseUrl: '/api/v1',
