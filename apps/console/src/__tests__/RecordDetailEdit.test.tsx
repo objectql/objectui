@@ -76,6 +76,121 @@ function renderDetailView(
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
+describe('RecordDetailView — detail schema features', () => {
+  it('renders auto tabs (Details tab) when autoTabs is enabled', async () => {
+    const ds = createMockDataSource();
+    renderDetailView('contact-1', 'contact', vi.fn(), ds);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Alice');
+    });
+
+    // autoTabs: true should produce a "Details" tab trigger
+    expect(screen.getByRole('tab', { name: 'Details' })).toBeInTheDocument();
+  });
+
+  it('auto-discovers related lists from objectSchema reference fields', async () => {
+    const dsWithRefs: DataSource = {
+      async getObjectSchema() {
+        return {
+          name: 'order',
+          label: 'Order',
+          fields: {
+            name: { name: 'name', label: 'Name', type: 'text' },
+            account: { name: 'account', label: 'Account', type: 'lookup', reference_to: 'account' },
+          },
+        };
+      },
+      findOne: vi.fn().mockResolvedValue({ id: 'order-1', name: 'Order #1' }),
+      find: vi.fn().mockResolvedValue({ data: [] }),
+      create: vi.fn().mockResolvedValue({ id: '1' }),
+      update: vi.fn().mockResolvedValue({ id: '1' }),
+      delete: vi.fn().mockResolvedValue(true),
+    } as any;
+
+    const objectsWithRefs = [
+      {
+        name: 'order',
+        label: 'Order',
+        fields: {
+          name: { name: 'name', label: 'Name', type: 'text' },
+          account: { name: 'account', label: 'Account', type: 'lookup', reference_to: 'account' },
+        },
+      },
+    ];
+
+    render(
+      <MemoryRouter initialEntries={['/order/record/order-1']}>
+        <Routes>
+          <Route
+            path="/:objectName/record/:recordId"
+            element={
+              <RecordDetailView
+                dataSource={dsWithRefs}
+                objects={objectsWithRefs}
+                onEdit={vi.fn()}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Order #1');
+    });
+
+    // autoDiscoverRelated: true + lookup field should produce a "Related" tab
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: /Related/ })).toBeInTheDocument();
+    });
+  });
+
+  it('renders highlight fields for key field types', async () => {
+    const objectsWithStatus = [
+      {
+        name: 'contact',
+        label: 'Contact',
+        fields: {
+          name: { name: 'name', label: 'Name', type: 'text' },
+          email: { name: 'email', label: 'Email', type: 'email' },
+          status: { name: 'status', label: 'Status', type: 'select' },
+        },
+      },
+    ];
+
+    const ds: DataSource = {
+      ...createMockDataSource(),
+      findOne: vi.fn().mockResolvedValue({ id: 'c-1', name: 'Alice', status: 'Active' }),
+    } as any;
+
+    render(
+      <MemoryRouter initialEntries={['/contact/record/c-1']}>
+        <Routes>
+          <Route
+            path="/:objectName/record/:recordId"
+            element={
+              <RecordDetailView
+                dataSource={ds}
+                objects={objectsWithStatus}
+                onEdit={vi.fn()}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Alice');
+    });
+
+    // The highlightFields should include "Status" and display its value
+    const activeElements = screen.getAllByText('Active');
+    expect(activeElements.length).toBeGreaterThanOrEqual(1);
+  });
+});
+
 describe('RecordDetailView — recordId handling', () => {
   it('passes URL recordId as-is to findOne (with objectName prefix)', async () => {
     const onEdit = vi.fn();

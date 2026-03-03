@@ -15,7 +15,7 @@ import { useAuth } from '@object-ui/auth';
 import { Database, Users } from 'lucide-react';
 import { MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import { SkeletonDetail } from './skeletons';
-import type { DetailViewSchema, FeedItem } from '@object-ui/types';
+import type { DetailViewSchema, FeedItem, HighlightField, SectionGroup } from '@object-ui/types';
 
 interface RecordDetailViewProps {
   dataSource: any;
@@ -257,6 +257,22 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
     (a: any) => a.locations?.includes('record_header'),
   );
 
+  // Build highlightFields: prefer explicit config, fallback to auto-detect key fields
+  const HIGHLIGHT_FIELD_NAMES = ['status', 'stage', 'priority', 'category', 'type', 'owner', 'amount'];
+  const explicitHighlight: HighlightField[] | undefined = objectDef.views?.detail?.highlightFields;
+  const highlightFields: HighlightField[] = explicitHighlight
+    ?? Object.entries(objectDef.fields || {})
+      .filter(([key]: [string, any]) => HIGHLIGHT_FIELD_NAMES.includes(key))
+      .map(([key, def]: [string, any]) => ({
+        name: key,
+        label: def.label || key,
+        ...(def.type && { type: def.type }),
+      }));
+
+  // Build sectionGroups from objectDef detail/form config if available
+  const sectionGroups: SectionGroup[] | undefined =
+    objectDef.views?.detail?.sectionGroups ?? objectDef.views?.form?.sectionGroups;
+
   const detailSchema: DetailViewSchema = {
     type: 'detail-view',
     objectName: objectDef.name,
@@ -267,6 +283,10 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
     title: objectDef.label,
     primaryField,
     sections,
+    autoTabs: true,
+    autoDiscoverRelated: true,
+    ...(highlightFields.length > 0 && { highlightFields }),
+    ...(sectionGroups && sectionGroups.length > 0 && { sectionGroups }),
     ...(recordHeaderActions.length > 0 && {
       actions: [{
         type: 'action:bar',
