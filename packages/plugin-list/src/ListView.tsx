@@ -307,11 +307,11 @@ export const ListView: React.FC<ListViewProps> = ({
     const addRecordEnabled = schema.addRecord?.enabled === true && ua?.addRecordForm !== false;
     return {
       showSearch: ua?.search !== undefined ? ua.search : schema.showSearch !== false,
-      showSort: ua?.sort !== undefined ? ua.sort : schema.showSort !== false,
-      showFilters: ua?.filter !== undefined ? ua.filter : schema.showFilters !== false,
+      showSort: ua?.sort !== undefined ? ua.sort : schema.showSort === true,
+      showFilters: ua?.filter !== undefined ? ua.filter : schema.showFilters === true,
       showDensity: ua?.rowHeight !== undefined ? ua.rowHeight : schema.showDensity === true,
       showHideFields: schema.showHideFields === true,
-      showGroup: schema.showGroup !== false,
+      showGroup: schema.showGroup === true,
       showColor: schema.showColor === true,
       showAddRecord: addRecordEnabled,
       addRecordPosition: (schema.addRecord?.position === 'bottom' ? 'bottom' : 'top') as 'top' | 'bottom',

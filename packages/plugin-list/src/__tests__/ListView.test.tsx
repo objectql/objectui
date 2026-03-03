@@ -787,12 +787,25 @@ describe('ListView', () => {
       expect(screen.queryByRole('button', { name: /group/i })).not.toBeInTheDocument();
     });
 
-    it('should show Group button by default (showGroup undefined)', () => {
+    it('should hide Group button by default (showGroup undefined)', () => {
       const schema: ListViewSchema = {
         type: 'list-view',
         objectName: 'contacts',
         viewType: 'grid',
         fields: ['name', 'email'],
+      };
+
+      renderWithProvider(<ListView schema={schema} />);
+      expect(screen.queryByRole('button', { name: /group/i })).not.toBeInTheDocument();
+    });
+
+    it('should show Group button when showGroup is true', () => {
+      const schema: ListViewSchema = {
+        type: 'list-view',
+        objectName: 'contacts',
+        viewType: 'grid',
+        fields: ['name', 'email'],
+        showGroup: true,
       };
 
       renderWithProvider(<ListView schema={schema} />);
