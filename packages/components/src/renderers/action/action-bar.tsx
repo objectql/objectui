@@ -66,6 +66,7 @@ const ActionBarRenderer = forwardRef<HTMLDivElement, { schema: ActionBarSchema; 
       'data-obj-id': dataObjId,
       'data-obj-type': dataObjType,
       style,
+      data,
       ...rest
     } = props;
 
@@ -137,9 +138,11 @@ const ActionBarRenderer = forwardRef<HTMLDivElement, { schema: ActionBarSchema; 
               schema={{
                 ...action,
                 type: componentType,
+                actionType: action.type,
                 variant: action.variant || schema.variant,
                 size: action.size || schema.size,
               }}
+              data={data}
             />
           );
         })}

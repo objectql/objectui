@@ -1398,6 +1398,31 @@ All 313 `@object-ui/fields` tests pass.
 
 ---
 
+### RecordDetailView — Action Button Full-Chain Integration (March 2026)
+
+> **Issue #107:** All Action buttons on record detail pages (Change Stage, Mark as Won, etc.) clicked with zero response — no dialogs, no API calls, no toast, no data refresh.
+
+**Root Causes (6 independent bugs):**
+
+1. **Missing `ActionProvider`** — `RecordDetailView` didn't wrap `DetailView` with `ActionProvider`, so `useAction()` fell back to an empty `ActionRunner` with no handlers.
+2. **Action type overwritten** — `action:bar` component overrode `action.type` (`'api'`) with the component type (`'action:button'`), so `ActionRunner` never matched the registered `'api'` handler.
+3. **No API handler** — `api` action targets were logical names (e.g., `'opportunity_change_stage'`), not HTTP URLs. The built-in `executeAPI()` tried `fetch('opportunity_change_stage')` which failed silently.
+4. **No param collection** — `ActionParam[]` was passed as `params` (values) instead of `actionParams` (definitions to collect), so the param collection dialog was never triggered.
+5. **No confirm/toast handlers** — `confirmText` fell back to `window.confirm`, success/error messages were silently dropped.
+6. **No visibility context** — `useCondition` evaluated `visible` expressions like `"stage !== 'closed_won'"` with empty context, always returning `true`.
+
+**Fix:**
+
+- **RecordDetailView** (`apps/console/src/components/RecordDetailView.tsx`): Wrapped `DetailView` with `<ActionProvider>` providing `onConfirm`, `onToast`, `onNavigate`, `onParamCollection` handlers and a custom `api` handler that maps logical action targets to `dataSource.update()` operations.
+- **action-bar** (`packages/components/src/renderers/action/action-bar.tsx`): Preserves original `action.type` as `actionType` when overriding with component type. Forwards `data` prop to child action renderers for visibility context.
+- **action-button** (`packages/components/src/renderers/action/action-button.tsx`): Uses `actionType` for execution. Detects `ActionParam[]` arrays and passes as `actionParams`. Passes record `data` to `useCondition` for visibility expressions.
+- **ActionConfirmDialog** (`apps/console/src/components/ActionConfirmDialog.tsx`): Promise-based confirmation dialog using Shadcn `AlertDialog`.
+- **ActionParamDialog** (`apps/console/src/components/ActionParamDialog.tsx`): Dynamic form dialog for collecting action parameters (select, text, textarea) using Shadcn `Dialog`.
+
+**Tests:** 6 new integration tests covering: action button rendering, confirm dialog show/accept/cancel, param collection dialog, toast notification, dataSource.update invocation. All 764 console tests pass.
+
+---
+
 ## ⚠️ Risk Management
 
 | Risk | Mitigation |

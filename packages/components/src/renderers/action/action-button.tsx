@@ -28,7 +28,7 @@ import { Loader2 } from 'lucide-react';
 import { resolveIcon } from './resolve-icon';
 
 export interface ActionButtonProps {
-  schema: ActionSchema & { type: string; className?: string };
+  schema: ActionSchema & { type: string; className?: string; actionType?: string };
   className?: string;
   /** Override context for this specific action */
   context?: Record<string, any>;
@@ -41,15 +41,19 @@ const ActionButtonRenderer = forwardRef<HTMLButtonElement, ActionButtonProps>(
       'data-obj-id': dataObjId,
       'data-obj-type': dataObjType,
       style,
+      data,
       ...rest
     } = props;
 
     const { execute } = useAction();
     const [loading, setLoading] = useState(false);
 
-    // Evaluate visibility and enabled conditions
-    const isVisible = useCondition(schema.visible ? `\${${schema.visible}}` : undefined);
-    const isEnabled = useCondition(schema.enabled ? `\${${schema.enabled}}` : undefined);
+    // Record data may be passed from SchemaRenderer (e.g. DetailView passes record data)
+    const recordData = data != null && typeof data === 'object' ? data as Record<string, any> : {};
+
+    // Evaluate visibility and enabled conditions with record data context
+    const isVisible = useCondition(schema.visible ? `\${${schema.visible}}` : undefined, recordData);
+    const isEnabled = useCondition(schema.enabled ? `\${${schema.enabled}}` : undefined, recordData);
 
     // Resolve icon
     const Icon = resolveIcon(schema.icon);
@@ -63,14 +67,21 @@ const ActionButtonRenderer = forwardRef<HTMLButtonElement, ActionButtonProps>(
       setLoading(true);
 
       try {
+        // Route params correctly:
+        // - Array of objects with name+type → ActionParamDef[] → pass as actionParams for collection
+        // - Otherwise → pass as actual param values
+        const paramsPayload = Array.isArray(schema.params)
+          ? { actionParams: schema.params as any }
+          : { params: schema.params as Record<string, any> | undefined };
+
         await execute({
-          type: schema.type,
+          type: schema.actionType || schema.type,
           name: schema.name,
           target: schema.target,
           execute: schema.execute,
           endpoint: schema.endpoint,
           method: schema.method,
-          params: schema.params as Record<string, any> | undefined,
+          ...paramsPayload,
           confirmText: schema.confirmText,
           successMessage: schema.successMessage,
           errorMessage: schema.errorMessage,
