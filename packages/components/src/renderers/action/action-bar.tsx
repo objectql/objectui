@@ -140,6 +140,7 @@ const ActionBarRenderer = forwardRef<HTMLDivElement, { schema: ActionBarSchema; 
                 variant: action.variant || schema.variant,
                 size: action.size || schema.size,
               }}
+              data={rest.data}
             />
           );
         })}

@@ -7,15 +7,20 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { DetailView, RecordChatterPanel } from '@object-ui/plugin-detail';
 import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
 import { PresenceAvatars, type PresenceUser } from '@object-ui/collaboration';
 import { useAuth } from '@object-ui/auth';
+import { ActionProvider } from '@object-ui/react';
+import { toast } from 'sonner';
 import { Database, Users } from 'lucide-react';
 import { MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import { SkeletonDetail } from './skeletons';
+import { ActionConfirmDialog, type ConfirmDialogState } from './ActionConfirmDialog';
+import { ActionParamDialog, type ParamDialogState } from './ActionParamDialog';
 import type { DetailViewSchema, FeedItem } from '@object-ui/types';
+import type { ActionDef, ActionContext as ActionCtx, ActionParamDef } from '@object-ui/core';
 
 interface RecordDetailViewProps {
   dataSource: any;
@@ -29,15 +34,81 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
   const { objectName, recordId } = useParams();
   const { showDebug } = useMetadataInspector();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
   const [recordViewers, setRecordViewers] = useState<PresenceUser[]>([]);
+  const [actionRefreshKey, setActionRefreshKey] = useState(0);
   const objectDef = objects.find((o: any) => o.name === objectName);
 
   // Use the URL recordId as-is — it contains the actual record _id.
   // Navigation code passes `record._id || record.id` directly into the URL
   // without adding any prefix, so no stripping is needed.
   const pureRecordId = recordId;
+
+  // ─── Action Provider Handlers ───────────────────────────────────────
+
+  // Confirm dialog state (promise-based)
+  const [confirmState, setConfirmState] = useState<ConfirmDialogState>({ open: false, message: '' });
+
+  // Param collection dialog state (promise-based)
+  const [paramState, setParamState] = useState<ParamDialogState>({ open: false, params: [] });
+
+  const confirmHandler = useCallback((message: string, options?: { title?: string; confirmText?: string; cancelText?: string }) => {
+    return new Promise<boolean>((resolve) => {
+      setConfirmState({ open: true, message, options, resolve });
+    });
+  }, []);
+
+  const paramCollectionHandler = useCallback((params: ActionParamDef[]) => {
+    return new Promise<Record<string, any> | null>((resolve) => {
+      setParamState({ open: true, params, resolve });
+    });
+  }, []);
+
+  const toastHandler = useCallback((message: string, options?: { type?: string }) => {
+    if (options?.type === 'error') toast.error(message);
+    else toast.success(message);
+  }, []);
+
+  const navigateHandler = useCallback((url: string, options?: { external?: boolean; newTab?: boolean }) => {
+    if (options?.external || options?.newTab) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } else {
+      navigate(url);
+    }
+  }, [navigate]);
+
+  // API action handler — maps logical action targets to dataSource operations
+  const apiHandler = useCallback(async (action: ActionDef, _context: ActionCtx) => {
+    try {
+      const target = action.target || action.name;
+      const params = action.params || {};
+
+      switch (target) {
+        case 'opportunity_change_stage':
+          await dataSource.update(objectName!, pureRecordId!, { stage: params.new_stage });
+          break;
+        case 'opportunity_mark_won':
+          await dataSource.update(objectName!, pureRecordId!, { stage: 'closed_won' });
+          break;
+        case 'opportunity_mark_lost':
+          await dataSource.update(objectName!, pureRecordId!, { stage: 'closed_lost', loss_reason: params.loss_reason });
+          break;
+        default:
+          // Generic: update record with collected params
+          if (Object.keys(params).length > 0) {
+            await dataSource.update(objectName!, pureRecordId!, params);
+          }
+          break;
+      }
+
+      setActionRefreshKey(k => k + 1);
+      return { success: true, reload: true };
+    } catch (error) {
+      return { success: false, error: (error as Error).message };
+    }
+  }, [dataSource, objectName, pureRecordId]);
 
   const currentUser = user
     ? { id: user.id, name: user.name, avatar: user.image }
@@ -290,13 +361,23 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
 
       <div className="flex-1 overflow-hidden flex flex-row">
         <div className="flex-1 overflow-auto p-3 sm:p-4 lg:p-6 scroll-pb-48">
-          <DetailView
-            schema={detailSchema}
-            dataSource={dataSource}
-            onEdit={() => {
-              onEdit({ _id: pureRecordId, id: pureRecordId });
-            }}
-          />
+          <ActionProvider
+            context={{ record: {}, objectName, user: currentUser }}
+            onConfirm={confirmHandler}
+            onToast={toastHandler}
+            onNavigate={navigateHandler}
+            onParamCollection={paramCollectionHandler}
+            handlers={{ api: apiHandler }}
+          >
+            <DetailView
+              key={actionRefreshKey}
+              schema={detailSchema}
+              dataSource={dataSource}
+              onEdit={() => {
+                onEdit({ _id: pureRecordId, id: pureRecordId });
+              }}
+            />
+          </ActionProvider>
 
           {/* Comments & Discussion */}
           <div className="mt-6 border-t pt-6">
@@ -322,6 +403,22 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
           sections={[{ title: 'View Schema', data: detailSchema }]}
         />
       </div>
+
+      {/* Action Confirm Dialog */}
+      <ActionConfirmDialog
+        state={confirmState}
+        onOpenChange={(open) => {
+          if (!open) setConfirmState(s => ({ ...s, open: false }));
+        }}
+      />
+
+      {/* Action Param Collection Dialog */}
+      <ActionParamDialog
+        state={paramState}
+        onOpenChange={(open) => {
+          if (!open) setParamState(s => ({ ...s, open: false }));
+        }}
+      />
     </div>
   );
 }

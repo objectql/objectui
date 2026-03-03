@@ -47,9 +47,12 @@ const ActionButtonRenderer = forwardRef<HTMLButtonElement, ActionButtonProps>(
     const { execute } = useAction();
     const [loading, setLoading] = useState(false);
 
-    // Evaluate visibility and enabled conditions
-    const isVisible = useCondition(schema.visible ? `\${${schema.visible}}` : undefined);
-    const isEnabled = useCondition(schema.enabled ? `\${${schema.enabled}}` : undefined);
+    // Record data may be passed from SchemaRenderer (e.g. DetailView passes record data)
+    const recordData = rest.data && typeof rest.data === 'object' ? rest.data as Record<string, any> : {};
+
+    // Evaluate visibility and enabled conditions with record data context
+    const isVisible = useCondition(schema.visible ? `\${${schema.visible}}` : undefined, recordData);
+    const isEnabled = useCondition(schema.enabled ? `\${${schema.enabled}}` : undefined, recordData);
 
     // Resolve icon
     const Icon = resolveIcon(schema.icon);
@@ -63,6 +66,11 @@ const ActionButtonRenderer = forwardRef<HTMLButtonElement, ActionButtonProps>(
       setLoading(true);
 
       try {
+        // Detect if schema.params are ActionParam definitions (array of {name,type,...})
+        // vs actual param values (Record<string, any>)
+        const isParamDefs = Array.isArray(schema.params) && schema.params.length > 0 &&
+          typeof schema.params[0] === 'object' && 'name' in schema.params[0] && 'type' in schema.params[0];
+
         await execute({
           type: schema.type,
           name: schema.name,
@@ -70,7 +78,9 @@ const ActionButtonRenderer = forwardRef<HTMLButtonElement, ActionButtonProps>(
           execute: schema.execute,
           endpoint: schema.endpoint,
           method: schema.method,
-          params: schema.params as Record<string, any> | undefined,
+          ...(isParamDefs
+            ? { actionParams: schema.params as any }
+            : { params: schema.params as Record<string, any> | undefined }),
           confirmText: schema.confirmText,
           successMessage: schema.successMessage,
           errorMessage: schema.errorMessage,
