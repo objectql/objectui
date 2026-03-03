@@ -46,7 +46,7 @@ export interface ActionBarSchema {
   location?: ActionLocation;
   /** Maximum visible inline actions before overflow into "More" menu (default: 3) */
   maxVisible?: number;
-  /** Maximum visible inline actions on mobile (default: 1) */
+  /** Maximum visible inline actions on mobile devices (default: 1). Desktop uses maxVisible instead. */
   mobileMaxVisible?: number;
   /** Visibility condition expression */
   visible?: string;
