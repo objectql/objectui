@@ -5,7 +5,7 @@
  * HonoServerPlugin auto-discovers this plugin via `type: 'ui-plugin'`
  * and mounts it at `/<slug>` (i.e. `/console`).
  *
- * The SPA is built with base path '/' by default.
+ * The SPA is built with base path '/'.
  *
  * Usage in any ObjectStack application:
  *
