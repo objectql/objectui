@@ -96,13 +96,19 @@ export interface ModalFormProps {
   className?: string;
 }
 
-/** Size class map for the dialog content */
+/**
+ * Size class map for the dialog content.
+ *
+ * Uses `sm:` prefix so that `tailwind-merge` correctly resolves the conflict
+ * with MobileDialogContent's base `sm:max-w-lg` class.  On mobile (< sm) the
+ * dialog is already full-screen, so max-width only matters at sm+ breakpoints.
+ */
 const modalSizeClasses: Record<string, string> = {
-  sm: 'max-w-sm',
-  default: 'max-w-lg',
-  lg: 'max-w-2xl',
-  xl: 'max-w-5xl',
-  full: 'max-w-[95vw] w-full',
+  sm: 'sm:max-w-sm',
+  default: 'sm:max-w-lg',
+  lg: 'sm:max-w-2xl',
+  xl: 'sm:max-w-5xl',
+  full: 'sm:max-w-[95vw] sm:w-full',
 };
 
 /**
