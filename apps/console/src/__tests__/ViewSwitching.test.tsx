@@ -90,10 +90,10 @@ describe('Console View Switching Integration', () => {
         );
     };
 
-    it('renders all view tabs', () => {
+    it('renders view tabs without drag or add features', () => {
         renderObjectView();
         
-        // "All Tasks" appears in breadcrumb and tab, so use getAllByText
+        // ViewTabBar should be present for switching views
         const allTasksElements = screen.getAllByText('All Tasks');
         expect(allTasksElements.length).toBeGreaterThanOrEqual(1);
         expect(screen.getByText('Board')).toBeInTheDocument();

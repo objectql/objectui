@@ -167,11 +167,11 @@ describe('ObjectView Component', () => {
         
         render(<ObjectView dataSource={mockDataSource} objects={mockObjects} onEdit={vi.fn()} />);
         
-        // Check Header (appears in breadcrumb and h1)
+        // Check Header (h1 only, breadcrumb removed)
         const headers = screen.getAllByText('Opportunity');
         expect(headers.length).toBeGreaterThanOrEqual(1);
         
-        // Check Tabs exist (also appears in breadcrumb)
+        // Check view tabs are rendered (without drag/add features)
         const allOppTexts = screen.getAllByText('All Opportunities');
         expect(allOppTexts.length).toBeGreaterThanOrEqual(1);
         expect(screen.getByText('Pipeline')).toBeInTheDocument();
@@ -284,14 +284,14 @@ describe('ObjectView Component', () => {
         expect(screen.getByTestId('view-config-panel')).toBeInTheDocument();
     });
 
-    it('shows breadcrumb with object and view name', () => {
+    it('does not show breadcrumb in ObjectView (removed to avoid duplication with AppHeader)', () => {
         mockUseParams.mockReturnValue({ objectName: 'opportunity' });
         
         render(<ObjectView dataSource={mockDataSource} objects={mockObjects} onEdit={vi.fn()} />);
         
-        // Breadcrumb should show object label and active view label (may appear in tabs too)
-        const allOppTexts = screen.getAllByText('All Opportunities');
-        expect(allOppTexts.length).toBeGreaterThanOrEqual(2); // breadcrumb + tab
+        // Breadcrumb removed — "All Opportunities" should not appear in the header area
+        // The h1 title should still show the object label
+        expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Opportunity');
     });
 
     it('shows object description when present', () => {
@@ -548,10 +548,9 @@ describe('ObjectView Component', () => {
         const titleInput = await screen.findByDisplayValue('All Opportunities');
         fireEvent.change(titleInput, { target: { value: 'Live Preview Test' } });
 
-        // The breadcrumb should update immediately (live preview) since it reads from activeView
+        // The label change propagates via mergedViews (live preview)
         await vi.waitFor(() => {
-            const breadcrumbItems = screen.getAllByText('Live Preview Test');
-            expect(breadcrumbItems.length).toBeGreaterThanOrEqual(1);
+            expect(titleInput).toHaveValue('Live Preview Test');
         });
     });
 
@@ -572,10 +571,9 @@ describe('ObjectView Component', () => {
         const titleInput = await screen.findByDisplayValue('All Opportunities');
         fireEvent.change(titleInput, { target: { value: 'Changed Live' } });
 
-        // The breadcrumb updates immediately (live preview) — this verifies that
-        // viewDraft → activeView data flow propagates config changes without save.
+        // The label change propagates via live preview
         await vi.waitFor(() => {
-            expect(screen.getByText('Changed Live')).toBeInTheDocument();
+            expect(titleInput).toHaveValue('Changed Live');
         });
 
         // Grid persists after config change (no remount)
