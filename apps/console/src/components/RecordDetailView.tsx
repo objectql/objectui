@@ -54,7 +54,7 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
         if (
           fieldDef &&
           (fieldDef.type === 'lookup' || fieldDef.type === 'master_detail') &&
-          fieldDef.reference_to === objectDef.name
+          (fieldDef.reference_to || fieldDef.reference) === objectDef.name
         ) {
           relations.push({
             childObject: obj.name,
@@ -285,7 +285,7 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
             label: fieldDef.label || fieldName,
             type: fieldDef.type || 'text',
             ...(fieldDef.options && { options: fieldDef.options }),
-            ...(fieldDef.reference_to && { reference_to: fieldDef.reference_to }),
+            ...((fieldDef.reference_to || fieldDef.reference) && { reference_to: fieldDef.reference_to || fieldDef.reference }),
             ...(fieldDef.reference_field && { reference_field: fieldDef.reference_field }),
             ...(fieldDef.currency && { currency: fieldDef.currency }),
           };
@@ -301,7 +301,7 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
               label: fieldDef.label || key,
               type: fieldDef.type || 'text',
               ...(fieldDef.options && { options: fieldDef.options }),
-              ...(fieldDef.reference_to && { reference_to: fieldDef.reference_to }),
+              ...((fieldDef.reference_to || fieldDef.reference) && { reference_to: fieldDef.reference_to || fieldDef.reference }),
               ...(fieldDef.reference_field && { reference_field: fieldDef.reference_field }),
               ...(fieldDef.currency && { currency: fieldDef.currency }),
             };

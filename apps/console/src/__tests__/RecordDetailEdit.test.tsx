@@ -97,7 +97,7 @@ describe('RecordDetailView — detail schema features', () => {
           label: 'Order',
           fields: {
             name: { name: 'name', label: 'Name', type: 'text' },
-            account: { name: 'account', label: 'Account', type: 'lookup', reference_to: 'account' },
+            account: { name: 'account', label: 'Account', type: 'lookup', reference: 'account' },
           },
         };
       },
@@ -114,7 +114,7 @@ describe('RecordDetailView — detail schema features', () => {
         label: 'Order',
         fields: {
           name: { name: 'name', label: 'Name', type: 'text' },
-          account: { name: 'account', label: 'Account', type: 'lookup', reference_to: 'account' },
+          account: { name: 'account', label: 'Account', type: 'lookup', reference: 'account' },
         },
       },
     ];
@@ -221,6 +221,7 @@ describe('RecordDetailView — detail schema features', () => {
       delete: vi.fn().mockResolvedValue(true),
     } as any;
 
+    // Use ObjectStack-convention 'reference' (not 'reference_to') to match real metadata
     const objectsWithChild = [
       {
         name: 'order',
@@ -234,7 +235,7 @@ describe('RecordDetailView — detail schema features', () => {
         label: 'Order Item',
         fields: {
           name: { name: 'name', label: 'Line Item', type: 'text' },
-          order: { name: 'order', label: 'Order', type: 'lookup', reference_to: 'order' },
+          order: { name: 'order', label: 'Order', type: 'lookup', reference: 'order' },
           quantity: { name: 'quantity', label: 'Quantity', type: 'number' },
         },
       },
