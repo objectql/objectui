@@ -40,17 +40,20 @@ function preloadCriticalChunks(): Plugin {
 // auto-mount slug. Override with VITE_BASE_PATH only if deploying standalone.
 const basePath = process.env.VITE_BASE_PATH || '/console/';
 
-// On Vercel/CI the turbo pipeline already builds every workspace package to
-// dist/ before Vite runs, so we can skip the memory-hungry src/ aliases and
-// let Vite resolve each @object-ui/* package through its normal package.json
-// "exports" → dist/.  We also skip the compression and visualizer plugins
-// because the Vercel CDN handles gzip/brotli automatically and bundle analysis
-// is not needed during CI builds.  Together this reduces peak memory by ~2 GB.
+// On Vercel/CI we skip the compression and visualizer plugins because the
+// Vercel CDN handles gzip/brotli automatically and bundle analysis is not
+// needed during CI builds.  This reduces peak memory by ~1.5 GB.
+//
+// Workspace src/ aliases are kept in ALL environments (dev + CI) so that
+// plugin side-effect imports (ComponentRegistry.register) resolve correctly.
+// Without them, Vite would import pre-built dist/ bundles where the
+// singleton ComponentRegistry can get duplicated across chunks, causing
+// "Unknown component type" errors at runtime.
 const isCI = !!(process.env.VERCEL || process.env.CI);
 
-// Workspace src/ aliases for local development — gives instant HMR without a
-// prior build step.  Skipped in CI where turbo pre-builds everything to dist/.
-const localDevAliases: Record<string, string> = {
+// Workspace src/ aliases — gives instant HMR in dev and ensures correct
+// side-effect resolution (plugin registrations) in production builds.
+const workspaceAliases: Record<string, string> = {
   '@object-ui/components': path.resolve(__dirname, '../../packages/components/src'),
   '@object-ui/core': path.resolve(__dirname, '../../packages/core/src'),
   '@object-ui/fields': path.resolve(__dirname, '../../packages/fields/src'),
@@ -121,10 +124,7 @@ export default defineConfig({
   ],
   resolve: {
     extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json'],
-    // In CI/Vercel builds, all workspace packages are pre-built to dist/ by
-    // turbo so Vite resolves them through package.json "exports".  During local
-    // dev, src/ aliases give us instant HMR without a prior build step.
-    alias: isCI ? {} : localDevAliases,
+    alias: workspaceAliases,
   },
   optimizeDeps: {
     include: [
