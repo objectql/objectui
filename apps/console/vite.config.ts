@@ -70,6 +70,7 @@ const workspaceAliases: Record<string, string> = {
   '@object-ui/collaboration': path.resolve(__dirname, '../../packages/collaboration/src'),
   '@object-ui/tenant': path.resolve(__dirname, '../../packages/tenant/src'),
   '@object-ui/i18n': path.resolve(__dirname, '../../packages/i18n/src'),
+  '@object-ui/mobile': path.resolve(__dirname, '../../packages/mobile/src'),
 
   // Plugin Aliases
   '@object-ui/plugin-aggrid': path.resolve(__dirname, '../../packages/plugin-aggrid/src'),
@@ -85,6 +86,7 @@ const workspaceAliases: Record<string, string> = {
   '@object-ui/plugin-markdown': path.resolve(__dirname, '../../packages/plugin-markdown/src'),
   '@object-ui/plugin-timeline': path.resolve(__dirname, '../../packages/plugin-timeline/src'),
   '@object-ui/plugin-view': path.resolve(__dirname, '../../packages/plugin-view/src'),
+  '@object-ui/plugin-designer': path.resolve(__dirname, '../../packages/plugin-designer/src'),
 };
 
 // https://vitejs.dev/config/
