@@ -22,7 +22,6 @@ import {
   Star,
   LayoutDashboard,
   ArrowRight,
-  X,
 } from 'lucide-react';
 
 const STORAGE_KEY = 'objectui-onboarding-dismissed';
@@ -102,16 +101,10 @@ export function OnboardingWalkthrough() {
     <Dialog open={open} onOpenChange={(v: any) => { if (!v) dismiss(); }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-2">
-              <Rocket className="h-5 w-5 text-primary" />
-              Welcome to ObjectUI
-            </DialogTitle>
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={dismiss}>
-              <X className="h-4 w-4" />
-              <span className="sr-only">Close</span>
-            </Button>
-          </div>
+          <DialogTitle className="flex items-center gap-2">
+            <Rocket className="h-5 w-5 text-primary" />
+            Welcome to ObjectUI
+          </DialogTitle>
           <DialogDescription>
             Let&apos;s get you started with a quick tour.
           </DialogDescription>
