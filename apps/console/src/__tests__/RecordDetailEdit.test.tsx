@@ -264,7 +264,7 @@ describe('RecordDetailView — detail schema features', () => {
     // Should fetch child records filtered by parent ID
     await waitFor(() => {
       expect(ds.find).toHaveBeenCalledWith('order_item', {
-        $filter: "order eq 'order-1'",
+        $filter: { order: 'order-1' },
       });
     });
 

@@ -71,11 +71,10 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
   useEffect(() => {
     if (!dataSource || !pureRecordId || childRelations.length === 0) return;
     let cancelled = false;
-    const sanitizedId = pureRecordId.replace(/'/g, "''");
     Promise.all(
       childRelations.map(({ childObject, referenceField }) =>
         dataSource.find(childObject, {
-          $filter: `${referenceField} eq '${sanitizedId}'`,
+          $filter: { [referenceField]: pureRecordId },
         })
           .then((res: any) => {
             const items = Array.isArray(res) ? res : res?.data || [];
