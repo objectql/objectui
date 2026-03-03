@@ -387,7 +387,7 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
       ];
 
   // Filter actions for record_header location and deduplicate by name
-  const recordHeaderActions = useMemo(() => {
+  const recordHeaderActions = (() => {
     const seen = new Set<string>();
     return (objectDef.actions || []).filter((a: any) => {
       if (!a.locations?.includes('record_header')) return false;
@@ -396,7 +396,7 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
       seen.add(a.name);
       return true;
     });
-  }, [objectDef.actions]);
+  })();
 
   // Build highlightFields: prefer explicit config, fallback to auto-detect key fields
   const explicitHighlight: HighlightField[] | undefined = objectDef.views?.detail?.highlightFields;
