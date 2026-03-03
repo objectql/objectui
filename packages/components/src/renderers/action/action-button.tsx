@@ -28,7 +28,7 @@ import { Loader2 } from 'lucide-react';
 import { resolveIcon } from './resolve-icon';
 
 export interface ActionButtonProps {
-  schema: ActionSchema & { type: string; className?: string };
+  schema: ActionSchema & { type: string; className?: string; actionType?: string };
   className?: string;
   /** Override context for this specific action */
   context?: Record<string, any>;
@@ -48,7 +48,7 @@ const ActionButtonRenderer = forwardRef<HTMLButtonElement, ActionButtonProps>(
     const [loading, setLoading] = useState(false);
 
     // Record data may be passed from SchemaRenderer (e.g. DetailView passes record data)
-    const recordData = rest.data && typeof rest.data === 'object' ? rest.data as Record<string, any> : {};
+    const recordData = rest.data != null && typeof rest.data === 'object' ? rest.data as Record<string, any> : {};
 
     // Evaluate visibility and enabled conditions with record data context
     const isVisible = useCondition(schema.visible ? `\${${schema.visible}}` : undefined, recordData);
@@ -72,7 +72,7 @@ const ActionButtonRenderer = forwardRef<HTMLButtonElement, ActionButtonProps>(
           typeof schema.params[0] === 'object' && 'name' in schema.params[0] && 'type' in schema.params[0];
 
         await execute({
-          type: (schema as any).actionType || schema.type,
+          type: schema.actionType || schema.type,
           name: schema.name,
           target: schema.target,
           execute: schema.execute,

@@ -43,6 +43,7 @@ interface ActionParamDialogProps {
 
 export function ActionParamDialog({ state, onOpenChange }: ActionParamDialogProps) {
   const [values, setValues] = useState<Record<string, any>>({});
+  const [errors, setErrors] = useState<Record<string, boolean>>({});
 
   // Reset values when params change
   useEffect(() => {
@@ -54,15 +55,21 @@ export function ActionParamDialog({ state, onOpenChange }: ActionParamDialogProp
         }
       }
       setValues(defaults);
+      setErrors({});
     }
   }, [state.open, state.params]);
 
   const handleSubmit = () => {
     // Validate required fields
+    const newErrors: Record<string, boolean> = {};
     for (const param of state.params) {
       if (param.required && !values[param.name]) {
-        return; // Don't submit if required fields are empty
+        newErrors[param.name] = true;
       }
+    }
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
     }
     state.resolve?.(values);
     onOpenChange(false);
@@ -75,6 +82,7 @@ export function ActionParamDialog({ state, onOpenChange }: ActionParamDialogProp
 
   const updateValue = (name: string, value: any) => {
     setValues(prev => ({ ...prev, [name]: value }));
+    setErrors(prev => ({ ...prev, [name]: false }));
   };
 
   return (
@@ -102,7 +110,7 @@ export function ActionParamDialog({ state, onOpenChange }: ActionParamDialogProp
                   value={values[param.name] || ''}
                   onValueChange={(val) => updateValue(param.name, val)}
                 >
-                  <SelectTrigger id={param.name}>
+                  <SelectTrigger id={param.name} className={errors[param.name] ? 'border-destructive' : ''}>
                     <SelectValue placeholder={param.placeholder || `Select ${param.label}`} />
                   </SelectTrigger>
                   <SelectContent>
@@ -119,17 +127,22 @@ export function ActionParamDialog({ state, onOpenChange }: ActionParamDialogProp
                   value={values[param.name] || ''}
                   onChange={(e) => updateValue(param.name, e.target.value)}
                   placeholder={param.placeholder}
+                  className={errors[param.name] ? 'border-destructive' : ''}
                 />
               ) : (
                 <Input
                   id={param.name}
-                  type={param.type === 'number' ? 'number' : 'text'}
+                  type={(['number', 'email', 'url', 'date', 'datetime-local', 'time', 'password'] as string[]).includes(param.type) ? param.type : 'text'}
                   value={values[param.name] || ''}
                   onChange={(e) => updateValue(param.name, e.target.value)}
                   placeholder={param.placeholder}
+                  className={errors[param.name] ? 'border-destructive' : ''}
                 />
               )}
 
+              {errors[param.name] && (
+                <p className="text-xs text-destructive">{param.label} is required</p>
+              )}
               {param.helpText && (
                 <p className="text-xs text-muted-foreground">{param.helpText}</p>
               )}
