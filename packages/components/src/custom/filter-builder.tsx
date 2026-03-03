@@ -68,10 +68,13 @@ const dateOperators = ["equals", "notEquals", "before", "after", "between", "isE
 const selectOperators = ["equals", "notEquals", "in", "notIn", "isEmpty", "isNotEmpty"]
 const lookupOperators = ["equals", "notEquals", "in", "notIn", "isEmpty", "isNotEmpty"]
 
-/** Field types that share the same operator/input behavior */
+/** Field types that share the same operator/input behavior as number (numeric comparison operators, number input) */
 const numberLikeTypes = ["number", "currency", "percent", "rating"]
+/** Field types that share the same operator/input behavior as date (before/after operators, date/datetime/time input) */
 const dateLikeTypes = ["date", "datetime", "time"]
+/** Field types that use select operators (equals/in/notIn) and render dropdown or checkbox list when options provided */
 const selectLikeTypes = ["select", "status"]
+/** Relational/reference field types that use lookup operators (equals/in/notIn) and render dropdown or checkbox list when options provided */
 const lookupLikeTypes = ["lookup", "master_detail", "user", "owner"]
 
 /** Normalize a filter value into an array for multi-select scenarios */
