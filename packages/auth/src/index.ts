@@ -24,9 +24,9 @@
 export { AuthProvider, type AuthProviderProps } from './AuthProvider';
 export { useAuth } from './useAuth';
 export { AuthGuard, type AuthGuardProps } from './AuthGuard';
-export { LoginForm, type LoginFormProps } from './LoginForm';
-export { RegisterForm, type RegisterFormProps } from './RegisterForm';
-export { ForgotPasswordForm, type ForgotPasswordFormProps } from './ForgotPasswordForm';
+export { LoginForm, type LoginFormProps, type LoginFormLabels } from './LoginForm';
+export { RegisterForm, type RegisterFormProps, type RegisterFormLabels } from './RegisterForm';
+export { ForgotPasswordForm, type ForgotPasswordFormProps, type ForgotPasswordFormLabels } from './ForgotPasswordForm';
 export { UserMenu, type UserMenuProps } from './UserMenu';
 export { PreviewBanner, type PreviewBannerProps } from './PreviewBanner';
 export { createAuthClient } from './createAuthClient';
@@ -40,6 +40,7 @@ export type {
   AuthState,
   AuthClient,
   AuthClientConfig,
+  AuthLinkComponentProps,
   AuthProviderConfig,
   PreviewModeOptions,
   SignInCredentials,

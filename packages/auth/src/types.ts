@@ -6,6 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import type React from 'react';
+
 /**
  * Authentication types for @object-ui/auth
  */
@@ -128,6 +130,16 @@ export interface PreviewModeOptions {
   expiresInSeconds?: number;
   /** Banner message displayed in the UI during preview mode */
   bannerMessage?: string;
+}
+
+/** Props for custom link components used in auth forms (e.g. React Router's Link) */
+export interface AuthLinkComponentProps {
+  /** Target URL */
+  href: string;
+  /** CSS class names */
+  className?: string;
+  /** Link content */
+  children: React.ReactNode;
 }
 
 /** Auth provider configuration */

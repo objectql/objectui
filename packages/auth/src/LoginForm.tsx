@@ -8,6 +8,20 @@
 
 import React, { useState } from 'react';
 import { useAuth } from './useAuth';
+import type { AuthLinkComponentProps } from './types';
+
+/** Translatable labels for the LoginForm */
+export interface LoginFormLabels {
+  emailLabel?: string;
+  emailPlaceholder?: string;
+  passwordLabel?: string;
+  passwordPlaceholder?: string;
+  forgotPasswordText?: string;
+  submitButton?: string;
+  submittingButton?: string;
+  noAccountText?: string;
+  signUpText?: string;
+}
 
 export interface LoginFormProps {
   /** Callback on successful login */
@@ -22,7 +36,15 @@ export interface LoginFormProps {
   title?: string;
   /** Custom description */
   description?: string;
+  /** Custom link component for SPA navigation (e.g. React Router's Link) */
+  linkComponent?: React.ComponentType<AuthLinkComponentProps>;
+  /** Override default labels for i18n */
+  labels?: LoginFormLabels;
 }
+
+const DefaultLink = ({ href, className, children }: AuthLinkComponentProps) => (
+  <a href={href} className={className}>{children}</a>
+);
 
 /**
  * Login form component with email/password authentication.
@@ -44,11 +66,25 @@ export function LoginForm({
   forgotPasswordUrl = '/forgot-password',
   title = 'Sign in to your account',
   description = 'Enter your email and password to continue',
+  linkComponent: LinkComp = DefaultLink,
+  labels = {},
 }: LoginFormProps) {
   const { signIn, isLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  const l = {
+    emailLabel: labels.emailLabel ?? 'Email',
+    emailPlaceholder: labels.emailPlaceholder ?? 'name@example.com',
+    passwordLabel: labels.passwordLabel ?? 'Password',
+    passwordPlaceholder: labels.passwordPlaceholder ?? 'Enter your password',
+    forgotPasswordText: labels.forgotPasswordText ?? 'Forgot password?',
+    submitButton: labels.submitButton ?? 'Sign In',
+    submittingButton: labels.submittingButton ?? 'Signing in...',
+    noAccountText: labels.noAccountText ?? "Don't have an account?",
+    signUpText: labels.signUpText ?? 'Sign up',
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +101,7 @@ export function LoginForm({
   };
 
   return (
-    <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+    <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[380px]">
       <div className="flex flex-col space-y-2 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
         <p className="text-sm text-muted-foreground">{description}</p>
@@ -80,12 +116,12 @@ export function LoginForm({
 
         <div className="space-y-2">
           <label htmlFor="login-email" className="text-sm font-medium leading-none">
-            Email
+            {l.emailLabel}
           </label>
           <input
             id="login-email"
             type="email"
-            placeholder="name@example.com"
+            placeholder={l.emailPlaceholder}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -98,21 +134,21 @@ export function LoginForm({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label htmlFor="login-password" className="text-sm font-medium leading-none">
-              Password
+              {l.passwordLabel}
             </label>
             {forgotPasswordUrl && (
-              <a
+              <LinkComp
                 href={forgotPasswordUrl}
                 className="text-sm text-primary underline-offset-4 hover:underline"
               >
-                Forgot password?
-              </a>
+                {l.forgotPasswordText}
+              </LinkComp>
             )}
           </div>
           <input
             id="login-password"
             type="password"
-            placeholder="Enter your password"
+            placeholder={l.passwordPlaceholder}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -127,16 +163,16 @@ export function LoginForm({
           disabled={isLoading}
           className="inline-flex h-10 w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
         >
-          {isLoading ? 'Signing in...' : 'Sign In'}
+          {isLoading ? l.submittingButton : l.submitButton}
         </button>
       </form>
 
       {registerUrl && (
         <p className="px-8 text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{' '}
-          <a href={registerUrl} className="text-primary underline-offset-4 hover:underline">
-            Sign up
-          </a>
+          {l.noAccountText}{' '}
+          <LinkComp href={registerUrl} className="text-primary underline-offset-4 hover:underline">
+            {l.signUpText}
+          </LinkComp>
         </p>
       )}
     </div>
