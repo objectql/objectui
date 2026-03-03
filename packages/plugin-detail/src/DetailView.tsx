@@ -590,7 +590,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
 
       {/* Header Highlight Area */}
       {schema.highlightFields && schema.highlightFields.length > 0 && (
-        <HeaderHighlight fields={schema.highlightFields} data={data} />
+        <HeaderHighlight fields={schema.highlightFields} data={data} objectName={schema.objectName} />
       )}
 
       {/* Auto Tabs mode: wrap sections, related, activity into tabs */}
@@ -638,6 +638,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
                     group={group}
                     data={{ ...data, ...editedValues }}
                     objectSchema={objectSchema}
+                    objectName={schema.objectName}
                     isEditing={isInlineEditing}
                     onFieldChange={handleInlineFieldChange}
                   />
@@ -650,6 +651,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
                     section={section}
                     data={{ ...data, ...editedValues }}
                     objectSchema={objectSchema}
+                    objectName={schema.objectName}
                     isEditing={isInlineEditing}
                     onFieldChange={handleInlineFieldChange}
                   />
@@ -663,6 +665,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
                   }}
                   data={{ ...data, ...editedValues }}
                   objectSchema={objectSchema}
+                  objectName={schema.objectName}
                   isEditing={isInlineEditing}
                   onFieldChange={handleInlineFieldChange}
                 />
@@ -690,6 +693,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
                     data={related.data}
                     columns={related.columns as any}
                     dataSource={dataSource}
+                    objectName={related.api}
                   />
                 ))}
               </div>
@@ -714,6 +718,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
                   group={group}
                   data={{ ...data, ...editedValues }}
                   objectSchema={objectSchema}
+                  objectName={schema.objectName}
                   isEditing={isInlineEditing}
                   onFieldChange={handleInlineFieldChange}
                 />
@@ -730,6 +735,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
                   section={section}
                   data={{ ...data, ...editedValues }}
                   objectSchema={objectSchema}
+                  objectName={schema.objectName}
                   isEditing={isInlineEditing}
                   onFieldChange={handleInlineFieldChange}
                 />
@@ -746,6 +752,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
               }}
               data={{ ...data, ...editedValues }}
               objectSchema={objectSchema}
+              objectName={schema.objectName}
               isEditing={isInlineEditing}
               onFieldChange={handleInlineFieldChange}
             />
@@ -769,6 +776,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
                   data={related.data}
                   columns={related.columns as any}
                   dataSource={dataSource}
+                  objectName={related.api}
                 />
               ))}
             </div>

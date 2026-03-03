@@ -25,8 +25,10 @@ import {
   ChevronRight,
   ArrowUpDown,
 } from 'lucide-react';
-import type { DataSource } from '@object-ui/types';
+import type { DataSource, FieldMetadata } from '@object-ui/types';
+import { getCellRenderer } from '@object-ui/fields';
 import { useDetailTranslation } from './useDetailTranslation';
+import { useSafeFieldLabel } from '@object-ui/react';
 
 export interface RelatedListProps {
   title: string;
@@ -37,6 +39,8 @@ export interface RelatedListProps {
   columns?: any[];
   className?: string;
   dataSource?: DataSource;
+  /** Object name for i18n field label resolution */
+  objectName?: string;
   /** Callback when "New" button is clicked */
   onNew?: () => void;
   /** Callback when "View All" button is clicked */
@@ -62,6 +66,7 @@ export const RelatedList: React.FC<RelatedListProps> = ({
   columns,
   className,
   dataSource,
+  objectName,
   onNew,
   onViewAll,
   onRowEdit,
@@ -78,6 +83,7 @@ export const RelatedList: React.FC<RelatedListProps> = ({
   const [filterText, setFilterText] = React.useState('');
   const [objectSchema, setObjectSchema] = React.useState<any>(null);
   const { t } = useDetailTranslation();
+  const { fieldLabel: resolveFieldLabel } = useSafeFieldLabel();
 
   // Sync internal state when data prop changes (e.g., parent fetches async data)
   React.useEffect(() => {
@@ -180,13 +186,40 @@ export const RelatedList: React.FC<RelatedListProps> = ({
   const effectiveColumns = React.useMemo(() => {
     if (columns && columns.length > 0) return columns;
     if (!objectSchema?.fields) return [];
+    const resolvedObjectName = objectName || api || '';
     return Object.entries(objectSchema.fields)
       .filter(([key]) => !key.startsWith('_'))
-      .map(([key, def]: [string, any]) => ({
-        accessorKey: key,
-        header: def.label || key,
-      }));
-  }, [columns, objectSchema]);
+      .map(([key, def]: [string, any]) => {
+        const col: any = {
+          accessorKey: key,
+          header: resolveFieldLabel(resolvedObjectName, key, def.label || key),
+        };
+        // Add type-aware cell renderer for typed fields
+        if (def.type) {
+          const CellRenderer = getCellRenderer(def.type);
+          if (CellRenderer) {
+            const fieldMeta: FieldMetadata = {
+              name: key,
+              label: def.label || key,
+              type: def.type,
+              ...(def.options && { options: def.options }),
+              ...(def.currency && { currency: def.currency }),
+              ...(def.precision !== undefined && { precision: def.precision }),
+              ...(def.format && { format: def.format }),
+              ...((def.reference_to || def.reference) && { reference_to: def.reference_to || def.reference }),
+              ...(def.reference_field && { reference_field: def.reference_field }),
+            };
+            col.cell = (value: any) => {
+              if (value === null || value === undefined) {
+                return React.createElement('span', { className: 'text-muted-foreground/50 text-xs italic' }, '—');
+              }
+              return React.createElement(CellRenderer, { value, field: fieldMeta });
+            };
+          }
+        }
+        return col;
+      });
+  }, [columns, objectSchema, objectName, api, resolveFieldLabel]);
 
   const viewSchema = React.useMemo(() => {
     if (schema) return schema;
@@ -258,9 +291,9 @@ export const RelatedList: React.FC<RelatedListProps> = ({
         )}
 
         {/* Sortable column headers */}
-        {sortable && columns && columns.length > 0 && relatedData.length > 0 && (
+        {sortable && effectiveColumns && effectiveColumns.length > 0 && relatedData.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-3">
-            {columns.map((col: any) => {
+            {effectiveColumns.map((col: any) => {
               const field = col.accessorKey || col.field || col.name;
               if (!field) return null;
               const label = col.header || col.label || field;
