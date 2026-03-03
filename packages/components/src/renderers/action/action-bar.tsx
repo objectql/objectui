@@ -137,6 +137,7 @@ const ActionBarRenderer = forwardRef<HTMLDivElement, { schema: ActionBarSchema; 
               schema={{
                 ...action,
                 type: componentType,
+                actionType: action.type,
                 variant: action.variant || schema.variant,
                 size: action.size || schema.size,
               }}

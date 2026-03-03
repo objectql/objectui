@@ -72,7 +72,7 @@ const ActionButtonRenderer = forwardRef<HTMLButtonElement, ActionButtonProps>(
           typeof schema.params[0] === 'object' && 'name' in schema.params[0] && 'type' in schema.params[0];
 
         await execute({
-          type: schema.type,
+          type: (schema as any).actionType || schema.type,
           name: schema.name,
           target: schema.target,
           execute: schema.execute,
