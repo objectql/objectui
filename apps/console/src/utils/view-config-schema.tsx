@@ -1073,7 +1073,8 @@ function buildDataSection(
                     const currentFields: Array<{ field: string; label?: string }> = uf.fields || [];
                     const currentTabs: Array<{ id: string; label: string; filters: any[]; default?: boolean }> = uf.tabs || [];
 
-                    // Derive available fields — only discrete-option fields work well with dropdown/toggle
+                    // Derive available fields — only discrete-option fields work with dropdown/toggle.
+                    // hasOptions: custom fields with explicit options arrays; isSupportedType: standard select/boolean types
                     const availableFields = fieldOptions
                         .filter(f => {
                             const hasOptions = Array.isArray(f.options) && f.options.length > 0;
@@ -1232,7 +1233,8 @@ function buildDataSection(
                                                 data-testid="uf-show-all-records"
                                                 checked={uf.showAllRecords !== false}
                                                 onCheckedChange={(checked: boolean) => {
-                                                    updateField('userFilters', { ...uf, showAllRecords: checked === true ? undefined : false });
+                                                    // undefined = runtime default (show), false = explicitly hidden
+                                                    updateField('userFilters', { ...uf, showAllRecords: checked ? undefined : false });
                                                 }}
                                                 className="h-3.5 w-3.5"
                                             />
