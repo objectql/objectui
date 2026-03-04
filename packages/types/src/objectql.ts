@@ -1260,6 +1260,36 @@ export interface NamedListView {
    * Supports both ObjectUI format and Spec format (auto-converted at runtime). */
   quickFilters?: QuickFilterItem[];
 
+  /**
+   * User Filters Configuration (Airtable Interfaces-style).
+   * Aligned with ListViewSchema.userFilters.
+   *
+   * Supports three display modes configured by `element`:
+   * - 'dropdown': Each field renders as a dropdown selector badge
+   * - 'tabs': Named filter presets rendered as a tab bar
+   * - 'toggle': Each filter field renders as an on/off toggle button
+   */
+  userFilters?: {
+    element: 'dropdown' | 'tabs' | 'toggle';
+    fields?: Array<{
+      field: string;
+      label?: string;
+      type?: 'select' | 'multi-select' | 'boolean' | 'date-range' | 'text';
+      options?: Array<{ label: string; value: string | number | boolean; color?: string }>;
+      showCount?: boolean;
+      defaultValues?: (string | number | boolean)[];
+    }>;
+    tabs?: Array<{
+      id: string;
+      label: string;
+      filters: Array<any[] | string>;
+      icon?: string;
+      default?: boolean;
+    }>;
+    allowAddTab?: boolean;
+    showAllRecords?: boolean;
+  };
+
   /** Show total record count @default false */
   showRecordCount?: boolean;
 

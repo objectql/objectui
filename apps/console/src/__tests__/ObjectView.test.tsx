@@ -33,6 +33,7 @@ vi.mock('@object-ui/plugin-list', () => ({
         {props.schema?.selection?.type && <div data-testid="schema-selection-type">{props.schema.selection.type}</div>}
         {props.schema?.addRecord?.enabled && <div data-testid="schema-addRecord-enabled">addRecord</div>}
         {props.schema?.addRecordViaForm && <div data-testid="schema-addRecordViaForm">addRecordViaForm</div>}
+        {props.schema?.userFilters && <div data-testid="schema-userFilters">{props.schema.userFilters.element}</div>}
         <button data-testid="list-row-click" onClick={() => props.onRowClick?.({ _id: 'rec-1', id: 'rec-1', name: 'Test Record' })}>Click Row</button>
       </div>
     );
@@ -629,6 +630,37 @@ describe('ObjectView Component', () => {
         // Verify the schema property propagated to ListView immediately (live preview)
         await vi.waitFor(() => {
             expect(screen.getByTestId('schema-allowPrinting')).toBeInTheDocument();
+        });
+    });
+
+    it('propagates userFilters config to ListView schema when viewDef has userFilters', async () => {
+        mockAuthUser = { id: 'u1', name: 'Admin', role: 'admin' };
+        mockUseParams.mockReturnValue({ objectName: 'opportunity' });
+
+        // Set up a view definition that includes userFilters
+        const objectsWithUserFilters = mockObjects.map((obj: any) => {
+            if (obj.name === 'opportunity') {
+                return {
+                    ...obj,
+                    listViews: [{
+                        ...obj.listViews?.[0],
+                        label: 'All Opportunities',
+                        userFilters: {
+                            element: 'dropdown',
+                            fields: [{ field: 'status' }],
+                        },
+                    }],
+                };
+            }
+            return obj;
+        });
+
+        render(<ObjectView dataSource={mockDataSource} objects={objectsWithUserFilters} onEdit={vi.fn()} />);
+
+        // Verify userFilters propagated to ListView
+        await vi.waitFor(() => {
+            expect(screen.getByTestId('schema-userFilters')).toBeInTheDocument();
+            expect(screen.getByTestId('schema-userFilters')).toHaveTextContent('dropdown');
         });
     });
 

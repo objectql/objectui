@@ -457,6 +457,7 @@ describe('buildViewConfigSchema', () => {
                 '_pageSize', '_pageSizeOptions',
                 '_searchableFields', '_filterableFields', '_hiddenFields',
                 '_quickFilters',
+                '_userFilters',
                 'virtualScroll',
                 '_typeOptions',
             ]);
@@ -468,6 +469,22 @@ describe('buildViewConfigSchema', () => {
             const fieldKeys = section.fields.map((f: any) => f.key);
             expect(fieldKeys.indexOf('_columns')).toBeLessThan(fieldKeys.indexOf('_filterBy'));
             expect(fieldKeys.indexOf('_filterBy')).toBeLessThan(fieldKeys.indexOf('_sortBy'));
+        });
+
+        it('_userFilters field exists and is custom type', () => {
+            const schema = buildSchema();
+            const section = schema.sections.find((s: any) => s.key === 'data')!;
+            const field = section.fields.find((f: any) => f.key === '_userFilters');
+            expect(field).toBeDefined();
+            expect(field!.type).toBe('custom');
+            expect(field!.label).toBe('console.objectView.userFilters');
+        });
+
+        it('_userFilters comes after _quickFilters', () => {
+            const schema = buildSchema();
+            const section = schema.sections.find((s: any) => s.key === 'data')!;
+            const fieldKeys = section.fields.map((f: any) => f.key);
+            expect(fieldKeys.indexOf('_userFilters')).toBeGreaterThan(fieldKeys.indexOf('_quickFilters'));
         });
     });
 

@@ -882,6 +882,7 @@ export const ObjectView: React.FC<ObjectViewProps> = ({
           addRecord: activeView?.addRecord ?? (schema as any).addRecord,
           conditionalFormatting: activeView?.conditionalFormatting ?? (schema as any).conditionalFormatting,
           quickFilters: activeView?.quickFilters ?? (schema as any).quickFilters,
+          userFilters: activeView?.userFilters ?? (schema as any).userFilters,
           showRecordCount: activeView?.showRecordCount ?? (schema as any).showRecordCount,
           allowPrinting: activeView?.allowPrinting ?? (schema as any).allowPrinting,
           virtualScroll: activeView?.virtualScroll ?? (schema as any).virtualScroll,

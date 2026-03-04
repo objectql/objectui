@@ -560,6 +560,7 @@ export function ObjectView({ dataSource, objects, onEdit }: any) {
             addRecord: viewDef.addRecord ?? listSchema.addRecord,
             conditionalFormatting: viewDef.conditionalFormatting ?? listSchema.conditionalFormatting,
             quickFilters: viewDef.quickFilters ?? listSchema.quickFilters,
+            userFilters: viewDef.userFilters ?? listSchema.userFilters,
             showRecordCount: viewDef.showRecordCount ?? listSchema.showRecordCount,
             allowPrinting: viewDef.allowPrinting ?? listSchema.allowPrinting,
             virtualScroll: viewDef.virtualScroll ?? listSchema.virtualScroll,
