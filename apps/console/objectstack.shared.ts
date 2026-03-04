@@ -102,8 +102,9 @@ export const sharedConfig = {
 const allConfigs = [crmConfig, todoConfig, kitchenSinkConfig];
 
 // defineStack() validates the config but strips non-standard properties like
-// listViews and actions from objects. Re-compose after validation so the
-// runtime protocol serves objects with their view and action definitions.
+// listViews and actions from objects. A second composeStacks pass restores
+// these runtime properties onto the validated objects. This double-pass is
+// necessary because defineStack's Zod schema doesn't preserve custom fields.
 const validated = defineStack(sharedConfig as Parameters<typeof defineStack>[0]);
 export default {
   ...validated,

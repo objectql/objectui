@@ -11,12 +11,18 @@
  * - Handles duplicate object names via `objectConflict` option
  * - Merges stack-level views (listViews) into corresponding objects
  * - Merges stack-level actions into objects via explicit `objectName` field
+ *
+ * Note: Uses Record<string, any> because inputs can be raw defineStack output,
+ * plugin getConfig() results, or partial stacks with only views/actions.
  */
 
 export interface ComposeStacksOptions {
   /** How to resolve two objects with the same `name`. Default: 'override' (last wins). */
   objectConflict?: 'override' | 'error';
 }
+
+/** A partial or full stack definition used as input to composeStacks. */
+export type StackInput = Record<string, any>;
 
 /**
  * Compose multiple stack definitions into a single merged definition.
@@ -26,7 +32,7 @@ export interface ComposeStacksOptions {
  * @returns       A merged stack definition (unvalidated — call defineStack if needed)
  */
 export function composeStacks(
-  stacks: Record<string, any>[],
+  stacks: StackInput[],
   options: ComposeStacksOptions = {},
 ): Record<string, any> {
   const { objectConflict = 'override' } = options;
@@ -57,7 +63,7 @@ export function composeStacks(
   for (const obj of allObjects) {
     const name = obj?.name;
     if (!name) {
-      objectMap.set(`__anon_${objectMap.size}`, obj);
+      objectMap.set(`__unnamed_${objectMap.size}`, obj);
       continue;
     }
     if (objectMap.has(name)) {

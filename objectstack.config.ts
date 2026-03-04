@@ -58,7 +58,10 @@ const mergedApp = defineStack({
   pages: composed.pages,
 } as any);
 
-// Re-compose after defineStack validation to restore listViews and actions
+// defineStack() validates the config but strips non-standard properties like
+// listViews and actions from objects. A second composeStacks pass restores
+// these runtime properties onto the validated objects. This double-pass is
+// necessary because defineStack's Zod schema doesn't preserve custom fields.
 const mergedAppWithViews = {
   ...mergedApp,
   objects: composeStacks([
