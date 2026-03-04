@@ -7,7 +7,7 @@
  */
 
 import type { Registry } from './Registry.js';
-import type { PluginScope, PluginScopeConfig, AppMetadataPlugin } from '@object-ui/types';
+import type { PluginScope, PluginScopeConfig, AppMetadataPlugin, PluginContext } from '@object-ui/types';
 import { PluginScopeImpl } from './PluginScopeImpl.js';
 
 export interface PluginDefinition {
@@ -169,7 +169,7 @@ export class PluginSystem {
    * @param registry - The component registry
    * @param ctx - Optional context passed to the plugin's start() hook
    */
-  async install(plugin: AppMetadataPlugin, registry: Registry, ctx?: Record<string, any>): Promise<void> {
+  async install(plugin: AppMetadataPlugin, registry: Registry, ctx?: PluginContext): Promise<void> {
     if (this.loaded.has(plugin.name)) {
       console.warn(`Plugin "${plugin.name}" is already installed. Skipping.`);
       return;

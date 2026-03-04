@@ -18,6 +18,7 @@
  *   import { kitchenSinkConfig } from '@object-ui/example-kitchen-sink/plugin';
  */
 
+import type { PluginContext } from '@object-ui/types';
 import config from './objectstack.config';
 
 /** Raw Kitchen Sink stack configuration for direct merging */
@@ -39,7 +40,7 @@ export class KitchenSinkPlugin {
     // No initialization needed
   }
 
-  async start(ctx: any) {
+  async start(ctx: PluginContext) {
     const logger = ctx.logger || console;
 
     try {

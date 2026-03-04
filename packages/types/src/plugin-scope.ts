@@ -189,10 +189,10 @@ export type PluginEventHandler = (data?: any) => void;
  */
 export interface PluginContext {
   /** Logger instance (falls back to console) */
-  logger?: { info: (...args: any[]) => void; warn: (...args: any[]) => void; error: (...args: any[]) => void };
+  logger?: { info: (...args: unknown[]) => void; warn: (...args: unknown[]) => void; error: (...args: unknown[]) => void };
   /** Kernel/runtime reference for plugin registration */
-  kernel?: { use?: (plugin: any) => Promise<void> | void };
-  [key: string]: any;
+  kernel?: { use?: (plugin: AppMetadataPlugin | Record<string, unknown>) => Promise<void> | void };
+  [key: string]: unknown;
 }
 
 /**
