@@ -1188,11 +1188,10 @@ Plugin architecture refactoring to support true modular development, plugin isol
 - [x] Remove duplicate `mergeActionsIntoObjects()` from root config and console shared config
 - [x] Remove duplicate `mergeViewsIntoObjects()` from root config and console shared config (moved into `composeStacks`)
 - [x] Refactor root `objectstack.config.ts` and `apps/console/objectstack.shared.ts` to use `composeStacks()`
-- [x] Unit tests for `composeStacks()` (15 tests covering merging, dedup, views, actions, cross-stack, conflict detection)
 - [x] Eliminate `defineStack()` double-pass hack — single `composeStacks()` call produces final config with runtime properties (listViews, actions) preserved. `defineStack()` Zod validation stripped these fields, requiring a second `composeStacks` pass to restore them.
 - [x] Use `composed.apps` unified flow in console shared config — replaced manual `[...crmApps, ...(todoConfig.apps || []), ...]` spreading with CRM navigation patch applied to composed output
 - [x] Use `composed.reports` in console shared config — replaced `...(crmConfig.reports || [])` with `...(composed.reports || [])` to include reports from all stacks
-- [x] **composeStacks unified to `@objectstack/spec`:** Removed `@object-ui/core` composeStacks implementation. All config composition now uses `composeStacks` from `@objectstack/spec` (protocol-level: object dedup, array concatenation, actions→objects mapping, manifest selection, i18n). Runtime-specific `mergeViewsIntoObjects` adapter applied inline at call sites until the runtime/provider layer handles it natively.
+- [x] **composeStacks unified to `@objectstack/spec`:** Removed `@object-ui/core` composeStacks implementation and its 15-test suite (coverage now lives upstream in `@objectstack/spec`). All config composition now uses `composeStacks` from `@objectstack/spec` (protocol-level: object dedup, array concatenation, actions→objects mapping, manifest selection, i18n). Runtime-specific `mergeViewsIntoObjects` adapter extracted to `@object-ui/core` and applied post-composition at call sites. A deprecated re-export of `composeStacks` is kept in `@object-ui/core` for backward compatibility.
 
 **Phase 2 — Dynamic Plugin Loading (Planned)**
 - [ ] Hot-reload / lazy loading of plugins for development

@@ -28,3 +28,11 @@ export * from './utils/debug.js';
 export * from './utils/debug-collector.js';
 export * from './utils/merge-views-into-objects.js';
 export * from './protocols/index.js';
+
+/**
+ * @deprecated Import `composeStacks` from `@objectstack/spec` instead.
+ *
+ * This re-export is kept only for backward compatibility and will be removed
+ * in the next major version of `@object-ui/core`.
+ */
+export { composeStacks } from '@objectstack/spec';
