@@ -53,6 +53,15 @@ export class CRMPlugin {
       logger.info('[CRM] Config is available via crmConfig export for manual merging');
     }
   }
+
+  async stop() {
+    // Teardown: no persistent resources to release
+  }
+
+  /** Raw stack configuration for legacy/manual merging */
+  getConfig() {
+    return config;
+  }
 }
 
 export default CRMPlugin;
