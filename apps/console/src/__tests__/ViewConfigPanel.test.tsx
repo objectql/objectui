@@ -2272,9 +2272,9 @@ describe('ViewConfigPanel', () => {
 
         fireEvent.click(screen.getByText('console.objectView.userFilters'));
         const addField = screen.getByTestId('uf-add-field');
-        fireEvent.change(addField, { target: { value: 'name' } });
+        fireEvent.change(addField, { target: { value: 'stage' } });
         expect(onViewUpdate).toHaveBeenCalledWith('userFilters', expect.objectContaining({
-            fields: expect.arrayContaining([{ field: 'name' }]),
+            fields: expect.arrayContaining([{ field: 'stage' }]),
         }));
     });
 

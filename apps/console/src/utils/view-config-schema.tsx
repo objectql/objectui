@@ -1073,8 +1073,14 @@ function buildDataSection(
                     const currentFields: Array<{ field: string; label?: string }> = uf.fields || [];
                     const currentTabs: Array<{ id: string; label: string; filters: any[]; default?: boolean }> = uf.tabs || [];
 
-                    // Derive available fields from objectDef
-                    const availableFields = fieldOptions.map(f => f.value);
+                    // Derive available fields — only discrete-option fields work well with dropdown/toggle
+                    const availableFields = fieldOptions
+                        .filter(f => {
+                            const hasOptions = Array.isArray(f.options) && f.options.length > 0;
+                            const isSupportedType = f.type === 'select' || f.type === 'boolean';
+                            return hasOptions || isSupportedType;
+                        })
+                        .map(f => f.value);
 
                     const elementOptions: Array<{ value: string; label: string }> = [
                         { value: 'dropdown', label: t('console.objectView.ufDropdown') },
@@ -1224,9 +1230,9 @@ function buildDataSection(
                                         <div className="flex items-center gap-2 pt-1">
                                             <Checkbox
                                                 data-testid="uf-show-all-records"
-                                                checked={uf.showAllRecords === true}
+                                                checked={uf.showAllRecords !== false}
                                                 onCheckedChange={(checked: boolean) => {
-                                                    updateField('userFilters', { ...uf, showAllRecords: checked });
+                                                    updateField('userFilters', { ...uf, showAllRecords: checked === true ? undefined : false });
                                                 }}
                                                 className="h-3.5 w-3.5"
                                             />
