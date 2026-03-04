@@ -130,14 +130,8 @@ export const DetailView: React.FC<DetailViewProps> = ({
           ? dataSource.findOne(objectName, resourceId, params)
           : dataSource.findOne(objectName, resourceId);
 
-        return findOnePromise.then((result) => {
-          if (!isMounted) return;
-          if (result) {
-            setData(result);
-            setLoading(false);
-            return;
-          }
-          // Fallback: try alternate ID format for backward compatibility
+        // Helper: try alternate ID format (strip or prepend objectName prefix)
+        const tryAltId = () => {
           const resIdStr = String(resourceId);
           const altId = resIdStr.startsWith(prefix)
             ? resIdStr.slice(prefix.length)   // strip prefix
@@ -156,6 +150,19 @@ export const DetailView: React.FC<DetailViewProps> = ({
               setLoading(false);
             }
           });
+        };
+
+        return findOnePromise
+          .catch(() => null) // Treat fetch errors as "not found" so the fallback runs
+          .then((result) => {
+          if (!isMounted) return;
+          if (result) {
+            setData(result);
+            setLoading(false);
+            return;
+          }
+          // Fallback: try alternate ID format for backward compatibility
+          return tryAltId();
         });
       }).catch((err) => {
          if (isMounted) {
