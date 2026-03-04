@@ -53,7 +53,7 @@ export async function startMockServer() {
       baseUrl: '/api/v1',
       logRequests: false,
       customHandlers: [
-        http.get('/api/v1/i18n/:lang', async ({ params }) => {
+        http.get('/api/v1/i18n/translations/:lang', async ({ params }) => {
           const lang = params.lang as string;
           const resources = await loadAppLocale(lang);
           return HttpResponse.json(resources);
