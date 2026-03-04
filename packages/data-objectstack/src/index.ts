@@ -301,8 +301,8 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
           return null;
         }
         // Fall through to direct GET without $expand — some servers don't
-        // support the filter+populate API, so gracefully degrade rather
-        // than failing with "Record not found".
+        // support the filter+populate API, so gracefully degrade to a
+        // simple data.get() call below rather than failing with "Record not found".
       }
     }
 

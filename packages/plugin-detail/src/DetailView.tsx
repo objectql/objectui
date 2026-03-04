@@ -153,7 +153,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
         };
 
         return findOnePromise
-          .catch(() => null) // Treat fetch errors as "not found" so the fallback runs
+          .catch(() => null) // Convert any error to null to trigger alternate ID fallback
           .then((result) => {
           if (!isMounted) return;
           if (result) {
