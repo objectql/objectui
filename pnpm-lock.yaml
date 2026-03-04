@@ -16,7 +16,7 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: ^1.19.9
-        version: 1.19.9(hono@4.12.3)
+        version: 1.19.9(hono@4.12.4)
       '@objectstack/plugin-hono-server':
         specifier: ^3.2.1
         version: 3.2.1(pino@8.21.0)
@@ -27,8 +27,8 @@ importers:
         specifier: 0.0.1-security
         version: 0.0.1-security
       hono:
-        specifier: ^4.12.3
-        version: 4.12.3
+        specifier: ^4.12.4
+        version: 4.12.4
       pino:
         specifier: ^8.21.0
         version: 8.21.0
@@ -522,7 +522,7 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: ^1.19.9
-        version: 1.19.9(hono@4.12.3)
+        version: 1.19.9(hono@4.12.4)
       '@objectstack/core':
         specifier: ^3.2.1
         version: 3.2.1(pino@8.21.0)
@@ -545,8 +545,8 @@ importers:
         specifier: ^3.2.1
         version: 3.2.1
       hono:
-        specifier: ^4.12.3
-        version: 4.12.3
+        specifier: ^4.12.4
+        version: 4.12.4
       pino:
         specifier: ^8.21.0
         version: 8.21.0
@@ -7938,6 +7938,9 @@ packages:
   flatted@3.3.3:
     resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
 
+  flatted@3.3.4:
+    resolution: {integrity: sha512-3+mMldrTAPdta5kjX2G2J7iX4zxtnwpdA8Tr2ZSjkyPSanvbZAcy6flmtnXbEybHrDcU9641lxrMfFuUxVz9vA==}
+
   follow-redirects@1.15.11:
     resolution: {integrity: sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==}
     engines: {node: '>=4.0'}
@@ -8387,8 +8390,8 @@ packages:
     resolution: {integrity: sha512-U7tt8JsyrxSRKspfhtLET79pU8K+tInj5QZXs1jSugO1Vq5dFj3kmZsRldo29mTBfcjDRVRXrEZ6LS63Cog9ZA==}
     engines: {node: '>=16.9.0'}
 
-  hono@4.12.3:
-    resolution: {integrity: sha512-SFsVSjp8sj5UumXOOFlkZOG6XS9SJDKw0TbwFeV+AJ8xlST8kxK5Z/5EYa111UY8732lK2S/xB653ceuaoGwpg==}
+  hono@4.12.4:
+    resolution: {integrity: sha512-ooiZW1Xy8rQ4oELQ++otI2T9DsKpV0M6c6cO6JGx4RTfav9poFFLlet9UMXHZnoM1yG0HWGlQLswBGX3RZmHtg==}
     engines: {node: '>=16.9.0'}
 
   hosted-git-info@4.1.0:
@@ -13257,9 +13260,9 @@ snapshots:
     dependencies:
       hono: 4.11.4
 
-  '@hono/node-server@1.19.9(hono@4.12.3)':
+  '@hono/node-server@1.19.9(hono@4.12.4)':
     dependencies:
-      hono: 4.12.3
+      hono: 4.12.4
 
   '@humanfs/core@0.19.1': {}
 
@@ -13833,7 +13836,7 @@ snapshots:
 
   '@modelcontextprotocol/sdk@1.27.1(zod@3.25.76)':
     dependencies:
-      '@hono/node-server': 1.19.9(hono@4.12.3)
+      '@hono/node-server': 1.19.9(hono@4.12.4)
       ajv: 8.18.0
       ajv-formats: 3.0.1(ajv@8.18.0)
       content-type: 1.0.5
@@ -13843,7 +13846,7 @@ snapshots:
       eventsource-parser: 3.0.6
       express: 5.2.1
       express-rate-limit: 8.2.1(express@5.2.1)
-      hono: 4.12.3
+      hono: 4.12.4
       jose: 6.1.3
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
@@ -14039,10 +14042,10 @@ snapshots:
 
   '@objectstack/plugin-hono-server@3.2.1(pino@8.21.0)':
     dependencies:
-      '@hono/node-server': 1.19.9(hono@4.12.3)
+      '@hono/node-server': 1.19.9(hono@4.12.4)
       '@objectstack/core': 3.2.1(pino@8.21.0)
       '@objectstack/spec': 3.2.1
-      hono: 4.12.3
+      hono: 4.12.4
     transitivePeerDependencies:
       - pino
 
@@ -16343,7 +16346,7 @@ snapshots:
       '@vitest/utils': 1.6.1
       fast-glob: 3.3.3
       fflate: 0.8.2
-      flatted: 3.3.3
+      flatted: 3.3.4
       pathe: 1.1.2
       picocolors: 1.1.1
       sirv: 2.0.4
@@ -18259,6 +18262,9 @@ snapshots:
 
   flatted@3.3.3: {}
 
+  flatted@3.3.4:
+    optional: true
+
   follow-redirects@1.15.11: {}
 
   for-each@0.3.5:
@@ -18780,7 +18786,7 @@ snapshots:
 
   hono@4.11.4: {}
 
-  hono@4.12.3: {}
+  hono@4.12.4: {}
 
   hosted-git-info@4.1.0:
     dependencies:
