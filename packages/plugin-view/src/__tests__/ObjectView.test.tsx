@@ -661,5 +661,45 @@ describe('ObjectView', () => {
       expect(callSchema?.showFilters).toBe(false);
       expect(callSchema?.showSort).toBe(false);
     });
+
+    it('should propagate userFilters from activeView in renderListView', async () => {
+      const schema: ObjectViewSchema = {
+        type: 'object-view',
+        objectName: 'contacts',
+      };
+
+      const renderListViewSpy = vi.fn(({ schema: listSchema }: any) => (
+        <div data-testid="custom-list">Custom ListView</div>
+      ));
+
+      const views = [
+        {
+          id: 'v1',
+          label: 'View 1',
+          type: 'grid' as const,
+          userFilters: {
+            element: 'dropdown' as const,
+            fields: [{ field: 'status' }],
+          },
+        },
+      ];
+
+      render(
+        <ObjectView
+          schema={schema}
+          dataSource={mockDataSource}
+          views={views}
+          activeViewId="v1"
+          renderListView={renderListViewSpy}
+        />,
+      );
+
+      expect(renderListViewSpy).toHaveBeenCalled();
+      const callSchema = renderListViewSpy.mock.calls[0]?.[0]?.schema;
+      expect(callSchema?.userFilters).toEqual({
+        element: 'dropdown',
+        fields: [{ field: 'status' }],
+      });
+    });
   });
 });

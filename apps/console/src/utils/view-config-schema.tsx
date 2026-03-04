@@ -1062,6 +1062,202 @@ function buildDataSection(
                     );
                 },
             },
+            // spec: NamedListView.userFilters (universal: user filter controls in toolbar)
+            {
+                key: '_userFilters',
+                label: t('console.objectView.userFilters'),
+                type: 'custom',
+                render: (_value: any, _onChange: any, draft: any) => {
+                    const uf = draft.userFilters || { element: 'dropdown', fields: [] };
+                    const currentElement = uf.element || 'dropdown';
+                    const currentFields: Array<{ field: string; label?: string }> = uf.fields || [];
+                    const currentTabs: Array<{ id: string; label: string; filters: any[]; default?: boolean }> = uf.tabs || [];
+
+                    // Derive available fields — only discrete-option fields work with dropdown/toggle.
+                    // hasOptions: custom fields with explicit options arrays; isSupportedType: standard select/boolean types
+                    const availableFields = fieldOptions
+                        .filter(f => {
+                            const hasOptions = Array.isArray(f.options) && f.options.length > 0;
+                            const isSupportedType = f.type === 'select' || f.type === 'boolean';
+                            return hasOptions || isSupportedType;
+                        })
+                        .map(f => f.value);
+
+                    const elementOptions: Array<{ value: string; label: string }> = [
+                        { value: 'dropdown', label: t('console.objectView.ufDropdown') },
+                        { value: 'tabs', label: t('console.objectView.ufTabs') },
+                        { value: 'toggle', label: t('console.objectView.ufToggle') },
+                    ];
+
+                    // Summary: show field labels for dropdown/toggle, tab count for tabs
+                    const summary = currentElement === 'tabs'
+                        ? (currentTabs.length > 0
+                            ? currentTabs.map(tab => tab.label || tab.id).join(', ')
+                            : t('console.objectView.none'))
+                        : (currentFields.length > 0
+                            ? currentFields.map(f => {
+                                const fo = fieldOptions.find(o => o.value === f.field);
+                                return fo?.label || f.field;
+                            }).join(', ')
+                            : t('console.objectView.none'));
+
+                    return (
+                        <ExpandableWidget
+                            renderSummary={(toggle) => (
+                                <ConfigRow
+                                    label={t('console.objectView.userFilters')}
+                                    value={summary}
+                                    onClick={toggle}
+                                />
+                            )}
+                        >
+                            <div data-testid="user-filters-editor" className="pb-2 space-y-2">
+                                {/* Element type selector */}
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs text-muted-foreground">{t('console.objectView.ufElements')}</span>
+                                    <div className="flex gap-1">
+                                        {elementOptions.map(opt => (
+                                            <button
+                                                key={opt.value}
+                                                type="button"
+                                                data-testid={`uf-element-${opt.value}`}
+                                                className={`text-xs px-2 py-0.5 rounded border ${currentElement === opt.value ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-accent'}`}
+                                                onClick={() => {
+                                                    updateField('userFilters', { ...uf, element: opt.value });
+                                                }}
+                                            >
+                                                {opt.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                {/* Dropdown / Toggle mode: field list */}
+                                {(currentElement === 'dropdown' || currentElement === 'toggle') && (
+                                    <div data-testid="uf-fields-section" className="space-y-1">
+                                        {currentFields.map((f: any, idx: number) => (
+                                            <div key={f.field || idx} data-testid={`uf-field-${idx}`} className="flex items-center gap-1 text-xs">
+                                                <span className="flex-1 truncate">{fieldOptions.find(o => o.value === f.field)?.label || f.field}</span>
+                                                <button
+                                                    type="button"
+                                                    data-testid={`uf-remove-field-${idx}`}
+                                                    className="text-destructive hover:text-destructive/80 text-xs"
+                                                    onClick={() => {
+                                                        const updated = currentFields.filter((_: any, i: number) => i !== idx);
+                                                        updateField('userFilters', { ...uf, fields: updated });
+                                                    }}
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        ))}
+                                        {availableFields.length > 0 ? (
+                                            <select
+                                                data-testid="uf-add-field"
+                                                className="text-xs h-6 w-full border rounded px-1"
+                                                value=""
+                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                                                    if (!e.target.value) return;
+                                                    const newField = { field: e.target.value };
+                                                    updateField('userFilters', { ...uf, fields: [...currentFields, newField] });
+                                                    e.target.value = '';
+                                                }}
+                                            >
+                                                <option value="">{t('console.objectView.ufAddField')}</option>
+                                                {availableFields
+                                                    .filter(fv => !currentFields.some((cf: any) => cf.field === fv))
+                                                    .map(fv => {
+                                                        const fo = fieldOptions.find(o => o.value === fv);
+                                                        return <option key={fv} value={fv}>{fo?.label || fv}</option>;
+                                                    })}
+                                            </select>
+                                        ) : (
+                                            <span className="text-xs text-muted-foreground">{t('console.objectView.ufNoFields')}</span>
+                                        )}
+                                    </div>
+                                )}
+                                {/* Tabs mode: tab list editor */}
+                                {currentElement === 'tabs' && (
+                                    <div data-testid="uf-tabs-section" className="space-y-1">
+                                        {currentTabs.map((tab: any, idx: number) => (
+                                            <div key={tab.id || idx} data-testid={`uf-tab-${idx}`} className="flex items-center gap-1 text-xs">
+                                                <Input
+                                                    data-testid={`uf-tab-label-${idx}`}
+                                                    className="h-6 text-xs flex-1"
+                                                    value={tab.label || ''}
+                                                    placeholder={t('console.objectView.ufTabLabel')}
+                                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                        const updated = [...currentTabs];
+                                                        updated[idx] = { ...updated[idx], label: e.target.value };
+                                                        updateField('userFilters', { ...uf, tabs: updated });
+                                                    }}
+                                                />
+                                                <Checkbox
+                                                    data-testid={`uf-tab-default-${idx}`}
+                                                    checked={tab.default === true}
+                                                    onCheckedChange={(checked: boolean) => {
+                                                        const updated = currentTabs.map((t: any, i: number) => ({
+                                                            ...t,
+                                                            default: i === idx ? checked : false,
+                                                        }));
+                                                        updateField('userFilters', { ...uf, tabs: updated });
+                                                    }}
+                                                    className="h-3.5 w-3.5"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    data-testid={`uf-remove-tab-${idx}`}
+                                                    className="text-destructive hover:text-destructive/80 text-xs"
+                                                    onClick={() => {
+                                                        const updated = currentTabs.filter((_: any, i: number) => i !== idx);
+                                                        updateField('userFilters', { ...uf, tabs: updated });
+                                                    }}
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        ))}
+                                        <button
+                                            type="button"
+                                            data-testid="uf-add-tab"
+                                            className="text-xs text-primary hover:underline"
+                                            onClick={() => {
+                                                const newTab = { id: crypto.randomUUID(), label: '', filters: [], default: false };
+                                                updateField('userFilters', { ...uf, tabs: [...currentTabs, newTab] });
+                                            }}
+                                        >
+                                            {t('console.objectView.ufAddTab')}
+                                        </button>
+                                        {/* Tabs mode toggles */}
+                                        <div className="flex items-center gap-2 pt-1">
+                                            <Checkbox
+                                                data-testid="uf-show-all-records"
+                                                checked={uf.showAllRecords !== false}
+                                                onCheckedChange={(checked: boolean) => {
+                                                    // undefined = runtime default (show), false = explicitly hidden
+                                                    updateField('userFilters', { ...uf, showAllRecords: checked ? undefined : false });
+                                                }}
+                                                className="h-3.5 w-3.5"
+                                            />
+                                            <span className="text-xs">{t('console.objectView.ufShowAllRecords')}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Checkbox
+                                                data-testid="uf-allow-add-tab"
+                                                checked={uf.allowAddTab === true}
+                                                onCheckedChange={(checked: boolean) => {
+                                                    updateField('userFilters', { ...uf, allowAddTab: checked });
+                                                }}
+                                                className="h-3.5 w-3.5"
+                                            />
+                                            <span className="text-xs">{t('console.objectView.ufAllowAddTab')}</span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </ExpandableWidget>
+                    );
+                },
+            },
             // spec: NamedListView.virtualScroll (grid-only: virtual scrolling applies to grid row rendering)
             buildSwitchField('virtualScroll', t('console.objectView.virtualScroll'), 'toggle-virtualScroll', false, true,
                 undefined, isGridView),
