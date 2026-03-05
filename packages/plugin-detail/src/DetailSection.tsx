@@ -58,8 +58,8 @@ export interface VirtualScrollOptions {
   enabled?: boolean;
   /** Height of each field row in px (default: 60) */
   itemHeight?: number;
-  /** Number of extra items to render above/below the visible area (default: 3) */
-  overscan?: number;
+  /** Number of fields to render in the initial batch before revealing all (default: 20) */
+  batchSize?: number;
 }
 
 export interface DetailSectionProps {
@@ -228,7 +228,9 @@ export const DetailSection: React.FC<DetailSectionProps> = ({
 
   // Virtual scroll: progressive batch rendering for large field sets
   const vsEnabled = virtualScroll?.enabled === true;
-  const vsBatchSize = virtualScroll?.overscan ?? 20;
+  const vsBatchSize = virtualScroll?.batchSize ?? 20;
+  /** Delay (ms) before revealing remaining fields after the initial batch */
+  const VS_REVEAL_DELAY = 100;
 
   React.useEffect(() => {
     if (!vsEnabled) {
@@ -241,7 +243,7 @@ export const DetailSection: React.FC<DetailSectionProps> = ({
       return;
     }
     setVisibleCount(vsBatchSize);
-    const timer = setTimeout(() => setVisibleCount(undefined), 100);
+    const timer = setTimeout(() => setVisibleCount(undefined), VS_REVEAL_DELAY);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vsEnabled, layoutFields.length, vsBatchSize]);

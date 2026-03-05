@@ -405,7 +405,7 @@ describe('DetailSection', () => {
       <DetailSection
         section={section}
         data={{}}
-        virtualScroll={{ enabled: true, overscan: 10 }}
+        virtualScroll={{ enabled: true, batchSize: 10 }}
       />
     );
     const grid = container.querySelector('.grid');
@@ -445,7 +445,7 @@ describe('DetailSection', () => {
       <DetailSection
         section={section}
         data={{}}
-        virtualScroll={{ enabled: true, overscan: 20 }}
+        virtualScroll={{ enabled: true, batchSize: 20 }}
       />
     );
     const grid = container.querySelector('.grid');

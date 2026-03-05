@@ -432,7 +432,8 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
         actions: recordHeaderActions,
       } as any],
     }),
-  }), [objectDef, pureRecordId, related, childRelatedData, actionRefreshKey]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [objectDef.name, pureRecordId, childRelatedData, actionRefreshKey]);
 
   return (
     <div className="h-full bg-background overflow-hidden flex flex-col relative">
