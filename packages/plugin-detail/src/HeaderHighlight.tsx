@@ -12,6 +12,9 @@ import type { HighlightField, FieldMetadata } from '@object-ui/types';
 import { getCellRenderer } from '@object-ui/fields';
 import { useSafeFieldLabel } from '@object-ui/react';
 
+/** Renderer types that natively handle object values without crashing */
+const OBJECT_SAFE_TYPES = ['lookup', 'master_detail', 'user', 'owner', 'file', 'image', 'object'];
+
 export interface HeaderHighlightProps {
   fields: HighlightField[];
   data?: any;
@@ -74,10 +77,9 @@ export const HeaderHighlight: React.FC<HeaderHighlightProps> = ({
                 // Types like lookup/user/owner/file/image handle objects natively.
                 const isPlainObject = value !== null && typeof value === 'object'
                   && !Array.isArray(value) && !(value instanceof Date);
-                const OBJECT_SAFE_TYPES = ['lookup', 'master_detail', 'user', 'owner', 'file', 'image', 'object'];
 
                 if (isPlainObject && !OBJECT_SAFE_TYPES.includes(resolvedType)) {
-                  displayValue = String(value.name || value.label || value._id || JSON.stringify(value));
+                  displayValue = String(value?.name || value?.label || value?._id || JSON.stringify(value));
                 } else {
                   displayValue = <CellRenderer value={value} field={enrichedField as unknown as FieldMetadata} />;
                 }
