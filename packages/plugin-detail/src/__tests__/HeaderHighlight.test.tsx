@@ -126,4 +126,56 @@ describe('HeaderHighlight', () => {
     render(<HeaderHighlight fields={fieldsNoType} data={{ custom: 'raw-value' }} />);
     expect(screen.getByText('raw-value')).toBeInTheDocument();
   });
+
+  it('should safely render object values without crashing (React error #310 guard)', () => {
+    // Simulates MongoDB Decimal128 or expanded reference objects
+    const fieldsWithNumber: HighlightField[] = [
+      { name: 'amount', label: 'Amount' },
+      { name: 'account', label: 'Account' },
+    ];
+    const objectData = {
+      amount: { $numberDecimal: '250000' },
+      account: { _id: 'abc', name: 'Acme Corp' },
+    };
+    const objectSchema = {
+      fields: {
+        amount: { type: 'number' },
+        account: { type: 'text' },
+      },
+    };
+    // Should NOT crash with "Objects are not valid as a React child"
+    const { container } = render(
+      <HeaderHighlight
+        fields={fieldsWithNumber}
+        data={objectData}
+        objectSchema={objectSchema}
+      />
+    );
+    expect(container.innerHTML).not.toBe('');
+    // Object with name property should extract the name
+    expect(screen.getByText('Acme Corp')).toBeInTheDocument();
+  });
+
+  it('should pass object values through to object-safe renderers (lookup, user)', () => {
+    const lookupFields: HighlightField[] = [
+      { name: 'owner', label: 'Owner' },
+    ];
+    const lookupData = {
+      owner: { _id: 'u1', name: 'Jane Doe' },
+    };
+    const objectSchema = {
+      fields: {
+        owner: { type: 'lookup' },
+      },
+    };
+    // LookupCellRenderer handles object values natively
+    render(
+      <HeaderHighlight
+        fields={lookupFields}
+        data={lookupData}
+        objectSchema={objectSchema}
+      />
+    );
+    expect(screen.getByText('Jane Doe')).toBeInTheDocument();
+  });
 });

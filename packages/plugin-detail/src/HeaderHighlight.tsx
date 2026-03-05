@@ -69,7 +69,18 @@ export const HeaderHighlight: React.FC<HeaderHighlightProps> = ({
             if (resolvedType) {
               const CellRenderer = getCellRenderer(resolvedType);
               if (CellRenderer) {
-                displayValue = <CellRenderer value={value} field={enrichedField as unknown as FieldMetadata} />;
+                // Guard: plain objects (e.g. MongoDB Decimal128 {$numberDecimal}, expanded refs)
+                // can crash renderers that pass non-primitive values straight to JSX children.
+                // Types like lookup/user/owner/file/image handle objects natively.
+                const isPlainObject = value !== null && typeof value === 'object'
+                  && !Array.isArray(value) && !(value instanceof Date);
+                const OBJECT_SAFE_TYPES = ['lookup', 'master_detail', 'user', 'owner', 'file', 'image', 'object'];
+
+                if (isPlainObject && !OBJECT_SAFE_TYPES.includes(resolvedType)) {
+                  displayValue = String(value.name || value.label || value._id || JSON.stringify(value));
+                } else {
+                  displayValue = <CellRenderer value={value} field={enrichedField as unknown as FieldMetadata} />;
+                }
               }
             }
 
