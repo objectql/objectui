@@ -27,6 +27,7 @@ import { Alert, AlertDescription } from '../../ui/alert';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import React from 'react';
+import { SchemaRendererContext } from '@object-ui/react';
 
 // Form renderer component - Airtable-style feature-complete form
 ComponentRegistry.register('form',
@@ -56,6 +57,11 @@ ComponentRegistry.register('form',
 
     const [isSubmitting, setIsSubmitting] = React.useState(false);
     const [submitError, setSubmitError] = React.useState<string | null>(null);
+
+    // Read DataSource from context so field widgets (e.g. LookupField) can
+    // dynamically load related records without an explicit dataSource prop.
+    const schemaCtx = React.useContext(SchemaRendererContext);
+    const contextDataSource = schemaCtx?.dataSource ?? null;
 
     // React to defaultValues changes
     React.useEffect(() => {
@@ -313,6 +319,7 @@ ComponentRegistry.register('form',
                             options: fieldProps.options,
                             placeholder: fieldProps.placeholder,
                             disabled: disabled || fieldDisabled || readonly || isSubmitting,
+                            dataSource: contextDataSource,
                           })}
                         </FormControl>
                         {description && (
