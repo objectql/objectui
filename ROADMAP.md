@@ -131,6 +131,7 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [ ] Advanced lookup: dependent lookups (filter based on other fields)
 - [ ] Hierarchical lookups (parent-child relationships)
 - [ ] Lookup result caching
+- [x] Lookup field dynamic DataSource loading — popup fetches records via `DataSource.find()` with `$search` debounce, loading/error/empty states
 - [ ] Form conditional logic with branching
 - [ ] Multi-page forms with progress indicator
 
