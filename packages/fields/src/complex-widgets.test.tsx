@@ -262,6 +262,94 @@ describe('Complex & Relationship Widgets', () => {
                 expect(screen.getByText(/Showing 50 of 200/)).toBeInTheDocument();
             });
         });
+
+        it('displays description field for options', async () => {
+            mockDataSource.find.mockResolvedValue({
+                data: [
+                    { _id: '1', name: 'Acme Corp', industry: 'Technology' },
+                    { _id: '2', name: 'Beta Inc', industry: 'Finance' },
+                ],
+                total: 2,
+            });
+
+            const fieldWithDesc = {
+                ...dynamicField,
+                description_field: 'industry',
+            } as any;
+
+            render(<LookupField {...dynamicProps} field={fieldWithDesc} />);
+
+            await act(async () => {
+                fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('Acme Corp')).toBeInTheDocument();
+                expect(screen.getByText('Technology')).toBeInTheDocument();
+                expect(screen.getByText('Finance')).toBeInTheDocument();
+            });
+        });
+
+        it('shows create-new button when no results and onCreateNew is provided', async () => {
+            mockDataSource.find.mockResolvedValue({ data: [], total: 0 });
+            const onCreateNew = vi.fn();
+
+            render(<LookupField {...dynamicProps} onCreateNew={onCreateNew} />);
+
+            await act(async () => {
+                fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('No options found')).toBeInTheDocument();
+                expect(screen.getByText('Create new')).toBeInTheDocument();
+            });
+
+            await act(async () => {
+                fireEvent.click(screen.getByText('Create new'));
+            });
+
+            expect(onCreateNew).toHaveBeenCalledWith('');
+        });
+
+        it('navigates options with arrow keys and selects with Enter', async () => {
+            const onChange = vi.fn();
+            mockDataSource.find.mockResolvedValue({
+                data: [
+                    { _id: '1', name: 'Alpha' },
+                    { _id: '2', name: 'Beta' },
+                    { _id: '3', name: 'Gamma' },
+                ],
+                total: 3,
+            });
+
+            render(<LookupField {...dynamicProps} onChange={onChange} />);
+
+            await act(async () => {
+                fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('Alpha')).toBeInTheDocument();
+            });
+
+            const searchInput = screen.getByPlaceholderText('Search...');
+
+            // Arrow down twice to reach "Beta" (index 1)
+            await act(async () => {
+                fireEvent.keyDown(searchInput, { key: 'ArrowDown' });
+            });
+            await act(async () => {
+                fireEvent.keyDown(searchInput, { key: 'ArrowDown' });
+            });
+
+            // Press Enter to select
+            await act(async () => {
+                fireEvent.keyDown(searchInput, { key: 'Enter' });
+            });
+
+            expect(onChange).toHaveBeenCalledWith('2');
+        });
     });
 
     describe('MasterDetailField', () => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useContext, useMemo } from 'react';
 import { 
   Button, 
   Dialog,
@@ -9,13 +9,14 @@ import {
   Input,
   Badge
 } from '@object-ui/components';
-import { Search, X, Loader2, AlertCircle } from 'lucide-react';
+import { Search, X, Loader2, AlertCircle, Plus } from 'lucide-react';
 import { FieldWidgetProps } from './types';
 import type { DataSource, QueryParams } from '@object-ui/types';
 
 export interface LookupOption {
   value: string | number;
   label: string;
+  description?: string;
   [key: string]: any;
 }
 
@@ -23,21 +24,45 @@ export interface LookupOption {
 const LOOKUP_PAGE_SIZE = 50;
 
 /**
+ * Resolve SchemaRendererContext from @object-ui/react at runtime.
+ * Uses the same dynamic-require fallback that plugin-view uses to avoid
+ * a hard dependency on @object-ui/react (which would create a cycle).
+ */
+const FallbackContext = React.createContext<any>(null);
+let SchemaRendererContext: React.Context<any> = FallbackContext;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const mod = require('@object-ui/react');
+  if (mod.SchemaRendererContext) {
+    SchemaRendererContext = mod.SchemaRendererContext;
+  }
+} catch {
+  // @object-ui/react not available — dataSource must be passed via props
+}
+
+/**
  * Map a raw record to a LookupOption using a display field and an id field.
  */
-function recordToOption(record: any, displayField: string, idField: string): LookupOption {
+function recordToOption(
+  record: any,
+  displayField: string,
+  idField: string,
+  descriptionField?: string,
+): LookupOption {
   const val = record[idField] ?? record._id ?? record.id;
   const label = record[displayField] ?? record.label ?? record.name ?? String(val);
-  return { value: val, label: String(label), ...record };
+  const description = descriptionField ? record[descriptionField] : undefined;
+  return { value: val, label: String(label), description, ...record };
 }
 
 /**
  * Lookup field for selecting related records.
  * Supports single and multi-select with search.
  *
- * When a `dataSource` is provided (either via props or via `field.dataSource`),
- * the dialog will dynamically load records from the referenced object using
- * `DataSource.find()`. Falls back to static `options` when no DataSource is available.
+ * When a `dataSource` is provided (either via props, via `field.dataSource`,
+ * or via SchemaRendererContext), the dialog will dynamically load records
+ * from the referenced object using `DataSource.find()`.
+ * Falls back to static `options` when no DataSource is available.
  */
 export function LookupField({ value, onChange, field, readonly, ...props }: FieldWidgetProps<any>) {
   const [isOpen, setIsOpen] = useState(false);
@@ -50,28 +75,48 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
   const [totalCount, setTotalCount] = useState(0);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Arrow-key active index (-1 = none)
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const listRef = useRef<HTMLDivElement>(null);
+
   const lookupField = (field || (props as any).schema) as any;
   const staticOptions: LookupOption[] = lookupField?.options || [];
   const multiple = lookupField.multiple || false;
   const displayField = lookupField.display_field || lookupField.reference_field || 'name';
+  const descriptionField: string | undefined = lookupField.description_field;
   const idField = lookupField.id_field || '_id';
   const referenceTo: string | undefined = lookupField?.reference_to;
 
-  // Resolve DataSource: explicit prop > field-level > none
+  // Resolve DataSource: explicit prop > field-level > SchemaRendererContext > none
+  const ctx = useContext(SchemaRendererContext);
+  const contextDataSource = ctx?.dataSource ?? null;
   const dataSource: DataSource | null =
-    (props as any).dataSource ?? lookupField?.dataSource ?? null;
+    (props as any).dataSource ?? lookupField?.dataSource ?? contextDataSource;
 
   const hasDataSource = dataSource != null && typeof dataSource.find === 'function' && !!referenceTo;
+
+  // Optional create-new callback
+  const onCreateNew: ((searchQuery: string) => void) | undefined =
+    (props as any).onCreateNew ?? lookupField?.onCreateNew;
 
   // Determine which options to display
   const allOptions = hasDataSource ? fetchedOptions : staticOptions;
 
   // For static options, filter locally based on search
-  const filteredOptions = hasDataSource
-    ? allOptions
-    : allOptions.filter(opt =>
-        opt.label.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+  const filteredOptions = useMemo(() => {
+    if (hasDataSource) return allOptions;
+    if (!searchQuery) return allOptions;
+    const q = searchQuery.toLowerCase();
+    return allOptions.filter(opt =>
+      opt.label.toLowerCase().includes(q) ||
+      (opt.description && opt.description.toLowerCase().includes(q))
+    );
+  }, [hasDataSource, allOptions, searchQuery]);
+
+  // Reset active index when options change
+  useEffect(() => {
+    setActiveIndex(-1);
+  }, [filteredOptions.length]);
 
   // Fetch data from DataSource
   const fetchLookupData = useCallback(
@@ -91,7 +136,7 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
 
         const result = await dataSource.find(referenceTo, params);
         const records: any[] = result?.data ?? result ?? [];
-        const mapped = records.map(r => recordToOption(r, displayField, idField));
+        const mapped = records.map(r => recordToOption(r, displayField, idField, descriptionField));
 
         setFetchedOptions(mapped);
         setTotalCount(result?.total ?? records.length);
@@ -103,7 +148,7 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
         setLoading(false);
       }
     },
-    [dataSource, referenceTo, displayField, idField],
+    [dataSource, referenceTo, displayField, idField, descriptionField],
   );
 
   // Fetch data when dialog opens.
@@ -118,6 +163,7 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
     if (!isOpen) {
       setSearchQuery('');
       setError(null);
+      setActiveIndex(-1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
@@ -163,44 +209,62 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
     ? (Array.isArray(value) ? value : []).map(findOption).filter(Boolean)
     : value ? [findOption(value)].filter(Boolean) : [];
 
-  const handleSelect = (option: LookupOption) => {
-    if (multiple) {
-      const currentValues = Array.isArray(value) ? value : [];
-      const isSelected = currentValues.includes(option.value);
-      
-      if (isSelected) {
-        onChange(currentValues.filter(v => v !== option.value));
+  const handleSelect = useCallback(
+    (option: LookupOption) => {
+      if (multiple) {
+        const currentValues = Array.isArray(value) ? value : [];
+        const isSelected = currentValues.includes(option.value);
+        
+        if (isSelected) {
+          onChange(currentValues.filter((v: any) => v !== option.value));
+        } else {
+          onChange([...currentValues, option.value]);
+        }
       } else {
-        onChange([...currentValues, option.value]);
+        onChange(option.value);
+        setIsOpen(false);
       }
-    } else {
-      onChange(option.value);
-      setIsOpen(false);
-    }
-  };
+    },
+    [multiple, value, onChange],
+  );
 
   const handleRemove = (optionValue: any) => {
     if (multiple) {
       const currentValues = Array.isArray(value) ? value : [];
-      onChange(currentValues.filter(v => v !== optionValue));
+      onChange(currentValues.filter((v: any) => v !== optionValue));
     } else {
       onChange(null);
     }
   };
 
-  // Keyboard handler for Enter/Space-to-select.
-  // We inline the selection logic to avoid depending on the `handleSelect`
-  // closure which changes on every render.
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent, option: LookupOption) => {
-      if (e.key === 'Enter' || e.key === ' ') {
+  // Keyboard handler for the search input — arrow keys + Enter
+  const handleSearchKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'ArrowDown') {
         e.preventDefault();
-        handleSelect(option);
+        setActiveIndex(prev =>
+          prev < filteredOptions.length - 1 ? prev + 1 : prev,
+        );
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setActiveIndex(prev => (prev > 0 ? prev - 1 : 0));
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (activeIndex >= 0 && activeIndex < filteredOptions.length) {
+          handleSelect(filteredOptions[activeIndex]);
+        }
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [value, multiple, onChange],
+    [filteredOptions, activeIndex, handleSelect],
   );
+
+  // Scroll active item into view
+  useEffect(() => {
+    if (activeIndex >= 0 && listRef.current) {
+      const items = listRef.current.querySelectorAll('[data-lookup-option]');
+      items[activeIndex]?.scrollIntoView({ block: 'nearest' });
+    }
+  }, [activeIndex]);
 
   if (readonly) {
     if (!selectedOptions.length) {
@@ -281,6 +345,7 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
                 className="w-full pl-9"
               />
               {loading && (
@@ -317,31 +382,63 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
 
             {/* Options list */}
             {!error && !(loading && filteredOptions.length === 0) && (
-              <div className="max-h-64 overflow-y-auto space-y-1">
+              <div ref={listRef} className="max-h-64 overflow-y-auto space-y-1" role="listbox">
                 {filteredOptions.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    No options found
-                  </p>
+                  <div className="py-4 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      No options found
+                    </p>
+                    {/* Quick-create entry */}
+                    {onCreateNew && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="mt-2 gap-1"
+                        type="button"
+                        onClick={() => {
+                          onCreateNew(searchQuery);
+                          setIsOpen(false);
+                        }}
+                      >
+                        <Plus className="size-4" />
+                        Create new
+                      </Button>
+                    )}
+                  </div>
                 ) : (
                   <>
-                    {filteredOptions.map((option) => {
+                    {filteredOptions.map((option, idx) => {
                       const isSelected = multiple
                         ? (Array.isArray(value) ? value : []).includes(option.value)
                         : value === option.value;
+                      const isActive = idx === activeIndex;
 
                       return (
                         <button
                           key={option.value}
+                          data-lookup-option
+                          role="option"
+                          aria-selected={isSelected}
                           onClick={() => handleSelect(option)}
-                          onKeyDown={(e) => handleKeyDown(e, option)}
                           className={`w-full text-left px-3 py-2 rounded-md text-sm hover:bg-accent flex items-center justify-between ${
-                            isSelected ? 'bg-accent text-accent-foreground' : ''
+                            isActive
+                              ? 'bg-accent text-accent-foreground'
+                              : isSelected
+                                ? 'bg-accent/50 text-accent-foreground'
+                                : ''
                           }`}
                           type="button"
                         >
-                          <span>{option.label}</span>
+                          <div className="min-w-0 flex-1">
+                            <span className="block truncate">{option.label}</span>
+                            {option.description && (
+                              <span className="block truncate text-xs text-muted-foreground">
+                                {option.description}
+                              </span>
+                            )}
+                          </div>
                           {isSelected && (
-                            <Badge variant="default" className="ml-2">Selected</Badge>
+                            <Badge variant="default" className="ml-2 shrink-0">Selected</Badge>
                           )}
                         </button>
                       );
@@ -351,6 +448,20 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
                       <p className="text-xs text-muted-foreground text-center py-2">
                         Showing {filteredOptions.length} of {totalCount} results. Refine your search to find more.
                       </p>
+                    )}
+                    {/* Quick-create entry (below results) */}
+                    {onCreateNew && (
+                      <button
+                        type="button"
+                        className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-accent flex items-center gap-1.5 text-muted-foreground"
+                        onClick={() => {
+                          onCreateNew(searchQuery);
+                          setIsOpen(false);
+                        }}
+                      >
+                        <Plus className="size-3.5" />
+                        Create new{searchQuery ? ` "${searchQuery}"` : ''}
+                      </button>
                     )}
                   </>
                 )}
