@@ -65,4 +65,65 @@ describe('HeaderHighlight', () => {
     render(<HeaderHighlight fields={fieldsWithIcon} data={{ revenue: '$5M' }} />);
     expect(screen.getByText('💰')).toBeInTheDocument();
   });
+
+  it('should render currency fields formatted via getCellRenderer when type is provided', () => {
+    const currencyFields: HighlightField[] = [
+      { name: 'amount', label: 'Amount', type: 'currency' },
+    ];
+    render(<HeaderHighlight fields={currencyFields} data={{ amount: 250000 }} />);
+    // CurrencyCellRenderer should format the number — should NOT show raw "250000"
+    expect(screen.queryByText('250000')).not.toBeInTheDocument();
+    expect(screen.getByText(/250,000/)).toBeInTheDocument();
+  });
+
+  it('should render select fields as badge via getCellRenderer when type is provided', () => {
+    const selectFields: HighlightField[] = [
+      { name: 'stage', label: 'Stage', type: 'select' },
+    ];
+    render(
+      <HeaderHighlight
+        fields={selectFields}
+        data={{ stage: 'prospecting' }}
+        objectSchema={{
+          fields: {
+            stage: {
+              type: 'select',
+              options: [
+                { value: 'prospecting', label: 'Prospecting', color: 'blue' },
+              ],
+            },
+          },
+        }}
+      />
+    );
+    expect(screen.getByText('Prospecting')).toBeInTheDocument();
+  });
+
+  it('should enrich field type from objectSchema when field.type is not set', () => {
+    const fieldsNoType: HighlightField[] = [
+      { name: 'amount', label: 'Amount' },
+    ];
+    render(
+      <HeaderHighlight
+        fields={fieldsNoType}
+        data={{ amount: 5000 }}
+        objectSchema={{
+          fields: {
+            amount: { type: 'currency', currency: 'USD' },
+          },
+        }}
+      />
+    );
+    // Should use CurrencyCellRenderer, not raw String()
+    expect(screen.queryByText('5000')).not.toBeInTheDocument();
+    expect(screen.getByText(/5,000/)).toBeInTheDocument();
+  });
+
+  it('should fall back to String(value) when no type info is available', () => {
+    const fieldsNoType: HighlightField[] = [
+      { name: 'custom', label: 'Custom' },
+    ];
+    render(<HeaderHighlight fields={fieldsNoType} data={{ custom: 'raw-value' }} />);
+    expect(screen.getByText('raw-value')).toBeInTheDocument();
+  });
 });
