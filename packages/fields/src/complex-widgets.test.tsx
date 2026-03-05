@@ -335,7 +335,7 @@ describe('Complex & Relationship Widgets', () => {
 
             const searchInput = screen.getByPlaceholderText('Search...');
 
-            // Arrow down twice to reach "Beta" (index 1)
+            // Arrow down twice: -1 → 0 (Alpha) → 1 (Beta)
             await act(async () => {
                 fireEvent.keyDown(searchInput, { key: 'ArrowDown' });
             });

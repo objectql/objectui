@@ -261,8 +261,8 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
   // Scroll active item into view
   useEffect(() => {
     if (activeIndex >= 0 && listRef.current) {
-      const items = listRef.current.querySelectorAll('[data-lookup-option]');
-      items[activeIndex]?.scrollIntoView({ block: 'nearest' });
+      const el = listRef.current.querySelector(`[data-lookup-index="${activeIndex}"]`);
+      el?.scrollIntoView({ block: 'nearest' });
     }
   }, [activeIndex]);
 
@@ -416,7 +416,7 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
                       return (
                         <button
                           key={option.value}
-                          data-lookup-option
+                          data-lookup-index={idx}
                           role="option"
                           aria-selected={isSelected}
                           onClick={() => handleSelect(option)}
