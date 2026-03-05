@@ -66,17 +66,17 @@ describe('HeaderHighlight', () => {
     expect(screen.getByText('💰')).toBeInTheDocument();
   });
 
-  it('should render currency fields with formatted value', () => {
+  it('should render currency fields with formatted value via CellRenderer', () => {
     const currencyFields: HighlightField[] = [
       { name: 'amount', label: 'Amount', type: 'currency' },
     ];
     render(<HeaderHighlight fields={currencyFields} data={{ amount: 250000 }} />);
-    // Should format as currency — should NOT show raw "250000"
+    // CurrencyCellRenderer should format — should NOT show raw "250000"
     expect(screen.queryByText('250000')).not.toBeInTheDocument();
     expect(screen.getByText(/250,000/)).toBeInTheDocument();
   });
 
-  it('should render select fields as badge', () => {
+  it('should render select fields as badge via CellRenderer', () => {
     const selectFields: HighlightField[] = [
       { name: 'stage', label: 'Stage', type: 'select' },
     ];
@@ -114,12 +114,12 @@ describe('HeaderHighlight', () => {
         }}
       />
     );
-    // Should format as currency, not raw String()
+    // CurrencyCellRenderer should format, not raw String()
     expect(screen.queryByText('5000')).not.toBeInTheDocument();
     expect(screen.getByText(/5,000/)).toBeInTheDocument();
   });
 
-  it('should fall back to string when no type info is available', () => {
+  it('should fall back to text when no type info is available', () => {
     const fieldsNoType: HighlightField[] = [
       { name: 'custom', label: 'Custom' },
     ];
@@ -143,7 +143,7 @@ describe('HeaderHighlight', () => {
         account: { type: 'text' },
       },
     };
-    // Should NOT crash with "Objects are not valid as a React child"
+    // Should NOT crash — cell renderers coerce values via coerceToSafeValue
     const { container } = render(
       <HeaderHighlight
         fields={fieldsWithNumber}
@@ -152,11 +152,13 @@ describe('HeaderHighlight', () => {
       />
     );
     expect(container.innerHTML).not.toBe('');
-    // Object with name property should extract the name
+    // NumberCellRenderer coerces $numberDecimal to number
+    expect(screen.getByText('250,000')).toBeInTheDocument();
+    // TextCellRenderer extracts name from object
     expect(screen.getByText('Acme Corp')).toBeInTheDocument();
   });
 
-  it('should safely render lookup object values as string', () => {
+  it('should safely render lookup object values via LookupCellRenderer', () => {
     const lookupFields: HighlightField[] = [
       { name: 'owner', label: 'Owner' },
     ];
@@ -168,7 +170,7 @@ describe('HeaderHighlight', () => {
         owner: { type: 'lookup' },
       },
     };
-    // Object value is coerced to safe string (name extracted)
+    // LookupCellRenderer handles object values natively
     render(
       <HeaderHighlight
         fields={lookupFields}
@@ -179,7 +181,7 @@ describe('HeaderHighlight', () => {
     expect(screen.getByText('Jane Doe')).toBeInTheDocument();
   });
 
-  it('should safely render array values', () => {
+  it('should safely render array values via TextCellRenderer', () => {
     const arrayFields: HighlightField[] = [
       { name: 'tags', label: 'Tags' },
     ];
@@ -190,10 +192,11 @@ describe('HeaderHighlight', () => {
       <HeaderHighlight fields={arrayFields} data={arrayData} />
     );
     expect(container.innerHTML).not.toBe('');
+    // TextCellRenderer coerces arrays to comma-separated string
     expect(screen.getByText('urgent, follow-up')).toBeInTheDocument();
   });
 
-  it('should safely render array of objects', () => {
+  it('should safely render array of objects via TextCellRenderer', () => {
     const arrayFields: HighlightField[] = [
       { name: 'contacts', label: 'Contacts' },
     ];
@@ -204,6 +207,7 @@ describe('HeaderHighlight', () => {
       <HeaderHighlight fields={arrayFields} data={arrayData} />
     );
     expect(container.innerHTML).not.toBe('');
+    // TextCellRenderer coerces array of objects to "Alice, Bob"
     expect(screen.getByText('Alice, Bob')).toBeInTheDocument();
   });
 });
