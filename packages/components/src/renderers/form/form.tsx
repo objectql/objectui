@@ -58,8 +58,8 @@ ComponentRegistry.register('form',
     const [isSubmitting, setIsSubmitting] = React.useState(false);
     const [submitError, setSubmitError] = React.useState<string | null>(null);
 
-    // Read DataSource from context so field widgets (e.g. LookupField) can
-    // dynamically load related records without an explicit dataSource prop.
+    // Read DataSource from SchemaRendererContext and propagate it to field
+    // widgets as a prop so they can dynamically load related records.
     const schemaCtx = React.useContext(SchemaRendererContext);
     const contextDataSource = schemaCtx?.dataSource ?? null;
 
