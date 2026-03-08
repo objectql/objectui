@@ -84,10 +84,13 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
   // When rendered via createFieldRenderer wrapper the actual objectSchema field
   // metadata (reference_to, display_field, etc.) lives at lookupField.field.
   // Unwrap it so lookup-specific properties resolve correctly.
-  const fieldMeta = lookupField?.field?.reference_to ? lookupField.field : lookupField;
+  const innerField = lookupField?.field;
+  const fieldMeta = (innerField && typeof innerField === 'object' && ('reference_to' in innerField || 'type' in innerField))
+    ? innerField
+    : lookupField;
 
-  const staticOptions: LookupOption[] = fieldMeta?.options || lookupField?.options || [];
-  const multiple = fieldMeta?.multiple || lookupField?.multiple || false;
+  const staticOptions: LookupOption[] = fieldMeta?.options || [];
+  const multiple = fieldMeta?.multiple || false;
   const displayField = fieldMeta?.display_field || fieldMeta?.reference_field || 'name';
   const descriptionField: string | undefined = fieldMeta?.description_field;
   const idField = fieldMeta?.id_field || '_id';
