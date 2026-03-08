@@ -399,6 +399,89 @@ describe('Complex & Relationship Widgets', () => {
                 expect(screen.getByText('Order 002')).toBeInTheDocument();
             });
         });
+
+        it('supports ObjectStack "reference" convention (not just "reference_to")', async () => {
+            // ObjectStack backend uses `reference` instead of `reference_to`
+            const onChange = vi.fn();
+            mockDataSource.find.mockResolvedValue({
+                data: [
+                    { _id: 'a1', name: 'Acme Corp' },
+                    { _id: 'a2', name: 'Beta Inc' },
+                ],
+                total: 2,
+            });
+
+            const wrappedField = {
+                name: 'account',
+                label: 'Account',
+                field: {
+                    name: 'account',
+                    type: 'lookup',
+                    reference: 'account',  // ObjectStack convention
+                },
+                dataSource: mockDataSource,
+            } as any;
+
+            render(
+                <LookupField
+                    value={null}
+                    onChange={onChange}
+                    field={wrappedField}
+                    readonly={false}
+                />
+            );
+
+            await act(async () => {
+                fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+            });
+
+            await waitFor(() => {
+                expect(mockDataSource.find).toHaveBeenCalledWith('account', { $top: 50 });
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('Acme Corp')).toBeInTheDocument();
+                expect(screen.getByText('Beta Inc')).toBeInTheDocument();
+            });
+        });
+
+        it('supports flat "reference" field without wrapper nesting', async () => {
+            // When field metadata is flat (no field.field nesting)
+            const onChange = vi.fn();
+            mockDataSource.find.mockResolvedValue({
+                data: [
+                    { _id: 'p1', name: 'Product A' },
+                ],
+                total: 1,
+            });
+
+            render(
+                <LookupField
+                    value={null}
+                    onChange={onChange}
+                    field={{
+                        name: 'product',
+                        label: 'Product',
+                        type: 'lookup',
+                        reference: 'products',  // ObjectStack convention, flat field
+                    } as any}
+                    readonly={false}
+                    dataSource={mockDataSource}
+                />
+            );
+
+            await act(async () => {
+                fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+            });
+
+            await waitFor(() => {
+                expect(mockDataSource.find).toHaveBeenCalledWith('products', { $top: 50 });
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('Product A')).toBeInTheDocument();
+            });
+        });
     });
 
     describe('MasterDetailField', () => {

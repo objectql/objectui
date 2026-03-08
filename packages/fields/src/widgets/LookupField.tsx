@@ -84,8 +84,10 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
   // When rendered via createFieldRenderer wrapper the actual objectSchema field
   // metadata (reference_to, display_field, etc.) lives at lookupField.field.
   // Unwrap it so lookup-specific properties resolve correctly.
+  // ObjectStack convention uses `reference` while the types use `reference_to`,
+  // so we check for both property names.
   const innerField = lookupField?.field;
-  const fieldMeta = (innerField && typeof innerField === 'object' && ('reference_to' in innerField || 'type' in innerField))
+  const fieldMeta = (innerField && typeof innerField === 'object' && ('reference_to' in innerField || 'reference' in innerField || 'type' in innerField))
     ? innerField
     : lookupField;
 
@@ -94,7 +96,8 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
   const displayField = fieldMeta?.display_field || fieldMeta?.reference_field || 'name';
   const descriptionField: string | undefined = fieldMeta?.description_field;
   const idField = fieldMeta?.id_field || '_id';
-  const referenceTo: string | undefined = fieldMeta?.reference_to;
+  // ObjectStack convention uses `reference`; types define `reference_to` — support both
+  const referenceTo: string | undefined = fieldMeta?.reference_to || fieldMeta?.reference;
 
   // Resolve DataSource: explicit prop > field-level > wrapper field > SchemaRendererContext > none
   const ctx = useContext(SchemaRendererContext);
