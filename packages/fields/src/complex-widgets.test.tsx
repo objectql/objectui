@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { LookupField } from './widgets/LookupField';
 import { MasterDetailField } from './widgets/MasterDetailField';
 import { GridField } from './widgets/GridField';
@@ -57,6 +57,430 @@ describe('Complex & Relationship Widgets', () => {
              expect(screen.getByText('Option 1')).toBeInTheDocument();
              expect(screen.getByText('Option 2')).toBeInTheDocument();
              // Semantic check for badge class/element? Just text is fine for 'render' verification.
+        });
+    });
+
+    describe('LookupField — Dynamic DataSource', () => {
+        const mockDataSource = {
+            find: vi.fn(),
+            findOne: vi.fn(),
+            create: vi.fn(),
+            update: vi.fn(),
+            delete: vi.fn(),
+        };
+
+        const dynamicField = {
+            ...mockField,
+            label: 'Customer',
+            reference_to: 'customers',
+            reference_field: 'name',
+        } as any;
+
+        const dynamicProps: FieldWidgetProps<any> = {
+            ...baseProps,
+            field: dynamicField,
+            dataSource: mockDataSource,
+        };
+
+        beforeEach(() => {
+            vi.clearAllMocks();
+        });
+
+        it('fetches data from DataSource when dialog opens', async () => {
+            mockDataSource.find.mockResolvedValue({
+                data: [
+                    { _id: '1', name: 'Acme Corp' },
+                    { _id: '2', name: 'Beta Inc' },
+                ],
+                total: 2,
+            });
+
+            render(<LookupField {...dynamicProps} />);
+
+            // Open dialog
+            await act(async () => {
+                fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+            });
+
+            await waitFor(() => {
+                expect(mockDataSource.find).toHaveBeenCalledWith('customers', {
+                    $top: 50,
+                });
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('Acme Corp')).toBeInTheDocument();
+                expect(screen.getByText('Beta Inc')).toBeInTheDocument();
+            });
+        });
+
+        it('shows loading state while fetching', async () => {
+            // Make find never resolve during this test
+            mockDataSource.find.mockReturnValue(new Promise(() => {}));
+
+            render(<LookupField {...dynamicProps} />);
+
+            await act(async () => {
+                fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+            });
+
+            await waitFor(() => {
+                expect(screen.getByRole('status')).toBeInTheDocument();
+                expect(screen.getByText('Loading…')).toBeInTheDocument();
+            });
+        });
+
+        it('shows error state with retry on fetch failure', async () => {
+            mockDataSource.find.mockRejectedValue(new Error('Network error'));
+
+            render(<LookupField {...dynamicProps} />);
+
+            await act(async () => {
+                fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+            });
+
+            await waitFor(() => {
+                expect(screen.getByRole('alert')).toBeInTheDocument();
+                expect(screen.getByText('Network error')).toBeInTheDocument();
+                expect(screen.getByText('Retry')).toBeInTheDocument();
+            });
+
+            // Click retry
+            mockDataSource.find.mockResolvedValue({
+                data: [{ _id: '1', name: 'Acme Corp' }],
+                total: 1,
+            });
+
+            await act(async () => {
+                fireEvent.click(screen.getByText('Retry'));
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('Acme Corp')).toBeInTheDocument();
+            });
+        });
+
+        it('shows "No options found" when DataSource returns empty', async () => {
+            mockDataSource.find.mockResolvedValue({ data: [], total: 0 });
+
+            render(<LookupField {...dynamicProps} />);
+
+            await act(async () => {
+                fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('No options found')).toBeInTheDocument();
+            });
+        });
+
+        it('sends $search param on search input', async () => {
+            mockDataSource.find.mockResolvedValue({ data: [], total: 0 });
+
+            render(<LookupField {...dynamicProps} />);
+
+            await act(async () => {
+                fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+            });
+
+            // Wait for initial load
+            await waitFor(() => {
+                expect(mockDataSource.find).toHaveBeenCalledTimes(1);
+            });
+
+            // Type in search
+            await act(async () => {
+                fireEvent.change(screen.getByPlaceholderText('Search...'), {
+                    target: { value: 'acme' },
+                });
+            });
+
+            // Wait for debounced search
+            await waitFor(() => {
+                expect(mockDataSource.find).toHaveBeenCalledWith('customers', {
+                    $top: 50,
+                    $search: 'acme',
+                });
+            }, { timeout: 500 });
+        });
+
+        it('selects a dynamically loaded option', async () => {
+            const onChange = vi.fn();
+            mockDataSource.find.mockResolvedValue({
+                data: [
+                    { _id: '1', name: 'Acme Corp' },
+                    { _id: '2', name: 'Beta Inc' },
+                ],
+                total: 2,
+            });
+
+            render(<LookupField {...dynamicProps} onChange={onChange} />);
+
+            await act(async () => {
+                fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('Acme Corp')).toBeInTheDocument();
+            });
+
+            await act(async () => {
+                fireEvent.click(screen.getByText('Acme Corp'));
+            });
+
+            expect(onChange).toHaveBeenCalledWith('1');
+        });
+
+        it('falls back to static options when no DataSource', () => {
+            const staticField = {
+                ...mockField,
+                options: [
+                    { value: 's1', label: 'Static 1' },
+                    { value: 's2', label: 'Static 2' },
+                ],
+            } as any;
+            render(<LookupField {...baseProps} field={staticField} readonly value="s1" />);
+            expect(screen.getByText('Static 1')).toBeInTheDocument();
+        });
+
+        it('shows total count hint when more results available', async () => {
+            mockDataSource.find.mockResolvedValue({
+                data: Array.from({ length: 50 }, (_, i) => ({
+                    _id: String(i),
+                    name: `Record ${i}`,
+                })),
+                total: 200,
+            });
+
+            render(<LookupField {...dynamicProps} />);
+
+            await act(async () => {
+                fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText(/Showing 50 of 200/)).toBeInTheDocument();
+            });
+        });
+
+        it('displays description field for options', async () => {
+            mockDataSource.find.mockResolvedValue({
+                data: [
+                    { _id: '1', name: 'Acme Corp', industry: 'Technology' },
+                    { _id: '2', name: 'Beta Inc', industry: 'Finance' },
+                ],
+                total: 2,
+            });
+
+            const fieldWithDesc = {
+                ...dynamicField,
+                description_field: 'industry',
+            } as any;
+
+            render(<LookupField {...dynamicProps} field={fieldWithDesc} />);
+
+            await act(async () => {
+                fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('Acme Corp')).toBeInTheDocument();
+                expect(screen.getByText('Technology')).toBeInTheDocument();
+                expect(screen.getByText('Finance')).toBeInTheDocument();
+            });
+        });
+
+        it('shows create-new button when no results and onCreateNew is provided', async () => {
+            mockDataSource.find.mockResolvedValue({ data: [], total: 0 });
+            const onCreateNew = vi.fn();
+
+            render(<LookupField {...dynamicProps} onCreateNew={onCreateNew} />);
+
+            await act(async () => {
+                fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('No options found')).toBeInTheDocument();
+                expect(screen.getByText('Create new')).toBeInTheDocument();
+            });
+
+            await act(async () => {
+                fireEvent.click(screen.getByText('Create new'));
+            });
+
+            expect(onCreateNew).toHaveBeenCalledWith('');
+        });
+
+        it('navigates options with arrow keys and selects with Enter', async () => {
+            const onChange = vi.fn();
+            mockDataSource.find.mockResolvedValue({
+                data: [
+                    { _id: '1', name: 'Alpha' },
+                    { _id: '2', name: 'Beta' },
+                    { _id: '3', name: 'Gamma' },
+                ],
+                total: 3,
+            });
+
+            render(<LookupField {...dynamicProps} onChange={onChange} />);
+
+            await act(async () => {
+                fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('Alpha')).toBeInTheDocument();
+            });
+
+            const searchInput = screen.getByPlaceholderText('Search...');
+
+            // Arrow down twice: -1 → 0 (Alpha) → 1 (Beta)
+            await act(async () => {
+                fireEvent.keyDown(searchInput, { key: 'ArrowDown' });
+            });
+            await act(async () => {
+                fireEvent.keyDown(searchInput, { key: 'ArrowDown' });
+            });
+
+            // Press Enter to select
+            await act(async () => {
+                fireEvent.keyDown(searchInput, { key: 'Enter' });
+            });
+
+            expect(onChange).toHaveBeenCalledWith('2');
+        });
+
+        it('resolves reference_to from nested field.field (createFieldRenderer wrapper)', async () => {
+            // Simulates how createFieldRenderer wraps the field: the real metadata
+            // (reference_to, reference_field, etc.) is nested inside field.field.
+            const onChange = vi.fn();
+            mockDataSource.find.mockResolvedValue({
+                data: [
+                    { _id: 'o1', name: 'Order 001' },
+                    { _id: 'o2', name: 'Order 002' },
+                ],
+                total: 2,
+            });
+
+            const wrappedField = {
+                name: 'order',
+                label: 'Order',
+                // In the wrapper, the actual objectSchema metadata is nested
+                field: {
+                    name: 'order',
+                    type: 'lookup',
+                    reference_to: 'orders',
+                    reference_field: 'name',
+                },
+                // dataSource lands at the wrapper level
+                dataSource: mockDataSource,
+            } as any;
+
+            render(
+                <LookupField
+                    value={null}
+                    onChange={onChange}
+                    field={wrappedField}
+                    readonly={false}
+                />
+            );
+
+            await act(async () => {
+                fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+            });
+
+            await waitFor(() => {
+                expect(mockDataSource.find).toHaveBeenCalledWith('orders', { $top: 50 });
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('Order 001')).toBeInTheDocument();
+                expect(screen.getByText('Order 002')).toBeInTheDocument();
+            });
+        });
+
+        it('supports ObjectStack "reference" convention (not just "reference_to")', async () => {
+            // ObjectStack backend uses `reference` instead of `reference_to`
+            const onChange = vi.fn();
+            mockDataSource.find.mockResolvedValue({
+                data: [
+                    { _id: 'a1', name: 'Acme Corp' },
+                    { _id: 'a2', name: 'Beta Inc' },
+                ],
+                total: 2,
+            });
+
+            const wrappedField = {
+                name: 'account',
+                label: 'Account',
+                field: {
+                    name: 'account',
+                    type: 'lookup',
+                    reference: 'account',  // ObjectStack convention
+                },
+                dataSource: mockDataSource,
+            } as any;
+
+            render(
+                <LookupField
+                    value={null}
+                    onChange={onChange}
+                    field={wrappedField}
+                    readonly={false}
+                />
+            );
+
+            await act(async () => {
+                fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+            });
+
+            await waitFor(() => {
+                expect(mockDataSource.find).toHaveBeenCalledWith('account', { $top: 50 });
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('Acme Corp')).toBeInTheDocument();
+                expect(screen.getByText('Beta Inc')).toBeInTheDocument();
+            });
+        });
+
+        it('supports flat "reference" field without wrapper nesting', async () => {
+            // When field metadata is flat (no field.field nesting)
+            const onChange = vi.fn();
+            mockDataSource.find.mockResolvedValue({
+                data: [
+                    { _id: 'p1', name: 'Product A' },
+                ],
+                total: 1,
+            });
+
+            render(
+                <LookupField
+                    value={null}
+                    onChange={onChange}
+                    field={{
+                        name: 'product',
+                        label: 'Product',
+                        type: 'lookup',
+                        reference: 'products',  // ObjectStack convention, flat field
+                    } as any}
+                    readonly={false}
+                    dataSource={mockDataSource}
+                />
+            );
+
+            await act(async () => {
+                fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+            });
+
+            await waitFor(() => {
+                expect(mockDataSource.find).toHaveBeenCalledWith('products', { $top: 50 });
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('Product A')).toBeInTheDocument();
+            });
         });
     });
 
