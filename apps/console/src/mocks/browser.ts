@@ -82,6 +82,9 @@ export async function startMockServer() {
   // URL to respect Vite's base path (e.g. '/console/'). Without this, MSW
   // defaults to '/mockServiceWorker.js' which 404s when base !== '/'.
   const handlers = mswPlugin?.getHandlers() ?? [];
+  if (handlers.length === 0 && import.meta.env.DEV) {
+    console.warn('[MSW] No handlers registered — mock API calls will not be intercepted');
+  }
   worker = setupWorker(...handlers);
   await worker.start({
     serviceWorker: {
@@ -100,8 +103,8 @@ export function stopMockServer() {
     worker = null;
   }
   mswPlugin = null;
-  kernel = null;
   driver = null;
+  kernel = null;
 }
 
 export function getKernel(): ObjectKernel | null {
