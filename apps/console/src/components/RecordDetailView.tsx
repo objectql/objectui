@@ -311,6 +311,117 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
     queueMicrotask(() => setIsLoading(false));
   }, [objectName, recordId]);
 
+  // Build detail schema — must be before early returns to keep hook count
+  // consistent across renders and avoid React error #310.
+  const detailSchema: DetailViewSchema = useMemo(() => {
+    if (!objectDef) {
+      return { type: 'detail-view' } as DetailViewSchema;
+    }
+
+    // Auto-detect primary field: prefer objectDef metadata, then 'name' or 'title' heuristic
+    const primaryField = objectDef.primaryField
+      || Object.keys(objectDef.fields || {}).find(
+        (key) => key === 'name' || key === 'title'
+      );
+
+    // Build sections: prefer form sections from objectDef, fallback to flat field list
+    const formSections = objectDef.views?.form?.sections;
+    const sections = formSections && formSections.length > 0
+      ? formSections.map((sec: any) => ({
+          title: sec.title,
+          collapsible: sec.collapsible,
+          defaultCollapsed: sec.defaultCollapsed,
+          fields: (sec.fields || []).map((f: any) => {
+            const fieldName = typeof f === 'string' ? f : f.name;
+            const fieldDef = objectDef.fields[fieldName];
+            if (!fieldDef) {
+              console.warn(`[RecordDetailView] Field "${fieldName}" not found in ${objectDef.name} definition`);
+              return { name: fieldName, label: fieldName };
+            }
+            const refTarget = fieldDef.reference_to || fieldDef.reference;
+            return {
+              name: fieldName,
+              label: fieldDef.label || fieldName,
+              type: fieldDef.type || 'text',
+              ...(fieldDef.options && { options: fieldDef.options }),
+              ...(refTarget && { reference_to: refTarget }),
+              ...(fieldDef.reference_field && { reference_field: fieldDef.reference_field }),
+              ...(fieldDef.currency && { currency: fieldDef.currency }),
+            };
+          }),
+        }))
+      : [
+          {
+            title: t('detail.details', { defaultValue: 'Details' }),
+            fields: Object.keys(objectDef.fields || {}).map(key => {
+              const fieldDef = objectDef.fields[key];
+              const refTarget = fieldDef.reference_to || fieldDef.reference;
+              return {
+                name: key,
+                label: fieldDef.label || key,
+                type: fieldDef.type || 'text',
+                ...(fieldDef.options && { options: fieldDef.options }),
+                ...(refTarget && { reference_to: refTarget }),
+                ...(fieldDef.reference_field && { reference_field: fieldDef.reference_field }),
+                ...(fieldDef.currency && { currency: fieldDef.currency }),
+              };
+            }),
+          },
+        ];
+
+    // Filter actions for record_header location and deduplicate by name
+    const recordHeaderActions = (() => {
+      const seen = new Set<string>();
+      return (objectDef.actions || []).filter((a: any) => {
+        if (!a.locations?.includes('record_header')) return false;
+        if (!a.name) return true;
+        if (seen.has(a.name)) return false;
+        seen.add(a.name);
+        return true;
+      });
+    })();
+
+    // Build highlightFields: exclusively from objectDef metadata (no hardcoded fallback)
+    const highlightFields: HighlightField[] = objectDef.views?.detail?.highlightFields ?? [];
+
+    // Build sectionGroups from objectDef detail/form config if available
+    const sectionGroups: SectionGroup[] | undefined =
+      objectDef.views?.detail?.sectionGroups ?? objectDef.views?.form?.sectionGroups;
+
+    // Build related entries from reverse-reference child objects
+    const related = childRelations.map(({ childObject, childLabel }) => ({
+      title: childLabel,
+      type: 'table' as const,
+      api: childObject,
+      data: childRelatedData[childObject] || [],
+    }));
+
+    return {
+      type: 'detail-view' as const,
+      objectName: objectDef.name,
+      resourceId: pureRecordId,
+      showBack: true,
+      onBack: 'history',
+      showEdit: true,
+      title: objectDef.label,
+      primaryField,
+      sections,
+      autoTabs: true,
+      autoDiscoverRelated: true,
+      ...(related.length > 0 && { related }),
+      ...(highlightFields.length > 0 && { highlightFields }),
+      ...(sectionGroups && sectionGroups.length > 0 && { sectionGroups }),
+      ...(recordHeaderActions.length > 0 && {
+        actions: [{
+          type: 'action:bar',
+          location: 'record_header',
+          actions: recordHeaderActions,
+        } as any],
+      }),
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [objectDef?.name, pureRecordId, childRelatedData, actionRefreshKey]);
+
   if (isLoading) {
     return <SkeletonDetail />;
   }
@@ -331,109 +442,6 @@ export function RecordDetailView({ dataSource, objects, onEdit }: RecordDetailVi
       </div>
     );
   }
-
-  // Auto-detect primary field: prefer objectDef metadata, then 'name' or 'title' heuristic
-  const primaryField = objectDef.primaryField
-    || Object.keys(objectDef.fields || {}).find(
-      (key) => key === 'name' || key === 'title'
-    );
-
-  // Build sections: prefer form sections from objectDef, fallback to flat field list
-  const formSections = objectDef.views?.form?.sections;
-  const sections = formSections && formSections.length > 0
-    ? formSections.map((sec: any) => ({
-        title: sec.title,
-        collapsible: sec.collapsible,
-        defaultCollapsed: sec.defaultCollapsed,
-        fields: (sec.fields || []).map((f: any) => {
-          const fieldName = typeof f === 'string' ? f : f.name;
-          const fieldDef = objectDef.fields[fieldName];
-          if (!fieldDef) {
-            console.warn(`[RecordDetailView] Field "${fieldName}" not found in ${objectDef.name} definition`);
-            return { name: fieldName, label: fieldName };
-          }
-          const refTarget = fieldDef.reference_to || fieldDef.reference;
-          return {
-            name: fieldName,
-            label: fieldDef.label || fieldName,
-            type: fieldDef.type || 'text',
-            ...(fieldDef.options && { options: fieldDef.options }),
-            ...(refTarget && { reference_to: refTarget }),
-            ...(fieldDef.reference_field && { reference_field: fieldDef.reference_field }),
-            ...(fieldDef.currency && { currency: fieldDef.currency }),
-          };
-        }),
-      }))
-    : [
-        {
-          title: t('detail.details', { defaultValue: 'Details' }),
-          fields: Object.keys(objectDef.fields || {}).map(key => {
-            const fieldDef = objectDef.fields[key];
-            const refTarget = fieldDef.reference_to || fieldDef.reference;
-            return {
-              name: key,
-              label: fieldDef.label || key,
-              type: fieldDef.type || 'text',
-              ...(fieldDef.options && { options: fieldDef.options }),
-              ...(refTarget && { reference_to: refTarget }),
-              ...(fieldDef.reference_field && { reference_field: fieldDef.reference_field }),
-              ...(fieldDef.currency && { currency: fieldDef.currency }),
-            };
-          }),
-        },
-      ];
-
-  // Filter actions for record_header location and deduplicate by name
-  const recordHeaderActions = (() => {
-    const seen = new Set<string>();
-    return (objectDef.actions || []).filter((a: any) => {
-      if (!a.locations?.includes('record_header')) return false;
-      if (!a.name) return true;
-      if (seen.has(a.name)) return false;
-      seen.add(a.name);
-      return true;
-    });
-  })();
-
-  // Build highlightFields: exclusively from objectDef metadata (no hardcoded fallback)
-  const highlightFields: HighlightField[] = objectDef.views?.detail?.highlightFields ?? [];
-
-  // Build sectionGroups from objectDef detail/form config if available
-  const sectionGroups: SectionGroup[] | undefined =
-    objectDef.views?.detail?.sectionGroups ?? objectDef.views?.form?.sectionGroups;
-
-  // Build related entries from reverse-reference child objects
-  const related = childRelations.map(({ childObject, childLabel }) => ({
-    title: childLabel,
-    type: 'table' as const,
-    api: childObject,
-    data: childRelatedData[childObject] || [],
-  }));
-
-  const detailSchema: DetailViewSchema = useMemo(() => ({
-    type: 'detail-view',
-    objectName: objectDef.name,
-    resourceId: pureRecordId,
-    showBack: true,
-    onBack: 'history',
-    showEdit: true,
-    title: objectDef.label,
-    primaryField,
-    sections,
-    autoTabs: true,
-    autoDiscoverRelated: true,
-    ...(related.length > 0 && { related }),
-    ...(highlightFields.length > 0 && { highlightFields }),
-    ...(sectionGroups && sectionGroups.length > 0 && { sectionGroups }),
-    ...(recordHeaderActions.length > 0 && {
-      actions: [{
-        type: 'action:bar',
-        location: 'record_header',
-        actions: recordHeaderActions,
-      } as any],
-    }),
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [objectDef.name, pureRecordId, childRelatedData, actionRefreshKey]);
 
   return (
     <div className="h-full bg-background overflow-hidden flex flex-col relative">
