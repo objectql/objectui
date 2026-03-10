@@ -18,11 +18,11 @@ registerAllFields();
 // ---------------------------------------------------------------------------
 // Test data
 // ---------------------------------------------------------------------------
-const testRow = { _id: '1', name: 'Alice', amount: 100 };
+const testRow = { id: '1', name: 'Alice', amount: 100 };
 const testData = [
-  { _id: '1', name: 'Alice', amount: 100 },
-  { _id: '2', name: 'Bob', amount: 200 },
-  { _id: '3', name: 'Charlie', amount: 300 },
+  { id: '1', name: 'Alice', amount: 100 },
+  { id: '2', name: 'Bob', amount: 200 },
+  { id: '3', name: 'Charlie', amount: 300 },
 ];
 
 // ---------------------------------------------------------------------------

@@ -19,7 +19,7 @@ const BASE_URL = process.env.OBJECTSTACK_API_URL || 'http://localhost';
 const mockSchema = ContactObject;
 
 const mockRecord = {
-  _id: '1',
+  id: '1',
   name: 'Alice Johnson',
   email: 'alice@example.com',
   status: 'Active'

@@ -71,7 +71,7 @@ describe('RelatedList', () => {
         fields: {
           product: { type: 'string', label: 'Product' },
           quantity: { type: 'number', label: 'Quantity' },
-          _id: { type: 'string', label: 'ID' },
+          id: { type: 'string', label: 'ID' },
         },
       }),
       find: vi.fn(),
@@ -92,12 +92,12 @@ describe('RelatedList', () => {
       expect(mockDataSource.getObjectSchema).toHaveBeenCalledWith('order_item');
     });
 
-    // Verify columns are generated from schema (excluding _id)
+    // Verify columns are generated from schema (excluding id)
     await waitFor(() => {
       expect(screen.getByText('Product')).toBeInTheDocument();
       expect(screen.getByText('Quantity')).toBeInTheDocument();
     });
-    // _id should be filtered out
+    // id should be filtered out
     expect(screen.queryByText('ID')).not.toBeInTheDocument();
   });
 

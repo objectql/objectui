@@ -15,8 +15,8 @@ import { ActionProvider } from '@object-ui/react';
 registerAllFields();
 
 const mockData = [
-  { _id: '1', name: 'Alice', role: 'Engineer' },
-  { _id: '2', name: 'Bob', role: 'Designer' },
+  { id: '1', name: 'Alice', role: 'Engineer' },
+  { id: '2', name: 'Bob', role: 'Designer' },
 ];
 
 function renderGrid(opts?: Record<string, any>) {

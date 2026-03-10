@@ -18,7 +18,7 @@ registerAllFields();
 // --- Mock Data with various field types ---
 const mockData = [
   {
-    _id: '1',
+    id: '1',
     subject: 'Task Alpha',
     status: 'In Progress',
     priority: 'High',
@@ -29,7 +29,7 @@ const mockData = [
     assignee: 'Alice Smith',
   },
   {
-    _id: '2',
+    id: '2',
     subject: 'Task Beta',
     status: 'Done',
     priority: 'Low',
@@ -40,7 +40,7 @@ const mockData = [
     assignee: 'Bob Jones',
   },
   {
-    _id: '3',
+    id: '3',
     subject: 'Task Gamma',
     status: 'To Do',
     priority: 'Medium',
@@ -406,9 +406,9 @@ describe('Primary field auto-link', () => {
 describe('Empty value display', () => {
   it('should show styled empty indicator for null/empty values', async () => {
     const dataWithEmpty = [
-      { _id: '1', subject: 'Task Alpha', company: null },
-      { _id: '2', subject: 'Task Beta', company: '' },
-      { _id: '3', subject: 'Task Gamma', company: 'Acme' },
+      { id: '1', subject: 'Task Alpha', company: null },
+      { id: '2', subject: 'Task Beta', company: '' },
+      { id: '3', subject: 'Task Gamma', company: 'Acme' },
     ];
 
     const schema: any = {
@@ -474,8 +474,8 @@ describe('Record detail panel', () => {
 // =========================================================================
 describe('Auto-type inference: Currency/Amount fields', () => {
   const currencyData = [
-    { _id: '1', name: 'Order 1', total_amount: 15459.99 },
-    { _id: '2', name: 'Order 2', total_amount: 289.50 },
+    { id: '1', name: 'Order 1', total_amount: 15459.99 },
+    { id: '2', name: 'Order 2', total_amount: 289.50 },
   ];
 
   function renderCurrencyGrid(columns: ListColumn[]) {

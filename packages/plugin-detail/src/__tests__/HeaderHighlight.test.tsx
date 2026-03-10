@@ -135,7 +135,7 @@ describe('HeaderHighlight', () => {
     ];
     const objectData = {
       amount: { $numberDecimal: '250000' },
-      account: { _id: 'abc', name: 'Acme Corp' },
+      account: { id: 'abc', name: 'Acme Corp' },
     };
     const objectSchema = {
       fields: {
@@ -163,7 +163,7 @@ describe('HeaderHighlight', () => {
       { name: 'owner', label: 'Owner' },
     ];
     const lookupData = {
-      owner: { _id: 'u1', name: 'Jane Doe' },
+      owner: { id: 'u1', name: 'Jane Doe' },
     };
     const objectSchema = {
       fields: {
