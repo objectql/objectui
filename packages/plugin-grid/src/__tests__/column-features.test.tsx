@@ -22,9 +22,9 @@ registerAllFields();
 // Test data
 // ---------------------------------------------------------------------------
 const numericData = [
-  { _id: '1', name: 'Alice', amount: 100, score: 80 },
-  { _id: '2', name: 'Bob', amount: 200, score: 90 },
-  { _id: '3', name: 'Charlie', amount: 300, score: 70 },
+  { id: '1', name: 'Alice', amount: 100, score: 80 },
+  { id: '2', name: 'Bob', amount: 200, score: 90 },
+  { id: '3', name: 'Charlie', amount: 300, score: 70 },
 ];
 
 // ---------------------------------------------------------------------------
@@ -150,8 +150,8 @@ describe('useColumnSummary', () => {
 
   it('handles string numeric values', () => {
     const data = [
-      { _id: '1', amount: '100' },
-      { _id: '2', amount: '200' },
+      { id: '1', amount: '100' },
+      { id: '2', amount: '200' },
     ];
     const columns = [
       { field: 'amount', label: 'Amount', summary: { type: 'sum' } },

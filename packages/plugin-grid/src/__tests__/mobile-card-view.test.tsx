@@ -22,7 +22,7 @@ registerAllFields();
 // --- Mock CRM Opportunity Data ---
 const opportunityData = [
   {
-    _id: '101',
+    id: '101',
     name: 'ObjectStack Enterprise License',
     amount: 150000,
     stage: 'Closed Won',
@@ -30,7 +30,7 @@ const opportunityData = [
     probability: 100,
   },
   {
-    _id: '102',
+    id: '102',
     name: 'Global Fin Q1 Upsell',
     amount: 45000,
     stage: 'Negotiation',
@@ -38,7 +38,7 @@ const opportunityData = [
     probability: 80,
   },
   {
-    _id: '103',
+    id: '103',
     name: 'London Annual Renewal',
     amount: 85000,
     stage: 'Proposal',
@@ -268,7 +268,7 @@ describe('Mobile Card View: Percent field display', () => {
 
   it('should hide empty/null percent fields', async () => {
     const dataWithNull = [
-      { _id: '201', name: 'Test Deal', amount: 50000, stage: 'Proposal', close_date: '2024-06-01', probability: null },
+      { id: '201', name: 'Test Deal', amount: 50000, stage: 'Proposal', close_date: '2024-06-01', probability: null },
     ];
     renderGrid(dataWithNull, opportunityColumns);
 
@@ -340,8 +340,8 @@ describe('Mobile Card View: Empty field hiding', () => {
       { field: 'description', label: 'Description' },
     ];
     const dataWithEmpty = [
-      { _id: '301', name: 'Deal A', amount: 10000, stage: 'Proposal', description: null },
-      { _id: '302', name: 'Deal B', amount: 20000, stage: 'Proposal', description: 'Has value' },
+      { id: '301', name: 'Deal A', amount: 10000, stage: 'Proposal', description: null },
+      { id: '302', name: 'Deal B', amount: 20000, stage: 'Proposal', description: 'Has value' },
     ];
     renderGrid(dataWithEmpty, columnsWithExtra);
 

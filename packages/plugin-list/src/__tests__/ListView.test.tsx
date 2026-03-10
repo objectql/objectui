@@ -430,9 +430,9 @@ describe('ListView', () => {
 
   it('should show record count bar when data is loaded', async () => {
     const mockItems = [
-      { _id: '1', name: 'Alice', email: 'alice@test.com' },
-      { _id: '2', name: 'Bob', email: 'bob@test.com' },
-      { _id: '3', name: 'Charlie', email: 'charlie@test.com' },
+      { id: '1', name: 'Alice', email: 'alice@test.com' },
+      { id: '2', name: 'Bob', email: 'bob@test.com' },
+      { id: '3', name: 'Charlie', email: 'charlie@test.com' },
     ];
     mockDataSource.find.mockResolvedValue(mockItems);
 
@@ -930,8 +930,8 @@ describe('ListView', () => {
   describe('showRecordCount flag', () => {
     it('should hide record count bar when showRecordCount is false', async () => {
       const mockItems = [
-        { _id: '1', name: 'Alice', email: 'alice@test.com' },
-        { _id: '2', name: 'Bob', email: 'bob@test.com' },
+        { id: '1', name: 'Alice', email: 'alice@test.com' },
+        { id: '2', name: 'Bob', email: 'bob@test.com' },
       ];
       mockDataSource.find.mockResolvedValue(mockItems);
 
@@ -957,7 +957,7 @@ describe('ListView', () => {
 
     it('should show record count bar by default (showRecordCount undefined)', async () => {
       const mockItems = [
-        { _id: '1', name: 'Alice', email: 'alice@test.com' },
+        { id: '1', name: 'Alice', email: 'alice@test.com' },
       ];
       mockDataSource.find.mockResolvedValue(mockItems);
 
@@ -1453,7 +1453,7 @@ describe('ListView', () => {
   describe('pageSizeOptions', () => {
     it('should render page size selector when pageSizeOptions is provided', async () => {
       const mockItems = [
-        { _id: '1', name: 'Alice', email: 'alice@test.com' },
+        { id: '1', name: 'Alice', email: 'alice@test.com' },
       ];
       mockDataSource.find.mockResolvedValue(mockItems);
 
@@ -1474,7 +1474,7 @@ describe('ListView', () => {
 
     it('should not render page size selector when pageSizeOptions is not provided', async () => {
       const mockItems = [
-        { _id: '1', name: 'Alice', email: 'alice@test.com' },
+        { id: '1', name: 'Alice', email: 'alice@test.com' },
       ];
       mockDataSource.find.mockResolvedValue(mockItems);
 
@@ -1539,8 +1539,8 @@ describe('ListView', () => {
         data: {
           provider: 'value',
           items: [
-            { _id: '1', name: 'Alice', email: 'alice@test.com' },
-            { _id: '2', name: 'Bob', email: 'bob@test.com' },
+            { id: '1', name: 'Alice', email: 'alice@test.com' },
+            { id: '2', name: 'Bob', email: 'bob@test.com' },
           ],
         } as any,
       };
@@ -1562,8 +1562,8 @@ describe('ListView', () => {
         viewType: 'grid',
         fields: ['name', 'email'],
         data: [
-          { _id: '1', name: 'Alice', email: 'alice@test.com' },
-          { _id: '2', name: 'Bob', email: 'bob@test.com' },
+          { id: '1', name: 'Alice', email: 'alice@test.com' },
+          { id: '2', name: 'Bob', email: 'bob@test.com' },
         ] as any,
       };
 
@@ -1584,9 +1584,9 @@ describe('ListView', () => {
         viewType: 'grid',
         fields: ['name', 'email'],
         data: [
-          { _id: '1', name: 'Alice', email: 'alice@test.com' },
-          { _id: '2', name: 'Bob', email: 'bob@test.com' },
-          { _id: '3', name: 'Charlie', email: 'charlie@test.com' },
+          { id: '1', name: 'Alice', email: 'alice@test.com' },
+          { id: '2', name: 'Bob', email: 'bob@test.com' },
+          { id: '3', name: 'Charlie', email: 'charlie@test.com' },
         ] as any,
       };
 
@@ -1616,8 +1616,8 @@ describe('ListView', () => {
         data: {
           provider: 'value',
           items: [
-            { _id: '1', name: 'Alice', email: 'alice@test.com' },
-            { _id: '2', name: 'Bob', email: 'bob@test.com' },
+            { id: '1', name: 'Alice', email: 'alice@test.com' },
+            { id: '2', name: 'Bob', email: 'bob@test.com' },
           ],
         } as any,
       };
@@ -1641,7 +1641,7 @@ describe('ListView', () => {
 
     it('should fall back to dataSource.find when schema.data is not set', async () => {
       const mockItems = [
-        { _id: '1', name: 'Alice', email: 'alice@test.com' },
+        { id: '1', name: 'Alice', email: 'alice@test.com' },
       ];
       mockDataSource.find.mockResolvedValue(mockItems);
 
@@ -1947,8 +1947,8 @@ describe('ListView', () => {
   describe('pageSizeOptions dynamic integration', () => {
     it('should render page size selector as controlled component', async () => {
       const mockItems = [
-        { _id: '1', name: 'Alice', email: 'alice@test.com' },
-        { _id: '2', name: 'Bob', email: 'bob@test.com' },
+        { id: '1', name: 'Alice', email: 'alice@test.com' },
+        { id: '2', name: 'Bob', email: 'bob@test.com' },
       ];
       mockDataSource.find.mockResolvedValue(mockItems);
 
@@ -1972,8 +1972,8 @@ describe('ListView', () => {
 
     it('should re-fetch data when page size changes', async () => {
       const mockItems = [
-        { _id: '1', name: 'Alice', email: 'alice@test.com' },
-        { _id: '2', name: 'Bob', email: 'bob@test.com' },
+        { id: '1', name: 'Alice', email: 'alice@test.com' },
+        { id: '2', name: 'Bob', email: 'bob@test.com' },
       ];
       mockDataSource.find.mockResolvedValue(mockItems);
 
@@ -2008,7 +2008,7 @@ describe('ListView', () => {
 
     it('should render all page size options in the selector', async () => {
       const mockItems = [
-        { _id: '1', name: 'Alice', email: 'alice@test.com' },
+        { id: '1', name: 'Alice', email: 'alice@test.com' },
       ];
       mockDataSource.find.mockResolvedValue(mockItems);
 
@@ -2036,7 +2036,7 @@ describe('ListView', () => {
 
     it('should not render page size selector when pageSizeOptions is not configured', async () => {
       const mockItems = [
-        { _id: '1', name: 'Alice', email: 'alice@test.com' },
+        { id: '1', name: 'Alice', email: 'alice@test.com' },
       ];
       mockDataSource.find.mockResolvedValue(mockItems);
 

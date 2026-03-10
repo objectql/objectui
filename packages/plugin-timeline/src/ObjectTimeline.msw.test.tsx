@@ -12,9 +12,9 @@ const BASE_URL = 'http://localhost';
 
 const mockMilestones = {
   value: [
-    { _id: '1', title: 'Start Project', due_date: '2023-01-01', description: 'Initial Kickoff' },
-    { _id: '2', title: 'Beta Launch', due_date: '2023-06-01', description: 'Public Beta' },
-    { _id: '3', title: 'Release', due_date: '2023-12-01', description: 'v1.0 Release' }
+    { id: '1', title: 'Start Project', due_date: '2023-01-01', description: 'Initial Kickoff' },
+    { id: '2', title: 'Beta Launch', due_date: '2023-06-01', description: 'Public Beta' },
+    { id: '3', title: 'Release', due_date: '2023-12-01', description: 'v1.0 Release' }
   ]
 };
 

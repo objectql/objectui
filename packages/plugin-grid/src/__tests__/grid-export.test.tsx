@@ -26,9 +26,9 @@ afterEach(() => {
 });
 
 const sampleData = [
-  { _id: '1', name: 'Alice', email: 'alice@example.com', status: 'Active' },
-  { _id: '2', name: 'Bob', email: 'bob@example.com', status: 'Inactive' },
-  { _id: '3', name: 'Charlie', email: 'charlie@example.com', status: 'Active' },
+  { id: '1', name: 'Alice', email: 'alice@example.com', status: 'Active' },
+  { id: '2', name: 'Bob', email: 'bob@example.com', status: 'Inactive' },
+  { id: '3', name: 'Charlie', email: 'charlie@example.com', status: 'Active' },
 ];
 
 describe('Phase 10 - Grid Export', () => {

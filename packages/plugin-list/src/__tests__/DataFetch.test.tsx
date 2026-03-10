@@ -40,7 +40,7 @@ describe('ListView Data Fetch', () => {
     it('shows data limit warning when items reach the page size', async () => {
       // Generate exactly 100 items (default page size)
       const items = Array.from({ length: 100 }, (_, i) => ({
-        _id: String(i),
+        id: String(i),
         name: `Item ${i}`,
       }));
       mockDataSource.find.mockResolvedValue(items);
@@ -62,8 +62,8 @@ describe('ListView Data Fetch', () => {
 
     it('does not show data limit warning when items are below page size', async () => {
       const items = [
-        { _id: '1', name: 'Alice' },
-        { _id: '2', name: 'Bob' },
+        { id: '1', name: 'Alice' },
+        { id: '2', name: 'Bob' },
       ];
       mockDataSource.find.mockResolvedValue(items);
 
@@ -84,7 +84,7 @@ describe('ListView Data Fetch', () => {
 
     it('uses custom page size from schema.pagination', async () => {
       const items = Array.from({ length: 50 }, (_, i) => ({
-        _id: String(i),
+        id: String(i),
         name: `Item ${i}`,
       }));
       mockDataSource.find.mockResolvedValue(items);
@@ -126,7 +126,7 @@ describe('ListView Data Fetch', () => {
         },
       });
       mockDataSource.find.mockResolvedValue([
-        { _id: '1', name: 'Order 1', customer: { name: 'Alice' }, account: { name: 'Acme' } },
+        { id: '1', name: 'Order 1', customer: { name: 'Alice' }, account: { name: 'Acme' } },
       ]);
 
       const schema: ListViewSchema = {
@@ -152,7 +152,7 @@ describe('ListView Data Fetch', () => {
       let resolveSchema: (value: any) => void;
       const schemaPromise = new Promise(resolve => { resolveSchema = resolve; });
       mockDataSource.getObjectSchema = vi.fn().mockReturnValue(schemaPromise);
-      mockDataSource.find.mockResolvedValue([{ _id: '1', name: 'Item 1' }]);
+      mockDataSource.find.mockResolvedValue([{ id: '1', name: 'Item 1' }]);
 
       const schema: ListViewSchema = {
         type: 'list-view',
@@ -203,14 +203,14 @@ describe('ListView Data Fetch', () => {
       );
 
       // Resolve second (newer) request first
-      resolveSecond!([{ _id: '2', name: 'Second' }]);
+      resolveSecond!([{ id: '2', name: 'Second' }]);
       
       await vi.waitFor(() => {
         expect(mockDataSource.find).toHaveBeenCalled();
       });
 
       // Resolve first (stale) request later
-      resolveFirst!([{ _id: '1', name: 'First (stale)' }]);
+      resolveFirst!([{ id: '1', name: 'First (stale)' }]);
 
       // Wait for state to settle — second request data should win
       await vi.waitFor(() => {

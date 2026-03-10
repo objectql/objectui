@@ -18,7 +18,7 @@ registerAllFields();
 // --- Mock Data with various types ---
 const mockData = [
   {
-    _id: '1',
+    id: '1',
     name: 'Project Alpha',
     status: 'in_progress',
     priority: 'high',
@@ -26,7 +26,7 @@ const mockData = [
     start_date: '2024-02-01T00:00:00.000Z',
   },
   {
-    _id: '2',
+    id: '2',
     name: 'Project Beta',
     status: 'completed',
     priority: 'low',

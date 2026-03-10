@@ -16,9 +16,9 @@ const BASE_URL = 'http://localhost';
 
 const mockTasks = {
   value: [
-    { _id: '1', title: 'Task 1', status: 'todo', description: 'Description 1' },
-    { _id: '2', title: 'Task 2', status: 'done', description: 'Description 2' },
-    { _id: '3', title: 'Task 3', status: 'todo', description: 'Description 3' }
+    { id: '1', title: 'Task 1', status: 'todo', description: 'Description 1' },
+    { id: '2', title: 'Task 2', status: 'done', description: 'Description 2' },
+    { id: '3', title: 'Task 3', status: 'todo', description: 'Description 3' }
   ]
 };
 

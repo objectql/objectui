@@ -32,7 +32,7 @@ vi.mock('@object-ui/react', () => ({
 vi.mock('@object-ui/plugin-grid', () => ({
   ObjectGrid: ({ schema, onRowClick }: any) => (
     <div data-testid="object-grid" data-object={schema?.objectName}>
-      <button data-testid="grid-row" onClick={() => onRowClick?.({ _id: '1', name: 'Test' })}>
+      <button data-testid="grid-row" onClick={() => onRowClick?.({ id: '1', name: 'Test' })}>
         Row 1
       </button>
     </div>

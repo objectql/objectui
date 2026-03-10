@@ -17,9 +17,9 @@ registerAllFields();
 
 // --- Mock Data ---
 const mockData = [
-  { _id: '1', name: 'Alice', email: 'alice@test.com', amount: 1500, status: 'active' },
-  { _id: '2', name: 'Bob', email: 'bob@test.com', amount: 2300, status: 'inactive' },
-  { _id: '3', name: 'Charlie', email: 'charlie@test.com', amount: 800, status: 'active' },
+  { id: '1', name: 'Alice', email: 'alice@test.com', amount: 1500, status: 'active' },
+  { id: '2', name: 'Bob', email: 'bob@test.com', amount: 2300, status: 'inactive' },
+  { id: '3', name: 'Charlie', email: 'charlie@test.com', amount: 800, status: 'active' },
 ];
 
 // --- Helper: Render ObjectGrid with static data and ListColumn[] ---
@@ -191,7 +191,7 @@ describe('ListColumn: action', () => {
         params: expect.objectContaining({
           field: 'status',
           value: 'active',
-          record: expect.objectContaining({ _id: '1', name: 'Alice' }),
+          record: expect.objectContaining({ id: '1', name: 'Alice' }),
         }),
       }),
       expect.any(Object) // ActionCtx
@@ -222,8 +222,8 @@ describe('ListColumn: type', () => {
 
   it('should render boolean type columns correctly', async () => {
     const boolData = [
-      { _id: '1', name: 'Alice', active: true },
-      { _id: '2', name: 'Bob', active: false },
+      { id: '1', name: 'Alice', active: true },
+      { id: '2', name: 'Bob', active: false },
     ];
 
     const schema: any = {

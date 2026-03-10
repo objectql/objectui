@@ -19,9 +19,9 @@ const mockSchema = ContactObject;
 
 const mockData = {
   value: [
-    { _id: '1', name: 'John Doe', email: 'john@example.com', company: 'Acme Inc' },
-    { _id: '2', name: 'Jane Smith', email: 'jane@test.com', company: 'Globex' },
-    { _id: '3', name: 'Bob Wilson', email: 'bob@test.com', company: 'Acme Inc' }
+    { id: '1', name: 'John Doe', email: 'john@example.com', company: 'Acme Inc' },
+    { id: '2', name: 'Jane Smith', email: 'jane@test.com', company: 'Globex' },
+    { id: '3', name: 'Bob Wilson', email: 'bob@test.com', company: 'Acme Inc' }
   ],
   count: 3,
   '@odata.count': 3

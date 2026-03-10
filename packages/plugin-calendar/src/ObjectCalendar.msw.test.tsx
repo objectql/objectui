@@ -18,14 +18,14 @@ todayAtNoon.setHours(12, 0, 0, 0);
 const mockEvents = {
   value: [
     { 
-      _id: '1', 
+      id: '1', 
       title: 'Meeting with Client', 
       start: todayAtNoon.toISOString(), 
       end: new Date(todayAtNoon.getTime() + 3600000).toISOString(),
       type: 'business'
     },
     { 
-      _id: '2', 
+      id: '2', 
       title: 'Team Lunch', 
       start: new Date(todayAtNoon.getTime() + 86400000).toISOString(), // Tomorrow
       type: 'personal'

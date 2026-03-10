@@ -76,8 +76,8 @@ describe('ListView Export', () => {
 
   it('should handle export with complex object fields in CSV safely', async () => {
     const mockItems = [
-      { _id: '1', name: 'Alice', tags: ['admin', 'user'], metadata: { role: 'lead' } },
-      { _id: '2', name: 'Bob', tags: ['user'], metadata: null },
+      { id: '1', name: 'Alice', tags: ['admin', 'user'], metadata: { role: 'lead' } },
+      { id: '2', name: 'Bob', tags: ['user'], metadata: null },
     ];
     mockDataSource.find.mockResolvedValue(mockItems);
 
@@ -134,7 +134,7 @@ describe('ListView Export', () => {
 
   it('should handle export with JSON format', async () => {
     const mockItems = [
-      { _id: '1', name: 'Alice', email: 'alice@test.com' },
+      { id: '1', name: 'Alice', email: 'alice@test.com' },
     ];
     mockDataSource.find.mockResolvedValue(mockItems);
 

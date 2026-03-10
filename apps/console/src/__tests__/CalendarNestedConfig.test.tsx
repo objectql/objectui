@@ -36,8 +36,8 @@ const month = String(now.getMonth() + 1).padStart(2, '0');
 
 const mockDataSource = {
     find: vi.fn().mockResolvedValue([
-        { _id: 'e1', subject: 'Weekly Standup', start: `${year}-${month}-05T09:00:00`, end: `${year}-${month}-05T10:00:00`, type: 'Meeting' },
-        { _id: 'e2', subject: 'Client Call', start: `${year}-${month}-06T14:00:00`, end: `${year}-${month}-06T15:00:00`, type: 'Call' }
+        { id: 'e1', subject: 'Weekly Standup', start: `${year}-${month}-05T09:00:00`, end: `${year}-${month}-05T10:00:00`, type: 'Meeting' },
+        { id: 'e2', subject: 'Client Call', start: `${year}-${month}-06T14:00:00`, end: `${year}-${month}-06T15:00:00`, type: 'Call' }
     ]),
     findOne: vi.fn().mockResolvedValue({}),
     create: vi.fn().mockResolvedValue({}),

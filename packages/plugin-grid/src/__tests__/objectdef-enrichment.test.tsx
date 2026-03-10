@@ -20,9 +20,9 @@ registerAllFields();
 
 // --- Opportunity-like mock data ---
 const opportunityData = [
-  { _id: '1', name: 'Enterprise License', amount: 150000, stage: 'closed_won', close_date: '2024-01-15T00:00:00.000Z', probability: 100, forecast_category: 'commit' },
-  { _id: '2', name: 'E-Com Integration', amount: 12000, stage: 'closed_lost', close_date: '2024-02-10T00:00:00.000Z', probability: 0, forecast_category: 'omitted' },
-  { _id: '3', name: 'Tower Expansion', amount: 75000, stage: 'negotiation', close_date: '2024-02-28T00:00:00.000Z', probability: 80, forecast_category: 'best_case' },
+  { id: '1', name: 'Enterprise License', amount: 150000, stage: 'closed_won', close_date: '2024-01-15T00:00:00.000Z', probability: 100, forecast_category: 'commit' },
+  { id: '2', name: 'E-Com Integration', amount: 12000, stage: 'closed_lost', close_date: '2024-02-10T00:00:00.000Z', probability: 0, forecast_category: 'omitted' },
+  { id: '3', name: 'Tower Expansion', amount: 75000, stage: 'negotiation', close_date: '2024-02-28T00:00:00.000Z', probability: 80, forecast_category: 'best_case' },
 ];
 
 // --- Mock objectSchema that resembles the Opportunity object definition ---
@@ -448,9 +448,9 @@ describe('Inline data with DataSource schema fetch', () => {
     };
 
     const inlineOrderData = [
-      { _id: 'o1', name: 'Order 001', status: 'pending', assigned_to: 'Alice' },
-      { _id: 'o2', name: 'Order 002', status: 'shipped', assigned_to: 'Bob' },
-      { _id: 'o3', name: 'Order 003', status: 'delivered', assigned_to: 'Charlie' },
+      { id: 'o1', name: 'Order 001', status: 'pending', assigned_to: 'Alice' },
+      { id: 'o2', name: 'Order 002', status: 'shipped', assigned_to: 'Bob' },
+      { id: 'o3', name: 'Order 003', status: 'delivered', assigned_to: 'Charlie' },
     ];
 
     const mockDataSource = createMockDataSource(lookupSchema, []);
