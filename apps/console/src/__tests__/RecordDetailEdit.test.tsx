@@ -156,6 +156,13 @@ describe('RecordDetailView — detail schema features', () => {
           email: { name: 'email', label: 'Email', type: 'email' },
           status: { name: 'status', label: 'Status', type: 'select' },
         },
+        views: {
+          detail: {
+            highlightFields: [
+              { name: 'status', label: 'Status' },
+            ],
+          },
+        },
       },
     ];
 
