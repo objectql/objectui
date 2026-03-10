@@ -14,7 +14,7 @@
  *   POST /sign-in/email  — authenticate with email + password
  *   GET  /get-session     — retrieve the current session
  *   POST /sign-out        — clear the session
- *   POST /forgot-password — no-op acknowledgement
+ *   POST /forget-password — no-op acknowledgement (better-auth convention)
  *   POST /reset-password  — no-op acknowledgement
  *   POST /update-user     — update the current user's profile
  */
@@ -163,8 +163,9 @@ export function createAuthHandlers(baseUrl: string): HttpHandler[] {
     }),
 
     // ── Forgot Password (mock acknowledgement) ──────────────────────────
-    http.post(`${p}/forgot-password`, () => {
-      return HttpResponse.json({ success: true });
+    // better-auth uses "forget-password" (not "forgot-password")
+    http.post(`${p}/forget-password`, () => {
+      return HttpResponse.json({ status: true });
     }),
 
     // ── Reset Password (mock acknowledgement) ────────────────────────────

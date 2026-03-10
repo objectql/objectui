@@ -6,14 +6,47 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import { createAuthClient as createBetterAuthClient } from 'better-auth/client';
 import type { AuthClient, AuthClientConfig, AuthUser, AuthSession, SignInCredentials, SignUpData } from './types';
 
 /**
- * Create an auth client instance.
+ * Resolve a baseURL (which may be relative or absolute) into the
+ * `{ origin, basePath }` pair required by the better-auth client.
  *
- * This factory creates an abstraction layer over the authentication provider.
- * It is designed to work with better-auth but can be adapted to any auth backend
- * that exposes standard REST endpoints for sign-in, sign-up, sign-out, and session management.
+ * - Absolute URLs (e.g. `http://localhost:3000/api/auth`) are split into origin + pathname.
+ * - Relative paths (e.g. `/api/v1/auth`) use `window.location.origin` in
+ *   browser environments, falling back to `http://localhost` elsewhere.
+ */
+function resolveAuthURL(baseURL: string): { origin: string; basePath: string } {
+  try {
+    const url = new URL(baseURL);
+    return { origin: url.origin, basePath: url.pathname.replace(/\/$/, '') };
+  } catch {
+    // Relative URL – resolve against the current origin when available
+    const origin = getWindowOrigin() ?? 'http://localhost';
+    return { origin, basePath: baseURL.replace(/\/$/, '') };
+  }
+}
+
+/** Safely read window.location.origin when available (browser environments). */
+function getWindowOrigin(): string | undefined {
+  try {
+    if (typeof window !== 'undefined' && window.location?.origin) {
+      return window.location.origin;
+    }
+  } catch {
+    // window may be defined but accessing location can throw in some SSR environments
+  }
+  return undefined;
+}
+
+/**
+ * Create an auth client instance backed by the official better-auth client.
+ *
+ * Internally delegates to `createAuthClient` from `better-auth/client`,
+ * exposing the same {@link AuthClient} interface so that AuthProvider,
+ * createAuthenticatedFetch, and all downstream consumers continue to work
+ * without changes.
  *
  * @example
  * ```ts
@@ -22,79 +55,91 @@ import type { AuthClient, AuthClientConfig, AuthUser, AuthSession, SignInCredent
  * ```
  */
 export function createAuthClient(config: AuthClientConfig): AuthClient {
-  const { baseURL, fetchFn = fetch } = config;
+  const { baseURL, fetchFn } = config;
+  const { origin, basePath } = resolveAuthURL(baseURL);
 
-  async function request<T>(path: string, options?: RequestInit): Promise<T> {
-    const url = `${baseURL}${path}`;
-    const response = await fetchFn(url, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
-      credentials: 'include',
-    });
+  const betterAuth = createBetterAuthClient({
+    baseURL: origin,
+    basePath,
+    disableDefaultFetchPlugins: true,
+    fetchOptions: fetchFn ? { customFetchImpl: fetchFn } : undefined,
+  });
 
-    if (!response.ok) {
-      const body = await response.json().catch(() => null);
-      const message = (body && typeof body === 'object' && 'message' in body)
-        ? String(body.message)
-        : `Auth request failed with status ${response.status}`;
-      throw new Error(message);
-    }
-
-    return response.json();
-  }
+  // The better-auth client exposes methods whose TS return types are narrower
+  // than the runtime JSON the server actually sends (e.g. `session` on signIn).
+  // We deliberately cast through `unknown` to bridge from better-auth types
+  // to the ObjectUI AuthClient contract.
 
   return {
     async signIn(credentials: SignInCredentials) {
-      return request<{ user: AuthUser; session: AuthSession }>('/sign-in/email', {
-        method: 'POST',
-        body: JSON.stringify(credentials),
+      const { data, error } = await betterAuth.signIn.email({
+        email: credentials.email,
+        password: credentials.password,
       });
+      if (error) {
+        throw new Error(error.message ?? `Auth request failed with status ${error.status}`);
+      }
+      const payload = data as unknown as { user: AuthUser; session: AuthSession };
+      return { user: payload.user, session: payload.session };
     },
 
-    async signUp(data: SignUpData) {
-      return request<{ user: AuthUser; session: AuthSession }>('/sign-up/email', {
-        method: 'POST',
-        body: JSON.stringify(data),
+    async signUp(signUpData: SignUpData) {
+      const { data, error } = await betterAuth.signUp.email({
+        email: signUpData.email,
+        password: signUpData.password,
+        name: signUpData.name,
       });
+      if (error) {
+        throw new Error(error.message ?? `Auth request failed with status ${error.status}`);
+      }
+      const payload = data as unknown as { user: AuthUser; session: AuthSession };
+      return { user: payload.user, session: payload.session };
     },
 
     async signOut() {
-      await request('/sign-out', { method: 'POST' });
-    },
-
-    async getSession() {
-      try {
-        return await request<{ user: AuthUser; session: AuthSession }>('/get-session', {
-          method: 'GET',
-        });
-      } catch {
-        return null;
+      const { error } = await betterAuth.signOut();
+      if (error) {
+        throw new Error(error.message ?? `Auth request failed with status ${error.status}`);
       }
     },
 
+    async getSession() {
+      const { data, error } = await betterAuth.getSession();
+      if (error || !data) return null;
+      const payload = data as unknown as { user: AuthUser; session: AuthSession };
+      return { user: payload.user, session: payload.session };
+    },
+
     async forgotPassword(email: string) {
-      await request('/forgot-password', {
-        method: 'POST',
-        body: JSON.stringify({ email }),
-      });
+      // better-auth uses "forgetPassword" (without the "o"); the method
+      // exists at runtime but is not present in the default TS types.
+      type ForgetPasswordFn = (opts: { email: string; redirectTo: string }) =>
+        Promise<{ error: { message?: string; status: number } | null }>;
+      const forgetPw = (betterAuth as unknown as { forgetPassword: ForgetPasswordFn }).forgetPassword;
+      const { error } = await forgetPw({ email, redirectTo: '/' });
+      if (error) {
+        throw new Error(error.message ?? `Auth request failed with status ${error.status}`);
+      }
     },
 
     async resetPassword(token: string, newPassword: string) {
-      await request('/reset-password', {
-        method: 'POST',
-        body: JSON.stringify({ token, newPassword }),
-      });
+      const { error } = await betterAuth.resetPassword({ token, newPassword });
+      if (error) {
+        throw new Error(error.message ?? `Auth request failed with status ${error.status}`);
+      }
     },
 
-    async updateUser(data: Partial<AuthUser>) {
-      const result = await request<{ user: AuthUser }>('/update-user', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
-      return result.user;
+    async updateUser(userData: Partial<AuthUser>) {
+      const { data, error } = await betterAuth.updateUser(userData);
+      if (error) {
+        throw new Error(error.message ?? `Auth request failed with status ${error.status}`);
+      }
+      if (!data) {
+        throw new Error('Update user returned no data');
+      }
+      // The server response may wrap the user in a `user` key or return it directly
+      const raw = data as unknown as Record<string, unknown>;
+      return (raw && typeof raw === 'object' && 'user' in raw ? raw.user : raw) as AuthUser;
     },
   };
 }
