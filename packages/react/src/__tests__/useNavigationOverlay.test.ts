@@ -35,14 +35,14 @@ describe('useNavigationOverlay', () => {
       );
 
       act(() => {
-        result.current.handleClick({ _id: '123', name: 'Test' });
+        result.current.handleClick({ id: '123', name: 'Test' });
       });
 
       expect(onNavigate).toHaveBeenCalledWith('123', 'view');
       expect(result.current.isOpen).toBe(false);
     });
 
-    it('should use id field when _id is not present', () => {
+    it('should use _id field as fallback when id is not present', () => {
       const onNavigate = vi.fn();
       const { result } = renderHook(() =>
         useNavigationOverlay({
@@ -52,7 +52,7 @@ describe('useNavigationOverlay', () => {
       );
 
       act(() => {
-        result.current.handleClick({ id: '456', name: 'Test' });
+        result.current.handleClick({ _id: '456', name: 'Test' });
       });
 
       expect(onNavigate).toHaveBeenCalledWith('456', 'view');
@@ -64,7 +64,7 @@ describe('useNavigationOverlay', () => {
       );
 
       act(() => {
-        result.current.handleClick({ _id: '123' });
+        result.current.handleClick({ id: '123' });
       });
 
       expect(result.current.isOpen).toBe(false);
@@ -89,10 +89,10 @@ describe('useNavigationOverlay', () => {
       );
 
       act(() => {
-        result.current.handleClick({ _id: '123' });
+        result.current.handleClick({ id: '123' });
       });
 
-      expect(onRowClick).toHaveBeenCalledWith({ _id: '123' });
+      expect(onRowClick).toHaveBeenCalledWith({ id: '123' });
       expect(onNavigate).not.toHaveBeenCalled();
       expect(result.current.isOpen).toBe(false);
     });
@@ -114,7 +114,7 @@ describe('useNavigationOverlay', () => {
       );
 
       act(() => {
-        result.current.handleClick({ _id: '123' });
+        result.current.handleClick({ id: '123' });
       });
 
       expect(onNavigate).not.toHaveBeenCalled();
@@ -132,7 +132,7 @@ describe('useNavigationOverlay', () => {
       );
 
       act(() => {
-        result.current.handleClick({ _id: '123' });
+        result.current.handleClick({ id: '123' });
       });
 
       expect(onNavigate).not.toHaveBeenCalled();
@@ -155,7 +155,7 @@ describe('useNavigationOverlay', () => {
       );
 
       act(() => {
-        result.current.handleClick({ _id: 'abc' });
+        result.current.handleClick({ id: 'abc' });
       });
 
       expect(onNavigate).toHaveBeenCalledWith('abc', 'view');
@@ -177,7 +177,7 @@ describe('useNavigationOverlay', () => {
       );
 
       act(() => {
-        result.current.handleClick({ _id: '123' });
+        result.current.handleClick({ id: '123' });
       });
 
       expect(mockWindowOpen).toHaveBeenCalledWith('/contacts/123', '_blank');
@@ -210,7 +210,7 @@ describe('useNavigationOverlay', () => {
       );
 
       act(() => {
-        result.current.handleClick({ _id: '789' });
+        result.current.handleClick({ id: '789' });
       });
 
       expect(onNavigate).toHaveBeenCalledWith('789', 'new_window');
@@ -227,7 +227,7 @@ describe('useNavigationOverlay', () => {
       );
 
       act(() => {
-        result.current.handleClick({ _id: '101' });
+        result.current.handleClick({ id: '101' });
       });
 
       expect(mockWindowOpen).toHaveBeenCalledWith('/accounts/101', '_blank');
@@ -252,11 +252,11 @@ describe('useNavigationOverlay', () => {
       expect(result.current.mode).toBe('drawer');
 
       act(() => {
-        result.current.handleClick({ _id: '123', name: 'John' });
+        result.current.handleClick({ id: '123', name: 'John' });
       });
 
       expect(result.current.isOpen).toBe(true);
-      expect(result.current.selectedRecord).toEqual({ _id: '123', name: 'John' });
+      expect(result.current.selectedRecord).toEqual({ id: '123', name: 'John' });
     });
 
     it('should close the overlay', () => {
@@ -268,7 +268,7 @@ describe('useNavigationOverlay', () => {
       );
 
       act(() => {
-        result.current.handleClick({ _id: '123' });
+        result.current.handleClick({ id: '123' });
       });
       expect(result.current.isOpen).toBe(true);
 
@@ -308,7 +308,7 @@ describe('useNavigationOverlay', () => {
       expect(result.current.mode).toBe('modal');
 
       act(() => {
-        result.current.handleClick({ _id: '123' });
+        result.current.handleClick({ id: '123' });
       });
 
       expect(result.current.isOpen).toBe(true);
@@ -343,7 +343,7 @@ describe('useNavigationOverlay', () => {
       expect(result.current.mode).toBe('split');
 
       act(() => {
-        result.current.handleClick({ _id: '123' });
+        result.current.handleClick({ id: '123' });
       });
 
       expect(result.current.isOpen).toBe(true);
@@ -367,7 +367,7 @@ describe('useNavigationOverlay', () => {
       expect(result.current.mode).toBe('popover');
 
       act(() => {
-        result.current.handleClick({ _id: '123' });
+        result.current.handleClick({ id: '123' });
       });
 
       expect(result.current.isOpen).toBe(true);
@@ -388,11 +388,11 @@ describe('useNavigationOverlay', () => {
       );
 
       act(() => {
-        result.current.open({ _id: 'test', name: 'Direct open' });
+        result.current.open({ id: 'test', name: 'Direct open' });
       });
 
       expect(result.current.isOpen).toBe(true);
-      expect(result.current.selectedRecord).toEqual({ _id: 'test', name: 'Direct open' });
+      expect(result.current.selectedRecord).toEqual({ id: 'test', name: 'Direct open' });
     });
 
     it('should support setIsOpen for controlled overlay', () => {
@@ -404,7 +404,7 @@ describe('useNavigationOverlay', () => {
       );
 
       act(() => {
-        result.current.open({ _id: '1' });
+        result.current.open({ id: '1' });
       });
       expect(result.current.isOpen).toBe(true);
 
@@ -475,7 +475,7 @@ describe('useNavigationOverlay', () => {
       );
 
       act(() => {
-        result.current.handleClick({ _id: '123' });
+        result.current.handleClick({ id: '123' });
       });
 
       expect(onNavigate).toHaveBeenCalledWith('123', 'detail_view');
@@ -490,7 +490,7 @@ describe('useNavigationOverlay', () => {
       );
 
       act(() => {
-        result.current.handleClick({ _id: '123' });
+        result.current.handleClick({ id: '123' });
       });
 
       expect(mockWindowOpen).toHaveBeenCalledWith('/contacts/123/edit_form', '_blank');
@@ -529,7 +529,7 @@ describe('useNavigationOverlay', () => {
 
       // First click uses v1
       act(() => {
-        result.current.handleClick({ _id: '1' });
+        result.current.handleClick({ id: '1' });
       });
       expect(onNavigateV1).toHaveBeenCalledWith('1', 'view');
       expect(onNavigateV2).not.toHaveBeenCalled();
@@ -539,7 +539,7 @@ describe('useNavigationOverlay', () => {
 
       // Second click must use v2 (not stale v1)
       act(() => {
-        result.current.handleClick({ _id: '2' });
+        result.current.handleClick({ id: '2' });
       });
       expect(onNavigateV2).toHaveBeenCalledWith('2', 'view');
       expect(onNavigateV1).toHaveBeenCalledTimes(1); // v1 was not called again
@@ -560,7 +560,7 @@ describe('useNavigationOverlay', () => {
 
       // Click with no config — should still call onNavigate (default page behavior)
       act(() => {
-        result.current.handleClick({ _id: '1' });
+        result.current.handleClick({ id: '1' });
       });
       expect(onNavigate).toHaveBeenCalledWith('1', 'view');
 
@@ -569,7 +569,7 @@ describe('useNavigationOverlay', () => {
 
       // Click should still work (not stale)
       act(() => {
-        result.current.handleClick({ _id: '2' });
+        result.current.handleClick({ id: '2' });
       });
       expect(onNavigate).toHaveBeenCalledWith('2', 'view');
       expect(onNavigate).toHaveBeenCalledTimes(2);
