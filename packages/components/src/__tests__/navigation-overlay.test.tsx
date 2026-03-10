@@ -16,7 +16,7 @@ import type { NavigationOverlayProps } from '../custom/navigation-overlay';
 function createProps(overrides: Partial<NavigationOverlayProps> = {}): NavigationOverlayProps {
   return {
     isOpen: true,
-    selectedRecord: { _id: '1', name: 'Test Record', email: 'test@example.com' },
+    selectedRecord: { id: '1', name: 'Test Record', email: 'test@example.com' },
     mode: 'drawer',
     close: vi.fn(),
     setIsOpen: vi.fn(),
@@ -276,7 +276,7 @@ describe('NavigationOverlay', () => {
 
   describe('children render prop', () => {
     it('should pass the selected record to children', () => {
-      const record = { _id: '42', name: 'Jane Doe', status: 'active' };
+      const record = { id: '42', name: 'Jane Doe', status: 'active' };
       render(
         <NavigationOverlay
           {...createProps({

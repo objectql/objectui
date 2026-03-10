@@ -36,8 +36,8 @@ describe('ObjectGallery & ListView Integration', () => {
     });
 
     const mockData = [
-        { _id: '1', name: 'Product A', category: 'Tech', image: 'http://img/a.jpg' },
-        { _id: '2', name: 'Product B', category: 'Home', image: 'http://img/b.jpg' },
+        { id: '1', name: 'Product A', category: 'Tech', image: 'http://img/a.jpg' },
+        { id: '2', name: 'Product B', category: 'Home', image: 'http://img/b.jpg' },
     ];
 
     const mockDataSource = {

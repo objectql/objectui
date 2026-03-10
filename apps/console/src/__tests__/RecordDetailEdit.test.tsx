@@ -3,7 +3,7 @@
  *
  * Validates that the URL-based recordId is passed through as-is to the
  * findOne API and onEdit callback. The navigation code puts the actual
- * record._id into the URL, so no prefix stripping is needed.
+ * record.id into the URL, so no prefix stripping is needed.
  *
  * Related: objectstack-ai/objectui — "Record not found" bug
  */
@@ -314,7 +314,6 @@ describe('RecordDetailView — recordId handling', () => {
     expect(onEdit).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 'contact-1772350253615-4',
-        _id: 'contact-1772350253615-4',
       }),
     );
   });
@@ -339,7 +338,6 @@ describe('RecordDetailView — recordId handling', () => {
     expect(onEdit).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 'plain-id-12345',
-        _id: 'plain-id-12345',
       }),
     );
   });

@@ -34,7 +34,7 @@ vi.mock('@object-ui/plugin-list', () => ({
         {props.schema?.addRecord?.enabled && <div data-testid="schema-addRecord-enabled">addRecord</div>}
         {props.schema?.addRecordViaForm && <div data-testid="schema-addRecordViaForm">addRecordViaForm</div>}
         {props.schema?.userFilters && <div data-testid="schema-userFilters">{props.schema.userFilters.element}</div>}
-        <button data-testid="list-row-click" onClick={() => props.onRowClick?.({ _id: 'rec-1', id: 'rec-1', name: 'Test Record' })}>Click Row</button>
+        <button data-testid="list-row-click" onClick={() => props.onRowClick?.({ id: 'rec-1', name: 'Test Record' })}>Click Row</button>
       </div>
     );
   },
@@ -856,7 +856,7 @@ describe('ObjectView Component', () => {
 
         const dataSourceWithFindOne = {
             ...mockDataSource,
-            findOne: vi.fn().mockResolvedValue({ _id: 'rec-1', id: 'rec-1', name: 'Test' }),
+            findOne: vi.fn().mockResolvedValue({ id: 'rec-1', name: 'Test' }),
         };
 
         render(<ObjectView dataSource={dataSourceWithFindOne} objects={objectsWithSplit} onEdit={vi.fn()} />);
@@ -883,7 +883,7 @@ describe('ObjectView Component', () => {
 
         const dataSourceWithFindOne = {
             ...mockDataSource,
-            findOne: vi.fn().mockResolvedValue({ _id: 'rec-1', id: 'rec-1', name: 'Test' }),
+            findOne: vi.fn().mockResolvedValue({ id: 'rec-1', name: 'Test' }),
         };
 
         render(<ObjectView dataSource={dataSourceWithFindOne} objects={objectsWithPopover} onEdit={vi.fn()} />);
@@ -911,7 +911,7 @@ describe('ObjectView Component', () => {
 
         const dataSourceWithFindOne = {
             ...mockDataSource,
-            findOne: vi.fn().mockResolvedValue({ _id: 'rec-1', id: 'rec-1', name: 'Test' }),
+            findOne: vi.fn().mockResolvedValue({ id: 'rec-1', name: 'Test' }),
         };
 
         render(<ObjectView dataSource={dataSourceWithFindOne} objects={objectsWithDrawer} onEdit={vi.fn()} />);
@@ -993,7 +993,7 @@ describe('ObjectView Component', () => {
         mockUseParams.mockReturnValue({ objectName: 'opportunity' });
         const dataSourceWithFindOne = {
             ...mockDataSource,
-            findOne: vi.fn().mockResolvedValue({ _id: 'rec-1', id: 'rec-1', name: 'Test' }),
+            findOne: vi.fn().mockResolvedValue({ id: 'rec-1', name: 'Test' }),
         };
         render(<ObjectView dataSource={dataSourceWithFindOne} objects={objectsWithDrawer} onEdit={vi.fn()} />);
         fireEvent.click(screen.getByTestId('list-row-click'));
