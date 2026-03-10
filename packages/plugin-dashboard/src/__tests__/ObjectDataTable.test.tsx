@@ -48,10 +48,10 @@ describe('ObjectDataTable', () => {
 
     await waitFor(() => {
       const errorEl = container.querySelector('[data-testid="table-error"]');
-      expect(errorEl).toBeDefined();
+      expect(errorEl).toBeTruthy();
     });
 
-    expect(screen.getByText('Connection refused')).toBeDefined();
+    expect(screen.getByText('Connection refused')).toBeTruthy();
   });
 
   it('should show empty state when no data returned', async () => {
