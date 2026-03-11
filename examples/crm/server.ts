@@ -8,6 +8,7 @@ import { AuthPlugin } from '@objectstack/plugin-auth';
 import config from './objectstack.config';
 import { pino } from 'pino';
 import { ConsolePlugin } from '../../apps/console/plugin';
+import { I18nPlugin } from '../../apps/console/i18nPlugin';
 
 async function startServer() {
   const logger = pino({
@@ -58,6 +59,10 @@ async function startServer() {
     // 6. Console Plugin
     const consolePlugin = new ConsolePlugin();
     await kernel.use(consolePlugin);
+
+    // 7. i18n Plugin — register i18n translation service on kernel
+    const i18nPlugin = new I18nPlugin();
+    await kernel.use(i18nPlugin);
 
     // Bootstrap
     await kernel.bootstrap();

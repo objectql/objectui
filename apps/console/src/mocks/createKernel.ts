@@ -18,6 +18,7 @@ import { InMemoryDriver, MemoryAnalyticsService } from '@objectstack/driver-memo
 import { MSWPlugin } from '@objectstack/plugin-msw';
 import type { MSWPluginOptions } from '@objectstack/plugin-msw';
 import type { Cube } from '@objectstack/spec/data';
+import { createI18nService, type I18nServiceImpl } from './i18nHandlers';
 
 export interface KernelOptions {
   /** Application configuration (defineStack output) */
@@ -108,6 +109,15 @@ async function installBrokerShim(kernel: ObjectKernel): Promise<void> {
           if (method === 'query') return analytics.query(params);
           if (method === 'meta') return analytics.getMeta(params?.cubeName);
           if (method === 'sql') return analytics.generateSql(params);
+        }
+      }
+
+      // i18n service calls (e.g. i18n.getTranslations)
+      if (service === 'i18n') {
+        let i18nSvc: any;
+        try { i18nSvc = await kernel.getService('i18n'); } catch { /* noop */ }
+        if (i18nSvc) {
+          if (method === 'getTranslations') return i18nSvc.getTranslations(params?.lang ?? params);
         }
       }
 
@@ -280,6 +290,14 @@ export async function createKernel(options: KernelOptions): Promise<KernelResult
     // HttpDispatcher calls getMetadata(); adapt to MemoryAnalyticsService.getMeta()
     getMetadata: () => memoryAnalytics.getMeta(),
     generateSql: (query: any) => memoryAnalytics.generateSql(query),
+  });
+
+  // Register i18n service so that both MSW and real-server dispatchers can
+  // serve /api/v1/i18n/* endpoints through the kernel's service mechanism
+  // instead of relying on ad-hoc custom handlers.
+  const i18nService: I18nServiceImpl = createI18nService();
+  kernel.registerService('i18n', {
+    getTranslations: (lang: string) => i18nService.getTranslations(lang),
   });
 
   let mswPlugin: MSWPlugin | undefined;

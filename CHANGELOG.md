@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **i18n Service Unification**: Unified i18n service registration and data loading across server/dev/mock environments
+  - Extracted shared `i18nHandlers.ts` module with `loadAppLocale()`, `createI18nService()`, and `createI18nHandlers()` factory
+  - Registered i18n as a kernel service in `createKernel.ts` via `kernel.registerService('i18n', ...)`
+  - Added i18n routing to the broker shim so MSWPlugin's HttpDispatcher can serve i18n requests through the kernel mechanism
+  - Removed duplicate `loadAppLocale` functions from `browser.ts` and `server.ts`
+  - Created `I18nPlugin` for real server mode (`objectstack.config.ts`) to ensure i18n endpoint availability
+  - All environments now use the same data loading path and return identical data structures
 - **@objectstack v3.0.4 Upgrade**: Upgraded all `@objectstack/*` packages from `^3.0.2` to `^3.0.4` across 42 references
 - **@objectstack v3.0.0 Upgrade**: Upgraded all `@objectstack/*` packages from `^2.0.7` to `^3.0.0` across 13 package.json files
 - **Breaking change migrations**:

@@ -9,7 +9,6 @@
  * This pattern follows @objectstack/studio — see https://github.com/objectstack-ai/spec
  */
 
-import { http, HttpResponse } from 'msw';
 import { ObjectKernel } from '@objectstack/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import { setupServer } from 'msw/node';
@@ -17,26 +16,12 @@ import type { MSWPlugin } from '@objectstack/plugin-msw';
 import appConfig from '../../objectstack.shared';
 import { createKernel } from './createKernel';
 import { createAuthHandlers } from './authHandlers';
+import { createI18nHandlers } from './i18nHandlers';
 
 let kernel: ObjectKernel | null = null;
 let driver: InMemoryDriver | null = null;
 let mswPlugin: MSWPlugin | null = null;
 let server: ReturnType<typeof setupServer> | null = null;
-
-/**
- * Load application-specific locale bundles for the i18n API endpoint.
- * In this mock environment, loads translations from installed example packages.
- */
-async function loadAppLocale(lang: string): Promise<Record<string, unknown>> {
-  try {
-    const { crmLocales } = await import('@object-ui/example-crm');
-    const translations = (crmLocales as Record<string, any>)[lang];
-    if (!translations) return {};
-    return { crm: translations };
-  } catch {
-    return {};
-  }
-}
 
 export async function startMockServer() {
   if (kernel) {
@@ -56,11 +41,8 @@ export async function startMockServer() {
       customHandlers: [
         // Mock auth endpoints (better-auth compatible)
         ...createAuthHandlers('/api/v1/auth'),
-        http.get('/api/v1/i18n/translations/:lang', async ({ params }) => {
-          const lang = params.lang as string;
-          const resources = await loadAppLocale(lang);
-          return HttpResponse.json(resources);
-        }),
+        // Serve i18n translation bundles via unified handler
+        ...createI18nHandlers('/api/v1'),
       ],
     },
   });
