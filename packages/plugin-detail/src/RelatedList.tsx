@@ -197,7 +197,7 @@ export const RelatedList: React.FC<RelatedListProps> = ({
     if (!objectSchema?.fields) return [];
     const resolvedObjectName = objectName || api || '';
     return Object.entries(objectSchema.fields)
-      .filter(([key]) => !key.startsWith('_'))
+      .filter(([key]) => !key.startsWith('_') && key !== 'id')
       .map(([key, def]: [string, any]) => {
         const col: any = {
           accessorKey: key,
