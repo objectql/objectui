@@ -8,7 +8,6 @@ import {
   DialogTitle,
   DialogFooter,
   Input,
-  Badge,
   Table,
   TableHeader,
   TableBody,
@@ -24,6 +23,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Check,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import type { DataSource, QueryParams, LookupColumnDef } from '@object-ui/types';
 
@@ -85,7 +87,9 @@ export interface RecordPickerDialogProps {
  * RecordPickerDialog — Enterprise-grade record selection dialog.
  *
  * Renders records in a table with multi-column display, search,
- * pagination, loading/error/empty states, and single/multi-select.
+ * pagination, column sorting, keyboard navigation, loading/error/empty
+ * states, and single/multi-select.  Responsive: mobile-friendly width
+ * via Tailwind breakpoints.
  */
 export function RecordPickerDialog({
   open,
@@ -109,8 +113,16 @@ export function RecordPickerDialog({
   const [currentPage, setCurrentPage] = useState(1);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Column sorting state
+  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
   // For multi-select, track pending selections before confirming
   const [pendingSelection, setPendingSelection] = useState<Set<any>>(new Set());
+
+  // Keyboard navigation: focused row index
+  const [focusedRow, setFocusedRow] = useState(-1);
+  const tableBodyRef = useRef<HTMLTableSectionElement>(null);
 
   // Resolved columns
   const resolvedColumns = useMemo<LookupColumnDef[]>(() => {
@@ -125,7 +137,7 @@ export function RecordPickerDialog({
 
   // Fetch records
   const fetchRecords = useCallback(
-    async (search?: string, page = 1) => {
+    async (search?: string, page = 1, sort?: { field: string; direction: 'asc' | 'desc' } | null) => {
       if (!dataSource || !objectName) return;
 
       setLoading(true);
@@ -139,12 +151,16 @@ export function RecordPickerDialog({
         if (search && search.trim()) {
           params.$search = search.trim();
         }
+        if (sort) {
+          params.$orderby = { [sort.field]: sort.direction };
+        }
 
         const result = await dataSource.find(objectName, params);
         const data: any[] = result?.data ?? result ?? [];
 
         setRecords(data);
         setTotalCount(result?.total ?? data.length);
+        setFocusedRow(-1);
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
         setError(msg);
@@ -156,10 +172,16 @@ export function RecordPickerDialog({
     [dataSource, objectName, pageSize],
   );
 
-  // Fetch when dialog opens or page changes
+  // Build current sort object for passing to fetchRecords
+  const currentSort = useMemo(
+    () => sortField ? { field: sortField, direction: sortDirection } : null,
+    [sortField, sortDirection],
+  );
+
+  // Fetch when dialog opens, page changes, or sort changes
   useEffect(() => {
     if (open) {
-      fetchRecords(searchQuery || undefined, currentPage);
+      fetchRecords(searchQuery || undefined, currentPage, currentSort);
     }
     if (!open) {
       // Reset state on close
@@ -167,13 +189,16 @@ export function RecordPickerDialog({
       setCurrentPage(1);
       setError(null);
       setRecords([]);
+      setSortField(null);
+      setSortDirection('asc');
+      setFocusedRow(-1);
       // Reset pending selection to match current value
       setPendingSelection(new Set(
         multiple ? (Array.isArray(value) ? value : []) : [],
       ));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, currentPage]);
+  }, [open, currentPage, currentSort]);
 
   // Initialize pending selection when dialog opens
   useEffect(() => {
@@ -192,10 +217,10 @@ export function RecordPickerDialog({
         clearTimeout(debounceTimer.current);
       }
       debounceTimer.current = setTimeout(() => {
-        fetchRecords(query || undefined, 1);
+        fetchRecords(query || undefined, 1, currentSort);
       }, 300);
     },
-    [fetchRecords],
+    [fetchRecords, currentSort],
   );
 
   // Clean up debounce timer
@@ -205,6 +230,20 @@ export function RecordPickerDialog({
         clearTimeout(debounceTimer.current);
       }
     };
+  }, []);
+
+  // Column sort handler
+  const handleSort = useCallback((field: string) => {
+    setSortField(prev => {
+      if (prev === field) {
+        // Toggle direction
+        setSortDirection(d => d === 'asc' ? 'desc' : 'asc');
+        return field;
+      }
+      setSortDirection('asc');
+      return field;
+    });
+    setCurrentPage(1);
   }, []);
 
   // Get record id
@@ -264,10 +303,42 @@ export function RecordPickerDialog({
     setCurrentPage(p => Math.min(totalPages, p + 1));
   }, [totalPages]);
 
+  // Keyboard navigation for the table
+  const handleTableKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (records.length === 0) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setFocusedRow(prev => Math.min(prev + 1, records.length - 1));
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setFocusedRow(prev => Math.max(prev - 1, 0));
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        if (focusedRow >= 0 && focusedRow < records.length) {
+          handleRowClick(records[focusedRow]);
+        }
+      }
+    },
+    [records, focusedRow, handleRowClick],
+  );
+
+  // Scroll focused row into view
+  useEffect(() => {
+    if (focusedRow >= 0 && tableBodyRef.current) {
+      const row = tableBodyRef.current.querySelector(`[data-row-index="${focusedRow}"]`);
+      if (row && typeof row.scrollIntoView === 'function') {
+        row.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  }, [focusedRow]);
+
   // Get display value for a cell
   const getCellValue = useCallback((record: any, field: string): string => {
     const val = record[field];
     if (val === null || val === undefined) return '';
+    if (val instanceof Date) return val.toLocaleDateString();
     if (typeof val === 'object') {
       // Handle MongoDB types / expanded references
       if (val.$numberDecimal) return String(Number(val.$numberDecimal));
@@ -276,12 +347,26 @@ export function RecordPickerDialog({
       if (val.name || val.label) return String(val.name || val.label);
       return JSON.stringify(val);
     }
+    if (typeof val === 'boolean') return val ? 'Yes' : 'No';
     return String(val);
   }, []);
 
+  // Render sort indicator for a column
+  const renderSortIcon = useCallback((field: string) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="ml-1 size-3 opacity-40" />;
+    }
+    return sortDirection === 'asc'
+      ? <ArrowUp className="ml-1 size-3" />
+      : <ArrowDown className="ml-1 size-3" />;
+  }, [sortField, sortDirection]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col" data-testid="record-picker-dialog">
+      <DialogContent
+        className="max-w-2xl w-[95vw] sm:w-full max-h-[85vh] sm:max-h-[80vh] flex flex-col"
+        data-testid="record-picker-dialog"
+      >
         <DialogHeader>
           <DialogTitle>
             {title}
@@ -317,7 +402,7 @@ export function RecordPickerDialog({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => fetchRecords(searchQuery || undefined, currentPage)}
+              onClick={() => fetchRecords(searchQuery || undefined, currentPage, currentSort)}
               type="button"
             >
               Retry
@@ -342,7 +427,13 @@ export function RecordPickerDialog({
 
         {/* Table */}
         {!error && records.length > 0 && (
-          <div className="flex-1 overflow-auto min-h-0">
+          <div
+            className="flex-1 overflow-auto min-h-0"
+            tabIndex={0}
+            onKeyDown={handleTableKeyDown}
+            role="grid"
+            aria-label="Records"
+          >
             <Table>
               <TableHeader>
                 <TableRow>
@@ -353,26 +444,36 @@ export function RecordPickerDialog({
                     <TableHead
                       key={col.field}
                       style={col.width ? { width: col.width } : undefined}
+                      className="cursor-pointer select-none"
+                      onClick={() => handleSort(col.field)}
+                      aria-sort={sortField === col.field ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
                     >
-                      {col.label || fieldToLabel(col.field)}
+                      <span className="inline-flex items-center">
+                        {col.label || fieldToLabel(col.field)}
+                        {renderSortIcon(col.field)}
+                      </span>
                     </TableHead>
                   ))}
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody ref={tableBodyRef}>
                 {records.map((record, idx) => {
                   const rid = getRecordId(record);
                   const selected = isSelected(record);
+                  const focused = idx === focusedRow;
 
                   return (
                     <TableRow
                       key={rid ?? idx}
+                      data-row-index={idx}
                       className={cn(
                         'cursor-pointer',
                         selected ? 'bg-accent/50' : 'hover:bg-accent/30',
+                        focused && 'ring-2 ring-primary ring-inset',
                       )}
                       onClick={() => handleRowClick(record)}
                       data-testid={`record-row-${rid}`}
+                      aria-selected={selected}
                     >
                       {multiple && (
                         <TableCell className="w-10">

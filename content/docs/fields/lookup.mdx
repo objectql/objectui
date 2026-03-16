@@ -144,8 +144,11 @@ When more results are available than displayed in the quick-select popup, a **"S
 The Record Picker dialog provides:
 - **Multi-column table** with configurable columns via `lookup_columns`
 - **Search** with debounced server-side querying
+- **Column sorting** via clickable headers (sends `$orderby` to DataSource)
 - **Pagination** with page-by-page navigation
-- **Single/Multi-select** with visual check indicators
+- **Keyboard navigation** — Arrow keys to move between rows, Enter/Space to select
+- **Single/Multi-select** with visual check indicators and confirmation flow
+- **Responsive layout** — Mobile-friendly width (95vw on small screens)
 - **Loading, error, and empty states**
 - Auto-inferred columns from `reference_field` when `lookup_columns` is not set
 
@@ -175,15 +178,19 @@ import { LookupCellRenderer } from '@object-ui/fields';
 
 ## Features
 
-- **Two-Level Interaction**: Quick-select popup + full Record Picker dialog
-- **Record Picker Dialog**: Enterprise-grade table with multi-column, pagination, search
+- **Two-Level Interaction**: Popover typeahead (Level 1) + full Record Picker dialog (Level 2)
+- **Record Picker Dialog**: Enterprise-grade table with multi-column, pagination, search, sorting
+- **Inline Popover**: Level 1 opens as anchored dropdown (non-modal) for fast typeahead
+- **Column Sorting**: Clickable column headers with `$orderby` server-side sort
 - **Dynamic DataSource Loading**: Automatically fetches records from referenced objects
 - **Search**: Debounced type-ahead search with `$search` parameter
-- **Multi-Select**: Support for multiple references
-- **Keyboard Navigation**: Arrow keys to navigate, Enter to select
+- **Multi-Select**: Support for multiple references with confirmation flow
+- **Keyboard Navigation**: Arrow keys to navigate rows, Enter to select in both levels
+- **Responsive**: Mobile-friendly width, adapts to screen size
 - **Loading/Error/Empty States**: Friendly feedback for all states
 - **Secondary Field Display**: Show description/subtitle per option
 - **Quick-Create Entry**: Optional "Create new" button when no results
 - **Configurable Columns**: `lookup_columns` for multi-column picker display
+- **Base Filters**: `lookup_filters` to restrict selectable records
 - **Pagination**: Page-by-page navigation in Record Picker dialog
 - **Backward Compatible**: Falls back to static options when no DataSource

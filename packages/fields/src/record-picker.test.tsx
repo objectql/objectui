@@ -438,3 +438,191 @@ describe('LookupField — Show All Results', () => {
     });
   });
 });
+
+// ------------- RecordPickerDialog — Column Sorting -------------
+
+describe('RecordPickerDialog — Column Sorting', () => {
+  const basePickerProps = {
+    open: true,
+    onOpenChange: vi.fn(),
+    dataSource: mockDataSource as any,
+    objectName: 'customers',
+    onSelect: vi.fn(),
+  };
+
+  it('sends $orderby when a column header is clicked', async () => {
+    mockDataSource.find.mockResolvedValue({
+      data: [
+        { id: '1', name: 'Acme Corp', email: 'acme@test.com' },
+        { id: '2', name: 'Beta Inc', email: 'beta@test.com' },
+      ],
+      total: 2,
+    });
+
+    render(
+      <RecordPickerDialog
+        {...basePickerProps}
+        columns={['name', 'email']}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Acme Corp')).toBeInTheDocument();
+    });
+
+    // Click the "Name" column header to sort
+    await act(async () => {
+      fireEvent.click(screen.getByText('Name'));
+    });
+
+    await waitFor(() => {
+      expect(mockDataSource.find).toHaveBeenCalledWith('customers', {
+        $top: 10,
+        $skip: 0,
+        $orderby: { name: 'asc' },
+      });
+    });
+  });
+
+  it('toggles sort direction on repeated column header click', async () => {
+    mockDataSource.find.mockResolvedValue({
+      data: [{ id: '1', name: 'Acme Corp' }],
+      total: 1,
+    });
+
+    render(
+      <RecordPickerDialog
+        {...basePickerProps}
+        columns={['name']}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Acme Corp')).toBeInTheDocument();
+    });
+
+    // First click: asc
+    await act(async () => {
+      fireEvent.click(screen.getByText('Name'));
+    });
+
+    await waitFor(() => {
+      expect(mockDataSource.find).toHaveBeenCalledWith('customers', expect.objectContaining({
+        $orderby: { name: 'asc' },
+      }));
+    });
+
+    // Second click: desc
+    await act(async () => {
+      fireEvent.click(screen.getByText('Name'));
+    });
+
+    await waitFor(() => {
+      expect(mockDataSource.find).toHaveBeenCalledWith('customers', expect.objectContaining({
+        $orderby: { name: 'desc' },
+      }));
+    });
+  });
+
+  it('renders sort indicators on column headers', async () => {
+    mockDataSource.find.mockResolvedValue({
+      data: [{ id: '1', name: 'Acme', email: 'test@test.com' }],
+      total: 1,
+    });
+
+    render(
+      <RecordPickerDialog
+        {...basePickerProps}
+        columns={['name', 'email']}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Acme')).toBeInTheDocument();
+    });
+
+    // Column headers should have aria-sort="none" initially
+    const nameHeader = screen.getByText('Name').closest('th');
+    expect(nameHeader).toHaveAttribute('aria-sort', 'none');
+
+    // Click to sort
+    await act(async () => {
+      fireEvent.click(screen.getByText('Name'));
+    });
+
+    await waitFor(() => {
+      expect(nameHeader).toHaveAttribute('aria-sort', 'ascending');
+    });
+  });
+});
+
+// ------------- RecordPickerDialog — Keyboard Navigation -------------
+
+describe('RecordPickerDialog — Keyboard Navigation', () => {
+  const basePickerProps = {
+    open: true,
+    onOpenChange: vi.fn(),
+    dataSource: mockDataSource as any,
+    objectName: 'customers',
+    onSelect: vi.fn(),
+  };
+
+  it('navigates rows with arrow keys and selects with Enter', async () => {
+    const onSelect = vi.fn();
+    const onOpenChange = vi.fn();
+
+    mockDataSource.find.mockResolvedValue({
+      data: [
+        { id: '1', name: 'Alpha' },
+        { id: '2', name: 'Beta' },
+        { id: '3', name: 'Gamma' },
+      ],
+      total: 3,
+    });
+
+    render(
+      <RecordPickerDialog
+        {...basePickerProps}
+        onSelect={onSelect}
+        onOpenChange={onOpenChange}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Alpha')).toBeInTheDocument();
+    });
+
+    // Focus the table container (has role="grid")
+    const gridContainer = screen.getByRole('grid');
+    gridContainer.focus();
+
+    // Arrow down twice: -1 → 0 (Alpha) → 1 (Beta)
+    await act(async () => {
+      fireEvent.keyDown(gridContainer, { key: 'ArrowDown' });
+    });
+    await act(async () => {
+      fireEvent.keyDown(gridContainer, { key: 'ArrowDown' });
+    });
+
+    // Press Enter to select Beta
+    await act(async () => {
+      fireEvent.keyDown(gridContainer, { key: 'Enter' });
+    });
+
+    expect(onSelect).toHaveBeenCalledWith('2');
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('renders responsive dialog with mobile-friendly width', async () => {
+    mockDataSource.find.mockResolvedValue({ data: [], total: 0 });
+
+    render(<RecordPickerDialog {...basePickerProps} />);
+
+    await waitFor(() => {
+      const dialog = screen.getByTestId('record-picker-dialog');
+      expect(dialog).toBeInTheDocument();
+      // Check responsive classes are applied
+      expect(dialog.className).toContain('w-[95vw]');
+    });
+  });
+});

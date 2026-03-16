@@ -352,6 +352,27 @@ export interface LookupColumnDef {
   label?: string;
   /** Column width (CSS value, e.g. '120px', '20%') */
   width?: string;
+  /**
+   * Field type hint for type-aware cell rendering.
+   * When provided, the Record Picker uses getCellRenderer for formatting
+   * (badges for select/status, currency formatting, date display, etc.).
+   * @example 'currency', 'date', 'select', 'boolean'
+   */
+  type?: string;
+}
+
+/**
+ * Filter condition for the Record Picker dialog.
+ * Applied as a base filter on every query — restricts which records are selectable.
+ * @example { field: 'status', operator: 'eq', value: 'active' }
+ */
+export interface LookupFilterDef {
+  /** Field name to filter on */
+  field: string;
+  /** Filter operator */
+  operator: 'eq' | 'ne' | 'gt' | 'lt' | 'gte' | 'lte' | 'contains' | 'in' | 'notIn';
+  /** Filter value */
+  value: unknown;
 }
 
 /**
@@ -361,6 +382,7 @@ export interface LookupColumnDef {
  * - `lookup_columns` — columns shown in the Record Picker dialog table
  * - `description_field` — secondary description shown in quick-select popover
  * - `lookup_page_size` — records per page in the Record Picker dialog
+ * - `lookup_filters` — base filters applied to Record Picker queries
  */
 export interface LookupFieldMetadata extends BaseFieldMetadata {
   type: 'lookup' | 'master_detail';
@@ -390,6 +412,13 @@ export interface LookupFieldMetadata extends BaseFieldMetadata {
    * Defaults to 10.
    */
   lookup_page_size?: number;
+
+  /**
+   * Base filters applied to every Record Picker query.
+   * Use to restrict which records are selectable (e.g. only active records).
+   * @example [{ field: 'status', operator: 'eq', value: 'active' }]
+   */
+  lookup_filters?: LookupFilterDef[];
 }
 
 /**

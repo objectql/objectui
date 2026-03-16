@@ -371,6 +371,7 @@ export type {
   LocationFieldMetadata,
   LookupFieldMetadata,
   LookupColumnDef,
+  LookupFilterDef,
   FormulaFieldMetadata,
   SummaryFieldMetadata,
   AutoNumberFieldMetadata,

@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **RecordPickerDialog Component** (`@object-ui/fields`): New enterprise-grade record selection dialog with multi-column table display, pagination, search, loading/error/empty states, and single/multi-select support. Provides the foundation for Salesforce-style Lookup experience.
-- **LookupField Two-Level Interaction** (`@object-ui/fields`): LookupField now supports a "Show All Results" button in the quick-select dialog that opens the full RecordPickerDialog with table view, pagination, and multi-column display.
-- **LookupFieldMetadata Schema Enhancement** (`@object-ui/types`): Added `lookup_columns`, `description_field`, `lookup_page_size` properties to `LookupFieldMetadata` for configuring the Record Picker display. New `LookupColumnDef` interface for typed column definitions.
+- **RecordPickerDialog Component** (`@object-ui/fields`): New enterprise-grade record selection dialog with multi-column table display, pagination, search, column sorting with `$orderby`, keyboard navigation (Arrow keys + Enter), loading/error/empty states, and single/multi-select support. Responsive layout with mobile-friendly width. Provides the foundation for Salesforce-style Lookup experience.
+- **LookupField Popover Typeahead** (`@object-ui/fields`): Level 1 quick-select upgraded from Dialog to Popover for inline typeahead experience (anchored dropdown, not modal). Includes "Show All Results" footer button that opens the full RecordPickerDialog (Level 2).
+- **LookupFieldMetadata Schema Enhancement** (`@object-ui/types`): Added `lookup_columns`, `description_field`, `lookup_page_size`, `lookup_filters` to `LookupFieldMetadata`. New `LookupColumnDef` interface with `type` hint for cell formatting. New `LookupFilterDef` interface for base filter configuration.
 
 ### Changed
 
