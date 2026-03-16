@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   Button,
+  cn,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -266,7 +267,7 @@ export function RecordPickerDialog({
   // Get display value for a cell
   const getCellValue = useCallback((record: any, field: string): string => {
     const val = record[field];
-    if (val == null) return '';
+    if (val === null || val === undefined) return '';
     if (typeof val === 'object') {
       // Handle MongoDB types / expanded references
       if (val.$numberDecimal) return String(Number(val.$numberDecimal));
@@ -282,7 +283,10 @@ export function RecordPickerDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col" data-testid="record-picker-dialog">
         <DialogHeader>
-          <DialogTitle>{title} {multiple && '(multiple)'}</DialogTitle>
+          <DialogTitle>
+            {title}
+            {multiple && <span className="sr-only"> (multiple selection)</span>}
+          </DialogTitle>
         </DialogHeader>
 
         {/* Search bar */}
@@ -363,7 +367,10 @@ export function RecordPickerDialog({
                   return (
                     <TableRow
                       key={rid ?? idx}
-                      className={`cursor-pointer ${selected ? 'bg-accent/50' : 'hover:bg-accent/30'}`}
+                      className={cn(
+                        'cursor-pointer',
+                        selected ? 'bg-accent/50' : 'hover:bg-accent/30',
+                      )}
                       onClick={() => handleRowClick(record)}
                       data-testid={`record-row-${rid}`}
                     >
