@@ -1,0 +1,440 @@
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { RecordPickerDialog } from './widgets/RecordPickerDialog';
+import { LookupField } from './widgets/LookupField';
+import type { FieldWidgetProps } from './widgets/types';
+
+// ------------- Mocks & Setup -------------
+
+const mockDataSource = {
+  find: vi.fn(),
+  findOne: vi.fn(),
+  create: vi.fn(),
+  update: vi.fn(),
+  delete: vi.fn(),
+};
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
+// ------------- RecordPickerDialog Tests -------------
+
+describe('RecordPickerDialog', () => {
+  const basePickerProps = {
+    open: true,
+    onOpenChange: vi.fn(),
+    dataSource: mockDataSource as any,
+    objectName: 'customers',
+    onSelect: vi.fn(),
+  };
+
+  it('renders dialog with title and search input', async () => {
+    mockDataSource.find.mockResolvedValue({ data: [], total: 0 });
+
+    render(<RecordPickerDialog {...basePickerProps} title="Select Customer" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Select Customer')).toBeInTheDocument();
+      expect(screen.getByTestId('record-picker-search')).toBeInTheDocument();
+    });
+  });
+
+  it('fetches and displays records in table format', async () => {
+    mockDataSource.find.mockResolvedValue({
+      data: [
+        { id: '1', name: 'Acme Corp', email: 'acme@test.com' },
+        { id: '2', name: 'Beta Inc', email: 'beta@test.com' },
+      ],
+      total: 2,
+    });
+
+    render(
+      <RecordPickerDialog
+        {...basePickerProps}
+        columns={['name', 'email']}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Acme Corp')).toBeInTheDocument();
+      expect(screen.getByText('Beta Inc')).toBeInTheDocument();
+      expect(screen.getByText('acme@test.com')).toBeInTheDocument();
+      expect(screen.getByText('beta@test.com')).toBeInTheDocument();
+    });
+
+    // Should have column headers
+    expect(screen.getByText('Name')).toBeInTheDocument();
+    expect(screen.getByText('Email')).toBeInTheDocument();
+  });
+
+  it('shows loading state while fetching', async () => {
+    mockDataSource.find.mockReturnValue(new Promise(() => {}));
+
+    render(<RecordPickerDialog {...basePickerProps} />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('status')).toBeInTheDocument();
+      expect(screen.getByText('Loading…')).toBeInTheDocument();
+    });
+  });
+
+  it('shows error state with retry button', async () => {
+    mockDataSource.find.mockRejectedValue(new Error('Connection failed'));
+
+    render(<RecordPickerDialog {...basePickerProps} />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+      expect(screen.getByText('Connection failed')).toBeInTheDocument();
+      expect(screen.getByText('Retry')).toBeInTheDocument();
+    });
+
+    // Click retry
+    mockDataSource.find.mockResolvedValue({
+      data: [{ id: '1', name: 'Acme Corp' }],
+      total: 1,
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Retry'));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Acme Corp')).toBeInTheDocument();
+    });
+  });
+
+  it('shows empty state when no records found', async () => {
+    mockDataSource.find.mockResolvedValue({ data: [], total: 0 });
+
+    render(<RecordPickerDialog {...basePickerProps} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('No records found')).toBeInTheDocument();
+    });
+  });
+
+  it('selects a record in single-select mode and closes dialog', async () => {
+    const onSelect = vi.fn();
+    const onOpenChange = vi.fn();
+
+    mockDataSource.find.mockResolvedValue({
+      data: [
+        { id: '1', name: 'Acme Corp' },
+        { id: '2', name: 'Beta Inc' },
+      ],
+      total: 2,
+    });
+
+    render(
+      <RecordPickerDialog
+        {...basePickerProps}
+        onSelect={onSelect}
+        onOpenChange={onOpenChange}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Acme Corp')).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('record-row-1'));
+    });
+
+    expect(onSelect).toHaveBeenCalledWith('1');
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('supports multi-select with confirm button', async () => {
+    const onSelect = vi.fn();
+    const onOpenChange = vi.fn();
+
+    mockDataSource.find.mockResolvedValue({
+      data: [
+        { id: '1', name: 'Alpha' },
+        { id: '2', name: 'Beta' },
+        { id: '3', name: 'Gamma' },
+      ],
+      total: 3,
+    });
+
+    render(
+      <RecordPickerDialog
+        {...basePickerProps}
+        multiple
+        onSelect={onSelect}
+        onOpenChange={onOpenChange}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Alpha')).toBeInTheDocument();
+    });
+
+    // Select two records
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('record-row-1'));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('record-row-3'));
+    });
+
+    // Should show selection count
+    expect(screen.getByText('2 selected')).toBeInTheDocument();
+
+    // Click confirm
+    await act(async () => {
+      fireEvent.click(screen.getByText('Confirm'));
+    });
+
+    expect(onSelect).toHaveBeenCalledWith(expect.arrayContaining(['1', '3']));
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('renders pagination with page navigation', async () => {
+    mockDataSource.find.mockResolvedValue({
+      data: Array.from({ length: 10 }, (_, i) => ({
+        id: String(i + 1),
+        name: `Record ${i + 1}`,
+      })),
+      total: 25,
+    });
+
+    render(<RecordPickerDialog {...basePickerProps} pageSize={10} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('record-picker-pagination')).toBeInTheDocument();
+      expect(screen.getByText(/25 records/)).toBeInTheDocument();
+      expect(screen.getByText(/Page 1 of 3/)).toBeInTheDocument();
+    });
+
+    // Navigate to next page
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('Next page'));
+    });
+
+    await waitFor(() => {
+      expect(mockDataSource.find).toHaveBeenCalledWith('customers', {
+        $top: 10,
+        $skip: 10,
+      });
+    });
+  });
+
+  it('sends search query to DataSource with debounce', async () => {
+    mockDataSource.find.mockResolvedValue({ data: [], total: 0 });
+
+    render(<RecordPickerDialog {...basePickerProps} />);
+
+    await waitFor(() => {
+      expect(mockDataSource.find).toHaveBeenCalledTimes(1);
+    });
+
+    // Type in search
+    await act(async () => {
+      fireEvent.change(screen.getByTestId('record-picker-search'), {
+        target: { value: 'acme' },
+      });
+    });
+
+    // Wait for debounce
+    await waitFor(
+      () => {
+        expect(mockDataSource.find).toHaveBeenCalledWith('customers', {
+          $top: 10,
+          $skip: 0,
+          $search: 'acme',
+        });
+      },
+      { timeout: 500 },
+    );
+  });
+
+  it('supports custom column definitions with labels', async () => {
+    mockDataSource.find.mockResolvedValue({
+      data: [
+        { id: '1', name: 'Acme', total_amount: 5000 },
+      ],
+      total: 1,
+    });
+
+    render(
+      <RecordPickerDialog
+        {...basePickerProps}
+        columns={[
+          { field: 'name', label: 'Customer Name' },
+          { field: 'total_amount', label: 'Total' },
+        ]}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Customer Name')).toBeInTheDocument();
+      expect(screen.getByText('Total')).toBeInTheDocument();
+      expect(screen.getByText('Acme')).toBeInTheDocument();
+      expect(screen.getByText('5000')).toBeInTheDocument();
+    });
+  });
+
+  it('auto-infers column from displayField when no columns specified', async () => {
+    mockDataSource.find.mockResolvedValue({
+      data: [{ id: '1', full_name: 'John Doe' }],
+      total: 1,
+    });
+
+    render(
+      <RecordPickerDialog
+        {...basePickerProps}
+        displayField="full_name"
+      />,
+    );
+
+    await waitFor(() => {
+      // Auto-inferred header from field name
+      expect(screen.getByText('Full Name')).toBeInTheDocument();
+      expect(screen.getByText('John Doe')).toBeInTheDocument();
+    });
+  });
+});
+
+// ------------- LookupField — Show All Results Integration -------------
+
+describe('LookupField — Show All Results', () => {
+  const mockField = {
+    name: 'customer',
+    label: 'Customer',
+    reference_to: 'customers',
+    reference_field: 'name',
+  } as any;
+
+  const baseProps: FieldWidgetProps<any> = {
+    field: mockField,
+    value: undefined,
+    onChange: vi.fn(),
+    readonly: false,
+    dataSource: mockDataSource as any,
+  };
+
+  it('shows "Show All Results" button when total exceeds displayed count', async () => {
+    mockDataSource.find.mockResolvedValue({
+      data: Array.from({ length: 50 }, (_, i) => ({
+        id: String(i),
+        name: `Customer ${i}`,
+      })),
+      total: 200,
+    });
+
+    render(<LookupField {...baseProps} />);
+
+    // Open dialog
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('show-all-results')).toBeInTheDocument();
+      expect(screen.getByText(/Show All Results \(200\)/)).toBeInTheDocument();
+    });
+  });
+
+  it('does not show "Show All Results" when all results fit in popover', async () => {
+    mockDataSource.find.mockResolvedValue({
+      data: [
+        { id: '1', name: 'Acme Corp' },
+        { id: '2', name: 'Beta Inc' },
+      ],
+      total: 2,
+    });
+
+    render(<LookupField {...baseProps} />);
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Acme Corp')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId('show-all-results')).not.toBeInTheDocument();
+  });
+
+  it('opens RecordPickerDialog when "Show All Results" is clicked', async () => {
+    mockDataSource.find.mockResolvedValue({
+      data: Array.from({ length: 50 }, (_, i) => ({
+        id: String(i),
+        name: `Customer ${i}`,
+      })),
+      total: 200,
+    });
+
+    render(<LookupField {...baseProps} />);
+
+    // Open quick-select dialog
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('show-all-results')).toBeInTheDocument();
+    });
+
+    // Click "Show All Results"
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('show-all-results'));
+    });
+
+    // RecordPickerDialog should now be open
+    await waitFor(() => {
+      expect(screen.getByTestId('record-picker-dialog')).toBeInTheDocument();
+    });
+  });
+
+  it('passes lookup_columns to RecordPickerDialog', async () => {
+    const fieldWithColumns = {
+      ...mockField,
+      lookup_columns: ['name', 'email', 'status'],
+    } as any;
+
+    mockDataSource.find.mockResolvedValue({
+      data: Array.from({ length: 50 }, (_, i) => ({
+        id: String(i),
+        name: `Customer ${i}`,
+        email: `customer${i}@test.com`,
+        status: 'active',
+      })),
+      total: 200,
+    });
+
+    render(
+      <LookupField
+        {...baseProps}
+        field={fieldWithColumns}
+      />,
+    );
+
+    // Open quick-select dialog
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Select/i }));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('show-all-results')).toBeInTheDocument();
+    });
+
+    // Open Record Picker
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('show-all-results'));
+    });
+
+    // Wait for RecordPickerDialog to render with column headers
+    await waitFor(() => {
+      expect(screen.getByTestId('record-picker-dialog')).toBeInTheDocument();
+      expect(screen.getByText('Name')).toBeInTheDocument();
+      expect(screen.getByText('Email')).toBeInTheDocument();
+      expect(screen.getByText('Status')).toBeInTheDocument();
+    });
+  });
+});

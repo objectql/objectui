@@ -134,6 +134,7 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] Lookup field dynamic DataSource loading — popup fetches records via `DataSource.find()` with `$search` debounce, loading/error/empty states
 - [x] Lookup field context DataSource — reads DataSource from SchemaRendererContext so forms work without explicit prop
 - [x] Lookup field UX polish — arrow key navigation, description field display, quick-create entry, ARIA listbox roles
+- [x] Enterprise Record Picker — `RecordPickerDialog` component with multi-column table, pagination, search; LookupField two-level interaction (quick-select + "Show All Results" → full picker); `lookup_columns` / `lookup_page_size` schema config
 - [ ] Form conditional logic with branching
 - [ ] Multi-page forms with progress indicator
 

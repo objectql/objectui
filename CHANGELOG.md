@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **RecordPickerDialog Component** (`@object-ui/fields`): New enterprise-grade record selection dialog with multi-column table display, pagination, search, loading/error/empty states, and single/multi-select support. Provides the foundation for Salesforce-style Lookup experience.
+- **LookupField Two-Level Interaction** (`@object-ui/fields`): LookupField now supports a "Show All Results" button in the quick-select dialog that opens the full RecordPickerDialog with table view, pagination, and multi-column display.
+- **LookupFieldMetadata Schema Enhancement** (`@object-ui/types`): Added `lookup_columns`, `description_field`, `lookup_page_size` properties to `LookupFieldMetadata` for configuring the Record Picker display. New `LookupColumnDef` interface for typed column definitions.
+
 ### Changed
 
 - **@objectstack v3.2.6 Upgrade**: Upgraded all `@objectstack/*` packages from `^3.2.5` to `^3.2.6` across 13 package.json files (43 references)

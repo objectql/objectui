@@ -73,6 +73,16 @@ interface LookupFieldSchema {
 
   // Quick-create callback (shown when no results found)
   onCreateNew?: (searchQuery: string) => void;
+
+  // === Record Picker Configuration (Enterprise) ===
+  
+  // Columns to show in the Record Picker dialog table.
+  // Accepts field names or { field, label, width } objects.
+  // When omitted, auto-infers from reference_field.
+  lookup_columns?: Array<string | { field: string; label?: string; width?: string }>;
+
+  // Custom page size for the Record Picker dialog (default: 10)
+  lookup_page_size?: number;
 }
 
 interface LookupOption {
@@ -106,6 +116,38 @@ The popup will:
 2. Send `$search` queries with 300ms debounce as the user types
 3. Show loading spinner, error state with retry, and empty state
 4. Display "Showing X of Y" when more records exist than the page size
+5. Show a **"Show All Results"** button to open the full Record Picker dialog
+
+## Record Picker Dialog (Enterprise)
+
+When more results are available than displayed in the quick-select popup, a **"Show All Results"** button opens the full **RecordPickerDialog** — an enterprise-grade record selection experience.
+
+```plaintext
+// Configure the Record Picker with lookup_columns
+{
+  type: 'lookup',
+  name: 'order',
+  label: 'Order',
+  reference_to: 'orders',
+  reference_field: 'order_number',
+  description_field: 'customer_name',
+  lookup_columns: [
+    { field: 'order_number', label: 'Order #' },
+    { field: 'customer_name', label: 'Customer' },
+    { field: 'total_amount', label: 'Amount' },
+    { field: 'status', label: 'Status' },
+  ],
+  lookup_page_size: 15,
+}
+```
+
+The Record Picker dialog provides:
+- **Multi-column table** with configurable columns via `lookup_columns`
+- **Search** with debounced server-side querying
+- **Pagination** with page-by-page navigation
+- **Single/Multi-select** with visual check indicators
+- **Loading, error, and empty states**
+- Auto-inferred columns from `reference_field` when `lookup_columns` is not set
 
 ## Lookup vs Master-Detail
 
@@ -133,6 +175,8 @@ import { LookupCellRenderer } from '@object-ui/fields';
 
 ## Features
 
+- **Two-Level Interaction**: Quick-select popup + full Record Picker dialog
+- **Record Picker Dialog**: Enterprise-grade table with multi-column, pagination, search
 - **Dynamic DataSource Loading**: Automatically fetches records from referenced objects
 - **Search**: Debounced type-ahead search with `$search` parameter
 - **Multi-Select**: Support for multiple references
@@ -140,5 +184,6 @@ import { LookupCellRenderer } from '@object-ui/fields';
 - **Loading/Error/Empty States**: Friendly feedback for all states
 - **Secondary Field Display**: Show description/subtitle per option
 - **Quick-Create Entry**: Optional "Create new" button when no results
-- **Pagination Hint**: Shows total count when more results available
+- **Configurable Columns**: `lookup_columns` for multi-column picker display
+- **Pagination**: Page-by-page navigation in Record Picker dialog
 - **Backward Compatible**: Falls back to static options when no DataSource
