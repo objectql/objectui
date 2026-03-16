@@ -364,7 +364,16 @@ export interface LookupColumnDef {
 /**
  * Filter condition for the Record Picker dialog.
  * Applied as a base filter on every query — restricts which records are selectable.
+ *
+ * Operator compatibility:
+ * - `eq`, `ne` — all data types
+ * - `gt`, `lt`, `gte`, `lte` — numbers, dates
+ * - `contains` — strings
+ * - `in`, `notIn` — arrays of values (select/lookup fields)
+ *
  * @example { field: 'status', operator: 'eq', value: 'active' }
+ * @example { field: 'created_at', operator: 'gte', value: '2024-01-01' }
+ * @example { field: 'category', operator: 'in', value: ['A', 'B'] }
  */
 export interface LookupFilterDef {
   /** Field name to filter on */

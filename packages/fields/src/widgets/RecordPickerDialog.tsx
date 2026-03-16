@@ -338,7 +338,6 @@ export function RecordPickerDialog({
   const getCellValue = useCallback((record: any, field: string): string => {
     const val = record[field];
     if (val === null || val === undefined) return '';
-    if (val instanceof Date) return val.toLocaleDateString();
     if (typeof val === 'object') {
       // Handle MongoDB types / expanded references
       if (val.$numberDecimal) return String(Number(val.$numberDecimal));
