@@ -343,7 +343,55 @@ export interface LocationFieldMetadata extends BaseFieldMetadata {
 }
 
 /**
+ * Column definition for the Record Picker dialog table.
+ */
+export interface LookupColumnDef {
+  /** Field name to display in this column */
+  field: string;
+  /** Optional column header label (defaults to field name) */
+  label?: string;
+  /** Column width (CSS value, e.g. '120px', '20%') */
+  width?: string;
+  /**
+   * Field type hint for type-aware cell rendering.
+   * When provided, the Record Picker uses getCellRenderer for formatting
+   * (badges for select/status, currency formatting, date display, etc.).
+   * @example 'currency', 'date', 'select', 'boolean'
+   */
+  type?: string;
+}
+
+/**
+ * Filter condition for the Record Picker dialog.
+ * Applied as a base filter on every query — restricts which records are selectable.
+ *
+ * Operator compatibility:
+ * - `eq`, `ne` — all data types
+ * - `gt`, `lt`, `gte`, `lte` — numbers, dates
+ * - `contains` — strings
+ * - `in`, `notIn` — arrays of values (select/lookup fields)
+ *
+ * @example { field: 'status', operator: 'eq', value: 'active' }
+ * @example { field: 'created_at', operator: 'gte', value: '2024-01-01' }
+ * @example { field: 'category', operator: 'in', value: ['A', 'B'] }
+ */
+export interface LookupFilterDef {
+  /** Field name to filter on */
+  field: string;
+  /** Filter operator */
+  operator: 'eq' | 'ne' | 'gt' | 'lt' | 'gte' | 'lte' | 'contains' | 'in' | 'notIn';
+  /** Filter value */
+  value: unknown;
+}
+
+/**
  * Lookup/Master-Detail field metadata
+ *
+ * Supports enterprise-grade Record Picker configuration:
+ * - `lookup_columns` — columns shown in the Record Picker dialog table
+ * - `description_field` — secondary description shown in quick-select popover
+ * - `lookup_page_size` — records per page in the Record Picker dialog
+ * - `lookup_filters` — base filters applied to Record Picker queries
  */
 export interface LookupFieldMetadata extends BaseFieldMetadata {
   type: 'lookup' | 'master_detail';
@@ -352,6 +400,34 @@ export interface LookupFieldMetadata extends BaseFieldMetadata {
   multiple?: boolean;
   searchable?: boolean;
   options?: SelectOptionMetadata[];
+
+  /**
+   * Secondary field shown as description in the quick-select popover.
+   * @example 'industry' — shows customer industry below customer name
+   */
+  description_field?: string;
+
+  /**
+   * Columns to display in the Record Picker dialog table.
+   * When omitted the dialog auto-infers columns from the display field and
+   * description field.
+   * @example ['name', 'email', 'status']
+   * @example [{ field: 'name', label: 'Customer' }, { field: 'amount', label: 'Total', width: '100px' }]
+   */
+  lookup_columns?: Array<string | LookupColumnDef>;
+
+  /**
+   * Custom page size for the Record Picker dialog.
+   * Defaults to 10.
+   */
+  lookup_page_size?: number;
+
+  /**
+   * Base filters applied to every Record Picker query.
+   * Use to restrict which records are selectable (e.g. only active records).
+   * @example [{ field: 'status', operator: 'eq', value: 'active' }]
+   */
+  lookup_filters?: LookupFilterDef[];
 }
 
 /**

@@ -370,6 +370,8 @@ export type {
   ImageFieldMetadata,
   LocationFieldMetadata,
   LookupFieldMetadata,
+  LookupColumnDef,
+  LookupFilterDef,
   FormulaFieldMetadata,
   SummaryFieldMetadata,
   AutoNumberFieldMetadata,

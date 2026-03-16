@@ -1,17 +1,16 @@
 import React, { useState, useEffect, useCallback, useRef, useContext, useMemo } from 'react';
 import { 
   Button, 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
   Input,
-  Badge
+  Badge,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
 } from '@object-ui/components';
-import { Search, X, Loader2, AlertCircle, Plus } from 'lucide-react';
+import { Search, X, Loader2, AlertCircle, Plus, TableProperties } from 'lucide-react';
 import { FieldWidgetProps } from './types';
-import type { DataSource, QueryParams } from '@object-ui/types';
+import type { DataSource, QueryParams, LookupColumnDef } from '@object-ui/types';
+import { RecordPickerDialog } from './RecordPickerDialog';
 
 export interface LookupOption {
   value: string | number;
@@ -20,7 +19,7 @@ export interface LookupOption {
   [key: string]: any;
 }
 
-/** Default page size for lookup data fetching */
+/** Page size for the quick-select popover typeahead */
 const LOOKUP_PAGE_SIZE = 50;
 
 /**
@@ -99,6 +98,10 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
   // ObjectStack convention uses `reference`; types define `reference_to` — support both
   const referenceTo: string | undefined = fieldMeta?.reference_to || fieldMeta?.reference;
 
+  // Enterprise Record Picker configuration
+  const lookupColumns: Array<string | LookupColumnDef> | undefined = fieldMeta?.lookup_columns;
+  const lookupPageSize: number | undefined = fieldMeta?.lookup_page_size;
+
   // Resolve DataSource: explicit prop > field-level > wrapper field > SchemaRendererContext > none
   const ctx = useContext(SchemaRendererContext);
   const contextDataSource = ctx?.dataSource ?? null;
@@ -110,6 +113,9 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
   // Optional create-new callback
   const onCreateNew: ((searchQuery: string) => void) | undefined =
     (props as any).onCreateNew ?? lookupField?.onCreateNew;
+
+  // State for the full Record Picker dialog (Level 2)
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
 
   // Determine which options to display
   const allOptions = hasDataSource ? fetchedOptions : staticOptions;
@@ -327,9 +333,9 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
         </div>
       )}
 
-      {/* Lookup dialog trigger */}
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogTrigger asChild>
+      {/* Level 1: Quick-select Popover (inline typeahead) */}
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <PopoverTrigger asChild>
           <Button 
             variant="outline" 
             className="w-full justify-start text-left font-normal"
@@ -341,16 +347,10 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
               : multiple ? `${selectedOptions.length} selected` : 'Change selection'
             }
           </Button>
-        </DialogTrigger>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>
-              {lookupField?.label || 'Select'} {multiple && '(multiple)'}
-            </DialogTitle>
-          </DialogHeader>
-          
+        </PopoverTrigger>
+        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
           {/* Search input */}
-          <div className="space-y-4">
+          <div className="p-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
@@ -358,7 +358,7 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 onKeyDown={handleSearchKeyDown}
-                className="w-full pl-9"
+                className="w-full pl-9 h-8 text-sm"
               />
               {loading && (
                 <Loader2
@@ -367,121 +367,154 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
                 />
               )}
             </div>
-
-            {/* Error state */}
-            {error && (
-              <div className="flex flex-col items-center gap-2 py-4" role="alert">
-                <AlertCircle className="size-5 text-destructive" />
-                <p className="text-sm text-destructive">{error}</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fetchLookupData(searchQuery || undefined)}
-                  type="button"
-                >
-                  Retry
-                </Button>
-              </div>
-            )}
-
-            {/* Loading state (initial load only, not search refinement) */}
-            {loading && filteredOptions.length === 0 && !error && (
-              <div className="flex flex-col items-center gap-2 py-6" role="status" aria-live="polite">
-                <Loader2 className="size-6 animate-spin text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Loading…</p>
-              </div>
-            )}
-
-            {/* Options list */}
-            {!error && !(loading && filteredOptions.length === 0) && (
-              <div ref={listRef} className="max-h-64 overflow-y-auto space-y-1" role="listbox">
-                {filteredOptions.length === 0 ? (
-                  <div className="py-4 text-center">
-                    <p className="text-sm text-muted-foreground">
-                      No options found
-                    </p>
-                    {/* Quick-create entry */}
-                    {onCreateNew && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="mt-2 gap-1"
-                        type="button"
-                        onClick={() => {
-                          onCreateNew(searchQuery);
-                          setIsOpen(false);
-                        }}
-                      >
-                        <Plus className="size-4" />
-                        Create new
-                      </Button>
-                    )}
-                  </div>
-                ) : (
-                  <>
-                    {filteredOptions.map((option, idx) => {
-                      const isSelected = multiple
-                        ? (Array.isArray(value) ? value : []).includes(option.value)
-                        : value === option.value;
-                      const isActive = idx === activeIndex;
-
-                      return (
-                        <button
-                          key={option.value}
-                          data-lookup-index={idx}
-                          role="option"
-                          aria-selected={isSelected}
-                          onClick={() => handleSelect(option)}
-                          className={`w-full text-left px-3 py-2 rounded-md text-sm hover:bg-accent flex items-center justify-between ${
-                            isActive
-                              ? 'bg-accent text-accent-foreground'
-                              : isSelected
-                                ? 'bg-accent/50 text-accent-foreground'
-                                : ''
-                          }`}
-                          type="button"
-                        >
-                          <div className="min-w-0 flex-1">
-                            <span className="block truncate">{option.label}</span>
-                            {option.description && (
-                              <span className="block truncate text-xs text-muted-foreground">
-                                {option.description}
-                              </span>
-                            )}
-                          </div>
-                          {isSelected && (
-                            <Badge variant="default" className="ml-2 shrink-0">Selected</Badge>
-                          )}
-                        </button>
-                      );
-                    })}
-                    {/* Show total count when fetched from DataSource */}
-                    {hasDataSource && totalCount > filteredOptions.length && (
-                      <p className="text-xs text-muted-foreground text-center py-2">
-                        Showing {filteredOptions.length} of {totalCount} results. Refine your search to find more.
-                      </p>
-                    )}
-                    {/* Quick-create entry (below results) */}
-                    {onCreateNew && (
-                      <button
-                        type="button"
-                        className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-accent flex items-center gap-1.5 text-muted-foreground"
-                        onClick={() => {
-                          onCreateNew(searchQuery);
-                          setIsOpen(false);
-                        }}
-                      >
-                        <Plus className="size-3.5" />
-                        Create new{searchQuery ? ` "${searchQuery}"` : ''}
-                      </button>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
           </div>
-        </DialogContent>
-      </Dialog>
+
+          {/* Error state */}
+          {error && (
+            <div className="flex flex-col items-center gap-2 py-4 px-2" role="alert">
+              <AlertCircle className="size-5 text-destructive" />
+              <p className="text-sm text-destructive">{error}</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fetchLookupData(searchQuery || undefined)}
+                type="button"
+              >
+                Retry
+              </Button>
+            </div>
+          )}
+
+          {/* Loading state (initial load only, not search refinement) */}
+          {loading && filteredOptions.length === 0 && !error && (
+            <div className="flex flex-col items-center gap-2 py-6" role="status" aria-live="polite">
+              <Loader2 className="size-6 animate-spin text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">Loading…</p>
+            </div>
+          )}
+
+          {/* Options list */}
+          {!error && !(loading && filteredOptions.length === 0) && (
+            <div ref={listRef} className="max-h-64 overflow-y-auto px-1 pb-1" role="listbox">
+              {filteredOptions.length === 0 ? (
+                <div className="py-4 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    No options found
+                  </p>
+                  {/* Quick-create entry */}
+                  {onCreateNew && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="mt-2 gap-1"
+                      type="button"
+                      onClick={() => {
+                        onCreateNew(searchQuery);
+                        setIsOpen(false);
+                      }}
+                    >
+                      <Plus className="size-4" />
+                      Create new
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <>
+                  {filteredOptions.map((option, idx) => {
+                    const isSelected = multiple
+                      ? (Array.isArray(value) ? value : []).includes(option.value)
+                      : value === option.value;
+                    const isActive = idx === activeIndex;
+
+                    return (
+                      <button
+                        key={option.value}
+                        data-lookup-index={idx}
+                        role="option"
+                        aria-selected={isSelected}
+                        onClick={() => handleSelect(option)}
+                        className={`w-full text-left px-3 py-2 rounded-md text-sm hover:bg-accent flex items-center justify-between ${
+                          isActive
+                            ? 'bg-accent text-accent-foreground'
+                            : isSelected
+                              ? 'bg-accent/50 text-accent-foreground'
+                              : ''
+                        }`}
+                        type="button"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <span className="block truncate">{option.label}</span>
+                          {option.description && (
+                            <span className="block truncate text-xs text-muted-foreground">
+                              {option.description}
+                            </span>
+                          )}
+                        </div>
+                        {isSelected && (
+                          <Badge variant="default" className="ml-2 shrink-0">Selected</Badge>
+                        )}
+                      </button>
+                    );
+                  })}
+                  {/* Show total count when fetched from DataSource */}
+                  {hasDataSource && totalCount > filteredOptions.length && (
+                    <p className="text-xs text-muted-foreground text-center py-2">
+                      Showing {filteredOptions.length} of {totalCount} results.
+                    </p>
+                  )}
+                  {/* "Show All Results" button — opens the full Record Picker (Level 2) */}
+                  {hasDataSource && totalCount > filteredOptions.length && (
+                    <button
+                      type="button"
+                      className="w-full text-center px-3 py-2 rounded-md text-sm font-medium text-primary hover:bg-accent flex items-center justify-center gap-1.5"
+                      onClick={() => {
+                        setIsOpen(false);
+                        setIsPickerOpen(true);
+                      }}
+                      data-testid="show-all-results"
+                    >
+                      <TableProperties className="size-3.5" />
+                      Show All Results ({totalCount})
+                    </button>
+                  )}
+                  {/* Quick-create entry (below results) */}
+                  {onCreateNew && (
+                    <button
+                      type="button"
+                      className="w-full text-left px-3 py-2 rounded-md text-sm hover:bg-accent flex items-center gap-1.5 text-muted-foreground"
+                      onClick={() => {
+                        onCreateNew(searchQuery);
+                        setIsOpen(false);
+                      }}
+                    >
+                      <Plus className="size-3.5" />
+                      Create new{searchQuery ? ` "${searchQuery}"` : ''}
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </PopoverContent>
+      </Popover>
+
+      {/* Level 2: Full Record Picker Dialog */}
+      {hasDataSource && dataSource && referenceTo && (
+        <RecordPickerDialog
+          open={isPickerOpen}
+          onOpenChange={setIsPickerOpen}
+          title={lookupField?.label || 'Select'}
+          multiple={multiple}
+          dataSource={dataSource}
+          objectName={referenceTo}
+          columns={lookupColumns}
+          displayField={displayField}
+          idField={idField}
+          pageSize={lookupPageSize}
+          value={value}
+          onSelect={onChange}
+        />
+      )}
     </div>
   );
 }
