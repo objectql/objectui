@@ -343,7 +343,24 @@ export interface LocationFieldMetadata extends BaseFieldMetadata {
 }
 
 /**
+ * Column definition for the Record Picker dialog table.
+ */
+export interface LookupColumnDef {
+  /** Field name to display in this column */
+  field: string;
+  /** Optional column header label (defaults to field name) */
+  label?: string;
+  /** Column width (CSS value, e.g. '120px', '20%') */
+  width?: string;
+}
+
+/**
  * Lookup/Master-Detail field metadata
+ *
+ * Supports enterprise-grade Record Picker configuration:
+ * - `lookup_columns` — columns shown in the Record Picker dialog table
+ * - `description_field` — secondary description shown in quick-select popover
+ * - `lookup_page_size` — records per page in the Record Picker dialog
  */
 export interface LookupFieldMetadata extends BaseFieldMetadata {
   type: 'lookup' | 'master_detail';
@@ -352,6 +369,27 @@ export interface LookupFieldMetadata extends BaseFieldMetadata {
   multiple?: boolean;
   searchable?: boolean;
   options?: SelectOptionMetadata[];
+
+  /**
+   * Secondary field shown as description in the quick-select popover.
+   * @example 'industry' — shows customer industry below customer name
+   */
+  description_field?: string;
+
+  /**
+   * Columns to display in the Record Picker dialog table.
+   * When omitted the dialog auto-infers columns from the display field and
+   * description field.
+   * @example ['name', 'email', 'status']
+   * @example [{ field: 'name', label: 'Customer' }, { field: 'amount', label: 'Total', width: '100px' }]
+   */
+  lookup_columns?: Array<string | LookupColumnDef>;
+
+  /**
+   * Custom page size for the Record Picker dialog.
+   * Defaults to 10.
+   */
+  lookup_page_size?: number;
 }
 
 /**

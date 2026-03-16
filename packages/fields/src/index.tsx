@@ -1327,6 +1327,7 @@ export * from './widgets/PasswordField';
 export * from './widgets/TextAreaField';
 export * from './widgets/RichTextField';
 export * from './widgets/LookupField';
+export * from './widgets/RecordPickerDialog';
 export * from './widgets/FileField';
 export * from './widgets/ImageField';
 export * from './widgets/LocationField';

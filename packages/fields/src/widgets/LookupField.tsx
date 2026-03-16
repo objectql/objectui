@@ -9,9 +9,10 @@ import {
   Input,
   Badge
 } from '@object-ui/components';
-import { Search, X, Loader2, AlertCircle, Plus } from 'lucide-react';
+import { Search, X, Loader2, AlertCircle, Plus, TableProperties } from 'lucide-react';
 import { FieldWidgetProps } from './types';
-import type { DataSource, QueryParams } from '@object-ui/types';
+import type { DataSource, QueryParams, LookupColumnDef } from '@object-ui/types';
+import { RecordPickerDialog } from './RecordPickerDialog';
 
 export interface LookupOption {
   value: string | number;
@@ -20,7 +21,7 @@ export interface LookupOption {
   [key: string]: any;
 }
 
-/** Default page size for lookup data fetching */
+/** Page size for the quick-select popover typeahead */
 const LOOKUP_PAGE_SIZE = 50;
 
 /**
@@ -99,6 +100,10 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
   // ObjectStack convention uses `reference`; types define `reference_to` — support both
   const referenceTo: string | undefined = fieldMeta?.reference_to || fieldMeta?.reference;
 
+  // Enterprise Record Picker configuration
+  const lookupColumns: Array<string | LookupColumnDef> | undefined = fieldMeta?.lookup_columns;
+  const lookupPageSize: number | undefined = fieldMeta?.lookup_page_size;
+
   // Resolve DataSource: explicit prop > field-level > wrapper field > SchemaRendererContext > none
   const ctx = useContext(SchemaRendererContext);
   const contextDataSource = ctx?.dataSource ?? null;
@@ -110,6 +115,9 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
   // Optional create-new callback
   const onCreateNew: ((searchQuery: string) => void) | undefined =
     (props as any).onCreateNew ?? lookupField?.onCreateNew;
+
+  // State for the full Record Picker dialog (Level 2)
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
 
   // Determine which options to display
   const allOptions = hasDataSource ? fetchedOptions : staticOptions;
@@ -458,8 +466,23 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
                     {/* Show total count when fetched from DataSource */}
                     {hasDataSource && totalCount > filteredOptions.length && (
                       <p className="text-xs text-muted-foreground text-center py-2">
-                        Showing {filteredOptions.length} of {totalCount} results. Refine your search to find more.
+                        Showing {filteredOptions.length} of {totalCount} results.
                       </p>
+                    )}
+                    {/* "Show All Results" button — opens the full Record Picker (Level 2) */}
+                    {hasDataSource && totalCount > filteredOptions.length && (
+                      <button
+                        type="button"
+                        className="w-full text-center px-3 py-2 rounded-md text-sm font-medium text-primary hover:bg-accent flex items-center justify-center gap-1.5"
+                        onClick={() => {
+                          setIsOpen(false);
+                          setIsPickerOpen(true);
+                        }}
+                        data-testid="show-all-results"
+                      >
+                        <TableProperties className="size-3.5" />
+                        Show All Results ({totalCount})
+                      </button>
                     )}
                     {/* Quick-create entry (below results) */}
                     {onCreateNew && (
@@ -482,6 +505,24 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Level 2: Full Record Picker Dialog */}
+      {hasDataSource && dataSource && referenceTo && (
+        <RecordPickerDialog
+          open={isPickerOpen}
+          onOpenChange={setIsPickerOpen}
+          title={lookupField?.label || 'Select'}
+          multiple={multiple}
+          dataSource={dataSource}
+          objectName={referenceTo}
+          columns={lookupColumns}
+          displayField={displayField}
+          idField={idField}
+          pageSize={lookupPageSize}
+          value={value}
+          onSelect={onChange}
+        />
+      )}
     </div>
   );
 }
