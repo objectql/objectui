@@ -561,6 +561,127 @@ describe('CRM Metadata Spec Compliance', () => {
       expect(contacts.lookup_page_size).toBe(15);
     });
   });
+
+  // ------------------------------------------------------------------
+  // Enterprise Query Parameter Injection & Filter Bar Integration
+  // ------------------------------------------------------------------
+
+  describe('Enterprise Query Parameter & Filter Bar Compatibility', () => {
+    /**
+     * Simulate RecordPickerDialog's lookupFiltersToRecord conversion.
+     * This mirrors the internal function in RecordPickerDialog.tsx to verify
+     * that CRM metadata produces correct $filter query parameters.
+     */
+    function lookupFiltersToRecord(
+      filters: Array<{ field: string; operator: string; value: unknown }>,
+    ): Record<string, any> {
+      const result: Record<string, any> = {};
+      for (const f of filters) {
+        switch (f.operator) {
+          case 'eq': result[f.field] = f.value; break;
+          case 'ne': result[f.field] = { $ne: f.value }; break;
+          case 'gt': result[f.field] = { $gt: f.value }; break;
+          case 'lt': result[f.field] = { $lt: f.value }; break;
+          case 'gte': result[f.field] = { $gte: f.value }; break;
+          case 'lte': result[f.field] = { $lte: f.value }; break;
+          case 'contains': result[f.field] = { $contains: f.value }; break;
+          case 'in': result[f.field] = { $in: f.value }; break;
+          case 'notIn': result[f.field] = { $nin: f.value }; break;
+        }
+      }
+      return result;
+    }
+
+    /**
+     * Simulate LookupField's mapFieldTypeToFilterType conversion.
+     * This mirrors the internal function in LookupField.tsx to verify
+     * CRM lookup_columns produce valid filter bar configurations.
+     */
+    function mapFieldTypeToFilterType(fieldType: string): string | undefined {
+      const mapping: Record<string, string> = {
+        text: 'text', number: 'number', currency: 'number',
+        percent: 'number', select: 'select', status: 'select',
+        date: 'date', datetime: 'date', boolean: 'boolean',
+      };
+      return mapping[fieldType];
+    }
+
+    it('account.owner lookup_filters produce correct $filter for active users', () => {
+      const owner = (AccountObject.fields as any).owner;
+      const $filter = lookupFiltersToRecord(owner.lookup_filters);
+      expect($filter).toEqual({ active: true });
+    });
+
+    it('contact.account lookup_filters produce $in for type restriction', () => {
+      const account = (ContactObject.fields as any).account;
+      const $filter = lookupFiltersToRecord(account.lookup_filters);
+      expect($filter).toEqual({ type: { $in: ['Customer', 'Partner'] } });
+    });
+
+    it('order_item.order lookup_filters produce $ne for cancelled exclusion', () => {
+      const order = (OrderItemObject.fields as any).order;
+      const $filter = lookupFiltersToRecord(order.lookup_filters);
+      expect($filter).toEqual({ status: { $ne: 'cancelled' } });
+    });
+
+    it('opportunity_contact.opportunity lookup_filters produce $nin for closed stages', () => {
+      const opp = (OpportunityContactObject.fields as any).opportunity;
+      const $filter = lookupFiltersToRecord(opp.lookup_filters);
+      expect($filter).toEqual({ stage: { $nin: ['closed_won', 'closed_lost'] } });
+    });
+
+    it('typed lookup_columns produce valid filter bar configurations', () => {
+      const product = (OrderItemObject.fields as any).product;
+      const cols = product.lookup_columns as Array<{ field: string; type?: string; label?: string }>;
+
+      const filterColumns = cols
+        .filter((c) => c.type)
+        .map((c) => ({
+          field: c.field,
+          label: c.label,
+          type: mapFieldTypeToFilterType(c.type!),
+        }))
+        .filter((c) => c.type !== undefined);
+
+      // Product lookup should produce filter bar entries for select, currency(→number), number, boolean
+      expect(filterColumns.length).toBeGreaterThanOrEqual(3);
+      const types = filterColumns.map((c) => c.type);
+      expect(types).toContain('select');   // category
+      expect(types).toContain('number');   // price, stock
+      expect(types).toContain('boolean');  // is_active
+    });
+
+    it('opportunity.account typed columns map to valid filter bar types', () => {
+      const account = (OpportunityObject.fields as any).account;
+      const cols = account.lookup_columns as Array<{ field: string; type?: string }>;
+
+      const filterTypes = cols
+        .filter((c) => c.type)
+        .map((c) => mapFieldTypeToFilterType(c.type!))
+        .filter(Boolean);
+
+      // account columns have select + currency(→number) types
+      expect(filterTypes).toContain('select');
+      expect(filterTypes).toContain('number');
+    });
+
+    it('all CRM lookup_filters convert to valid $filter records without errors', () => {
+      for (const obj of allObjects) {
+        const lookups = Object.entries(obj.fields).filter(
+          ([, f]: [string, any]) => f.type === 'lookup' || f.type === 'master_detail',
+        );
+        for (const [fieldName, field] of lookups) {
+          const f = field as any;
+          if (!f.lookup_filters) continue;
+          const $filter = lookupFiltersToRecord(f.lookup_filters);
+          expect(
+            Object.keys($filter).length,
+            `${obj.name}.${fieldName} lookup_filters produced empty $filter`,
+          ).toBeGreaterThan(0);
+        }
+      }
+    });
+  });
 });
 
 // ====================================================================
