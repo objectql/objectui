@@ -53,12 +53,67 @@ export type CellRendererResolver = (fieldType: string) => React.FC<{ value: any;
 /**
  * Filter column definition used by the inline filter bar.
  * A subset of LookupColumnDef enriched with filter-specific metadata.
+ * Compatible with FilterUISchema.filters entries for easy bridging.
  */
 export interface RecordPickerFilterColumn {
   field: string;
   label?: string;
   type: 'text' | 'number' | 'select' | 'date' | 'boolean';
   options?: Array<{ label: string; value: any }>;
+}
+
+/**
+ * Props passed to the custom filter bar renderer (renderFilterBar slot).
+ * Allows plugging in FilterUI or any custom component.
+ */
+export interface RecordPickerFilterBarProps {
+  /** Filter column definitions describing each filterable field */
+  filterColumns: RecordPickerFilterColumn[];
+  /** Current filter values keyed by field name */
+  values: Record<string, any>;
+  /** Called when a single filter value changes */
+  onChange: (field: string, value: any) => void;
+  /** Clear all filter values */
+  onClear: () => void;
+  /** Number of actively applied filters */
+  activeCount: number;
+}
+
+/**
+ * Props passed to the custom grid renderer (renderGrid slot).
+ * Allows plugging in ObjectGrid or any compatible table component.
+ */
+export interface RecordPickerGridSlotProps {
+  /** Resolved column definitions */
+  columns: LookupColumnDef[];
+  /** Current page of records */
+  records: any[];
+  /** Whether data is loading */
+  loading: boolean;
+  /** Total record count across all pages */
+  totalCount: number;
+  /** Current page number (1-based) */
+  currentPage: number;
+  /** Records per page */
+  pageSize: number;
+  /** Current sort field, null if unsorted */
+  sortField: string | null;
+  /** Current sort direction */
+  sortDirection: 'asc' | 'desc';
+  /** Called when a column header is clicked to sort */
+  onSort: (field: string) => void;
+  /** Called when page changes */
+  onPageChange: (page: number) => void;
+  /** Called when a row is clicked */
+  onRowClick: (record: any) => void;
+  /** Check if a record is selected */
+  isSelected: (record: any) => boolean;
+  /** Whether multiple selection is enabled */
+  multiple: boolean;
+  /** Record ID field name */
+  idField: string;
+  /** Cell renderer resolver */
+  cellRenderer?: CellRendererResolver;
 }
 
 /**
@@ -199,6 +254,38 @@ export interface RecordPickerDialogProps {
    * Columns can include type-specific inputs (text, number, select, date, boolean).
    */
   filterColumns?: RecordPickerFilterColumn[];
+
+  /**
+   * Custom filter bar renderer slot.
+   * When provided, replaces the built-in filter bar with a custom component
+   * (e.g. FilterUI from @object-ui/plugin-view).
+   * Receives filter state and callbacks via RecordPickerFilterBarProps.
+   *
+   * @example
+   * renderFilterBar={(props) => (
+   *   <FilterUI
+   *     schema={{ type: 'filter-ui', filters: props.filterColumns, layout: 'inline' }}
+   *     onChange={(values) => Object.entries(values).forEach(([k, v]) => props.onChange(k, v))}
+   *   />
+   * )}
+   */
+  renderFilterBar?: (props: RecordPickerFilterBarProps) => React.ReactNode;
+
+  /**
+   * Custom grid renderer slot.
+   * When provided, replaces the built-in table with a custom grid component
+   * (e.g. ObjectGrid from @object-ui/plugin-grid).
+   * Receives data, columns, and interaction callbacks via RecordPickerGridSlotProps.
+   *
+   * @example
+   * renderGrid={(props) => (
+   *   <ObjectGrid
+   *     schema={{ type: 'object-grid', objectName, columns: props.columns }}
+   *     dataSource={dataSource}
+   *   />
+   * )}
+   */
+  renderGrid?: (props: RecordPickerGridSlotProps) => React.ReactNode;
 }
 
 /**
@@ -225,6 +312,8 @@ export function RecordPickerDialog({
   lookupFilters,
   cellRenderer,
   filterColumns,
+  renderFilterBar,
+  renderGrid,
 }: RecordPickerDialogProps) {
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -262,17 +351,48 @@ export function RecordPickerDialog({
     return [{ field: displayField, label: fieldToLabel(displayField) }];
   }, [columnsProp, displayField]);
 
+  // Auto-generate filter columns from lookupFilters when no explicit filterColumns given.
+  // Each LookupFilterDef becomes a filterable field with inferred type.
+  const effectiveFilterColumns = useMemo<RecordPickerFilterColumn[] | undefined>(() => {
+    if (filterColumns && filterColumns.length > 0) return filterColumns;
+    // Auto-derive from lookupFilters: each filter entry becomes a filterable field
+    if (lookupFilters && lookupFilters.length > 0) {
+      return lookupFilters.map(f => {
+        let type: RecordPickerFilterColumn['type'] = 'text';
+        if (f.operator === 'gt' || f.operator === 'lt' || f.operator === 'gte' || f.operator === 'lte') {
+          type = 'number';
+        } else if (f.operator === 'in' || f.operator === 'notIn') {
+          type = 'select';
+        } else if (typeof f.value === 'boolean') {
+          type = 'boolean';
+        } else if (typeof f.value === 'number') {
+          type = 'number';
+        }
+        return {
+          field: f.field,
+          label: fieldToLabel(f.field),
+          type,
+          // For 'in' filters, derive options from the value array
+          ...(Array.isArray(f.value) ? {
+            options: (f.value as any[]).map(v => ({ label: String(v), value: v })),
+          } : {}),
+        };
+      });
+    }
+    return undefined;
+  }, [filterColumns, lookupFilters]);
+
   // Merge base lookup_filters with user filter bar values
   const mergedFilter = useMemo<Record<string, any> | undefined>(() => {
     const baseFilter = lookupFilters?.length
       ? lookupFiltersToRecord(lookupFilters)
       : {};
-    const userFilter = filterColumns?.length
-      ? filterValuesToRecord(filterValues, filterColumns)
+    const userFilter = effectiveFilterColumns?.length
+      ? filterValuesToRecord(filterValues, effectiveFilterColumns)
       : {};
     const combined = { ...baseFilter, ...userFilter };
     return Object.keys(combined).length > 0 ? combined : undefined;
-  }, [lookupFilters, filterColumns, filterValues]);
+  }, [lookupFilters, effectiveFilterColumns, filterValues]);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
@@ -686,44 +806,60 @@ export function RecordPickerDialog({
 
         <Separator />
 
-        {/* Filter bar (inline) */}
-        {filterColumns && filterColumns.length > 0 && (
+        {/* Filter bar (inline) — supports external FilterUI via renderFilterBar slot */}
+        {effectiveFilterColumns && effectiveFilterColumns.length > 0 && (
           <>
-            <div className="flex items-center gap-2" data-testid="record-picker-filter-bar">
-              <Button
-                type="button"
-                variant={activeFilterCount > 0 ? 'secondary' : 'outline'}
-                size="sm"
-                className="gap-1.5 shrink-0"
-                onClick={() => setFilterBarOpen(prev => !prev)}
-              >
-                <SlidersHorizontal className="size-3.5" />
-                Filters
-                {activeFilterCount > 0 && (
-                  <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-1 text-xs font-medium text-primary">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </Button>
-              {activeFilterCount > 0 && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="gap-1 text-xs"
-                  onClick={handleFilterClear}
-                >
-                  <X className="size-3" />
-                  Clear
-                </Button>
-              )}
-            </div>
-            {filterBarOpen && (
-              <div className="grid gap-3 sm:grid-cols-2 border rounded-md p-3 bg-muted/30" data-testid="record-picker-filter-panel">
-                {filterColumns.map(col => (
-                  <div key={col.field}>{renderFilterInput(col)}</div>
-                ))}
+            {renderFilterBar ? (
+              /* External filter bar (e.g. FilterUI from plugin-view) */
+              <div data-testid="record-picker-filter-bar">
+                {renderFilterBar({
+                  filterColumns: effectiveFilterColumns,
+                  values: filterValues,
+                  onChange: handleFilterChange,
+                  onClear: handleFilterClear,
+                  activeCount: activeFilterCount,
+                })}
               </div>
+            ) : (
+              /* Built-in filter bar (default) */
+              <>
+                <div className="flex items-center gap-2" data-testid="record-picker-filter-bar">
+                  <Button
+                    type="button"
+                    variant={activeFilterCount > 0 ? 'secondary' : 'outline'}
+                    size="sm"
+                    className="gap-1.5 shrink-0"
+                    onClick={() => setFilterBarOpen(prev => !prev)}
+                  >
+                    <SlidersHorizontal className="size-3.5" />
+                    Filters
+                    {activeFilterCount > 0 && (
+                      <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-1 text-xs font-medium text-primary">
+                        {activeFilterCount}
+                      </span>
+                    )}
+                  </Button>
+                  {activeFilterCount > 0 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="gap-1 text-xs"
+                      onClick={handleFilterClear}
+                    >
+                      <X className="size-3" />
+                      Clear
+                    </Button>
+                  )}
+                </div>
+                {filterBarOpen && (
+                  <div className="grid gap-3 sm:grid-cols-2 border rounded-md p-3 bg-muted/30" data-testid="record-picker-filter-panel">
+                    {effectiveFilterColumns.map(col => (
+                      <div key={col.field}>{renderFilterInput(col)}</div>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
             <Separator />
           </>
@@ -745,142 +881,169 @@ export function RecordPickerDialog({
           </div>
         )}
 
-        {/* Loading state (initial) */}
-        {loading && records.length === 0 && !error && (
-          <div className="flex flex-col items-center gap-2 py-8" role="status" aria-live="polite">
-            <Loader2 className="size-6 animate-spin text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">Loading…</p>
+        {/* Grid area — external ObjectGrid via renderGrid slot, or built-in table */}
+        {renderGrid ? (
+          /* External grid component (e.g. ObjectGrid from plugin-grid) */
+          <div className="flex-1 min-h-0" data-testid="record-picker-grid-slot">
+            {renderGrid({
+              columns: resolvedColumns,
+              records,
+              loading,
+              totalCount,
+              currentPage,
+              pageSize,
+              sortField,
+              sortDirection,
+              onSort: handleSort,
+              onPageChange: setCurrentPage,
+              onRowClick: handleRowClick,
+              isSelected,
+              multiple,
+              idField,
+              cellRenderer,
+            })}
           </div>
-        )}
-
-        {/* Empty state */}
-        {!loading && !error && records.length === 0 && (
-          <div className="py-8 text-center">
-            <p className="text-sm text-muted-foreground">No records found</p>
-          </div>
-        )}
-
-        {/* Table */}
-        {!error && records.length > 0 && (
-          <div
-            className="flex-1 overflow-auto min-h-0"
-            tabIndex={0}
-            onKeyDown={handleTableKeyDown}
-            role="grid"
-            aria-label="Records"
-          >
-            <Table style={Object.keys(columnWidths).length > 0 ? { tableLayout: 'fixed' } : undefined}>
-              <TableHeader>
-                <TableRow>
-                  {multiple && (
-                    <TableHead className="w-10" />
-                  )}
-                  {resolvedColumns.map(col => {
-                    const w = columnWidths[col.field];
-                    const styleWidth = w ? { width: `${w}px`, minWidth: `${w}px` } : col.width ? { width: col.width } : undefined;
-                    return (
-                      <TableHead
-                        key={col.field}
-                        style={styleWidth}
-                        className="cursor-pointer select-none relative group"
-                        onClick={() => handleSort(col.field)}
-                        aria-sort={sortField === col.field ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
-                      >
-                        <span className="inline-flex items-center">
-                          {col.label || fieldToLabel(col.field)}
-                          {renderSortIcon(col.field)}
-                        </span>
-                        {/* Column resize handle */}
-                        <span
-                          role="separator"
-                          aria-orientation="vertical"
-                          className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize opacity-0 group-hover:opacity-100 bg-border hover:bg-primary/50 transition-opacity"
-                          onMouseDown={e => {
-                            const th = e.currentTarget.parentElement;
-                            const rect = th?.getBoundingClientRect();
-                            handleResizeStart(e, col.field, rect?.width ?? 100);
-                          }}
-                          onClick={e => e.stopPropagation()}
-                          data-testid={`resize-handle-${col.field}`}
-                        />
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              </TableHeader>
-              <TableBody ref={tableBodyRef}>
-                {records.map((record, idx) => {
-                  const rid = getRecordId(record);
-                  const selected = isSelected(record);
-                  const focused = idx === focusedRow;
-
-                  return (
-                    <TableRow
-                      key={rid ?? idx}
-                      data-row-index={idx}
-                      className={cn(
-                        'cursor-pointer',
-                        selected ? 'bg-accent/50' : 'hover:bg-accent/30',
-                        focused && 'ring-2 ring-primary ring-inset',
-                      )}
-                      onClick={() => handleRowClick(record)}
-                      data-testid={`record-row-${rid}`}
-                      aria-selected={selected}
-                    >
-                      {multiple && (
-                        <TableCell className="w-10">
-                          {selected && <Check className="size-4 text-primary" />}
-                        </TableCell>
-                      )}
-                      {resolvedColumns.map(col => (
-                        <TableCell key={col.field}>
-                          {renderCellContent(record, col)}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-
-        {/* Pagination */}
-        {!error && totalCount > 0 && (
+        ) : (
+          /* Built-in table (default) */
           <>
-            <Separator />
-            <div className="flex items-center justify-between text-sm text-muted-foreground px-1" data-testid="record-picker-pagination">
-              <span>
-                {totalCount} {totalCount === 1 ? 'record' : 'records'}
-                {totalPages > 1 && ` · Page ${currentPage} of ${totalPages}`}
-              </span>
-              {totalPages > 1 && (
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="size-7"
-                    onClick={handlePrevPage}
-                    disabled={currentPage <= 1}
-                    type="button"
-                    aria-label="Previous page"
-                  >
-                    <ChevronLeft className="size-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="size-7"
-                    onClick={handleNextPage}
-                    disabled={currentPage >= totalPages}
-                    type="button"
-                    aria-label="Next page"
-                  >
-                    <ChevronRight className="size-4" />
-                  </Button>
+            {/* Loading state (initial) */}
+            {loading && records.length === 0 && !error && (
+              <div className="flex flex-col items-center gap-2 py-8" role="status" aria-live="polite">
+                <Loader2 className="size-6 animate-spin text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">Loading…</p>
+              </div>
+            )}
+
+            {/* Empty state */}
+            {!loading && !error && records.length === 0 && (
+              <div className="py-8 text-center">
+                <p className="text-sm text-muted-foreground">No records found</p>
+              </div>
+            )}
+
+            {/* Table */}
+            {!error && records.length > 0 && (
+              <div
+                className="flex-1 overflow-auto min-h-0"
+                tabIndex={0}
+                onKeyDown={handleTableKeyDown}
+                role="grid"
+                aria-label="Records"
+              >
+                <Table style={Object.keys(columnWidths).length > 0 ? { tableLayout: 'fixed' } : undefined}>
+                  <TableHeader>
+                    <TableRow>
+                      {multiple && (
+                        <TableHead className="w-10" />
+                      )}
+                      {resolvedColumns.map(col => {
+                        const w = columnWidths[col.field];
+                        const styleWidth = w ? { width: `${w}px`, minWidth: `${w}px` } : col.width ? { width: col.width } : undefined;
+                        return (
+                          <TableHead
+                            key={col.field}
+                            style={styleWidth}
+                            className="cursor-pointer select-none relative group"
+                            onClick={() => handleSort(col.field)}
+                            aria-sort={sortField === col.field ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
+                          >
+                            <span className="inline-flex items-center">
+                              {col.label || fieldToLabel(col.field)}
+                              {renderSortIcon(col.field)}
+                            </span>
+                            {/* Column resize handle */}
+                            <span
+                              role="separator"
+                              aria-orientation="vertical"
+                              className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize opacity-0 group-hover:opacity-100 bg-border hover:bg-primary/50 transition-opacity"
+                              onMouseDown={e => {
+                                const th = e.currentTarget.parentElement;
+                                const rect = th?.getBoundingClientRect();
+                                handleResizeStart(e, col.field, rect?.width ?? 100);
+                              }}
+                              onClick={e => e.stopPropagation()}
+                              data-testid={`resize-handle-${col.field}`}
+                            />
+                          </TableHead>
+                        );
+                      })}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody ref={tableBodyRef}>
+                    {records.map((record, idx) => {
+                      const rid = getRecordId(record);
+                      const selected = isSelected(record);
+                      const focused = idx === focusedRow;
+
+                      return (
+                        <TableRow
+                          key={rid ?? idx}
+                          data-row-index={idx}
+                          className={cn(
+                            'cursor-pointer',
+                            selected ? 'bg-accent/50' : 'hover:bg-accent/30',
+                            focused && 'ring-2 ring-primary ring-inset',
+                          )}
+                          onClick={() => handleRowClick(record)}
+                          data-testid={`record-row-${rid}`}
+                          aria-selected={selected}
+                        >
+                          {multiple && (
+                            <TableCell className="w-10">
+                              {selected && <Check className="size-4 text-primary" />}
+                            </TableCell>
+                          )}
+                          {resolvedColumns.map(col => (
+                            <TableCell key={col.field}>
+                              {renderCellContent(record, col)}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+
+            {/* Pagination */}
+            {!error && totalCount > 0 && (
+              <>
+                <Separator />
+                <div className="flex items-center justify-between text-sm text-muted-foreground px-1" data-testid="record-picker-pagination">
+                  <span>
+                    {totalCount} {totalCount === 1 ? 'record' : 'records'}
+                    {totalPages > 1 && ` · Page ${currentPage} of ${totalPages}`}
+                  </span>
+                  {totalPages > 1 && (
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="size-7"
+                        onClick={handlePrevPage}
+                        disabled={currentPage <= 1}
+                        type="button"
+                        aria-label="Previous page"
+                      >
+                        <ChevronLeft className="size-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="size-7"
+                        onClick={handleNextPage}
+                        disabled={currentPage >= totalPages}
+                        type="button"
+                        aria-label="Next page"
+                      >
+                        <ChevronRight className="size-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </>
+            )}
           </>
         )}
 
