@@ -279,7 +279,7 @@ export function RecordPickerDialog({
 
   // Fetch records
   const fetchRecords = useCallback(
-    async (search?: string, page = 1, sort?: { field: string; direction: 'asc' | 'desc' } | null, filterOverride?: Record<string, any>) => {
+    async (search?: string, page = 1, sort?: { field: string; direction: 'asc' | 'desc' } | null, customFilter?: Record<string, any>) => {
       if (!dataSource || !objectName) return;
 
       setLoading(true);
@@ -297,9 +297,9 @@ export function RecordPickerDialog({
           params.$orderby = { [sort.field]: sort.direction };
         }
         // Inject filters (lookup_filters + filter bar values)
-        const activeFilter = filterOverride !== undefined ? filterOverride : mergedFilter;
-        if (activeFilter && Object.keys(activeFilter).length > 0) {
-          params.$filter = activeFilter;
+        const effectiveFilter = customFilter !== undefined ? customFilter : mergedFilter;
+        if (effectiveFilter && Object.keys(effectiveFilter).length > 0) {
+          params.$filter = effectiveFilter;
         }
 
         const result = await dataSource.find(objectName, params);

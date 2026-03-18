@@ -57,6 +57,27 @@ function recordToOption(
 }
 
 /**
+ * Map a LookupColumnDef.type to a filter input type for the filter bar.
+ * Returns undefined if the field type is not filterable.
+ */
+function mapFieldTypeToFilterType(
+  fieldType: string,
+): RecordPickerFilterColumn['type'] | undefined {
+  const mapping: Record<string, RecordPickerFilterColumn['type']> = {
+    text: 'text',
+    number: 'number',
+    currency: 'number',
+    percent: 'number',
+    select: 'select',
+    status: 'select',
+    date: 'date',
+    datetime: 'date',
+    boolean: 'boolean',
+  };
+  return mapping[fieldType];
+}
+
+/**
  * Lookup field for selecting related records.
  * Supports single and multi-select with search.
  *
@@ -111,8 +132,7 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
     const cols: RecordPickerFilterColumn[] = [];
     for (const c of lookupColumns) {
       if (typeof c === 'object' && c.type) {
-        const filterType = (['text', 'number', 'select', 'date', 'boolean'] as const)
-          .find(t => t === c.type || (c.type === 'currency' && t === 'number') || (c.type === 'percent' && t === 'number'));
+        const filterType = mapFieldTypeToFilterType(c.type);
         if (filterType) {
           cols.push({
             field: c.field,
