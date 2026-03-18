@@ -35,7 +35,6 @@ import {
   ArrowDown,
   SlidersHorizontal,
   X,
-  GripVertical,
 } from 'lucide-react';
 import type { DataSource, QueryParams, LookupColumnDef, LookupFilterDef } from '@object-ui/types';
 
