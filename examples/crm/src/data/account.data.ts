@@ -18,7 +18,7 @@ export const AccountData = {
       tags: ['enterprise', 'strategic'],
       rating: "hot",
       founded_date: new Date("2020-06-01"),
-      owner: "1",
+      owner: "Martin CEO",
       created_at: new Date("2023-01-15")
     },
     { 
@@ -36,7 +36,7 @@ export const AccountData = {
       tags: ['enterprise'],
       rating: "hot",
       annual_revenue: 26000000,
-      owner: "1",
+      owner: "Martin CEO",
       created_at: new Date("2023-02-20")
     },
     { 
@@ -53,7 +53,7 @@ export const AccountData = {
       tags: ['enterprise'],
       rating: "warm",
       annual_revenue: 8500000,
-      owner: "2",
+      owner: "Sarah Sales",
       created_at: new Date("2023-03-10")
     },
     { 
@@ -69,7 +69,7 @@ export const AccountData = {
       phone: "+44-555-0104",
       tags: ['smb'],
       rating: "warm",
-      owner: "2",
+      owner: "Sarah Sales",
       created_at: new Date("2023-04-05")
     },
      { 
@@ -85,7 +85,7 @@ export const AccountData = {
       phone: "+81-555-0105",
       tags: ['startup'],
       rating: "cold",
-      owner: "1",
+      owner: "Martin CEO",
       created_at: new Date("2023-05-20")
     },
     { 
@@ -103,7 +103,7 @@ export const AccountData = {
       tags: ['enterprise', 'strategic'],
       rating: "hot",
       annual_revenue: 42000000,
-      owner: "1",
+      owner: "Martin CEO",
       created_at: new Date("2023-06-15")
     },
     { 
@@ -120,7 +120,7 @@ export const AccountData = {
       tags: ['smb'],
       rating: "warm",
       annual_revenue: 3200000,
-      owner: "2",
+      owner: "Sarah Sales",
       created_at: new Date("2023-07-01")
     }
   ]
