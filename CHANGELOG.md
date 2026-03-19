@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **CRM Seed Data Lookup References** (`examples/crm`): Fixed all CRM seed data files to use natural key (`name`) references for lookup fields instead of raw `id` values. The `SeedLoaderService` resolves foreign key references by the target object's `name` field (the default `externalId`), so seed data values like `order: "o1"` or `account: "2"` could not be resolved and were set to `null`. Updated all 8 affected data files (`account`, `contact`, `opportunity`, `order`, `order_item`, `opportunity_contact`, `project_task`, `event`) to use human-readable name references (e.g., `order: "ORD-2024-001"`, `product: "Workstation Pro Laptop"`, `account: "Salesforce Tower"`). This fixes the issue where Order and Product columns displayed as empty in the Order Item grid view.
+
 ### Added
 
 - **Lookup Field Selection Display Fix** (`@object-ui/fields`): Fixed a bug where selecting a record from the RecordPickerDialog (Level 2 popup) produced no visible feedback in the LookupField. The root cause: `findOption` only searched static and popover-fetched options, which did not include records loaded by the dialog. Added `onSelectRecords` callback to `RecordPickerDialogProps` that returns full record objects alongside IDs. LookupField now caches selected records from the dialog and displays their labels/badges correctly. Both single-select and multi-select modes are supported. Includes a `selectedRecordsMap` ref in RecordPickerDialog that persists selected record data across page navigation for multi-select scenarios.
