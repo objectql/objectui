@@ -114,6 +114,35 @@ describe('ListView Data Fetch', () => {
   });
 
   // =========================================================================
+  // OData { value: [] } response format (duplicate data fix)
+  // =========================================================================
+  describe('OData value response format', () => {
+    it('should extract records from { value: [] } OData response', async () => {
+      const items = [
+        { id: '1', name: 'Alice' },
+        { id: '2', name: 'Bob' },
+      ];
+      mockDataSource.find.mockResolvedValue({ value: items, '@odata.count': 2 });
+
+      const schema: ListViewSchema = {
+        type: 'list-view',
+        objectName: 'contacts',
+        viewType: 'grid',
+        fields: ['name'],
+      };
+
+      renderWithProvider(<ListView schema={schema} dataSource={mockDataSource} />);
+
+      await vi.waitFor(() => {
+        expect(screen.getByTestId('record-count-bar')).toBeInTheDocument();
+      });
+
+      // Records should be extracted and rendered (not empty)
+      expect(screen.queryByTestId('empty-state')).not.toBeInTheDocument();
+    });
+  });
+
+  // =========================================================================
   // $expand race condition fix (Issue #939 Bug 1)
   // =========================================================================
   describe('$expand with objectSchema', () => {
