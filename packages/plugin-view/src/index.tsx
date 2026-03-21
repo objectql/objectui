@@ -27,10 +27,8 @@ export type { SharedViewLinkProps } from './SharedViewLink';
 /**
  * SchemaRendererContext is created by @object-ui/react.
  * The context value provides { dataSource }.
- * A fallback context is used when the imported context is unavailable.
  */
-const FallbackContext = React.createContext<any>(null);
-const SchemaRendererContext: React.Context<any> = ImportedSchemaRendererContext ?? FallbackContext;
+const SchemaRendererContext: React.Context<any> = ImportedSchemaRendererContext;
 
 // Register object-view component
 const ObjectViewRenderer: React.FC<{ schema: any }> = ({ schema }) => {

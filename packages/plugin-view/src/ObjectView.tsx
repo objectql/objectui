@@ -62,9 +62,8 @@ import { ViewSwitcher } from './ViewSwitcher';
 
 /**
  * SchemaRenderer from @object-ui/react, used to render sub-view schemas.
- * Falls back to null if not available.
  */
-const SchemaRendererComponent: React.FC<any> | null = ImportedSchemaRenderer ?? null;
+const SchemaRendererComponent: React.FC<any> = ImportedSchemaRenderer;
 
 export interface ObjectViewProps {
   /**
