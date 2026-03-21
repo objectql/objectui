@@ -661,6 +661,8 @@ export const ListView: React.FC<ListViewProps> = ({
               items = (results as any).data; 
            } else if (Array.isArray((results as any).records)) {
               items = (results as any).records;
+           } else if (Array.isArray((results as any).value)) {
+              items = (results as any).value;
            }
         }
         

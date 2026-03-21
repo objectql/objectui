@@ -18,6 +18,10 @@ export interface ObjectKanbanProps {
   schema: KanbanSchema;
   dataSource?: DataSource;
   className?: string; // Allow override
+  /** Pre-fetched records passed by a parent (e.g. ListView). When provided, skips internal data fetching. */
+  data?: any[];
+  /** Loading state propagated from a parent. Respected only when `data` is also provided. */
+  loading?: boolean;
   onRowClick?: (record: any) => void;
   onCardClick?: (record: any) => void;
 }
@@ -26,18 +30,32 @@ export const ObjectKanban: React.FC<ObjectKanbanProps> = ({
   schema,
   dataSource,
   className,
+  data: externalData,
+  loading: externalLoading,
   onRowClick,
   onCardClick,
   ...props
 }) => {
+  // When a parent (e.g. ListView) pre-fetches data and passes it via the `data` prop,
+  // we must not trigger a second fetch. Detect external data by checking if externalData
+  // is an array (undefined when not provided by parent).
+  const hasExternalData = Array.isArray(externalData);
+
   const [fetchedData, setFetchedData] = useState<any[]>([]);
   const [objectDef, setObjectDef] = useState<any>(null);
   // loading state
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(hasExternalData ? (externalLoading ?? false) : false);
   const [error, setError] = useState<Error | null>(null);
 
   // Resolve bound data if 'bind' property exists
   const boundData = useDataScope(schema.bind);
+
+  // Sync external data changes from parent (e.g. ListView re-fetches after filter change)
+  useEffect(() => {
+    if (hasExternalData && externalLoading !== undefined) {
+      setLoading(externalLoading);
+    }
+  }, [externalLoading, hasExternalData]);
 
   // Fetch object definition for metadata (labels, options)
   useEffect(() => {
@@ -56,6 +74,9 @@ export const ObjectKanban: React.FC<ObjectKanbanProps> = ({
   }, [schema.objectName, dataSource]);
 
   useEffect(() => {
+    // Skip internal fetch when data is managed by a parent component
+    if (hasExternalData) return;
+
     let isMounted = true;
     const fetchData = async () => {
         if (!dataSource || typeof dataSource.find !== 'function' || !schema.objectName) return;
@@ -72,8 +93,6 @@ export const ObjectKanban: React.FC<ObjectKanbanProps> = ({
             // Handle { value: [] } OData shape or { data: [] } shape or direct array
             const data = extractRecords(results);
 
-            console.log(`[ObjectKanban] Extracted data (length: ${data.length})`);
-
             if (isMounted) {
                 setFetchedData(data);
             }
@@ -86,15 +105,14 @@ export const ObjectKanban: React.FC<ObjectKanbanProps> = ({
     };
 
     // Trigger fetch if we have an objectName AND verify no inline/bound data overrides it
-    // And NO props.data passed from ListView
-    if (schema.objectName && !boundData && !schema.data && !(props as any).data) {
+    if (schema.objectName && !boundData && !schema.data) {
         fetchData();
     }
     return () => { isMounted = false; };
-  }, [schema.objectName, dataSource, boundData, schema.data, schema.filter, (props as any).data, objectDef]);
+  }, [schema.objectName, dataSource, boundData, schema.data, schema.filter, hasExternalData, objectDef]);
 
-  // Determine which data to use: props.data -> bound -> inline -> fetched
-  const rawData = (props as any).data || boundData || schema.data || fetchedData;
+  // Determine which data to use: external -> bound -> inline -> fetched
+  const rawData = (hasExternalData ? externalData : undefined) || boundData || schema.data || fetchedData;
 
   // Enhance data with title mapping and ensure IDs
   const effectiveData = useMemo(() => {
