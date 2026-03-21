@@ -155,7 +155,6 @@ export const ObjectCalendar: React.FC<ObjectCalendarProps> = ({
   onViewChange,
   onEventDrop,
   locale,
-  ...rest
 }) => {
   // When the parent (e.g. ObjectView) pre-fetches data and passes it via the `data` prop,
   // we must not trigger a second fetch. Detect external data by checking for an array.

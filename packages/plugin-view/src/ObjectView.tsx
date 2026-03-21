@@ -57,20 +57,13 @@ import {
 } from '@object-ui/components';
 import { Plus } from 'lucide-react';
 import { buildExpandFields } from '@object-ui/core';
+import { SchemaRenderer as ImportedSchemaRenderer } from '@object-ui/react';
 import { ViewSwitcher } from './ViewSwitcher';
 
 /**
- * Attempt to import SchemaRenderer from @object-ui/react.
- * Falls back to null if not available.
+ * SchemaRenderer from @object-ui/react, used to render sub-view schemas.
  */
-let SchemaRendererComponent: React.FC<any> | null = null;
-try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const mod = require('@object-ui/react');
-  SchemaRendererComponent = mod.SchemaRenderer || null;
-} catch {
-  // @object-ui/react not available
-}
+const SchemaRendererComponent: React.FC<any> = ImportedSchemaRenderer;
 
 export interface ObjectViewProps {
   /**
