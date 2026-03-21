@@ -8,6 +8,7 @@
 
 import React, { useContext } from 'react';
 import { ComponentRegistry } from '@object-ui/core';
+import { SchemaRendererContext as ImportedSchemaRendererContext } from '@object-ui/react';
 import { ObjectView } from './ObjectView';
 import { ViewSwitcher } from './ViewSwitcher';
 import { FilterUI } from './FilterUI';
@@ -25,22 +26,11 @@ export type { SharedViewLinkProps } from './SharedViewLink';
 
 /**
  * SchemaRendererContext is created by @object-ui/react.
- * We import it dynamically to avoid a circular dependency.
  * The context value provides { dataSource }.
- * A fallback context is created so hooks are never called conditionally.
+ * A fallback context is used when the imported context is unavailable.
  */
 const FallbackContext = React.createContext<any>(null);
-let SchemaRendererContext: React.Context<any> = FallbackContext;
-try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const mod = require('@object-ui/react');
-  // The context is re-exported from @object-ui/react
-  if (mod.SchemaRendererContext) {
-    SchemaRendererContext = mod.SchemaRendererContext;
-  }
-} catch {
-  // @object-ui/react not available — registry-based dataSource only
-}
+const SchemaRendererContext: React.Context<any> = ImportedSchemaRendererContext ?? FallbackContext;
 
 // Register object-view component
 const ObjectViewRenderer: React.FC<{ schema: any }> = ({ schema }) => {
