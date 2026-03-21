@@ -26,7 +26,7 @@
     "@object-ui/mobile": "workspace:*",
     "@object-ui/react": "workspace:*",
     "@object-ui/types": "workspace:*",
-    "@tanstack/react-virtual": "^3.13.22",
+    "@tanstack/react-virtual": "^3.13.23",
     "lucide-react": "^0.577.0"
   },
   "peerDependencies": {
@@ -36,7 +36,7 @@
   "devDependencies": {
     "@object-ui/data-objectstack": "workspace:*",
     "@vitejs/plugin-react": "^6.0.1",
-    "msw": "^2.12.11",
+    "msw": "^2.12.14",
     "typescript": "^5.9.3",
     "vite": "^8.0.1",
     "vite-plugin-dts": "^4.5.4"

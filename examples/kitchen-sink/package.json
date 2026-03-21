@@ -15,10 +15,10 @@
     "build": "objectstack compile objectstack.config.ts"
   },
   "dependencies": {
-    "@objectstack/spec": "^3.2.6"
+    "@objectstack/spec": "^3.2.8"
   },
   "devDependencies": {
-    "@objectstack/cli": "^3.2.6",
+    "@objectstack/cli": "^3.2.8",
     "typescript": "^5.9.3"
   }
 }
