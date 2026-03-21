@@ -292,8 +292,12 @@ export const ObjectView: React.FC<ObjectViewProps> = ({
     let isMounted = true;
 
     const fetchData = async () => {
+      // When renderListView is provided, the custom list view (e.g. ListView)
+      // handles its own data fetching — skip to avoid duplicate requests and
+      // unnecessary re-renders that can cause duplicate records in child views.
+      if (renderListView) return;
       // Only fetch for non-grid views (ObjectGrid has its own data fetching)
-      if (currentViewType === 'grid' && !renderListView) return;
+      if (currentViewType === 'grid') return;
       if (!dataSource || !schema.objectName) return;
 
       setLoading(true);
