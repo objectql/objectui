@@ -29,6 +29,13 @@ export interface ObjectDataTableProps {
   className?: string;
 }
 
+/** A column definition after normalization, with header and accessor key. */
+interface NormalizedColumn {
+  header: string;
+  accessorKey: string;
+  [key: string]: any;
+}
+
 /**
  * Normalize columns to support both string[] shorthand and object[] formats.
  *
@@ -36,7 +43,7 @@ export interface ObjectDataTableProps {
  *   handling both snake_case and camelCase for header generation.
  * - Object entries are returned as-is.
  */
-export function normalizeColumns(columns: any[]): any[] {
+export function normalizeColumns(columns: (string | Record<string, any>)[]): NormalizedColumn[] {
   return columns.map((col) => {
     if (typeof col === 'string') {
       return {
