@@ -31,11 +31,11 @@ vi.mock('@object-ui/plugin-grid', () => ({
 }));
 
 vi.mock('@object-ui/plugin-kanban', () => ({
-  ObjectKanban: (props: any) => <div data-testid="object-kanban">Kanban View</div>
+  ObjectKanban: (_props: any) => <div data-testid="object-kanban">Kanban View</div>
 }));
 
 vi.mock('@object-ui/plugin-calendar', () => ({
-  ObjectCalendar: (props: any) => <div data-testid="object-calendar">Calendar View</div>
+  ObjectCalendar: (_props: any) => <div data-testid="object-calendar">Calendar View</div>
 }));
 
 vi.mock('@object-ui/plugin-list', () => ({
