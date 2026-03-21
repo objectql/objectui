@@ -257,6 +257,15 @@ function buildCubesFromConfig(appConfig: any): Cube[] {
   return cubes;
 }
 
+/** Per-language translation map: language code → translation tree. */
+type TranslationMap = Record<string, Record<string, unknown>>;
+
+/** A named translation bundle as declared in a stack's i18n config. */
+interface I18nBundle {
+  namespace: string;
+  translations: TranslationMap;
+}
+
 /**
  * Resolve translations for a given language from the i18n bundles
  * declared in the application configuration.
@@ -267,12 +276,12 @@ function buildCubesFromConfig(appConfig: any): Cube[] {
  * `crm.objects.account.label`.
  */
 function resolveI18nTranslations(
-  bundles: Array<{ namespace: string; translations: Record<string, unknown> }>,
+  bundles: I18nBundle[],
   lang: string,
 ): Record<string, unknown> {
   const merged: Record<string, unknown> = {};
   for (const bundle of bundles) {
-    const langTranslations = (bundle.translations as Record<string, any>)?.[lang];
+    const langTranslations = bundle.translations[lang];
     if (langTranslations) {
       merged[bundle.namespace] = langTranslations;
     }
@@ -320,8 +329,7 @@ export async function createKernel(options: KernelOptions): Promise<KernelResult
   // `i18n: { namespace, translations }` field and merged via sharedConfig).
   // This ensures both MSW/mock and server modes share the same translation
   // resolution pipeline — no manual per-environment i18n handlers required.
-  const i18nBundles: Array<{ namespace: string; translations: Record<string, unknown> }> =
-    appConfig.i18n?.bundles ?? [];
+  const i18nBundles: I18nBundle[] = appConfig.i18n?.bundles ?? [];
 
   if (i18nBundles.length > 0) {
     kernel.registerService('i18n', {
