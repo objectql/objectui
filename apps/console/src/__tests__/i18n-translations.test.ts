@@ -50,7 +50,7 @@ describe('i18n translations pipeline', () => {
   // ── Kernel service layer ───────────────────────────────────────────
 
   it('kernel i18n service returns flat translations dict (not wrapped)', () => {
-    const i18nService = result.kernel.getService('i18n');
+    const i18nService = result.kernel.getService('i18n') as any;
     const translations = i18nService.getTranslations('zh');
 
     // Must NOT have the { locale, translations } wrapper
@@ -60,14 +60,14 @@ describe('i18n translations pipeline', () => {
   });
 
   it('kernel i18n service returns English translations', () => {
-    const i18nService = result.kernel.getService('i18n');
+    const i18nService = result.kernel.getService('i18n') as any;
     const translations = i18nService.getTranslations('en');
 
     expect(translations.crm.objects.account.label).toBe(EXPECTED_EN_ACCOUNT_LABEL);
   });
 
   it('kernel i18n service returns empty for unknown locale', () => {
-    const i18nService = result.kernel.getService('i18n');
+    const i18nService = result.kernel.getService('i18n') as any;
     const translations = i18nService.getTranslations('xx');
 
     expect(Object.keys(translations)).toHaveLength(0);
@@ -79,7 +79,7 @@ describe('i18n translations pipeline', () => {
     const { HttpDispatcher } = await import('@objectstack/runtime');
     const dispatcher = new HttpDispatcher(result.kernel);
 
-    const dispatchResult = await dispatcher.handleI18n('/translations/zh', 'GET', {}, {});
+    const dispatchResult = await dispatcher.handleI18n('/translations/zh', 'GET', {}, {} as any);
 
     expect(dispatchResult.handled).toBe(true);
     expect(dispatchResult.response?.status).toBe(200);
@@ -115,7 +115,7 @@ describe('i18n translations pipeline', () => {
   // ── Server-mode compatibility (AppPlugin.loadTranslations) ────────
 
   it('kernel i18n service supports loadTranslations (AppPlugin compat)', () => {
-    const i18nService = result.kernel.getService('i18n');
+    const i18nService = result.kernel.getService('i18n') as any;
 
     // AppPlugin.loadTranslations calls these methods; they must exist
     expect(typeof i18nService.loadTranslations).toBe('function');
@@ -125,7 +125,7 @@ describe('i18n translations pipeline', () => {
   });
 
   it('kernel i18n service getLocales returns all CRM locales', () => {
-    const i18nService = result.kernel.getService('i18n');
+    const i18nService = result.kernel.getService('i18n') as any;
     const locales = i18nService.getLocales();
 
     // CRM declares 10 locales: en, zh, ja, ko, de, fr, es, pt, ru, ar
@@ -172,11 +172,11 @@ describe('i18n translations pipeline', () => {
     }
 
     // After loading, getTranslations must return populated CRM data
-    const zh = svc.getTranslations('zh');
+    const zh = svc.getTranslations('zh') as any;
     expect(zh).toHaveProperty('crm');
     expect(zh.crm.objects.account.label).toBe(EXPECTED_ZH_ACCOUNT_LABEL);
 
-    const en = svc.getTranslations('en');
+    const en = svc.getTranslations('en') as any;
     expect(en).toHaveProperty('crm');
     expect(en.crm.objects.account.label).toBe(EXPECTED_EN_ACCOUNT_LABEL);
 
