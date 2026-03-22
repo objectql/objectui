@@ -149,4 +149,41 @@ describe('i18n translations pipeline', () => {
     expect(first.zh.crm.objects.account.label).toBe(EXPECTED_ZH_ACCOUNT_LABEL);
     expect(first.en.crm.objects.account.label).toBe(EXPECTED_EN_ACCOUNT_LABEL);
   });
+
+  // ── Server-mode flow simulation ───────────────────────────────────
+  // Simulates the exact flow that `pnpm start` (CLI serve) uses:
+  // 1. createMemoryI18n() registers the i18n service
+  // 2. AppPlugin.loadTranslations() iterates config.translations
+  // 3. HttpDispatcher.handleI18n() calls getTranslations(locale)
+
+  it('server-mode: memory i18n + AppPlugin loadTranslations produces populated response', async () => {
+    // Import the same createMemoryI18n used by the MemoryI18nPlugin in objectstack.config.ts
+    const { createMemoryI18n } = await import('@objectstack/core');
+    const svc = createMemoryI18n();
+
+    // Simulate AppPlugin.loadTranslations() iterating the spec-format translations array
+    const translations = (appConfig as any).translations;
+    for (const bundle of translations) {
+      for (const [locale, data] of Object.entries(bundle)) {
+        if (data && typeof data === 'object') {
+          svc.loadTranslations(locale, data as Record<string, unknown>);
+        }
+      }
+    }
+
+    // After loading, getTranslations must return populated CRM data
+    const zh = svc.getTranslations('zh');
+    expect(zh).toHaveProperty('crm');
+    expect(zh.crm.objects.account.label).toBe(EXPECTED_ZH_ACCOUNT_LABEL);
+
+    const en = svc.getTranslations('en');
+    expect(en).toHaveProperty('crm');
+    expect(en.crm.objects.account.label).toBe(EXPECTED_EN_ACCOUNT_LABEL);
+
+    // getLocales must list all loaded languages
+    const locales = svc.getLocales();
+    expect(locales).toContain('en');
+    expect(locales).toContain('zh');
+    expect(locales.length).toBeGreaterThanOrEqual(10);
+  });
 });
