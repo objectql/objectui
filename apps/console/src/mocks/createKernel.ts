@@ -333,10 +333,7 @@ export async function createKernel(options: KernelOptions): Promise<KernelResult
 
   if (i18nBundles.length > 0) {
     kernel.registerService('i18n', {
-      getTranslations: (lang: string) => ({
-        locale: lang,
-        translations: resolveI18nTranslations(i18nBundles, lang),
-      }),
+      getTranslations: (lang: string) => resolveI18nTranslations(i18nBundles, lang),
     });
   }
 
