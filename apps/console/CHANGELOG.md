@@ -1,5 +1,15 @@
 # @object-ui/console
 
+## 4.0.0
+
+### Minor Changes
+
+- a0d65b6: fix console
+
+### Patch Changes
+
+- 7129017: fix
+
 ## 3.1.3
 
 ## 3.1.2
