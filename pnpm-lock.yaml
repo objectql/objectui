@@ -825,11 +825,11 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
       react-hook-form:
-        specifier: ^7.71.2
-        version: 7.71.2(react@19.2.4)
+        specifier: ^7.72.0
+        version: 7.72.0(react@19.2.4)
       react-resizable-panels:
-        specifier: ^4.7.4
-        version: 4.7.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: ^4.7.5
+        version: 4.7.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       recharts:
         specifier: 3.8.0
         version: 3.8.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react-is@18.3.1)(react@19.2.4)(redux@5.0.1)
@@ -2198,8 +2198,8 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
       react-hook-form:
-        specifier: ^7.71.2
-        version: 7.71.2(react@19.2.4)
+        specifier: ^7.72.0
+        version: 7.72.0(react@19.2.4)
     devDependencies:
       '@types/react':
         specifier: 19.2.14
@@ -10296,8 +10296,8 @@ packages:
       react: 19.2.4
       react-dom: 19.2.4
 
-  react-hook-form@7.71.2:
-    resolution: {integrity: sha512-1CHvcDYzuRUNOflt4MOq3ZM46AronNJtQ1S7tnX6YN4y72qhgiUItpacZUAQ0TyWYci3yz1X+rXaSxiuEm86PA==}
+  react-hook-form@7.72.0:
+    resolution: {integrity: sha512-V4v6jubaf6JAurEaVnT9aUPKFbNtDgohj5CIgVGyPHvT9wRx5OZHVjz31GsxnPNI278XMu+ruFz+wGOscHaLKw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: 19.2.4
@@ -10384,8 +10384,8 @@ packages:
       '@types/react':
         optional: true
 
-  react-resizable-panels@4.7.4:
-    resolution: {integrity: sha512-1sehMbUJxZFj4imu1TuH+RS7Xe5Jo+3HyxBYafCEdxPmDeLAQNmKEByyxCQRl7xCLa5cLXSJ9T8acQyyiPsNdQ==}
+  react-resizable-panels@4.7.5:
+    resolution: {integrity: sha512-ma22FpbUolymMK6xIwZOzzNxszi59kZdJiw805byxuGBrjAs8HngpQrrgEp5dj1OOV2jVFBCJxhVult6G+2KaQ==}
     peerDependencies:
       react: 19.2.4
       react-dom: 19.2.4
@@ -13797,7 +13797,7 @@ snapshots:
       lucide-react: 0.577.0(react@19.2.4)
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
-      react-resizable-panels: 4.7.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react-resizable-panels: 4.7.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       tailwind-merge: 3.5.0
     transitivePeerDependencies:
       - '@cloudflare/workers-types'
@@ -21018,7 +21018,7 @@ snapshots:
       react-resizable: 3.1.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       resize-observer-polyfill: 1.5.1
 
-  react-hook-form@7.71.2(react@19.2.4):
+  react-hook-form@7.72.0(react@19.2.4):
     dependencies:
       react: 19.2.4
 
@@ -21099,7 +21099,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.14
 
-  react-resizable-panels@4.7.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+  react-resizable-panels@4.7.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
