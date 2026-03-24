@@ -1,5 +1,18 @@
 # @object-ui/plugin-calendar
 
+## 3.1.5
+
+### Patch Changes
+
+- Updated dependencies [cfe0596]
+  - @object-ui/i18n@3.1.5
+  - @object-ui/react@3.1.5
+  - @object-ui/components@3.1.5
+  - @object-ui/fields@3.1.5
+  - @object-ui/types@3.1.5
+  - @object-ui/core@3.1.5
+  - @object-ui/mobile@3.1.5
+
 ## 3.1.4
 
 ### Patch Changes

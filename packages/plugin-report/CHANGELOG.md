@@ -1,5 +1,15 @@
 # @object-ui/plugin-report
 
+## 3.1.5
+
+### Patch Changes
+
+- @object-ui/react@3.1.5
+- @object-ui/components@3.1.5
+- @object-ui/fields@3.1.5
+- @object-ui/types@3.1.5
+- @object-ui/core@3.1.5
+
 ## 3.1.4
 
 ### Patch Changes
