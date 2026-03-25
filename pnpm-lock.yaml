@@ -16,7 +16,7 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: ^1.19.11
-        version: 1.19.11(hono@4.12.8)
+        version: 1.19.11(hono@4.12.9)
       '@objectstack/plugin-auth':
         specifier: ^3.3.0
         version: 3.3.0(@opentelemetry/api@1.9.0)(@prisma/client@7.4.2(prisma@7.4.2(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(typescript@5.9.3))(drizzle-orm@0.45.1(@electric-sql/pglite@0.3.15)(@opentelemetry/api@1.9.0)(@prisma/client@7.4.2(prisma@7.4.2(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(typescript@5.9.3))(kysely@0.28.14)(mysql2@3.15.3)(postgres@3.4.7)(prisma@7.4.2(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3)))(mongodb@7.1.0)(mysql2@3.15.3)(next@16.2.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(pino@8.21.0)(prisma@7.4.2(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vitest@4.1.0)
@@ -30,8 +30,8 @@ importers:
         specifier: 0.0.1-security
         version: 0.0.1-security
       hono:
-        specifier: ^4.12.8
-        version: 4.12.8
+        specifier: ^4.12.9
+        version: 4.12.9
       pino:
         specifier: ^8.21.0
         version: 8.21.0
@@ -525,7 +525,7 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: ^1.19.11
-        version: 1.19.11(hono@4.12.8)
+        version: 1.19.11(hono@4.12.9)
       '@objectstack/core':
         specifier: ^3.3.0
         version: 3.3.0(pino@8.21.0)
@@ -548,8 +548,8 @@ importers:
         specifier: ^3.3.0
         version: 3.3.0
       hono:
-        specifier: ^4.12.8
-        version: 4.12.8
+        specifier: ^4.12.9
+        version: 4.12.9
       pino:
         specifier: ^8.21.0
         version: 8.21.0
@@ -8376,8 +8376,8 @@ packages:
     resolution: {integrity: sha512-U7tt8JsyrxSRKspfhtLET79pU8K+tInj5QZXs1jSugO1Vq5dFj3kmZsRldo29mTBfcjDRVRXrEZ6LS63Cog9ZA==}
     engines: {node: '>=16.9.0'}
 
-  hono@4.12.8:
-    resolution: {integrity: sha512-VJCEvtrezO1IAR+kqEYnxUOoStaQPGrCmX3j4wDTNOcD1uRPFpGlwQUIW8niPuvHXaTUxeOUl5MMDGrl+tmO9A==}
+  hono@4.12.9:
+    resolution: {integrity: sha512-wy3T8Zm2bsEvxKZM5w21VdHDDcwVS1yUFFY6i8UobSsKfFceT7TOwhbhfKsDyx7tYQlmRM5FLpIuYvNFyjctiA==}
     engines: {node: '>=16.9.0'}
 
   hosted-git-info@4.1.0:
@@ -12938,9 +12938,9 @@ snapshots:
     dependencies:
       '@hapi/hoek': 11.0.7
 
-  '@hono/node-server@1.19.11(hono@4.12.8)':
+  '@hono/node-server@1.19.11(hono@4.12.9)':
     dependencies:
-      hono: 4.12.8
+      hono: 4.12.9
 
   '@hono/node-server@1.19.9(hono@4.11.4)':
     dependencies:
@@ -13515,7 +13515,7 @@ snapshots:
 
   '@modelcontextprotocol/sdk@1.27.1(zod@3.25.76)':
     dependencies:
-      '@hono/node-server': 1.19.11(hono@4.12.8)
+      '@hono/node-server': 1.19.11(hono@4.12.9)
       ajv: 8.18.0
       ajv-formats: 3.0.1(ajv@8.18.0)
       content-type: 1.0.5
@@ -13525,7 +13525,7 @@ snapshots:
       eventsource-parser: 3.0.6
       express: 5.2.1
       express-rate-limit: 8.3.1(express@5.2.1)
-      hono: 4.12.8
+      hono: 4.12.9
       jose: 6.2.2
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
@@ -13681,10 +13681,10 @@ snapshots:
     transitivePeerDependencies:
       - pino
 
-  '@objectstack/hono@3.3.0(@objectstack/runtime@3.3.0(pino@8.21.0))(hono@4.12.8)':
+  '@objectstack/hono@3.3.0(@objectstack/runtime@3.3.0(pino@8.21.0))(hono@4.12.9)':
     dependencies:
       '@objectstack/runtime': 3.3.0(pino@8.21.0)
-      hono: 4.12.8
+      hono: 4.12.9
 
   '@objectstack/metadata@3.3.0(pino@8.21.0)':
     dependencies:
@@ -13744,10 +13744,10 @@ snapshots:
 
   '@objectstack/plugin-hono-server@3.3.0(pino@8.21.0)':
     dependencies:
-      '@hono/node-server': 1.19.11(hono@4.12.8)
+      '@hono/node-server': 1.19.11(hono@4.12.9)
       '@objectstack/core': 3.3.0(pino@8.21.0)
       '@objectstack/spec': 3.3.0
-      hono: 4.12.8
+      hono: 4.12.9
     transitivePeerDependencies:
       - pino
 
@@ -13802,11 +13802,11 @@ snapshots:
 
   '@objectstack/studio@3.3.0(@opentelemetry/api@1.9.0)(@prisma/client@7.4.2(prisma@7.4.2(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(typescript@5.9.3))(@types/node@25.5.0)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(drizzle-orm@0.45.1(@electric-sql/pglite@0.3.15)(@opentelemetry/api@1.9.0)(@prisma/client@7.4.2(prisma@7.4.2(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(typescript@5.9.3))(kysely@0.28.14)(mysql2@3.15.3)(postgres@3.4.7)(prisma@7.4.2(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3)))(mongodb@7.1.0)(mysql2@3.15.3)(next@16.2.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(pino@8.21.0)(prisma@7.4.2(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(typescript@5.9.3)(vitest@4.1.0)':
     dependencies:
-      '@hono/node-server': 1.19.11(hono@4.12.8)
+      '@hono/node-server': 1.19.11(hono@4.12.9)
       '@objectstack/client': 3.3.0(pino@8.21.0)
       '@objectstack/client-react': 3.3.0(pino@8.21.0)(react@19.2.4)
       '@objectstack/driver-memory': 3.3.0(pino@8.21.0)
-      '@objectstack/hono': 3.3.0(@objectstack/runtime@3.3.0(pino@8.21.0))(hono@4.12.8)
+      '@objectstack/hono': 3.3.0(@objectstack/runtime@3.3.0(pino@8.21.0))(hono@4.12.9)
       '@objectstack/metadata': 3.3.0(pino@8.21.0)
       '@objectstack/objectql': 3.3.0(pino@8.21.0)
       '@objectstack/plugin-audit': 3.2.10(pino@8.21.0)
@@ -13833,7 +13833,7 @@ snapshots:
       '@radix-ui/react-tooltip': 1.2.8(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       class-variance-authority: 0.7.1
       clsx: 2.1.1
-      hono: 4.12.8
+      hono: 4.12.9
       lucide-react: 0.577.0(react@19.2.4)
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
@@ -18613,7 +18613,7 @@ snapshots:
   hono@4.11.4:
     optional: true
 
-  hono@4.12.8: {}
+  hono@4.12.9: {}
 
   hosted-git-info@4.1.0:
     dependencies:
