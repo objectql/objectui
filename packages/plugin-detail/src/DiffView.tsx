@@ -9,6 +9,7 @@
 import * as React from 'react';
 import { cn, Button, Card, CardHeader, CardTitle, CardContent } from '@object-ui/components';
 import { Columns2, Rows3 } from 'lucide-react';
+import { useDetailTranslation } from './useDetailTranslation';
 
 export type DiffFieldType = 'string' | 'number' | 'boolean' | 'json' | 'date';
 export type DiffMode = 'unified' | 'side-by-side';
@@ -98,6 +99,7 @@ export const DiffView: React.FC<DiffViewProps> = ({
   mode: initialMode = 'unified',
   className,
 }) => {
+  const { t } = useDetailTranslation();
   const [mode, setMode] = React.useState<DiffMode>(initialMode);
 
   const oldLines = React.useMemo(() => valueToLines(oldValue, fieldType), [oldValue, fieldType]);
@@ -146,7 +148,7 @@ export const DiffView: React.FC<DiffViewProps> = ({
               size="icon"
               className="h-7 w-7"
               onClick={() => setMode('unified')}
-              title="Unified diff"
+              title={t('detail.unifiedDiff')}
             >
               <Rows3 className="h-3.5 w-3.5" />
             </Button>
@@ -155,7 +157,7 @@ export const DiffView: React.FC<DiffViewProps> = ({
               size="icon"
               className="h-7 w-7"
               onClick={() => setMode('side-by-side')}
-              title="Side-by-side diff"
+              title={t('detail.sideBySideDiff')}
             >
               <Columns2 className="h-3.5 w-3.5" />
             </Button>
@@ -164,7 +166,7 @@ export const DiffView: React.FC<DiffViewProps> = ({
       </CardHeader>
       <CardContent className="p-0">
         {!hasChanges ? (
-          <p className="px-4 py-3 text-sm text-muted-foreground">No changes</p>
+          <p className="px-4 py-3 text-sm text-muted-foreground">{t('detail.noChanges')}</p>
         ) : mode === 'unified' ? (
           /* Unified diff view */
           <div className="font-mono text-xs overflow-x-auto">
@@ -192,10 +194,10 @@ export const DiffView: React.FC<DiffViewProps> = ({
             <div className="grid grid-cols-2 divide-x font-mono text-xs min-w-0">
               {/* Headers */}
               <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground bg-muted/50">
-                Previous
+                {t('detail.previousVersion')}
               </div>
               <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground bg-muted/50">
-                Current
+                {t('detail.currentVersion')}
               </div>
               {/* Rows */}
               {sideBySidePairs.map((pair, index) => (
