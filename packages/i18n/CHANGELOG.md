@@ -1,5 +1,11 @@
 # @object-ui/i18n
 
+## 3.1.5
+
+### Patch Changes
+
+- cfe0596: fix i18n
+
 ## 3.1.4
 
 ## 3.1.3
