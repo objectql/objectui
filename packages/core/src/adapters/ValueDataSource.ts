@@ -240,7 +240,7 @@ export class ValueDataSource<T = any> implements DataSource<T> {
   /** Notify all mutation subscribers */
   private emitMutation(event: MutationEvent<T>): void {
     for (const listener of this.mutationListeners) {
-      try { listener(event); } catch { /* swallow listener errors */ }
+      try { listener(event); } catch (err) { console.warn('ValueDataSource: mutation listener error', err); }
     }
   }
 
