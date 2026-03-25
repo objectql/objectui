@@ -12,6 +12,7 @@ import { MessageSquare, PanelRightOpen, PanelRightClose, X } from 'lucide-react'
 import type { RecordChatterComponentProps, FeedItem, RecordSubscription } from '@object-ui/types';
 import { RecordActivityTimeline } from './RecordActivityTimeline';
 import type { FeedFilterMode, RecordActivityTimelineProps } from './RecordActivityTimeline';
+import { useDetailTranslation } from './useDetailTranslation';
 
 export interface RecordChatterPanelProps {
   /** Chatter panel configuration from RecordChatterComponentProps */
@@ -73,6 +74,7 @@ export const RecordChatterPanel: React.FC<RecordChatterPanelProps> = ({
   const collapsible = config?.collapsible ?? true;
   const defaultCollapsed = (collapseWhenEmpty && items.length === 0) || (config?.defaultCollapsed ?? false);
 
+  const { t } = useDetailTranslation();
   const [collapsed, setCollapsed] = React.useState(defaultCollapsed);
 
   const isSidebar = position === 'right' || position === 'left';
@@ -115,7 +117,7 @@ export const RecordChatterPanel: React.FC<RecordChatterPanelProps> = ({
         <div className="flex items-center justify-between px-4 py-3 border-b">
           <div className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
-            <span className="text-sm font-medium">Discussion</span>
+            <span className="text-sm font-medium">{t('detail.discussion')}</span>
           </div>
           {collapsible && (
             <Button
@@ -164,7 +166,7 @@ export const RecordChatterPanel: React.FC<RecordChatterPanelProps> = ({
           aria-label="Show discussion"
         >
           <MessageSquare className="h-4 w-4" />
-          <span>Show Discussion ({items.length})</span>
+          <span>{t('detail.showDiscussion', { count: items.length })}</span>
         </Button>
       ) : (
         <div>
@@ -172,7 +174,7 @@ export const RecordChatterPanel: React.FC<RecordChatterPanelProps> = ({
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <MessageSquare className="h-4 w-4" />
-                Discussion
+                {t('detail.discussion')}
               </div>
               <Button
                 variant="ghost"

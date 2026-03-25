@@ -10,6 +10,7 @@ import * as React from 'react';
 import { cn, Button } from '@object-ui/components';
 import { Bell, BellOff } from 'lucide-react';
 import type { RecordSubscription } from '@object-ui/types';
+import { useDetailTranslation } from './useDetailTranslation';
 
 export interface SubscriptionToggleProps {
   /** Current subscription state */
@@ -28,6 +29,7 @@ export const SubscriptionToggle: React.FC<SubscriptionToggleProps> = ({
   onToggle,
   className,
 }) => {
+  const { t } = useDetailTranslation();
   const [isLoading, setIsLoading] = React.useState(false);
 
   const handleToggle = React.useCallback(async () => {
@@ -48,7 +50,7 @@ export const SubscriptionToggle: React.FC<SubscriptionToggleProps> = ({
       onClick={handleToggle}
       disabled={isLoading || !onToggle}
       aria-label={subscription.subscribed ? 'Unsubscribe from notifications' : 'Subscribe to notifications'}
-      title={subscription.subscribed ? 'Subscribed — click to unsubscribe' : 'Subscribe to notifications'}
+      title={subscription.subscribed ? t('detail.subscribedTooltip') : t('detail.unsubscribedTooltip')}
     >
       {subscription.subscribed ? (
         <Bell className="h-4 w-4 text-primary" />

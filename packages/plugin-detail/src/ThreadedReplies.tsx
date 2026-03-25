@@ -10,6 +10,7 @@ import * as React from 'react';
 import { cn, Button } from '@object-ui/components';
 import { MessageSquare, ChevronDown, ChevronRight, Send } from 'lucide-react';
 import type { FeedItem } from '@object-ui/types';
+import { useDetailTranslation } from './useDetailTranslation';
 
 export interface ThreadedRepliesProps {
   /** Parent feed item (root comment) */
@@ -53,6 +54,7 @@ export const ThreadedReplies: React.FC<ThreadedRepliesProps> = ({
   showReplyInput = true,
   className,
 }) => {
+  const { t } = useDetailTranslation();
   const [expanded, setExpanded] = React.useState(false);
   const [replyText, setReplyText] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -97,7 +99,7 @@ export const ThreadedReplies: React.FC<ThreadedRepliesProps> = ({
             <ChevronRight className="h-3 w-3" />
           )}
           <MessageSquare className="h-3 w-3" />
-          <span>{replies.length} {replies.length === 1 ? 'reply' : 'replies'}</span>
+          <span>{replies.length === 1 ? t('detail.replyCount', { count: replies.length }) : t('detail.replyCountPlural', { count: replies.length })}</span>
         </button>
       )}
 
@@ -138,7 +140,7 @@ export const ThreadedReplies: React.FC<ThreadedRepliesProps> = ({
         <div className="flex gap-1.5 mt-1.5">
           <input
             className="flex-1 rounded-md border border-input bg-background px-2 py-1 text-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            placeholder="Reply…"
+            placeholder={t('detail.replyPlaceholder')}
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
             onKeyDown={handleKeyDown}

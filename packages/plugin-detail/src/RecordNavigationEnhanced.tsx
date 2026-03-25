@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Search,
 } from 'lucide-react';
+import { useDetailTranslation } from './useDetailTranslation';
 
 export interface RecordNavigationEnhancedProps {
   currentIndex: number;
@@ -33,6 +34,7 @@ export const RecordNavigationEnhanced: React.FC<RecordNavigationEnhancedProps> =
   onSearch,
   className,
 }) => {
+  const { t } = useDetailTranslation();
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
@@ -133,7 +135,7 @@ export const RecordNavigationEnhanced: React.FC<RecordNavigationEnhancedProps> =
         className="h-8 w-8"
         disabled={!canGoFirst}
         onClick={handleFirst}
-        title="First record (Home)"
+        title={t('detail.firstRecord')}
       >
         <ChevronsLeft className="h-4 w-4" />
       </Button>
@@ -145,14 +147,14 @@ export const RecordNavigationEnhanced: React.FC<RecordNavigationEnhancedProps> =
         className="h-8 w-8"
         disabled={!canGoPrev}
         onClick={handlePrev}
-        title="Previous record (←)"
+        title={t('detail.previousRecordKey')}
       >
         <ChevronLeft className="h-4 w-4" />
       </Button>
 
       {/* Position indicator */}
       <span className="text-xs text-muted-foreground whitespace-nowrap px-1.5 tabular-nums">
-        {totalRecords > 0 ? `${currentIndex + 1} of ${totalRecords}` : 'No records'}
+        {totalRecords > 0 ? t('detail.recordOf', { current: currentIndex + 1, total: totalRecords }) : t('detail.noRecords')}
       </span>
 
       {/* Next */}
@@ -162,7 +164,7 @@ export const RecordNavigationEnhanced: React.FC<RecordNavigationEnhancedProps> =
         className="h-8 w-8"
         disabled={!canGoNext}
         onClick={handleNext}
-        title="Next record (→)"
+        title={t('detail.nextRecordKey')}
       >
         <ChevronRight className="h-4 w-4" />
       </Button>
@@ -174,7 +176,7 @@ export const RecordNavigationEnhanced: React.FC<RecordNavigationEnhancedProps> =
         className="h-8 w-8"
         disabled={!canGoLast}
         onClick={handleLast}
-        title="Last record (End)"
+        title={t('detail.lastRecord')}
       >
         <ChevronsRight className="h-4 w-4" />
       </Button>
@@ -187,7 +189,7 @@ export const RecordNavigationEnhanced: React.FC<RecordNavigationEnhancedProps> =
             size="icon"
             className="h-8 w-8"
             onClick={handleToggleSearch}
-            title="Search while navigating"
+            title={t('detail.searchWhileNavigating')}
           >
             <Search className="h-4 w-4" />
           </Button>
@@ -197,7 +199,7 @@ export const RecordNavigationEnhanced: React.FC<RecordNavigationEnhancedProps> =
               <Input
                 ref={searchInputRef}
                 type="text"
-                placeholder="Search records…"
+                placeholder={t('detail.searchRecords')}
                 value={searchQuery}
                 onChange={handleSearchChange}
                 className="h-8 w-48 text-sm"
