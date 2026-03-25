@@ -228,15 +228,20 @@ export const ObjectView: React.FC<ObjectViewProps> = ({
   // When a DataSource implements onMutation(), ObjectView auto-refreshes
   // its own data fetch (for non-grid view types like kanban, calendar, etc.)
   // whenever a create/update/delete occurs on the same objectName.
+  //
+  // ListView-driven configurations already manage refreshKey via
+  // form success / delete handlers. To avoid double refreshes and
+  // duplicate find() calls, skip auto-subscription when renderListView is provided.
   useEffect(() => {
     if (!dataSource?.onMutation || !schema.objectName) return;
+    if (renderListView) return;
     const unsub = dataSource.onMutation((event: any) => {
       if (event.resource === schema.objectName) {
         setRefreshKey(prev => prev + 1);
       }
     });
     return unsub;
-  }, [dataSource, schema.objectName]);
+  }, [dataSource, schema.objectName, renderListView]);
 
   // Data fetching state for non-grid views
   const [data, setData] = useState<any[]>([]);

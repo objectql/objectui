@@ -342,7 +342,7 @@ export interface DataSource<T = any> {
    * unsub?.();
    * ```
    */
-  onMutation?(callback: (event: MutationEvent) => void): () => void;
+  onMutation?(callback: (event: MutationEvent<T>) => void): () => void;
 }
 
 /**

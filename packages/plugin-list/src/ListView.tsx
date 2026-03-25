@@ -416,15 +416,17 @@ export const ListView = React.forwardRef<ListViewHandle, ListViewProps>(({
   }), []);
 
   // --- P2: Auto-subscribe to DataSource mutation events ---
+  // When an external refreshTrigger is provided, rely on that instead of
+  // subscribing to dataSource mutations to avoid double refreshes.
   React.useEffect(() => {
-    if (!dataSource?.onMutation || !schema.objectName) return;
+    if (!dataSource?.onMutation || !schema.objectName || schema.refreshTrigger) return;
     const unsub = dataSource.onMutation((event) => {
       if (event.resource === schema.objectName) {
         setRefreshKey(k => k + 1);
       }
     });
     return unsub;
-  }, [dataSource, schema.objectName]);
+  }, [dataSource, schema.objectName, schema.refreshTrigger]);
 
   // Dynamic page size state (wired from pageSizeOptions selector)
   const [dynamicPageSize, setDynamicPageSize] = React.useState<number | undefined>(undefined);
