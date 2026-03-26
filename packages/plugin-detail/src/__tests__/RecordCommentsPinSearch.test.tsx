@@ -78,18 +78,18 @@ describe('RecordComments - Pinning', () => {
 describe('RecordComments - Search', () => {
   it('does not render search input when searchable is false/not provided', () => {
     render(<RecordComments comments={mockComments} />);
-    expect(screen.queryByLabelText('Search comments')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Search comments…')).not.toBeInTheDocument();
   });
 
   it('renders search input when searchable is true', () => {
     render(<RecordComments comments={mockComments} searchable />);
-    expect(screen.getByLabelText('Search comments')).toBeInTheDocument();
+    expect(screen.getByLabelText('Search comments…')).toBeInTheDocument();
   });
 
   it('filters comments by text when searching', () => {
     render(<RecordComments comments={mockComments} searchable />);
 
-    const searchInput = screen.getByLabelText('Search comments');
+    const searchInput = screen.getByLabelText('Search comments…');
     fireEvent.change(searchInput, { target: { value: 'project' } });
 
     expect(screen.getByText('First comment about the project')).toBeInTheDocument();
@@ -100,7 +100,7 @@ describe('RecordComments - Search', () => {
   it('filters comments by author when searching', () => {
     render(<RecordComments comments={mockComments} searchable />);
 
-    const searchInput = screen.getByLabelText('Search comments');
+    const searchInput = screen.getByLabelText('Search comments…');
     fireEvent.change(searchInput, { target: { value: 'Charlie' } });
 
     expect(screen.getByText('Third comment here')).toBeInTheDocument();
@@ -110,7 +110,7 @@ describe('RecordComments - Search', () => {
   it('shows "No matching comments" when search has no results', () => {
     render(<RecordComments comments={mockComments} searchable />);
 
-    const searchInput = screen.getByLabelText('Search comments');
+    const searchInput = screen.getByLabelText('Search comments…');
     fireEvent.change(searchInput, { target: { value: 'zzzznonexistent' } });
 
     expect(screen.getByText('No matching comments')).toBeInTheDocument();
@@ -119,7 +119,7 @@ describe('RecordComments - Search', () => {
   it('clears search when clear button is clicked', () => {
     render(<RecordComments comments={mockComments} searchable />);
 
-    const searchInput = screen.getByLabelText('Search comments');
+    const searchInput = screen.getByLabelText('Search comments…');
     fireEvent.change(searchInput, { target: { value: 'project' } });
 
     const clearBtn = screen.getByLabelText('Clear search');

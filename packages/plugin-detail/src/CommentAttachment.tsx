@@ -9,6 +9,7 @@
 import * as React from 'react';
 import { cn, Button } from '@object-ui/components';
 import { Paperclip, X, FileText, Image, FileArchive, File, Upload } from 'lucide-react';
+import { useDetailTranslation } from './useDetailTranslation';
 
 export interface Attachment {
   id: string;
@@ -53,6 +54,7 @@ export const CommentAttachment: React.FC<CommentAttachmentProps> = ({
   className,
   readOnly = false,
 }) => {
+  const { t } = useDetailTranslation();
   const [isDragOver, setIsDragOver] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -117,7 +119,7 @@ export const CommentAttachment: React.FC<CommentAttachmentProps> = ({
         >
           <Upload className="h-5 w-5 mx-auto text-muted-foreground mb-1" />
           <p className="text-xs text-muted-foreground">
-            Drop files here or click to upload
+            {t('detail.dropFilesToUpload')}
           </p>
           <input
             ref={fileInputRef}
@@ -135,7 +137,7 @@ export const CommentAttachment: React.FC<CommentAttachmentProps> = ({
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Paperclip className="h-3 w-3" />
             <span>
-              {attachments.length} attachment{attachments.length !== 1 ? 's' : ''}
+              {attachments.length !== 1 ? t('detail.attachmentCountPlural', { count: attachments.length }) : t('detail.attachmentCount', { count: attachments.length })}
             </span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -176,7 +178,7 @@ export const CommentAttachment: React.FC<CommentAttachmentProps> = ({
                       size="icon"
                       className="h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
                       onClick={() => onRemove(attachment.id)}
-                      title="Remove attachment"
+                      title={t('detail.removeAttachment')}
                     >
                       <X className="h-3.5 w-3.5" />
                     </Button>

@@ -10,6 +10,7 @@ import * as React from 'react';
 import { cn, Button, Card, CardHeader, CardTitle, CardContent } from '@object-ui/components';
 import { MessageSquare, Send, Pin, Search, X } from 'lucide-react';
 import type { CommentEntry } from '@object-ui/types';
+import { useDetailTranslation } from './useDetailTranslation';
 
 export interface RecordCommentsProps {
   comments: CommentEntry[];
@@ -50,6 +51,7 @@ export const RecordComments: React.FC<RecordCommentsProps> = ({
   searchable = false,
   className,
 }) => {
+  const { t } = useDetailTranslation();
   const [newComment, setNewComment] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -98,7 +100,7 @@ export const RecordComments: React.FC<RecordCommentsProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <MessageSquare className="h-4 w-4" />
-          Comments
+          {t('detail.comments')}
           <span className="text-sm font-normal text-muted-foreground">
             ({comments.length})
           </span>
@@ -112,16 +114,16 @@ export const RecordComments: React.FC<RecordCommentsProps> = ({
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <input
                 className="w-full rounded-md border border-input bg-background pl-8 pr-8 py-1.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                placeholder="Search comments…"
+                placeholder={t('detail.searchComments')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                aria-label="Search comments"
+                aria-label={t('detail.searchComments')}
               />
               {searchQuery && (
                 <button
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   onClick={() => setSearchQuery('')}
-                  aria-label="Clear search"
+                  aria-label={t('detail.clearSearch')}
                   type="button"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -136,7 +138,7 @@ export const RecordComments: React.FC<RecordCommentsProps> = ({
           <div className="flex gap-2">
             <textarea
               className="flex-1 min-h-[60px] rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
-              placeholder="Add a comment… (Ctrl+Enter to submit)"
+              placeholder={t('detail.addCommentPlaceholder')}
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -157,7 +159,7 @@ export const RecordComments: React.FC<RecordCommentsProps> = ({
         {/* Comment List */}
         {sortedComments.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">
-            {searchQuery.trim() ? 'No matching comments' : 'No comments yet'}
+            {searchQuery.trim() ? t('detail.noMatchingComments') : t('detail.noCommentsYet')}
           </p>
         ) : (
           <div className="space-y-3">
@@ -187,7 +189,7 @@ export const RecordComments: React.FC<RecordCommentsProps> = ({
                     {comment.pinned && (
                       <span className="text-xs text-amber-600 flex items-center gap-0.5">
                         <Pin className="h-3 w-3" />
-                        Pinned
+                        {t('detail.pinned')}
                       </span>
                     )}
                   </div>
@@ -198,10 +200,10 @@ export const RecordComments: React.FC<RecordCommentsProps> = ({
                       type="button"
                       className="mt-1 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
                       onClick={() => onTogglePin(comment.id)}
-                      aria-label={comment.pinned ? 'Unpin comment' : 'Pin comment'}
+                      aria-label={comment.pinned ? t('detail.unpin') : t('detail.pin')}
                     >
                       <Pin className="h-3 w-3" />
-                      {comment.pinned ? 'Unpin' : 'Pin'}
+                      {comment.pinned ? t('detail.unpin') : t('detail.pin')}
                     </button>
                   )}
                 </div>

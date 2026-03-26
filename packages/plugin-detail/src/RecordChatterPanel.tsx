@@ -12,6 +12,7 @@ import { MessageSquare, PanelRightOpen, PanelRightClose, X } from 'lucide-react'
 import type { RecordChatterComponentProps, FeedItem, RecordSubscription } from '@object-ui/types';
 import { RecordActivityTimeline } from './RecordActivityTimeline';
 import type { FeedFilterMode, RecordActivityTimelineProps } from './RecordActivityTimeline';
+import { useDetailTranslation } from './useDetailTranslation';
 
 export interface RecordChatterPanelProps {
   /** Chatter panel configuration from RecordChatterComponentProps */
@@ -73,6 +74,7 @@ export const RecordChatterPanel: React.FC<RecordChatterPanelProps> = ({
   const collapsible = config?.collapsible ?? true;
   const defaultCollapsed = (collapseWhenEmpty && items.length === 0) || (config?.defaultCollapsed ?? false);
 
+  const { t } = useDetailTranslation();
   const [collapsed, setCollapsed] = React.useState(defaultCollapsed);
 
   const isSidebar = position === 'right' || position === 'left';
@@ -94,7 +96,7 @@ export const RecordChatterPanel: React.FC<RecordChatterPanelProps> = ({
             size="icon"
             className="h-8 w-8 mx-1"
             onClick={() => setCollapsed(false)}
-            aria-label="Open discussion panel"
+            aria-label={t('detail.openDiscussion')}
           >
             <PanelRightOpen className="h-4 w-4" />
           </Button>
@@ -115,7 +117,7 @@ export const RecordChatterPanel: React.FC<RecordChatterPanelProps> = ({
         <div className="flex items-center justify-between px-4 py-3 border-b">
           <div className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
-            <span className="text-sm font-medium">Discussion</span>
+            <span className="text-sm font-medium">{t('detail.discussion')}</span>
           </div>
           {collapsible && (
             <Button
@@ -123,7 +125,7 @@ export const RecordChatterPanel: React.FC<RecordChatterPanelProps> = ({
               size="icon"
               className="h-7 w-7"
               onClick={() => setCollapsed(true)}
-              aria-label="Close discussion panel"
+              aria-label={t('detail.closeDiscussion')}
             >
               <X className="h-3.5 w-3.5" />
             </Button>
@@ -161,10 +163,10 @@ export const RecordChatterPanel: React.FC<RecordChatterPanelProps> = ({
           variant="ghost"
           className="w-full justify-start gap-2 text-muted-foreground"
           onClick={() => setCollapsed(false)}
-          aria-label="Show discussion"
+          aria-label={t('detail.showDiscussion', { count: items.length })}
         >
           <MessageSquare className="h-4 w-4" />
-          <span>Show Discussion ({items.length})</span>
+          <span>{t('detail.showDiscussion', { count: items.length })}</span>
         </Button>
       ) : (
         <div>
@@ -172,14 +174,14 @@ export const RecordChatterPanel: React.FC<RecordChatterPanelProps> = ({
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <MessageSquare className="h-4 w-4" />
-                Discussion
+                {t('detail.discussion')}
               </div>
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-7 w-7"
                 onClick={() => setCollapsed(true)}
-                aria-label="Hide discussion"
+                aria-label={t('detail.hideDiscussion')}
               >
                 <PanelRightClose className="h-3.5 w-3.5" />
               </Button>

@@ -18,6 +18,7 @@ import {
   Edit,
   Send,
 } from 'lucide-react';
+import { useDetailTranslation } from './useDetailTranslation';
 
 export interface MentionSuggestion {
   id: string;
@@ -71,10 +72,11 @@ export const RichTextCommentInput: React.FC<RichTextCommentInputProps> = ({
   onChange,
   onSubmit,
   mentionSuggestions = [],
-  placeholder = 'Write a comment…',
+  placeholder,
   className,
   disabled = false,
 }) => {
+  const { t } = useDetailTranslation();
   const [isPreview, setIsPreview] = React.useState(false);
   const [showMentions, setShowMentions] = React.useState(false);
   const [mentionQuery, setMentionQuery] = React.useState('');
@@ -214,7 +216,7 @@ export const RichTextCommentInput: React.FC<RichTextCommentInputProps> = ({
           className="h-7 w-7"
           onClick={handleBold}
           disabled={disabled || isPreview}
-          title="Bold (Ctrl+B)"
+          title={t('detail.bold')}
         >
           <Bold className="h-3.5 w-3.5" />
         </Button>
@@ -224,7 +226,7 @@ export const RichTextCommentInput: React.FC<RichTextCommentInputProps> = ({
           className="h-7 w-7"
           onClick={handleItalic}
           disabled={disabled || isPreview}
-          title="Italic (Ctrl+I)"
+          title={t('detail.italic')}
         >
           <Italic className="h-3.5 w-3.5" />
         </Button>
@@ -234,7 +236,7 @@ export const RichTextCommentInput: React.FC<RichTextCommentInputProps> = ({
           className="h-7 w-7"
           onClick={handleList}
           disabled={disabled || isPreview}
-          title="List"
+          title={t('detail.listFormat')}
         >
           <List className="h-3.5 w-3.5" />
         </Button>
@@ -244,7 +246,7 @@ export const RichTextCommentInput: React.FC<RichTextCommentInputProps> = ({
           className="h-7 w-7"
           onClick={handleCode}
           disabled={disabled || isPreview}
-          title="Inline code"
+          title={t('detail.inlineCode')}
         >
           <Code className="h-3.5 w-3.5" />
         </Button>
@@ -254,7 +256,7 @@ export const RichTextCommentInput: React.FC<RichTextCommentInputProps> = ({
           className="h-7 w-7"
           onClick={handleMentionTrigger}
           disabled={disabled || isPreview}
-          title="Mention someone"
+          title={t('detail.mentionSomeone')}
         >
           <AtSign className="h-3.5 w-3.5" />
         </Button>
@@ -266,7 +268,7 @@ export const RichTextCommentInput: React.FC<RichTextCommentInputProps> = ({
           size="icon"
           className="h-7 w-7"
           onClick={() => setIsPreview(!isPreview)}
-          title={isPreview ? 'Edit' : 'Preview'}
+          title={isPreview ? t('detail.edit') : t('detail.preview')}
         >
           {isPreview ? (
             <Edit className="h-3.5 w-3.5" />
@@ -282,7 +284,7 @@ export const RichTextCommentInput: React.FC<RichTextCommentInputProps> = ({
             className="h-7 w-7"
             onClick={onSubmit}
             disabled={disabled || !value.trim()}
-            title="Submit (Ctrl+Enter)"
+            title={t('detail.submitComment')}
           >
             <Send className="h-3.5 w-3.5" />
           </Button>
@@ -301,7 +303,7 @@ export const RichTextCommentInput: React.FC<RichTextCommentInputProps> = ({
             <textarea
               ref={textareaRef}
               className="w-full min-h-[80px] px-3 py-2 text-sm bg-transparent resize-none focus:outline-none placeholder:text-muted-foreground"
-              placeholder={placeholder}
+              placeholder={placeholder ?? t('detail.writeComment')}
               value={value}
               onChange={handleTextChange}
               onKeyDown={handleKeyDown}

@@ -104,8 +104,8 @@ describe('RecordChatterPanel', () => {
           items={mockItems}
         />,
       );
-      expect(screen.getByLabelText('Show discussion')).toBeInTheDocument();
-      fireEvent.click(screen.getByLabelText('Show discussion'));
+      expect(screen.getByLabelText('Show Discussion (2)')).toBeInTheDocument();
+      fireEvent.click(screen.getByLabelText('Show Discussion (2)'));
       expect(screen.getByText('Activity')).toBeInTheDocument();
     });
   });
@@ -214,14 +214,14 @@ describe('RecordChatterPanel', () => {
         />,
       );
       // Collapsed
-      expect(screen.getByLabelText('Show discussion')).toBeInTheDocument();
-      fireEvent.click(screen.getByLabelText('Show discussion'));
+      expect(screen.getByLabelText('Show Discussion (2)')).toBeInTheDocument();
+      fireEvent.click(screen.getByLabelText('Show Discussion (2)'));
       // Expanded
       expect(screen.getByText('Activity')).toBeInTheDocument();
       // Click hide
       fireEvent.click(screen.getByLabelText('Hide discussion'));
       // Collapsed again
-      expect(screen.getByLabelText('Show discussion')).toBeInTheDocument();
+      expect(screen.getByLabelText('Show Discussion (2)')).toBeInTheDocument();
     });
   });
 
@@ -235,7 +235,7 @@ describe('RecordChatterPanel', () => {
         />,
       );
       // Should be collapsed because items is empty
-      expect(screen.getByLabelText('Show discussion')).toBeInTheDocument();
+      expect(screen.getByLabelText('Show Discussion (0)')).toBeInTheDocument();
     });
 
     it('should not auto-collapse when items exist and collapseWhenEmpty is true', () => {

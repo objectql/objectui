@@ -28,6 +28,7 @@ import { FieldChangeItem } from './FieldChangeItem';
 import { ReactionPicker } from './ReactionPicker';
 import { ThreadedReplies } from './ThreadedReplies';
 import { SubscriptionToggle } from './SubscriptionToggle';
+import { useDetailTranslation } from './useDetailTranslation';
 
 export type FeedFilterMode = 'all' | 'comments_only' | 'changes_only' | 'tasks_only';
 
@@ -81,12 +82,14 @@ const FEED_TYPE_COLORS: Record<FeedItemType, string> = {
   call: 'bg-teal-100 text-teal-600',
 };
 
-const FILTER_OPTIONS: { value: FeedFilterMode; label: string }[] = [
-  { value: 'all', label: 'All Activity' },
-  { value: 'comments_only', label: 'Comments Only' },
-  { value: 'changes_only', label: 'Field Changes' },
-  { value: 'tasks_only', label: 'Tasks Only' },
-];
+function getFilterOptions(t: (key: string) => string): { value: FeedFilterMode; label: string }[] {
+  return [
+    { value: 'all', label: t('detail.allActivity') },
+    { value: 'comments_only', label: t('detail.commentsOnly') },
+    { value: 'changes_only', label: t('detail.fieldChangesFilter') },
+    { value: 'tasks_only', label: t('detail.tasksOnly') },
+  ];
+}
 
 function formatTimestamp(timestamp: string): string {
   try {
@@ -144,6 +147,7 @@ export const RecordActivityTimeline: React.FC<RecordActivityTimelineProps> = ({
   collapseWhenEmpty = false,
   className,
 }) => {
+  const { t } = useDetailTranslation();
   const [internalFilter, setInternalFilter] = React.useState<FeedFilterMode>('all');
   const [commentText, setCommentText] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -229,7 +233,7 @@ export const RecordActivityTimeline: React.FC<RecordActivityTimelineProps> = ({
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-base">
             <Activity className="h-4 w-4" />
-            Activity
+            {t('detail.activity')}
             <span className="text-sm font-normal text-muted-foreground">
               ({filtered.length})
             </span>
@@ -252,9 +256,9 @@ export const RecordActivityTimeline: React.FC<RecordActivityTimelineProps> = ({
               className="rounded-md border border-input bg-background px-2.5 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               value={activeFilter}
               onChange={(e) => handleFilterChange(e.target.value as FeedFilterMode)}
-              aria-label="Filter activity"
+              aria-label={t('detail.filterActivity')}
             >
-              {FILTER_OPTIONS.map((opt) => (
+              {getFilterOptions(t).map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
@@ -268,7 +272,7 @@ export const RecordActivityTimeline: React.FC<RecordActivityTimelineProps> = ({
           <div className="flex gap-2">
             <textarea
               className="flex-1 min-h-[60px] rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
-              placeholder="Leave a comment… (Ctrl+Enter to submit)"
+              placeholder={t('detail.leaveCommentPlaceholder')}
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -280,7 +284,7 @@ export const RecordActivityTimeline: React.FC<RecordActivityTimelineProps> = ({
               onClick={handleAddComment}
               disabled={!commentText.trim() || isSubmitting}
               className="shrink-0 self-end"
-              aria-label="Submit comment"
+              aria-label={t('detail.submitComment')}
             >
               <MessageSquare className="h-4 w-4" />
             </Button>
@@ -291,7 +295,7 @@ export const RecordActivityTimeline: React.FC<RecordActivityTimelineProps> = ({
         {filtered.length === 0 ? (
           collapseWhenEmpty ? null : (
             <p className="text-sm text-muted-foreground text-center py-4">
-              No activity recorded
+              {t('detail.noActivity')}
             </p>
           )
         ) : (
@@ -332,17 +336,17 @@ export const RecordActivityTimeline: React.FC<RecordActivityTimelineProps> = ({
                           <span className="text-sm font-medium">{item.actor}</span>
                           {item.source && (
                             <span className="text-xs text-muted-foreground">
-                              via {item.source}
+                              {t('detail.via', { source: item.source })}
                             </span>
                           )}
                           <span className="text-xs text-muted-foreground">
                             {formatTimestamp(item.createdAt)}
                           </span>
                           {item.edited && (
-                            <span className="text-xs text-muted-foreground italic">(edited)</span>
+                            <span className="text-xs text-muted-foreground italic">{t('detail.edited')}</span>
                           )}
                           {item.pinned && (
-                            <span className="text-xs text-amber-600">📌 Pinned</span>
+                            <span className="text-xs text-amber-600">📌 {t('detail.pinned')}</span>
                           )}
                         </div>
 
@@ -412,14 +416,14 @@ export const RecordActivityTimeline: React.FC<RecordActivityTimelineProps> = ({
               size="sm"
               onClick={handleLoadMore}
               disabled={isLoadingMore}
-              aria-label="Load more activity"
+              aria-label={t('detail.loadMore')}
             >
               {isLoadingMore ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-1" />
               ) : (
                 <ChevronDown className="h-4 w-4 mr-1" />
               )}
-              Load more
+              {t('detail.loadMore')}
             </Button>
           </div>
         )}
