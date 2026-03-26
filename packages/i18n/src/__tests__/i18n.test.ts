@@ -47,6 +47,17 @@ describe('@object-ui/i18n', () => {
       expect(i18n.t('common.cancel')).toBe('Cancel');
       expect(i18n.t('common.delete')).toBe('Delete');
       expect(i18n.t('common.loading')).toBe('Loading...');
+      expect(i18n.t('common.selectOption')).toBe('Select an option');
+      expect(i18n.t('common.select')).toBe('Select...');
+    });
+
+    it('translates new form keys in English', () => {
+      const i18n = createI18n({ defaultLanguage: 'en', detectBrowserLanguage: false });
+      expect(i18n.t('form.createTitle', { object: 'Contact' })).toBe('Create Contact');
+      expect(i18n.t('form.editTitle', { object: 'Contact' })).toBe('Edit Contact');
+      expect(i18n.t('form.createDescription', { object: 'Contact' })).toBe('Add a new Contact to your database.');
+      expect(i18n.t('form.editDescription', { object: 'Contact' })).toBe('Update details for Contact');
+      expect(i18n.t('form.saveRecord')).toBe('Save Record');
     });
 
     it('translates common keys in Chinese', () => {
@@ -55,6 +66,22 @@ describe('@object-ui/i18n', () => {
       expect(i18n.t('common.cancel')).toBe('取消');
       expect(i18n.t('common.delete')).toBe('删除');
       expect(i18n.t('common.loading')).toBe('加载中...');
+      expect(i18n.t('common.selectOption')).toBe('请选择');
+      expect(i18n.t('common.select')).toBe('选择...');
+    });
+
+    it('translates new form keys in Chinese', () => {
+      const i18n = createI18n({ defaultLanguage: 'zh', detectBrowserLanguage: false });
+      expect(i18n.t('form.createTitle', { object: '联系人' })).toBe('新建联系人');
+      expect(i18n.t('form.editTitle', { object: '联系人' })).toBe('编辑联系人');
+      expect(i18n.t('form.createDescription', { object: '联系人' })).toBe('向数据库添加新的联系人。');
+      expect(i18n.t('form.editDescription', { object: '联系人' })).toBe('更新联系人的详情');
+      expect(i18n.t('form.saveRecord')).toBe('保存记录');
+    });
+
+    it('translates toolbarEnabledCount in Chinese (not English fallback)', () => {
+      const i18n = createI18n({ defaultLanguage: 'zh', detectBrowserLanguage: false });
+      expect(i18n.t('console.objectView.toolbarEnabledCount', { count: 3, total: 5 })).toBe('已启用 3/5 项');
     });
 
     it('translates common keys in Japanese', () => {
