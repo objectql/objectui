@@ -14,6 +14,7 @@ import { RecordPickerDialog } from './RecordPickerDialog';
 import type { RecordPickerFilterColumn } from './RecordPickerDialog';
 import { getCellRendererResolver } from './_cell-renderer-bridge';
 import { SchemaRendererContext as ImportedSchemaRendererContext } from '@object-ui/react';
+import { useFieldTranslation } from './useFieldTranslation';
 
 export interface LookupOption {
   value: string | number;
@@ -79,6 +80,7 @@ function mapFieldTypeToFilterType(
 export function LookupField({ value, onChange, field, readonly, ...props }: FieldWidgetProps<any>) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const { t } = useFieldTranslation();
 
   // Dynamic data loading state
   const [fetchedOptions, setFetchedOptions] = useState<LookupOption[]>([]);
@@ -393,8 +395,8 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
           >
             <Search className="mr-2 size-4" />
             {selectedOptions.length === 0 
-              ? lookupField?.placeholder || 'Select...'
-              : multiple ? `${selectedOptions.length} selected` : 'Change selection'
+              ? lookupField?.placeholder || t('common.select')
+              : multiple ? t('table.selected', { count: selectedOptions.length }) : t('common.select')
             }
           </Button>
         </PopoverTrigger>
@@ -404,7 +406,7 @@ export function LookupField({ value, onChange, field, readonly, ...props }: Fiel
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
-                placeholder="Search..."
+                placeholder={t('common.search') + '...'}
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 onKeyDown={handleSearchKeyDown}

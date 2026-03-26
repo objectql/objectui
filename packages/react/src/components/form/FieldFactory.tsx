@@ -10,6 +10,12 @@ import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import type { FormField } from '@objectstack/spec/ui';
 import { resolveI18nLabel } from '../../utils/i18n';
+import { createSafeTranslation } from '@object-ui/i18n';
+
+const useSafeTranslation = createSafeTranslation(
+  { 'common.selectOption': 'Select an option' },
+  'common.selectOption',
+);
 
 /**
  * Extended form field with additional properties for complex widgets
@@ -51,6 +57,7 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
   disabled = false,
 }) => {
   const { register, formState: { errors } } = methods;
+  const { t } = useSafeTranslation();
   
   // Cast to extended field for properties not in base schema
   const extendedField = field as ExtendedFormField;
@@ -193,7 +200,7 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
             setValueAs: handleMultipleSelectValue,
           })}
         >
-          {!extendedField.multiple && <option value="">{fieldPlaceholder || 'Select an option'}</option>}
+          {!extendedField.multiple && <option value="">{fieldPlaceholder || t('common.selectOption')}</option>}
           {extendedField.options?.map((option) => (
             <option key={option.value} value={option.value} disabled={option.disabled}>
               {option.label}
@@ -400,7 +407,7 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
             setValueAs: handleMultipleSelectValue,
           })}
         >
-          {!extendedField.multiple && <option value="">{fieldPlaceholder || 'Select an option'}</option>}
+          {!extendedField.multiple && <option value="">{fieldPlaceholder || t('common.selectOption')}</option>}
           {extendedField.options?.map((option) => (
             <option key={option.value} value={option.value} disabled={option.disabled}>
               {option.label}

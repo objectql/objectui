@@ -4,6 +4,7 @@ import { ModalForm } from '@object-ui/plugin-form';
 import { Empty, EmptyTitle, EmptyDescription, Button } from '@object-ui/components';
 import { toast } from 'sonner';
 import { SchemaRendererProvider, useActionRunner, useGlobalUndo } from '@object-ui/react';
+import { useObjectTranslation } from '@object-ui/i18n';
 import type { ConnectionState } from './dataSource';
 import { AuthGuard, useAuth, PreviewBanner } from '@object-ui/auth';
 import { MetadataProvider, useMetadata } from './context/MetadataProvider';
@@ -92,6 +93,7 @@ export function AppContent() {
   const location = useLocation();
   const { appName } = useParams();
   const { apps, objects: allObjects, loading: metadataLoading } = useMetadata();
+  const { t } = useObjectTranslation();
   
   // Determine active app based on URL
   const activeApps = apps.filter((a: any) => a.active !== false);
@@ -396,8 +398,12 @@ export function AppContent() {
                   objectName: currentObjectDef.name,
                   mode: editingRecord ? 'edit' : 'create',
                   recordId: editingRecord?.id,
-                  title: `${editingRecord ? 'Edit' : 'Create'} ${currentObjectDef?.label}`,
-                  description: editingRecord ? `Update details for ${currentObjectDef?.label}` : `Add a new ${currentObjectDef?.label} to your database.`,
+                  title: editingRecord
+                      ? t('form.editTitle', { object: currentObjectDef?.label })
+                      : t('form.createTitle', { object: currentObjectDef?.label }),
+                  description: editingRecord
+                      ? t('form.editDescription', { object: currentObjectDef?.label })
+                      : t('form.createDescription', { object: currentObjectDef?.label }),
                   open: isDialogOpen,
                   onOpenChange: setIsDialogOpen,
                   layout: 'vertical',
@@ -417,8 +423,8 @@ export function AppContent() {
                   onCancel: handleDialogCancel,
                   showSubmit: true,
                   showCancel: true,
-                  submitText: 'Save Record',
-                  cancelText: 'Cancel',
+                  submitText: t('form.saveRecord'),
+                  cancelText: t('common.cancel'),
               }}
               dataSource={dataSource}
           />

@@ -32,6 +32,8 @@ const en = {
     noResults: 'No results found',
     required: 'Required',
     optional: 'Optional',
+    selectOption: 'Select an option',
+    select: 'Select...',
   },
   validation: {
     required: '{{field}} is required',
@@ -54,6 +56,11 @@ const en = {
     saveError: 'Failed to save',
     unsavedChanges: 'You have unsaved changes. Are you sure you want to leave?',
     stepOf: 'Step {{current}} of {{total}}',
+    createTitle: 'Create {{object}}',
+    editTitle: 'Edit {{object}}',
+    createDescription: 'Add a new {{object}} to your database.',
+    editDescription: 'Update details for {{object}}',
+    saveRecord: 'Save Record',
   },
   table: {
     rowsPerPage: 'Rows per page',

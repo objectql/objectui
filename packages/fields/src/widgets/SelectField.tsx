@@ -7,6 +7,7 @@ import {
   SelectValue 
 } from '@object-ui/components';
 import { SelectFieldMetadata } from '@object-ui/types';
+import { useFieldTranslation } from './useFieldTranslation';
 import { FieldWidgetProps } from './types';
 
 /**
@@ -16,6 +17,7 @@ import { FieldWidgetProps } from './types';
 export function SelectField({ value, onChange, field, readonly, ...props }: FieldWidgetProps<string>) {
   const config = (field || (props as any).schema) as SelectFieldMetadata;
   const options = config?.options || [];
+  const { t } = useFieldTranslation();
 
   if (readonly) {
     const option = options.find((o) => o.value === value);
@@ -30,7 +32,7 @@ export function SelectField({ value, onChange, field, readonly, ...props }: Fiel
       disabled={readonly || props.disabled}
     >
       <SelectTrigger className={props.className} id={props.id}>
-        <SelectValue placeholder={config?.placeholder || "Select an option"} />
+        <SelectValue placeholder={config?.placeholder || t('common.selectOption')} />
       </SelectTrigger>
       <SelectContent position="popper">
         {options.map((option) => (
