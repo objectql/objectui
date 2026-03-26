@@ -164,6 +164,13 @@ export const DETAIL_DEFAULT_TRANSLATIONS: Record<string, string> = {
   'detail.replyCount': '{{count}} reply',
   'detail.replyCountPlural': '{{count}} replies',
   'detail.replyPlaceholder': 'Reply…',
+  // Aria labels
+  'detail.filterActivity': 'Filter activity',
+  'detail.openDiscussion': 'Open discussion panel',
+  'detail.closeDiscussion': 'Close discussion panel',
+  'detail.subscribeAriaLabel': 'Subscribe to notifications',
+  'detail.unsubscribeAriaLabel': 'Unsubscribe from notifications',
+  'detail.clearSearch': 'Clear search',
 };
 
 /**

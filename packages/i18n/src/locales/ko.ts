@@ -233,6 +233,12 @@ const ko = {
     replyCount: '답글 {{count}}개',
     replyCountPlural: '답글 {{count}}개',
     replyPlaceholder: '답글…',
+    filterActivity: '활동 필터',
+    openDiscussion: '토론 패널 열기',
+    closeDiscussion: '토론 패널 닫기',
+    subscribeAriaLabel: '알림 구독',
+    unsubscribeAriaLabel: '알림 구독 취소',
+    clearSearch: '검색 지우기',
   },
   chart: {
     noData: '차트 데이터가 없습니다',

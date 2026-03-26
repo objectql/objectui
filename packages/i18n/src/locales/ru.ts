@@ -253,6 +253,12 @@ const ru = {
     replyCount: '{{count}} ответ',
     replyCountPlural: '{{count}} ответов',
     replyPlaceholder: 'Ответить…',
+    filterActivity: 'Фильтр активности',
+    openDiscussion: 'Открыть панель обсуждения',
+    closeDiscussion: 'Закрыть панель обсуждения',
+    subscribeAriaLabel: 'Подписаться на уведомления',
+    unsubscribeAriaLabel: 'Отписаться от уведомлений',
+    clearSearch: 'Очистить поиск',
   },
   chart: {
     noData: 'Нет данных для графика',

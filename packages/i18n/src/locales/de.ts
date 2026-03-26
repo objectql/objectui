@@ -242,6 +242,12 @@ const de = {
     replyCount: '{{count}} Antwort',
     replyCountPlural: '{{count}} Antworten',
     replyPlaceholder: 'Antworten…',
+    filterActivity: 'Aktivität filtern',
+    openDiscussion: 'Diskussionspanel öffnen',
+    closeDiscussion: 'Diskussionspanel schließen',
+    subscribeAriaLabel: 'Benachrichtigungen abonnieren',
+    unsubscribeAriaLabel: 'Benachrichtigungen abbestellen',
+    clearSearch: 'Suche löschen',
   },
   chart: {
     noData: 'Keine Diagrammdaten verfügbar',

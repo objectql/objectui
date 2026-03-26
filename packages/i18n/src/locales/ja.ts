@@ -244,6 +244,12 @@ const ja = {
     replyCount: '{{count}} 件の返信',
     replyCountPlural: '{{count}} 件の返信',
     replyPlaceholder: '返信…',
+    filterActivity: 'アクティビティをフィルター',
+    openDiscussion: 'ディスカッションパネルを開く',
+    closeDiscussion: 'ディスカッションパネルを閉じる',
+    subscribeAriaLabel: '通知を購読',
+    unsubscribeAriaLabel: '通知の購読を解除',
+    clearSearch: '検索をクリア',
   },
   chart: {
     noData: 'チャートデータがありません',

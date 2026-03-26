@@ -233,6 +233,12 @@ const pt = {
     replyCount: '{{count}} resposta',
     replyCountPlural: '{{count}} respostas',
     replyPlaceholder: 'Responder…',
+    filterActivity: 'Filtrar atividade',
+    openDiscussion: 'Abrir painel de discussão',
+    closeDiscussion: 'Fechar painel de discussão',
+    subscribeAriaLabel: 'Inscrever-se para notificações',
+    unsubscribeAriaLabel: 'Cancelar inscrição de notificações',
+    clearSearch: 'Limpar pesquisa',
   },
   chart: {
     noData: 'Nenhum dado de gráfico disponível',

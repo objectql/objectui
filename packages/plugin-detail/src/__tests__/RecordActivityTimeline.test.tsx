@@ -166,7 +166,7 @@ describe('RecordActivityTimeline', () => {
     fireEvent.change(screen.getByPlaceholderText(/Leave a comment/), {
       target: { value: 'New comment' },
     });
-    fireEvent.click(screen.getByLabelText('Submit comment'));
+    fireEvent.click(screen.getByLabelText('Submit (Ctrl+Enter)'));
     expect(onAdd).toHaveBeenCalledWith('New comment');
   });
 
@@ -174,7 +174,7 @@ describe('RecordActivityTimeline', () => {
     render(
       <RecordActivityTimeline items={mockItems} hasMore onLoadMore={() => {}} />,
     );
-    expect(screen.getByLabelText('Load more activity')).toBeInTheDocument();
+    expect(screen.getByLabelText('Load more')).toBeInTheDocument();
   });
 
   it('should call onLoadMore when Load more is clicked', () => {
@@ -182,7 +182,7 @@ describe('RecordActivityTimeline', () => {
     render(
       <RecordActivityTimeline items={mockItems} hasMore onLoadMore={onLoadMore} />,
     );
-    fireEvent.click(screen.getByLabelText('Load more activity'));
+    fireEvent.click(screen.getByLabelText('Load more'));
     expect(onLoadMore).toHaveBeenCalled();
   });
 
@@ -261,7 +261,7 @@ describe('RecordActivityTimeline', () => {
     );
     const textarea = screen.getByPlaceholderText(/Leave a comment/) as HTMLTextAreaElement;
     fireEvent.change(textarea, { target: { value: 'Will be cleared' } });
-    fireEvent.click(screen.getByLabelText('Submit comment'));
+    fireEvent.click(screen.getByLabelText('Submit (Ctrl+Enter)'));
     await vi.waitFor(() => {
       expect(textarea.value).toBe('');
     });
@@ -275,9 +275,9 @@ describe('RecordActivityTimeline', () => {
     );
     const textarea = screen.getByPlaceholderText(/Leave a comment/) as HTMLTextAreaElement;
     fireEvent.change(textarea, { target: { value: 'submitting' } });
-    fireEvent.click(screen.getByLabelText('Submit comment'));
+    fireEvent.click(screen.getByLabelText('Submit (Ctrl+Enter)'));
     expect(textarea).toBeDisabled();
-    expect(screen.getByLabelText('Submit comment')).toBeDisabled();
+    expect(screen.getByLabelText('Submit (Ctrl+Enter)')).toBeDisabled();
     resolveSubmit!();
     await vi.waitFor(() => {
       expect(textarea).not.toBeDisabled();
@@ -290,12 +290,12 @@ describe('RecordActivityTimeline', () => {
     render(
       <RecordActivityTimeline items={mockItems} hasMore onLoadMore={onLoadMore} />,
     );
-    fireEvent.click(screen.getByLabelText('Load more activity'));
+    fireEvent.click(screen.getByLabelText('Load more'));
     // Loader2 spinner should be present while loading
-    expect(screen.getByLabelText('Load more activity')).toBeDisabled();
+    expect(screen.getByLabelText('Load more')).toBeDisabled();
     resolveLoad!();
     await vi.waitFor(() => {
-      expect(screen.getByLabelText('Load more activity')).not.toBeDisabled();
+      expect(screen.getByLabelText('Load more')).not.toBeDisabled();
     });
   });
 

@@ -117,13 +117,13 @@ export const RecordComments: React.FC<RecordCommentsProps> = ({
                 placeholder={t('detail.searchComments')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                aria-label="Search comments"
+                aria-label={t('detail.searchComments')}
               />
               {searchQuery && (
                 <button
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   onClick={() => setSearchQuery('')}
-                  aria-label="Clear search"
+                  aria-label={t('detail.clearSearch')}
                   type="button"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -200,7 +200,7 @@ export const RecordComments: React.FC<RecordCommentsProps> = ({
                       type="button"
                       className="mt-1 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
                       onClick={() => onTogglePin(comment.id)}
-                      aria-label={comment.pinned ? 'Unpin comment' : 'Pin comment'}
+                      aria-label={comment.pinned ? t('detail.unpin') : t('detail.pin')}
                     >
                       <Pin className="h-3 w-3" />
                       {comment.pinned ? t('detail.unpin') : t('detail.pin')}

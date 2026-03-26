@@ -269,6 +269,13 @@ const zh = {
     replyCount: '{{count}} 条回复',
     replyCountPlural: '{{count}} 条回复',
     replyPlaceholder: '回复…',
+    // 无障碍标签
+    filterActivity: '筛选活动',
+    openDiscussion: '打开讨论面板',
+    closeDiscussion: '关闭讨论面板',
+    subscribeAriaLabel: '订阅通知',
+    unsubscribeAriaLabel: '取消订阅通知',
+    clearSearch: '清除搜索',
   },
   chart: {
     noData: '暂无图表数据',

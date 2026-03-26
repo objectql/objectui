@@ -96,7 +96,7 @@ export const RecordChatterPanel: React.FC<RecordChatterPanelProps> = ({
             size="icon"
             className="h-8 w-8 mx-1"
             onClick={() => setCollapsed(false)}
-            aria-label="Open discussion panel"
+            aria-label={t('detail.openDiscussion')}
           >
             <PanelRightOpen className="h-4 w-4" />
           </Button>
@@ -125,7 +125,7 @@ export const RecordChatterPanel: React.FC<RecordChatterPanelProps> = ({
               size="icon"
               className="h-7 w-7"
               onClick={() => setCollapsed(true)}
-              aria-label="Close discussion panel"
+              aria-label={t('detail.closeDiscussion')}
             >
               <X className="h-3.5 w-3.5" />
             </Button>
@@ -163,7 +163,7 @@ export const RecordChatterPanel: React.FC<RecordChatterPanelProps> = ({
           variant="ghost"
           className="w-full justify-start gap-2 text-muted-foreground"
           onClick={() => setCollapsed(false)}
-          aria-label="Show discussion"
+          aria-label={t('detail.showDiscussion', { count: items.length })}
         >
           <MessageSquare className="h-4 w-4" />
           <span>{t('detail.showDiscussion', { count: items.length })}</span>
@@ -181,7 +181,7 @@ export const RecordChatterPanel: React.FC<RecordChatterPanelProps> = ({
                 size="icon"
                 className="h-7 w-7"
                 onClick={() => setCollapsed(true)}
-                aria-label="Hide discussion"
+                aria-label={t('detail.hideDiscussion')}
               >
                 <PanelRightClose className="h-3.5 w-3.5" />
               </Button>

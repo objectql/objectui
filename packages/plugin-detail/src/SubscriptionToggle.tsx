@@ -49,7 +49,7 @@ export const SubscriptionToggle: React.FC<SubscriptionToggleProps> = ({
       className={cn('h-8 w-8', className)}
       onClick={handleToggle}
       disabled={isLoading || !onToggle}
-      aria-label={subscription.subscribed ? 'Unsubscribe from notifications' : 'Subscribe to notifications'}
+      aria-label={subscription.subscribed ? t('detail.unsubscribeAriaLabel') : t('detail.subscribeAriaLabel')}
       title={subscription.subscribed ? t('detail.subscribedTooltip') : t('detail.unsubscribedTooltip')}
     >
       {subscription.subscribed ? (

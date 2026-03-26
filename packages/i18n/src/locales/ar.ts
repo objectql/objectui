@@ -234,6 +234,12 @@ const ar = {
     replyCount: '{{count}} رد',
     replyCountPlural: '{{count}} ردود',
     replyPlaceholder: 'رد…',
+    filterActivity: 'تصفية النشاط',
+    openDiscussion: 'فتح لوحة المناقشة',
+    closeDiscussion: 'إغلاق لوحة المناقشة',
+    subscribeAriaLabel: 'الاشتراك في الإشعارات',
+    unsubscribeAriaLabel: 'إلغاء الاشتراك من الإشعارات',
+    clearSearch: 'مسح البحث',
   },
   chart: {
     noData: 'لا تتوفر بيانات للرسم البياني',

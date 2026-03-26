@@ -256,7 +256,7 @@ export const RecordActivityTimeline: React.FC<RecordActivityTimelineProps> = ({
               className="rounded-md border border-input bg-background px-2.5 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               value={activeFilter}
               onChange={(e) => handleFilterChange(e.target.value as FeedFilterMode)}
-              aria-label="Filter activity"
+              aria-label={t('detail.filterActivity')}
             >
               {getFilterOptions(t).map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -284,7 +284,7 @@ export const RecordActivityTimeline: React.FC<RecordActivityTimelineProps> = ({
               onClick={handleAddComment}
               disabled={!commentText.trim() || isSubmitting}
               className="shrink-0 self-end"
-              aria-label="Submit comment"
+              aria-label={t('detail.submitComment')}
             >
               <MessageSquare className="h-4 w-4" />
             </Button>
@@ -416,7 +416,7 @@ export const RecordActivityTimeline: React.FC<RecordActivityTimelineProps> = ({
               size="sm"
               onClick={handleLoadMore}
               disabled={isLoadingMore}
-              aria-label="Load more activity"
+              aria-label={t('detail.loadMore')}
             >
               {isLoadingMore ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-1" />

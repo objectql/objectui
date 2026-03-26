@@ -72,7 +72,7 @@ export const RichTextCommentInput: React.FC<RichTextCommentInputProps> = ({
   onChange,
   onSubmit,
   mentionSuggestions = [],
-  placeholder = '',
+  placeholder,
   className,
   disabled = false,
 }) => {
@@ -303,7 +303,7 @@ export const RichTextCommentInput: React.FC<RichTextCommentInputProps> = ({
             <textarea
               ref={textareaRef}
               className="w-full min-h-[80px] px-3 py-2 text-sm bg-transparent resize-none focus:outline-none placeholder:text-muted-foreground"
-              placeholder={placeholder || t('detail.writeComment')}
+              placeholder={placeholder ?? t('detail.writeComment')}
               value={value}
               onChange={handleTextChange}
               onKeyDown={handleKeyDown}

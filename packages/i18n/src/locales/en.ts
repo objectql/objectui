@@ -269,6 +269,13 @@ const en = {
     replyCount: '{{count}} reply',
     replyCountPlural: '{{count}} replies',
     replyPlaceholder: 'Reply…',
+    // Aria labels
+    filterActivity: 'Filter activity',
+    openDiscussion: 'Open discussion panel',
+    closeDiscussion: 'Close discussion panel',
+    subscribeAriaLabel: 'Subscribe to notifications',
+    unsubscribeAriaLabel: 'Unsubscribe from notifications',
+    clearSearch: 'Clear search',
   },
   chart: {
     noData: 'No chart data available',
