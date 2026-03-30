@@ -107,7 +107,7 @@ export function ObjectManager({
     { name: 'name', label: t('appDesigner.objectManager.objectName'), width: 160 },
     { name: 'label', label: t('appDesigner.objectManager.objectLabel'), width: 160 },
     { name: 'group', label: t('appDesigner.objectManager.group'), width: 130 },
-    { name: 'fieldCount', label: t('appDesigner.objectManager.fieldCount', { count: '' }).replace(/\s*$/, ''), width: 80 },
+    { name: 'fieldCount', label: 'Fields', width: 80 },
     { name: 'enabled', label: t('appDesigner.objectManager.enabled'), width: 80 },
   ], [t]);
 

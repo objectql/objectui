@@ -267,31 +267,80 @@ function FieldEditor({ field, onChange, onClose, readOnly, t }: FieldEditorProps
       {/* Boolean toggles */}
       <div className="space-y-2">
         <label className="flex items-center gap-2">
-          <input type="checkbox" checked={field.required || false} onChange={(e) => update({ required: e.target.checked })} disabled={readOnly} data-testid="field-editor-required" className="h-3.5 w-3.5 rounded border-gray-300" />
+          <input
+            type="checkbox"
+            checked={field.required || false}
+            onChange={(e) => update({ required: e.target.checked })}
+            disabled={readOnly}
+            data-testid="field-editor-required"
+            className="h-3.5 w-3.5 rounded border-gray-300"
+          />
           <span className="text-xs text-gray-700">{t('appDesigner.fieldDesigner.required')}</span>
         </label>
         <label className="flex items-center gap-2">
-          <input type="checkbox" checked={field.unique || false} onChange={(e) => update({ unique: e.target.checked })} disabled={readOnly} data-testid="field-editor-unique" className="h-3.5 w-3.5 rounded border-gray-300" />
+          <input
+            type="checkbox"
+            checked={field.unique || false}
+            onChange={(e) => update({ unique: e.target.checked })}
+            disabled={readOnly}
+            data-testid="field-editor-unique"
+            className="h-3.5 w-3.5 rounded border-gray-300"
+          />
           <span className="text-xs text-gray-700">{t('appDesigner.fieldDesigner.unique')}</span>
         </label>
         <label className="flex items-center gap-2">
-          <input type="checkbox" checked={field.readonly || false} onChange={(e) => update({ readonly: e.target.checked })} disabled={readOnly} data-testid="field-editor-readonly" className="h-3.5 w-3.5 rounded border-gray-300" />
+          <input
+            type="checkbox"
+            checked={field.readonly || false}
+            onChange={(e) => update({ readonly: e.target.checked })}
+            disabled={readOnly}
+            data-testid="field-editor-readonly"
+            className="h-3.5 w-3.5 rounded border-gray-300"
+          />
           <span className="text-xs text-gray-700">{t('appDesigner.fieldDesigner.readOnly')}</span>
         </label>
         <label className="flex items-center gap-2">
-          <input type="checkbox" checked={field.hidden || false} onChange={(e) => update({ hidden: e.target.checked })} disabled={readOnly} data-testid="field-editor-hidden" className="h-3.5 w-3.5 rounded border-gray-300" />
+          <input
+            type="checkbox"
+            checked={field.hidden || false}
+            onChange={(e) => update({ hidden: e.target.checked })}
+            disabled={readOnly}
+            data-testid="field-editor-hidden"
+            className="h-3.5 w-3.5 rounded border-gray-300"
+          />
           <span className="text-xs text-gray-700">{t('appDesigner.fieldDesigner.hidden')}</span>
         </label>
         <label className="flex items-center gap-2">
-          <input type="checkbox" checked={field.indexed || false} onChange={(e) => update({ indexed: e.target.checked })} disabled={readOnly} data-testid="field-editor-indexed" className="h-3.5 w-3.5 rounded border-gray-300" />
+          <input
+            type="checkbox"
+            checked={field.indexed || false}
+            onChange={(e) => update({ indexed: e.target.checked })}
+            disabled={readOnly}
+            data-testid="field-editor-indexed"
+            className="h-3.5 w-3.5 rounded border-gray-300"
+          />
           <span className="text-xs text-gray-700">{t('appDesigner.fieldDesigner.indexed')}</span>
         </label>
         <label className="flex items-center gap-2">
-          <input type="checkbox" checked={field.externalId || false} onChange={(e) => update({ externalId: e.target.checked })} disabled={readOnly} data-testid="field-editor-external-id" className="h-3.5 w-3.5 rounded border-gray-300" />
+          <input
+            type="checkbox"
+            checked={field.externalId || false}
+            onChange={(e) => update({ externalId: e.target.checked })}
+            disabled={readOnly}
+            data-testid="field-editor-external-id"
+            className="h-3.5 w-3.5 rounded border-gray-300"
+          />
           <span className="text-xs text-gray-700">{t('appDesigner.fieldDesigner.externalId')}</span>
         </label>
         <label className="flex items-center gap-2">
-          <input type="checkbox" checked={field.trackHistory || false} onChange={(e) => update({ trackHistory: e.target.checked })} disabled={readOnly} data-testid="field-editor-track-history" className="h-3.5 w-3.5 rounded border-gray-300" />
+          <input
+            type="checkbox"
+            checked={field.trackHistory || false}
+            onChange={(e) => update({ trackHistory: e.target.checked })}
+            disabled={readOnly}
+            data-testid="field-editor-track-history"
+            className="h-3.5 w-3.5 rounded border-gray-300"
+          />
           <span className="text-xs text-gray-700">{t('appDesigner.fieldDesigner.trackHistory')}</span>
         </label>
       </div>
