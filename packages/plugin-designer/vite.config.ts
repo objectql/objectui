@@ -20,6 +20,7 @@ export default defineConfig({
       '@object-ui/types': resolve(__dirname, '../types/src'),
       '@object-ui/react': resolve(__dirname, '../react/src'),
       '@object-ui/components': resolve(__dirname, '../components/src'),
+      '@object-ui/i18n': resolve(__dirname, '../i18n/src'),
     },
   },
   build: {

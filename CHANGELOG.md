@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Object Manager visual designer** (`@object-ui/plugin-designer`): Enterprise-grade object management interface for creating, editing, deleting, and configuring meta-object definitions. Features include inline property editing (name, label, plural label, description, icon, group, sort order, enabled toggle), object relationship display, search/filter, grouped views with badges, system object protection, confirm dialogs for destructive actions, and read-only mode. 18 unit tests.
+
+- **Field Designer visual designer** (`@object-ui/plugin-designer`): Enterprise-grade field configuration wizard supporting 27 field types with full CRUD operations. Advanced properties include uniqueness constraints, default values, picklist/option set management, read-only, hidden, validation rules (min/max/length/pattern/custom), external ID, history tracking, and database indexing. Type-specific editors for lookup references, formula expressions, and select options. Field grouping, sorting, search, type-based filtering, system field protection, and read-only mode. 22 unit tests.
+
+- **New type definitions** (`@object-ui/types`): Added `ObjectDefinition`, `ObjectDefinitionRelationship`, `ObjectManagerSchema`, `DesignerFieldType` (27 field types), `DesignerFieldOption`, `DesignerValidationRule`, `DesignerFieldDefinition`, and `FieldDesignerSchema` interfaces for the Object Manager and Field Designer components.
+
+- **New i18n keys for Object Manager and Field Designer** (`@object-ui/i18n`): Added 50 new translation keys per locale across all 10 locale packs (en, zh, ja, ko, de, fr, es, pt, ru, ar) covering both `objectManager` and `fieldDesigner` subsections of `appDesigner`.
+
+- **Designer translation fallbacks** (`@object-ui/plugin-designer`): Updated `useDesignerTranslation` with fallback translations for all new Object Manager and Field Designer keys.
+
+### Fixed
+
+- **Plugin designer test infrastructure** (`@object-ui/plugin-designer`): Created missing `vitest.setup.ts` with ResizeObserver polyfill and jest-dom matchers. Added `@object-ui/i18n` alias to vite config. These fixes resolved 9 pre-existing test suite failures, bringing total passing tests from 45 to 246.
+
 ### Fixed
 
 - **Chinese language pack (zh.ts) untranslated key** (`@object-ui/i18n`): Fixed `console.objectView.toolbarEnabledCount` which was still in English (`'{{count}} of {{total}} enabled'`) — now properly translated to `'已启用 {{count}}/{{total}} 项'`. Also fixed the same untranslated key in all other 8 non-English locales (ja, ko, de, fr, es, pt, ru, ar).
