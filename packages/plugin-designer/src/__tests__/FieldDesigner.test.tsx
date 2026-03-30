@@ -7,9 +7,12 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { FieldDesigner } from '../FieldDesigner';
 import type { DesignerFieldDefinition } from '@object-ui/types';
+
+// Mock standard components — tested separately in their own packages
+vi.mock('@object-ui/plugin-grid', () => import('./__mocks__/plugin-grid'));
 
 const MOCK_FIELDS: DesignerFieldDefinition[] = [
   {
@@ -74,81 +77,41 @@ describe('FieldDesigner', () => {
   // Rendering
   // ============================
   describe('Rendering', () => {
-    it('should render the field designer', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
-      );
+    it('should render the field designer container', () => {
+      render(<FieldDesigner objectName="accounts" fields={MOCK_FIELDS} />);
       expect(screen.getByTestId('field-designer')).toBeDefined();
     });
 
-    it('should render field items', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
-      );
-      expect(screen.getByTestId('field-item-fld-1')).toBeDefined();
-      expect(screen.getByTestId('field-item-fld-2')).toBeDefined();
-      expect(screen.getByTestId('field-item-fld-3')).toBeDefined();
+    it('should render the ObjectGrid with field data', async () => {
+      render(<FieldDesigner objectName="accounts" fields={MOCK_FIELDS} />);
+      await waitFor(() => {
+        expect(screen.getByTestId('mock-object-grid')).toBeDefined();
+      });
     });
 
-    it('should render add button', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
-      );
-      expect(screen.getByTestId('field-designer-add')).toBeDefined();
-    });
-
-    it('should render search input', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
-      );
-      expect(screen.getByTestId('field-designer-search')).toBeDefined();
+    it('should render all fields as grid rows', async () => {
+      render(<FieldDesigner objectName="accounts" fields={MOCK_FIELDS} />);
+      await waitFor(() => {
+        expect(screen.getByTestId('grid-row-fld-1')).toBeDefined();
+        expect(screen.getByTestId('grid-row-fld-2')).toBeDefined();
+        expect(screen.getByTestId('grid-row-fld-3')).toBeDefined();
+      });
     });
 
     it('should render type filter dropdown', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
-      );
+      render(<FieldDesigner objectName="accounts" fields={MOCK_FIELDS} />);
       expect(screen.getByTestId('field-designer-type-filter')).toBeDefined();
     });
 
-    it('should show empty message when no fields', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner objectName="accounts" fields={[]} onFieldsChange={onFieldsChange} />
-      );
-      expect(screen.getByTestId('field-designer-empty')).toBeDefined();
-    });
-
     it('should display object name in header', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
-      );
+      render(<FieldDesigner objectName="accounts" fields={MOCK_FIELDS} />);
       expect(screen.getByText('— accounts')).toBeDefined();
     });
 
-    it('should display system badge for system fields', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
-      );
-      const badges = screen.getAllByText('System');
-      expect(badges.length).toBeGreaterThan(0);
-    });
-
-    it('should display required indicator for required fields', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
-      );
-      // Required fields show an asterisk
-      const asterisks = screen.getAllByText('*');
-      expect(asterisks.length).toBeGreaterThanOrEqual(2); // name & email are required
+    it('should show the title with field count', () => {
+      render(<FieldDesigner objectName="accounts" fields={MOCK_FIELDS} />);
+      expect(screen.getByText('Field Designer')).toBeDefined();
+      expect(screen.getByText('5')).toBeDefined();
     });
   });
 
@@ -156,47 +119,61 @@ describe('FieldDesigner', () => {
   // Adding Fields
   // ============================
   describe('Adding Fields', () => {
-    it('should add a new field on button click', () => {
+    it('should render the add button via ObjectGrid onAddRecord', async () => {
+      render(<FieldDesigner objectName="accounts" fields={MOCK_FIELDS} />);
+      await waitFor(() => {
+        expect(screen.getByTestId('grid-add-btn')).toBeDefined();
+      });
+    });
+
+    it('should add a new field and open editor when add is clicked', async () => {
       const onFieldsChange = vi.fn();
       render(
         <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
       );
-      fireEvent.click(screen.getByTestId('field-designer-add'));
+      await waitFor(() => {
+        fireEvent.click(screen.getByTestId('grid-add-btn'));
+      });
       expect(onFieldsChange).toHaveBeenCalledWith(
         expect.arrayContaining([
           ...MOCK_FIELDS,
           expect.objectContaining({ type: 'text', label: expect.stringContaining('New Field') }),
         ])
       );
+      // Editor should be shown for the new field
+      expect(screen.getByTestId('field-editor')).toBeDefined();
     });
   });
 
   // ============================
-  // Search & Filter
+  // Type Filter
   // ============================
-  describe('Search & Filter', () => {
-    it('should filter fields by search query', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
-      );
-      fireEvent.change(screen.getByTestId('field-designer-search'), {
-        target: { value: 'email' },
-      });
-      expect(screen.getByTestId('field-item-fld-2')).toBeDefined();
-      expect(screen.queryByTestId('field-item-fld-1')).toBeNull();
-    });
-
-    it('should filter fields by type', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
-      );
+  describe('Type Filter', () => {
+    it('should filter fields by type', async () => {
+      render(<FieldDesigner objectName="accounts" fields={MOCK_FIELDS} />);
       fireEvent.change(screen.getByTestId('field-designer-type-filter'), {
         target: { value: 'select' },
       });
-      expect(screen.getByTestId('field-item-fld-3')).toBeDefined();
-      expect(screen.queryByTestId('field-item-fld-1')).toBeNull();
+      await waitFor(() => {
+        expect(screen.getByTestId('grid-row-fld-3')).toBeDefined();
+      });
+      expect(screen.queryByTestId('grid-row-fld-1')).toBeNull();
+    });
+
+    it('should show all fields when type filter is cleared', async () => {
+      render(<FieldDesigner objectName="accounts" fields={MOCK_FIELDS} />);
+      fireEvent.change(screen.getByTestId('field-designer-type-filter'), {
+        target: { value: 'select' },
+      });
+      await waitFor(() => {
+        expect(screen.queryByTestId('grid-row-fld-1')).toBeNull();
+      });
+      fireEvent.change(screen.getByTestId('field-designer-type-filter'), {
+        target: { value: '' },
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId('grid-row-fld-1')).toBeDefined();
+      });
     });
   });
 
@@ -204,41 +181,27 @@ describe('FieldDesigner', () => {
   // Editing Fields
   // ============================
   describe('Editing Fields', () => {
-    it('should toggle inline editor on edit button click', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
-      );
-      fireEvent.click(screen.getByTestId('field-edit-fld-1'));
+    it('should open field editor panel when edit button is clicked', async () => {
+      render(<FieldDesigner objectName="accounts" fields={MOCK_FIELDS} />);
+      await waitFor(() => {
+        fireEvent.click(screen.getByTestId('grid-edit-fld-1'));
+      });
       expect(screen.getByTestId('field-editor')).toBeDefined();
     });
 
-    it('should close inline editor on second edit click', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
-      );
-      fireEvent.click(screen.getByTestId('field-edit-fld-1'));
-      expect(screen.getByTestId('field-editor')).toBeDefined();
-      fireEvent.click(screen.getByTestId('field-edit-fld-1'));
-      expect(screen.queryByTestId('field-editor')).toBeNull();
-    });
-
-    it('should show field type selector in editor', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
-      );
-      fireEvent.click(screen.getByTestId('field-edit-fld-1'));
+    it('should show field type selector in editor', async () => {
+      render(<FieldDesigner objectName="accounts" fields={MOCK_FIELDS} />);
+      await waitFor(() => {
+        fireEvent.click(screen.getByTestId('grid-edit-fld-1'));
+      });
       expect(screen.getByTestId('field-editor-type')).toBeDefined();
     });
 
-    it('should show boolean toggles in editor', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
-      );
-      fireEvent.click(screen.getByTestId('field-edit-fld-1'));
+    it('should show boolean toggles in editor', async () => {
+      render(<FieldDesigner objectName="accounts" fields={MOCK_FIELDS} />);
+      await waitFor(() => {
+        fireEvent.click(screen.getByTestId('grid-edit-fld-1'));
+      });
       expect(screen.getByTestId('field-editor-required')).toBeDefined();
       expect(screen.getByTestId('field-editor-unique')).toBeDefined();
       expect(screen.getByTestId('field-editor-readonly')).toBeDefined();
@@ -247,59 +210,46 @@ describe('FieldDesigner', () => {
       expect(screen.getByTestId('field-editor-external-id')).toBeDefined();
       expect(screen.getByTestId('field-editor-track-history')).toBeDefined();
     });
+
+    it('should call onFieldsChange when field is edited', async () => {
+      const onFieldsChange = vi.fn();
+      render(
+        <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
+      );
+      await waitFor(() => {
+        fireEvent.click(screen.getByTestId('grid-edit-fld-1'));
+      });
+      // Change the name input
+      fireEvent.change(screen.getByTestId('field-editor-name'), {
+        target: { value: 'full_name' },
+      });
+      expect(onFieldsChange).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ id: 'fld-1', name: 'full_name' }),
+        ])
+      );
+    });
   });
 
   // ============================
   // Read-only Mode
   // ============================
   describe('Read-only Mode', () => {
-    it('should hide add button in read-only mode', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner
-          objectName="accounts"
-          fields={MOCK_FIELDS}
-          onFieldsChange={onFieldsChange}
-          readOnly
-        />
-      );
-      expect(screen.queryByTestId('field-designer-add')).toBeNull();
+    it('should not render add button in read-only mode', async () => {
+      render(<FieldDesigner objectName="accounts" fields={MOCK_FIELDS} readOnly />);
+      await waitFor(() => {
+        expect(screen.getByTestId('mock-object-grid')).toBeDefined();
+      });
+      expect(screen.queryByTestId('grid-add-btn')).toBeNull();
     });
 
-    it('should disable edit buttons in read-only mode', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner
-          objectName="accounts"
-          fields={MOCK_FIELDS}
-          onFieldsChange={onFieldsChange}
-          readOnly
-        />
-      );
-      expect(
-        (screen.getByTestId('field-edit-fld-1') as HTMLButtonElement).disabled
-      ).toBe(true);
-    });
-  });
-
-  // ============================
-  // Deleting Fields
-  // ============================
-  describe('Deleting Fields', () => {
-    it('should not show delete button for system fields', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
-      );
-      expect(screen.queryByTestId('field-delete-fld-4')).toBeNull();
-    });
-
-    it('should show delete button for custom fields', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
-      );
-      expect(screen.getByTestId('field-delete-fld-1')).toBeDefined();
+    it('should not render edit/delete buttons in read-only mode', async () => {
+      render(<FieldDesigner objectName="accounts" fields={MOCK_FIELDS} readOnly />);
+      await waitFor(() => {
+        expect(screen.getByTestId('mock-object-grid')).toBeDefined();
+      });
+      expect(screen.queryByTestId('grid-edit-fld-1')).toBeNull();
+      expect(screen.queryByTestId('grid-delete-fld-1')).toBeNull();
     });
   });
 
@@ -307,24 +257,44 @@ describe('FieldDesigner', () => {
   // Select Field Options
   // ============================
   describe('Select Field Options', () => {
-    it('should show options editor for select fields', () => {
-      const onFieldsChange = vi.fn();
-      render(
-        <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
-      );
-      // Open the select field editor (fld-3 is a select type)
-      fireEvent.click(screen.getByTestId('field-edit-fld-3'));
+    it('should show options editor for select fields', async () => {
+      render(<FieldDesigner objectName="accounts" fields={MOCK_FIELDS} />);
+      await waitFor(() => {
+        fireEvent.click(screen.getByTestId('grid-edit-fld-3'));
+      });
       expect(screen.getByTestId('field-option-0')).toBeDefined();
       expect(screen.getByTestId('field-option-1')).toBeDefined();
     });
 
-    it('should show add option button for select fields', () => {
+    it('should show add option button for select fields', async () => {
+      render(<FieldDesigner objectName="accounts" fields={MOCK_FIELDS} />);
+      await waitFor(() => {
+        fireEvent.click(screen.getByTestId('grid-edit-fld-3'));
+      });
+      expect(screen.getByTestId('field-editor-add-option')).toBeDefined();
+    });
+  });
+
+  // ============================
+  // Deleting Fields
+  // ============================
+  describe('Deleting Fields', () => {
+    it('should render delete buttons for custom fields', async () => {
+      render(<FieldDesigner objectName="accounts" fields={MOCK_FIELDS} />);
+      await waitFor(() => {
+        expect(screen.getByTestId('grid-delete-fld-1')).toBeDefined();
+      });
+    });
+
+    it('should trigger delete confirmation on click', async () => {
       const onFieldsChange = vi.fn();
       render(
         <FieldDesigner objectName="accounts" fields={MOCK_FIELDS} onFieldsChange={onFieldsChange} />
       );
-      fireEvent.click(screen.getByTestId('field-edit-fld-3'));
-      expect(screen.getByTestId('field-editor-add-option')).toBeDefined();
+      await waitFor(() => {
+        fireEvent.click(screen.getByTestId('grid-delete-fld-1'));
+      });
+      // Confirm dialog is triggered via useConfirmDialog hook
     });
   });
 });

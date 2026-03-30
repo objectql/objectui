@@ -10,27 +10,19 @@
  * ObjectManager Component
  *
  * Enterprise-grade visual designer for managing object definitions.
+ * Uses standard ObjectGrid for the list view and ModalForm for create/edit.
  * Supports CRUD operations, property editing, relationship display,
- * grouping, search, and read-only mode.
+ * search, and read-only mode.
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
-import type { ObjectDefinition, ObjectDefinitionRelationship } from '@object-ui/types';
-import {
-  Plus,
-  Search,
-  Trash2,
-  Edit3,
-  ChevronDown,
-  ChevronUp,
-  Database,
-  Link2,
-  Settings2,
-  Box,
-  Eye,
-  EyeOff,
-  GripVertical,
-} from 'lucide-react';
+import type { ObjectDefinition } from '@object-ui/types';
+import type { ObjectGridSchema, ListColumn } from '@object-ui/types';
+import { ObjectGrid } from '@object-ui/plugin-grid';
+import { ModalForm } from '@object-ui/plugin-form';
+import type { ModalFormSchema } from '@object-ui/plugin-form';
+import { ValueDataSource } from '@object-ui/core';
+import { Database } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { useDesignerTranslation } from './hooks/useDesignerTranslation';
@@ -79,206 +71,6 @@ const ICON_OPTIONS = [
 ];
 
 // ============================================================================
-// Collapsible Section
-// ============================================================================
-
-interface SectionProps {
-  title: string;
-  icon: React.ReactNode;
-  defaultOpen?: boolean;
-  children: React.ReactNode;
-  badge?: string;
-}
-
-function Section({ title, icon, defaultOpen = true, children, badge }: SectionProps) {
-  const [open, setOpen] = useState(defaultOpen);
-
-  return (
-    <div className="border-b border-gray-100 pb-3">
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="flex w-full items-center gap-2 py-2 text-left"
-      >
-        {icon}
-        <span className="flex-1 text-xs font-semibold uppercase text-gray-500">{title}</span>
-        {badge && (
-          <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-500">
-            {badge}
-          </span>
-        )}
-        {open ? (
-          <ChevronUp className="h-3.5 w-3.5 text-gray-400" />
-        ) : (
-          <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
-        )}
-      </button>
-      {open && <div className="space-y-2">{children}</div>}
-    </div>
-  );
-}
-
-// ============================================================================
-// Object Property Editor (inline)
-// ============================================================================
-
-interface ObjectEditorProps {
-  object: ObjectDefinition;
-  onChange: (updated: ObjectDefinition) => void;
-  readOnly: boolean;
-  t: (key: string, options?: Record<string, unknown>) => string;
-}
-
-function ObjectEditor({ object, onChange, readOnly, t }: ObjectEditorProps) {
-  const update = useCallback(
-    (partial: Partial<ObjectDefinition>) => {
-      onChange({ ...object, ...partial });
-    },
-    [object, onChange]
-  );
-
-  return (
-    <div className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-3" data-testid="object-editor">
-      {/* Name */}
-      <div className="space-y-1">
-        <label className="text-[10px] font-medium text-gray-500">{t('appDesigner.objectManager.objectName')}</label>
-        <input
-          type="text"
-          value={object.name}
-          onChange={(e) => update({ name: e.target.value })}
-          disabled={readOnly || object.isSystem}
-          data-testid="object-editor-name"
-          className="block w-full rounded-md border border-gray-300 px-2 py-1 text-xs shadow-sm outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100"
-          placeholder="api_name"
-        />
-      </div>
-
-      {/* Label */}
-      <div className="space-y-1">
-        <label className="text-[10px] font-medium text-gray-500">{t('appDesigner.objectManager.objectLabel')}</label>
-        <input
-          type="text"
-          value={object.label}
-          onChange={(e) => update({ label: e.target.value })}
-          disabled={readOnly}
-          data-testid="object-editor-label"
-          className="block w-full rounded-md border border-gray-300 px-2 py-1 text-xs shadow-sm outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100"
-          placeholder="Display Name"
-        />
-      </div>
-
-      {/* Plural Label */}
-      <div className="space-y-1">
-        <label className="text-[10px] font-medium text-gray-500">{t('appDesigner.objectManager.pluralLabel')}</label>
-        <input
-          type="text"
-          value={object.pluralLabel || ''}
-          onChange={(e) => update({ pluralLabel: e.target.value })}
-          disabled={readOnly}
-          data-testid="object-editor-plural"
-          className="block w-full rounded-md border border-gray-300 px-2 py-1 text-xs shadow-sm outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100"
-          placeholder="Display Names"
-        />
-      </div>
-
-      {/* Description */}
-      <div className="space-y-1">
-        <label className="text-[10px] font-medium text-gray-500">{t('appDesigner.appDescription')}</label>
-        <textarea
-          value={object.description || ''}
-          onChange={(e) => update({ description: e.target.value })}
-          disabled={readOnly}
-          data-testid="object-editor-description"
-          rows={2}
-          className="block w-full rounded-md border border-gray-300 px-2 py-1 text-xs shadow-sm outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100"
-          placeholder="Object description"
-        />
-      </div>
-
-      {/* Icon */}
-      <div className="space-y-1">
-        <label className="text-[10px] font-medium text-gray-500">{t('appDesigner.objectManager.icon')}</label>
-        <select
-          value={object.icon || ''}
-          onChange={(e) => update({ icon: e.target.value })}
-          disabled={readOnly}
-          data-testid="object-editor-icon"
-          className="block w-full rounded-md border border-gray-300 px-2 py-1 text-xs shadow-sm outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100"
-        >
-          <option value="">{t('appDesigner.objectManager.selectIcon')}</option>
-          {ICON_OPTIONS.map((icon) => (
-            <option key={icon} value={icon}>{icon}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Group */}
-      <div className="space-y-1">
-        <label className="text-[10px] font-medium text-gray-500">{t('appDesigner.objectManager.group')}</label>
-        <select
-          value={object.group || ''}
-          onChange={(e) => update({ group: e.target.value })}
-          disabled={readOnly}
-          data-testid="object-editor-group"
-          className="block w-full rounded-md border border-gray-300 px-2 py-1 text-xs shadow-sm outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100"
-        >
-          <option value="">{t('appDesigner.objectManager.noGroup')}</option>
-          {OBJECT_GROUPS.map((g) => (
-            <option key={g} value={g}>{g}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Sort Order */}
-      <div className="space-y-1">
-        <label className="text-[10px] font-medium text-gray-500">{t('appDesigner.objectManager.sortOrder')}</label>
-        <input
-          type="number"
-          value={object.sortOrder ?? 0}
-          onChange={(e) => update({ sortOrder: parseInt(e.target.value, 10) || 0 })}
-          disabled={readOnly}
-          data-testid="object-editor-sort-order"
-          className="block w-full rounded-md border border-gray-300 px-2 py-1 text-xs shadow-sm outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100"
-          min={0}
-        />
-      </div>
-
-      {/* Enabled toggle */}
-      <label className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          checked={object.enabled !== false}
-          onChange={(e) => update({ enabled: e.target.checked })}
-          disabled={readOnly}
-          data-testid="object-editor-enabled"
-          className="h-3.5 w-3.5 rounded border-gray-300"
-        />
-        <span className="text-xs text-gray-700">{t('appDesigner.objectManager.enabled')}</span>
-      </label>
-
-      {/* Relationships (read-only display) */}
-      {object.relationships && object.relationships.length > 0 && (
-        <div className="space-y-1">
-          <label className="text-[10px] font-medium text-gray-500">{t('appDesigner.objectManager.relationships')}</label>
-          <ul className="space-y-1">
-            {object.relationships.map((rel, idx) => (
-              <li
-                key={`${rel.relatedObject}-${idx}`}
-                className="flex items-center gap-1.5 rounded bg-white px-2 py-1 text-xs text-gray-600"
-              >
-                <Link2 className="h-3 w-3 text-gray-400" />
-                <span className="font-medium">{rel.relatedObject}</span>
-                <span className="text-gray-400">({rel.type})</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ============================================================================
 // Main Component
 // ============================================================================
 
@@ -293,90 +85,157 @@ export function ObjectManager({
   const { t } = useDesignerTranslation();
   const confirmDialog = useConfirmDialog();
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [editingObjectId, setEditingObjectId] = useState<string | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingObject, setEditingObject] = useState<ObjectDefinition | null>(null);
 
-  // Filtered objects
-  const filteredObjects = useMemo(() => {
-    let result = objects;
+  // Filter system objects if needed
+  const displayObjects = useMemo(() => {
     if (!showSystemObjects) {
-      result = result.filter((o) => !o.isSystem);
+      return objects.filter((o) => !o.isSystem);
     }
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (o) =>
-          o.name.toLowerCase().includes(q) ||
-          o.label.toLowerCase().includes(q) ||
-          (o.description && o.description.toLowerCase().includes(q))
-      );
-    }
-    return result;
-  }, [objects, showSystemObjects, searchQuery]);
+    return objects;
+  }, [objects, showSystemObjects]);
 
-  // Grouped objects
-  const groupedObjects = useMemo(() => {
-    const groups = new Map<string, ObjectDefinition[]>();
-    for (const obj of filteredObjects) {
-      const group = obj.group || t('appDesigner.objectManager.ungrouped');
-      if (!groups.has(group)) groups.set(group, []);
-      groups.get(group)!.push(obj);
-    }
-    // Sort within groups
-    for (const [, objs] of groups) {
-      objs.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
-    }
-    return groups;
-  }, [filteredObjects, t]);
-
-  const addObject = useCallback(() => {
-    const id = `obj_${Date.now()}`;
-    const newObj: ObjectDefinition = {
-      id,
-      name: `new_object_${objects.length + 1}`,
-      label: `New Object ${objects.length + 1}`,
-      isSystem: false,
-      enabled: true,
-      fieldCount: 0,
-    };
-    onObjectsChange?.([...objects, newObj]);
-    setEditingObjectId(id);
-  }, [objects, onObjectsChange]);
-
-  const deleteObject = useCallback(
-    async (id: string) => {
-      const obj = objects.find((o) => o.id === id);
-      if (!obj || obj.isSystem) return;
-      const confirmed = await confirmDialog.confirm(
-        t('appDesigner.objectManager.deleteConfirmTitle'),
-        t('appDesigner.objectManager.deleteConfirmMessage')
-      );
-      if (confirmed) {
-        onObjectsChange?.(objects.filter((o) => o.id !== id));
-        if (editingObjectId === id) setEditingObjectId(null);
-      }
-    },
-    [objects, onObjectsChange, editingObjectId, confirmDialog, t]
+  // Create ValueDataSource for ObjectGrid
+  const dataSource = useMemo(
+    () => new ValueDataSource({ items: displayObjects }),
+    [displayObjects]
   );
 
-  const updateObject = useCallback(
-    (updated: ObjectDefinition) => {
-      onObjectsChange?.(objects.map((o) => (o.id === updated.id ? updated : o)));
-    },
-    [objects, onObjectsChange]
-  );
+  // Grid schema
+  const gridColumns: ListColumn[] = useMemo(() => [
+    { name: 'name', label: t('appDesigner.objectManager.objectName'), width: 160 },
+    { name: 'label', label: t('appDesigner.objectManager.objectLabel'), width: 160 },
+    { name: 'group', label: t('appDesigner.objectManager.group'), width: 130 },
+    { name: 'fieldCount', label: t('appDesigner.objectManager.fieldCount', { count: '' }).replace(/\s*$/, ''), width: 80 },
+    { name: 'enabled', label: t('appDesigner.objectManager.enabled'), width: 80 },
+  ], [t]);
 
-  const toggleEdit = useCallback(
-    (id: string) => {
-      setEditingObjectId((prev) => (prev === id ? null : id));
-    },
-    []
-  );
+  const gridSchema = useMemo<ObjectGridSchema>(() => ({
+    type: 'object-grid',
+    objectName: 'object_definition',
+    columns: gridColumns,
+    searchableFields: ['name', 'label', 'description'],
+    showSearch: true,
+  }), [gridColumns]);
+
+  // Handlers
+  const handleRowClick = useCallback((record: Record<string, unknown>) => {
+    const obj = objects.find((o) => o.id === record.id);
+    if (obj) onSelectObject?.(obj);
+  }, [objects, onSelectObject]);
+
+  const handleEdit = useCallback((record: Record<string, unknown>) => {
+    const obj = objects.find((o) => o.id === record.id);
+    if (obj) {
+      setEditingObject(obj);
+      setFormOpen(true);
+    }
+  }, [objects]);
+
+  const handleDelete = useCallback(async (record: Record<string, unknown>) => {
+    const obj = objects.find((o) => o.id === record.id);
+    if (!obj || obj.isSystem) return;
+    const confirmed = await confirmDialog.confirm(
+      t('appDesigner.objectManager.deleteConfirmTitle'),
+      t('appDesigner.objectManager.deleteConfirmMessage')
+    );
+    if (confirmed) {
+      onObjectsChange?.(objects.filter((o) => o.id !== obj.id));
+    }
+  }, [objects, onObjectsChange, confirmDialog, t]);
+
+  const handleAddObject = useCallback(() => {
+    setEditingObject(null);
+    setFormOpen(true);
+  }, []);
+
+  const handleFormSuccess = useCallback((data: Record<string, unknown>) => {
+    if (editingObject) {
+      // Update existing object
+      const updated: ObjectDefinition = {
+        ...editingObject,
+        name: String(data.name || editingObject.name),
+        label: String(data.label || editingObject.label),
+        pluralLabel: data.pluralLabel ? String(data.pluralLabel) : undefined,
+        description: data.description ? String(data.description) : undefined,
+        icon: data.icon ? String(data.icon) : undefined,
+        group: data.group ? String(data.group) : undefined,
+        sortOrder: typeof data.sortOrder === 'number' ? data.sortOrder : undefined,
+        enabled: data.enabled !== false,
+      };
+      onObjectsChange?.(objects.map((o) => (o.id === editingObject.id ? updated : o)));
+    } else {
+      // Create new object
+      const newObj: ObjectDefinition = {
+        id: `obj_${Date.now()}`,
+        name: String(data.name || `new_object_${objects.length + 1}`),
+        label: String(data.label || `New Object ${objects.length + 1}`),
+        pluralLabel: data.pluralLabel ? String(data.pluralLabel) : undefined,
+        description: data.description ? String(data.description) : undefined,
+        icon: data.icon ? String(data.icon) : undefined,
+        group: data.group ? String(data.group) : undefined,
+        sortOrder: typeof data.sortOrder === 'number' ? data.sortOrder : undefined,
+        isSystem: false,
+        enabled: data.enabled !== false,
+        fieldCount: 0,
+      };
+      onObjectsChange?.([...objects, newObj]);
+    }
+    setFormOpen(false);
+    setEditingObject(null);
+  }, [editingObject, objects, onObjectsChange]);
+
+  const handleFormClose = useCallback((open: boolean) => {
+    if (!open) {
+      setFormOpen(false);
+      setEditingObject(null);
+    }
+  }, []);
+
+  // ModalForm schema
+  const formSchema = useMemo<ModalFormSchema>(() => ({
+    type: 'object-form',
+    formType: 'modal',
+    objectName: 'object_definition',
+    mode: editingObject ? 'edit' : 'create',
+    title: editingObject
+      ? `${t('common.edit')} — ${editingObject.label}`
+      : t('appDesigner.objectManager.addObject'),
+    open: formOpen,
+    onOpenChange: handleFormClose,
+    modalSize: 'lg',
+    customFields: [
+      { name: 'name', label: t('appDesigner.objectManager.objectName'), type: 'text', required: true, placeholder: 'api_name', disabled: readOnly || (editingObject?.isSystem ?? false) },
+      { name: 'label', label: t('appDesigner.objectManager.objectLabel'), type: 'text', required: true, placeholder: 'Display Name', disabled: readOnly },
+      { name: 'pluralLabel', label: t('appDesigner.objectManager.pluralLabel'), type: 'text', placeholder: 'Display Names', disabled: readOnly },
+      { name: 'description', label: t('appDesigner.appDescription'), type: 'textarea', disabled: readOnly },
+      { name: 'icon', label: t('appDesigner.objectManager.icon'), type: 'select', options: ICON_OPTIONS.map((i) => ({ label: i, value: i })), disabled: readOnly },
+      { name: 'group', label: t('appDesigner.objectManager.group'), type: 'select', options: OBJECT_GROUPS.map((g) => ({ label: g, value: g })), disabled: readOnly },
+      { name: 'sortOrder', label: t('appDesigner.objectManager.sortOrder'), type: 'number', disabled: readOnly },
+      { name: 'enabled', label: t('appDesigner.objectManager.enabled'), type: 'boolean', disabled: readOnly },
+    ],
+    initialValues: editingObject
+      ? {
+          name: editingObject.name,
+          label: editingObject.label,
+          pluralLabel: editingObject.pluralLabel || '',
+          description: editingObject.description || '',
+          icon: editingObject.icon || '',
+          group: editingObject.group || '',
+          sortOrder: editingObject.sortOrder ?? 0,
+          enabled: editingObject.enabled !== false,
+        }
+      : { enabled: true },
+    onSuccess: handleFormSuccess,
+    onCancel: () => handleFormClose(false),
+    readOnly,
+  }), [editingObject, formOpen, handleFormClose, handleFormSuccess, readOnly, t]);
 
   return (
     <div
       data-testid="object-manager"
-      className={cn('w-full space-y-3 rounded-lg border border-gray-200 bg-white p-4', className)}
+      className={cn('w-full space-y-3', className)}
     >
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -386,128 +245,23 @@ export function ObjectManager({
             {t('appDesigner.objectManager.title')}
           </h2>
           <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-500">
-            {filteredObjects.length}
+            {displayObjects.length}
           </span>
         </div>
-        {!readOnly && (
-          <button
-            type="button"
-            onClick={addObject}
-            data-testid="object-manager-add"
-            className="inline-flex items-center gap-1 rounded-md bg-blue-600 px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-blue-700"
-          >
-            <Plus className="h-3 w-3" />
-            {t('appDesigner.objectManager.addObject')}
-          </button>
-        )}
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          data-testid="object-manager-search"
-          placeholder={t('appDesigner.objectManager.searchPlaceholder')}
-          className="block w-full rounded-md border border-gray-300 py-1.5 pl-8 pr-3 text-xs shadow-sm outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-        />
-      </div>
+      {/* ObjectGrid for the list */}
+      <ObjectGrid
+        schema={gridSchema}
+        dataSource={dataSource}
+        onRowClick={handleRowClick}
+        onEdit={readOnly ? undefined : handleEdit}
+        onDelete={readOnly ? undefined : handleDelete}
+        onAddRecord={readOnly ? undefined : handleAddObject}
+      />
 
-      {/* Object List */}
-      <div className="space-y-3">
-        {filteredObjects.length === 0 ? (
-          <p className="py-4 text-center text-xs text-gray-400" data-testid="object-manager-empty">
-            {t('appDesigner.objectManager.noObjects')}
-          </p>
-        ) : (
-          Array.from(groupedObjects.entries()).map(([group, objs]) => (
-            <Section
-              key={group}
-              title={group}
-              icon={<Box className="h-3.5 w-3.5 text-gray-500" />}
-              badge={String(objs.length)}
-            >
-              <ul className="space-y-1">
-                {objs.map((obj) => (
-                  <li key={obj.id} data-testid={`object-item-${obj.id}`}>
-                    <div
-                      className={cn(
-                        'flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors',
-                        editingObjectId === obj.id
-                          ? 'bg-blue-50 ring-1 ring-blue-200'
-                          : 'hover:bg-gray-50'
-                      )}
-                    >
-                      <div className="flex flex-1 items-center gap-2 min-w-0">
-                        <Database className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
-                        <button
-                          type="button"
-                          onClick={() => onSelectObject?.(obj)}
-                          className="flex-1 truncate text-left font-medium text-gray-700 hover:text-blue-600"
-                          data-testid={`object-select-${obj.id}`}
-                        >
-                          {obj.label}
-                        </button>
-                        {obj.isSystem && (
-                          <span className="flex-shrink-0 rounded bg-amber-100 px-1 py-0.5 text-[9px] font-medium text-amber-700">
-                            {t('appDesigner.objectManager.systemBadge')}
-                          </span>
-                        )}
-                        {obj.enabled === false && (
-                          <EyeOff className="h-3 w-3 flex-shrink-0 text-gray-300" />
-                        )}
-                        {obj.fieldCount != null && (
-                          <span className="flex-shrink-0 text-[10px] text-gray-400">
-                            {t('appDesigner.objectManager.fieldCount', { count: obj.fieldCount })}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-0.5">
-                        <button
-                          type="button"
-                          onClick={() => toggleEdit(obj.id)}
-                          disabled={readOnly}
-                          data-testid={`object-edit-${obj.id}`}
-                          className="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:opacity-30"
-                          aria-label={t('common.edit')}
-                        >
-                          <Edit3 className="h-3 w-3" />
-                        </button>
-                        {!obj.isSystem && (
-                          <button
-                            type="button"
-                            onClick={() => deleteObject(obj.id)}
-                            disabled={readOnly}
-                            data-testid={`object-delete-${obj.id}`}
-                            className="rounded p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-30"
-                            aria-label={t('common.delete')}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Inline Editor */}
-                    {editingObjectId === obj.id && (
-                      <div className="mt-1 ml-5">
-                        <ObjectEditor
-                          object={obj}
-                          onChange={updateObject}
-                          readOnly={readOnly}
-                          t={t}
-                        />
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          ))
-        )}
-      </div>
+      {/* ModalForm for create / edit */}
+      {formOpen && <ModalForm schema={formSchema} />}
 
       {/* Confirm Dialog */}
       <ConfirmDialog
