@@ -5,13 +5,15 @@
  * Integrates both ObjectManager (object list/CRUD) and FieldDesigner (field
  * configuration wizard) from @object-ui/plugin-designer.
  *
- * When an object is selected, the FieldDesigner opens to configure its fields.
+ * Routes:
+ *   /system/objects           → Object list (ObjectManager)
+ *   /system/objects/:objectName → Object detail with field management (FieldDesigner)
  */
 
 import { useState, useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button } from '@object-ui/components';
-import { ArrowLeft } from 'lucide-react';
+import { Button, Badge } from '@object-ui/components';
+import { ArrowLeft, Database, Settings2, Link2 } from 'lucide-react';
 import { ObjectManager, FieldDesigner } from '@object-ui/plugin-designer';
 import type { ObjectDefinition, DesignerFieldDefinition } from '@object-ui/types';
 import { toast } from 'sonner';
@@ -127,10 +129,142 @@ function toFieldDefinition(field: MetadataField, index: number): DesignerFieldDe
   };
 }
 
+// ============================================================================
+// Object Detail View
+// ============================================================================
+
+interface ObjectDetailViewProps {
+  object: ObjectDefinition;
+  metadataObject: MetadataObject | undefined;
+  onBack: () => void;
+}
+
+function ObjectDetailView({ object, metadataObject, onBack }: ObjectDetailViewProps) {
+  const rawFields = metadataObject
+    ? (Array.isArray(metadataObject.fields) ? metadataObject.fields : Object.values(metadataObject.fields || {}))
+    : [];
+  const fields = useMemo(() => rawFields.map(toFieldDefinition), [rawFields]);
+  const [localFields, setLocalFields] = useState<DesignerFieldDefinition[] | null>(null);
+  const displayFields = localFields ?? fields;
+
+  const handleFieldsChange = useCallback((updated: DesignerFieldDefinition[]) => {
+    setLocalFields(updated);
+    toast.success('Field configuration updated');
+  }, []);
+
+  return (
+    <div className="flex flex-col gap-6" data-testid="object-detail-view">
+      {/* Back navigation + header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onBack}
+            data-testid="back-to-objects"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div className="bg-primary/10 p-2 rounded-md shrink-0">
+            <Database className="h-5 w-5 text-primary" />
+          </div>
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+              {object.label}
+            </h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {object.description || object.name}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Object Properties Card */}
+      <div className="rounded-lg border bg-card p-4 sm:p-6 space-y-4" data-testid="object-properties">
+        <h2 className="text-sm font-semibold flex items-center gap-2">
+          <Settings2 className="h-4 w-4" />
+          Object Properties
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+          <div>
+            <span className="text-muted-foreground">API Name</span>
+            <p className="font-mono text-xs mt-0.5">{object.name}</p>
+          </div>
+          <div>
+            <span className="text-muted-foreground">Label</span>
+            <p className="mt-0.5">{object.label}</p>
+          </div>
+          {object.pluralLabel && (
+            <div>
+              <span className="text-muted-foreground">Plural Label</span>
+              <p className="mt-0.5">{object.pluralLabel}</p>
+            </div>
+          )}
+          {object.group && (
+            <div>
+              <span className="text-muted-foreground">Group</span>
+              <p className="mt-0.5">{object.group}</p>
+            </div>
+          )}
+          <div>
+            <span className="text-muted-foreground">Status</span>
+            <p className="mt-0.5">
+              <Badge variant={object.enabled !== false ? 'default' : 'secondary'}>
+                {object.enabled !== false ? 'Enabled' : 'Disabled'}
+              </Badge>
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground">Fields</span>
+            <Badge variant="outline">{object.fieldCount ?? displayFields.length}</Badge>
+          </div>
+          {object.isSystem && (
+            <div>
+              <span className="text-muted-foreground">Type</span>
+              <p className="mt-0.5">
+                <Badge variant="secondary">System Object</Badge>
+              </p>
+            </div>
+          )}
+        </div>
+        {/* Relationships */}
+        {object.relationships && object.relationships.length > 0 && (
+          <div className="pt-2 border-t">
+            <span className="text-sm text-muted-foreground flex items-center gap-2 mb-2">
+              <Link2 className="h-3.5 w-3.5" />
+              Relationships
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {object.relationships.map((rel, i) => (
+                <Badge key={i} variant="outline" className="text-xs">
+                  {rel.label || rel.relatedObject} ({rel.type})
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Field Management Section */}
+      <div className="space-y-3" data-testid="field-management-section">
+        <FieldDesigner
+          objectName={object.name}
+          fields={displayFields}
+          onFieldsChange={handleFieldsChange}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// Main Page Component
+// ============================================================================
+
 export function ObjectManagerPage() {
   const navigate = useNavigate();
-  const { appName } = useParams();
-  const basePath = appName ? `/apps/${appName}` : '';
+  const { appName, objectName: routeObjectName } = useParams();
+  const basePath = appName ? `/apps/${appName}/system/objects` : '/system/objects';
   const { objects: metadataObjects } = useMetadata();
 
   // Convert metadata objects to ObjectDefinition[]
@@ -139,89 +273,77 @@ export function ObjectManagerPage() {
     [metadataObjects]
   );
 
-  // State
-  const [selectedObject, setSelectedObject] = useState<ObjectDefinition | null>(null);
+  // State for local object edits
   const [localObjects, setLocalObjects] = useState<ObjectDefinition[] | null>(null);
-
-  // Use local state if user has made changes, otherwise use metadata
   const displayObjects = localObjects ?? objects;
 
-  // Get fields for the selected object from metadata
-  const selectedObjectFields = useMemo<DesignerFieldDefinition[]>(() => {
-    if (!selectedObject) return [];
-    const metaObj = (metadataObjects || []).find((o: MetadataObject) => o.name === selectedObject.name);
-    if (!metaObj) return [];
-    const rawFields = Array.isArray(metaObj.fields) ? metaObj.fields : Object.values(metaObj.fields || {});
-    return rawFields.map(toFieldDefinition);
-  }, [selectedObject, metadataObjects]);
+  // Find selected object from URL param
+  const selectedObject = useMemo(() => {
+    if (!routeObjectName) return null;
+    return displayObjects.find((o) => o.name === routeObjectName) ?? null;
+  }, [routeObjectName, displayObjects]);
 
-  const [localFields, setLocalFields] = useState<DesignerFieldDefinition[] | null>(null);
-  const displayFields = localFields ?? selectedObjectFields;
+  // Find the raw metadata object for field extraction
+  const selectedMetadataObject = useMemo(() => {
+    if (!routeObjectName) return undefined;
+    return (metadataObjects || []).find((o: MetadataObject) => o.name === routeObjectName);
+  }, [routeObjectName, metadataObjects]);
 
-  // Reset local fields when selected object changes
+  // Navigate to object detail page
   const handleSelectObject = useCallback((obj: ObjectDefinition) => {
-    setSelectedObject(obj);
-    setLocalFields(null);
-  }, []);
+    navigate(`${basePath}/${obj.name}`);
+  }, [navigate, basePath]);
 
+  // Navigate back to object list
   const handleBackToList = useCallback(() => {
-    setSelectedObject(null);
-    setLocalFields(null);
-  }, []);
+    navigate(basePath);
+  }, [navigate, basePath]);
 
   const handleObjectsChange = useCallback((updated: ObjectDefinition[]) => {
     setLocalObjects(updated);
     toast.success('Object definitions updated');
   }, []);
 
-  const handleFieldsChange = useCallback((updated: DesignerFieldDefinition[]) => {
-    setLocalFields(updated);
-    toast.success('Field configuration updated');
-  }, []);
+  // Detail view mode: show object detail + FieldDesigner
+  if (selectedObject) {
+    return (
+      <div className="flex flex-col gap-4 p-4 sm:p-6" data-testid="object-manager-page">
+        <ObjectDetailView
+          object={selectedObject}
+          metadataObject={selectedMetadataObject}
+          onBack={handleBackToList}
+        />
+      </div>
+    );
+  }
 
+  // List view mode: show ObjectManager
   return (
     <div className="flex flex-col gap-4 p-4 sm:p-6" data-testid="object-manager-page">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          {selectedObject && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleBackToList}
-              data-testid="back-to-objects"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          )}
+          <div className="bg-primary/10 p-2 rounded-md shrink-0">
+            <Database className="h-5 w-5 text-primary" />
+          </div>
           <div className="min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
-              {selectedObject ? selectedObject.label : 'Object Manager'}
+              Object Manager
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              {selectedObject
-                ? `Configure fields for ${selectedObject.label}`
-                : 'Manage object definitions and field configurations'}
+              Manage object definitions and field configurations
             </p>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      {selectedObject ? (
-        <FieldDesigner
-          objectName={selectedObject.name}
-          fields={displayFields}
-          onFieldsChange={handleFieldsChange}
-        />
-      ) : (
-        <ObjectManager
-          objects={displayObjects}
-          onObjectsChange={handleObjectsChange}
-          onSelectObject={handleSelectObject}
-          showSystemObjects
-        />
-      )}
+      <ObjectManager
+        objects={displayObjects}
+        onObjectsChange={handleObjectsChange}
+        onSelectObject={handleSelectObject}
+        showSystemObjects
+      />
     </div>
   );
 }

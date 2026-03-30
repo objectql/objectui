@@ -3,6 +3,7 @@
  *
  * Tests for the system administration Object Manager page that integrates
  * ObjectManager and FieldDesigner from @object-ui/plugin-designer.
+ * Covers list view, detail view with URL-based navigation, and field management.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -19,6 +20,7 @@ vi.mock('../context/MetadataProvider', () => ({
         label: 'Accounts',
         icon: 'Building',
         description: 'Customer accounts',
+        enabled: true,
         fields: [
           { name: 'id', type: 'text', label: 'ID', readonly: true },
           { name: 'name', type: 'text', label: 'Account Name', required: true },
@@ -66,7 +68,9 @@ function renderPage(route = '/system/objects') {
     <MemoryRouter initialEntries={[route]}>
       <Routes>
         <Route path="/system/objects" element={<ObjectManagerPage />} />
+        <Route path="/system/objects/:objectName" element={<ObjectManagerPage />} />
         <Route path="/apps/:appName/system/objects" element={<ObjectManagerPage />} />
+        <Route path="/apps/:appName/system/objects/:objectName" element={<ObjectManagerPage />} />
       </Routes>
     </MemoryRouter>
   );
@@ -77,7 +81,7 @@ describe('ObjectManagerPage', () => {
     vi.clearAllMocks();
   });
 
-  describe('Rendering', () => {
+  describe('List View', () => {
     it('should render the page with Object Manager title', () => {
       renderPage();
       const titles = screen.getAllByText('Object Manager');
@@ -105,61 +109,64 @@ describe('ObjectManagerPage', () => {
     });
   });
 
-  describe('Object Selection & Field Designer', () => {
-    it('should show FieldDesigner when an object row is clicked', async () => {
+  describe('Detail View (URL-based)', () => {
+    it('should show object detail page when navigating to /system/objects/:objectName', () => {
+      renderPage('/system/objects/account');
+      expect(screen.getByTestId('object-detail-view')).toBeDefined();
+      const titles = screen.getAllByText('Accounts');
+      expect(titles.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it('should show object properties section', () => {
+      renderPage('/system/objects/account');
+      expect(screen.getByTestId('object-properties')).toBeDefined();
+      expect(screen.getByText('API Name')).toBeDefined();
+      expect(screen.getByText('account')).toBeDefined();
+    });
+
+    it('should show field management section with FieldDesigner', () => {
+      renderPage('/system/objects/account');
+      expect(screen.getByTestId('field-management-section')).toBeDefined();
+      expect(screen.getByTestId('field-designer')).toBeDefined();
+    });
+
+    it('should show back button to return to object list', () => {
+      renderPage('/system/objects/account');
+      expect(screen.getByTestId('back-to-objects')).toBeDefined();
+    });
+
+    it('should navigate back to object list when back button is clicked', async () => {
+      renderPage('/system/objects/account');
+      const backBtn = screen.getByTestId('back-to-objects');
+      fireEvent.click(backBtn);
+      await waitFor(() => {
+        expect(screen.getByTestId('object-manager')).toBeDefined();
+      });
+    });
+
+    it('should show relationships if the object has them', () => {
+      renderPage('/system/objects/account');
+      expect(screen.getByText('Relationships')).toBeDefined();
+      expect(screen.getByText(/contact.*one-to-many/)).toBeDefined();
+    });
+  });
+
+  describe('Object Selection via ObjectGrid', () => {
+    it('should navigate to detail when primary field link is clicked', async () => {
       renderPage();
 
-      // ObjectGrid renders data asynchronously via ValueDataSource.
-      // Once loaded, primary field values become clickable links (data-testid="primary-field-link").
+      // ObjectGrid renders data asynchronously. Primary field links are auto-generated.
       await waitFor(() => {
         const links = screen.queryAllByTestId('primary-field-link');
         if (links.length > 0) {
-          // Click the first object's primary field link
           fireEvent.click(links[0]);
         }
       });
 
-      // Either FieldDesigner shows (if primary-field-link was found) or ObjectManager remains
-      const fieldDesigner = screen.queryByTestId('field-designer');
+      // Either detail view shows (if link was found) or list remains
+      const detailView = screen.queryByTestId('object-detail-view');
       const objectManager = screen.queryByTestId('object-manager');
-      expect(fieldDesigner || objectManager).toBeDefined();
-    });
-
-    it('should show back button when a field designer is active', async () => {
-      renderPage();
-
-      await waitFor(() => {
-        const links = screen.queryAllByTestId('primary-field-link');
-        if (links.length > 0) {
-          fireEvent.click(links[0]);
-        }
-      });
-
-      // If field designer is active, back button should be present
-      const backBtn = screen.queryByTestId('back-to-objects');
-      const fieldDesigner = screen.queryByTestId('field-designer');
-      if (fieldDesigner) {
-        expect(backBtn).toBeDefined();
-      }
-    });
-
-    it('should return to object list when back button is clicked', async () => {
-      renderPage();
-
-      await waitFor(() => {
-        const links = screen.queryAllByTestId('primary-field-link');
-        if (links.length > 0) {
-          fireEvent.click(links[0]);
-        }
-      });
-
-      const backBtn = screen.queryByTestId('back-to-objects');
-      if (backBtn) {
-        fireEvent.click(backBtn);
-        await waitFor(() => {
-          expect(screen.getByTestId('object-manager')).toBeDefined();
-        });
-      }
+      expect(detailView || objectManager).toBeDefined();
     });
   });
 });

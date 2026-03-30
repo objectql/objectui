@@ -289,6 +289,7 @@ export function AppContent() {
           <Route path="system" element={<SystemHubPage />} />
           <Route path="system/apps" element={<AppManagementPage />} />
           <Route path="system/objects" element={<ObjectManagerPage />} />
+          <Route path="system/objects/:objectName" element={<ObjectManagerPage />} />
           <Route path="system/users" element={<UserManagementPage />} />
           <Route path="system/organizations" element={<OrgManagementPage />} />
           <Route path="system/roles" element={<RoleManagementPage />} />
@@ -382,6 +383,7 @@ export function AppContent() {
         <Route path="system" element={<SystemHubPage />} />
         <Route path="system/apps" element={<AppManagementPage />} />
         <Route path="system/objects" element={<ObjectManagerPage />} />
+        <Route path="system/objects/:objectName" element={<ObjectManagerPage />} />
         <Route path="system/users" element={<UserManagementPage />} />
         <Route path="system/organizations" element={<OrgManagementPage />} />
         <Route path="system/roles" element={<RoleManagementPage />} />
