@@ -47,6 +47,7 @@ const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage').then(
 // System Admin Pages (lazy — rarely accessed)
 const SystemHubPage = lazy(() => import('./pages/system/SystemHubPage').then(m => ({ default: m.SystemHubPage })));
 const AppManagementPage = lazy(() => import('./pages/system/AppManagementPage').then(m => ({ default: m.AppManagementPage })));
+const ObjectManagerPage = lazy(() => import('./pages/system/ObjectManagerPage').then(m => ({ default: m.ObjectManagerPage })));
 const UserManagementPage = lazy(() => import('./pages/system/UserManagementPage').then(m => ({ default: m.UserManagementPage })));
 const OrgManagementPage = lazy(() => import('./pages/system/OrgManagementPage').then(m => ({ default: m.OrgManagementPage })));
 const RoleManagementPage = lazy(() => import('./pages/system/RoleManagementPage').then(m => ({ default: m.RoleManagementPage })));
@@ -287,6 +288,7 @@ export function AppContent() {
           <Route path="create-app" element={<CreateAppPage />} />
           <Route path="system" element={<SystemHubPage />} />
           <Route path="system/apps" element={<AppManagementPage />} />
+          <Route path="system/objects" element={<ObjectManagerPage />} />
           <Route path="system/users" element={<UserManagementPage />} />
           <Route path="system/organizations" element={<OrgManagementPage />} />
           <Route path="system/roles" element={<RoleManagementPage />} />
@@ -379,6 +381,7 @@ export function AppContent() {
         {/* System Administration Routes */}
         <Route path="system" element={<SystemHubPage />} />
         <Route path="system/apps" element={<AppManagementPage />} />
+        <Route path="system/objects" element={<ObjectManagerPage />} />
         <Route path="system/users" element={<UserManagementPage />} />
         <Route path="system/organizations" element={<OrgManagementPage />} />
         <Route path="system/roles" element={<RoleManagementPage />} />

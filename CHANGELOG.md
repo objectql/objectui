@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Designer translation fallbacks** (`@object-ui/plugin-designer`): Updated `useDesignerTranslation` with fallback translations for all new Object Manager and Field Designer keys.
 
+- **Console integration** (`@object-ui/console`): Object Manager and Field Designer are now accessible in the console application at `/system/objects`. Added ObjectManagerPage to system admin routes, SystemHubPage card, and sidebar navigation. Selecting an object drills into its FieldDesigner for field configuration. 7 unit tests.
+
 ### Fixed
 
 - **Plugin designer test infrastructure** (`@object-ui/plugin-designer`): Created missing `vitest.setup.ts` with ResizeObserver polyfill and jest-dom matchers. Added `@object-ui/i18n` alias to vite config. These fixes resolved 9 pre-existing test suite failures, bringing total passing tests from 45 to 246.
