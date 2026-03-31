@@ -170,7 +170,17 @@ const schema = {
   autoResponseText?: string,
   autoResponseDelay?: number,
   onSend?: (content: string, messages: ChatMessage[]) => void,
-  className?: string
+  className?: string,
+  // AI / service-ai integration fields
+  api?: string,
+  conversationId?: string,
+  systemPrompt?: string,
+  model?: string,
+  streamingEnabled?: boolean,
+  headers?: Record<string, string>,
+  body?: Record<string, unknown>,
+  maxToolRoundtrips?: number,
+  onError?: (error: Error) => void,
 }
 ```
 
@@ -179,11 +189,13 @@ const schema = {
 ```plaintext
 {
   id: string,
-  role: 'user' | 'assistant' | 'system',
+  role: 'user' | 'assistant' | 'system' | 'tool',
   content: string,
   timestamp?: string,
   avatar?: string,
-  avatarFallback?: string
+  avatarFallback?: string,
+  streaming?: boolean,
+  toolInvocations?: ChatToolInvocation[],
 }
 ```
 
@@ -200,11 +212,53 @@ const schema = {
 | `assistantAvatarUrl` | string | - | URL for assistant avatar image |
 | `assistantAvatarFallback` | string | `'AI'` | Fallback text for assistant avatar |
 | `maxHeight` | string | `'500px'` | Maximum chat container height |
-| `autoResponse` | boolean | `false` | Enable auto-response (demo mode) |
+| `autoResponse` | boolean | `false` | Enable auto-response (demo mode, ignored when `api` is set) |
 | `autoResponseText` | string | - | Text for auto-response |
 | `autoResponseDelay` | number | `1000` | Delay before auto-response (ms) |
 | `onSend` | function | - | Callback when message is sent |
 | `className` | string | `''` | Additional Tailwind CSS classes |
+| `api` | string | - | Backend SSE endpoint (e.g., `/api/v1/ai/chat`). Enables AI streaming mode |
+| `conversationId` | string | - | Multi-turn conversation identifier |
+| `systemPrompt` | string | - | System prompt to configure assistant behavior |
+| `model` | string | - | AI model identifier (e.g., `gpt-4o`) |
+| `streamingEnabled` | boolean | `true` | Enable SSE streaming for AI responses |
+| `headers` | object | - | Additional headers for API requests |
+| `body` | object | - | Additional body params for API requests |
+| `maxToolRoundtrips` | number | `5` | Max tool-calling round-trips per message |
+| `onError` | function | - | Error callback for streaming/API errors |
+
+## Operating Modes
+
+The chatbot supports two modes, automatically selected based on the `api` field:
+
+### Local/Demo Mode (default)
+
+When `api` is not set, the chatbot operates in local mode with optional auto-response:
+
+```tsx
+const schema = {
+  type: 'chatbot',
+  messages: [...],
+  autoResponse: true,
+  autoResponseText: 'Thanks!',
+  autoResponseDelay: 1000,
+};
+```
+
+### AI Streaming Mode (service-ai)
+
+When `api` is set, the chatbot uses `@ai-sdk/react` for real SSE streaming:
+
+```tsx
+const schema = {
+  type: 'chatbot',
+  api: '/api/v1/ai/chat',
+  model: 'gpt-4o',
+  systemPrompt: 'You are a helpful assistant.',
+  streamingEnabled: true,
+  messages: [],
+};
+```
 
 ## Message Roles
 
@@ -445,8 +499,10 @@ const schema = {
 ## TypeScript Support
 
 ```plaintext
-import type { ChatbotSchema, ChatMessage } from '@object-ui/types'
+import type { ChatbotSchema, ChatMessage, ChatToolInvocation } from '@object-ui/types'
+import { useObjectChat } from '@object-ui/plugin-chatbot'
 
+// Basic messages
 const messages: ChatMessage[] = [
   {
     id: '1',
@@ -455,11 +511,23 @@ const messages: ChatMessage[] = [
   }
 ]
 
-const chatbotSchema: ChatbotSchema = {
+// Local/demo mode
+const demoSchema: ChatbotSchema = {
   type: 'chatbot',
   messages,
   placeholder: 'Type here...',
   showTimestamp: true
+}
+
+// AI streaming mode (service-ai)
+const aiSchema: ChatbotSchema = {
+  type: 'chatbot',
+  messages: [],
+  api: '/api/v1/ai/chat',
+  model: 'gpt-4o',
+  systemPrompt: 'You are a helpful assistant.',
+  streamingEnabled: true,
+  conversationId: 'conv-123',
 }
 ```
 
