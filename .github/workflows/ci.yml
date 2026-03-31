@@ -37,7 +37,7 @@ jobs:
         run: pnpm test:coverage --coverage.reporter=json --coverage.reporter=text
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
