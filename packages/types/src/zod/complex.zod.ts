@@ -192,12 +192,22 @@ export const CarouselSchema = BaseSchema.extend({
 /**
  * Chat Message Schema
  */
+export const ChatToolInvocationSchema = z.object({
+  toolCallId: z.string().describe('Unique tool call identifier'),
+  toolName: z.string().describe('Name of the tool'),
+  args: z.record(z.string(), z.unknown()).describe('Tool arguments'),
+  result: z.unknown().optional().describe('Tool result'),
+  state: z.enum(['partial-call', 'call', 'result']).describe('Tool invocation state'),
+});
+
 export const ChatMessageSchema = z.object({
   id: z.string().describe('Message ID'),
-  role: z.enum(['user', 'assistant', 'system']).describe('Message role'),
+  role: z.enum(['user', 'assistant', 'system', 'tool']).describe('Message role'),
   content: z.string().describe('Message content'),
   timestamp: z.union([z.string(), z.date()]).optional().describe('Message timestamp'),
   metadata: z.record(z.string(), z.any()).optional().describe('Custom metadata'),
+  streaming: z.boolean().optional().describe('Whether message is being streamed'),
+  toolInvocations: z.array(ChatToolInvocationSchema).optional().describe('Tool invocations'),
 });
 
 /**
@@ -214,6 +224,15 @@ export const ChatbotSchema = BaseSchema.extend({
   assistantAvatar: z.string().optional().describe('Assistant avatar URL'),
   markdown: z.boolean().optional().describe('Enable markdown rendering'),
   height: z.union([z.string(), z.number()]).optional().describe('Chatbot height'),
+  api: z.string().optional().describe('Backend API endpoint for streaming chat'),
+  conversationId: z.string().optional().describe('Conversation ID for multi-turn context'),
+  systemPrompt: z.string().optional().describe('System prompt for assistant behavior'),
+  model: z.string().optional().describe('AI model identifier'),
+  streamingEnabled: z.boolean().optional().describe('Enable streaming responses'),
+  headers: z.record(z.string(), z.string()).optional().describe('Additional API headers'),
+  body: z.record(z.string(), z.unknown()).optional().describe('Additional API body params'),
+  maxToolRoundtrips: z.number().optional().describe('Max tool-calling round-trips'),
+  onError: z.function().optional().describe('Error callback'),
 });
 
 /**

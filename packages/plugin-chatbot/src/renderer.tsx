@@ -10,65 +10,65 @@ import { ComponentRegistry } from '@object-ui/core';
 import type { ChatbotSchema, ChatMessage } from '@object-ui/types';
 import { Chatbot } from './index';
 import { ChatbotEnhanced } from './ChatbotEnhanced';
-import { generateUniqueId } from './utils';
-import { useState } from 'react';
+import { useObjectChat } from './useObjectChat';
 
 /**
  * Chatbot component for Object UI
  * 
  * @remarks
- * This component supports an optional `onSend` callback in the schema:
+ * This component supports two modes:
+ * 
+ * **API Mode** (when `api` is set):
+ * - Uses @ai-sdk/react for SSE streaming, tool-calling, and production-grade chat
+ * - Connects to service-ai backend (e.g., /api/v1/ai/chat)
+ * - Supports streaming, stop, reload, clear actions
+ * - Schema fields: api, conversationId, systemPrompt, model, streamingEnabled, headers, body, maxToolRoundtrips
+ * 
+ * **Legacy Mode** (when `api` is not set):
+ * - Local auto-response for demo/playground use
+ * - Schema fields: autoResponse, autoResponseText, autoResponseDelay
+ * 
+ * Both modes support the `onSend` callback:
  * - Signature: `onSend(content: string, messages: ChatMessage[]): void`
- * - Parameters:
- *   - content: The message text that was sent
- *   - messages: Array of all messages including the newly added message
- * - Called when: User sends a message via the input field
- * - Use case: Connect to backend API or trigger custom actions on message send
  */
 ComponentRegistry.register('chatbot', 
-  ({ schema, className, ...props }: { schema: ChatbotSchema; className?: string; [key: string]: any }) => {
-    // Initialize messages from schema or use empty array
-    const [messages, setMessages] = useState<ChatMessage[]>(
-      schema.messages?.map((msg: any, idx: number) => ({
-        id: msg.id || `msg-${idx}`,
-        role: msg.role || 'user',
-        content: msg.content || '',
-        timestamp: typeof msg.timestamp === 'string' ? msg.timestamp : (msg.timestamp instanceof Date ? msg.timestamp.toISOString() : undefined),
-        avatar: msg.avatar,
-        avatarFallback: msg.avatarFallback,
-      })) || []
-    );
+  ({ schema, className, ...props }: { schema: ChatbotSchema & {
+    showTimestamp?: boolean;
+    disabled?: boolean;
+    userAvatarUrl?: string;
+    userAvatarFallback?: string;
+    assistantAvatarUrl?: string;
+    assistantAvatarFallback?: string;
+    maxHeight?: string;
+    autoResponse?: boolean;
+    autoResponseText?: string;
+    autoResponseDelay?: number;
+    onSend?: (content: string, messages: ChatMessage[]) => void;
+  }; className?: string; [key: string]: any }) => {
+    const {
+      messages,
+      isLoading,
+      sendMessage,
+    } = useObjectChat({
+      api: schema.api,
+      initialMessages: schema.messages,
+      conversationId: schema.conversationId,
+      systemPrompt: schema.systemPrompt,
+      model: schema.model,
+      streamingEnabled: schema.streamingEnabled,
+      headers: schema.headers,
+      body: schema.body,
+      maxToolRoundtrips: schema.maxToolRoundtrips,
+      onError: schema.onError,
+      showTimestamp: schema.showTimestamp,
+      autoResponse: schema.autoResponse,
+      autoResponseText: schema.autoResponseText,
+      autoResponseDelay: schema.autoResponseDelay,
+      onSend: schema.onSend,
+    });
 
-    // Handle sending new messages
     const handleSendMessage = (content: string) => {
-      // Create user message with robust ID generation
-      const userMessage: ChatMessage = {
-        id: generateUniqueId('msg'),
-        role: 'user',
-        content,
-        timestamp: schema.showTimestamp ? new Date().toLocaleTimeString() : undefined,
-      };
-
-      const updatedMessages = [...messages, userMessage];
-      setMessages(updatedMessages);
-
-      // If onSend callback is provided in schema, call it with updated messages
-      if (schema.onSend) {
-        schema.onSend(content, updatedMessages);
-      }
-
-      // Auto-response feature for demo purposes
-      if (schema.autoResponse) {
-        setTimeout(() => {
-          const assistantMessage: ChatMessage = {
-            id: generateUniqueId('msg'),
-            role: 'assistant',
-            content: schema.autoResponseText || 'Thank you for your message!',
-            timestamp: schema.showTimestamp ? new Date().toLocaleTimeString() : undefined,
-          };
-          setMessages((prev) => [...prev, assistantMessage]);
-        }, schema.autoResponseDelay || 1000);
-      }
+      sendMessage(content);
     };
 
     return (
@@ -76,7 +76,7 @@ ComponentRegistry.register('chatbot',
         messages={messages as any}
         placeholder={schema.placeholder}
         onSendMessage={handleSendMessage}
-        disabled={schema.disabled}
+        disabled={schema.disabled || isLoading}
         showTimestamp={schema.showTimestamp}
         userAvatarUrl={schema.userAvatarUrl}
         userAvatarFallback={schema.userAvatarFallback}
@@ -148,12 +148,42 @@ ComponentRegistry.register('chatbot',
         label: 'Max Height',
         defaultValue: '500px'
       },
+      {
+        name: 'api',
+        type: 'string',
+        label: 'API Endpoint',
+        description: 'Backend SSE endpoint (e.g., /api/v1/ai/chat). When set, enables streaming AI mode.'
+      },
+      {
+        name: 'conversationId',
+        type: 'string',
+        label: 'Conversation ID',
+        description: 'Multi-turn conversation identifier'
+      },
+      {
+        name: 'systemPrompt',
+        type: 'string',
+        label: 'System Prompt',
+        description: 'System prompt to configure assistant behavior'
+      },
+      {
+        name: 'model',
+        type: 'string',
+        label: 'AI Model',
+        description: 'AI model identifier (e.g., gpt-4o)'
+      },
+      {
+        name: 'streamingEnabled',
+        type: 'boolean',
+        label: 'Enable Streaming',
+        defaultValue: true
+      },
       { 
         name: 'autoResponse', 
         type: 'boolean', 
         label: 'Enable Auto Response (Demo)',
         defaultValue: false,
-        description: 'Automatically send a response after user message (for demo purposes)'
+        description: 'Automatically send a response after user message (for demo purposes, ignored when API is set)'
       },
       { 
         name: 'autoResponseText', 
@@ -200,53 +230,53 @@ ComponentRegistry.register('chatbot-enhanced',
   ({ schema, className, ...props }: { schema: ChatbotSchema & { 
     enableMarkdown?: boolean; 
     enableFileUpload?: boolean;
+    showTimestamp?: boolean;
+    disabled?: boolean;
+    userAvatarUrl?: string;
+    userAvatarFallback?: string;
+    assistantAvatarUrl?: string;
+    assistantAvatarFallback?: string;
+    maxHeight?: string;
+    autoResponse?: boolean;
+    autoResponseText?: string;
+    autoResponseDelay?: number;
+    onSend?: (content: string, messages: ChatMessage[]) => void;
     onClear?: () => void;
   }; className?: string; [key: string]: any }) => {
-    const [messages, setMessages] = useState<ChatMessage[]>(
-      schema.messages?.map((msg: any, idx: number) => ({
-        id: msg.id || `msg-${idx}`,
-        role: msg.role || 'user',
-        content: msg.content || '',
-        timestamp: typeof msg.timestamp === 'string' ? msg.timestamp : (msg.timestamp instanceof Date ? msg.timestamp.toISOString() : undefined),
-        avatar: msg.avatar,
-        avatarFallback: msg.avatarFallback,
-      })) || []
-    );
+    const {
+      messages,
+      isLoading,
+      error,
+      sendMessage,
+      stop,
+      reload,
+      clear,
+      isApiMode,
+    } = useObjectChat({
+      api: schema.api,
+      initialMessages: schema.messages,
+      conversationId: schema.conversationId,
+      systemPrompt: schema.systemPrompt,
+      model: schema.model,
+      streamingEnabled: schema.streamingEnabled,
+      headers: schema.headers,
+      body: schema.body,
+      maxToolRoundtrips: schema.maxToolRoundtrips,
+      onError: schema.onError,
+      showTimestamp: schema.showTimestamp,
+      autoResponse: schema.autoResponse,
+      autoResponseText: schema.autoResponseText,
+      autoResponseDelay: schema.autoResponseDelay,
+      onSend: schema.onSend,
+    });
 
-    const handleSendMessage = (content: string, _files?: File[]) => {
-      const userMessage: ChatMessage = {
-        id: generateUniqueId('msg'),
-        role: 'user',
-        content,
-        timestamp: schema.showTimestamp ? new Date().toLocaleTimeString() : undefined,
-      };
-
-      const updatedMessages = [...messages, userMessage];
-      setMessages(updatedMessages);
-
-      if (schema.onSend) {
-        schema.onSend(content, updatedMessages);
-      }
-
-      // Auto-response with streaming simulation
-      if (schema.autoResponse) {
-        setTimeout(() => {
-          const assistantMessage: ChatMessage = {
-            id: generateUniqueId('msg'),
-            role: 'assistant',
-            content: schema.autoResponseText || 'Thank you for your message!',
-            timestamp: schema.showTimestamp ? new Date().toLocaleTimeString() : undefined,
-          };
-          setMessages((prev) => [...prev, assistantMessage]);
-        }, schema.autoResponseDelay || 1000);
-      }
+    const handleSendMessage = (content: string, files?: File[]) => {
+      sendMessage(content, files);
     };
 
     const handleClear = () => {
-      setMessages([]);
-      if (schema.onClear) {
-        schema.onClear();
-      }
+      clear();
+      schema.onClear?.();
     };
 
     return (
@@ -255,7 +285,11 @@ ComponentRegistry.register('chatbot-enhanced',
         placeholder={schema.placeholder}
         onSendMessage={handleSendMessage}
         onClear={handleClear}
+        onStop={isApiMode && isLoading ? stop : undefined}
+        onReload={isApiMode ? reload : undefined}
         disabled={schema.disabled}
+        isLoading={isLoading}
+        error={error}
         showTimestamp={schema.showTimestamp}
         userAvatarUrl={schema.userAvatarUrl}
         userAvatarFallback={schema.userAvatarFallback}
@@ -284,6 +318,11 @@ ComponentRegistry.register('chatbot-enhanced',
       { name: 'assistantAvatarUrl', type: 'string', label: 'Assistant Avatar URL' },
       { name: 'assistantAvatarFallback', type: 'string', label: 'Assistant Avatar Fallback', defaultValue: 'AI' },
       { name: 'maxHeight', type: 'string', label: 'Max Height', defaultValue: '500px' },
+      { name: 'api', type: 'string', label: 'API Endpoint', description: 'Backend SSE endpoint for streaming AI mode' },
+      { name: 'conversationId', type: 'string', label: 'Conversation ID' },
+      { name: 'systemPrompt', type: 'string', label: 'System Prompt' },
+      { name: 'model', type: 'string', label: 'AI Model' },
+      { name: 'streamingEnabled', type: 'boolean', label: 'Enable Streaming', defaultValue: true },
       { name: 'autoResponse', type: 'boolean', label: 'Enable Auto Response (Demo)', defaultValue: false },
       { name: 'autoResponseText', type: 'string', label: 'Auto Response Text', defaultValue: 'Thank you for your message!' },
       { name: 'autoResponseDelay', type: 'number', label: 'Auto Response Delay (ms)', defaultValue: 1000 },
