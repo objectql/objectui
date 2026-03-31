@@ -29,6 +29,10 @@ const handlers = [
     return HttpResponse.json({ status: 'ok', version: '1.0.0' });
   }),
 
+  http.get(`${BASE_URL}/api/v1/discovery`, () => {
+    return HttpResponse.json({ status: 'ok', version: '1.0.0' });
+  }),
+
   http.get(`${BASE_URL}/api/v1/data/milestones`, () => {
     return HttpResponse.json(mockMilestones);
   })

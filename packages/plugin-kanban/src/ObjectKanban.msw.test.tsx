@@ -30,8 +30,12 @@ const handlers = [
     return new HttpResponse(null, { status: 200 });
   }),
 
-  // Health check
+  // Health check / discovery
   http.get(`${BASE_URL}/api/v1`, () => {
+    return HttpResponse.json({ status: 'ok', version: '1.0.0' });
+  }),
+
+  http.get(`${BASE_URL}/api/v1/discovery`, () => {
     return HttpResponse.json({ status: 'ok', version: '1.0.0' });
   }),
 
