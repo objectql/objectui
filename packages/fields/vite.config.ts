@@ -30,16 +30,7 @@ export default defineConfig({
       fileName: (format) => `index.${format === 'es' ? 'js' : 'cjs'}`,
     },
     rollupOptions: {
-      external: [
-        'react',
-        'react-dom',
-        'react/jsx-runtime',
-        '@object-ui/components',
-        '@object-ui/core',
-        '@object-ui/react',
-        '@object-ui/types',
-        'lucide-react',
-      ],
+      external: (id) => /^(react|react-dom|@object-ui\/(components|core|i18n|react|types)|lucide-react)(\/|$)/.test(id),
       output: {
         globals: {
           react: 'React',
