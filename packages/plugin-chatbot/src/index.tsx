@@ -244,5 +244,9 @@ TypingIndicator.displayName = "TypingIndicator"
 
 export { Chatbot, TypingIndicator }
 
+// Export the composable chat hook for custom integrations
+export { useObjectChat } from './useObjectChat';
+export type { UseObjectChatOptions, UseObjectChatReturn } from './useObjectChat';
+
 // Export renderer to register the component with ObjectUI
 export * from './renderer';

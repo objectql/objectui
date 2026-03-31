@@ -246,3 +246,104 @@ export const StreamingResponse: Story = {
     className: 'w-full max-w-2xl'
   } as any,
 };
+
+// ============================================================================
+// AI SDUI Mode Stories (service-ai integration)
+// ============================================================================
+
+/**
+ * AI Streaming Mode - demonstrates schema config for service-ai backend.
+ * In production, set `api` to your service-ai endpoint.
+ * Without a real backend, this falls back to local auto-response.
+ */
+export const AIStreamingMode: Story = {
+  render: renderStory,
+  args: {
+    type: 'chatbot',
+    messages: [
+      {
+        id: 'welcome',
+        role: 'assistant',
+        content: 'Hello! I\'m your AI assistant powered by service-ai. Ask me anything!',
+      }
+    ],
+    placeholder: 'Ask the AI assistant...',
+    enableMarkdown: true,
+    showTimestamp: false,
+    // AI SDUI fields — in production, set api to your endpoint:
+    // api: '/api/v1/ai/chat',
+    // model: 'gpt-4o',
+    // systemPrompt: 'You are a helpful assistant.',
+    // streamingEnabled: true,
+    // Fallback to auto-response for demo:
+    autoResponse: true,
+    autoResponseText: 'This is a demo response. In production, connect `api` to your service-ai endpoint for real streaming.',
+    autoResponseDelay: 800,
+    className: 'w-full max-w-2xl'
+  } as any,
+};
+
+/**
+ * AI Chat with system prompt and model config.
+ */
+export const AIWithSystemPrompt: Story = {
+  render: renderStory,
+  args: {
+    type: 'chatbot',
+    messages: [
+      {
+        id: 'system-1',
+        role: 'system',
+        content: 'You are a customer support agent for Acme Inc.',
+      },
+      {
+        id: 'welcome',
+        role: 'assistant',
+        content: 'Welcome to Acme Support! How can I help you today?',
+      }
+    ],
+    placeholder: 'Describe your issue...',
+    enableMarkdown: true,
+    showTimestamp: true,
+    systemPrompt: 'You are a customer support agent for Acme Inc. Be helpful and professional.',
+    model: 'gpt-4o',
+    autoResponse: true,
+    autoResponseText: 'Thank you for contacting Acme Support. I\'m looking into your request.',
+    autoResponseDelay: 1200,
+    className: 'w-full max-w-2xl'
+  } as any,
+};
+
+/**
+ * AI Chat including tool invocation metadata in messages.
+ */
+export const AIWithToolCalls: Story = {
+  render: renderStory,
+  args: {
+    type: 'chatbot',
+    messages: [
+      {
+        id: '1',
+        role: 'user',
+        content: 'What\'s the weather in San Francisco?',
+      },
+      {
+        id: '2',
+        role: 'assistant',
+        content: 'The weather in San Francisco is currently 68°F with partly cloudy skies.',
+        toolInvocations: [
+          {
+            toolCallId: 'tc-1',
+            toolName: 'getWeather',
+            args: { city: 'San Francisco' },
+            result: { temp: 68, condition: 'Partly cloudy' },
+            state: 'result',
+          }
+        ],
+      }
+    ],
+    placeholder: 'Ask about weather, stocks, or more...',
+    enableMarkdown: true,
+    className: 'w-full max-w-2xl'
+  } as any,
+};

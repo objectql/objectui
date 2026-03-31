@@ -9,7 +9,7 @@
 import * as React from "react"
 import { cn } from "@object-ui/components"
 import { Button, Input, ScrollArea, Avatar, AvatarFallback, AvatarImage } from "@object-ui/components"
-import { Send, Trash2, Paperclip, X } from "lucide-react"
+import { Send, Trash2, Paperclip, X, Square, RefreshCw, AlertCircle } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism"
@@ -30,7 +30,15 @@ export interface ChatbotEnhancedProps extends React.HTMLAttributes<HTMLDivElemen
   placeholder?: string
   onSendMessage?: (message: string, files?: File[]) => void
   onClear?: () => void
+  /** Stop the current streaming response (API mode only) */
+  onStop?: () => void
+  /** Reload / retry the last assistant message (API mode only) */
+  onReload?: () => void
   disabled?: boolean
+  /** Whether the assistant is currently generating a response */
+  isLoading?: boolean
+  /** Current streaming/API error */
+  error?: Error
   showTimestamp?: boolean
   userAvatarUrl?: string
   userAvatarFallback?: string
@@ -115,7 +123,11 @@ const ChatbotEnhanced = React.forwardRef<HTMLDivElement, ChatbotEnhancedProps>(
       placeholder = "Type your message...",
       onSendMessage,
       onClear,
+      onStop,
+      onReload,
       disabled = false,
+      isLoading = false,
+      error,
       showTimestamp = false,
       userAvatarUrl,
       userAvatarFallback = "You",
@@ -154,6 +166,9 @@ const ChatbotEnhanced = React.forwardRef<HTMLDivElement, ChatbotEnhancedProps>(
         inputRef.current?.focus()
       }
     }
+
+    const isInputDisabled = disabled || isLoading
+    const isSendDisabled = isInputDisabled || (!inputValue.trim() && selectedFiles.length === 0)
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter" && !e.shiftKey) {
@@ -322,6 +337,42 @@ const ChatbotEnhanced = React.forwardRef<HTMLDivElement, ChatbotEnhancedProps>(
           </div>
         )}
 
+        {/* Error display */}
+        {error && (
+          <div className="flex items-center gap-2 px-4 py-2 border-t bg-destructive/10 text-destructive text-sm" role="alert">
+            <AlertCircle className="h-4 w-4 flex-shrink-0" />
+            <span className="flex-1 truncate">{error.message || 'An error occurred'}</span>
+            {onReload && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onReload}
+                className="h-7 text-xs"
+                aria-label="Retry"
+              >
+                <RefreshCw className="h-3 w-3 mr-1" />
+                Retry
+              </Button>
+            )}
+          </div>
+        )}
+
+        {/* Streaming controls */}
+        {isLoading && onStop && (
+          <div className="flex items-center justify-center px-4 py-2 border-t">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onStop}
+              className="h-8 text-xs"
+              aria-label="Stop generating"
+            >
+              <Square className="h-3 w-3 mr-1" />
+              Stop generating
+            </Button>
+          </div>
+        )}
+
         {/* Input area */}
         <div className="flex items-center gap-2 p-4 border-t">
           {enableFileUpload && (
@@ -338,7 +389,7 @@ const ChatbotEnhanced = React.forwardRef<HTMLDivElement, ChatbotEnhancedProps>(
                 variant="ghost"
                 size="icon"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={disabled}
+                disabled={isInputDisabled}
                 aria-label="Attach file"
               >
                 <Paperclip className="h-4 w-4" />
@@ -352,13 +403,13 @@ const ChatbotEnhanced = React.forwardRef<HTMLDivElement, ChatbotEnhancedProps>(
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            disabled={disabled}
+            disabled={isInputDisabled}
             className="flex-1"
           />
           
           <Button
             onClick={handleSend}
-            disabled={disabled || (!inputValue.trim() && selectedFiles.length === 0)}
+            disabled={isSendDisabled}
             size="icon"
             aria-label="Send message"
           >

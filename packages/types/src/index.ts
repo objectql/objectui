@@ -249,6 +249,7 @@ export type {
   DashboardWidgetSchema,
   DashboardSchema,
   ChatMessage,
+  ChatToolInvocation,
   ChatbotSchema,
   ComplexSchema,
 } from './complex';

@@ -401,7 +401,7 @@ export interface ChatMessage {
   /**
    * Message role
    */
-  role: 'user' | 'assistant' | 'system';
+  role: 'user' | 'assistant' | 'system' | 'tool';
   /**
    * Message content
    */
@@ -414,6 +414,40 @@ export interface ChatMessage {
    * Message metadata
    */
   metadata?: any;
+  /**
+   * Whether this message is currently being streamed
+   */
+  streaming?: boolean;
+  /**
+   * Tool invocations associated with this message (for tool-calling flows)
+   */
+  toolInvocations?: ChatToolInvocation[];
+}
+
+/**
+ * Represents a tool invocation from an AI assistant message
+ */
+export interface ChatToolInvocation {
+  /**
+   * Unique tool call identifier
+   */
+  toolCallId: string;
+  /**
+   * Name of the tool being invoked
+   */
+  toolName: string;
+  /**
+   * Arguments passed to the tool
+   */
+  args: Record<string, unknown>;
+  /**
+   * Result of the tool invocation (set when complete)
+   */
+  result?: unknown;
+  /**
+   * Tool invocation state
+   */
+  state: 'partial-call' | 'call' | 'result';
 }
 
 /**
@@ -460,6 +494,50 @@ export interface ChatbotSchema extends BaseSchema {
    * Chat height
    */
   height?: string | number;
+
+  // --- AI / service-ai integration fields ---
+
+  /**
+   * Backend API endpoint for chat (e.g., '/api/v1/ai/chat').
+   * When set, the chatbot uses streaming SSE via the vercel/ai SDK.
+   * When not set, the chatbot falls back to local auto-response mode (legacy/demo).
+   */
+  api?: string;
+  /**
+   * Conversation ID for multi-turn context.
+   * Sent to the backend as an `x-conversation-id` HTTP header.
+   */
+  conversationId?: string;
+  /**
+   * System prompt to configure assistant behavior.
+   */
+  systemPrompt?: string;
+  /**
+   * AI model identifier (e.g., 'gpt-4o', 'claude-3-opus').
+   */
+  model?: string;
+  /**
+   * Whether streaming is enabled for AI responses.
+   * @default true
+   */
+  streamingEnabled?: boolean;
+  /**
+   * Additional headers to send with API requests (e.g., auth tokens).
+   */
+  headers?: Record<string, string>;
+  /**
+   * Additional body parameters to include with each API request.
+   */
+  body?: Record<string, unknown>;
+  /**
+   * Maximum number of tool-calling round-trips per user message.
+   * @default 5
+   */
+  maxToolRoundtrips?: number;
+  /**
+   * Callback when an error occurs during streaming or API calls.
+   */
+  onError?: (error: Error) => void;
 }
 
 /**
