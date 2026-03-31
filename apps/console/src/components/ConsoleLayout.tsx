@@ -9,12 +9,18 @@
 
 import React from 'react';
 import { AppShell } from '@object-ui/layout';
-import { FloatingChatbot, useObjectChat } from '@object-ui/plugin-chatbot';
+import { FloatingChatbot, useObjectChat, type ChatMessage } from '@object-ui/plugin-chatbot';
 import { AppSidebar } from './AppSidebar';
 import { AppHeader } from './AppHeader';
 import { useResponsiveSidebar } from '../hooks/useResponsiveSidebar';
 import { resolveI18nLabel } from '../utils';
 import type { ConnectionState } from '../dataSource';
+
+/** Minimal object shape used by the chatbot context */
+interface ConsoleObject {
+  name: string;
+  label?: string;
+}
 
 interface ConsoleLayoutProps {
   children: React.ReactNode;
@@ -32,8 +38,8 @@ function ConsoleLayoutInner({ children }: { children: React.ReactNode }) {
 }
 
 /** Floating chatbot wired with useObjectChat for demo auto-response */
-function ConsoleFloatingChatbot({ appLabel, objects }: { appLabel: string; objects: any[] }) {
-  const objectNames = objects.map((o: any) => o.label || o.name).join(', ');
+function ConsoleFloatingChatbot({ appLabel, objects }: { appLabel: string; objects: ConsoleObject[] }) {
+  const objectNames = objects.map((o) => o.label || o.name).join(', ');
 
   const {
     messages,
@@ -68,7 +74,7 @@ function ConsoleFloatingChatbot({ appLabel, objects }: { appLabel: string; objec
         title: `${appLabel} Assistant`,
         triggerSize: 56,
       }}
-      messages={messages as any}
+      messages={messages as ChatMessage[]}
       placeholder="Ask anything..."
       onSendMessage={(content: string) => sendMessage(content)}
       onClear={clear}
