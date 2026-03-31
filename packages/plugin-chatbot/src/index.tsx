@@ -248,5 +248,20 @@ export { Chatbot, TypingIndicator }
 export { useObjectChat } from './useObjectChat';
 export type { UseObjectChatOptions, UseObjectChatReturn } from './useObjectChat';
 
+// Export floating chatbot components
+export { FloatingChatbot } from './FloatingChatbot';
+export type { FloatingChatbotProps } from './FloatingChatbot';
+export { FloatingChatbotProvider, useFloatingChatbot } from './FloatingChatbotProvider';
+export type {
+  FloatingChatbotProviderProps,
+  FloatingChatbotState,
+  FloatingChatbotActions,
+  FloatingChatbotContextValue,
+} from './FloatingChatbotProvider';
+export { FloatingChatbotTrigger } from './FloatingChatbotTrigger';
+export type { FloatingChatbotTriggerProps } from './FloatingChatbotTrigger';
+export { FloatingChatbotPanel } from './FloatingChatbotPanel';
+export type { FloatingChatbotPanelProps } from './FloatingChatbotPanel';
+
 // Export renderer to register the component with ObjectUI
 export * from './renderer';

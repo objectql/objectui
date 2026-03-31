@@ -251,6 +251,7 @@ export type {
   ChatMessage,
   ChatToolInvocation,
   ChatbotSchema,
+  FloatingChatbotConfig,
   ComplexSchema,
 } from './complex';
 

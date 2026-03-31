@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Floating Chatbot FAB Widget** (`@object-ui/plugin-chatbot`): Airtable-style floating action button (FAB) that opens a chatbot panel overlay. New components: `FloatingChatbot`, `FloatingChatbotPanel`, `FloatingChatbotTrigger`, `FloatingChatbotProvider`. Features include configurable position (bottom-right/left), fullscreen toggle, close, portal rendering to avoid z-index conflicts, and `useFloatingChatbot` hook for programmatic control. Registered as `chatbot-floating` in ComponentRegistry. 21 new unit tests.
+
+- **New ChatbotSchema floating fields** (`@object-ui/types`): Extended `ChatbotSchema` with `displayMode` (`'inline' | 'floating'`) and `floatingConfig` (`FloatingChatbotConfig`) for schema-driven floating chatbot configuration. New `FloatingChatbotConfig` interface with `position`, `defaultOpen`, `panelWidth`, `panelHeight`, `title`, `triggerIcon`, and `triggerSize` options.
+
 - **AI SDUI Chatbot integration** (`@object-ui/plugin-chatbot`): Refactored chatbot plugin to support full AI streaming via `service-ai` backend and `vercel/ai` SDK (`@ai-sdk/react`). New `useObjectChat` composable hook wraps `@ai-sdk/react`'s `useChat` for SSE streaming, tool-calling, and production-grade chat. Auto-detects API mode (when `api` schema field is set) vs legacy local auto-response mode. ChatbotEnhanced component now supports stop, reload, error display, and streaming state indicators. 44 unit tests (19 new hook tests, 10 new streaming tests).
 
 - **New ChatbotSchema fields** (`@object-ui/types`): Extended `ChatbotSchema` with `api`, `conversationId`, `systemPrompt`, `model`, `streamingEnabled`, `headers`, `requestBody`, `maxToolRoundtrips`, and `onError` fields for service-ai integration. Extended `ChatMessage` with `streaming`, `toolInvocations` fields and added `ChatToolInvocation` interface for tool-calling flows.

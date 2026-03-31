@@ -538,6 +538,62 @@ export interface ChatbotSchema extends BaseSchema {
    * Callback when an error occurs during streaming or API calls.
    */
   onError?: (error: Error) => void;
+
+  // --- Floating / FAB display mode ---
+
+  /**
+   * Display mode for the chatbot.
+   * - `'inline'` (default): Embedded in the page flow.
+   * - `'floating'`: Rendered as a floating action button (FAB) that opens a panel overlay.
+   */
+  displayMode?: 'inline' | 'floating';
+
+  /**
+   * Configuration for floating display mode.
+   * Only used when `displayMode` is `'floating'`.
+   */
+  floatingConfig?: FloatingChatbotConfig;
+}
+
+/**
+ * Configuration for the floating chatbot FAB widget.
+ */
+export interface FloatingChatbotConfig {
+  /**
+   * Position of the FAB trigger button.
+   * @default 'bottom-right'
+   */
+  position?: 'bottom-right' | 'bottom-left';
+  /**
+   * Whether the panel is open by default on mount.
+   * @default false
+   */
+  defaultOpen?: boolean;
+  /**
+   * Width of the floating panel.
+   * @default 400
+   */
+  panelWidth?: number;
+  /**
+   * Height of the floating panel.
+   * @default 520
+   */
+  panelHeight?: number;
+  /**
+   * Title displayed in the panel header.
+   * @default 'Chat'
+   */
+  title?: string;
+  /**
+   * Custom icon name for the FAB trigger (Lucide icon name).
+   * @default 'MessageCircle'
+   */
+  triggerIcon?: string;
+  /**
+   * Custom size for the FAB trigger button in pixels.
+   * @default 56
+   */
+  triggerSize?: number;
 }
 
 /**
