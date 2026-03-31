@@ -10,6 +10,7 @@ import { ComponentRegistry } from '@object-ui/core';
 import type { ChatbotSchema, ChatMessage } from '@object-ui/types';
 import { Chatbot } from './index';
 import { ChatbotEnhanced } from './ChatbotEnhanced';
+import { FloatingChatbot } from './FloatingChatbot';
 import { useObjectChat } from './useObjectChat';
 
 /**
@@ -348,6 +349,135 @@ ComponentRegistry.register('chatbot-enhanced',
       autoResponseText: 'Thank you for your message! This is an automated response.',
       autoResponseDelay: 1000,
       className: 'w-full max-w-2xl'
+    }
+  }
+);
+
+// Register Floating Chatbot (FAB widget)
+ComponentRegistry.register('chatbot-floating',
+  ({ schema, className, ...props }: { schema: ChatbotSchema & {
+    enableMarkdown?: boolean;
+    enableFileUpload?: boolean;
+    showTimestamp?: boolean;
+    disabled?: boolean;
+    userAvatarUrl?: string;
+    userAvatarFallback?: string;
+    assistantAvatarUrl?: string;
+    assistantAvatarFallback?: string;
+    autoResponse?: boolean;
+    autoResponseText?: string;
+    autoResponseDelay?: number;
+    onSend?: (content: string, messages: ChatMessage[]) => void;
+    onClear?: () => void;
+  }; className?: string; [key: string]: any }) => {
+    const {
+      messages,
+      isLoading,
+      error,
+      sendMessage,
+      stop,
+      reload,
+      clear,
+      isApiMode,
+    } = useObjectChat({
+      api: schema.api,
+      initialMessages: schema.messages,
+      conversationId: schema.conversationId,
+      systemPrompt: schema.systemPrompt,
+      model: schema.model,
+      streamingEnabled: schema.streamingEnabled,
+      headers: schema.headers,
+      body: schema.requestBody,
+      maxToolRoundtrips: schema.maxToolRoundtrips,
+      onError: schema.onError,
+      showTimestamp: schema.showTimestamp,
+      autoResponse: schema.autoResponse,
+      autoResponseText: schema.autoResponseText,
+      autoResponseDelay: schema.autoResponseDelay,
+      onSend: schema.onSend,
+    });
+
+    const handleSendMessage = (content: string, files?: File[]) => {
+      sendMessage(content, files);
+    };
+
+    const handleClear = () => {
+      clear();
+      schema.onClear?.();
+    };
+
+    return (
+      <FloatingChatbot
+        floatingConfig={schema.floatingConfig}
+        messages={messages as any}
+        placeholder={schema.placeholder}
+        onSendMessage={handleSendMessage}
+        onClear={handleClear}
+        onStop={isApiMode && isLoading ? stop : undefined}
+        onReload={isApiMode ? reload : undefined}
+        disabled={schema.disabled}
+        isLoading={isLoading}
+        error={error}
+        showTimestamp={schema.showTimestamp}
+        userAvatarUrl={schema.userAvatarUrl}
+        userAvatarFallback={schema.userAvatarFallback}
+        assistantAvatarUrl={schema.assistantAvatarUrl}
+        assistantAvatarFallback={schema.assistantAvatarFallback}
+        enableMarkdown={schema.enableMarkdown ?? true}
+        enableFileUpload={schema.enableFileUpload ?? false}
+        className={className}
+        {...props}
+      />
+    );
+  },
+  {
+    namespace: 'plugin-chatbot',
+    label: 'Chatbot (Floating)',
+    inputs: [
+      { name: 'displayMode', type: 'string', label: 'Display Mode', defaultValue: 'floating', description: 'Set to "floating" for FAB widget' },
+      { name: 'floatingConfig.position', type: 'string', label: 'FAB Position', defaultValue: 'bottom-right', description: 'bottom-right or bottom-left' },
+      { name: 'floatingConfig.defaultOpen', type: 'boolean', label: 'Default Open', defaultValue: false },
+      { name: 'floatingConfig.panelWidth', type: 'number', label: 'Panel Width', defaultValue: 400 },
+      { name: 'floatingConfig.panelHeight', type: 'number', label: 'Panel Height', defaultValue: 520 },
+      { name: 'floatingConfig.title', type: 'string', label: 'Panel Title', defaultValue: 'Chat' },
+      { name: 'floatingConfig.triggerSize', type: 'number', label: 'Trigger Size', defaultValue: 56 },
+      { name: 'messages', type: 'array', label: 'Initial Messages' },
+      { name: 'placeholder', type: 'string', label: 'Input Placeholder', defaultValue: 'Type your message...' },
+      { name: 'enableMarkdown', type: 'boolean', label: 'Enable Markdown', defaultValue: true },
+      { name: 'enableFileUpload', type: 'boolean', label: 'Enable File Upload', defaultValue: false },
+      { name: 'api', type: 'string', label: 'API Endpoint', description: 'Backend SSE endpoint for streaming AI mode' },
+      { name: 'conversationId', type: 'string', label: 'Conversation ID' },
+      { name: 'systemPrompt', type: 'string', label: 'System Prompt' },
+      { name: 'model', type: 'string', label: 'AI Model' },
+      { name: 'streamingEnabled', type: 'boolean', label: 'Enable Streaming', defaultValue: true },
+      { name: 'autoResponse', type: 'boolean', label: 'Enable Auto Response (Demo)', defaultValue: false },
+      { name: 'autoResponseText', type: 'string', label: 'Auto Response Text', defaultValue: 'Thank you for your message!' },
+      { name: 'autoResponseDelay', type: 'number', label: 'Auto Response Delay (ms)', defaultValue: 1000 },
+      { name: 'className', type: 'string', label: 'CSS Class' },
+    ],
+    defaultProps: {
+      displayMode: 'floating',
+      floatingConfig: {
+        position: 'bottom-right',
+        defaultOpen: false,
+        panelWidth: 400,
+        panelHeight: 520,
+        title: 'Chat',
+        triggerSize: 56,
+      },
+      messages: [
+        {
+          id: 'welcome',
+          role: 'assistant',
+          content: 'Hello! How can I help you today?',
+        }
+      ],
+      placeholder: 'Type your message...',
+      enableMarkdown: true,
+      enableFileUpload: false,
+      autoResponse: true,
+      autoResponseText: 'Thank you for your message! This is an automated response.',
+      autoResponseDelay: 1000,
     }
   }
 );
