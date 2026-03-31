@@ -172,9 +172,10 @@ export function useObjectChat(options: UseObjectChatOptions = {}): UseObjectChat
     content: msg.content,
   }));
 
-  // --- @ai-sdk/react useChat (always called, but only active in API mode) ---
+  // --- @ai-sdk/react useChat (always called to satisfy Rules of Hooks, but only active in API mode) ---
+  // When in local mode, useChat is initialized with minimal config and its results are ignored.
   const chatResult = useChat({
-    api: isApiMode ? api! : '/noop',
+    api: isApiMode ? api! : '/api/noop',
     initialMessages: isApiMode && aiInitialMessages.length > 0 ? aiInitialMessages : undefined,
     headers: isApiMode ? {
       ...headers,
@@ -232,7 +233,7 @@ export function useObjectChat(options: UseObjectChatOptions = {}): UseObjectChat
       streaming: isLoading && msg.id === aiMessages[aiMessages.length - 1]?.id && msg.role === 'assistant',
     }));
 
-    const sendMessage = (content: string) => {
+    const sendMessage = useCallback((content: string) => {
       const trimmed = content.trim();
       if (!trimmed) return;
 
@@ -251,11 +252,11 @@ export function useObjectChat(options: UseObjectChatOptions = {}): UseObjectChat
 
       append(newMsg);
       onSend?.(trimmed, nextMessages);
-    };
+    }, [append, onSend, messages]);
 
-    const clear = () => {
+    const clear = useCallback(() => {
       setMessages([]);
-    };
+    }, [setMessages]);
 
     return {
       messages,
