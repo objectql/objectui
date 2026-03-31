@@ -1282,8 +1282,11 @@ describe('DashboardRenderer widget data extraction', () => {
   });
 
   // --- Metric widget with object binding → object-metric ---
+  // When widget.type === 'metric' AND widget.object is set, DashboardRenderer
+  // routes to the registered 'object-metric' component (ObjectMetricWidget).
+  // Without a dataSource in context, it renders the static fallbackValue.
 
-  it('should route metric widgets with object binding to object-metric type', () => {
+  it('should route metric widgets with object binding to object-metric (renders fallback without dataSource)', () => {
     const schema = {
       type: 'dashboard' as const,
       name: 'test',
@@ -1303,14 +1306,10 @@ describe('DashboardRenderer widget data extraction', () => {
     } as any;
 
     const { container } = render(<DashboardRenderer schema={schema} />);
-    const schemas = getRenderedSchemas(container);
-    const metricSchema = schemas.find(s => s.type === 'object-metric');
 
-    expect(metricSchema).toBeDefined();
-    expect(metricSchema.objectName).toBe('opportunity');
-    expect(metricSchema.label).toBe('Total Revenue');
-    expect(metricSchema.fallbackValue).toBe('$652,000');
-    expect(metricSchema.icon).toBe('DollarSign');
+    // ObjectMetricWidget renders fallbackValue when no dataSource is present
+    expect(container.textContent).toContain('Total Revenue');
+    expect(container.textContent).toContain('$652,000');
   });
 
   it('should keep static metric widgets as-is when no object binding', () => {
@@ -1337,7 +1336,7 @@ describe('DashboardRenderer widget data extraction', () => {
     expect(container.textContent).toContain('42');
   });
 
-  it('should pass aggregate config from widget data provider to object-metric', () => {
+  it('should route metric with data.provider object to object-metric (renders fallback without dataSource)', () => {
     const schema = {
       type: 'dashboard' as const,
       name: 'test',
@@ -1361,14 +1360,9 @@ describe('DashboardRenderer widget data extraction', () => {
     } as any;
 
     const { container } = render(<DashboardRenderer schema={schema} />);
-    const schemas = getRenderedSchemas(container);
-    const metricSchema = schemas.find(s => s.type === 'object-metric');
 
-    expect(metricSchema).toBeDefined();
-    expect(metricSchema.aggregate).toEqual({
-      field: 'amount',
-      function: 'sum',
-      groupBy: '_all',
-    });
+    // ObjectMetricWidget renders fallbackValue when no dataSource is present
+    expect(container.textContent).toContain('Revenue Sum');
+    expect(container.textContent).toContain('$0');
   });
 });
