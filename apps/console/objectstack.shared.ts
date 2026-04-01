@@ -51,7 +51,12 @@ export const setupAppConfig = {
   manifest: { id: 'setup', name: 'setup' },
 };
 
-// Custom reports not part of any individual app config but needed by tests/aggregated config
+/**
+ * Additional reports that are not part of any individual app config.
+ * Loaded as a separate AppPlugin instance by the mock server (server.ts)
+ * and browser mock (browser.ts) so that these reports appear in the
+ * kernel's metadata alongside the app-specific reports.
+ */
 export const customReportsConfig = {
   reports: [
     {
@@ -68,7 +73,7 @@ export const customReportsConfig = {
       ]
     }
   ],
-  manifest: { id: 'custom-reports', name: 'custom-reports' },
+  manifest: { id: 'reports', name: 'reports' },
 };
 
 // Patch CRM App Navigation to include Report using a supported navigation type
