@@ -29,10 +29,7 @@ vi.mock('@object-ui/auth', () => ({
     signOut: mockSignOut,
     isAuthenticated: true,
   }),
-  getUserInitials: (u: any) => {
-    if (!u?.name) return 'U';
-    return u.name.split(' ').map((s: string) => s[0]).join('').toUpperCase().slice(0, 2);
-  },
+  getUserInitials: () => 'AD',
 }));
 
 vi.mock('@object-ui/i18n', () => ({

@@ -15,9 +15,16 @@ import { useObjectTranslation } from '@object-ui/i18n';
 import { useAuth, getUserInitials } from '@object-ui/auth';
 import {
   Button,
-  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent,
-  DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator,
-  DropdownMenuGroup, Avatar, AvatarImage, AvatarFallback,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuGroup,
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
 } from '@object-ui/components';
 import { Settings, LogOut, User, Home } from 'lucide-react';
 
