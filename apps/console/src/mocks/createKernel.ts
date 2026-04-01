@@ -22,8 +22,10 @@ import type { Cube } from '@objectstack/spec/data';
 import { http, HttpResponse } from 'msw';
 
 export interface KernelOptions {
-  /** Application configuration (defineStack output) */
-  appConfig: any;
+  /** Application configuration (defineStack output). Deprecated: use appConfigs instead. */
+  appConfig?: any;
+  /** Individual application configurations loaded as separate AppPlugin instances. */
+  appConfigs?: any[];
   /** Whether to skip system validation (useful in browser) */
   skipSystemValidation?: boolean;
   /** MSWPlugin options; when provided, MSWPlugin is added to the kernel. */
@@ -297,7 +299,10 @@ function resolveI18nTranslations(
  * so that kernel setup logic is not duplicated.
  */
 export async function createKernel(options: KernelOptions): Promise<KernelResult> {
-  const { appConfig, skipSystemValidation = true, mswOptions, persistence } = options;
+  const { appConfig, appConfigs, skipSystemValidation = true, mswOptions, persistence } = options;
+
+  // Support both single appConfig (legacy) and multiple appConfigs
+  const configs: any[] = appConfigs ?? (appConfig ? [appConfig] : []);
 
   const driver = new InMemoryDriver(
     persistence !== undefined ? { persistence } : undefined,
@@ -309,15 +314,17 @@ export async function createKernel(options: KernelOptions): Promise<KernelResult
 
   await kernel.use(new ObjectQLPlugin());
   await kernel.use(new DriverPlugin(driver, 'memory'));
-  await kernel.use(new AppPlugin(appConfig));
+  for (const config of configs) {
+    await kernel.use(new AppPlugin(config));
+  }
   await kernel.use(new SetupPlugin());
 
   // Register MemoryAnalyticsService so that HttpDispatcher can serve
   // /api/v1/analytics/* endpoints in demo/MSW/dev environments.
   // Without this, analytics routes return 405 because the kernel has
   // no 'analytics' service and the dispatcher skips the handler.
-  const cubes = buildCubesFromConfig(appConfig);
-  const memoryAnalytics = new MemoryAnalyticsService({ driver, cubes });
+  const allCubes = configs.flatMap(c => buildCubesFromConfig(c));
+  const memoryAnalytics = new MemoryAnalyticsService({ driver, cubes: allCubes });
   kernel.registerService('analytics', {
     query: (query: any) => memoryAnalytics.query(query),
     getMeta: (cubeName?: string) => memoryAnalytics.getMeta(cubeName),
@@ -327,11 +334,13 @@ export async function createKernel(options: KernelOptions): Promise<KernelResult
   });
 
   // ── i18n service registration ──────────────────────────────────────
-  // Read translation bundles from the app config (populated by each stack's
-  // `i18n: { namespace, translations }` field and merged via sharedConfig).
-  // This ensures both MSW/mock and server modes share the same translation
-  // resolution pipeline — no manual per-environment i18n handlers required.
-  const i18nBundles: I18nBundle[] = appConfig.i18n?.bundles ?? [];
+  // Collect translation bundles from all app configs.
+  // Each config may have i18n.bundles (aggregated) or i18n with namespace+translations (individual stack).
+  const i18nBundles: I18nBundle[] = configs.flatMap((c: any) => {
+    if (c.i18n?.bundles) return c.i18n.bundles;
+    if (c.i18n?.namespace && c.i18n?.translations) return [c.i18n];
+    return [];
+  });
 
   if (i18nBundles.length > 0) {
     // Build a complete i18n service that satisfies both:

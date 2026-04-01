@@ -4,7 +4,7 @@ const require = createRequire(import.meta.url);
 // @ts-ignore
 globalThis.require = require;
 
-import { sharedConfig } from './objectstack.shared';
+import { sharedConfig, appConfigs, setupAppConfig } from './objectstack.shared';
 
 // @ts-ignore
 import * as MSWPluginPkg from '@objectstack/plugin-msw';
@@ -73,9 +73,12 @@ class MemoryI18nPlugin {
  */
 const plugins: any[] = [
     new MemoryI18nPlugin(),
-    new AppPlugin(sharedConfig),
     new ObjectQLPlugin(),
     new DriverPlugin(new InMemoryDriver(), 'memory'),
+    // Each example stack loaded as an independent AppPlugin
+    ...appConfigs.map((config: any) => new AppPlugin(config)),
+    // Setup App registered via AppPlugin so ObjectQLPlugin discovers it
+    new AppPlugin(setupAppConfig),
     new HonoServerPlugin({ port: 3000 }),
     new ConsolePlugin(),
 ];

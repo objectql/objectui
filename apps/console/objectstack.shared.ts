@@ -1,5 +1,4 @@
 import type { ObjectStackDefinition } from '@objectstack/spec';
-import { composeStacks } from '@objectstack/spec';
 import { mergeViewsIntoObjects } from '@object-ui/core';
 import { SETUP_APP_DEFAULTS } from '@objectstack/plugin-setup';
 import crmConfigImport from '@object-ui/example-crm/objectstack.config';
@@ -15,47 +14,48 @@ function resolveDefault<T>(mod: MaybeDefault<T>): T {
   return mod as T;
 }
 
-const crmConfig = resolveDefault<ObjectStackDefinition>(crmConfigImport);
-const todoConfig = resolveDefault<ObjectStackDefinition>(todoConfigImport);
-const kitchenSinkConfig = resolveDefault<ObjectStackDefinition>(kitchenSinkConfigImport);
-
-const allConfigs = [crmConfig, todoConfig, kitchenSinkConfig];
-
-// Aggregate seed data from all manifest.data arrays (spec selects one manifest,
-// so we collect data from all stacks before composing).
-const allData = allConfigs.flatMap((c: any) => c.manifest?.data || c.data || []);
-
-// Aggregate i18n bundles from all stacks that declare an i18n section.
-// Each bundle carries a namespace (e.g. 'crm') and per-language translations.
-const i18nBundles = allConfigs
-  .map((c: any) => c.i18n)
-  .filter((i: any) => i?.namespace && i?.translations);
-
-// Build the spec `translations` array for the runtime's AppPlugin.
-// AppPlugin.loadTranslations expects `translations: Array<{ [locale]: data }>`.
-// Each locale's data is nested under the bundle's namespace so that
-// both the server-mode (AppPlugin → memory i18n) and MSW-mode (createKernel)
-// produce the same structure: `{ crm: { objects: { ... } } }`.
-const specTranslations: Record<string, any>[] = i18nBundles.map((bundle: any) => {
-  const result: Record<string, any> = {};
-  for (const [locale, data] of Object.entries(bundle.translations)) {
-    result[locale] = { [bundle.namespace]: data };
+/**
+ * Adapter: prepare a stack config for AppPlugin.
+ * - Merges stack-level views into object definitions
+ * - Converts i18n translations to the spec format AppPlugin expects
+ */
+function prepareConfig(config: any) {
+  const result = { ...config };
+  if (result.objects && result.views) {
+    result.objects = mergeViewsIntoObjects(result.objects, result.views);
+  }
+  if (result.i18n?.namespace && result.i18n?.translations) {
+    const ns = result.i18n.namespace;
+    const converted: Record<string, any> = {};
+    for (const [locale, data] of Object.entries(result.i18n.translations)) {
+      converted[locale] = { [ns]: data };
+    }
+    result.translations = [converted];
   }
   return result;
-});
-
-// Protocol-level composition via @objectstack/spec: handles object dedup,
-// array concatenation, actions→objects mapping, and manifest selection.
-const composed = composeStacks(allConfigs as any[], { objectConflict: 'override' }) as any;
-
-// Adapter: merge views[].listViews into object definitions for the runtime.
-if (composed.objects && composed.views) {
-  composed.objects = mergeViewsIntoObjects(composed.objects, composed.views);
 }
 
+const crmConfig = prepareConfig(resolveDefault<ObjectStackDefinition>(crmConfigImport));
+const todoConfig = prepareConfig(resolveDefault<ObjectStackDefinition>(todoConfigImport));
+const kitchenSinkConfig = prepareConfig(resolveDefault<ObjectStackDefinition>(kitchenSinkConfigImport));
+
+/**
+ * Individual prepared configs for per-plugin AppPlugin loading.
+ * Used by createKernel and server-mode objectstack.config.ts.
+ */
+export const appConfigs = [crmConfig, todoConfig, kitchenSinkConfig];
+
+// Setup App config for registration via AppPlugin (avoids SetupPlugin timing issue)
+export const setupAppConfig = {
+  apps: [SETUP_APP_DEFAULTS],
+  manifest: { id: 'setup', name: 'setup' },
+};
+
 // Patch CRM App Navigation to include Report using a supported navigation type
-// (type: 'url' passes schema validation while still routing correctly via React Router)
-const apps = [...JSON.parse(JSON.stringify(composed.apps || [])), SETUP_APP_DEFAULTS];
+const apps = [
+  ...JSON.parse(JSON.stringify(appConfigs.flatMap((c: any) => c.apps || []))),
+  SETUP_APP_DEFAULTS,
+];
 const crmApp = apps.find((a: any) => a.name === 'crm_app');
 if (crmApp?.navigation) {
     const dashboardIdx = crmApp.navigation.findIndex((n: any) => n.id === 'nav_dashboard');
@@ -69,24 +69,29 @@ if (crmApp?.navigation) {
     });
 }
 
+// Aggregate i18n bundles from all stacks
+const i18nBundles = appConfigs
+  .map((c: any) => c.i18n)
+  .filter((i: any) => i?.namespace && i?.translations);
+
+// Aggregate seed data across all configs
+const allData = appConfigs.flatMap((c: any) => c.manifest?.data || c.data || []);
+
+/**
+ * Aggregated sharedConfig for backward compatibility.
+ * Used by tests that mock objectstack.shared and by components
+ * that need aggregated metadata (apps, objects, etc.).
+ */
 export const sharedConfig = {
-  // ============================================================================
-  // Project Metadata
-  // ============================================================================
-  
   name: '@object-ui/console',
   version: '0.1.0',
   description: 'ObjectStack Console',
-  
-  // ============================================================================
-  // Merged Stack Configuration (CRM + Todo + Kitchen Sink)
-  // ============================================================================
-  objects: composed.objects,
+
+  objects: appConfigs.flatMap((c: any) => c.objects || []),
   apps,
-  dashboards: composed.dashboards,
+  dashboards: appConfigs.flatMap((c: any) => c.dashboards || []),
   reports: [
-    ...(composed.reports || []),
-    // Console-specific report not in any example stack
+    ...appConfigs.flatMap((c: any) => c.reports || []),
     {
       name: 'sales_performance_q1',
       label: 'Q1 Sales Performance',
@@ -101,7 +106,7 @@ export const sharedConfig = {
       ]
     }
   ],
-  pages: composed.pages,
+  pages: appConfigs.flatMap((c: any) => c.pages || []),
   manifest: {
     id: 'com.objectui.console',
     version: '0.1.0',
@@ -113,11 +118,6 @@ export const sharedConfig = {
     bundles: i18nBundles,
     defaultLocale: 'en',
   },
-  // Spec-format translations array consumed by AppPlugin.loadTranslations()
-  // in real-server mode (pnpm start). Each entry maps locale → namespace-scoped
-  // translation data so the runtime's memory i18n fallback serves the same
-  // structure as the MSW mock handler.
-  translations: specTranslations,
   plugins: [],
   datasources: [
     {
