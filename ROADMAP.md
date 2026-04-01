@@ -235,6 +235,9 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 - [x] **RootRedirect update** — Root path (`/`) now redirects to `/home` instead of first app
 - [x] **Responsive design** — Mobile-friendly grid layouts that adapt to screen size
 - [x] **Airtable/Notion UX pattern** — Inspired by industry-leading workspace home pages
+- [x] **HomeLayout shell** — Lightweight layout wrapper with sticky top nav bar, Home branding, and user menu dropdown (Profile, Settings, Sign Out)
+- [x] **Home page user menu** — Complete user menu dropdown in HomeLayout header with avatar, name, email, Profile/Settings/Sign Out actions
+- [x] **Return-to-Home navigation** — "Home" entry in AppSidebar app switcher dropdown for navigating back to `/home` from any application
 
 **Impact:** Users now have a unified workspace dashboard that provides overview of all applications, quick actions, and recent activity. This eliminates the previous behavior of auto-redirecting to the first app, giving users better control and visibility.
 
