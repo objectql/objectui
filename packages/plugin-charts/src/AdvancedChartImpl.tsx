@@ -245,7 +245,12 @@ export default function AdvancedChartImpl({
             tickMargin={10}
             axisLine={false}
             interval={isMobile ? Math.ceil(data.length / 5) : 0}
-            tickFormatter={(value) => (value && typeof value === 'string') ? value.slice(0, 3) : value}
+            tickFormatter={(value) => {
+              if (!value || typeof value !== 'string') return value;
+              if (isMobile && value.length > 8) return value.slice(0, 8) + '…';
+              return value;
+            }}
+            {...(!isMobile && data.some((d: any) => String(d[xAxisKey] || '').length > 5) && { angle: -35, textAnchor: 'end', height: 60 })}
           />
           <YAxis yAxisId="left" tickLine={false} axisLine={false} />
           <YAxis yAxisId="right" orientation="right" tickLine={false} axisLine={false} />
@@ -282,7 +287,12 @@ export default function AdvancedChartImpl({
           tickMargin={10}
           axisLine={false}
           interval={isMobile ? Math.ceil(data.length / 5) : 0}
-          tickFormatter={(value) => (value && typeof value === 'string') ? value.slice(0, 3) : value}
+          tickFormatter={(value) => {
+            if (!value || typeof value !== 'string') return value;
+            if (isMobile && value.length > 8) return value.slice(0, 8) + '…';
+            return value;
+          }}
+          {...(!isMobile && data.some((d: any) => String(d[xAxisKey] || '').length > 5) && { angle: -35, textAnchor: 'end', height: 60 })}
         />
         <ChartTooltip content={<ChartTooltipContent />} />
         <ChartLegend
