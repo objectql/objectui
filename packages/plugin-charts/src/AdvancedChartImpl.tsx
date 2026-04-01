@@ -112,6 +112,12 @@ export default function AdvancedChartImpl({
 
   console.log('📈 Rendering Chart:', { chartType, dataLength: data.length, config, series, xAxisKey });
 
+  // Memoize whether any X-axis label is long enough to warrant angle rotation
+  const hasLongLabels = React.useMemo(
+    () => data.some((d: any) => String(d[xAxisKey] || '').length > 5),
+    [data, xAxisKey],
+  );
+
   // Helper function to get color palette
   const getPalette = () => [
     'hsl(var(--chart-1))', 
@@ -250,7 +256,7 @@ export default function AdvancedChartImpl({
               if (isMobile && value.length > 8) return value.slice(0, 8) + '…';
               return value;
             }}
-            {...(!isMobile && data.some((d: any) => String(d[xAxisKey] || '').length > 5) && { angle: -35, textAnchor: 'end', height: 60 })}
+            {...(!isMobile && hasLongLabels && { angle: -35, textAnchor: 'end', height: 60 })}
           />
           <YAxis yAxisId="left" tickLine={false} axisLine={false} />
           <YAxis yAxisId="right" orientation="right" tickLine={false} axisLine={false} />
@@ -292,7 +298,7 @@ export default function AdvancedChartImpl({
             if (isMobile && value.length > 8) return value.slice(0, 8) + '…';
             return value;
           }}
-          {...(!isMobile && data.some((d: any) => String(d[xAxisKey] || '').length > 5) && { angle: -35, textAnchor: 'end', height: 60 })}
+          {...(!isMobile && hasLongLabels && { angle: -35, textAnchor: 'end', height: 60 })}
         />
         <ChartTooltip content={<ChartTooltipContent />} />
         <ChartLegend
