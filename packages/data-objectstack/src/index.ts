@@ -855,6 +855,8 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
 
       // Map measure keys back to the original field name so that consumers
       // (ObjectChart, DashboardRenderer, etc.) can access values by field name.
+      // This includes count → field (e.g. 'count' → 'amount') to match the
+      // output format of aggregateClientSide() which always uses params.field.
       return rawRows.map((row: any) => {
         const mapped = { ...row };
         if (measureName !== params.field && measureName in mapped) {
