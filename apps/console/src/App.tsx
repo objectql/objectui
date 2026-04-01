@@ -57,6 +57,7 @@ const ProfilePage = lazy(() => import('./pages/system/ProfilePage').then(m => ({
 
 // Home Page (lazy — landing page)
 const HomePage = lazy(() => import('./pages/home/HomePage').then(m => ({ default: m.HomePage })));
+const HomeLayout = lazy(() => import('./pages/home/HomeLayout').then(m => ({ default: m.HomeLayout })));
 
 import { useParams } from 'react-router-dom';
 import { ThemeProvider } from './components/theme-provider';
@@ -509,7 +510,9 @@ export function App() {
                   <AuthGuard fallback={<Navigate to="/login" />} loadingFallback={<LoadingScreen />}>
                     <ConnectedShell>
                       <Suspense fallback={<LoadingScreen />}>
-                        <HomePage />
+                        <HomeLayout>
+                          <HomePage />
+                        </HomeLayout>
                       </Suspense>
                     </ConnectedShell>
                   </AuthGuard>

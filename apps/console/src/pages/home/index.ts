@@ -5,6 +5,7 @@
  */
 
 export { HomePage } from './HomePage';
+export { HomeLayout } from './HomeLayout';
 export { QuickActions } from './QuickActions';
 export { AppCard } from './AppCard';
 export { RecentApps } from './RecentApps';

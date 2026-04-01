@@ -21,7 +21,6 @@ import { useMetadata } from '../../context/MetadataProvider';
 import { useRecentItems } from '../../hooks/useRecentItems';
 import { useFavorites } from '../../hooks/useFavorites';
 import { useObjectTranslation } from '@object-ui/i18n';
-import { resolveI18nLabel } from '../../utils';
 import { QuickActions } from './QuickActions';
 import { AppCard } from './AppCard';
 import { RecentApps } from './RecentApps';
@@ -51,7 +50,7 @@ export function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex flex-1 items-center justify-center py-20">
         <div className="text-muted-foreground">Loading workspace...</div>
       </div>
     );
@@ -60,7 +59,7 @@ export function HomePage() {
   // Empty state - no apps configured
   if (activeApps.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="flex flex-1 items-center justify-center p-6">
         <Empty>
           <EmptyTitle>Welcome to ObjectUI</EmptyTitle>
           <EmptyDescription>
@@ -89,35 +88,19 @@ export function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">
-                {t('home.title', { defaultValue: 'Home' })}
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                {t('home.subtitle', { defaultValue: 'Your workspace dashboard' })}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                onClick={() => navigate('/system')}
-                data-testid="home-settings-btn"
-              >
-                <Settings className="mr-2 h-4 w-4" />
-                {t('common.settings', { defaultValue: 'Settings' })}
-              </Button>
-            </div>
-          </div>
-        </div>
+    <div className="bg-background">
+      {/* Page Title */}
+      <div className="container mx-auto px-6 pt-8 pb-4">
+        <h1 className="text-3xl font-bold tracking-tight">
+          {t('home.title', { defaultValue: 'Home' })}
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          {t('home.subtitle', { defaultValue: 'Your workspace dashboard' })}
+        </p>
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-6 py-8 space-y-8">
+      <div className="container mx-auto px-6 py-4 space-y-8">
         {/* Quick Actions */}
         <QuickActions />
 

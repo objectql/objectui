@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Home page user menu** (`@object-ui/console`): Added complete user menu dropdown (Profile, Settings, Sign Out) to the Home Dashboard via new `HomeLayout` shell component. Users can now access account actions directly from the `/home` page without navigating elsewhere.
+
+- **"Return to Home" navigation** (`@object-ui/console`): Added a "Home" entry in the AppSidebar app switcher dropdown, allowing users to navigate back to `/home` from any application context. Previously, the only way to return to the Home Dashboard was to manually edit the URL.
+
+- **HomeLayout shell** (`@object-ui/console`): New lightweight layout wrapper for the Home Dashboard providing a sticky top navigation bar with Home branding, Settings, and user menu dropdown. Replaces bare `<HomePage />` rendering with a consistent navigation frame for future extensibility (notifications, global guide, unified theming).
+
 ### Fixed
 
 - **Charts groupBy value→label resolution** (`@object-ui/plugin-charts`): Chart X-axis labels now display human-readable labels instead of raw values. Select/picklist fields resolve value→label via field metadata options, lookup/master_detail fields batch-fetch referenced record names, and all other fields fall back to `humanizeLabel()` (snake_case → Title Case). Removed hardcoded `value.slice(0, 3)` truncation from `AdvancedChartImpl.tsx` XAxis tick formatters — desktop now shows full labels with angle rotation for long text, mobile truncates at 8 characters with "…".

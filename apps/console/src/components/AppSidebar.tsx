@@ -49,6 +49,7 @@ import {
   Search,
   Pencil,
   ChevronRight,
+  Home,
 } from 'lucide-react';
 import { NavigationRenderer } from '@object-ui/layout';
 import type { NavigationItem } from '@object-ui/types';
@@ -318,6 +319,13 @@ export function AppSidebar({ activeAppName, onAppChange }: { activeAppName: stri
                     {activeApp.name === app.name && <span className="ml-auto text-xs">✓</span>}
                   </DropdownMenuItem>
                 ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="gap-2 p-2" onClick={() => navigate('/home')} data-testid="home-link-btn">
+                  <div className="flex size-6 items-center justify-center rounded-md border bg-background">
+                    <Home className="size-4" />
+                  </div>
+                  <div className="font-medium text-muted-foreground">Home</div>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="gap-2 p-2" onClick={() => navigate(`/apps/${activeAppName}/create-app`)} data-testid="add-app-btn">
                   <div className="flex size-6 items-center justify-center rounded-md border bg-background">
