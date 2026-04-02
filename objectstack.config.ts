@@ -58,20 +58,22 @@ class MemoryI18nPlugin {
 export default {
   plugins: [
     new MemoryI18nPlugin(),
-    // SetupPlugin first: registers setupNav during init for contributing plugins,
-    // and registers the merged Setup app during start before ObjectQL scans.
-    new SetupPlugin(),
     new ObjectQLPlugin(),
     new DriverPlugin(new InMemoryDriver()),
     // Each example stack loaded as an independent AppPlugin
     new AppPlugin(prepareConfig(crmConfig)),
     new AppPlugin(prepareConfig(todoConfig)),
     new AppPlugin(prepareConfig(kitchenSinkConfig)),
-    // AuthPlugin after ObjectQL (needs 'data' service) and after SetupPlugin (uses setupNav)
+    // AuthPlugin before SetupPlugin: both use namespace 'sys', and the
+    // ObjectQL registry requires the package that owns objects (AuthPlugin →
+    // com.objectstack.system) to register first.
     new AuthPlugin({
       secret: process.env.AUTH_SECRET || 'objectui-dev-secret',
       baseUrl: 'http://localhost:3000',
     }),
+    // SetupPlugin registers setupNav during init and the merged Setup app
+    // during start. Must come after AuthPlugin to avoid sys namespace collision.
+    new SetupPlugin(),
     new HonoServerPlugin({ port: 3000 }),
     new ConsolePlugin(),
   ],

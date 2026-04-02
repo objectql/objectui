@@ -151,7 +151,7 @@ export const VirtualGrid: React.FC<VirtualGridProps> = ({
                   const value = row[column.accessorKey];
                   const cellContent = column.cell
                     ? column.cell(value, row)
-                    : value;
+                    : (value != null && typeof value === 'object' ? String(value) : value);
 
                   return (
                     <div

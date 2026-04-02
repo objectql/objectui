@@ -60,7 +60,7 @@ export const SimpleTableRenderer = ({ schema, className }: any) => {
                   const value = accessor ? row[accessor] : '';
                   return (
                     <TableCell key={col.key || col.accessorKey || index}>
-                      {value}
+                      {value != null && typeof value === 'object' ? String(value) : value}
                     </TableCell>
                   );
                 })}
