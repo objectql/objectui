@@ -170,9 +170,9 @@ function ObjectDetailView({ object, metadataObject, onBack, metadataService, onR
 
     const diff = MetadataService.diffFields(previous, updated);
     const actionLabel = diff
-      ? diff.type === 'create' ? `Field "${diff.field.label}" created`
-        : diff.type === 'update' ? `Field "${diff.field.label}" updated`
-        : `Field "${diff.field.label}" deleted`
+      ? diff.type === 'create' ? `Field "${diff.field.label || diff.field.name}" created`
+        : diff.type === 'update' ? `Field "${diff.field.label || diff.field.name}" updated`
+        : `Field "${diff.field.label || diff.field.name}" deleted`
       : 'Field configuration updated';
 
     setSaving(true);
@@ -379,9 +379,9 @@ export function ObjectManagerPage() {
       await refresh();
 
       const actionLabel = diff
-        ? diff.type === 'create' ? `Object "${diff.object.label}" created`
-          : diff.type === 'update' ? `Object "${diff.object.label}" updated`
-          : `Object "${diff.object.label}" deleted`
+        ? diff.type === 'create' ? `Object "${diff.object.label || diff.object.name}" created`
+          : diff.type === 'update' ? `Object "${diff.object.label || diff.object.name}" updated`
+          : `Object "${diff.object.label || diff.object.name}" deleted`
         : 'Object definitions updated';
       toast.success(actionLabel);
     } catch (err: any) {
