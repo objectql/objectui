@@ -1112,7 +1112,10 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
     selectable: selectionMode,
     sortable: true,
     exportable: operations?.export,
-    rowActions: hasActions,
+    // RowActionMenu column (from columnsWithActions) already handles edit/delete
+    // actions via onEdit/onDelete props. Only enable DataTable's built-in action
+    // column for inline-editing save/cancel (editable grids with onRowSave).
+    rowActions: !!(schema.editable && hasActions),
     resizableColumns: schema.resizable ?? schema.resizableColumns ?? true,
     reorderableColumns: schema.reorderableColumns ?? false,
     editable: schema.editable ?? false,
