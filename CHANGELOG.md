@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Metadata service layer** (`@object-ui/console`): New `MetadataService` class (`services/MetadataService.ts`) that encapsulates object and field CRUD operations against the ObjectStack metadata API (`client.meta.saveItem`). Provides `saveObject()`, `deleteObject()`, and `saveFields()` methods with automatic cache invalidation. Includes static `diffObjects()` and `diffFields()` helpers to detect create/update/delete changes between arrays. Companion `useMetadataService` hook (`hooks/useMetadataService.ts`) provides a memoised service instance from the `useAdapter()` context. 16 new unit tests.
+
+### Fixed
+
+- **Object/field changes now persist to backend** (`@object-ui/console`): Refactored `ObjectManagerPage` so that `handleObjectsChange` and `handleFieldsChange` call the MetadataService API instead of only updating local state. Implements optimistic update pattern — UI updates immediately, rolls back on API failure. After successful persistence, the MetadataProvider is refreshed so changes survive page reloads. Toast messages now accurately reflect the operation performed (create/update/delete) and display error details on failure. Added saving state indicators with a loading spinner during API operations.
+
+- **ObjectManager & FieldDesigner read-only grid fix** (`@object-ui/plugin-designer`): Added `operations: { create: true, update: true, delete: true }` to the `ObjectGridSchema` in both `ObjectManager` and `FieldDesigner` components. The real `ObjectGrid` requires `schema.operations` to render action buttons (add/edit/delete); without it, the grid renders as read-only regardless of the `readOnly` prop or callback handlers. The `operations` property is now conditionally set based on the `readOnly` prop.
+
+- **FieldDesigner modal dialog for add/edit** (`@object-ui/plugin-designer`): Replaced the inline `FieldEditor` panel (rendered below the grid) with a proper `ModalForm` dialog, matching the `ObjectManager` pattern. Add Field and Edit Field now open a modal with all field properties (name, label, type, group, description, toggles for required/unique/readonly/hidden/indexed/externalId/trackHistory, default value, placeholder, referenceTo, formula). This provides a consistent, professional UX across both object and field management.
+
+- **Duplicate action column in ObjectGrid** (`@object-ui/plugin-grid`): Fixed a bug where `ObjectGrid` rendered two action columns when `schema.operations` was set — one via `RowActionMenu` (working dropdown with Edit/Delete) and another via DataTable's built-in `rowActions` (inline buttons calling unset `schema.onRowEdit`/`schema.onRowDelete`). The DataTable's `rowActions` is now only enabled for inline-editable grids, preventing the duplicate column and dead buttons.
+
 - **AI service discovery** (`@object-ui/react`): Added `ai` service type to `DiscoveryInfo.services` interface with `enabled`, `status`, and `route` fields. Added `isAiEnabled` convenience property to `useDiscovery()` hook return value — returns `true` only when `services.ai.enabled === true` and `services.ai.status === 'available'`, defaults to `false` otherwise.
 
 - **Conditional chatbot rendering** (`@object-ui/console`): Console floating chatbot (FAB) now only renders when the AI service is detected as available via `useDiscovery().isAiEnabled`. Previously the chatbot was always visible; now it is hidden when the server has no AI plugin installed.
