@@ -33,7 +33,10 @@
  * A safe subset of global JavaScript objects that are always available in
  * expressions regardless of the provided context.
  *
- * SECURITY: Only read-only, non-executable objects are exposed here.
+ * SECURITY: Only read-only, non-executable primitive utilities are exposed.
+ * Constructors (`String`, `Number`, `Boolean`, `Array`) are intentionally
+ * omitted: they expose a `.constructor` property that resolves to `Function`,
+ * creating a sandbox-escape path even when `Function` itself is not listed.
  * `eval`, `Function`, `window`, `document`, `process`, etc. are NOT included.
  */
 const SAFE_GLOBALS: Record<string, unknown> = {
@@ -43,11 +46,24 @@ const SAFE_GLOBALS: Record<string, unknown> = {
   parseFloat,
   isNaN,
   isFinite,
-  String,
-  Number,
-  Boolean,
-  Array,
 };
+
+/**
+ * Property keys that must never be accessed on any object in an expression.
+ *
+ * SECURITY: `constructor` reaches `Function`; `__proto__`/`prototype` allow
+ * prototype-chain manipulation. Access is blocked on both dot and bracket
+ * notation to prevent sandbox escapes like `obj['constructor']('...')`.
+ */
+const BLOCKED_PROPS: ReadonlySet<string> = new Set([
+  'constructor',
+  '__proto__',
+  'prototype',
+  '__defineGetter__',
+  '__defineSetter__',
+  '__lookupGetter__',
+  '__lookupSetter__',
+]);
 
 /**
  * CSP-safe recursive-descent expression parser.
@@ -68,6 +84,20 @@ export class SafeExpressionParser {
   private source = '';
   private pos = 0;
   private context: Record<string, unknown> = {};
+
+  /**
+   * Evaluation guard.
+   *
+   * When `false` the parser still advances `this.pos` through the source
+   * (maintaining correct position for the caller) but suppresses:
+   * - ReferenceErrors from undefined identifiers
+   * - actual function / method invocations
+   * - constructor calls
+   *
+   * This implements proper short-circuit semantics for `||`, `&&`, `??`, and
+   * the ternary operator without needing a separate AST pass.
+   */
+  private _evaluating = true;
 
   // ─── Public API ────────────────────────────────────────────────────────────
 
@@ -117,6 +147,45 @@ export class SafeExpressionParser {
     return this.source[this.pos++] ?? '';
   }
 
+  // ─── Evaluation control helpers ───────────────────────────────────────────
+
+  /**
+   * Execute `fn` with `_evaluating` temporarily set to `enabled`.
+   * Restores the previous value even if `fn` throws.
+   *
+   * Used to implement short-circuit evaluation: when a branch should not be
+   * executed we call `withEvaluation(false, parseX)` which advances the source
+   * position without performing any side-effectful evaluations.
+   */
+  private withEvaluation<T>(enabled: boolean, fn: () => T): T {
+    const prev = this._evaluating;
+    this._evaluating = enabled;
+    try {
+      return fn();
+    } finally {
+      this._evaluating = prev;
+    }
+  }
+
+  // ─── Security helpers ─────────────────────────────────────────────────────
+
+  /**
+   * Guard property accesses against sandbox-escape keys.
+   * Throws `TypeError` when the key is in `BLOCKED_PROPS`.
+   *
+   * Only string keys need checking: all blocked property names are strings,
+   * and `BLOCKED_PROPS.has()` with a number or symbol can never match them.
+   * Numeric indices (e.g. `arr[0]`) and symbol-keyed properties are therefore
+   * safe to access and are intentionally left unchecked.
+   */
+  private assertSafeProp(key: unknown): void {
+    if (typeof key === 'string' && BLOCKED_PROPS.has(key)) {
+      throw new TypeError(
+        `Access to property "${key}" is not permitted in expressions`
+      );
+    }
+  }
+
   // ─── Parsing levels ───────────────────────────────────────────────────────
 
   /** Level 1 — Ternary: `cond ? trueVal : falseVal` (right-associative) */
@@ -127,15 +196,42 @@ export class SafeExpressionParser {
     if (this.peek() === '?' && this.peek(1) !== '?') {
       this.pos++; // consume '?'
       this.skipWhitespace();
-      const trueVal = this.parseTernary(); // right-associative
-      this.skipWhitespace();
-      if (this.peek() !== ':') {
-        throw new SyntaxError('Expected ":" in ternary expression');
+
+      if (!this._evaluating) {
+        // Dry-run mode: parse both branches for position tracking only.
+        this.parseTernary(); // true branch (positional advance)
+        this.skipWhitespace();
+        if (this.peek() !== ':') {
+          throw new SyntaxError('Expected ":" in ternary expression');
+        }
+        this.pos++; // consume ':'
+        this.skipWhitespace();
+        this.parseTernary(); // false branch (positional advance)
+        return undefined;
       }
-      this.pos++; // consume ':'
-      this.skipWhitespace();
-      const falseVal = this.parseTernary();
-      return cond ? trueVal : falseVal;
+
+      if (cond) {
+        // Evaluate true branch; skip false branch without side effects.
+        const trueVal = this.parseTernary();
+        this.skipWhitespace();
+        if (this.peek() !== ':') {
+          throw new SyntaxError('Expected ":" in ternary expression');
+        }
+        this.pos++; // consume ':'
+        this.skipWhitespace();
+        this.withEvaluation(false, () => this.parseTernary()); // skip false
+        return trueVal;
+      } else {
+        // Skip true branch without side effects; evaluate false branch.
+        this.withEvaluation(false, () => this.parseTernary()); // skip true
+        this.skipWhitespace();
+        if (this.peek() !== ':') {
+          throw new SyntaxError('Expected ":" in ternary expression');
+        }
+        this.pos++; // consume ':'
+        this.skipWhitespace();
+        return this.parseTernary(); // evaluate false
+      }
     }
 
     return cond;
@@ -149,8 +245,15 @@ export class SafeExpressionParser {
     while (this.peek() === '?' && this.peek(1) === '?') {
       this.pos += 2;
       this.skipWhitespace();
-      const right = this.parseOr();
-      left = left ?? right;
+
+      // Short-circuit: left is non-nullish — skip RHS without evaluating it.
+      if (this._evaluating && left != null) {
+        this.withEvaluation(false, () => this.parseOr());
+      } else {
+        const right = this.parseOr();
+        if (this._evaluating) left = left ?? right;
+      }
+
       this.skipWhitespace();
     }
 
@@ -165,8 +268,15 @@ export class SafeExpressionParser {
     while (this.peek() === '|' && this.peek(1) === '|') {
       this.pos += 2;
       this.skipWhitespace();
-      const right = this.parseAnd();
-      left = left || right;
+
+      // Short-circuit: left is truthy — skip RHS without evaluating it.
+      if (this._evaluating && left) {
+        this.withEvaluation(false, () => this.parseAnd());
+      } else {
+        const right = this.parseAnd();
+        if (this._evaluating) left = left || right;
+      }
+
       this.skipWhitespace();
     }
 
@@ -181,8 +291,15 @@ export class SafeExpressionParser {
     while (this.peek() === '&' && this.peek(1) === '&') {
       this.pos += 2;
       this.skipWhitespace();
-      const right = this.parseEquality();
-      left = left && right;
+
+      // Short-circuit: left is falsy — skip RHS without evaluating it.
+      if (this._evaluating && !left) {
+        this.withEvaluation(false, () => this.parseEquality());
+      } else {
+        const right = this.parseEquality();
+        if (this._evaluating) left = left && right;
+      }
+
       this.skipWhitespace();
     }
 
@@ -336,13 +453,22 @@ export class SafeExpressionParser {
 
         const prop = this.parseIdentifierName();
         if (!prop) break;
+
+        // Block sandbox-escape properties regardless of evaluation mode.
+        this.assertSafeProp(prop);
+
         this.skipWhitespace();
 
         if (this.peek() === '(') {
           // Method call: obj.method(args)
           this.pos++; // consume '('
           const args = this.parseArgList();
-          if (this.peek() === ')') this.pos++; // consume ')'
+          if (this.peek() !== ')') {
+            throw new SyntaxError(`Expected ")" after argument list at position ${this.pos}`);
+          }
+          this.pos++; // consume ')'
+
+          if (!this._evaluating) { obj = undefined; continue; }
 
           if (obj != null && typeof (obj as any)[prop] === 'function') {
             obj = ((obj as any)[prop] as (...a: unknown[]) => unknown)(...args);
@@ -351,6 +477,7 @@ export class SafeExpressionParser {
           }
         } else {
           // Property access
+          if (!this._evaluating) { obj = undefined; continue; }
           obj = obj != null ? (obj as any)[prop] : undefined;
         }
 
@@ -367,8 +494,15 @@ export class SafeExpressionParser {
         this.skipWhitespace();
         const key = this.parseTernary();
         this.skipWhitespace();
-        if (this.peek() === ']') this.pos++; // consume ']'
+        if (this.peek() !== ']') {
+          throw new SyntaxError(`Expected "]" after bracket expression at position ${this.pos}`);
+        }
+        this.pos++; // consume ']'
 
+        // Block sandbox-escape properties regardless of evaluation mode.
+        this.assertSafeProp(key);
+
+        if (!this._evaluating) { obj = undefined; continue; }
         obj = obj != null ? (obj as any)[key as string | number] : undefined;
         continue;
       }
@@ -377,7 +511,12 @@ export class SafeExpressionParser {
         // Direct function call on a returned value, e.g.  (getFunc())(args)
         this.pos++; // consume '('
         const args = this.parseArgList();
-        if (this.peek() === ')') this.pos++; // consume ')'
+        if (this.peek() !== ')') {
+          throw new SyntaxError(`Expected ")" after argument list at position ${this.pos}`);
+        }
+        this.pos++; // consume ')'
+
+        if (!this._evaluating) { obj = undefined; continue; }
 
         if (typeof obj === 'function') {
           obj = (obj as (...a: unknown[]) => unknown)(...args);
@@ -403,7 +542,12 @@ export class SafeExpressionParser {
       this.pos++;
       const val = this.parseTernary();
       this.skipWhitespace();
-      if (this.peek() === ')') this.pos++;
+      if (this.peek() !== ')') {
+        throw new SyntaxError(
+          `Expected ")" to close "(" expression at position ${this.pos}`
+        );
+      }
+      this.pos++;
       return val;
     }
 
@@ -448,7 +592,10 @@ export class SafeExpressionParser {
       }
     }
 
-    if (this.peek() === ']') this.pos++;
+    if (this.peek() !== ']') {
+      throw new SyntaxError(`Expected "]" to close array literal at position ${this.pos}`);
+    }
+    this.pos++;
     return items;
   }
 
@@ -486,22 +633,59 @@ export class SafeExpressionParser {
 
   private parseNumber(): number {
     const start = this.pos;
+    let hasDigits = false;
 
-    // Integer and decimal parts
-    while (this.pos < this.source.length && /[\d.]/.test(this.source[this.pos])) {
+    // Note: `parsePrimary` only calls this method when the first character is
+    // a digit OR when it is '.' followed immediately by a digit, so the case
+    // of a bare '.' (e.g. `.toString()`) can never reach here.
+
+    // Integer part
+    while (this.pos < this.source.length && /\d/.test(this.source[this.pos])) {
+      hasDigits = true;
       this.pos++;
     }
 
-    // Scientific notation: e+5, E-3
-    if (/[eE]/.test(this.source[this.pos] ?? '')) {
-      this.pos++;
-      if (/[+\-]/.test(this.source[this.pos] ?? '')) this.pos++;
+    // Optional fractional part (only one decimal point is consumed; a second
+    // '.' is left in the stream and will cause an "unexpected token" error at
+    // the `evaluate()` level, correctly rejecting inputs like `1.2.3`).
+    if (this.source[this.pos] === '.') {
+      this.pos++; // consume '.'
       while (this.pos < this.source.length && /\d/.test(this.source[this.pos])) {
+        hasDigits = true;
         this.pos++;
       }
     }
 
-    return parseFloat(this.source.slice(start, this.pos));
+    // Optional exponent: e+5, E-3
+    if (/[eE]/.test(this.source[this.pos] ?? '')) {
+      this.pos++; // consume 'e' or 'E'
+      if (/[+\-]/.test(this.source[this.pos] ?? '')) this.pos++; // optional sign
+
+      let expDigits = 0;
+      while (this.pos < this.source.length && /\d/.test(this.source[this.pos])) {
+        expDigits++;
+        this.pos++;
+      }
+      if (expDigits === 0) {
+        throw new SyntaxError(`Invalid numeric literal exponent at position ${start}`);
+      }
+    }
+
+    if (!hasDigits) {
+      throw new SyntaxError(`Invalid numeric literal at position ${start}`);
+    }
+
+    const raw = this.source.slice(start, this.pos);
+    const value = Number(raw);
+
+    // Defensive final check: the strict loop above should never produce a
+    // non-finite result, but we guard here so any latent bug surfaces as a
+    // clear SyntaxError rather than silently propagating NaN.
+    if (!Number.isFinite(value)) {
+      throw new SyntaxError(`Invalid numeric literal "${raw}" at position ${start}`);
+    }
+
+    return value;
   }
 
   // ─── Identifier / keyword parsing ────────────────────────────────────────
@@ -548,7 +732,12 @@ export class SafeExpressionParser {
     if (this.peek() === '(') {
       this.pos++; // consume '('
       const args = this.parseArgList();
-      if (this.peek() === ')') this.pos++; // consume ')'
+      if (this.peek() !== ')') {
+        throw new SyntaxError(`Expected ")" after argument list at position ${this.pos}`);
+      }
+      this.pos++; // consume ')'
+
+      if (!this._evaluating) return undefined;
 
       const fn = this.context[id];
       if (typeof fn === 'function') {
@@ -557,7 +746,11 @@ export class SafeExpressionParser {
       throw new TypeError(`"${id}" is not a function`);
     }
 
-    // Variable lookup — throw on undefined identifier (mirrors JS ReferenceError)
+    // Variable lookup.
+    // In not-evaluating mode return undefined instead of throwing ReferenceError,
+    // so that short-circuited branches do not cause spurious errors.
+    if (!this._evaluating) return undefined;
+
     if (!(id in this.context)) {
       throw new ReferenceError(`${id} is not defined`);
     }
@@ -578,8 +771,13 @@ export class SafeExpressionParser {
     if (this.peek() === '(') {
       this.pos++; // consume '('
       args = this.parseArgList();
-      if (this.peek() === ')') this.pos++; // consume ')'
+      if (this.peek() !== ')') {
+        throw new SyntaxError(`Expected ")" after new ${constructorName}() at position ${this.pos}`);
+      }
+      this.pos++; // consume ')'
     }
+
+    if (!this._evaluating) return undefined;
 
     switch (constructorName) {
       case 'Date':

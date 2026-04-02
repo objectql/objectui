@@ -120,18 +120,21 @@ export class ExpressionCache {
    * `new Function()` so that the expression engine works under strict
    * Content Security Policy headers that forbid `'unsafe-eval'`.
    *
-   * The returned function re-creates the evaluation context on every call by
-   * zipping `varNames` with the positional `args`, matching the contract that
-   * `ExpressionEvaluator` depends on.
+   * A single parser instance is created per compiled expression and reused
+   * across all invocations of the returned closure (`evaluate()` resets all
+   * internal state on every call), avoiding repeated allocations on hot paths.
    */
   private compileExpression(expression: string, varNames: string[]): CompiledExpression {
+    // One parser per compiled expression — reused across hot-path calls.
+    const parser = new SafeExpressionParser();
+
     return (...args: unknown[]) => {
       // Reconstruct the named variable context from positional arguments.
       const context: Record<string, unknown> = {};
       for (let i = 0; i < varNames.length; i++) {
         context[varNames[i]] = args[i];
       }
-      return new SafeExpressionParser().evaluate(expression, context);
+      return parser.evaluate(expression, context);
     };
   }
   

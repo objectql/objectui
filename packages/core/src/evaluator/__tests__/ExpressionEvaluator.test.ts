@@ -346,6 +346,82 @@ describe('SafeExpressionParser — CSP-safe evaluation', () => {
     });
   });
 
+  describe('short-circuit evaluation', () => {
+    it('|| does not evaluate RHS when LHS is truthy', () => {
+      // 'missingVar' is not in context — would throw ReferenceError without short-circuit.
+      expect(parser.evaluate('true || missingVar', {})).toBe(true);
+    });
+
+    it('&& does not evaluate RHS when LHS is falsy', () => {
+      expect(parser.evaluate('false && missingVar', {})).toBe(false);
+    });
+
+    it('?? does not evaluate RHS when LHS is not nullish', () => {
+      expect(parser.evaluate('"present" ?? missingVar', {})).toBe('present');
+      expect(parser.evaluate('0 ?? missingVar', {})).toBe(0);
+      expect(parser.evaluate('"" ?? missingVar', {})).toBe('');
+    });
+
+    it('?? DOES evaluate RHS when LHS is null/undefined', () => {
+      expect(parser.evaluate('null ?? "fallback"', {})).toBe('fallback');
+      expect(parser.evaluate('undefined ?? "fallback"', {})).toBe('fallback');
+    });
+
+    it('ternary true branch: does not evaluate false branch', () => {
+      expect(parser.evaluate("true ? 'yes' : missingVar", {})).toBe('yes');
+    });
+
+    it('ternary false branch: does not evaluate true branch', () => {
+      expect(parser.evaluate("false ? missingVar : 'no'", {})).toBe('no');
+    });
+
+    it('nested ternary short-circuits correctly', () => {
+      const expr = "status === 'a' ? 'alpha' : status === 'b' ? 'beta' : 'other'";
+      expect(parser.evaluate(expr, { status: 'a' })).toBe('alpha');
+      expect(parser.evaluate(expr, { status: 'b' })).toBe('beta');
+      expect(parser.evaluate(expr, { status: 'c' })).toBe('other');
+    });
+  });
+
+  describe('sandbox security', () => {
+    it('blocks constructor property access via dot notation', () => {
+      expect(() =>
+        parser.evaluate('name.constructor', { name: 'hello' })
+      ).toThrow(TypeError);
+    });
+
+    it('blocks constructor property access via bracket notation', () => {
+      expect(() =>
+        parser.evaluate("name['constructor']", { name: 'hello' })
+      ).toThrow(TypeError);
+    });
+
+    it('blocks __proto__ access', () => {
+      expect(() =>
+        parser.evaluate('obj.__proto__', { obj: {} })
+      ).toThrow(TypeError);
+    });
+
+    it('blocks prototype access', () => {
+      expect(() =>
+        parser.evaluate('fn.prototype', { fn: () => {} })
+      ).toThrow(TypeError);
+    });
+
+    it('blocks constructor method calls', () => {
+      expect(() =>
+        parser.evaluate("name['constructor']('return 1')()", { name: 'hello' })
+      ).toThrow(TypeError);
+    });
+
+    it('does not expose String/Number/Boolean/Array globals (removed to prevent .constructor escape)', () => {
+      expect(() => parser.evaluate('String', {})).toThrow(ReferenceError);
+      expect(() => parser.evaluate('Number', {})).toThrow(ReferenceError);
+      expect(() => parser.evaluate('Boolean', {})).toThrow(ReferenceError);
+      expect(() => parser.evaluate('Array', {})).toThrow(ReferenceError);
+    });
+  });
+
   describe('error handling', () => {
     it('throws ReferenceError for undefined identifiers', () => {
       expect(() => parser.evaluate('nonExistentVar', {})).toThrow(ReferenceError);
@@ -356,8 +432,18 @@ describe('SafeExpressionParser — CSP-safe evaluation', () => {
       expect(parser.evaluate('user.address.city', { user: {} })).toBeUndefined();
     });
 
-    it('throws SyntaxError for malformed expressions', () => {
-      expect(() => parser.evaluate('(unclosed', {})).toThrow();
+    it('throws SyntaxError for unclosed parentheses', () => {
+      // Use a valid inner expression so the error is about the missing ')' not the content.
+      expect(() => parser.evaluate('(1 + 2', {})).toThrow(SyntaxError);
+    });
+
+    it('throws SyntaxError for unclosed array literal', () => {
+      expect(() => parser.evaluate('[1, 2', {})).toThrow(SyntaxError);
+    });
+
+    it('throws SyntaxError for malformed numeric exponent (e.g. 1e)', () => {
+      // '1e' has no exponent digits — the stricter parser rejects it.
+      expect(() => parser.evaluate('1e', {})).toThrow(SyntaxError);
     });
   });
 });
@@ -428,7 +514,7 @@ describe('ExpressionEvaluator — CSP safety integration', () => {
   });
 
   it('does not use eval() or new Function() during evaluation', () => {
-    // Spy on both to ensure they are NEVER called.
+    // Spy on both to ensure they are NEVER called (via construct OR apply).
     const originalEval = globalThis.eval;
     const originalFunction = Function;
     const evalCalls: string[] = [];
@@ -441,8 +527,13 @@ describe('ExpressionEvaluator — CSP safety integration', () => {
 
     const FunctionProxy = new Proxy(Function, {
       construct(target, args) {
-        functionCalls.push(String(args));
+        functionCalls.push(`new Function(${String(args)})`);
         return Reflect.construct(target, args);
+      },
+      apply(target, thisArg, args) {
+        // Catches indirect calls like: Function('return 1')() or String['constructor']('...')
+        functionCalls.push(`Function(${String(args)})`);
+        return Reflect.apply(target, thisArg, args);
       },
     });
     (globalThis as any).Function = FunctionProxy;
