@@ -54,7 +54,6 @@ vi.mock('react-router-dom', async () => {
 
 // Import after mocks
 import { MetadataDetailPage } from '../pages/system/MetadataDetailPage';
-import { toast } from 'sonner';
 
 function renderWithRoute(metadataType: string, itemName: string) {
   return render(

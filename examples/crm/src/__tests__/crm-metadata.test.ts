@@ -1,10 +1,8 @@
 import { describe, it, expect } from 'vitest';
 
-/** Resolve an I18nLabel (string or { key, defaultValue }) to a plain string for test assertions */
-function resolveTitle(title: string | { key: string; defaultValue?: string } | undefined): string {
-  if (!title) return '';
-  if (typeof title === 'string') return title;
-  return title.defaultValue || title.key;
+/** Resolve a label to a plain string for test assertions */
+function resolveTitle(title: string | undefined): string {
+  return title || '';
 }
 
 // --- Metadata imports ---

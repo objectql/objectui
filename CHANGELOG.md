@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Protocol bridges** (`@object-ui/core`): Updated `DndProtocol`, `KeyboardProtocol`, and `NotificationProtocol` to align with `@objectstack/spec` v4 type changes where `ariaLabel`, `label`, `title`, and `message` fields are now plain strings instead of i18n translation objects (`{ key, defaultValue }`).
+
+- **CRM example** (`@object-ui/example-crm`): Converted all i18n label objects (`{ key, defaultValue }`) in `crm.app.ts` and `crm.dashboard.ts` to plain strings to match the updated `@objectstack/spec` v4 schema requirements.
+
+- **Console app** (`@object-ui/console`): Fixed unused import warnings (`MetadataFormFieldDef`, `MetadataActionDef`, `toast`) and a `defaultValue` type mismatch (`unknown` → `string | undefined`) in `MetadataService.ts`.
+
 ### Added
 
 - **Metadata Create & Edit via MetadataFormDialog** (`@object-ui/console`): New generic `MetadataFormDialog` component (`components/MetadataFormDialog.tsx`) provides a registry-driven create/edit dialog for any metadata type. Form fields are determined by the `formFields` configuration in the metadata type registry, with fallback defaults (`name`, `label`, `description`). Supports required validation, `disabledOnEdit` for immutable keys (e.g. `name`), textarea and select field types, and loading state during submission.
