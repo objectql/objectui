@@ -18,7 +18,6 @@ import {
   Badge,
 } from '@object-ui/components';
 import {
-  LayoutGrid,
   Users,
   Building2,
   Shield,
@@ -35,7 +34,7 @@ import { getIcon } from '../../utils/getIcon';
 interface HubCard {
   title: string;
   description: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ElementType;
   href: string;
   countLabel: string;
   count: number | null;

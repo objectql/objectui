@@ -21,7 +21,7 @@ import { toast } from 'sonner';
 import { useMetadata } from '../context/MetadataProvider';
 import { useMetadataService } from '../hooks/useMetadataService';
 import { MetadataService } from '../services/MetadataService';
-import { toObjectDefinition, type MetadataObject } from '../utils/metadataConverters';
+import { toObjectDefinition } from '../utils/metadataConverters';
 import type { MetadataListComponentProps } from '../config/metadataTypeRegistry';
 
 export function ObjectManagerListAdapter({ basePath, metadataType }: MetadataListComponentProps) {
