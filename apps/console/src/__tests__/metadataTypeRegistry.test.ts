@@ -12,8 +12,6 @@ import {
   getHubMetadataTypes,
   DEFAULT_FORM_FIELDS,
   type MetadataTypeConfig,
-  type MetadataFormFieldDef,
-  type MetadataActionDef,
 } from '../config/metadataTypeRegistry';
 
 describe('metadataTypeRegistry', () => {

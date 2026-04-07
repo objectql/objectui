@@ -1,6 +1,6 @@
 export const CrmDashboard = {
   name: 'crm_dashboard',
-  label: { key: 'crm.dashboard.title', defaultValue: 'CRM Overview' },
+  label: 'CRM Overview',
   description: 'Revenue metrics, pipeline analytics, and deal insights',
   widgets: [
     // --- KPI Row ---
@@ -10,53 +10,53 @@ export const CrmDashboard = {
     // If the server request fails, an explicit error state is shown.
     {
       id: 'total_revenue',
-      title: { key: 'crm.dashboard.widgets.totalRevenue', defaultValue: 'Total Revenue' },
+      title: 'Total Revenue',
       type: 'metric' as const,
       object: 'opportunity',
       layout: { x: 0, y: 0, w: 1, h: 1 },
       options: {
         label: 'Total Revenue',
         value: '$652,000',
-        trend: { value: 12.5, direction: 'up' as const, label: { key: 'crm.dashboard.trendLabel', defaultValue: 'vs last month' } },
+        trend: { value: 12.5, direction: 'up' as const, label: 'vs last month' },
         icon: 'DollarSign'
       }
     },
     {
       id: 'active_deals',
-      title: { key: 'crm.dashboard.widgets.activeDeals', defaultValue: 'Active Deals' },
+      title: 'Active Deals',
       type: 'metric' as const,
       object: 'opportunity',
       layout: { x: 1, y: 0, w: 1, h: 1 },
       options: {
         label: 'Active Deals',
         value: '5',
-        trend: { value: 2.1, direction: 'down' as const, label: { key: 'crm.dashboard.trendLabel', defaultValue: 'vs last month' } },
+        trend: { value: 2.1, direction: 'down' as const, label: 'vs last month' },
         icon: 'Briefcase'
       }
     },
     {
       id: 'win_rate',
-      title: { key: 'crm.dashboard.widgets.winRate', defaultValue: 'Win Rate' },
+      title: 'Win Rate',
       type: 'metric' as const,
       object: 'opportunity',
       layout: { x: 2, y: 0, w: 1, h: 1 },
       options: {
         label: 'Win Rate',
         value: '42%',
-        trend: { value: 4.3, direction: 'up' as const, label: { key: 'crm.dashboard.trendLabel', defaultValue: 'vs last month' } },
+        trend: { value: 4.3, direction: 'up' as const, label: 'vs last month' },
         icon: 'Trophy'
       }
     },
     {
       id: 'avg_deal_size',
-      title: { key: 'crm.dashboard.widgets.avgDealSize', defaultValue: 'Avg Deal Size' },
+      title: 'Avg Deal Size',
       type: 'metric' as const,
       object: 'opportunity',
       layout: { x: 3, y: 0, w: 1, h: 1 },
       options: {
         label: 'Avg Deal Size',
         value: '$93,000',
-        trend: { value: 1.2, direction: 'up' as const, label: { key: 'crm.dashboard.trendLabel', defaultValue: 'vs last month' } },
+        trend: { value: 1.2, direction: 'up' as const, label: 'vs last month' },
         icon: 'BarChart3'
       }
     },
@@ -64,7 +64,7 @@ export const CrmDashboard = {
     // --- Row 2: Charts (provider: 'object' — dynamic aggregation) ---
     {
         id: 'revenue_trends',
-        title: { key: 'crm.dashboard.widgets.revenueTrends', defaultValue: 'Revenue Trends' },
+        title: 'Revenue Trends',
         type: 'area' as const,
         object: 'opportunity',
         categoryField: 'stage',
@@ -83,7 +83,7 @@ export const CrmDashboard = {
     },
     {
         id: 'lead_source',
-        title: { key: 'crm.dashboard.widgets.leadSource', defaultValue: 'Lead Source' },
+        title: 'Lead Source',
         type: 'donut' as const,
         object: 'opportunity',
         categoryField: 'lead_source',
@@ -104,7 +104,7 @@ export const CrmDashboard = {
     // --- Row 3: More Charts (provider: 'object' — dynamic aggregation) ---
     {
         id: 'pipeline_by_stage',
-        title: { key: 'crm.dashboard.widgets.pipelineByStage', defaultValue: 'Pipeline by Stage' },
+        title: 'Pipeline by Stage',
         type: 'bar' as const,
         object: 'opportunity',
         categoryField: 'stage',
@@ -123,7 +123,7 @@ export const CrmDashboard = {
     },
     {
         id: 'top_products',
-        title: { key: 'crm.dashboard.widgets.topProducts', defaultValue: 'Top Products' },
+        title: 'Top Products',
         type: 'bar' as const,
         object: 'product',
         categoryField: 'category',
@@ -144,7 +144,7 @@ export const CrmDashboard = {
     // --- Row 4: Table (provider: 'object' — dynamic data) ---
     {
         id: 'recent_opportunities',
-        title: { key: 'crm.dashboard.widgets.recentOpportunities', defaultValue: 'Recent Opportunities' },
+        title: 'Recent Opportunities',
         type: 'table' as const,
         object: 'opportunity',
         layout: { x: 0, y: 5, w: 4, h: 2 },
@@ -165,7 +165,7 @@ export const CrmDashboard = {
     // --- Row 5: Dynamic KPI from Object Data ---
     {
         id: 'revenue_by_account',
-        title: { key: 'crm.dashboard.widgets.revenueByAccount', defaultValue: 'Revenue by Account' },
+        title: 'Revenue by Account',
         type: 'bar' as const,
         object: 'opportunity',
         categoryField: 'account',
@@ -186,7 +186,7 @@ export const CrmDashboard = {
     // --- Row 6: Additional aggregate functions (avg, max) + cross-object ---
     {
         id: 'avg_deal_by_stage',
-        title: { key: 'crm.dashboard.widgets.avgDealSizeByStage', defaultValue: 'Avg Deal Size by Stage' },
+        title: 'Avg Deal Size by Stage',
         type: 'line' as const,
         object: 'opportunity',
         categoryField: 'stage',
@@ -205,7 +205,7 @@ export const CrmDashboard = {
     },
     {
         id: 'orders_by_status',
-        title: { key: 'crm.dashboard.widgets.ordersByStatus', defaultValue: 'Orders by Status' },
+        title: 'Orders by Status',
         type: 'bar' as const,
         object: 'order',
         categoryField: 'status',
