@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Protocol bridges** (`@object-ui/core`): Updated `DndProtocol`, `KeyboardProtocol`, and `NotificationProtocol` to align with `@objectstack/spec` v4 type changes where `ariaLabel`, `label`, `title`, and `message` fields are now plain strings instead of i18n translation objects (`{ key, defaultValue }`).
+
+- **CRM example** (`@object-ui/example-crm`): Converted all i18n label objects (`{ key, defaultValue }`) in `crm.app.ts` and `crm.dashboard.ts` to plain strings to match the updated `@objectstack/spec` v4 schema requirements.
+
+- **Console app** (`@object-ui/console`): Fixed unused import warnings (`MetadataFormFieldDef`, `MetadataActionDef`, `toast`) and a `defaultValue` type mismatch (`unknown` → `string | undefined`) in `MetadataService.ts`.
+
 ### Added
 
 - **Grid list mode for MetadataManagerPage** (`@object-ui/console`): MetadataManagerPage now supports `listMode: 'grid' | 'table'` configuration via the metadata type registry. When set, items are rendered in a professional table layout with column headers, sortable rows, and inline action buttons — matching the Power Apps table listing UX. The `report` type is configured to use grid mode by default.

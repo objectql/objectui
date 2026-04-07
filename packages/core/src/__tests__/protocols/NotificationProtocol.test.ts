@@ -101,10 +101,10 @@ describe('NotificationProtocol', () => {
       expect(toast.actions).toEqual([]);
     });
 
-    it('should handle translation objects for title and message', () => {
+    it('should handle string title and message', () => {
       const notification = {
-        title: { key: 'notify.title', defaultValue: 'Heads up' },
-        message: { key: 'notify.msg', defaultValue: 'Something happened' },
+        title: 'Heads up',
+        message: 'Something happened',
       } as unknown as SpecNotification;
       const toast = specNotificationToToast(notification);
 

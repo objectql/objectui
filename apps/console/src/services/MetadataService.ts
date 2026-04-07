@@ -96,7 +96,7 @@ function toFieldPayload(field: DesignerFieldDefinition): FieldMetadataPayload {
     unique: field.unique,
     readonly: field.readonly,
     hidden: field.hidden,
-    defaultValue: field.defaultValue,
+    defaultValue: field.defaultValue as string | undefined,
     placeholder: field.placeholder,
     options: field.options,
     externalId: field.externalId,
