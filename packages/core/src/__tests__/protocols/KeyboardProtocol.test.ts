@@ -32,9 +32,9 @@ describe('KeyboardProtocol', () => {
       expect(resolved.ariaLabel).toBe('Navigation');
     });
 
-    it('should resolve ariaLabel from translation object', () => {
+    it('should resolve ariaLabel from string', () => {
       const config = {
-        ariaLabel: { key: 'nav.label', defaultValue: 'Nav panel' },
+        ariaLabel: 'Nav panel',
       } as unknown as KeyboardNavigationConfig;
       const resolved = resolveKeyboardConfig(config);
 
