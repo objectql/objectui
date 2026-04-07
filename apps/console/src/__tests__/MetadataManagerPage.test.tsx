@@ -13,12 +13,13 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 // --- Mock MetadataService ---
 const mockGetItems = vi.fn().mockResolvedValue([]);
 const mockDeleteMetadataItem = vi.fn().mockResolvedValue(undefined);
+const mockSaveMetadataItem = vi.fn().mockResolvedValue(undefined);
 
 vi.mock('../hooks/useMetadataService', () => ({
   useMetadataService: () => ({
     getItems: mockGetItems,
     deleteMetadataItem: mockDeleteMetadataItem,
-    saveMetadataItem: vi.fn(),
+    saveMetadataItem: mockSaveMetadataItem,
   }),
 }));
 
@@ -220,6 +221,111 @@ describe('MetadataManagerPage', () => {
       await waitFor(() => {
         expect(mockGetItems).toHaveBeenCalledWith('report');
       });
+    });
+  });
+
+  describe('create functionality', () => {
+    it('should show create button for editable types', async () => {
+      renderWithRoute('dashboard');
+      await waitFor(() => {
+        expect(screen.getByTestId('create-metadata-btn')).toBeInTheDocument();
+      });
+    });
+
+    it('should open form dialog when create button is clicked', async () => {
+      renderWithRoute('dashboard');
+      await waitFor(() => {
+        expect(screen.getByTestId('create-metadata-btn')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByTestId('create-metadata-btn'));
+      await waitFor(() => {
+        expect(screen.getByTestId('metadata-form-dialog')).toBeInTheDocument();
+      });
+    });
+
+    it('should call saveMetadataItem on create form submit', async () => {
+      renderWithRoute('dashboard');
+      await waitFor(() => {
+        expect(screen.getByTestId('create-metadata-btn')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByTestId('create-metadata-btn'));
+      await waitFor(() => {
+        expect(screen.getByTestId('metadata-form-dialog')).toBeInTheDocument();
+      });
+
+      fireEvent.change(screen.getByTestId('metadata-field-name'), {
+        target: { value: 'new_dash' },
+      });
+      fireEvent.change(screen.getByTestId('metadata-field-label'), {
+        target: { value: 'New Dash' },
+      });
+      fireEvent.click(screen.getByTestId('metadata-form-submit-btn'));
+
+      await waitFor(() => {
+        expect(mockSaveMetadataItem).toHaveBeenCalledWith(
+          'dashboard',
+          'new_dash',
+          expect.objectContaining({ name: 'new_dash', label: 'New Dash' }),
+        );
+        expect(toast.success).toHaveBeenCalledWith('Dashboard "new_dash" created');
+      });
+    });
+  });
+
+  describe('edit functionality', () => {
+    it('should show edit button for each item', async () => {
+      mockGetItems.mockResolvedValue([
+        { name: 'test_dash', label: 'Test Dashboard' },
+      ]);
+      renderWithRoute('dashboard');
+      await waitFor(() => {
+        expect(screen.getByTestId('edit-test_dash-btn')).toBeInTheDocument();
+      });
+    });
+
+    it('should open edit form dialog when edit button is clicked', async () => {
+      mockGetItems.mockResolvedValue([
+        { name: 'test_dash', label: 'Test Dashboard', description: 'Desc' },
+      ]);
+      renderWithRoute('dashboard');
+      await waitFor(() => {
+        expect(screen.getByTestId('edit-test_dash-btn')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByTestId('edit-test_dash-btn'));
+      await waitFor(() => {
+        expect(screen.getByTestId('metadata-form-dialog')).toBeInTheDocument();
+        expect(screen.getByText('Edit Dashboard')).toBeInTheDocument();
+      });
+    });
+
+    it('should pre-fill edit form with item values', async () => {
+      mockGetItems.mockResolvedValue([
+        { name: 'test_dash', label: 'Test Dashboard', description: 'Some desc' },
+      ]);
+      renderWithRoute('dashboard');
+      await waitFor(() => {
+        expect(screen.getByTestId('edit-test_dash-btn')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByTestId('edit-test_dash-btn'));
+      await waitFor(() => {
+        expect(screen.getByTestId('metadata-field-name')).toHaveValue('test_dash');
+        expect(screen.getByTestId('metadata-field-label')).toHaveValue('Test Dashboard');
+        expect(screen.getByTestId('metadata-field-description')).toHaveValue('Some desc');
+      });
+    });
+  });
+
+  describe('item navigation to detail', () => {
+    it('should navigate to detail page when item card is clicked', async () => {
+      mockGetItems.mockResolvedValue([
+        { name: 'sales_dash', label: 'Sales Dashboard' },
+      ]);
+      renderWithRoute('dashboard');
+      await waitFor(() => {
+        expect(screen.getByTestId('metadata-item-sales_dash')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByTestId('metadata-item-sales_dash'));
+      expect(mockNavigate).toHaveBeenCalledWith('/system/metadata/dashboard/sales_dash');
     });
   });
 });

@@ -49,6 +49,7 @@ const SystemHubPage = lazy(() => import('./pages/system/SystemHubPage').then(m =
 const AppManagementPage = lazy(() => import('./pages/system/AppManagementPage').then(m => ({ default: m.AppManagementPage })));
 const ObjectManagerPage = lazy(() => import('./pages/system/ObjectManagerPage').then(m => ({ default: m.ObjectManagerPage })));
 const MetadataManagerPage = lazy(() => import('./pages/system/MetadataManagerPage').then(m => ({ default: m.MetadataManagerPage })));
+const MetadataDetailPage = lazy(() => import('./pages/system/MetadataDetailPage').then(m => ({ default: m.MetadataDetailPage })));
 const UserManagementPage = lazy(() => import('./pages/system/UserManagementPage').then(m => ({ default: m.UserManagementPage })));
 const OrgManagementPage = lazy(() => import('./pages/system/OrgManagementPage').then(m => ({ default: m.OrgManagementPage })));
 const RoleManagementPage = lazy(() => import('./pages/system/RoleManagementPage').then(m => ({ default: m.RoleManagementPage })));
@@ -302,6 +303,7 @@ export function AppContent() {
           <Route path="system/audit-log" element={<AuditLogPage />} />
           <Route path="system/profile" element={<ProfilePage />} />
           <Route path="system/metadata/:metadataType" element={<MetadataManagerPage />} />
+          <Route path="system/metadata/:metadataType/:itemName" element={<MetadataDetailPage />} />
         </Routes>
       </Suspense>
     );
@@ -397,6 +399,7 @@ export function AppContent() {
         <Route path="system/audit-log" element={<AuditLogPage />} />
         <Route path="system/profile" element={<ProfilePage />} />
         <Route path="system/metadata/:metadataType" element={<MetadataManagerPage />} />
+        <Route path="system/metadata/:metadataType/:itemName" element={<MetadataDetailPage />} />
       </Routes>
       </Suspense>
       </ErrorBoundary>
@@ -492,6 +495,7 @@ function SystemRoutes() {
         <Route path="audit-log" element={<AuditLogPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="metadata/:metadataType" element={<MetadataManagerPage />} />
+        <Route path="metadata/:metadataType/:itemName" element={<MetadataDetailPage />} />
       </Routes>
     </Suspense>
   );
