@@ -31,11 +31,6 @@ import {
   Trash2,
   Search,
   Loader2,
-  LayoutDashboard,
-  FileText,
-  BarChart3,
-  Database,
-  LayoutGrid,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@object-ui/auth';
@@ -43,22 +38,7 @@ import { useMetadataService } from '../../hooks/useMetadataService';
 import { useMetadata } from '../../context/MetadataProvider';
 import { getMetadataTypeConfig, type MetadataTypeConfig } from '../../config/metadataTypeRegistry';
 import { MetadataFormDialog } from '../../components/MetadataFormDialog';
-
-// ---------------------------------------------------------------------------
-// Icon resolver
-// ---------------------------------------------------------------------------
-
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  'layout-dashboard': LayoutDashboard,
-  'file-text': FileText,
-  'bar-chart-3': BarChart3,
-  'database': Database,
-  'layout-grid': LayoutGrid,
-};
-
-function resolveIcon(iconName: string): React.ComponentType<{ className?: string }> {
-  return ICON_MAP[iconName] ?? Database;
-}
+import { getIcon } from '../../utils/getIcon';
 
 // ---------------------------------------------------------------------------
 // Component
@@ -203,7 +183,7 @@ export function MetadataManagerPage() {
     );
   }
 
-  const Icon = resolveIcon(config.icon);
+  const Icon = getIcon(config.icon);
   const isEditable = config.editable !== false && isAdmin;
   const pageActions = (config.actions ?? []).filter((a) => a.scope === 'page');
   const rowActions = (config.actions ?? []).filter((a) => a.scope === 'row');
