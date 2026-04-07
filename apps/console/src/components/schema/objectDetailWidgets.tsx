@@ -48,7 +48,7 @@ function useObjectData(objectName: string) {
   );
 
   const object = useMemo(
-    () => (metadataObject ? toObjectDefinition(metadataObject) : null),
+    () => (metadataObject ? toObjectDefinition(metadataObject, 0) : null),
     [metadataObject],
   );
 
