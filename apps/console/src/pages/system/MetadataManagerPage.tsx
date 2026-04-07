@@ -324,7 +324,7 @@ export function MetadataManagerPage() {
                       {rowActions.map((action) => (
                         <Button
                           key={action.key}
-                          variant={(action.variant as 'ghost') ?? 'ghost'}
+                          variant={action.variant ?? 'ghost'}
                           size="icon"
                           title={action.label}
                           onClick={(e: React.MouseEvent) => {

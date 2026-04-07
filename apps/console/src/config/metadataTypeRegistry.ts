@@ -61,7 +61,7 @@ export interface MetadataActionDef {
   key: string;
   /** Human-readable label shown on the button. */
   label: string;
-  /** Lucide icon name (lowercase, hyphenated). */
+  /** Lucide icon name (lowercase, hyphenated). Reserved for future icon rendering in action buttons. */
   icon?: string;
   /** Whether this action appears on each row (`'row'`) or at the page level (`'page'`). */
   scope: 'page' | 'row';
