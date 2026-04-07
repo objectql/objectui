@@ -18,6 +18,8 @@
  * @module config/metadataTypeRegistry
  */
 
+import type React from 'react';
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -30,6 +32,47 @@ export interface MetadataColumnDef {
   label: string;
   /** Optional width hint (e.g. '120px', '1fr'). */
   width?: string;
+}
+
+/** Form field definition used by MetadataFormDialog for create/edit forms. */
+export interface MetadataFormFieldDef {
+  /** Field key in the metadata item (e.g. `'name'`, `'label'`). */
+  key: string;
+  /** Human-readable label shown next to the input. */
+  label: string;
+  /** Input type. Defaults to `'text'`. */
+  type?: 'text' | 'textarea' | 'select';
+  /** Placeholder text for the input. */
+  placeholder?: string;
+  /** Whether the field is required. Defaults to `false`. */
+  required?: boolean;
+  /**
+   * Whether the field is disabled when editing an existing item.
+   * Useful for immutable keys like `name`. Defaults to `false`.
+   */
+  disabledOnEdit?: boolean;
+  /** Options for `type: 'select'`. */
+  options?: { label: string; value: string }[];
+}
+
+/** Action definition for custom page-level or row-level buttons. */
+export interface MetadataActionDef {
+  /** Unique key for the action. */
+  key: string;
+  /** Human-readable label shown on the button. */
+  label: string;
+  /** Lucide icon name (lowercase, hyphenated). Reserved for future icon rendering in action buttons. */
+  icon?: string;
+  /** Whether this action appears on each row (`'row'`) or at the page level (`'page'`). */
+  scope: 'page' | 'row';
+  /** Action variant for styling (e.g. `'default'`, `'destructive'`, `'outline'`). */
+  variant?: 'default' | 'destructive' | 'outline' | 'ghost' | 'secondary';
+  /**
+   * Handler called when the action is triggered.
+   * - For `scope: 'page'`: called with no arguments.
+   * - For `scope: 'row'`: called with the metadata item.
+   */
+  handler?: (item?: Record<string, unknown>) => void;
 }
 
 /** Full configuration for a single metadata type. */
@@ -57,6 +100,12 @@ export interface MetadataTypeConfig {
    * When omitted, the list view shows `name` and `label` columns.
    */
   columns?: MetadataColumnDef[];
+
+  /**
+   * Form field definitions for the create/edit dialog.
+   * When omitted, the dialog shows `name`, `label`, and `description` fields.
+   */
+  formFields?: MetadataFormFieldDef[];
 
   /**
    * If `true`, this type already has a dedicated management page and should
@@ -90,6 +139,20 @@ export interface MetadataTypeConfig {
    * Defaults to `true`. Set to `false` for read-only types (e.g. audit log).
    */
   editable?: boolean;
+
+  /**
+   * Optional custom React component for the detail page.
+   * When set, the detail page will render this component instead of the
+   * generic layout.
+   */
+  detailComponent?: React.ComponentType<{ item: Record<string, unknown> }>;
+
+  /**
+   * Custom action definitions for page-level and row-level buttons.
+   * Page-level actions are rendered in the header area; row-level actions
+   * appear alongside each item's edit/delete buttons.
+   */
+  actions?: MetadataActionDef[];
 }
 
 // ---------------------------------------------------------------------------
@@ -138,6 +201,11 @@ export const METADATA_TYPES: MetadataTypeConfig[] = [
       { key: 'label', label: 'Label' },
       { key: 'description', label: 'Description' },
     ],
+    formFields: [
+      { key: 'name', label: 'Name', required: true, placeholder: 'dashboard_name', disabledOnEdit: true },
+      { key: 'label', label: 'Label', required: true, placeholder: 'My Dashboard' },
+      { key: 'description', label: 'Description', type: 'textarea', placeholder: 'Brief description' },
+    ],
   },
   {
     type: 'page',
@@ -150,6 +218,11 @@ export const METADATA_TYPES: MetadataTypeConfig[] = [
       { key: 'label', label: 'Label' },
       { key: 'description', label: 'Description' },
     ],
+    formFields: [
+      { key: 'name', label: 'Name', required: true, placeholder: 'page_name', disabledOnEdit: true },
+      { key: 'label', label: 'Label', required: true, placeholder: 'My Page' },
+      { key: 'description', label: 'Description', type: 'textarea', placeholder: 'Brief description' },
+    ],
   },
   {
     type: 'report',
@@ -161,6 +234,11 @@ export const METADATA_TYPES: MetadataTypeConfig[] = [
       { key: 'name', label: 'Name' },
       { key: 'label', label: 'Label' },
       { key: 'description', label: 'Description' },
+    ],
+    formFields: [
+      { key: 'name', label: 'Name', required: true, placeholder: 'report_name', disabledOnEdit: true },
+      { key: 'label', label: 'Label', required: true, placeholder: 'My Report' },
+      { key: 'description', label: 'Description', type: 'textarea', placeholder: 'Brief description' },
     ],
   },
 ];
@@ -191,3 +269,13 @@ export function getGenericMetadataTypes(): MetadataTypeConfig[] {
 export function getHubMetadataTypes(): MetadataTypeConfig[] {
   return METADATA_TYPES;
 }
+
+/**
+ * Default form fields used by MetadataFormDialog when a type does not define
+ * its own `formFields`. Covers the `name`, `label`, and `description` fields.
+ */
+export const DEFAULT_FORM_FIELDS: MetadataFormFieldDef[] = [
+  { key: 'name', label: 'Name', required: true, placeholder: 'api_name', disabledOnEdit: true },
+  { key: 'label', label: 'Label', required: true, placeholder: 'Display Label' },
+  { key: 'description', label: 'Description', type: 'textarea', placeholder: 'Brief description' },
+];

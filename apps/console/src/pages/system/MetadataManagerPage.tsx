@@ -10,6 +10,7 @@
  * - Create / Edit / Delete with optimistic UI + toast feedback
  * - Search filtering by name / label
  * - Back-to-hub navigation
+ * - Click item name to navigate to detail page
  *
  * @module pages/system/MetadataManagerPage
  */
@@ -37,9 +38,11 @@ import {
   LayoutGrid,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@object-ui/auth';
 import { useMetadataService } from '../../hooks/useMetadataService';
 import { useMetadata } from '../../context/MetadataProvider';
 import { getMetadataTypeConfig, type MetadataTypeConfig } from '../../config/metadataTypeRegistry';
+import { MetadataFormDialog } from '../../components/MetadataFormDialog';
 
 // ---------------------------------------------------------------------------
 // Icon resolver
@@ -67,6 +70,10 @@ export function MetadataManagerPage() {
   const basePath = appName ? `/apps/${appName}` : '';
   const metadataService = useMetadataService();
   const { refresh } = useMetadata();
+  const { user } = useAuth();
+
+  // Permission: only admin users can mutate metadata
+  const isAdmin = user?.role === 'admin';
 
   // Resolve registry config
   const config: MetadataTypeConfig | undefined = metadataType
@@ -79,6 +86,11 @@ export function MetadataManagerPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [saving, setSaving] = useState(false);
   const [deletingName, setDeletingName] = useState<string | null>(null);
+
+  // Form dialog state
+  const [formOpen, setFormOpen] = useState(false);
+  const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
+  const [editingItem, setEditingItem] = useState<Record<string, unknown> | null>(null);
 
   // Fetch items
   const fetchItems = useCallback(async () => {
@@ -132,6 +144,47 @@ export function MetadataManagerPage() {
     }
   }, [metadataService, metadataType, deletingName, config?.label, refresh]);
 
+  const handleCreate = useCallback(() => {
+    setEditingItem(null);
+    setFormMode('create');
+    setFormOpen(true);
+  }, []);
+
+  const handleEdit = useCallback((item: Record<string, unknown>) => {
+    setEditingItem(item);
+    setFormMode('edit');
+    setFormOpen(true);
+  }, []);
+
+  const handleFormSubmit = useCallback(async (values: Record<string, string>) => {
+    if (!metadataService || !metadataType) return;
+    const name = values.name ?? String(editingItem?.name ?? '');
+    if (!name) return;
+    setSaving(true);
+    try {
+      const data: Record<string, unknown> = formMode === 'edit'
+        ? { ...editingItem, ...values }
+        : { ...values };
+      await metadataService.saveMetadataItem(metadataType, name, data);
+      await refresh();
+      await fetchItems();
+      toast.success(
+        formMode === 'edit'
+          ? `${config?.label ?? 'Item'} "${name}" updated`
+          : `${config?.label ?? 'Item'} "${name}" created`,
+      );
+    } catch {
+      toast.error(
+        formMode === 'edit'
+          ? `Failed to update "${name}"`
+          : `Failed to create "${name}"`,
+      );
+      throw new Error(`Failed to save ${config?.label ?? 'item'} "${name}"`);
+    } finally {
+      setSaving(false);
+    }
+  }, [metadataService, metadataType, editingItem, formMode, config?.label, refresh, fetchItems]);
+
   // Unknown type guard
   if (!config) {
     return (
@@ -151,7 +204,9 @@ export function MetadataManagerPage() {
   }
 
   const Icon = resolveIcon(config.icon);
-  const isEditable = config.editable !== false;
+  const isEditable = config.editable !== false && isAdmin;
+  const pageActions = (config.actions ?? []).filter((a) => a.scope === 'page');
+  const rowActions = (config.actions ?? []).filter((a) => a.scope === 'row');
 
   return (
     <div className="flex flex-col gap-4 p-4 sm:p-6" data-testid="metadata-manager-page">
@@ -178,6 +233,27 @@ export function MetadataManagerPage() {
             </p>
           </div>
         </div>
+
+        {isEditable && (
+          <Button onClick={handleCreate} data-testid="create-metadata-btn">
+            <Plus className="mr-2 h-4 w-4" />
+            New {config.label}
+          </Button>
+        )}
+        {pageActions.length > 0 && (
+          <div className="flex items-center gap-2">
+            {pageActions.map((action) => (
+              <Button
+                key={action.key}
+                variant={action.variant ?? 'outline'}
+                onClick={() => action.handler?.()}
+                data-testid={`page-action-${action.key}`}
+              >
+                {action.label}
+              </Button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Search */}
@@ -229,8 +305,11 @@ export function MetadataManagerPage() {
             return (
               <Card
                 key={name}
-                className="transition-colors hover:bg-accent/50"
+                className="transition-colors hover:bg-accent/50 cursor-pointer"
                 data-testid={`metadata-item-${name}`}
+                onClick={() =>
+                  navigate(`${basePath}/system/metadata/${metadataType}/${name}`)
+                }
               >
                 <CardContent className="flex items-center justify-between p-4">
                   <div className="min-w-0 flex-1">
@@ -242,11 +321,42 @@ export function MetadataManagerPage() {
                   </div>
                   {isEditable && (
                     <div className="flex items-center gap-1 shrink-0 ml-2">
+                      {rowActions.map((action) => (
+                        <Button
+                          key={action.key}
+                          variant={action.variant ?? 'ghost'}
+                          size="icon"
+                          title={action.label}
+                          onClick={(e: React.MouseEvent) => {
+                            e.stopPropagation();
+                            action.handler?.(item);
+                          }}
+                          data-testid={`row-action-${action.key}-${name}`}
+                        >
+                          <span className="text-xs">{action.label.charAt(0)}</span>
+                        </Button>
+                      ))}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        title={`Edit ${config.label.toLowerCase()}`}
+                        onClick={(e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          handleEdit(item);
+                        }}
+                        disabled={saving}
+                        data-testid={`edit-${name}-btn`}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"
                         title={deletingName === name ? 'Click again to confirm' : `Delete ${config.label.toLowerCase()}`}
-                        onClick={() => handleDelete(name)}
+                        onClick={(e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          handleDelete(name);
+                        }}
                         disabled={saving}
                         data-testid={`delete-${name}-btn`}
                       >
@@ -259,6 +369,19 @@ export function MetadataManagerPage() {
             );
           })}
         </div>
+      )}
+
+      {/* Create/Edit dialog */}
+      {isEditable && (
+        <MetadataFormDialog
+          open={formOpen}
+          onOpenChange={setFormOpen}
+          mode={formMode}
+          typeLabel={config.label}
+          formFields={config.formFields}
+          initialValues={editingItem ?? undefined}
+          onSubmit={handleFormSubmit}
+        />
       )}
     </div>
   );
