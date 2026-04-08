@@ -83,13 +83,11 @@ export interface KeyboardEventLike {
  * @returns Fully resolved keyboard navigation configuration
  */
 export function resolveKeyboardConfig(config: KeyboardNavigationConfig): ResolvedKeyboardConfig {
-  const ariaLabel = config.ariaLabel;
-
   return {
     shortcuts: config.shortcuts ?? [],
     focusManagement: resolveFocusManagement(config.focusManagement),
     rovingTabindex: config.rovingTabindex ?? false,
-    ariaLabel,
+    ariaLabel: config.ariaLabel,
     ariaDescribedBy: config.ariaDescribedBy,
     role: config.role,
   };

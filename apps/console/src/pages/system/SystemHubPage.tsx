@@ -18,7 +18,6 @@ import {
   Badge,
 } from '@object-ui/components';
 import {
-  LayoutGrid,
   Users,
   Building2,
   Shield,
@@ -26,38 +25,19 @@ import {
   ScrollText,
   User,
   Loader2,
-  Database,
-  LayoutDashboard,
-  FileText,
-  BarChart3,
 } from 'lucide-react';
 import { useAdapter } from '../../context/AdapterProvider';
 import { useMetadata } from '../../context/MetadataProvider';
 import { getHubMetadataTypes } from '../../config/metadataTypeRegistry';
+import { getIcon } from '../../utils/getIcon';
 
 interface HubCard {
   title: string;
   description: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ElementType;
   href: string;
   countLabel: string;
   count: number | null;
-}
-
-// ---------------------------------------------------------------------------
-// Icon resolver for registry-driven cards
-// ---------------------------------------------------------------------------
-
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  'layout-grid': LayoutGrid,
-  'database': Database,
-  'layout-dashboard': LayoutDashboard,
-  'file-text': FileText,
-  'bar-chart-3': BarChart3,
-};
-
-function resolveIcon(iconName: string): React.ComponentType<{ className?: string }> {
-  return ICON_MAP[iconName] ?? Database;
 }
 
 export function SystemHubPage() {
@@ -119,10 +99,10 @@ export function SystemHubPage() {
 
   // Build metadata-type cards dynamically from registry
   const metadataTypeCards: HubCard[] = getHubMetadataTypes().map((cfg) => {
-    const href = cfg.hasCustomPage && cfg.customRoute
+    const href = cfg.customRoute
       ? `${basePath}${cfg.customRoute}`
       : `${basePath}/system/metadata/${cfg.type}`;
-    const Icon = resolveIcon(cfg.icon);
+    const Icon = getIcon(cfg.icon);
 
     // Resolve count from metadata context or data source counts
     let count: number | null = null;

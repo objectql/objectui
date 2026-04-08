@@ -2,8 +2,16 @@
  * MetadataDetailPage
  *
  * Generic, registry-driven detail page for viewing a single metadata item.
- * Supports editing via the MetadataFormDialog and custom detail renderers
- * via the registry's `detailComponent` configuration.
+ * Supports three rendering modes (in priority order):
+ *
+ *   1. **PageSchema-driven** — When the registry config defines a
+ *      `pageSchemaFactory`, the detail page is rendered via SchemaRenderer
+ *      using the generated PageSchema body nodes.
+ *   2. **Custom component** — When the registry config defines a
+ *      `detailComponent`, that component receives the item data.
+ *   3. **Default card layout** — Generic key/value card with form fields.
+ *
+ * Editing (for non-schema modes) is handled via MetadataFormDialog.
  *
  * Route: `/system/metadata/:metadataType/:itemName`
  *
@@ -24,33 +32,84 @@ import {
   ArrowLeft,
   Pencil,
   Loader2,
-  LayoutDashboard,
-  FileText,
-  BarChart3,
-  Database,
-  LayoutGrid,
+  AlertTriangle,
 } from 'lucide-react';
+import { SchemaRenderer } from '@object-ui/react';
 import { toast } from 'sonner';
 import { useAuth } from '@object-ui/auth';
 import { useMetadataService } from '../../hooks/useMetadataService';
 import { useMetadata } from '../../context/MetadataProvider';
 import { getMetadataTypeConfig, DEFAULT_FORM_FIELDS, type MetadataTypeConfig } from '../../config/metadataTypeRegistry';
 import { MetadataFormDialog } from '../../components/MetadataFormDialog';
+import { getIcon } from '../../utils/getIcon';
+import type { PageSchema, SchemaNode, BaseSchema } from '@object-ui/types';
 
 // ---------------------------------------------------------------------------
-// Icon resolver (same as MetadataManagerPage)
+// Schema rendering error boundary (class component for React error boundary)
 // ---------------------------------------------------------------------------
 
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  'layout-dashboard': LayoutDashboard,
-  'file-text': FileText,
-  'bar-chart-3': BarChart3,
-  'database': Database,
-  'layout-grid': LayoutGrid,
-};
+import { Component, type ErrorInfo, type ReactNode } from 'react';
 
-function resolveIcon(iconName: string): React.ComponentType<{ className?: string }> {
-  return ICON_MAP[iconName] ?? Database;
+interface SchemaErrorBoundaryProps {
+  children: ReactNode;
+  fallbackLabel?: string;
+}
+
+interface SchemaErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+}
+
+class SchemaErrorBoundary extends Component<SchemaErrorBoundaryProps, SchemaErrorBoundaryState> {
+  constructor(props: SchemaErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): SchemaErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error('[MetadataDetailPage] Schema rendering error:', error, info.componentStack);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div
+          className="rounded-lg border border-destructive/50 bg-destructive/5 p-6 text-center"
+          data-testid="schema-render-error"
+        >
+          <AlertTriangle className="h-8 w-8 mx-auto mb-3 text-destructive" />
+          <p className="text-sm font-medium text-destructive">
+            Failed to render {this.props.fallbackLabel || 'detail'} page
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {this.state.error?.message || 'An unexpected error occurred.'}
+          </p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Schema content renderer — renders PageSchema body nodes
+// ---------------------------------------------------------------------------
+
+function SchemaDetailContent({ schema }: { schema: PageSchema }) {
+  const bodyNodes = schema.body || [];
+  if (bodyNodes.length === 0) return null;
+
+  return (
+    <div className="flex flex-col gap-6" data-testid="schema-detail-content">
+      {bodyNodes.map((node: SchemaNode, idx: number) => (
+        <SchemaRenderer key={(node as BaseSchema)?.id || idx} schema={node} />
+      ))}
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -123,7 +182,9 @@ export function MetadataDetailPage() {
     [metadataService, metadataType, itemName, item, config?.label, refresh, fetchItem],
   );
 
-  const listPath = `${basePath}/system/metadata/${metadataType ?? ''}`;
+  const listPath = config?.customRoute
+    ? `${basePath}${config.customRoute}`
+    : `${basePath}/system/metadata/${metadataType ?? ''}`;
 
   // Unknown type guard
   if (!config) {
@@ -139,7 +200,52 @@ export function MetadataDetailPage() {
     );
   }
 
-  const Icon = resolveIcon(config.icon);
+  // -------------------------------------------------------------------------
+  // PageSchema-driven rendering
+  // -------------------------------------------------------------------------
+  if (config.pageSchemaFactory) {
+    const pageSchema = config.pageSchemaFactory(itemName!, item);
+
+    const Icon = getIcon(config.icon);
+
+    return (
+      <div className="flex flex-col gap-4 p-4 sm:p-6" data-testid="metadata-detail-page">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(listPath)}
+              data-testid="back-to-list-btn"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div className="bg-primary/10 p-2 rounded-md shrink-0">
+              <Icon className="h-5 w-5 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+                {pageSchema.title || itemName}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">{config.label} Details</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Schema-driven content with error boundary */}
+        <SchemaErrorBoundary fallbackLabel={config.label}>
+          <SchemaDetailContent schema={pageSchema} />
+        </SchemaErrorBoundary>
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Legacy rendering (detailComponent or default card)
+  // -------------------------------------------------------------------------
+
+  const Icon = getIcon(config.icon);
   const isEditable = config.editable !== false && isAdmin;
   const fields = config.formFields ?? DEFAULT_FORM_FIELDS;
   const CustomDetail = config.detailComponent;

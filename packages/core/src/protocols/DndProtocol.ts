@@ -95,13 +95,10 @@ export function resolveDndConfig(config: DndConfig): ResolvedDndConfig {
  * @returns Component props object for a draggable element
  */
 export function createDragItemProps(item: DragItem): DragItemProps {
-  const ariaLabel = item.ariaLabel;
-  const label = item.label;
-
   return {
     draggable: !(item.disabled ?? false),
     'aria-roledescription': 'draggable',
-    'aria-label': ariaLabel ?? label,
+    'aria-label': item.ariaLabel ?? item.label,
     'aria-describedby': item.ariaDescribedBy,
     role: item.role ?? 'listitem',
     'data-drag-type': item.type,
@@ -122,12 +119,9 @@ export function createDragItemProps(item: DragItem): DragItemProps {
  * @returns Component props object for a droppable area
  */
 export function createDropZoneProps(zone: DropZone): DropZoneProps {
-  const ariaLabel = zone.ariaLabel;
-  const label = zone.label;
-
   return {
     'aria-dropeffect': zone.dropEffect ?? 'move',
-    'aria-label': ariaLabel ?? label,
+    'aria-label': zone.ariaLabel ?? zone.label,
     'aria-describedby': zone.ariaDescribedBy,
     role: zone.role ?? 'list',
     'data-drop-accept': zone.accept.join(','),

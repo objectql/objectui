@@ -82,10 +82,10 @@ describe('DndProtocol', () => {
       expect(props['aria-label']).toBe('Aria Label');
     });
 
-    it('should handle translation object for ariaLabel', () => {
+    it('should use ariaLabel when provided as string', () => {
       const item = {
         type: 'card',
-        ariaLabel: { key: 'drag.label', defaultValue: 'Translated label' },
+        ariaLabel: 'Translated label',
       } as unknown as DragItem;
       const props = createDragItemProps(item);
 
@@ -131,10 +131,10 @@ describe('DndProtocol', () => {
       expect(props['data-drop-max-items']).toBe(10);
     });
 
-    it('should handle ariaLabel as translation object', () => {
+    it('should use ariaLabel string when provided', () => {
       const zone = {
         accept: ['card'],
-        ariaLabel: { key: 'drop.label', defaultValue: 'Drop here' },
+        ariaLabel: 'Drop here',
       } as unknown as DropZone;
       const props = createDropZoneProps(zone);
 

@@ -7,7 +7,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Merged ObjectManagerPage into MetadataManagerPage pipeline** (`@object-ui/console`): Removed the standalone `ObjectManagerPage` component. Object management is now fully handled by the generic `MetadataManagerPage` (list view) and `MetadataDetailPage` (detail view) pipeline. The object type config in `metadataTypeRegistry` uses `listComponent: ObjectManagerListAdapter` for the custom list UI and `pageSchemaFactory: buildObjectDetailPageSchema` for the detail page, eliminating redundant page code and centralizing all metadata management through a single architecture.
+
+- **`listComponent` extension point on MetadataTypeConfig** (`@object-ui/console`): New optional `listComponent` field allows metadata types to inject a fully custom list component into `MetadataManagerPage`, replacing the default card/grid rendering. The page shell (header, back button, title) is still rendered by the generic manager. `MetadataListComponentProps` interface provides `config`, `basePath`, `metadataType`, and `isAdmin` to the custom component.
+
+- **Routes unified to `/system/metadata/object`** (`@object-ui/console`): All entry points (sidebar, QuickActions, SystemHubPage hub cards) now point to `/system/metadata/object` instead of `/system/objects`. Legacy `/system/objects` routes redirect to the new path for backward compatibility.
+
+### Removed
+
+- **`ObjectManagerPage`** (`@object-ui/console`): Deleted `pages/system/ObjectManagerPage.tsx`. All object management functionality is now delivered through the `ObjectManagerListAdapter` + `MetadataManagerPage`/`MetadataDetailPage` pipeline.
+
+- **`customRoute` on object type config** (`@object-ui/console`): The object metadata type no longer uses `customRoute: '/system/objects'`. It now routes through the standard metadata pipeline at `/system/metadata/object`.
+
+### Fixed
+
+- **Protocol bridges** (`@object-ui/core`): Updated `DndProtocol`, `KeyboardProtocol`, and `NotificationProtocol` to align with `@objectstack/spec` v4 type changes where `ariaLabel`, `label`, `title`, and `message` fields are now plain strings instead of i18n translation objects (`{ key, defaultValue }`).
+
+- **CRM example** (`@object-ui/example-crm`): Converted all i18n label objects (`{ key, defaultValue }`) in `crm.app.ts` and `crm.dashboard.ts` to plain strings to match the updated `@objectstack/spec` v4 schema requirements.
+
+- **Console app** (`@object-ui/console`): Fixed unused import warnings (`MetadataFormFieldDef`, `MetadataActionDef`, `toast`) and a `defaultValue` type mismatch (`unknown` → `string | undefined`) in `MetadataService.ts`.
+
+### Changed
+
+- **Object detail page migrated to PageSchema-driven rendering** (`@object-ui/console`): The object detail page (both at `/system/objects/:objectName` and `/system/metadata/object/:objectName`) is now rendered via `SchemaRenderer` using a `PageSchema` built by `buildObjectDetailPageSchema()`. Each section (properties, relationships, keys, data experience, data preview, field designer) is a self-contained SchemaNode widget registered in the ComponentRegistry. This replaces the monolithic `ObjectDetailView` component with a composable, metadata-driven architecture.
+
+- **MetadataDetailPage unified PageSchema support** (`@object-ui/console`): `MetadataDetailPage` now supports three rendering modes in priority order: (1) PageSchema-driven via `pageSchemaFactory` in the registry config, (2) custom `detailComponent`, (3) default card layout. The `hasCustomPage` + `<Navigate>` redirect hack has been removed — all metadata detail pages are rendered directly by `MetadataDetailPage`.
+
+- **MetadataTypeConfig refactored** (`@object-ui/console`): Replaced `hasCustomPage` boolean flag with the more expressive `pageSchemaFactory` function and kept `customRoute` for hub card linking. The `getGenericMetadataTypes()` helper now filters by `customRoute` instead of `hasCustomPage`.
+
+- **SchemaErrorBoundary for detail pages** (`@object-ui/console`): Added `SchemaErrorBoundary` class component to both `MetadataDetailPage` and `ObjectManagerPage` to gracefully catch and display rendering errors when a PageSchema or its widgets fail to render.
+
 ### Added
+
+- **Object detail schema widgets** (`@object-ui/console`): Six self-contained SchemaNode widget components for the object detail page, registered in ComponentRegistry: `object-properties`, `object-relationships`, `object-keys`, `object-data-experience`, `object-data-preview`, `object-field-designer`. Each widget resolves its data from React context (`useMetadata`, `useMetadataService`) making them fully composable via PageSchema.
+
+- **Object detail PageSchema factory** (`@object-ui/console`): `buildObjectDetailPageSchema(objectName, item?)` generates a `PageSchema` for object detail pages. The schema defines the page structure as an array of widget nodes, enabling server-driven UI customization of the object detail page layout.
+
+- **`pageSchemaFactory` on MetadataTypeConfig** (`@object-ui/console`): New optional factory function on the registry config that generates a `PageSchema` for detail page rendering via `SchemaRenderer`. When defined, `MetadataDetailPage` uses schema rendering instead of the default card layout.
+
+- **Grid list mode for MetadataManagerPage** (`@object-ui/console`): MetadataManagerPage now supports `listMode: 'grid' | 'table'` configuration via the metadata type registry. When set, items are rendered in a professional table layout with column headers, sortable rows, and inline action buttons — matching the Power Apps table listing UX. The `report` type is configured to use grid mode by default.
+
+- **Enhanced Object Detail View (Power Apps alignment)** (`@object-ui/console`): ObjectDetailView now includes dedicated sections beyond the existing Object Properties and Fields:
+  - **Relationships section**: Displays all relationships with type badges (one-to-many, many-to-one), related object names, and foreign key info. Shows empty state message when no relationships are defined.
+  - **Keys section**: Automatically extracts and displays primary keys, unique keys, and external ID fields from the object's field metadata.
+  - **Data Experience section**: Placeholder cards for Forms, Views, and Dashboards design capabilities — preparing the UI structure for future implementation.
+  - **Inline data preview placeholder**: Dedicated "Data Preview" section with placeholder UI for sample data grid (Power Apps parity).
+  - **System field hints**: Visual indicator warning that system fields (id, createdAt, updatedAt) are read-only and cannot be edited.
+
+- **Reusable MetadataGrid component** (`@object-ui/console`): Extracted the grid/table rendering logic from MetadataManagerPage into a standalone `MetadataGrid` component (`components/MetadataGrid.tsx`). Supports configurable columns, action buttons, row click handlers, and delete confirmation state. Can be reused by any metadata type list page.
+
+- **MetadataDetailPage unified schema rendering** (`@object-ui/console`): MetadataDetailPage now renders object detail pages via PageSchema (using `pageSchemaFactory`) instead of redirecting to `/system/objects/:name`. The redirect-based approach (`hasCustomPage` + `<Navigate>`) has been replaced with direct schema rendering.
+
+- **MetadataProvider dynamic type access** (`@object-ui/console`): Added `getItemsByType(type)` method to `MetadataContextValue`, allowing pages to access cached metadata items for any known type without hardcoding property names.
+
+- **Number and boolean field types in MetadataFormDialog** (`@object-ui/console`): Extended `MetadataFormFieldDef.type` to support `'number'` (renders HTML number input) and `'boolean'` (renders a Shadcn Switch toggle with Yes/No label). All existing field types (`text`, `textarea`, `select`) continue to work unchanged.
+
+- **Shared metadata converters utility** (`@object-ui/console`): Extracted `toObjectDefinition()` and `toFieldDefinition()` from ObjectManagerPage into a shared `utils/metadataConverters.ts` module. These functions convert raw ObjectStack API metadata shapes to the UI types (`ObjectDefinition`, `DesignerFieldDefinition`), and can now be reused across pages.
+
+- **Unified icon resolver** (`@object-ui/console`): Consolidated three duplicated `ICON_MAP` + `resolveIcon()` implementations (in MetadataManagerPage, MetadataDetailPage, SystemHubPage) into a single `getIcon()` utility from `utils/getIcon.ts`, which dynamically resolves any Lucide icon by kebab-case or PascalCase name.
 
 - **Metadata Create & Edit via MetadataFormDialog** (`@object-ui/console`): New generic `MetadataFormDialog` component (`components/MetadataFormDialog.tsx`) provides a registry-driven create/edit dialog for any metadata type. Form fields are determined by the `formFields` configuration in the metadata type registry, with fallback defaults (`name`, `label`, `description`). Supports required validation, `disabledOnEdit` for immutable keys (e.g. `name`), textarea and select field types, and loading state during submission.
 

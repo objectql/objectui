@@ -126,15 +126,6 @@ export function resolveNotificationConfig(config: NotificationConfig): ResolvedN
 // ============================================================================
 
 /**
- * Extract the display string from a translatable value (string or Translation object).
- */
-function resolveTranslatableString(value: string | { key: string; defaultValue?: string } | undefined): string | undefined {
-  if (value === undefined) return undefined;
-  if (typeof value === 'string') return value;
-  return value.defaultValue;
-}
-
-/**
  * Convert a spec Notification to a toast-compatible object.
  *
  * @param notification - Spec Notification
@@ -148,8 +139,8 @@ export function specNotificationToToast(notification: SpecNotification): ToastNo
   }));
 
   return {
-    title: resolveTranslatableString(notification.title),
-    description: resolveTranslatableString(notification.message) ?? '',
+    title: notification.title,
+    description: notification.message ?? '',
     variant: mapSeverityToVariant(notification.severity ?? 'info'),
     position: mapPosition(notification.position ?? 'top_right'),
     duration: notification.duration ?? 5000,

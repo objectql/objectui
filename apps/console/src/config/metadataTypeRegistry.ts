@@ -12,13 +12,17 @@
  *   2. That's it — routes, hub cards, and CRUD pages are auto-generated.
  *
  * Types that require a fully custom detail view (e.g. `object`) can specify
- * `customRoute` to point at their existing dedicated page and are excluded
- * from the generic manager's route generation.
+ * `pageSchemaFactory` for schema-driven detail rendering. Types that need
+ * a custom list view can specify `listComponent` to replace the default
+ * card/grid list — the generic manager handles the page shell.
  *
  * @module config/metadataTypeRegistry
  */
 
 import type React from 'react';
+import type { PageSchema } from '@object-ui/types';
+import { buildObjectDetailPageSchema } from '../schemas/objectDetailPageSchema';
+import { ObjectManagerListAdapter } from '../components/ObjectManagerListAdapter';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -41,7 +45,7 @@ export interface MetadataFormFieldDef {
   /** Human-readable label shown next to the input. */
   label: string;
   /** Input type. Defaults to `'text'`. */
-  type?: 'text' | 'textarea' | 'select';
+  type?: 'text' | 'textarea' | 'select' | 'number' | 'boolean';
   /** Placeholder text for the input. */
   placeholder?: string;
   /** Whether the field is required. Defaults to `false`. */
@@ -108,18 +112,22 @@ export interface MetadataTypeConfig {
   formFields?: MetadataFormFieldDef[];
 
   /**
-   * If `true`, this type already has a dedicated management page and should
-   * NOT generate a `/system/metadata/:type` route. The hub card will link
-   * to `customRoute` instead.
-   */
-  hasCustomPage?: boolean;
-
-  /**
-   * Existing route path (relative to basePath) for types with custom pages.
-   * Only used when `hasCustomPage` is `true`.
+   * Custom list route for the SystemHub card (relative to basePath).
+   * When set, the hub card links here instead of `/system/metadata/:type`.
    * Example: `'/system/objects'`
    */
   customRoute?: string;
+
+  /**
+   * Factory function that generates a PageSchema for the detail page.
+   * When provided, MetadataDetailPage renders the schema via SchemaRenderer
+   * instead of the default card layout or `detailComponent`.
+   *
+   * @param itemName - The item's API name (from the URL param)
+   * @param item     - The loaded metadata item (may be null while loading)
+   * @returns A PageSchema to render
+   */
+  pageSchemaFactory?: (itemName: string, item: Record<string, unknown> | null) => PageSchema;
 
   /**
    * Data source for the hub card count.
@@ -153,6 +161,33 @@ export interface MetadataTypeConfig {
    * appear alongside each item's edit/delete buttons.
    */
   actions?: MetadataActionDef[];
+
+  /**
+   * Display mode for the list view.
+   * - `'card'` (default): Responsive card grid layout.
+   * - `'grid'`: Professional table/grid layout with column headers.
+   * - `'table'`: Alias for `'grid'` (same rendering).
+   */
+  listMode?: 'card' | 'grid' | 'table';
+
+  /**
+   * Custom list component for the manager page.
+   * When provided, replaces the default card/grid list rendering entirely.
+   * The component is responsible for its own data fetching and interaction.
+   */
+  listComponent?: React.ComponentType<MetadataListComponentProps>;
+}
+
+/** Props passed to a custom `listComponent` by MetadataManagerPage. */
+export interface MetadataListComponentProps {
+  /** The resolved registry configuration for the current metadata type. */
+  config: MetadataTypeConfig;
+  /** Base URL path (e.g. `''` or `'/apps/my_app'`). */
+  basePath: string;
+  /** The metadata type string (e.g. `'object'`). */
+  metadataType: string;
+  /** Whether the current user has admin privileges. */
+  isAdmin: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -163,18 +198,18 @@ export interface MetadataTypeConfig {
  * The canonical list of all metadata types.
  *
  * Order determines display order on the SystemHub page.
- * Types with `hasCustomPage: true` link to their existing route.
+ * Types with `customRoute` link to their existing list page.
+ * Types with `pageSchemaFactory` render detail pages via PageSchema.
  * All other types use the generic MetadataManagerPage.
  */
 export const METADATA_TYPES: MetadataTypeConfig[] = [
-  // -- Types with existing custom pages --
+  // -- Types with dedicated list pages --
   {
     type: 'app',
     label: 'Application',
     pluralLabel: 'Applications',
     description: 'Manage all configured applications',
     icon: 'layout-grid',
-    hasCustomPage: true,
     customRoute: '/system/apps',
     countSource: 'metadata',
   },
@@ -184,9 +219,9 @@ export const METADATA_TYPES: MetadataTypeConfig[] = [
     pluralLabel: 'Object Manager',
     description: 'Manage object definitions and field configurations',
     icon: 'database',
-    hasCustomPage: true,
-    customRoute: '/system/objects',
     countSource: 'metadata',
+    pageSchemaFactory: (itemName, item) => buildObjectDetailPageSchema(itemName, item),
+    listComponent: ObjectManagerListAdapter,
   },
 
   // -- Generic metadata types (managed by MetadataManagerPage) --
@@ -230,6 +265,7 @@ export const METADATA_TYPES: MetadataTypeConfig[] = [
     pluralLabel: 'Reports',
     description: 'Manage report configurations and templates',
     icon: 'bar-chart-3',
+    listMode: 'grid',
     columns: [
       { key: 'name', label: 'Name' },
       { key: 'label', label: 'Label' },
@@ -257,10 +293,10 @@ export function getMetadataTypeConfig(type: string): MetadataTypeConfig | undefi
 
 /**
  * Return only the metadata types that use the generic MetadataManagerPage
- * (i.e. those without a custom page).
+ * (i.e. those without a custom list route).
  */
 export function getGenericMetadataTypes(): MetadataTypeConfig[] {
-  return METADATA_TYPES.filter((m) => !m.hasCustomPage);
+  return METADATA_TYPES.filter((m) => !m.customRoute);
 }
 
 /**
