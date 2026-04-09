@@ -40,11 +40,9 @@ import {
   AvatarImage,
   AvatarFallback,
   useSidebar,
-  Button,
 } from '@object-ui/components';
 import {
   ChevronsUpDown,
-  Plus,
   Settings,
   LogOut,
   Database,
@@ -55,7 +53,6 @@ import {
   Pencil,
   ChevronRight,
   Home,
-  Grid3x3,
   HelpCircle,
   ArrowLeft,
   Layers,
