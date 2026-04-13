@@ -158,7 +158,8 @@ body {
   color: hsl(var(--foreground));
 }
 
-/* Sidebar group-data variants - explicit rules for Tailwind 4 compatibility */
+/* Sidebar explicit rules for Tailwind 4 compatibility */
+
 /* Icon mode: collapsed state = icon width, expanded state = full width */
 .group[data-collapsible="icon"][data-state="collapsed"] .group-data-\[collapsible\=icon\]\:w-\[--sidebar-width-icon\] {
   width: var(--sidebar-width-icon);
@@ -184,66 +185,58 @@ body {
   width: var(--sidebar-width);
 }
 
-/* Labels and actions visibility - only hide when BOTH icon mode AND collapsed */
+/* Labels visibility - only hide when BOTH icon mode AND collapsed */
 .group[data-collapsible="icon"][data-state="collapsed"] .group-data-\[collapsible\=icon\]\:opacity-0 {
   opacity: 0;
+}
+
+.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:opacity-0 {
+  opacity: 1;
 }
 
 .group[data-collapsible="icon"][data-state="collapsed"] .group-data-\[collapsible\=icon\]\:-mt-8 {
   margin-top: -2rem;
 }
 
+.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:-mt-8 {
+  margin-top: 0;
+}
+
 .group[data-collapsible="icon"][data-state="collapsed"] .group-data-\[collapsible\=icon\]\:hidden {
   display: none;
+}
+
+.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:hidden {
+  display: block;
 }
 
 .group[data-collapsible="icon"][data-state="collapsed"] .group-data-\[collapsible\=icon\]\:overflow-hidden {
   overflow: hidden;
 }
 
-/* Menu button size - only constrain size when collapsed */
-.group[data-collapsible="icon"][data-state="collapsed"] .group-data-\[collapsible\=icon\]\:\!size-8 {
+.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:overflow-hidden {
+  overflow: visible;
+}
+
+/* Menu button behavior - collapsed = icon only, expanded = full width */
+.group[data-collapsible="icon"][data-state="collapsed"] .sidebar-menu-button-icon-mode {
   width: 2rem !important;
   height: 2rem !important;
-}
-
-.group[data-collapsible="icon"][data-state="collapsed"] .group-data-\[collapsible\=icon\]\:\!p-2 {
   padding: 0.5rem !important;
 }
 
-.group[data-collapsible="icon"][data-state="collapsed"] .group-data-\[collapsible\=icon\]\:\!p-0 {
+.group[data-collapsible="icon"][data-state="expanded"] .sidebar-menu-button-icon-mode {
+  width: 100%;
+  height: auto;
+  padding: 0.5rem;
+}
+
+.group[data-collapsible="icon"][data-state="collapsed"] .sidebar-menu-button-icon-mode-lg {
   padding: 0 !important;
 }
 
-/* When expanded, ensure labels are visible and menu buttons are normal size */
-.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:opacity-0 {
-  opacity: 1 !important;
-}
-
-.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:-mt-8 {
-  margin-top: 0 !important;
-}
-
-.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:hidden {
-  display: block !important;
-}
-
-.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:overflow-hidden {
-  overflow: visible !important;
-}
-
-/* CRITICAL: Reset size constraint in expanded state - use width: 100% to fill container */
-.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:\!size-8 {
-  width: 100% !important;
-  height: auto !important;
-}
-
-.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:\!p-2 {
-  padding: 0.5rem !important;
-}
-
-.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:\!p-0 {
-  padding: 0 !important;
+.group[data-collapsible="icon"][data-state="expanded"] .sidebar-menu-button-icon-mode-lg {
+  padding: 0.5rem;
 }
 
 /* Offcanvas mode: always collapsed = 0 width */
