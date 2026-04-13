@@ -17,8 +17,8 @@
     "@objectstack/plugin-msw": "^4.0.2",
     "@objectstack/runtime": "^4.0.2",
     "@objectstack/spec": "^4.0.2",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react": "19.2.5",
+    "react-dom": "19.2.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.2",

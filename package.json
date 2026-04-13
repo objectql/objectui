@@ -103,8 +103,8 @@
     "msw-storybook-addon": "^2.0.6",
     "playwright": "^1.59.1",
     "prettier": "^3.8.1",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
     "react-router-dom": "^7.14.0",
     "rollup-plugin-visualizer": "^7.0.1",
     "storybook": "^8.6.18",
@@ -123,8 +123,8 @@
   },
   "pnpm": {
     "overrides": {
-      "react": "19.2.4",
-      "react-dom": "19.2.4",
+      "react": "19.2.5",
+      "react-dom": "19.2.5",
       "@types/react": "19.2.14",
       "@types/react-dom": "19.2.3"
     }
