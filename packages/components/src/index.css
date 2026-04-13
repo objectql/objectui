@@ -159,10 +159,32 @@ body {
 }
 
 /* Sidebar group-data variants - explicit rules for Tailwind 4 compatibility */
-.group[data-collapsible="icon"] .group-data-\[collapsible\=icon\]\:w-\[--sidebar-width-icon\] {
+/* Icon mode: collapsed state = icon width, expanded state = full width */
+.group[data-collapsible="icon"][data-state="collapsed"] .group-data-\[collapsible\=icon\]\:w-\[--sidebar-width-icon\] {
   width: var(--sidebar-width-icon);
 }
 
+.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:w-\[--sidebar-width-icon\] {
+  width: var(--sidebar-width);
+}
+
+.group[data-collapsible="icon"][data-state="collapsed"] .group-data-\[collapsible\=icon\]\:w-\[calc\(var\(--sidebar-width-icon\)_\+_theme\(spacing\.4\)\)\] {
+  width: calc(var(--sidebar-width-icon) + 1rem);
+}
+
+.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:w-\[calc\(var\(--sidebar-width-icon\)_\+_theme\(spacing\.4\)\)\] {
+  width: var(--sidebar-width);
+}
+
+.group[data-collapsible="icon"][data-state="collapsed"] .group-data-\[collapsible\=icon\]\:w-\[calc\(var\(--sidebar-width-icon\)_\+_theme\(spacing\.4\)_\+2px\)\] {
+  width: calc(var(--sidebar-width-icon) + 1rem + 2px);
+}
+
+.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:w-\[calc\(var\(--sidebar-width-icon\)_\+_theme\(spacing\.4\)_\+2px\)\] {
+  width: var(--sidebar-width);
+}
+
+/* Offcanvas mode: always collapsed = 0 width */
 .group[data-collapsible="offcanvas"] .group-data-\[collapsible\=offcanvas\]\:w-0 {
   width: 0;
 }
