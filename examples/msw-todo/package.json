@@ -26,8 +26,8 @@
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.4.27",
-    "msw": "^2.13.0",
-    "postcss": "^8.5.8",
+    "msw": "^2.13.2",
+    "postcss": "^8.5.9",
     "tailwindcss": "^4.2.2",
     "typescript": "^6.0.2",
     "vite": "^8.0.8"
