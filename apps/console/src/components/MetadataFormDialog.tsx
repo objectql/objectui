@@ -149,7 +149,7 @@ export function MetadataFormDialog({
                       handleChange(field.key, e.target.value)
                     }
                     disabled={disabled}
-                    aria-required={field.required || undefined}
+                    aria-required={field.required ? true : undefined}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     data-testid={`metadata-field-${field.key}`}
                   >

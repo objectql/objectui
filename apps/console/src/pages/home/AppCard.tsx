@@ -90,7 +90,7 @@ export function AppCard({ app, onClick, isFavorite }: AppCardProps) {
         {/* App Badge (if default) */}
         {app.isDefault && (
           <div className="mt-3">
-            <Badge variant="secondary" className="text-xs">
+            <Badge variant="secondary">
               {t('home.appCard.default', { defaultValue: 'Default' })}
             </Badge>
           </div>

@@ -11,6 +11,7 @@ import { useObjectTranslation } from '@object-ui/i18n';
 import { Card, CardContent } from '@object-ui/components';
 import { Clock } from 'lucide-react';
 import { getIcon } from '../../utils/getIcon';
+import { capitalizeFirst } from '../../utils';
 import type { RecentItem } from '../../hooks/useRecentItems';
 
 interface RecentAppsProps {
@@ -56,7 +57,7 @@ export function RecentApps({ items }: RecentAppsProps) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-medium text-sm truncate">{item.label}</h3>
-                    <p className="text-xs text-muted-foreground">{item.type.charAt(0).toUpperCase() + item.type.slice(1)}</p>
+                    <p className="text-xs text-muted-foreground">{capitalizeFirst(item.type)}</p>
                   </div>
                 </div>
               </CardContent>

@@ -129,7 +129,6 @@ export function ProfilePage() {
                 type="text"
                 value={user.role ?? 'member'}
                 disabled
-                readOnly
                 className="bg-muted text-muted-foreground"
               />
             </div>

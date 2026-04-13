@@ -177,7 +177,6 @@ export function AppManagementPage() {
             id="select-all-apps"
             checked={selectedIds.size === filteredApps.length && filteredApps.length > 0}
             onCheckedChange={() => toggleSelectAll()}
-            aria-label="Select all apps"
           />
           <label htmlFor="select-all-apps" className="cursor-pointer">Select all ({filteredApps.length})</label>
         </div>
@@ -200,6 +199,7 @@ export function AppManagementPage() {
               <Card key={app.name} className={!isActive ? 'opacity-60' : ''} data-testid={`app-card-${app.name}`}>
                 <CardContent className="flex items-center gap-3 py-3 px-4">
                   <Checkbox
+                    id={`select-app-${app.name}`}
                     checked={selectedIds.has(app.name)}
                     onCheckedChange={() => toggleSelect(app.name)}
                     aria-label={`Select ${app.label || app.name}`}
