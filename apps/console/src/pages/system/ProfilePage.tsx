@@ -106,6 +106,7 @@ export function ProfilePage() {
                 value={name}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
                 required
+                aria-required="true"
                 disabled={isLoading}
               />
             </div>
@@ -128,6 +129,7 @@ export function ProfilePage() {
                 type="text"
                 value={user.role ?? 'member'}
                 disabled
+                readOnly
                 className="bg-muted text-muted-foreground"
               />
             </div>
