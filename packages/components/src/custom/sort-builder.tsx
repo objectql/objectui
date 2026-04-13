@@ -105,7 +105,7 @@ export function SortBuilder({
              </div>
              <Button
                variant="ghost"
-               size="icon-sm"
+               size="icon"
                className="h-9 w-9 shrink-0"
                onClick={() => removeItem(item.id)}
              >

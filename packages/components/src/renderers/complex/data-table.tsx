@@ -986,7 +986,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                               <>
                                 <Button
                                   variant="ghost"
-                                  size="icon-sm"
+                                  size="icon"
                                   onClick={() => cancelRowChanges(rowIndex)}
                                   disabled={isSaving}
                                   title="Cancel changes"
@@ -995,7 +995,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                                 </Button>
                                 <Button
                                   variant="ghost"
-                                  size="icon-sm"
+                                  size="icon"
                                   onClick={() => saveRow(rowIndex)}
                                   disabled={isSaving}
                                   title="Save row"
@@ -1007,14 +1007,14 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
                               <>
                                 <Button
                                   variant="ghost"
-                                  size="icon-sm"
+                                  size="icon"
                                   onClick={() => schema.onRowEdit?.(row)}
                                 >
                                   <Edit className="h-4 w-4" />
                                 </Button>
                                 <Button
                                   variant="ghost"
-                                  size="icon-sm"
+                                  size="icon"
                                   onClick={() => schema.onRowDelete?.(row)}
                                 >
                                   <Trash2 className="h-4 w-4 text-destructive" />
@@ -1089,7 +1089,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
             <div className="flex items-center gap-1">
               <Button
                 variant="outline"
-                size="icon-sm"
+                size="icon"
                 onClick={() => setCurrentPage(1)}
                 disabled={currentPage === 1}
               >
@@ -1097,7 +1097,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
               </Button>
               <Button
                 variant="outline"
-                size="icon-sm"
+                size="icon"
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
               >
@@ -1105,7 +1105,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
               </Button>
               <Button
                 variant="outline"
-                size="icon-sm"
+                size="icon"
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
               >
@@ -1113,7 +1113,7 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
               </Button>
               <Button
                 variant="outline"
-                size="icon-sm"
+                size="icon"
                 onClick={() => setCurrentPage(totalPages)}
                 disabled={currentPage === totalPages}
               >
