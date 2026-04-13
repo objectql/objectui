@@ -217,23 +217,24 @@ body {
 
 /* When expanded, ensure labels are visible and menu buttons are normal size */
 .group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:opacity-0 {
-  opacity: 1;
+  opacity: 1 !important;
 }
 
 .group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:-mt-8 {
-  margin-top: 0;
+  margin-top: 0 !important;
 }
 
 .group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:hidden {
-  display: block;
+  display: block !important;
 }
 
 .group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:overflow-hidden {
-  overflow: visible;
+  overflow: visible !important;
 }
 
+/* CRITICAL: Reset size constraint in expanded state - use width: 100% to fill container */
 .group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:\!size-8 {
-  width: auto !important;
+  width: 100% !important;
   height: auto !important;
 }
 
