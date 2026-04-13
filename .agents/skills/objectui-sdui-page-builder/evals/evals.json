@@ -1,0 +1,23 @@
+{
+  "skill_name": "objectui-sdui-page-builder",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We have a React + Vite internal app for inventory. Please create a schema-driven list page for products with search, status filter, row actions, and a create-product action. Use Object UI patterns and include integration snippets.",
+      "expected_output": "Produces a complete page schema JSON for list/grid behavior, includes integration wiring steps for SchemaRenderer and component registration, and provides a validation checklist.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "请帮我把现有的客户详情页改成 Schema-Driven UI：需要基本信息、联系人列表、最近订单三个分区，并且只有 admin 可以看到“编辑客户”按钮。项目技术栈是 React + TypeScript。",
+      "expected_output": "Provides a structured detail-page schema with expression-based visibility for admin-only actions, keeps sections modular, and explains how to integrate into an app project.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Build a console-like analytics dashboard page in an existing Object UI project: KPI cards on top, trend chart in the middle, and recent activity list at the bottom. Also include action definitions for refresh and navigate-to-report.",
+      "expected_output": "Generates dashboard schema with layout composition, plugin-oriented chart usage, action definitions as data, and testing guidance for responsiveness and interaction.",
+      "files": []
+    }
+  ]
+}
