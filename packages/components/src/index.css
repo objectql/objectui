@@ -33,6 +33,14 @@
   --color-popover-foreground: hsl(var(--popover-foreground));
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
 
   /* Chart colors */
   --color-chart-1: hsl(var(--chart-1));
@@ -82,6 +90,16 @@
   --chart-4: 43 74% 66%;
   --chart-5: 27 87% 67%;
 
+  /* Sidebar colors */
+  --sidebar: 0 0% 98%;
+  --sidebar-foreground: 240 5.3% 26.1%;
+  --sidebar-primary: 240 5.9% 10%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 220 13% 91%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+
   font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
@@ -119,6 +137,16 @@
   --chart-3: 30 80% 55%;
   --chart-4: 280 65% 60%;
   --chart-5: 340 75% 55%;
+
+  /* Sidebar colors for dark mode */
+  --sidebar: 240 5.9% 10%;
+  --sidebar-foreground: 240 4.8% 95.9%;
+  --sidebar-primary: 224.3 76.3% 48%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 240 3.7% 15.9%;
+  --sidebar-accent-foreground: 240 4.8% 95.9%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
 }
 
 * {
@@ -128,4 +156,90 @@
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+}
+
+/* Sidebar explicit rules for Tailwind 4 compatibility */
+
+/* Icon mode: collapsed state = icon width, expanded state = full width */
+.group[data-collapsible="icon"][data-state="collapsed"] .group-data-\[collapsible\=icon\]\:w-\[--sidebar-width-icon\] {
+  width: var(--sidebar-width-icon);
+}
+
+.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:w-\[--sidebar-width-icon\] {
+  width: var(--sidebar-width);
+}
+
+.group[data-collapsible="icon"][data-state="collapsed"] .group-data-\[collapsible\=icon\]\:w-\[calc\(var\(--sidebar-width-icon\)_\+_theme\(spacing\.4\)\)\] {
+  width: calc(var(--sidebar-width-icon) + 1rem);
+}
+
+.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:w-\[calc\(var\(--sidebar-width-icon\)_\+_theme\(spacing\.4\)\)\] {
+  width: var(--sidebar-width);
+}
+
+.group[data-collapsible="icon"][data-state="collapsed"] .group-data-\[collapsible\=icon\]\:w-\[calc\(var\(--sidebar-width-icon\)_\+_theme\(spacing\.4\)_\+2px\)\] {
+  width: calc(var(--sidebar-width-icon) + 1rem + 2px);
+}
+
+.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:w-\[calc\(var\(--sidebar-width-icon\)_\+_theme\(spacing\.4\)_\+2px\)\] {
+  width: var(--sidebar-width);
+}
+
+/* Labels visibility - only hide when BOTH icon mode AND collapsed */
+.group[data-collapsible="icon"][data-state="collapsed"] .group-data-\[collapsible\=icon\]\:opacity-0 {
+  opacity: 0;
+}
+
+.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:opacity-0 {
+  opacity: 1;
+}
+
+.group[data-collapsible="icon"][data-state="collapsed"] .group-data-\[collapsible\=icon\]\:-mt-8 {
+  margin-top: -2rem;
+}
+
+.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:-mt-8 {
+  margin-top: 0;
+}
+
+.group[data-collapsible="icon"][data-state="collapsed"] .group-data-\[collapsible\=icon\]\:hidden {
+  display: none;
+}
+
+.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:hidden {
+  display: block;
+}
+
+.group[data-collapsible="icon"][data-state="collapsed"] .group-data-\[collapsible\=icon\]\:overflow-hidden {
+  overflow: hidden;
+}
+
+.group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:overflow-hidden {
+  overflow: visible;
+}
+
+/* Menu button behavior - collapsed = icon only, expanded = full width */
+.group[data-collapsible="icon"][data-state="collapsed"] .sidebar-menu-button-icon-mode {
+  width: 2rem !important;
+  height: 2rem !important;
+  padding: 0.5rem !important;
+}
+
+.group[data-collapsible="icon"][data-state="expanded"] .sidebar-menu-button-icon-mode {
+  width: 100%;
+  height: auto;
+  padding: 0.5rem;
+}
+
+.group[data-collapsible="icon"][data-state="collapsed"] .sidebar-menu-button-icon-mode-lg {
+  padding: 0 !important;
+}
+
+.group[data-collapsible="icon"][data-state="expanded"] .sidebar-menu-button-icon-mode-lg {
+  padding: 0.5rem;
+}
+
+/* Offcanvas mode: always collapsed = 0 width */
+.group[data-collapsible="offcanvas"] .group-data-\[collapsible\=offcanvas\]\:w-0 {
+  width: 0;
 }

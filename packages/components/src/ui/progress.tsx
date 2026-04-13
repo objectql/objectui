@@ -9,7 +9,7 @@
 "use client"
 
 import * as React from "react"
-import { Progress as ProgressPrimitive } from "radix-ui"
+import * as ProgressPrimitive from "@radix-ui/react-progress"
 
 import { cn } from "../lib/utils"
 

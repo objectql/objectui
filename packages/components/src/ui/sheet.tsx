@@ -9,7 +9,7 @@
 "use client"
 
 import * as React from "react"
-import { Dialog as SheetPrimitive } from "radix-ui"
+import * as SheetPrimitive from "@radix-ui/react-dialog"
 import { cva, type VariantProps } from "class-variance-authority"
 import { X } from "lucide-react"
 
@@ -60,8 +60,7 @@ const sheetVariants = cva(
 interface SheetContentProps
   extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
     VariantProps<typeof sheetVariants> {
-  /** When true, the backdrop overlay is not rendered (useful for non-modal drawers) */
-  hideOverlay?: boolean;
+  hideOverlay?: boolean
 }
 
 const SheetContent = React.forwardRef<
