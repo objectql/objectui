@@ -25,6 +25,20 @@ ObjectUI is a universal Server-Driven UI (SDUI) engine built on React + Tailwind
 
 ---
 
+## 🤖 Copilot Skill Architecture Migration (2026-04-14)
+
+- [x] Consolidated 10 parallel `skills/objectui-*` skills into a single `skills/objectui/` entry skill.
+- [x] Adopted shadcn-style tree layout: `SKILL.md` + `rules/` + `guides/` + unified `evals/`.
+- [x] Removed redundant frontmatter from split guide/rule files; kept frontmatter only in `skills/objectui/SKILL.md`.
+- [x] Preserved each original skill's core content under `skills/objectui/guides/*` by domain:
+  - `auth-permissions.md`, `console-development.md`, `data-integration.md`, `i18n.md`, `mobile.md`
+  - `page-builder.md`, `plugin-development.md`, `project-setup.md`, `schema-expressions.md`, `testing.md`
+- [x] Added cross-domain rule index under `skills/objectui/rules/*` (`protocol`, `styling`, `composition`, `quality`) to improve agent retrieval and routing.
+- [x] Updated `skills-lock.json` to retain only `objectui` and `shadcn` skills.
+- [x] Removed legacy `skills/objectui-*` directories and redirected `.agents/skills` to `objectui`.
+
+---
+
 ## 🔄 Spec v3.0.9 Upgrade Summary
 
 > Upgraded from `@objectstack/spec v3.0.8` → `v3.0.9` on February 22, 2026. UI sub-export is unchanged; changes are in Automation, Kernel, Data, and API layers.

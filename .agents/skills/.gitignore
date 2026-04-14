@@ -3,6 +3,4 @@
 # ObjectUI skills are symlinks to /skills/ (auto-committed).
 
 # Ignore all third-party skills (restore via skills-lock.json)
-frontend-design/
 shadcn/
-skill-creator/

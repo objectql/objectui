@@ -1,0 +1,185 @@
+{
+  "skill_name": "objectui",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add login authentication to my Object UI app. I need a login page, route protection, and the user's role to control which dashboard cards are visible via schema expressions.",
+      "expected_output": "Provides AuthProvider setup, LoginForm usage, AuthGuard for routes, and pattern for injecting user role into SchemaRendererProvider dataSource for expression-based visibility.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I need RBAC for my CRM: admins can do everything, sales reps can only edit their own contacts, and viewers are read-only. How do I set this up with Object UI permissions?",
+      "expected_output": "Provides PermissionProvider config with three roles, row-level permissions with owner filter, and usePermissions usage for conditional UI rendering.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Set up multi-tenancy so each company sees their own branding (logo, colors) and data in our Object UI app.",
+      "expected_output": "Provides TenantProvider setup with fetchTenant, useTenantBranding for theming, and TenantScopedQuery for data isolation.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "I need to add a new 'Workflow' metadata type to the console admin panel. It should show in the system hub, have a list page with name/status/trigger columns, and a create dialog with name and trigger object fields.",
+      "expected_output": "Provides MetadataTypeRegistry configuration with columns, formFields, icon. Shows where to add the registration and how it automatically appears in SystemHubPage and MetadataManagerPage.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "I want to create a custom detail page for the 'workflow' metadata type that has tabs for Settings, Steps, and History, similar to how object detail pages work.",
+      "expected_output": "Provides pageSchemaFactory function, custom widget components for each tab, registerWidgets file, and MetadataTypeRegistry wiring with pageSchemaFactory.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "The sidebar shows wrong navigation items when I navigate from the home page to an app page. How does the console navigation context work?",
+      "expected_output": "Explains NavigationContext (home vs app), how ConsoleLayout and HomeLayout set context, and how UnifiedSidebar renders different items based on context.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "I have a plain REST API at /api/products with standard CRUD endpoints. How do I wire it to my Object UI grid and form components?",
+      "expected_output": "Provides a custom DataSource adapter implementation for REST, SchemaRendererProvider wiring, and schema examples with bind for grid and form.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "Set up MSW mock data for my Object UI app so I can develop the frontend without a running backend. I have a Todo object with title, completed, and dueDate fields.",
+      "expected_output": "Provides MSW browser setup using ObjectKernel + InMemoryDriver + MSWPlugin, objectstack.config with the Todo schema, and main.tsx bootstrap pattern.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "My Object UI table shows 'undefined' for all rows. The dataSource.find() call returns data correctly in the console. What's wrong?",
+      "expected_output": "Diagnoses likely bind path mismatch or missing SchemaRendererProvider. Shows correct data flow: provider → bind → useDataScope resolution.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "Add Chinese and Japanese language support to my Object UI app. I need a language switcher in the header and all form labels should change when the user switches language.",
+      "expected_output": "Provides I18nProvider setup with lazy loading, useObjectTranslation for the language switcher, and pattern for localizing schema labels via t() before passing to SchemaRenderer.",
+      "files": []
+    },
+    {
+      "id": 11,
+      "prompt": "How do I format dates and currencies differently based on the user's locale in Object UI?",
+      "expected_output": "Provides useObjectTranslation hook with formatCurrency, formatDate, formatNumber usage examples.",
+      "files": []
+    },
+    {
+      "id": 12,
+      "prompt": "My Object UI app needs to support Arabic with proper right-to-left layout. How do I set this up?",
+      "expected_output": "Provides I18nProvider setup with Arabic locale, direction from useObjectTranslation, RTL-aware Tailwind utilities (rtl: prefix).",
+      "files": []
+    },
+    {
+      "id": 13,
+      "prompt": "My Object UI dashboard looks broken on mobile phones — cards stack but the sidebar takes up the whole screen. How do I make it responsive?",
+      "expected_output": "Provides responsive grid schema with Tailwind mobile-first classes, useBreakpoint hook usage, and sidebar responsive pattern.",
+      "files": []
+    },
+    {
+      "id": 14,
+      "prompt": "I need my Object UI app to work offline — users should be able to view cached data and queue form submissions when there's no network.",
+      "expected_output": "Provides useOffline hook usage with queue management, sync state UI indicators, and offline-first data flow pattern.",
+      "files": []
+    },
+    {
+      "id": 15,
+      "prompt": "How do I add swipe-to-delete and long-press context menus to my Object UI list items on mobile?",
+      "expected_output": "Provides useSwipe and useLongPress hook usage from @object-ui/mobile with threshold and delay configuration.",
+      "files": []
+    },
+    {
+      "id": 16,
+      "prompt": "I want to create a custom timeline plugin for Object UI that shows events on a vertical timeline. The plugin should accept an array of events with date, title, and description. Walk me through the full setup.",
+      "expected_output": "Provides full plugin scaffold: package structure, ComponentRegistry registration with namespace and inputs, TimelineImpl component using useDataScope, types.ts with schema interface, and a basic Storybook story.",
+      "files": []
+    },
+    {
+      "id": 17,
+      "prompt": "I'm getting a namespace collision — my plugin registers 'form' but it conflicts with plugin-form. How do I fix this?",
+      "expected_output": "Explains the namespace system, suggests using skipFallback: true or choosing a unique base type name, and shows correct registration with explicit namespace.",
+      "files": []
+    },
+    {
+      "id": 18,
+      "prompt": "How do I create a custom field widget that renders a star rating input (1-5 stars) and integrates with Object UI forms?",
+      "expected_output": "Shows FieldWidgetProps implementation with value/onChange, star rendering logic, proper readonly/disabled handling, and registration pattern.",
+      "files": []
+    },
+    {
+      "id": 19,
+      "prompt": "I want to start a new project using Object UI with Vite and React. What do I need to install and configure? Give me the full setup.",
+      "expected_output": "Provides complete setup: package.json dependencies, vite.config.ts, index.css with Shadcn theme and @source directives, tsconfig.json, and a minimal App.tsx with SchemaRenderer.",
+      "files": []
+    },
+    {
+      "id": 20,
+      "prompt": "My Object UI components render but they have no styling at all — just plain text and bare inputs. What's wrong?",
+      "expected_output": "Diagnoses missing CSS setup: explains need for @source directives, @theme color token mapping, and :root CSS variables. Provides the complete index.css template.",
+      "files": []
+    },
+    {
+      "id": 21,
+      "prompt": "How do I add the grid and kanban plugins to my existing Object UI project and make sure they're available in my schemas?",
+      "expected_output": "Shows how to install plugin packages, import them to trigger ComponentRegistry registration, and update @source paths in CSS for plugin styling.",
+      "files": []
+    },
+    {
+      "id": 22,
+      "prompt": "I have a statistic card in my Object UI schema but the value shows literally as ${data.revenue} instead of the actual number. Here's my schema: { \"type\": \"statistic\", \"value\": \"${data.revenue}\", \"label\": \"Revenue\" }. What's wrong?",
+      "expected_output": "Identifies that top-level 'value' and 'label' are not expression-evaluated, and provides the corrected schema using props.value and props.label.",
+      "files": []
+    },
+    {
+      "id": 23,
+      "prompt": "I need to make a button visible only to admin users AND only when the record status is 'active'. Also, the button should show the record owner's name. Show me the correct schema.",
+      "expected_output": "Produces a schema with combined visible/hidden expression using && operator, and uses props.label with template expression for the owner name.",
+      "files": []
+    },
+    {
+      "id": 24,
+      "prompt": "What formula functions can I use in Object UI expressions? I need to calculate a sum of order amounts, format a date, and show a conditional label.",
+      "expected_output": "Lists available formula functions (SUM, DATEFORMAT, IF) with correct syntax examples in schema context.",
+      "files": []
+    },
+    {
+      "id": 25,
+      "prompt": "We have a React + Vite internal app for inventory. Please create a schema-driven list page for products with search, status filter, row actions, and a create-product action. Use Object UI patterns and include integration snippets.",
+      "expected_output": "Produces a complete page schema JSON for list/grid behavior, includes integration wiring steps for SchemaRenderer and component registration, and provides a validation checklist.",
+      "files": []
+    },
+    {
+      "id": 26,
+      "prompt": "请帮我把现有的客户详情页改成 Schema-Driven UI：需要基本信息、联系人列表、最近订单三个分区，并且只有 admin 可以看到“编辑客户”按钮。项目技术栈是 React + TypeScript。",
+      "expected_output": "Provides a structured detail-page schema with expression-based visibility for admin-only actions, keeps sections modular, and explains how to integrate into an app project.",
+      "files": []
+    },
+    {
+      "id": 27,
+      "prompt": "Build a console-like analytics dashboard page in an existing Object UI project: KPI cards on top, trend chart in the middle, and recent activity list at the bottom. Also include action definitions for refresh and navigate-to-report.",
+      "expected_output": "Generates dashboard schema with layout composition, plugin-oriented chart usage, action definitions as data, and testing guidance for responsiveness and interaction.",
+      "files": []
+    },
+    {
+      "id": 28,
+      "prompt": "Write unit tests for my custom Object UI plugin that registers a 'weather-card' component. I need to test the registration, the rendering with mock data, and expression evaluation.",
+      "expected_output": "Provides Vitest tests: registration test checking ComponentRegistry, rendering test with SchemaRendererProvider and mock dataSource, and expression-based visibility test.",
+      "files": []
+    },
+    {
+      "id": 29,
+      "prompt": "Create Storybook stories for an Object UI form plugin that has create, edit, and view modes.",
+      "expected_output": "Provides .stories.tsx with Meta definition, SchemaRendererProvider decorator, and story variants for each form mode with appropriate args.",
+      "files": []
+    },
+    {
+      "id": 30,
+      "prompt": "I need to write a Playwright E2E test that verifies our console app loads, navigates to the dashboard, and renders the KPI cards.",
+      "expected_output": "Provides Playwright spec with page load, React mount wait, navigation, content verification, and error monitoring.",
+      "files": []
+    }
+  ]
+}
