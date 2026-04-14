@@ -1,11 +1,11 @@
 # ObjectUI Development Roadmap
 
-> **Last Updated:** April 1, 2026
+> **Last Updated:** April 14, 2026
 > **Current Version:** v0.5.x
 > **Spec Version:** @objectstack/spec v3.3.0
 > **Client Version:** @objectstack/client v3.3.0
 > **Target UX Benchmark:** 🎯 Airtable parity
-> **Current Priority:** AppShell Navigation · Designer Interaction · **View Config Live Preview Sync ✅** · Dashboard Config Panel · Airtable UX Polish · **Flow Designer ✅** · **App Creation & Editing Flow ✅** · **System Settings & App Management ✅** · **Right-Side Visual Editor Drawer ✅** · **Object Manager & Field Designer ✅** · **AI SDUI Chatbot (service-ai + vercel/ai) ✅** · **Unified Home Dashboard ✅**
+> **Current Priority:** AppShell Navigation · Designer Interaction · **View Config Live Preview Sync ✅** · Dashboard Config Panel · Airtable UX Polish · **Flow Designer ✅** · **App Creation & Editing Flow ✅** · **System Settings & App Management ✅** · **Right-Side Visual Editor Drawer ✅** · **Object Manager & Field Designer ✅** · **AI SDUI Chatbot (service-ai + vercel/ai) ✅** · **Unified Home Dashboard ✅** · **Unified Copilot Skills Architecture ✅**
 
 ---
 
