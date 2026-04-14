@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Copilot Skills Architecture Unified** (`skills`): Consolidated 10 parallel ObjectUI Copilot skills (`objectui-auth-permissions`, `objectui-console-development`, `objectui-data-integration`, `objectui-i18n`, `objectui-mobile`, `objectui-plugin-development`, `objectui-project-setup`, `objectui-schema-expressions`, `objectui-sdui-page-builder`, `objectui-testing`) into a single tree-based `skills/objectui/` structure aligned with shadcn/ui best practices. The new architecture features:
+  - **Single entry point** (`skills/objectui/SKILL.md`): Unified skill manifest with core principles, architecture overview, and indexed references to guides and rules.
+  - **Global rules** (`skills/objectui/rules/`): Protocol compliance, styling constraints, component composition patterns, and no-touch zones as dedicated markdown files.
+  - **Domain guides** (`skills/objectui/guides/`): 10 specialized guides (page-builder, plugin-development, schema-expressions, data-integration, project-setup, testing, i18n, mobile, auth-permissions, console-development) for deep domain expertise.
+  - **Unified evals** (`skills/objectui/evals/`): All evaluation JSON files consolidated from parallel skill evals directories.
+  - **Updated skills-lock.json**: Now references only `objectui` (local) and `shadcn` (github) skills, removing fragmented cross-skill dependencies.
+  - This restructuring improves AI agent selection accuracy, reduces maintenance overhead, and aligns with shadcn/ui's single-skill tree model for better ecosystem compatibility.
+
 ### Improved
 
 - **Console UI design optimization sweep** (`@object-ui/console`): Comprehensive accessibility and design consistency improvements across all major console interfaces:
