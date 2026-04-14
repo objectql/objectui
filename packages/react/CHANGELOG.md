@@ -1,5 +1,13 @@
 # @object-ui/react
 
+## 3.3.0
+
+### Patch Changes
+
+- @object-ui/types@3.3.0
+- @object-ui/core@3.3.0
+- @object-ui/i18n@3.3.0
+
 ## 3.2.0
 
 ### Patch Changes
