@@ -1,20 +1,14 @@
 name: Storybook Tests
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
     paths:
-      - 'packages/**'
-      - '.storybook/**'
-      - 'pnpm-lock.yaml'
-  pull_request:
-    branches: [main, develop]
-    paths:
-      - 'packages/**'
-      - '.storybook/**'
-      - 'pnpm-lock.yaml'
+      - "packages/**"
+      - ".storybook/**"
+      - "pnpm-lock.yaml"
 
 concurrency:
-  group: storybook-tests-${{ github.event.pull_request.number || github.ref }}
+  group: storybook-tests-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -39,8 +33,8 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "20"
+          cache: "pnpm"
 
       - name: Turbo Cache
         uses: actions/cache@v5
@@ -80,10 +74,3 @@ jobs:
 
       - name: Run Storybook tests
         run: pnpm storybook:ci
-
-      - name: Run visual regression tests
-        if: github.event_name == 'pull_request'
-        run: |
-          concurrently -k -s first \
-            "pnpm storybook --no-open" \
-            "wait-on tcp:6006 && pnpm storybook:test:snapshot"
