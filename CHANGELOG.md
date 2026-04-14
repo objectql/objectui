@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **E2E sidebar tests failing due to missing auth** (`e2e`): The `sidebar-text-visibility.spec.ts` tests failed because the MSW mock environment returns `auth.enabled: true` in its discovery response, causing `AuthGuard` to redirect unauthenticated users to the login page where no sidebar exists. Added `e2e/helpers/auth.ts` with a `registerAndLogin()` helper that signs up a test user via the register form, and updated both sidebar tests to authenticate before asserting sidebar visibility.
+
 - **Changesets release bump escalation** (`release`): Added `___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH.onlyUpdatePeerDependentsWhenOutOfRange` in `.changeset/config.json` and moved internal `@object-ui/*` entries in `@object-ui/plugin-designer` from `peerDependencies` to `dependencies` to prevent minor release PRs from incorrectly escalating fixed-group packages to a major version.
 
 - **Home page star/favorite not reactive** (`@object-ui/console`): Migrated `useFavorites` from standalone hook to React Context (`FavoritesProvider`) so all consumers (HomePage, AppCard, AppSidebar, UnifiedSidebar) share a single state instance. Previously, each component calling `useFavorites()` created independent state, so toggling a favorite in AppCard did not trigger re-render in HomePage. localStorage persistence is retained as the storage layer.
