@@ -34,7 +34,7 @@ export const ObjectKanban: React.FC<ObjectKanbanProps> = ({
   loading: externalLoading,
   onRowClick,
   onCardClick,
-  ...props
+  ..._props
 }) => {
   // When a parent (e.g. ListView) pre-fetches data and passes it via the `data` prop,
   // we must not trigger a second fetch. Detect external data by checking if externalData

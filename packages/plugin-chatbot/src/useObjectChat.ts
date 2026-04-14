@@ -189,7 +189,7 @@ export function useObjectChat(options: UseObjectChatOptions = {}): UseObjectChat
     } : undefined,
     maxToolRoundtrips: isApiMode ? maxToolRoundtrips : undefined,
     onError: isApiMode ? (err: Error) => { onError?.(err); } : undefined,
-  });
+  } as any);
 
   // --- Local/legacy mode state ---
   const [localMessages, setLocalMessages] = useState<OuiChatMessage[]>(
