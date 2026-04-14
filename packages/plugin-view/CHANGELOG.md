@@ -1,5 +1,16 @@
 # @object-ui/plugin-view
 
+## 3.3.0
+
+### Patch Changes
+
+- @object-ui/types@3.3.0
+- @object-ui/core@3.3.0
+- @object-ui/react@3.3.0
+- @object-ui/components@3.3.0
+- @object-ui/plugin-form@3.3.0
+- @object-ui/plugin-grid@3.3.0
+
 ## 3.2.0
 
 ### Patch Changes

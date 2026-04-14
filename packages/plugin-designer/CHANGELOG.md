@@ -1,5 +1,22 @@
 # @object-ui/plugin-designer
 
+## 3.3.0
+
+### Minor Changes
+
+- baaad22: fix changeset
+
+### Patch Changes
+
+- @object-ui/types@3.3.0
+- @object-ui/core@3.3.0
+- @object-ui/i18n@3.3.0
+- @object-ui/react@3.3.0
+- @object-ui/components@3.3.0
+- @object-ui/fields@3.3.0
+- @object-ui/plugin-form@3.3.0
+- @object-ui/plugin-grid@3.3.0
+
 ## 3.2.0
 
 ### Patch Changes
