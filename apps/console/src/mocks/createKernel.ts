@@ -318,16 +318,14 @@ export async function createKernel(options: KernelOptions): Promise<KernelResult
   for (const config of configs) {
     await kernel.use(new AppPlugin(config));
   }
-  // AuthPlugin before SetupPlugin: both use namespace 'sys', and the
-  // ObjectQL registry requires the package that owns objects (AuthPlugin →
-  // com.objectstack.system) to register first.
+  // SetupPlugin MUST load before AuthPlugin so that the setupNav service
+  // is registered and available when AuthPlugin.init() tries to contribute menu items.
+  await kernel.use(new SetupPlugin() as unknown as Plugin);
+  // AuthPlugin contributes to setupNav during init, so it must come AFTER SetupPlugin.
   await kernel.use(new AuthPlugin({
     secret: 'objectui-demo-secret',
     baseUrl: 'http://localhost:5173', // Vite dev server default
   }) as unknown as Plugin);
-  // SetupPlugin registers setupNav during init and the merged Setup app
-  // during start. Must come after AuthPlugin to avoid sys namespace collision.
-  await kernel.use(new SetupPlugin() as unknown as Plugin);
 
   // Register MemoryAnalyticsService so that HttpDispatcher can serve
   // /api/v1/analytics/* endpoints in demo/MSW/dev environments.

@@ -77,9 +77,8 @@ class MemoryI18nPlugin {
  * MemoryI18nPlugin MUST come before AppPlugin so that the i18n service
  * exists when AppPlugin.start() → loadTranslations() runs.
  *
- * AuthPlugin before SetupPlugin: both use namespace 'sys', and the
- * ObjectQL registry requires the package that owns objects (AuthPlugin →
- * com.objectstack.system) to register first.
+ * SetupPlugin MUST load before AuthPlugin so that the setupNav service
+ * is registered and available when AuthPlugin.init() tries to contribute menu items.
  */
 const plugins: any[] = [
     new MemoryI18nPlugin(),
@@ -87,12 +86,13 @@ const plugins: any[] = [
     new DriverPlugin(new InMemoryDriver(), 'memory'),
     // Each example stack loaded as an independent AppPlugin
     ...appConfigs.map((config: any) => new AppPlugin(config)),
-    // Auth & Setup plugins (replaces setupAppConfig)
+    // SetupPlugin must come before AuthPlugin (setupNav service dependency)
+    new SetupPlugin(),
+    // AuthPlugin contributes to setupNav during init, so it must come AFTER SetupPlugin
     new AuthPlugin({
       secret: process.env.AUTH_SECRET || 'objectui-server-secret',
       baseUrl: process.env.BASE_URL || 'http://localhost:3000',
     }),
-    new SetupPlugin(),
     new HonoServerPlugin({ port: 3000 }),
     new ConsolePlugin(),
 ];
