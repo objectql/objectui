@@ -13,7 +13,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { setupServer } from 'msw/node';
 import { createKernel, type KernelResult } from '../mocks/createKernel';
 import { createAuthHandlers } from '../mocks/authHandlers';
-import { appConfigs, setupAppConfig } from '../../objectstack.shared';
+import { appConfigs } from '../../objectstack.shared';
 import { crmLocales } from '@object-ui/example-crm';
 
 // Expected values from the CRM i18n bundles — avoid hard-coding in assertions
@@ -26,7 +26,8 @@ describe('i18n translations pipeline', () => {
 
   beforeAll(async () => {
     result = await createKernel({
-      appConfigs: [...appConfigs, setupAppConfig],
+      // SetupPlugin is registered in createKernel, so no need for setupAppConfig here
+      appConfigs: [...appConfigs],
       persistence: false,
       mswOptions: {
         enableBrowser: false,
