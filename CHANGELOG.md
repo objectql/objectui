@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Storybook CI scope reduced** (`ci`): Updated `.github/workflows/storybook-tests.yml` to run only on `push` to `main` (removed `pull_request` and `develop` triggers) and removed the PR-only visual regression step to reduce heavy CI load on contributor PRs.
+
 - **Merged ObjectManagerPage into MetadataManagerPage pipeline** (`@object-ui/console`): Removed the standalone `ObjectManagerPage` component. Object management is now fully handled by the generic `MetadataManagerPage` (list view) and `MetadataDetailPage` (detail view) pipeline. The object type config in `metadataTypeRegistry` uses `listComponent: ObjectManagerListAdapter` for the custom list UI and `pageSchemaFactory: buildObjectDetailPageSchema` for the detail page, eliminating redundant page code and centralizing all metadata management through a single architecture.
 
 - **`listComponent` extension point on MetadataTypeConfig** (`@object-ui/console`): New optional `listComponent` field allows metadata types to inject a fully custom list component into `MetadataManagerPage`, replacing the default card/grid rendering. The page shell (header, back button, title) is still rendered by the generic manager. `MetadataListComponentProps` interface provides `config`, `basePath`, `metadataType`, and `isAdmin` to the custom component.
