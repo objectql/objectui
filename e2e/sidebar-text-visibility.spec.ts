@@ -1,25 +1,33 @@
 import { test, expect } from '@playwright/test';
-import { waitForReactMount, CONSOLE_BASE } from './helpers';
+import { CONSOLE_BASE } from './helpers';
+import { registerAndLogin } from './helpers/auth';
+
+/** Timeout for sidebar elements to become visible after auth + page render. */
+const SIDEBAR_VISIBLE_TIMEOUT = 15_000;
 
 /**
  * Sidebar text visibility tests
  *
  * These tests validate that the sidebar displays text correctly
  * when toggled between collapsed (icon mode) and expanded states.
+ *
+ * The MSW mock environment requires authentication, so each test
+ * registers a fresh user before navigating to the home page.
  */
 
 test.describe('Sidebar Text Visibility', () => {
   test('should show all text labels when sidebar is expanded in icon mode', async ({ page }) => {
-    await page.goto(`${CONSOLE_BASE}/`);
-    await waitForReactMount(page);
+    // registerAndLogin navigates to /register, signs up, and waits for the
+    // redirect to /home — the page is already authenticated & on the home route.
+    await registerAndLogin(page);
 
-    // Wait for sidebar to be visible
+    // Wait for sidebar to be visible (page needs time to render after auth redirect)
     const sidebar = page.locator('[data-sidebar="sidebar"]').first();
-    await expect(sidebar).toBeVisible();
+    await expect(sidebar).toBeVisible({ timeout: SIDEBAR_VISIBLE_TIMEOUT });
 
-    // Find the sidebar toggle button
+    // Find the sidebar toggle button (desktop trigger rendered by AppShell)
     const toggleButton = page.locator('[data-sidebar="trigger"]').first();
-    await expect(toggleButton).toBeVisible();
+    await expect(toggleButton).toBeVisible({ timeout: SIDEBAR_VISIBLE_TIMEOUT });
 
     // Get the parent sidebar element that has data-state attribute
     const sidebarGroup = page.locator('.group[data-collapsible="icon"]').first();
@@ -92,14 +100,13 @@ test.describe('Sidebar Text Visibility', () => {
   });
 
   test('should hide text labels when sidebar is collapsed in icon mode', async ({ page }) => {
-    await page.goto(`${CONSOLE_BASE}/`);
-    await waitForReactMount(page);
+    await registerAndLogin(page);
 
     const sidebar = page.locator('[data-sidebar="sidebar"]').first();
-    await expect(sidebar).toBeVisible();
+    await expect(sidebar).toBeVisible({ timeout: SIDEBAR_VISIBLE_TIMEOUT });
 
     const toggleButton = page.locator('[data-sidebar="trigger"]').first();
-    await expect(toggleButton).toBeVisible();
+    await expect(toggleButton).toBeVisible({ timeout: SIDEBAR_VISIBLE_TIMEOUT });
 
     const sidebarGroup = page.locator('.group[data-collapsible="icon"]').first();
 
