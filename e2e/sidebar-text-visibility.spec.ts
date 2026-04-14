@@ -2,6 +2,9 @@ import { test, expect } from '@playwright/test';
 import { CONSOLE_BASE } from './helpers';
 import { registerAndLogin } from './helpers/auth';
 
+/** Timeout for sidebar elements to become visible after auth + page render. */
+const SIDEBAR_VISIBLE_TIMEOUT = 15_000;
+
 /**
  * Sidebar text visibility tests
  *
@@ -20,11 +23,11 @@ test.describe('Sidebar Text Visibility', () => {
 
     // Wait for sidebar to be visible (page needs time to render after auth redirect)
     const sidebar = page.locator('[data-sidebar="sidebar"]').first();
-    await expect(sidebar).toBeVisible({ timeout: 15_000 });
+    await expect(sidebar).toBeVisible({ timeout: SIDEBAR_VISIBLE_TIMEOUT });
 
     // Find the sidebar toggle button (desktop trigger rendered by AppShell)
     const toggleButton = page.locator('[data-sidebar="trigger"]').first();
-    await expect(toggleButton).toBeVisible({ timeout: 10_000 });
+    await expect(toggleButton).toBeVisible({ timeout: SIDEBAR_VISIBLE_TIMEOUT });
 
     // Get the parent sidebar element that has data-state attribute
     const sidebarGroup = page.locator('.group[data-collapsible="icon"]').first();
@@ -100,10 +103,10 @@ test.describe('Sidebar Text Visibility', () => {
     await registerAndLogin(page);
 
     const sidebar = page.locator('[data-sidebar="sidebar"]').first();
-    await expect(sidebar).toBeVisible({ timeout: 15_000 });
+    await expect(sidebar).toBeVisible({ timeout: SIDEBAR_VISIBLE_TIMEOUT });
 
     const toggleButton = page.locator('[data-sidebar="trigger"]').first();
-    await expect(toggleButton).toBeVisible({ timeout: 10_000 });
+    await expect(toggleButton).toBeVisible({ timeout: SIDEBAR_VISIBLE_TIMEOUT });
 
     const sidebarGroup = page.locator('.group[data-collapsible="icon"]').first();
 

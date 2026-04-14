@@ -1,6 +1,9 @@
 import type { Page } from '@playwright/test';
 import { CONSOLE_BASE } from './index';
 
+/** Shared timeout for waiting on React rendering and MSW boot. */
+const REACT_READY_TIMEOUT = 30_000;
+
 /**
  * Register a new test user and wait for redirect to the home page.
  *
@@ -15,7 +18,7 @@ export async function registerAndLogin(page: Page) {
   // Wait for React to mount and the register form to render
   await page.waitForFunction(
     () => (document.getElementById('root')?.children.length ?? 0) > 0,
-    { timeout: 30_000 },
+    { timeout: REACT_READY_TIMEOUT },
   );
   // Wait for the form inputs to be present (MSW boot + React render)
   await page.locator('input[type="email"]').waitFor({ state: 'visible', timeout: 15_000 });
@@ -29,5 +32,5 @@ export async function registerAndLogin(page: Page) {
 
   // Submit and wait for navigation away from the register page
   await page.locator('button[type="submit"]').click();
-  await page.waitForURL(/\/console\/(home|apps\/)/, { timeout: 30_000 });
+  await page.waitForURL(/\/console\/(home|apps\/)/, { timeout: REACT_READY_TIMEOUT });
 }
