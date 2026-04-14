@@ -345,7 +345,7 @@ export const ListView = React.forwardRef<ListViewHandle, ListViewProps>(({
   const [showSort, setShowSort] = React.useState(false);
   const [currentSort, setCurrentSort] = React.useState<SortItem[]>(() => {
     if (schema.sort && schema.sort.length > 0) {
-      return schema.sort.map(s => {
+      return schema.sort.map((s: any) => {
         // Support legacy string format "field desc"
         if (typeof s === 'string') {
           const parts = s.trim().split(/\s+/);
@@ -376,7 +376,7 @@ export const ListView = React.forwardRef<ListViewHandle, ListViewProps>(({
   // Tab State
   const [activeTab, setActiveTab] = React.useState<string | undefined>(() => {
     if (!schema.tabs || schema.tabs.length === 0) return undefined;
-    const defaultTab = schema.tabs.find(t => t.isDefault);
+    const defaultTab = schema.tabs.find((t: any) => t.isDefault);
     return defaultTab?.name ?? schema.tabs[0]?.name;
   });
 
@@ -420,7 +420,7 @@ export const ListView = React.forwardRef<ListViewHandle, ListViewProps>(({
   // subscribing to dataSource mutations to avoid double refreshes.
   React.useEffect(() => {
     if (!dataSource?.onMutation || !schema.objectName || schema.refreshTrigger) return;
-    const unsub = dataSource.onMutation((event) => {
+    const unsub = dataSource.onMutation((event: any) => {
       if (event.resource === schema.objectName) {
         setRefreshKey(k => k + 1);
       }
@@ -449,7 +449,7 @@ export const ListView = React.forwardRef<ListViewHandle, ListViewProps>(({
   // Quick Filters State
   const [activeQuickFilters, setActiveQuickFilters] = React.useState<Set<string>>(() => {
     const defaults = new Set<string>();
-    schema.quickFilters?.forEach(qf => {
+    schema.quickFilters?.forEach((qf: any) => {
       const normalized = normalizeQuickFilter(qf);
       if (normalized.defaultActive) defaults.add(normalized.id);
     });
@@ -724,7 +724,7 @@ export const ListView = React.forwardRef<ListViewHandle, ListViewProps>(({
   const availableViews = React.useMemo(() => {
     // If appearance.allowedVisualizations is set, use it as whitelist
     if (schema.appearance?.allowedVisualizations && schema.appearance.allowedVisualizations.length > 0) {
-      return schema.appearance.allowedVisualizations.filter(v =>
+      return schema.appearance.allowedVisualizations.filter((v: any) =>
         ['grid', 'kanban', 'gallery', 'calendar', 'timeline', 'gantt', 'map'].includes(v)
       ) as ViewType[];
     }
@@ -833,12 +833,12 @@ export const ListView = React.forwardRef<ListViewHandle, ListViewProps>(({
     
     // Apply field order
     if (schema.fieldOrder && schema.fieldOrder.length > 0) {
-      const orderMap = new Map(schema.fieldOrder.map((f, i) => [f, i]));
+      const orderMap = new Map(schema.fieldOrder.map((f: any, i: number) => [f, i]));
       fields = [...fields].sort((a: any, b: any) => {
         const nameA = typeof a === 'string' ? a : (a?.name || a?.fieldName || a?.field);
         const nameB = typeof b === 'string' ? b : (b?.name || b?.fieldName || b?.field);
-        const orderA = orderMap.get(nameA) ?? Infinity;
-        const orderB = orderMap.get(nameB) ?? Infinity;
+        const orderA: number = orderMap.get(nameA) ?? Infinity;
+        const orderB: number = orderMap.get(nameB) ?? Infinity;
         return orderA - orderB;
       });
     }
@@ -1176,7 +1176,7 @@ export const ListView = React.forwardRef<ListViewHandle, ListViewProps>(({
                   )}
                 </div>
                 <div className="max-h-60 overflow-y-auto space-y-1">
-                  {allFields.map(field => (
+                  {allFields.map((field: any) => (
                     <label key={field.name} className="flex items-center gap-2 text-sm py-1 px-1 rounded hover:bg-muted cursor-pointer">
                       <input
                         type="checkbox"
@@ -1279,8 +1279,8 @@ export const ListView = React.forwardRef<ListViewHandle, ListViewProps>(({
                   )}
                 </div>
                 <div className="max-h-60 overflow-y-auto space-y-1" data-testid="group-field-list">
-                  {allFields.map(field => {
-                    const isGrouped = groupingConfig?.fields?.some(f => f.field === field.name);
+                  {allFields.map((field: any) => {
+                    const isGrouped = groupingConfig?.fields?.some((f: any) => f.field === field.name);
                     return (
                       <label key={field.name} className="flex items-center gap-2 text-sm py-1 px-1 rounded hover:bg-muted cursor-pointer">
                         <input
@@ -1288,7 +1288,7 @@ export const ListView = React.forwardRef<ListViewHandle, ListViewProps>(({
                           checked={!!isGrouped}
                           onChange={() => {
                             if (isGrouped) {
-                              const newFields = (groupingConfig?.fields || []).filter(f => f.field !== field.name);
+                              const newFields = (groupingConfig?.fields || []).filter((f: any) => f.field !== field.name);
                               setGroupingConfig(newFields.length > 0 ? { fields: newFields } : undefined);
                             } else {
                               const existing = groupingConfig?.fields || [];
@@ -1393,7 +1393,7 @@ export const ListView = React.forwardRef<ListViewHandle, ListViewProps>(({
                     data-testid="color-field-select"
                   >
                     <option value="">{t('list.none')}</option>
-                    {allFields.map(field => (
+                    {allFields.map((field: any) => (
                       <option key={field.name} value={field.name}>{field.label}</option>
                     ))}
                   </select>
@@ -1440,7 +1440,7 @@ export const ListView = React.forwardRef<ListViewHandle, ListViewProps>(({
               </PopoverTrigger>
               <PopoverContent align="start" className="w-48 p-2">
                 <div className="space-y-1">
-                  {(resolvedExportOptions.formats || ['csv', 'json']).map(format => (
+                  {(resolvedExportOptions.formats || ['csv', 'json']).map((format: any) => (
                     <Button
                       key={format}
                       variant="ghost"
@@ -1587,7 +1587,7 @@ export const ListView = React.forwardRef<ListViewHandle, ListViewProps>(({
             const iconName = schema.emptyState?.icon;
             const ResolvedIcon: LucideIcon = iconName
               ? ((icons as Record<string, LucideIcon>)[
-                  iconName.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('')
+                  iconName.split('-').map((w: any) => w.charAt(0).toUpperCase() + w.slice(1)).join('')
                 ] ?? Inbox)
               : Inbox;
             return (
@@ -1637,7 +1637,7 @@ export const ListView = React.forwardRef<ListViewHandle, ListViewProps>(({
         >
           <span className="text-muted-foreground font-medium">{selectedRows.length} selected</span>
           <div className="flex items-center gap-1 ml-2">
-            {schema.bulkActions.map(action => (
+            {schema.bulkActions.map((action: any) => (
               <Button
                 key={action}
                 variant="outline"
@@ -1684,7 +1684,7 @@ export const ListView = React.forwardRef<ListViewHandle, ListViewProps>(({
               }}
               data-testid="page-size-selector"
             >
-              {schema.pagination.pageSizeOptions.map(size => (
+              {schema.pagination.pageSizeOptions.map((size: any) => (
                 <option key={size} value={size}>{size} / page</option>
               ))}
             </select>
