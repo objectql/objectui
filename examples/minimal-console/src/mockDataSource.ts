@@ -57,7 +57,7 @@ const mockMetadata = {
 };
 
 export const mockDataSource: DataSource = {
-  async find(objectName: string, params?: any) {
+  async find(objectName: string, _params?: any) {
     await delay(300); // Simulate network delay
     const data = mockData[objectName] || [];
     return {

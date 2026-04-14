@@ -22,7 +22,6 @@ export function MetadataProvider({
 }: MetadataProviderProps) {
   const [metadata, setMetadata] = useState(initialMetadata || null);
   const [loading, setLoading] = useState(!initialMetadata);
-  const [error, setError] = useState<string | null>(null);
 
   const refetch = () => {
     // Placeholder for refetch logic
@@ -43,7 +42,7 @@ export function MetadataProvider({
   const value: MetadataContextValue = {
     metadata,
     loading,
-    error,
+    error: null,
     refetch,
   };
 

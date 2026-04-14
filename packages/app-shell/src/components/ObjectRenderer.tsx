@@ -12,8 +12,8 @@ export function ObjectRenderer({
   objectName,
   viewId,
   dataSource,
-  onRecordClick,
-  onEdit,
+  onRecordClick: _onRecordClick,
+  onEdit: _onEdit,
   objectDef: externalObjectDef,
   refreshKey = 0,
 }: ObjectRendererProps) {
