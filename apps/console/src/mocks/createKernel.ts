@@ -17,6 +17,7 @@ import { ObjectQLPlugin } from '@objectstack/objectql';
 import { InMemoryDriver, MemoryAnalyticsService } from '@objectstack/driver-memory';
 import { MSWPlugin } from '@objectstack/plugin-msw';
 import type { MSWPluginOptions } from '@objectstack/plugin-msw';
+import { AuthPlugin } from '@objectstack/plugin-auth';
 import { SetupPlugin } from '@objectstack/plugin-setup';
 import type { Cube } from '@objectstack/spec/data';
 import { http, HttpResponse } from 'msw';
@@ -317,7 +318,14 @@ export async function createKernel(options: KernelOptions): Promise<KernelResult
   for (const config of configs) {
     await kernel.use(new AppPlugin(config));
   }
+  // SetupPlugin MUST load before AuthPlugin so that the setupNav service
+  // is registered and available when AuthPlugin.init() tries to contribute menu items.
   await kernel.use(new SetupPlugin() as unknown as Plugin);
+  // AuthPlugin contributes to setupNav during init, so it must come AFTER SetupPlugin.
+  await kernel.use(new AuthPlugin({
+    secret: 'objectui-demo-secret',
+    baseUrl: 'http://localhost:5173', // Vite dev server default
+  }) as unknown as Plugin);
 
   // Register MemoryAnalyticsService so that HttpDispatcher can serve
   // /api/v1/analytics/* endpoints in demo/MSW/dev environments.

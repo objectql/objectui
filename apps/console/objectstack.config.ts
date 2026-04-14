@@ -4,7 +4,7 @@ const require = createRequire(import.meta.url);
 // @ts-ignore
 globalThis.require = require;
 
-import { sharedConfig, appConfigs, setupAppConfig } from './objectstack.shared';
+import { sharedConfig, appConfigs } from './objectstack.shared';
 
 // @ts-ignore
 import * as MSWPluginPkg from '@objectstack/plugin-msw';
@@ -12,6 +12,10 @@ import * as MSWPluginPkg from '@objectstack/plugin-msw';
 import * as ObjectQLPluginPkg from '@objectstack/objectql';
 // @ts-ignore
 import * as HonoServerPluginPkg from '@objectstack/plugin-hono-server';
+// @ts-ignore
+import * as AuthPluginPkg from '@objectstack/plugin-auth';
+// @ts-ignore
+import * as SetupPluginPkg from '@objectstack/plugin-setup';
 // @ts-ignore
 import * as DriverMemoryPkg from '@objectstack/driver-memory';
 // @ts-ignore
@@ -25,6 +29,8 @@ const InMemoryDriver = DriverMemoryPkg.InMemoryDriver || (DriverMemoryPkg as any
 const DriverPlugin = RuntimePkg.DriverPlugin || (RuntimePkg as any).default?.DriverPlugin || (RuntimePkg as any).default;
 const AppPlugin = RuntimePkg.AppPlugin || (RuntimePkg as any).default?.AppPlugin || (RuntimePkg as any).default;
 const HonoServerPlugin = HonoServerPluginPkg.HonoServerPlugin || (HonoServerPluginPkg as any).default?.HonoServerPlugin || (HonoServerPluginPkg as any).default;
+const AuthPlugin = AuthPluginPkg.AuthPlugin || (AuthPluginPkg as any).default?.AuthPlugin || (AuthPluginPkg as any).default;
+const SetupPlugin = SetupPluginPkg.SetupPlugin || (SetupPluginPkg as any).default?.SetupPlugin || (SetupPluginPkg as any).default;
 const createMemoryI18n = CorePkg.createMemoryI18n || (CorePkg as any).default?.createMemoryI18n;
 
 import { ConsolePlugin } from './plugin';
@@ -70,6 +76,9 @@ class MemoryI18nPlugin {
  *
  * MemoryI18nPlugin MUST come before AppPlugin so that the i18n service
  * exists when AppPlugin.start() → loadTranslations() runs.
+ *
+ * SetupPlugin MUST load before AuthPlugin so that the setupNav service
+ * is registered and available when AuthPlugin.init() tries to contribute menu items.
  */
 const plugins: any[] = [
     new MemoryI18nPlugin(),
@@ -77,8 +86,13 @@ const plugins: any[] = [
     new DriverPlugin(new InMemoryDriver(), 'memory'),
     // Each example stack loaded as an independent AppPlugin
     ...appConfigs.map((config: any) => new AppPlugin(config)),
-    // Setup App registered via AppPlugin so ObjectQLPlugin discovers it
-    new AppPlugin(setupAppConfig),
+    // SetupPlugin must come before AuthPlugin (setupNav service dependency)
+    new SetupPlugin(),
+    // AuthPlugin contributes to setupNav during init, so it must come AFTER SetupPlugin
+    new AuthPlugin({
+      secret: process.env.AUTH_SECRET || 'objectui-server-secret',
+      baseUrl: process.env.BASE_URL || 'http://localhost:3000',
+    }),
     new HonoServerPlugin({ port: 3000 }),
     new ConsolePlugin(),
 ];

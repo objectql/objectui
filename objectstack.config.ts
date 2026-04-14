@@ -64,16 +64,14 @@ export default {
     new AppPlugin(prepareConfig(crmConfig)),
     new AppPlugin(prepareConfig(todoConfig)),
     new AppPlugin(prepareConfig(kitchenSinkConfig)),
-    // AuthPlugin before SetupPlugin: both use namespace 'sys', and the
-    // ObjectQL registry requires the package that owns objects (AuthPlugin →
-    // com.objectstack.system) to register first.
+    // SetupPlugin MUST load before AuthPlugin so that the setupNav service
+    // is registered and available when AuthPlugin.init() tries to contribute menu items.
+    new SetupPlugin(),
+    // AuthPlugin contributes to setupNav during init, so it must come AFTER SetupPlugin.
     new AuthPlugin({
       secret: process.env.AUTH_SECRET || 'objectui-dev-secret',
       baseUrl: 'http://localhost:3000',
     }),
-    // SetupPlugin registers setupNav during init and the merged Setup app
-    // during start. Must come after AuthPlugin to avoid sys namespace collision.
-    new SetupPlugin(),
     new HonoServerPlugin({ port: 3000 }),
     new ConsolePlugin(),
   ],
