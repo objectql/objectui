@@ -2,7 +2,12 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
-    "jsx": "react-jsx"
+    "rootDir": "src",
+    "jsx": "react-jsx",
+    "lib": ["ES2020", "DOM"],
+    "noEmit": false,
+    "declaration": true,
+    "composite": true
   },
   "include": [
     "src"
@@ -10,8 +15,8 @@
   "exclude": [
     "node_modules",
     "dist",
-    "***.test.tsx",
-    "**/*.stories.tsx"
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ],
   "references": [
     {
