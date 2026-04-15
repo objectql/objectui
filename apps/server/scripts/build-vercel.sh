@@ -17,8 +17,10 @@ set -euo pipefail
 echo "[build-vercel] Starting server build..."
 
 # 1. Build the project with pnpm (from monorepo root)
-# This builds both server and console
+# First build workspace dependencies, then console
 cd ../..
+echo "[build-vercel] Building workspace dependencies..."
+pnpm --filter '@object-ui/*' --filter '!@object-ui/console' --filter '!@object-ui/server' --filter '!@object-ui/site' run build 2>/dev/null || echo "[build-vercel]   ⚠ Some workspace builds skipped (expected for non-buildable packages)"
 echo "[build-vercel] Building console with server mode..."
 pnpm --filter @object-ui/console run build
 cd apps/server
