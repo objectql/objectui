@@ -17,10 +17,10 @@ set -euo pipefail
 echo "[build-vercel] Starting server build..."
 
 # 1. Build workspace dependencies and console
-# With filtered install, we only have server and console dependencies installed
 cd ../..
-echo "[build-vercel] Building workspace dependencies for console..."
-pnpm --filter '@object-ui/*' --filter '!@object-ui/console' --filter '!@object-ui/server' --filter '!@object-ui/site' run build || true
+echo "[build-vercel] Building workspace dependencies (excluding site and non-essential packages)..."
+# Build only packages needed for console, skip create-plugin and site
+pnpm --filter '@object-ui/*' --filter '!@object-ui/create-plugin' --filter '!@object-ui/console' --filter '!@object-ui/server' --filter '!@object-ui/site' run build || true
 echo "[build-vercel] Building console..."
 pnpm --filter @object-ui/console run build
 cd apps/server
