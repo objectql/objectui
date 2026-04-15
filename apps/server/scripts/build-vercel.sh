@@ -17,12 +17,10 @@ set -euo pipefail
 echo "[build-vercel] Starting server build..."
 
 # 1. Build the project with pnpm (from monorepo root)
-# First build workspace dependencies, then console
+# Build workspace packages (excluding site docs) and console
 cd ../..
-echo "[build-vercel] Building workspace dependencies..."
-pnpm --filter '@object-ui/*' --filter '!@object-ui/console' --filter '!@object-ui/server' --filter '!@object-ui/site' run build 2>/dev/null || echo "[build-vercel]   ⚠ Some workspace builds skipped (expected for non-buildable packages)"
-echo "[build-vercel] Building console with server mode..."
-pnpm --filter @object-ui/console run build
+echo "[build-vercel] Building workspace packages..."
+pnpm --filter '!@object-ui/site' --filter '@object-ui/*' --filter '@object-ui/console' run build
 cd apps/server
 
 # 2. Bundle API serverless function

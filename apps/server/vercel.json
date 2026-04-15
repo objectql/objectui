@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "cd ../.. && pnpm install --frozen-lockfile --filter @object-ui/server...",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
   "buildCommand": "bash scripts/build-vercel.sh",
   "build": {
     "env": {
