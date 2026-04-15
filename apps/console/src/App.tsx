@@ -518,7 +518,7 @@ export function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="object-ui-theme">
       <ConsoleToaster position="bottom-right" />
-      <ConditionalAuthWrapper authUrl="/api/v1/auth">
+      <ConditionalAuthWrapper authUrl={`${import.meta.env.VITE_SERVER_URL || ''}/api/v1/auth`}>
         <PreviewBanner />
         <NavigationProvider>
         <FavoritesProvider>

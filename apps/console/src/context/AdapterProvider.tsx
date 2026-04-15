@@ -43,7 +43,7 @@ export function AdapterProvider({ children, adapter: externalAdapter }: AdapterP
     async function init() {
       try {
         const a = new ObjectStackAdapter({
-          baseUrl: '',
+          baseUrl: import.meta.env.VITE_SERVER_URL || '',
           autoReconnect: true,
           maxReconnectAttempts: 5,
           reconnectDelay: 1000,

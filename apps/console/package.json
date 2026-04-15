@@ -73,6 +73,7 @@
     "@objectstack/driver-memory": "^4.0.3",
     "@objectstack/objectql": "^4.0.3",
     "@objectstack/plugin-msw": "^4.0.3",
+    "@objectstack/plugin-auth": "^4.0.3",
     "@objectstack/plugin-setup": "^4.0.3",
     "@objectstack/runtime": "^4.0.3",
     "@objectstack/spec": "^4.0.3",

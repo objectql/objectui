@@ -42,7 +42,7 @@ export function ConditionalAuthWrapper({ children, authUrl }: ConditionalAuthWra
         // Empty baseUrl allows the adapter to use browser-relative paths
         // This works because the console app is served from the same origin as the API
         const adapter = new ObjectStackAdapter({
-          baseUrl: '',
+          baseUrl: import.meta.env.VITE_SERVER_URL || '',
           autoReconnect: false,
         });
 

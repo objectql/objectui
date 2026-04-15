@@ -277,16 +277,17 @@ export default defineConfig({
     }
   },
   server: {
-    // Proxy API requests to the real ObjectStack server when running in server mode.
+    // Proxy API requests to the ObjectStack server (local or remote).
+    // Configure via VITE_SERVER_URL env var; defaults to http://localhost:3000.
     // In MSW mode, MSW intercepts requests at the service worker level before they
     // reach the network, so these proxies are effectively bypassed.
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: process.env.VITE_SERVER_URL || 'http://localhost:3000',
         changeOrigin: true,
       },
       '/.well-known/objectstack': {
-        target: 'http://localhost:3000',
+        target: process.env.VITE_SERVER_URL || 'http://localhost:3000',
         changeOrigin: true,
       },
     },
