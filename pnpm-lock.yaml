@@ -296,7 +296,7 @@ importers:
         version: link:../../packages/types
       '@objectstack/cli':
         specifier: ^4.0.3
-        version: 4.0.3(@ai-sdk/anthropic@3.0.69(zod@4.3.6))(@ai-sdk/google@3.0.63(zod@4.3.6))(@ai-sdk/openai@3.0.52(zod@4.3.6))(@objectstack/core@4.0.3(pino@8.21.0))(esbuild@0.28.0)(pino@8.21.0)
+        version: 4.0.3(@ai-sdk/anthropic@3.0.69(zod@4.3.6))(@ai-sdk/google@3.0.63(zod@4.3.6))(@ai-sdk/openai@3.0.52(zod@4.3.6))(@objectstack/core@4.0.4(pino@8.21.0))(esbuild@0.28.0)(pino@8.21.0)
       '@objectstack/client':
         specifier: ^4.0.3
         version: 4.0.3(pino@8.21.0)
@@ -513,7 +513,7 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: ^1.19.14
-        version: 1.19.14(hono@4.12.12)
+        version: 1.19.14(hono@4.12.14)
       '@objectstack/core':
         specifier: ^4.0.3
         version: 4.0.3(pino@8.21.0)
@@ -536,8 +536,8 @@ importers:
         specifier: ^4.0.3
         version: 4.0.3
       hono:
-        specifier: ^4.12.12
-        version: 4.12.12
+        specifier: ^4.12.14
+        version: 4.12.14
       pino:
         specifier: ^8.21.0
         version: 8.21.0
@@ -581,7 +581,7 @@ importers:
     devDependencies:
       '@objectstack/cli':
         specifier: ^4.0.3
-        version: 4.0.3(@ai-sdk/anthropic@3.0.69(zod@4.3.6))(@ai-sdk/google@3.0.63(zod@4.3.6))(@ai-sdk/openai@3.0.52(zod@4.3.6))(@objectstack/core@4.0.3(pino@8.21.0))(esbuild@0.28.0)(pino@8.21.0)
+        version: 4.0.3(@ai-sdk/anthropic@3.0.69(zod@4.3.6))(@ai-sdk/google@3.0.63(zod@4.3.6))(@ai-sdk/openai@3.0.52(zod@4.3.6))(@objectstack/core@4.0.4(pino@8.21.0))(esbuild@0.28.0)(pino@8.21.0)
       typescript:
         specifier: ^6.0.2
         version: 6.0.2
@@ -713,7 +713,7 @@ importers:
     devDependencies:
       '@objectstack/cli':
         specifier: ^4.0.3
-        version: 4.0.3(@ai-sdk/anthropic@3.0.69(zod@4.3.6))(@ai-sdk/google@3.0.63(zod@4.3.6))(@ai-sdk/openai@3.0.52(zod@4.3.6))(@objectstack/core@4.0.3(pino@8.21.0))(esbuild@0.28.0)(pino@8.21.0)
+        version: 4.0.3(@ai-sdk/anthropic@3.0.69(zod@4.3.6))(@ai-sdk/google@3.0.63(zod@4.3.6))(@ai-sdk/openai@3.0.52(zod@4.3.6))(@objectstack/core@4.0.4(pino@8.21.0))(esbuild@0.28.0)(pino@8.21.0)
       typescript:
         specifier: ^6.0.2
         version: 6.0.2
@@ -2562,6 +2562,12 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
+  '@ai-sdk/gateway@3.0.99':
+    resolution: {integrity: sha512-8/UuzFY8p+T8j4XP/9m841pUb5bhnFt8cecSnJpd2zhBttNZ6GbfjZTmsqnvM/RwJOvzIsdFULZrU+E9QFREsQ==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
   '@ai-sdk/google@3.0.63':
     resolution: {integrity: sha512-RfOZWVMYSPu2sPRfGajrauWAZ9BSaRopSn+AszkKWQ1MFj8nhaXvCqRHB5pBQUaHTfZKagvOmMpNfa/s3gPLgQ==}
     engines: {node: '>=18'}
@@ -4218,6 +4224,14 @@ packages:
       pino:
         optional: true
 
+  '@objectstack/core@4.0.4':
+    resolution: {integrity: sha512-2Wfh9Aynj/hpROWjguTS1e7tCX/AB24UF6f7J1tt2q408PXDb/upNjQRucYcd168J2RZs4voXMj33/JTN+oNDg==}
+    peerDependencies:
+      pino: ^8.0.0
+    peerDependenciesMeta:
+      pino:
+        optional: true
+
   '@objectstack/driver-memory@4.0.3':
     resolution: {integrity: sha512-mTbWThY62H88tGiF+PbTUAE2tAZiz82aOrGPQLRBHeDwlfg6IynbheLuF/gCxxA/09WErmrYZFS5yW08kW2TVQ==}
 
@@ -4263,6 +4277,10 @@ packages:
 
   '@objectstack/spec@4.0.3':
     resolution: {integrity: sha512-WCnDm7DdVSUP7UnNtwGHpVBUmEr4nnY20Nbu1G9GfNZWTcZST1Yr7b4KtGf0fkohZXjegQVF1+vsEQf8rMospw==}
+    engines: {node: '>=18.0.0'}
+
+  '@objectstack/spec@4.0.4':
+    resolution: {integrity: sha512-35M0tk/u5Qm7a2uGSQOCDPyfwfSTgzUVlpZLJzWbrucmovPt+5KLGY/cPcZqeOlJpkN+bM9b7k4d7hdDhQwIBQ==}
     engines: {node: '>=18.0.0'}
 
   '@objectstack/types@4.0.3':
@@ -6531,6 +6549,12 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
+  ai@6.0.162:
+    resolution: {integrity: sha512-1PSvNEK1PEbpUXahnFrcey6l7DJXMVWmg0ibQ8h8oMSe9V1Vx5d+R3xNu0hzBtwqfxYj21ddZo+EUYVs6GOEyA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
   ajv-draft-04@1.0.0:
     resolution: {integrity: sha512-mv00Te6nmYbRp5DCwclxtt7yV/joXJPGS7nM+97GdxvuttCOfgI3K4U25zboyeX0O+myI8ERluxQe5wljMmVIw==}
     peerDependencies:
@@ -8385,8 +8409,8 @@ packages:
     resolution: {integrity: sha512-eSmmWE5bZTK2Nou4g0AI3zZ9rswp7GRKoKXS1BLUkvPviOqs4YTN1djQIqrXy9k5gEtdLPy86JjRwsNM9tnDcA==}
     engines: {node: '>=0.10.0'}
 
-  hono@4.12.12:
-    resolution: {integrity: sha512-p1JfQMKaceuCbpJKAPKVqyqviZdS0eUxH9v82oWo1kb9xjQ5wA6iP3FNVAPDFlz5/p7d45lO+BpSk1tuSZMF4Q==}
+  hono@4.12.14:
+    resolution: {integrity: sha512-am5zfg3yu6sqn5yjKBNqhnTX7Cv+m00ox+7jbaKkrLMRJ4rAdldd1xPd/JzbBWspqaQv6RSTrgFN95EsfhC+7w==}
     engines: {node: '>=16.9.0'}
 
   hosted-git-info@4.1.0:
@@ -11822,6 +11846,13 @@ snapshots:
       '@vercel/oidc': 3.1.0
       zod: 4.3.6
 
+  '@ai-sdk/gateway@3.0.99(zod@4.3.6)':
+    dependencies:
+      '@ai-sdk/provider': 3.0.8
+      '@ai-sdk/provider-utils': 4.0.23(zod@4.3.6)
+      '@vercel/oidc': 3.1.0
+      zod: 4.3.6
+
   '@ai-sdk/google@3.0.63(zod@4.3.6)':
     dependencies:
       '@ai-sdk/provider': 3.0.8
@@ -12847,9 +12878,9 @@ snapshots:
     dependencies:
       '@hapi/hoek': 11.0.7
 
-  '@hono/node-server@1.19.14(hono@4.12.12)':
+  '@hono/node-server@1.19.14(hono@4.12.14)':
     dependencies:
-      hono: 4.12.12
+      hono: 4.12.14
 
   '@humanfs/core@0.19.1': {}
 
@@ -13413,7 +13444,7 @@ snapshots:
 
   '@modelcontextprotocol/sdk@1.29.0(zod@3.25.76)':
     dependencies:
-      '@hono/node-server': 1.19.14(hono@4.12.12)
+      '@hono/node-server': 1.19.14(hono@4.12.14)
       ajv: 8.18.0
       ajv-formats: 3.0.1(ajv@8.18.0)
       content-type: 1.0.5
@@ -13423,7 +13454,7 @@ snapshots:
       eventsource-parser: 3.0.6
       express: 5.2.1
       express-rate-limit: 8.3.2(express@5.2.1)
-      hono: 4.12.12
+      hono: 4.12.14
       jose: 6.2.2
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
@@ -13544,6 +13575,33 @@ snapshots:
       - esbuild
       - pino
 
+  '@objectstack/cli@4.0.3(@ai-sdk/anthropic@3.0.69(zod@4.3.6))(@ai-sdk/google@3.0.63(zod@4.3.6))(@ai-sdk/openai@3.0.52(zod@4.3.6))(@objectstack/core@4.0.4(pino@8.21.0))(esbuild@0.28.0)(pino@8.21.0)':
+    dependencies:
+      '@ai-sdk/gateway': 3.0.96(zod@4.3.6)
+      '@objectstack/client': 4.0.3(pino@8.21.0)
+      '@objectstack/core': 4.0.4(pino@8.21.0)
+      '@objectstack/driver-memory': 4.0.3(pino@8.21.0)
+      '@objectstack/objectql': 4.0.3(pino@8.21.0)
+      '@objectstack/plugin-hono-server': 4.0.3(pino@8.21.0)
+      '@objectstack/plugin-setup': 4.0.3(pino@8.21.0)
+      '@objectstack/rest': 4.0.3(pino@8.21.0)
+      '@objectstack/runtime': 4.0.3(pino@8.21.0)
+      '@objectstack/service-ai': 4.0.3(@ai-sdk/anthropic@3.0.69(zod@4.3.6))(@ai-sdk/gateway@3.0.96(zod@4.3.6))(@ai-sdk/google@3.0.63(zod@4.3.6))(@ai-sdk/openai@3.0.52(zod@4.3.6))(pino@8.21.0)(zod@4.3.6)
+      '@objectstack/spec': 4.0.3
+      '@oclif/core': 4.10.5
+      bundle-require: 5.1.0(esbuild@0.28.0)
+      chalk: 5.6.2
+      dotenv-flow: 4.1.0
+      tsx: 4.21.0
+      yaml: 2.8.3
+      zod: 4.3.6
+    transitivePeerDependencies:
+      - '@ai-sdk/anthropic'
+      - '@ai-sdk/google'
+      - '@ai-sdk/openai'
+      - esbuild
+      - pino
+
   '@objectstack/client@4.0.3(pino@8.21.0)':
     dependencies:
       '@objectstack/core': 4.0.3(pino@8.21.0)
@@ -13554,6 +13612,14 @@ snapshots:
   '@objectstack/core@4.0.3(pino@8.21.0)':
     dependencies:
       '@objectstack/spec': 4.0.3
+      pino-pretty: 13.1.3
+      zod: 4.3.6
+    optionalDependencies:
+      pino: 8.21.0
+
+  '@objectstack/core@4.0.4(pino@8.21.0)':
+    dependencies:
+      '@objectstack/spec': 4.0.4
       pino-pretty: 13.1.3
       zod: 4.3.6
     optionalDependencies:
@@ -13606,10 +13672,10 @@ snapshots:
 
   '@objectstack/plugin-hono-server@4.0.3(pino@8.21.0)':
     dependencies:
-      '@hono/node-server': 1.19.14(hono@4.12.12)
+      '@hono/node-server': 1.19.14(hono@4.12.14)
       '@objectstack/core': 4.0.3(pino@8.21.0)
       '@objectstack/spec': 4.0.3
-      hono: 4.12.12
+      hono: 4.12.14
     transitivePeerDependencies:
       - pino
 
@@ -13669,6 +13735,11 @@ snapshots:
   '@objectstack/spec@4.0.3':
     dependencies:
       ai: 6.0.159(zod@4.3.6)
+      zod: 4.3.6
+
+  '@objectstack/spec@4.0.4':
+    dependencies:
+      ai: 6.0.162(zod@4.3.6)
       zod: 4.3.6
 
   '@objectstack/types@4.0.3':
@@ -16095,6 +16166,14 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       zod: 4.3.6
 
+  ai@6.0.162(zod@4.3.6):
+    dependencies:
+      '@ai-sdk/gateway': 3.0.99(zod@4.3.6)
+      '@ai-sdk/provider': 3.0.8
+      '@ai-sdk/provider-utils': 4.0.23(zod@4.3.6)
+      '@opentelemetry/api': 1.9.0
+      zod: 4.3.6
+
   ajv-draft-04@1.0.0(ajv@8.18.0):
     optionalDependencies:
       ajv: 8.18.0
@@ -18147,7 +18226,7 @@ snapshots:
     dependencies:
       parse-passwd: 1.0.0
 
-  hono@4.12.12: {}
+  hono@4.12.14: {}
 
   hosted-git-info@4.1.0:
     dependencies:
