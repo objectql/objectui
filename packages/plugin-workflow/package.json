@@ -71,7 +71,7 @@
   "bugs": {
     "url": "https://github.com/objectstack-ai/objectui/issues"
   },
-  "homepage": "https://www.objectui.org/docs/packages/plugin-workflow",
+  "homepage": "https://www.objectui.org/docs/plugins/plugin-workflow",
   "publishConfig": {
     "access": "public"
   }

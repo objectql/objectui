@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "description": "ListView plugin for Object UI - unified view component with view type switching",
-  "homepage": "https://www.objectui.org/docs/packages/plugin-list",
+  "homepage": "https://www.objectui.org/docs/plugins/plugin-list",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/objectstack-ai/objectui.git",

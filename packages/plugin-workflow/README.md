@@ -120,7 +120,7 @@ Components auto-register with `ComponentRegistry`:
 
 ## Links
 
-- 📚 [Documentation](https://www.objectui.org/docs/packages/plugin-workflow)
+- 📚 [Documentation](https://www.objectui.org/docs/plugins/plugin-workflow)
 - 📦 [npm package](https://www.npmjs.com/package/@object-ui/plugin-workflow)
 - 📝 [Changelog](./CHANGELOG.md)
 - 🐛 [Report an issue](https://github.com/objectstack-ai/objectui/issues)

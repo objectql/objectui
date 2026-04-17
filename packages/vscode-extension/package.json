@@ -213,5 +213,5 @@
   "bugs": {
     "url": "https://github.com/objectstack-ai/objectui/issues"
   },
-  "homepage": "https://www.objectui.org/docs/packages/vscode-extension"
+  "homepage": "https://www.objectui.org/docs/utilities/vscode-extension"
 }

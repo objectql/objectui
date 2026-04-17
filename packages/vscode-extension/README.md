@@ -230,7 +230,7 @@ Built with:
 
 ## Links
 
-- 📚 [Documentation](https://www.objectui.org/docs/packages/vscode-extension)
+- 📚 [Documentation](https://www.objectui.org/docs/utilities/vscode-extension)
 - 📦 [npm package](https://www.npmjs.com/package/object-ui)
 - 📝 [Changelog](./CHANGELOG.md)
 - 🐛 [Report an issue](https://github.com/objectstack-ai/objectui/issues)

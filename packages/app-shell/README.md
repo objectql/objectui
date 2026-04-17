@@ -188,7 +188,7 @@ See `examples/minimal-console` for a complete working example that demonstrates:
 
 ## Links
 
-- 📚 [Documentation](https://www.objectui.org/docs/packages/app-shell)
+- 📚 [Documentation](https://www.objectui.org/docs/layout/app-shell)
 - 📦 [npm package](https://www.npmjs.com/package/@object-ui/app-shell)
 - 📝 [Changelog](./CHANGELOG.md)
 - 🐛 [Report an issue](https://github.com/objectstack-ai/objectui/issues)

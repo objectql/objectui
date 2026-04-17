@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "description": "Minimal application shell for ObjectUI - framework-agnostic rendering engine",
-  "homepage": "https://www.objectui.org/docs/packages/app-shell",
+  "homepage": "https://www.objectui.org/docs/layout/app-shell",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/objectstack-ai/objectui.git",

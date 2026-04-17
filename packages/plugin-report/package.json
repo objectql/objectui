@@ -71,7 +71,7 @@
   "bugs": {
     "url": "https://github.com/objectstack-ai/objectui/issues"
   },
-  "homepage": "https://www.objectui.org/docs/packages/plugin-report",
+  "homepage": "https://www.objectui.org/docs/plugins/plugin-report",
   "publishConfig": {
     "access": "public"
   }

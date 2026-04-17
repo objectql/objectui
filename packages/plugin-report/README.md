@@ -145,7 +145,7 @@ Components auto-register with `ComponentRegistry`:
 
 ## Links
 
-- 📚 [Documentation](https://www.objectui.org/docs/packages/plugin-report)
+- 📚 [Documentation](https://www.objectui.org/docs/plugins/plugin-report)
 - 📦 [npm package](https://www.npmjs.com/package/@object-ui/plugin-report)
 - 📝 [Changelog](./CHANGELOG.md)
 - 🐛 [Report an issue](https://github.com/objectstack-ai/objectui/issues)

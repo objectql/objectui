@@ -213,7 +213,7 @@ Your app will be running at http://localhost:3000!
 
 ## Links
 
-- 📚 [Documentation](https://www.objectui.org/docs/packages/cli)
+- 📚 [Documentation](https://www.objectui.org/docs/utilities/cli)
 - 📦 [npm package](https://www.npmjs.com/package/@objectstack/plugin-ui)
 - 📝 [Changelog](./CHANGELOG.md)
 - 🐛 [Report an issue](https://github.com/objectstack-ai/objectui/issues)

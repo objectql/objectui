@@ -142,7 +142,7 @@ import { ConfirmDialog, Minimap, PropertyEditor, VersionHistory } from '@object-
 
 ## Links
 
-- 📚 [Documentation](https://www.objectui.org/docs/packages/plugin-designer)
+- 📚 [Documentation](https://www.objectui.org/docs/plugins/plugin-designer)
 - 📦 [npm package](https://www.npmjs.com/package/@object-ui/plugin-designer)
 - 📝 [Changelog](./CHANGELOG.md)
 - 🐛 [Report an issue](https://github.com/objectstack-ai/objectui/issues)
