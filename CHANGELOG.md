@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **apps/console Vercel deployment** — The production build for Vercel previously ran `vite build` without setting `VITE_USE_MOCK_SERVER=false`, which caused the MSW service worker to be bundled and started in production. As a result, all `/api/v1/*` requests were intercepted locally and the console never actually connected to its configured backend (e.g. `demo.objectstack.ai`). Users hitting routes such as `/apps/<app>/<object>` would see an *object not found* empty state because the MSW mock dataset does not contain every production app/object. `apps/console/vercel.json` now explicitly sets `VITE_USE_MOCK_SERVER=false` in the Vercel `buildCommand`, and the README documents the required `VITE_SERVER_URL` environment variable.
+
 ### Added
 
 - **@object-ui/app-shell** - New package providing minimal application rendering engine for third-party integration
