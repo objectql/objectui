@@ -6,6 +6,10 @@
         "shadcn@latest",
         "mcp"
       ]
+    },
+    "chrome-devtools": {
+      "command": "chrome-devtools-mcp",
+      "args": []
     }
   }
 }
