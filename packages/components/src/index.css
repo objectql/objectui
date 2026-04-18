@@ -215,7 +215,7 @@ body {
 }
 
 .group[data-collapsible="icon"][data-state="expanded"] .group-data-\[collapsible\=icon\]\:overflow-hidden {
-  overflow: visible;
+  overflow: auto;
 }
 
 /* Menu button behavior - collapsed = icon only, expanded = full width */
