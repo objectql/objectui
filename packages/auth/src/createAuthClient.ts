@@ -7,7 +7,11 @@
  */
 
 import { createAuthClient as createBetterAuthClient } from 'better-auth/client';
-import type { AuthClient, AuthClientConfig, AuthUser, AuthSession, SignInCredentials, SignUpData } from './types';
+import { organizationClient } from 'better-auth/client/plugins';
+import type {
+  AuthClient, AuthClientConfig, AuthUser, AuthSession, SignInCredentials, SignUpData,
+  AuthOrganization, AuthOrganizationMember,
+} from './types';
 
 const TOKEN_STORAGE_KEY = 'auth-session-token';
 
@@ -132,6 +136,7 @@ export function createAuthClient(config: AuthClientConfig): AuthClient {
     basePath,
     disableDefaultFetchPlugins: true,
     fetchOptions: { customFetchImpl: bearerFetch },
+    plugins: [organizationClient()],
   });
 
   // The better-auth client exposes methods whose TS return types are narrower
@@ -221,6 +226,84 @@ export function createAuthClient(config: AuthClientConfig): AuthClient {
       // The server response may wrap the user in a `user` key or return it directly
       const raw = data as unknown as Record<string, unknown>;
       return (raw && typeof raw === 'object' && 'user' in raw ? raw.user : raw) as AuthUser;
+    },
+
+    // --- Organization / Workspace methods ---
+
+    async listOrganizations(): Promise<AuthOrganization[]> {
+      const { data, error } = await (betterAuth as any).organization.list();
+      if (error) throw new Error(error.message ?? 'Failed to list organizations');
+      return (data ?? []) as AuthOrganization[];
+    },
+
+    async createOrganization(orgData: { name: string; slug: string; logo?: string }): Promise<AuthOrganization> {
+      const { data, error } = await (betterAuth as any).organization.create({
+        name: orgData.name,
+        slug: orgData.slug,
+        logo: orgData.logo,
+      });
+      if (error) throw new Error(error.message ?? 'Failed to create organization');
+      return data as unknown as AuthOrganization;
+    },
+
+    async setActiveOrganization(orgId: string): Promise<AuthOrganization | null> {
+      const { data, error } = await (betterAuth as any).organization.setActive({
+        organizationId: orgId,
+      });
+      if (error) throw new Error(error.message ?? 'Failed to set active organization');
+      return (data ?? null) as AuthOrganization | null;
+    },
+
+    async getActiveOrganization(): Promise<AuthOrganization | null> {
+      // `/organization/get-full-organization` is the endpoint that returns the
+      // active organization record in full. `getActiveMember` returns only the
+      // current user's member row (organizationId, role) — not the org itself.
+      const { data, error } = await (betterAuth as any).organization.getFullOrganization();
+      if (error || !data) return null;
+      return data as unknown as AuthOrganization;
+    },
+
+    async getMembers(orgId: string): Promise<AuthOrganizationMember[]> {
+      const { data, error } = await (betterAuth as any).organization.listMembers({
+        query: { organizationId: orgId },
+      });
+      if (error) throw new Error(error.message ?? 'Failed to get members');
+      const result = data as unknown as { members?: AuthOrganizationMember[] } | AuthOrganizationMember[];
+      if (Array.isArray(result)) return result;
+      return (result?.members ?? []) as AuthOrganizationMember[];
+    },
+
+    async inviteMember(inviteData: { organizationId: string; email: string; role: string }): Promise<void> {
+      const { error } = await (betterAuth as any).organization.inviteMember({
+        organizationId: inviteData.organizationId,
+        email: inviteData.email,
+        role: inviteData.role,
+      });
+      if (error) throw new Error(error.message ?? 'Failed to invite member');
+    },
+
+    async removeMember(removeData: { organizationId: string; memberIdOrUserId: string }): Promise<void> {
+      const { error } = await (betterAuth as any).organization.removeMember({
+        organizationId: removeData.organizationId,
+        memberIdOrUserId: removeData.memberIdOrUserId,
+      });
+      if (error) throw new Error(error.message ?? 'Failed to remove member');
+    },
+
+    async updateOrganization(orgId: string, orgData: Partial<Pick<AuthOrganization, 'name' | 'slug' | 'logo' | 'metadata'>>): Promise<AuthOrganization> {
+      const { data, error } = await (betterAuth as any).organization.update({
+        organizationId: orgId,
+        data: orgData,
+      });
+      if (error) throw new Error(error.message ?? 'Failed to update organization');
+      return data as unknown as AuthOrganization;
+    },
+
+    async deleteOrganization(orgId: string): Promise<void> {
+      const { error } = await (betterAuth as any).organization.delete({
+        organizationId: orgId,
+      });
+      if (error) throw new Error(error.message ?? 'Failed to delete organization');
     },
   };
 }

@@ -830,6 +830,22 @@ const zh = {
     timeout: '请求超时，请重试。',
     unknown: '发生未知错误。',
   },
+  workspace: {
+    label: '工作区',
+    default: '我的工作区',
+    switch: '切换工作区',
+    create: '创建工作区',
+    createTitle: '创建工作区',
+    createDescription: '工作区是团队协作的共享空间。',
+    createButton: '创建工作区',
+    nameLabel: '工作区名称',
+    namePlaceholder: '例如：极客科技',
+    slugLabel: 'URL 标识',
+    slugHint: '用于 URL 中，仅支持小写字母、数字和连字符。',
+    invite: '邀请成员',
+    members: '成员',
+    settings: '工作区设置',
+  },
 } as const;
 
 export default zh;

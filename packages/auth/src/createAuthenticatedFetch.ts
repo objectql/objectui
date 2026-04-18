@@ -18,12 +18,47 @@ export interface AuthenticatedAdapterOptions {
   [key: string]: unknown;
 }
 
+const ACTIVE_ORG_STORAGE_KEY = 'auth-active-organization-id';
+
+/**
+ * Get/set the active organization ID for tenant-scoped API requests.
+ * Used by createAuthenticatedFetch to inject X-Tenant-ID header.
+ */
+export const ActiveOrganizationStorage = {
+  _memoryValue: null as string | null,
+
+  get(): string | null {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        return localStorage.getItem(ACTIVE_ORG_STORAGE_KEY);
+      }
+    } catch { /* SSR / test */ }
+    return this._memoryValue;
+  },
+
+  set(orgId: string): void {
+    this._memoryValue = orgId;
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(ACTIVE_ORG_STORAGE_KEY, orgId);
+      }
+    } catch { /* SSR / test */ }
+  },
+
+  clear(): void {
+    this._memoryValue = null;
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem(ACTIVE_ORG_STORAGE_KEY);
+      }
+    } catch { /* SSR / test */ }
+  },
+};
+
 /**
  * Creates an authenticated fetch wrapper that injects the Bearer token
  * from localStorage into every request to the ObjectStack API.
- *
- * Reads the token directly from TokenStorage (localStorage) — no extra
- * HTTP round-trip needed.
+ * Also injects X-Tenant-ID header when an active organization is set.
  *
  * @example
  * ```ts
@@ -47,6 +82,11 @@ export function createAuthenticatedFetch(): (input: RequestInfo | URL, init?: Re
       if (/\/api\//i.test(url)) {
         headers.set('Authorization', `Bearer ${token}`);
       }
+    }
+    // Inject tenant header for multi-tenant routing
+    const activeOrgId = ActiveOrganizationStorage.get();
+    if (activeOrgId) {
+      headers.set('X-Tenant-ID', activeOrgId);
     }
     return fetch(input, { ...init, headers });
   };

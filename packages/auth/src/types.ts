@@ -110,6 +110,27 @@ export interface AuthClient {
   resetPassword: (token: string, newPassword: string) => Promise<void>;
   /** Update user profile */
   updateUser: (data: Partial<AuthUser>) => Promise<AuthUser>;
+
+  // --- Organization / Workspace methods ---
+
+  /** List organizations the current user belongs to */
+  listOrganizations: () => Promise<AuthOrganization[]>;
+  /** Create a new organization */
+  createOrganization: (data: { name: string; slug: string; logo?: string }) => Promise<AuthOrganization>;
+  /** Set the active organization for the current session */
+  setActiveOrganization: (orgId: string) => Promise<AuthOrganization | null>;
+  /** Get the full active organization object */
+  getActiveOrganization: () => Promise<AuthOrganization | null>;
+  /** Get members of an organization */
+  getMembers: (orgId: string) => Promise<AuthOrganizationMember[]>;
+  /** Invite a member to an organization */
+  inviteMember: (data: { organizationId: string; email: string; role: string }) => Promise<void>;
+  /** Remove a member from an organization */
+  removeMember: (data: { organizationId: string; memberIdOrUserId: string }) => Promise<void>;
+  /** Update organization details */
+  updateOrganization: (orgId: string, data: Partial<Pick<AuthOrganization, 'name' | 'slug' | 'logo' | 'metadata'>>) => Promise<AuthOrganization>;
+  /** Delete an organization */
+  deleteOrganization: (orgId: string) => Promise<void>;
 }
 
 /**
@@ -140,6 +161,43 @@ export interface AuthLinkComponentProps {
   className?: string;
   /** Link content */
   children: React.ReactNode;
+}
+
+/** Organization (workspace/tenant) */
+export interface AuthOrganization {
+  /** Unique organization identifier */
+  id: string;
+  /** Organization display name */
+  name: string;
+  /** URL-friendly slug */
+  slug: string;
+  /** Organization logo URL */
+  logo?: string | null;
+  /** Custom metadata */
+  metadata?: Record<string, unknown>;
+  /** Creation timestamp */
+  createdAt?: string;
+}
+
+/** Organization member */
+export interface AuthOrganizationMember {
+  /** Member record ID */
+  id: string;
+  /** Organization ID */
+  organizationId: string;
+  /** User ID */
+  userId: string;
+  /** Role within the organization */
+  role: string;
+  /** User info (populated on list) */
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    image?: string;
+  };
+  /** Creation timestamp */
+  createdAt?: string;
 }
 
 /** Auth provider configuration */

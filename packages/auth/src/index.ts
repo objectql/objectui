@@ -30,7 +30,7 @@ export { ForgotPasswordForm, type ForgotPasswordFormProps, type ForgotPasswordFo
 export { UserMenu, type UserMenuProps } from './UserMenu';
 export { PreviewBanner, type PreviewBannerProps } from './PreviewBanner';
 export { createAuthClient, TokenStorage } from './createAuthClient';
-export { createAuthenticatedFetch, type AuthenticatedAdapterOptions } from './createAuthenticatedFetch';
+export { createAuthenticatedFetch, ActiveOrganizationStorage, type AuthenticatedAdapterOptions } from './createAuthenticatedFetch';
 export { getUserInitials } from './types';
 
 // Re-export types for convenience
@@ -45,6 +45,8 @@ export type {
   PreviewModeOptions,
   SignInCredentials,
   SignUpData,
+  AuthOrganization,
+  AuthOrganizationMember,
 } from './types';
 
 export type { AuthContextValue } from './AuthContext';

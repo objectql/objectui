@@ -830,6 +830,22 @@ const en = {
     timeout: 'Request timed out. Please try again.',
     unknown: 'An unexpected error occurred.',
   },
+  workspace: {
+    label: 'Workspaces',
+    default: 'My Workspace',
+    switch: 'Switch workspace',
+    create: 'Create workspace',
+    createTitle: 'Create a workspace',
+    createDescription: 'A workspace is a shared space for your team to collaborate.',
+    createButton: 'Create workspace',
+    nameLabel: 'Workspace name',
+    namePlaceholder: 'e.g., Acme Inc',
+    slugLabel: 'URL slug',
+    slugHint: 'Used in URLs. Only lowercase letters, numbers, and hyphens.',
+    invite: 'Invite member',
+    members: 'Members',
+    settings: 'Workspace settings',
+  },
 } as const;
 
 export default en;

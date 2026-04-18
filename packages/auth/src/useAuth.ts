@@ -41,6 +41,12 @@ export function useAuth(): AuthContextValue {
       updateUser: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
       forgotPassword: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
       resetPassword: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
+      organizations: [],
+      activeOrganization: null,
+      isOrganizationsLoading: false,
+      switchOrganization: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
+      createOrganization: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
+      refreshOrganizations: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
     };
   }
 

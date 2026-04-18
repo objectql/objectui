@@ -7,7 +7,7 @@
  */
 
 import { createContext } from 'react';
-import type { AuthUser, AuthSession, PreviewModeOptions } from './types';
+import type { AuthUser, AuthSession, PreviewModeOptions, AuthOrganization } from './types';
 
 export interface AuthContextValue {
   /** Current authenticated user */
@@ -36,6 +36,21 @@ export interface AuthContextValue {
   forgotPassword: (email: string) => Promise<void>;
   /** Reset password with token */
   resetPassword: (token: string, newPassword: string) => Promise<void>;
+
+  // --- Organization / Workspace ---
+
+  /** All organizations the user belongs to */
+  organizations: AuthOrganization[];
+  /** Currently active organization */
+  activeOrganization: AuthOrganization | null;
+  /** Whether organizations are loading */
+  isOrganizationsLoading: boolean;
+  /** Switch the active organization (workspace) */
+  switchOrganization: (orgId: string) => Promise<void>;
+  /** Create a new organization */
+  createOrganization: (data: { name: string; slug: string; logo?: string }) => Promise<AuthOrganization>;
+  /** Refresh the organizations list */
+  refreshOrganizations: () => Promise<void>;
 }
 
 export const AuthCtx = createContext<AuthContextValue | null>(null);

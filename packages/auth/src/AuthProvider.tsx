@@ -7,9 +7,10 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import type { AuthUser, AuthClient, AuthProviderConfig, PreviewModeOptions } from './types';
+import type { AuthUser, AuthClient, AuthProviderConfig, PreviewModeOptions, AuthOrganization } from './types';
 import { AuthCtx, type AuthContextValue } from './AuthContext';
 import { createAuthClient } from './createAuthClient';
+import { ActiveOrganizationStorage } from './createAuthenticatedFetch';
 
 export interface AuthProviderProps extends AuthProviderConfig {
   children: React.ReactNode;
@@ -71,6 +72,11 @@ export function AuthProvider({
   const [session, setSession] = useState<AuthContextValue['session']>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+
+  // Organization / workspace state
+  const [organizations, setOrganizations] = useState<AuthOrganization[]>([]);
+  const [activeOrganization, setActiveOrganization] = useState<AuthOrganization | null>(null);
+  const [isOrganizationsLoading, setIsOrganizationsLoading] = useState(false);
 
   // Determine if we're in preview mode
   const isPreviewMode = previewMode != null;
@@ -251,6 +257,79 @@ export function AuthProvider({
     [client],
   );
 
+  // --- Organization methods ---
+
+  const refreshOrganizations = useCallback(async () => {
+    if (!enabled || isPreviewMode) return;
+    setIsOrganizationsLoading(true);
+    try {
+      const orgs = await client.listOrganizations();
+      setOrganizations(orgs);
+      // If no active org is set but orgs exist, try to get active from server
+      if (orgs.length > 0 && !activeOrganization) {
+        try {
+          const active = await client.getActiveOrganization();
+          if (active) {
+            setActiveOrganization(active);
+            ActiveOrganizationStorage.set(active.id);
+          }
+        } catch {
+          // No active org set — that's fine
+        }
+      }
+    } catch (err) {
+      console.warn('[AuthProvider] Failed to load organizations:', err);
+    } finally {
+      setIsOrganizationsLoading(false);
+    }
+  }, [client, enabled, isPreviewMode, activeOrganization]);
+
+  // Load organizations once user is authenticated
+  useEffect(() => {
+    if (user && enabled && !isPreviewMode) {
+      refreshOrganizations();
+    }
+  }, [user, enabled, isPreviewMode]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const switchOrganization = useCallback(
+    async (orgId: string) => {
+      setError(null);
+      try {
+        const org = await client.setActiveOrganization(orgId);
+        setActiveOrganization(org);
+        // Persist for header injection
+        if (org) {
+          ActiveOrganizationStorage.set(org.id);
+        } else {
+          ActiveOrganizationStorage.clear();
+        }
+      } catch (err) {
+        const authError = err instanceof Error ? err : new Error(String(err));
+        setError(authError);
+        throw authError;
+      }
+    },
+    [client],
+  );
+
+  const createOrganization = useCallback(
+    async (data: { name: string; slug: string; logo?: string }): Promise<AuthOrganization> => {
+      setError(null);
+      try {
+        const org = await client.createOrganization(data);
+        // Refresh the list and set as active
+        await refreshOrganizations();
+        await switchOrganization(org.id);
+        return org;
+      } catch (err) {
+        const authError = err instanceof Error ? err : new Error(String(err));
+        setError(authError);
+        throw authError;
+      }
+    },
+    [client, refreshOrganizations, switchOrganization],
+  );
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
@@ -266,8 +345,14 @@ export function AuthProvider({
       updateUser,
       forgotPassword,
       resetPassword,
+      organizations,
+      activeOrganization,
+      isOrganizationsLoading,
+      switchOrganization,
+      createOrganization,
+      refreshOrganizations,
     }),
-    [user, session, isAuthenticated, isLoading, error, isPreviewMode, previewMode, signIn, signUp, signOut, updateUser, forgotPassword, resetPassword],
+    [user, session, isAuthenticated, isLoading, error, isPreviewMode, previewMode, signIn, signUp, signOut, updateUser, forgotPassword, resetPassword, organizations, activeOrganization, isOrganizationsLoading, switchOrganization, createOrganization, refreshOrganizations],
   );
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;

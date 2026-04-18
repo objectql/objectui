@@ -69,6 +69,7 @@ import { useNavPins } from '../hooks/useNavPins';
 import { resolveI18nLabel } from '../utils';
 import { useObjectTranslation, useObjectLabel } from '@object-ui/i18n';
 import { useNavigationContext } from '../context/NavigationContext';
+import { WorkspaceSwitcher } from './WorkspaceSwitcher';
 
 // ---------------------------------------------------------------------------
 // useNavOrder – localStorage-persisted drag-and-drop reorder for nav items
@@ -341,18 +342,14 @@ export function UnifiedSidebar({ activeAppName, onAppChange }: UnifiedSidebarPro
             </DropdownMenu>
             ) : (
             /* Home context header - Workspace selector */
-            <SidebarMenuButton
-              size="lg"
-              className="hover:bg-sidebar-accent"
-            >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Home className="size-4" />
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">Workspace</span>
-                <span className="truncate text-xs text-muted-foreground">{activeApps.length} Apps</span>
-              </div>
-            </SidebarMenuButton>
+            <WorkspaceSwitcher
+              onWorkspaceChange={() => {
+                // Reload the page to reinitialize with the new tenant context.
+                // Use the current origin + console base path so we don't
+                // drop the `/console/` prefix configured via Vite base.
+                window.location.href = `${window.location.origin}/console/home`;
+              }}
+            />
             )}
           </SidebarMenuItem>
         </SidebarMenu>
