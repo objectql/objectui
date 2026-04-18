@@ -68,6 +68,9 @@ import { useFavorites } from '../hooks/useFavorites';
 import { useNavPins } from '../hooks/useNavPins';
 import { resolveI18nLabel } from '../utils';
 import { useObjectTranslation, useObjectLabel } from '@object-ui/i18n';
+// useObjectLabel provides appLabel/appDescription for convention-based
+// i18n lookup — `{ns}.apps.{name}.label` resolves to the translated label
+// loaded from /api/v1/i18n/translations/:locale.
 import { useNavigationContext } from '../context/NavigationContext';
 import { WorkspaceSwitcher } from './WorkspaceSwitcher';
 
@@ -170,7 +173,7 @@ export function UnifiedSidebar({ activeAppName, onAppChange }: UnifiedSidebarPro
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useObjectTranslation();
-  const { objectLabel: resolveNavObjectLabel } = useObjectLabel();
+  const { objectLabel: resolveNavObjectLabel, appLabel, appDescription } = useObjectLabel();
   const { context, currentAppName } = useNavigationContext();
 
   // Swipe-from-left-edge gesture to open sidebar on mobile
@@ -288,15 +291,15 @@ export function UnifiedSidebar({ activeAppName, onAppChange }: UnifiedSidebarPro
                     style={primaryColor ? { backgroundColor: primaryColor } : undefined}
                   >
                      {logo ? (
-                       <img src={logo} alt={resolveI18nLabel(activeApp.label, t)} className="size-6 object-contain" />
+                       <img src={logo} alt={appLabel({ name: activeApp.name, label: resolveI18nLabel(activeApp.label, t) })} className="size-6 object-contain" />
                      ) : (
                        React.createElement(getIcon(activeApp.icon), { className: "size-4" })
                      )}
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">{resolveI18nLabel(activeApp.label, t)}</span>
+                    <span className="truncate font-semibold">{appLabel({ name: activeApp.name, label: resolveI18nLabel(activeApp.label, t) })}</span>
                     <span className="truncate text-xs">
-                      {resolveI18nLabel(activeApp.description, t) || `${activeApps.length} Apps Available`}
+                      {appDescription({ name: activeApp.name, description: resolveI18nLabel(activeApp.description, t) }) || `${activeApps.length} Apps Available`}
                     </span>
                   </div>
                   <ChevronsUpDown className="ml-auto" />
@@ -320,7 +323,7 @@ export function UnifiedSidebar({ activeAppName, onAppChange }: UnifiedSidebarPro
                     <div className="flex size-6 items-center justify-center rounded-sm border">
                       {app.icon ? React.createElement(getIcon(app.icon), { className: "size-3" }) : <Database className="size-3" />}
                     </div>
-                    {resolveI18nLabel(app.label, t)}
+                    {appLabel({ name: app.name, label: resolveI18nLabel(app.label, t) })}
                     {activeApp.name === app.name && <span className="ml-auto text-xs">✓</span>}
                   </DropdownMenuItem>
                 ))}

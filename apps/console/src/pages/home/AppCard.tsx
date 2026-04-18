@@ -8,7 +8,7 @@
 
 import { Star, StarOff } from 'lucide-react';
 import { Card, CardContent, Button, Badge } from '@object-ui/components';
-import { useObjectTranslation } from '@object-ui/i18n';
+import { useObjectTranslation, useObjectLabel } from '@object-ui/i18n';
 import { resolveI18nLabel } from '../../utils';
 import { useFavorites } from '../../hooks/useFavorites';
 import { getIcon } from '../../utils/getIcon';
@@ -22,11 +22,12 @@ interface AppCardProps {
 
 export function AppCard({ app, onClick, isFavorite }: AppCardProps) {
   const { t } = useObjectTranslation();
+  const { appLabel, appDescription } = useObjectLabel();
   const { toggleFavorite } = useFavorites();
 
   const Icon = getIcon(app.icon);
-  const label = resolveI18nLabel(app.label, t) || app.name;
-  const description = resolveI18nLabel(app.description, t);
+  const label = appLabel({ name: app.name, label: resolveI18nLabel(app.label, t) });
+  const description = appDescription({ name: app.name, description: resolveI18nLabel(app.description, t) });
   const primaryColor = app.branding?.primaryColor;
 
   const handleToggleFavorite = (e: React.MouseEvent) => {

@@ -52,7 +52,8 @@ export function useObjectLabel() {
   /**
    * Discover app namespace(s) from loaded i18next resources.
    * Returns top-level keys (outside built-in Object UI keys) that contain
-   * an `objects` or `fields` sub-key — e.g. "crm" when resources include crm.objects.*.
+   * an `objects`, `fields`, or `apps` sub-key — e.g. "crm" when resources
+   * include crm.objects.* or crm.apps.*.
    */
   const getAppNamespaces = (): string[] => {
     if (!i18n || typeof i18n.getResourceBundle !== 'function') return [];
@@ -61,19 +62,33 @@ export function useObjectLabel() {
     if (!bundle) return [];
     return Object.keys(bundle).filter(
       (key) => !BUILTIN_KEYS.has(key) && bundle[key] && typeof bundle[key] === 'object'
-        && (bundle[key].objects || bundle[key].fields),
+        && (bundle[key].objects || bundle[key].fields || bundle[key].apps),
     );
   };
 
+  /**
+   * Strip an ObjectStack namespace prefix (e.g. `crm__lead` → `lead`) so that
+   * translations authored against short object names still resolve when the
+   * runtime presents fully-qualified names. The first `__` separates the
+   * package namespace from the base name; everything after is preserved.
+   */
+  const stripNamespace = (name: string): string => {
+    const idx = name.indexOf('__');
+    return idx > 0 ? name.slice(idx + 2) : name;
+  };
+
   /** Try resolving a key across all discovered app namespaces. */
-  const resolve = (suffix: string, fallback: string): string => {
+  const resolve = (suffixes: string | string[], fallback: string): string => {
+    const suffixList = Array.isArray(suffixes) ? suffixes : [suffixes];
     try {
       const namespaces = getAppNamespaces();
       for (const ns of namespaces) {
-        const key = `${ns}.${suffix}`;
-        const translated = t(key, { defaultValue: '' });
-        if (translated && translated !== key && translated !== '') {
-          return translated;
+        for (const suffix of suffixList) {
+          const key = `${ns}.${suffix}`;
+          const translated = t(key, { defaultValue: '' });
+          if (translated && translated !== key && translated !== '') {
+            return translated;
+          }
         }
       }
     } catch {
@@ -82,26 +97,60 @@ export function useObjectLabel() {
     return fallback;
   };
 
+  /** Build suffix candidates: prefer the given name, fall back to the base (unprefixed) name. */
+  const objectSuffixes = (objectName: string, tail: string): string[] => {
+    const base = stripNamespace(objectName);
+    return base !== objectName
+      ? [`objects.${objectName}.${tail}`, `objects.${base}.${tail}`]
+      : [`objects.${objectName}.${tail}`];
+  };
+
+  const fieldSuffixes = (objectName: string, fieldName: string): string[] => {
+    const base = stripNamespace(objectName);
+    return base !== objectName
+      ? [`fields.${objectName}.${fieldName}`, `fields.${base}.${fieldName}`]
+      : [`fields.${objectName}.${fieldName}`];
+  };
+
   return {
     /**
      * Resolve translated object label, falling back to objectDef.label.
      */
     objectLabel: (objectDef: { name: string; label: string }) =>
-      resolve(`objects.${objectDef.name}.label`, objectDef.label),
+      resolve(objectSuffixes(objectDef.name, 'label'), objectDef.label),
 
     /**
      * Resolve translated object description, falling back to objectDef.description.
      */
     objectDescription: (objectDef: { name: string; description?: string }) => {
       if (!objectDef.description) return undefined;
-      return resolve(`objects.${objectDef.name}.description`, objectDef.description);
+      return resolve(objectSuffixes(objectDef.name, 'description'), objectDef.description);
     },
 
     /**
      * Resolve translated field label, falling back to the provided fallback string.
      */
     fieldLabel: (objectName: string, fieldName: string, fallback: string) =>
-      resolve(`fields.${objectName}.${fieldName}`, fallback),
+      resolve(fieldSuffixes(objectName, fieldName), fallback),
+
+    /**
+     * Resolve translated app label, falling back to appDef.label.
+     * Looks up `{ns}.apps.{appName}.label` from loaded i18next resources.
+     */
+    appLabel: (appDef: { name: string; label?: string }) =>
+      resolve(`apps.${appDef.name}.label`, appDef.label ?? appDef.name),
+
+    /**
+     * Resolve translated app description, falling back to appDef.description.
+     * Returns the translated value even when metadata has no description —
+     * translation-only descriptions (defined only in i18n bundles) are common
+     * in examples where the app metadata is English-only.
+     */
+    appDescription: (appDef: { name: string; description?: string }) => {
+      const fallback = appDef.description ?? '';
+      const resolved = resolve(`apps.${appDef.name}.description`, fallback);
+      return resolved || undefined;
+    },
   };
 }
 

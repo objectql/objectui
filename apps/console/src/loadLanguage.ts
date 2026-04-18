@@ -82,6 +82,7 @@ function transformSpecTranslations(data: Record<string, unknown>): Record<string
       // Object-level metadata
       const obj: Record<string, unknown> = { label: objData.label };
       if (objData.pluralLabel) obj.pluralLabel = objData.pluralLabel;
+      if (objData.description) obj.description = objData.description;
       objects[objName] = obj;
 
       // Flatten fields: objects.X.fields.Y.label → fields.X.Y = string
