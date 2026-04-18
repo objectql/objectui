@@ -243,11 +243,11 @@ export function ObjectManager({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Database className="h-4 w-4 text-blue-600" />
-          <h2 className="text-sm font-semibold text-gray-900">
+          <Database className="h-4 w-4 text-primary" />
+          <h2 className="text-sm font-semibold">
             {t('appDesigner.objectManager.title')}
           </h2>
-          <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-500">
+          <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
             {displayObjects.length}
           </span>
         </div>

@@ -15,7 +15,7 @@
 
 import { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@object-ui/components';
-import { Settings2, Columns, Link2, Table } from 'lucide-react';
+import { Settings2, Columns3, Link2, Table } from 'lucide-react';
 import type { SchemaNode } from '@object-ui/core';
 import { SchemaRenderer } from '@object-ui/react';
 
@@ -74,28 +74,28 @@ export function ObjectDetailTabsWidget({ schema }: { schema: ObjectDetailTabsSch
             className="relative rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
           >
             <Settings2 className="h-4 w-4 mr-2" />
-            Details
+            详情
           </TabsTrigger>
           <TabsTrigger
             value="fields"
             className="relative rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
           >
-            <Columns className="h-4 w-4 mr-2" />
-            Fields
+            <Columns3 className="h-4 w-4 mr-2" />
+            字段
           </TabsTrigger>
           <TabsTrigger
             value="relationships"
             className="relative rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
           >
             <Link2 className="h-4 w-4 mr-2" />
-            Relationships
+            关联关系
           </TabsTrigger>
           <TabsTrigger
             value="data"
             className="relative rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
           >
             <Table className="h-4 w-4 mr-2" />
-            Data
+            数据
           </TabsTrigger>
         </TabsList>
 

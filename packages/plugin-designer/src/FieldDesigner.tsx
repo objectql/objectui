@@ -307,24 +307,20 @@ export function FieldDesigner({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Columns3 className="h-4 w-4 text-blue-600" />
-          <h2 className="text-sm font-semibold text-gray-900">
+          <Columns3 className="h-4 w-4 text-primary" />
+          <h2 className="text-sm font-semibold">
             {t('appDesigner.fieldDesigner.title')}
           </h2>
-          <span className="text-xs text-gray-500">— {objectName}</span>
-          <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-500">
+          <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
             {filteredFields.length}
           </span>
         </div>
-      </div>
-
-      {/* Type filter (external to ObjectGrid for type-specific filtering) */}
-      <div className="flex gap-2">
+        {/* Type filter */}
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value as DesignerFieldType | '')}
           data-testid="field-designer-type-filter"
-          className="rounded-md border border-gray-300 px-2 py-1.5 text-xs shadow-sm outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          className="rounded-md border border-input bg-background px-2 py-1 text-xs outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary"
         >
           <option value="">{t('appDesigner.fieldDesigner.allTypes')}</option>
           {ALL_FIELD_TYPES.map((ft) => (

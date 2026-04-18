@@ -228,7 +228,9 @@ export function MetadataDetailPage() {
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
                 {pageSchema.title || itemName}
               </h1>
-              <p className="text-sm text-muted-foreground mt-1">{config.label} Details</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {config.label} · <span className="font-mono text-xs">{itemName}</span>
+              </p>
             </div>
           </div>
         </div>
