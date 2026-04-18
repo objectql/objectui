@@ -119,9 +119,9 @@ const modalSizeClasses: Record<string, string> = {
  */
 const CONTAINER_GRID_COLS: Record<number, string | undefined> = {
   1: undefined, // let the form renderer use its default (space-y-4)
-  2: 'grid gap-4 grid-cols-1 @md:grid-cols-2',
-  3: 'grid gap-4 grid-cols-1 @md:grid-cols-2 @2xl:grid-cols-3',
-  4: 'grid gap-4 grid-cols-1 @md:grid-cols-2 @2xl:grid-cols-3 @4xl:grid-cols-4',
+  2: 'grid gap-4 md:grid-cols-2',
+  3: 'grid gap-4 md:grid-cols-2 xl:grid-cols-3',
+  4: 'grid gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4',
 };
 
 export const ModalForm: React.FC<ModalFormProps> = ({

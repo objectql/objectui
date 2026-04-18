@@ -243,7 +243,7 @@ export function ObjectView({ dataSource, objects, onEdit }: any) {
     const [searchParams, setSearchParams] = useSearchParams();
     const { showDebug, toggleDebug } = useMetadataInspector();
     const { t } = useObjectTranslation();
-    const { objectLabel, objectDescription: objectDesc } = useObjectLabel();
+    const { objectLabel, objectDescription: objectDesc, translateOptions } = useObjectLabel();
     
     // Inline view config panel state (Airtable-style right sidebar)
     const [showViewConfigPanel, setShowViewConfigPanel] = useState(false);

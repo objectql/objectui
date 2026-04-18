@@ -112,6 +112,16 @@ export function useObjectLabel() {
       : [`fields.${objectName}.${fieldName}`];
   };
 
+  const optionSuffixes = (objectName: string, fieldName: string, optionValue: string): string[] => {
+    const base = stripNamespace(objectName);
+    return base !== objectName
+      ? [
+          `fieldOptions.${objectName}.${fieldName}.${optionValue}`,
+          `fieldOptions.${base}.${fieldName}.${optionValue}`,
+        ]
+      : [`fieldOptions.${objectName}.${fieldName}.${optionValue}`];
+  };
+
   return {
     /**
      * Resolve translated object label, falling back to objectDef.label.
@@ -132,6 +142,28 @@ export function useObjectLabel() {
      */
     fieldLabel: (objectName: string, fieldName: string, fallback: string) =>
       resolve(fieldSuffixes(objectName, fieldName), fallback),
+
+    /**
+     * Resolve a translated select option label for a given object field.
+     * Falls back to the provided fallback (usually the English option label).
+     */
+    fieldOptionLabel: (objectName: string, fieldName: string, optionValue: string, fallback: string) =>
+      resolve(optionSuffixes(objectName, fieldName, optionValue), fallback),
+
+    /**
+     * Translate all options for a given field, returning a new options array
+     * with translated labels. Pass the objectName and fieldName to look up
+     * translations; the original label is used as fallback.
+     */
+    translateOptions: (
+      objectName: string,
+      fieldName: string,
+      options: Array<{ value: string; label: string; [key: string]: any }>
+    ): Array<{ value: string; label: string; [key: string]: any }> =>
+      options.map(opt => ({
+        ...opt,
+        label: resolve(optionSuffixes(objectName, fieldName, opt.value), opt.label),
+      })),
 
     /**
      * Resolve translated app label, falling back to appDef.label.

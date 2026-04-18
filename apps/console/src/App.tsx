@@ -4,7 +4,7 @@ import { ModalForm } from '@object-ui/plugin-form';
 import { Empty, EmptyTitle, EmptyDescription, Button } from '@object-ui/components';
 import { toast } from 'sonner';
 import { SchemaRendererProvider, useActionRunner, useGlobalUndo } from '@object-ui/react';
-import { useObjectTranslation } from '@object-ui/i18n';
+import { useObjectTranslation, useObjectLabel } from '@object-ui/i18n';
 import type { ConnectionState } from './dataSource';
 import { AuthGuard, useAuth, PreviewBanner } from '@object-ui/auth';
 import { MetadataProvider, useMetadata } from './context/MetadataProvider';
@@ -101,6 +101,7 @@ export function AppContent() {
   const { appName } = useParams();
   const { apps, objects: allObjects, loading: metadataLoading } = useMetadata();
   const { t } = useObjectTranslation();
+  const { objectLabel } = useObjectLabel();
   
   // Determine active app based on URL
   const activeApps = apps.filter((a: any) => a.active !== false);
@@ -177,16 +178,16 @@ export function AppContent() {
   const currentObjectDef = allObjects.find((o: any) => o.name === objectNameFromPath);
 
   const handleCrudSuccess = useCallback(() => {
-    const label = currentObjectDef?.label || 'Record';
+    const label = currentObjectDef ? objectLabel(currentObjectDef as any) : t('common.record', { defaultValue: 'Record' });
     executeAction({
       type: 'crud_success',
       params: {
         message: editingRecord
-          ? `${label} updated successfully`
-          : `${label} created successfully`,
+          ? t('form.updateSuccess', { object: label, defaultValue: `${label} updated successfully` })
+          : t('form.createSuccess', { object: label, defaultValue: `${label} created successfully` }),
       },
     });
-  }, [executeAction, editingRecord, currentObjectDef?.label]);
+  }, [executeAction, editingRecord, currentObjectDef, objectLabel, t]);
 
   const handleDialogCancel = useCallback(() => {
     executeAction({ type: 'dialog_cancel' });
@@ -414,11 +415,11 @@ export function AppContent() {
                   mode: editingRecord ? 'edit' : 'create',
                   recordId: editingRecord?.id,
                   title: editingRecord
-                      ? t('form.editTitle', { object: currentObjectDef?.label })
-                      : t('form.createTitle', { object: currentObjectDef?.label }),
+                      ? t('form.editTitle', { object: objectLabel(currentObjectDef as any) })
+                      : t('form.createTitle', { object: objectLabel(currentObjectDef as any) }),
                   description: editingRecord
-                      ? t('form.editDescription', { object: currentObjectDef?.label })
-                      : t('form.createDescription', { object: currentObjectDef?.label }),
+                      ? t('form.editDescription', { object: objectLabel(currentObjectDef as any) })
+                      : t('form.createDescription', { object: objectLabel(currentObjectDef as any) }),
                   open: isDialogOpen,
                   onOpenChange: setIsDialogOpen,
                   layout: 'vertical',
