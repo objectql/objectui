@@ -193,11 +193,16 @@ export function useObjectLabel() {
  */
 export function useSafeFieldLabel() {
   try {
-    const { fieldLabel } = useObjectLabel();
-    return { fieldLabel };
+    const { fieldLabel, translateOptions } = useObjectLabel();
+    return { fieldLabel, translateOptions };
   } catch {
     return {
       fieldLabel: (_objectName: string, _fieldName: string, fallback: string) => fallback,
+      translateOptions: (
+        _objectName: string,
+        _fieldName: string,
+        options: Array<{ value: string; label: string; [key: string]: any }>
+      ) => options,
     };
   }
 }

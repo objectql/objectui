@@ -185,7 +185,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { t } = useGridTranslation();
-  const { fieldLabel: resolveFieldLabel } = useSafeFieldLabel();
+  const { fieldLabel: resolveFieldLabel, translateOptions } = useSafeFieldLabel();
   const [objectSchema, setObjectSchema] = useState<any>(null);
   const [useCardView, setUseCardView] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -645,7 +645,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
                 if (objectDefField.currency) fieldMeta.currency = objectDefField.currency;
                 if (objectDefField.precision !== undefined) fieldMeta.precision = objectDefField.precision;
                 if (objectDefField.format) fieldMeta.format = objectDefField.format;
-                if (objectDefField.options) fieldMeta.options = objectDefField.options;
+                if (objectDefField.options) fieldMeta.options = translateOptions(schema.objectName, col.field, objectDefField.options);
               }
               // Auto-generate options from data for inferred select without existing options
               if (inferredType === 'select' && !fieldMeta.options) {
@@ -653,7 +653,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
                 fieldMeta.options = uniqueValues.map(v => ({ value: v, label: humanizeLabel(String(v)) }));
               }
               if ((col as any).options) {
-                fieldMeta.options = (col as any).options;
+                fieldMeta.options = translateOptions(schema.objectName, col.field, (col as any).options);
               }
 
               // Auto-link primary field (first column) to record detail (Airtable-style)
@@ -801,7 +801,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
             if (fieldDef.currency) fieldMeta.currency = fieldDef.currency;
             if (fieldDef.precision !== undefined) fieldMeta.precision = fieldDef.precision;
             if (fieldDef.format) fieldMeta.format = fieldDef.format;
-            if (fieldDef.options) fieldMeta.options = fieldDef.options;
+            if (fieldDef.options) fieldMeta.options = translateOptions(schema.objectName, fieldName, fieldDef.options);
           }
           // Auto-generate select options from data when no options defined
           if (resolvedType === 'select' && !fieldMeta.options) {
@@ -874,7 +874,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
             if (fieldDef.currency) fieldMeta.currency = fieldDef.currency;
             if (fieldDef.precision !== undefined) fieldMeta.precision = fieldDef.precision;
             if (fieldDef.format) fieldMeta.format = fieldDef.format;
-            if (fieldDef.options) fieldMeta.options = fieldDef.options;
+            if (fieldDef.options) fieldMeta.options = translateOptions(schema.objectName, fieldName, fieldDef.options);
           }
           // Auto-generate select options from data when no options defined
           if (resolvedType === 'select' && !fieldMeta.options) {
@@ -910,17 +910,20 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
 
       const CellRenderer = getCellRenderer(field.type);
       const numericTypes = ['number', 'currency', 'percent'];
+      const translatedField = field.options
+        ? { ...field, options: translateOptions(schema.objectName, fieldName, field.options) }
+        : field;
       generatedColumns.push({
         header: schema.objectName ? resolveFieldLabel(schema.objectName, fieldName, field.label || fieldName) : field.label || fieldName,
         accessorKey: fieldName,
         ...(numericTypes.includes(field.type) && { align: 'right' }),
-        cell: (value: any) => <CellRenderer value={value} field={field} />,
+        cell: (value: any) => <CellRenderer value={value} field={translatedField} />,
         sortable: field.sortable !== false,
       });
     });
 
     return generatedColumns;
-  }, [objectSchema, schemaFields, schemaColumns, dataConfig, hasInlineData, navigation.handleClick, executeAction, data, resolveFieldLabel, schema.objectName]);
+  }, [objectSchema, schemaFields, schemaColumns, dataConfig, hasInlineData, navigation.handleClick, executeAction, data, resolveFieldLabel, translateOptions, schema.objectName]);
 
   const handleExport = useCallback((format: 'csv' | 'xlsx' | 'json' | 'pdf') => {
     const exportConfig = schema.exportOptions;

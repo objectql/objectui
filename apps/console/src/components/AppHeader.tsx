@@ -35,7 +35,7 @@ import { ConnectionStatus } from './ConnectionStatus';
 import { ActivityFeed, type ActivityItem } from './ActivityFeed';
 import type { ConnectionState } from '../dataSource';
 import { useAdapter } from '../context/AdapterProvider';
-import { useObjectTranslation } from '@object-ui/i18n';
+import { useObjectTranslation, useObjectLabel } from '@object-ui/i18n';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@object-ui/types';
 
 /** Convert a slug like "crm_dashboard" or "audit-log" to "Crm Dashboard" / "Audit Log" */
@@ -58,6 +58,7 @@ export function AppHeader({ appName, objects, connectionState, presenceUsers, ac
     const { isOnline } = useOffline();
     const dataSource = useAdapter();
     const { t } = useObjectTranslation();
+    const { objectLabel } = useObjectLabel();
 
     const [apiPresenceUsers, setApiPresenceUsers] = useState<PresenceUser[] | null>(null);
     const [apiActivities, setApiActivities] = useState<ActivityItem[] | null>(null);
@@ -103,7 +104,7 @@ export function AppHeader({ appName, objects, connectionState, presenceUsers, ac
     
     // Build sibling links for quick navigation dropdown
     const objectSiblings = objects.map((o: any) => ({
-      label: o.label || o.name,
+      label: objectLabel(o),
       href: `${baseHref}/${o.name}`,
     }));
 
@@ -136,8 +137,8 @@ export function AppHeader({ appName, objects, connectionState, presenceUsers, ac
       // Object route
       const currentObject = objects.find((o: any) => o.name === routeType);
       if (currentObject) {
-        breadcrumbItems.push({ 
-          label: currentObject.label || routeType,
+        breadcrumbItems.push({
+          label: objectLabel(currentObject),
           href: `/apps/${appNameFromRoute}/${routeType}`,
           siblings: objectSiblings,
         });

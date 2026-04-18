@@ -298,6 +298,23 @@ export function ObjectView({ dataSource, objects, onEdit }: any) {
     // Get Object Definition
     const objectDef = objects.find((o: any) => o.name === objectName);
 
+    // Build a translated version of objectDef with localized option labels for grid badges
+    const translatedObjectDef = useMemo(() => {
+        if (!objectDef?.fields) return objectDef;
+        const translatedFields: Record<string, any> = {};
+        for (const [fieldName, fieldDef] of Object.entries(objectDef.fields as Record<string, any>)) {
+            if (Array.isArray(fieldDef?.options) && fieldDef.options.length > 0) {
+                translatedFields[fieldName] = {
+                    ...fieldDef,
+                    options: translateOptions(objectDef.name, fieldName, fieldDef.options),
+                };
+            } else {
+                translatedFields[fieldName] = fieldDef;
+            }
+        }
+        return { ...objectDef, fields: translatedFields };
+    }, [objectDef, translateOptions]);
+
     if (!objectDef) {
       return (
         <div className="h-full p-4 flex items-center justify-center">
