@@ -12,11 +12,6 @@ import {
   Badge,
   Button, 
   Skeleton,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -29,12 +24,7 @@ import {
 import { 
   ArrowLeft, 
   Edit, 
-  Trash2, 
-  MoreHorizontal, 
   Share2, 
-  Copy, 
-  Download, 
-  History, 
   Star,
   StarOff,
   Check,
@@ -50,7 +40,7 @@ import { RecordComments } from './RecordComments';
 import { ActivityTimeline } from './ActivityTimeline';
 import { SchemaRenderer } from '@object-ui/react';
 import { buildExpandFields } from '@object-ui/core';
-import type { DetailViewSchema, DataSource } from '@object-ui/types';
+import type { DetailViewSchema, DataSource, ActionSchema, SchemaNode } from '@object-ui/types';
 import { useDetailTranslation } from './useDetailTranslation';
 
 /** Default page size for related lists in the detail view */
@@ -340,6 +330,150 @@ export const DetailView: React.FC<DetailViewProps> = ({
     }));
   }, [schema.related, discoveredRelated]);
 
+  /**
+   * Chrome-level "system" actions (Duplicate, Export, View History, Delete,
+   * and mobile-only fallbacks for Share / Edit / Inline Edit) expressed as
+   * {@link ActionSchema} entries. These are funnelled into the *single*
+   * overflow menu of the record-header `action:bar` via its `systemActions`
+   * field, guaranteeing at most one "More" button on the header regardless
+   * of how many business actions the object metadata contributes.
+   *
+   * `onClick` is used as a UI-local escape hatch because these handlers
+   * depend on React state (e.g., `isInlineEditing`) and local DOM APIs
+   * (`navigator.share`, `navigator.clipboard`) that are not part of the
+   * server-driven action protocol.
+   */
+  const systemActions = React.useMemo<ActionSchema[]>(() => {
+    const items: ActionSchema[] = [];
+
+    // Mobile-only mirrors of the desktop inline chrome buttons.
+    items.push({
+      name: 'sys_share_mobile',
+      label: t('detail.share'),
+      icon: 'share-2',
+      type: 'script',
+      className: 'sm:hidden',
+      onClick: handleShare,
+    });
+    if (schema.showEdit) {
+      items.push({
+        name: 'sys_edit_mobile',
+        label: t('detail.edit'),
+        icon: 'edit',
+        type: 'script',
+        className: 'sm:hidden',
+        onClick: handleEdit,
+      });
+    }
+    if (inlineEdit) {
+      items.push({
+        name: 'sys_toggle_inline_edit_mobile',
+        label: isInlineEditing ? t('detail.save') : t('detail.editInline'),
+        icon: 'edit',
+        type: 'script',
+        className: 'sm:hidden',
+        onClick: handleInlineEditToggle,
+      });
+    }
+
+    // Universal record-level utilities (desktop + mobile).
+    const firstUniversalTags = items.length > 0 ? ['separator-before'] : undefined;
+    items.push({
+      name: 'sys_duplicate',
+      label: t('detail.duplicate'),
+      icon: 'copy',
+      type: 'script',
+      ...(firstUniversalTags && { tags: firstUniversalTags }),
+      onClick: handleDuplicate,
+    });
+    items.push({
+      name: 'sys_export',
+      label: t('detail.export'),
+      icon: 'download',
+      type: 'script',
+      onClick: handleExport,
+    });
+    items.push({
+      name: 'sys_view_history',
+      label: t('detail.viewHistory'),
+      icon: 'history',
+      type: 'script',
+      onClick: handleViewHistory,
+    });
+
+    // Destructive action — separated and styled via variant.
+    if (schema.showDelete) {
+      items.push({
+        name: 'sys_delete',
+        label: t('detail.delete'),
+        icon: 'trash-2',
+        type: 'script',
+        variant: 'destructive',
+        tags: ['separator-before'],
+        onClick: handleDelete,
+      });
+    }
+
+    return items;
+  }, [
+    t,
+    schema.showEdit,
+    schema.showDelete,
+    inlineEdit,
+    isInlineEditing,
+    handleShare,
+    handleEdit,
+    handleInlineEditToggle,
+    handleDuplicate,
+    handleExport,
+    handleViewHistory,
+    handleDelete,
+  ]);
+
+  /**
+   * Inject `systemActions` into the record-header `action:bar` if one was
+   * provided via `schema.actions`; otherwise append a new header `action:bar`
+   * that carries only the system actions. The goal is to always render a
+   * single, unified overflow menu containing both business-action overflow
+   * and system actions.
+   */
+  const headerActionNodes = React.useMemo<SchemaNode[]>(() => {
+    // `schema.actions` is typed as ActionSchema[] by DetailViewSchema, but
+    // in practice RecordDetailView (and consumers) pass through full UI
+    // schema nodes like `action:bar` so they can be rendered by
+    // SchemaRenderer. Treat each entry as an opaque SchemaNode here.
+    const actions = (schema.actions ?? []) as unknown as SchemaNode[];
+    if (systemActions.length === 0) return actions;
+    let injected = false;
+    const mapped: SchemaNode[] = actions.map((node) => {
+      const record = node as Record<string, unknown> | null;
+      if (
+        record &&
+        typeof record === 'object' &&
+        record.type === 'action:bar' &&
+        (!record.location || record.location === 'record_header')
+      ) {
+        injected = true;
+        const existingSystem = Array.isArray(record.systemActions)
+          ? (record.systemActions as ActionSchema[])
+          : [];
+        return {
+          ...record,
+          systemActions: [...existingSystem, ...systemActions],
+        } as SchemaNode;
+      }
+      return node;
+    });
+    if (!injected) {
+      mapped.push({
+        type: 'action:bar',
+        location: 'record_header',
+        systemActions,
+      } as unknown as SchemaNode);
+    }
+    return mapped;
+  }, [schema.actions, systemActions]);
+
   if (loading || schema.loading) {
     return (
       <div className={cn('space-y-4', className)}>
@@ -475,16 +609,18 @@ export const DetailView: React.FC<DetailViewProps> = ({
               </div>
             )}
 
-            {schema.actions?.map((action, index) => (
+            {headerActionNodes.map((action, index) => (
               <SchemaRenderer key={index} schema={action} data={data} />
             ))}
 
-            {/* Inline Edit Toggle - hidden on mobile, accessible via more menu */}
+            {/* Inline Edit Toggle — desktop-only chrome.
+                Mobile fallback lives inside the unified action:bar overflow
+                menu as a `systemActions` entry with `sm:hidden`. */}
             {inlineEdit && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button 
-                    variant={isInlineEditing ? 'default' : 'outline'} 
+                  <Button
+                    variant={isInlineEditing ? 'default' : 'outline'}
                     size="sm"
                     onClick={handleInlineEditToggle}
                     className="gap-2 hidden sm:inline-flex"
@@ -508,7 +644,8 @@ export const DetailView: React.FC<DetailViewProps> = ({
               </Tooltip>
             )}
 
-            {/* Share Button - hidden on mobile, accessible via more menu */}
+            {/* Share Button — desktop-only chrome. Mobile fallback is in the
+                unified overflow via `systemActions`. */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="outline" size="icon" onClick={handleShare} className="hidden sm:inline-flex">
@@ -518,7 +655,8 @@ export const DetailView: React.FC<DetailViewProps> = ({
               <TooltipContent>{t('detail.share')}</TooltipContent>
             </Tooltip>
 
-            {/* Edit Button - hidden on mobile, accessible via more menu */}
+            {/* Edit Button — desktop-only primary CTA. Mobile fallback is in
+                the unified overflow via `systemActions`. */}
             {schema.showEdit && (
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -530,64 +668,6 @@ export const DetailView: React.FC<DetailViewProps> = ({
                 <TooltipContent>{t('detail.editRecord')}</TooltipContent>
               </Tooltip>
             )}
-
-            {/* More Actions Menu */}
-            <DropdownMenu>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                </TooltipTrigger>
-                <TooltipContent>{t('detail.moreActions')}</TooltipContent>
-              </Tooltip>
-              <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] sm:w-48 max-h-[60vh] overflow-y-auto">
-                {/* Mobile-only: Share, Edit, Inline Edit */}
-                <DropdownMenuItem onClick={handleShare} className="sm:hidden">
-                  <Share2 className="h-4 w-4 mr-2" />
-                  {t('detail.share')}
-                </DropdownMenuItem>
-                {schema.showEdit && (
-                  <DropdownMenuItem onClick={handleEdit} className="sm:hidden">
-                    <Edit className="h-4 w-4 mr-2" />
-                    {t('detail.edit')}
-                  </DropdownMenuItem>
-                )}
-                {inlineEdit && (
-                  <DropdownMenuItem onClick={handleInlineEditToggle} className="sm:hidden">
-                    <Edit className="h-4 w-4 mr-2" />
-                    {isInlineEditing ? t('detail.save') : t('detail.editInline')}
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuSeparator className="sm:hidden" />
-                <DropdownMenuItem onClick={handleDuplicate}>
-                  <Copy className="h-4 w-4 mr-2" />
-                  {t('detail.duplicate')}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleExport}>
-                  <Download className="h-4 w-4 mr-2" />
-                  {t('detail.export')}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleViewHistory}>
-                  <History className="h-4 w-4 mr-2" />
-                  {t('detail.viewHistory')}
-                </DropdownMenuItem>
-                {schema.showDelete && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      onClick={handleDelete}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      {t('detail.delete')}
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
         </div>
 

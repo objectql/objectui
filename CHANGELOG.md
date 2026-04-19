@@ -7,7 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Record detail header** no longer renders two separate "More" (⋯) overflow
+  menus when an object defines more `record_header` actions than
+  `maxVisible`. The hardcoded `<DropdownMenu>` inside
+  `@object-ui/plugin-detail`'s `DetailView` has been removed; its contents
+  (Duplicate, Export, View History, Delete, plus mobile-only Share / Edit /
+  Inline Edit fallbacks) are now emitted as `ActionSchema` entries and
+  funnelled through the record-header `action:bar` via its new
+  `systemActions` field. At most **one** overflow menu is rendered per bar,
+  regardless of how many business actions the object metadata contributes.
+
 ### Changed
+
+- **`action:bar` schema** now accepts `systemActions?: ActionSchema[]`
+  (`@object-ui/components`). System/chrome actions are always placed in the
+  overflow menu (never inline) and share the same `⋯` trigger with any
+  business-action overflow. A visual separator is automatically inserted
+  between business and system groups.
+- **`ActionSchema`** (`@object-ui/types`) exposes an optional UI-local
+  `onClick?: () => void | Promise<void>` escape hatch. `action:menu`
+  short-circuits to `onClick` when present, bypassing the ActionEngine.
+  This is intended for chrome-level callbacks (e.g., opening the native
+  Share sheet, toggling inline-edit mode) that depend on React state and
+  are not part of the server-driven action protocol.
 
 - **Console home page (`/home`)** now uses a top navigation bar (`HomeTopNav`)
   instead of the left `UnifiedSidebar`. This visually separates the workspace

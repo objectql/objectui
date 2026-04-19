@@ -106,6 +106,11 @@ const ActionMenuRenderer = forwardRef<HTMLButtonElement, { schema: ActionMenuSch
       async (action: ActionSchema) => {
         setLoading(true);
         try {
+          // UI-local escape hatch: direct callback, bypass ActionEngine
+          if (typeof action.onClick === 'function') {
+            await action.onClick();
+            return;
+          }
           await execute({
             type: action.type,
             name: action.name,
