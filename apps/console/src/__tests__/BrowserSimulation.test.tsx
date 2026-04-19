@@ -1,7 +1,7 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import '@object-ui/fields'; // Ensure fields are registered for ObjectForm tests
 import '@object-ui/plugin-dashboard'; // Ensure dashboard component is registered
 import '@object-ui/plugin-report'; // Ensure report component is registered
@@ -274,15 +274,25 @@ describe('Console Application Simulation', () => {
             }
         } as any);
 
-        renderApp('/kitchen_sink');
+        render(
+            <NavigationProvider>
+            <FavoritesProvider>
+            <MemoryRouter initialEntries={['/apps/crm/kitchen_sink']}>
+                <Routes>
+                    <Route path="/apps/:appName/*" element={<AppContent />} />
+                </Routes>
+            </MemoryRouter>
+            </FavoritesProvider>
+            </NavigationProvider>
+        );
         await waitFor(() => {
             expect(screen.getByRole('heading', { name: /Kitchen Sink/i })).toBeInTheDocument();
         }, { timeout: 10000 });
-        
+
         // Verify the form can be opened (showing metadata was loaded)
         const newButton = screen.getByRole('button', { name: /New/i });
         fireEvent.click(newButton);
-        
+
         // Verify form loaded with schema-based fields
         await waitFor(() => {
             expect(screen.getByRole('dialog')).toBeInTheDocument();
