@@ -1,17 +1,14 @@
 /**
  * HomeTopNav
  *
- * Top navigation bar for the Home (workspace) landing page.
+ * Single-row top navigation bar for the Home (workspace) landing page.
  *
- * Rationale: The Home page deliberately uses a horizontal top-menu layout
- * (instead of the left sidebar used by individual applications) so users can
- * visually distinguish the workspace landing page from in-app routes. The
- * left sidebar is reserved for `/apps/:appName/*` where rich, contextual
- * navigation is needed.
+ *   [Logo + Product]                         [Global search (⌘K)]
+ *   [Activity | Help] [Theme | Locale] [Workspace | User]
  *
- * Layout:
- * - Left:    Workspace switcher (organization) + "Home" link
- * - Right:   Search (⌘K), Activity feed, Help, Theme, Locale, User profile
+ * The page title (rendered by `HomePage`) and any primary page actions live
+ * in the page body, keeping the chrome compact. See
+ * {@link ./HomeLayout.tsx} for composition.
  *
  * @module
  */
@@ -29,8 +26,17 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuGroup,
+  Separator,
 } from '@object-ui/components';
-import { Home, Search, HelpCircle, LogOut, Settings, User as UserIcon, ChevronsUpDown } from 'lucide-react';
+import {
+  Search,
+  HelpCircle,
+  LogOut,
+  Settings,
+  User as UserIcon,
+  ChevronsUpDown,
+  Boxes,
+} from 'lucide-react';
 import { useAuth, getUserInitials } from '@object-ui/auth';
 import { useObjectTranslation } from '@object-ui/i18n';
 import { WorkspaceSwitcher } from '../../components/WorkspaceSwitcher';
@@ -43,11 +49,7 @@ interface HomeTopNavProps {
   activities?: ActivityItem[];
 }
 
-/**
- * Opens the global command palette via the same keyboard shortcut the
- * `CommandPalette` component listens for. This keeps the search UX
- * consistent with the in-app `AppHeader`.
- */
+/** Opens the global command palette via the ⌘K/CtrlK shortcut it listens for. */
 function openCommandPalette() {
   document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }));
 }
@@ -59,139 +61,174 @@ export function HomeTopNav({ activities }: HomeTopNavProps) {
 
   return (
     <header
-      className="sticky top-0 z-40 flex h-14 sm:h-16 w-full shrink-0 items-center gap-2 border-b bg-background px-3 sm:px-4 md:px-6"
+      className="sticky top-0 z-40 w-full shrink-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-[0_1px_0_rgba(0,0,0,0.04)]"
       data-testid="home-top-nav"
     >
-      {/* Left: Workspace switcher + primary Home link */}
-      <div className="flex items-center gap-2 min-w-0">
-        <div className="w-56 max-w-[14rem] shrink-0">
-          <WorkspaceSwitcher
-            onWorkspaceChange={() => {
-              // Reload so adapter / permissions re-initialize with the new
-              // tenant context, matching the sidebar's prior behavior.
-              window.location.href = `${window.location.origin}/console/home`;
-            }}
-          />
-        </div>
+      {/* ──────────────────────────── Row 1: Global ──────────────────────────── */}
+      <div className="flex h-12 w-full items-center gap-2 px-3 sm:px-4 md:px-6">
+        {/* Brand */}
+        <Link
+          to="/home"
+          className="flex items-center gap-2 shrink-0 rounded-md px-1.5 py-1 hover:bg-accent/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          data-testid="home-brand"
+          aria-label="ObjectStack"
+        >
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <Boxes className="h-4 w-4" />
+          </div>
+          <span className="hidden sm:inline text-sm font-semibold tracking-tight">
+            ObjectStack
+          </span>
+        </Link>
 
-        <nav className="hidden md:flex items-center gap-1 pl-1" aria-label={t('home.nav', { defaultValue: 'Home' })}>
-          <Link
-            to="/home"
-            className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-foreground bg-accent/50 hover:bg-accent transition-colors"
-            data-testid="home-nav-home"
-          >
-            <Home className="h-4 w-4" />
-            <span>{t('home.nav', { defaultValue: 'Home' })}</span>
-          </Link>
-        </nav>
-      </div>
-
-      {/* Right: actions */}
-      <div className="ml-auto flex items-center gap-0.5 sm:gap-1 md:gap-2 shrink-0">
-        {/* Search — Desktop */}
+        {/* Search */}
         <button
           onClick={openCommandPalette}
-          className="hidden lg:flex relative items-center gap-2 w-50 xl:w-70 h-8 px-3 text-sm rounded-md border bg-muted/50 text-muted-foreground hover:bg-muted transition-colors"
+          className="hidden lg:flex relative items-center gap-2 ml-auto w-72 xl:w-96 h-8 px-3 text-sm rounded-md border bg-muted/40 text-muted-foreground hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           data-testid="home-search-trigger"
         >
-          <Search className="h-4 w-4" />
-          <span className="flex-1 text-left">{t('console.search', { defaultValue: 'Search...' })}</span>
-          <kbd className="pointer-events-none inline-flex h-5 items-center gap-0.5 rounded border bg-muted px-1.5 text-[10px] font-medium text-muted-foreground">
+          <Search className="h-4 w-4 shrink-0" />
+          <span className="flex-1 text-left truncate">
+            {t('console.searchRich', {
+              defaultValue: 'Search apps, objects, records…',
+            })}
+          </span>
+          <kbd className="pointer-events-none inline-flex h-5 items-center gap-0.5 rounded border bg-background px-1.5 text-[10px] font-medium text-muted-foreground">
             <span className="text-xs">⌘</span>K
           </kbd>
         </button>
 
-        {/* Search — Mobile / Tablet */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="lg:hidden h-8 w-8 shrink-0"
-          onClick={openCommandPalette}
-          aria-label={t('console.search', { defaultValue: 'Search...' })}
-        >
-          <Search className="h-4 w-4" />
-        </Button>
+        {/* Trailing icon cluster */}
+        <div className="ml-auto lg:ml-2 flex items-center gap-0.5 sm:gap-1 shrink-0">
+          {/* Search — mobile/tablet */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden h-8 w-8 shrink-0"
+            onClick={openCommandPalette}
+            aria-label={t('console.search', { defaultValue: 'Search...' })}
+          >
+            <Search className="h-4 w-4" />
+          </Button>
 
-        {/* Activity feed */}
-        <div className="hidden sm:flex shrink-0 relative">
-          <ActivityFeed activities={activities ?? []} />
-        </div>
+          {/* Activity */}
+          <div className="hidden sm:flex shrink-0 relative">
+            <ActivityFeed activities={activities ?? []} />
+          </div>
 
-        {/* Help */}
-        <Button
-          variant="ghost"
-          size="icon"
-          asChild
-          className="h-8 w-8 hidden md:inline-flex shrink-0"
-          aria-label={t('sidebar.helpTooltip', { defaultValue: 'Help & Documentation' })}
-        >
-          <a href="https://docs.objectstack.ai" target="_blank" rel="noopener noreferrer">
-            <HelpCircle className="h-4 w-4" />
-          </a>
-        </Button>
-
-        {/* Theme toggle */}
-        <div className="hidden sm:flex shrink-0">
-          <ModeToggle />
-        </div>
-
-        {/* Language switcher */}
-        <div className="hidden sm:flex shrink-0">
-          <LocaleSwitcher />
-        </div>
-
-        {/* User profile dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className="flex items-center gap-2 rounded-md px-1.5 py-1 hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              data-testid="home-user-menu-trigger"
+          {/* Help */}
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            className="h-8 w-8 hidden md:inline-flex shrink-0"
+            aria-label={t('sidebar.helpTooltip', {
+              defaultValue: 'Help & Documentation',
+            })}
+          >
+            <a
+              href="https://docs.objectstack.ai"
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user?.image ?? '/avatars/user.jpg'} alt={user?.name ?? 'User'} />
-                <AvatarFallback className="rounded-lg bg-primary text-primary-foreground text-xs">
-                  {getUserInitials(user)}
-                </AvatarFallback>
-              </Avatar>
-              <ChevronsUpDown className="hidden md:block h-4 w-4 text-muted-foreground" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" sideOffset={4} className="w-56">
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+              <HelpCircle className="h-4 w-4" />
+            </a>
+          </Button>
+
+          <Separator
+            orientation="vertical"
+            className="hidden sm:block mx-0.5 h-5"
+          />
+
+          {/* Theme + Locale */}
+          <div className="hidden sm:flex shrink-0">
+            <ModeToggle />
+          </div>
+          <div className="hidden sm:flex shrink-0">
+            <LocaleSwitcher />
+          </div>
+
+          <Separator
+            orientation="vertical"
+            className="hidden sm:block mx-0.5 h-5"
+          />
+
+          {/* Workspace switcher — self-sizing; collapses when it renders null */}
+          <div className="hidden md:flex shrink-0 min-w-0 max-w-52">
+            <WorkspaceSwitcher
+              onWorkspaceChange={() => {
+                // Reload so adapter / permissions re-initialize with the new
+                // tenant context, matching the sidebar's prior behavior.
+                window.location.href = `${window.location.origin}/console/home`;
+              }}
+            />
+          </div>
+
+          {/* User profile */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="flex items-center gap-2 rounded-md px-1.5 py-1 hover:bg-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                data-testid="home-user-menu-trigger"
+              >
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user?.image ?? '/avatars/user.jpg'} alt={user?.name ?? 'User'} />
-                  <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
+                  <AvatarImage
+                    src={user?.image ?? '/avatars/user.jpg'}
+                    alt={user?.name ?? 'User'}
+                  />
+                  <AvatarFallback className="rounded-lg bg-primary text-primary-foreground text-xs">
                     {getUserInitials(user)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{user?.name ?? 'User'}</span>
-                  <span className="truncate text-xs text-muted-foreground">{user?.email ?? ''}</span>
+                <ChevronsUpDown className="hidden md:block h-4 w-4 text-muted-foreground" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" sideOffset={4} className="w-56">
+              <DropdownMenuLabel className="p-0 font-normal">
+                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                  <Avatar className="h-8 w-8 rounded-lg">
+                    <AvatarImage
+                      src={user?.image ?? '/avatars/user.jpg'}
+                      alt={user?.name ?? 'User'}
+                    />
+                    <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
+                      {getUserInitials(user)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">
+                      {user?.name ?? 'User'}
+                    </span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {user?.email ?? ''}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => navigate('/apps/setup/system/profile')}>
-                <UserIcon className="mr-2 h-4 w-4" />
-                {t('user.profile', { defaultValue: 'Profile' })}
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onClick={() => navigate('/apps/setup/system/profile')}
+                >
+                  <UserIcon className="mr-2 h-4 w-4" />
+                  {t('user.profile', { defaultValue: 'Profile' })}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/apps/setup')}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  {t('sidebar.settings', { defaultValue: 'Settings' })}
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={() => signOut()}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                {t('user.logout', { defaultValue: 'Log out' })}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/apps/setup')}>
-                <Settings className="mr-2 h-4 w-4" />
-                {t('sidebar.settings', { defaultValue: 'Settings' })}
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-destructive focus:text-destructive"
-              onClick={() => signOut()}
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              {t('user.logout', { defaultValue: 'Log out' })}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </header>
   );
