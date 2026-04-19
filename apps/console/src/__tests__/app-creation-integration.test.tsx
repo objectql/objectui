@@ -273,6 +273,8 @@ vi.mock('@object-ui/i18n', () => ({
     objectLabel: (obj: any) => obj.label,
     objectDescription: (obj: any) => obj.description,
     fieldLabel: (_objectName: string, _fieldName: string, fallback: string) => fallback,
+    appLabel: (app: any) => app.label ?? app.name,
+    appDescription: (app: any) => app.description,
   }),
   useSafeFieldLabel: () => ({
     fieldLabel: (_objectName: string, _fieldName: string, fallback: string) => fallback,

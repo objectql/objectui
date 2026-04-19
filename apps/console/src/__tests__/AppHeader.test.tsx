@@ -19,6 +19,16 @@ vi.mock('@object-ui/i18n', () => ({
     direction: 'ltr',
     i18n: {},
   }),
+  useObjectLabel: () => ({
+    objectLabel: (obj: any) => obj?.label ?? obj?.name,
+    objectDescription: (obj: any) => obj?.description,
+    fieldLabel: (_o: string, _f: string, fallback: string) => fallback,
+    appLabel: (app: any) => app?.label ?? app?.name,
+    appDescription: (app: any) => app?.description,
+  }),
+  useSafeFieldLabel: () => ({
+    fieldLabel: (_o: string, _f: string, fallback: string) => fallback,
+  }),
 }));
 
 // Mock @object-ui/react

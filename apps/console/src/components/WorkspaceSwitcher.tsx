@@ -48,13 +48,14 @@ export function WorkspaceSwitcher({ onWorkspaceChange }: WorkspaceSwitcherProps)
     isOrganizationsLoading,
     switchOrganization,
   } = useAuth();
+  const orgList = organizations ?? [];
 
   const [isOpen, setIsOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isSwitching, setSwitching] = useState(false);
 
   // Don't render if no organizations available (server may not have org plugin)
-  if (!isOrganizationsLoading && organizations.length === 0 && !activeOrganization) {
+  if (!isOrganizationsLoading && orgList.length === 0 && !activeOrganization) {
     return null;
   }
 
@@ -108,7 +109,7 @@ export function WorkspaceSwitcher({ onWorkspaceChange }: WorkspaceSwitcherProps)
             {t('workspace.label', { defaultValue: 'Workspaces' })}
           </DropdownMenuLabel>
 
-          {organizations.map((org) => (
+          {orgList.map((org) => (
             <DropdownMenuItem
               key={org.id}
               onClick={() => handleSwitch(org)}

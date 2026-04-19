@@ -201,9 +201,11 @@ export function applyAutoLayout(
 ): { fields: FormField[]; columns: number | undefined } {
   let fields = [...formFields];
 
-  // Step 1: Filter auto-generated fields in create/edit mode — formula and summary
-  // fields are computed server-side and cannot be manually edited.
-  if (mode === 'create' || mode === 'edit') {
+  // Step 1: Filter auto-generated fields in create mode — formula and summary
+  // fields are computed server-side and cannot be manually entered. In edit
+  // mode these fields remain visible (typically rendered as readonly) so users
+  // can see their current computed values.
+  if (mode === 'create') {
     fields = filterCreateModeFields(fields, objectSchema);
   }
 
