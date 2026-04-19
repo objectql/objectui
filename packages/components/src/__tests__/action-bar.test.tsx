@@ -167,6 +167,78 @@ describe('ActionBar (action:bar)', () => {
     });
   });
 
+  describe('systemActions', () => {
+    it('renders a single overflow menu when only systemActions are provided', () => {
+      const { container } = renderComponent({
+        type: 'action:bar',
+        systemActions: [
+          { name: 'sys_duplicate', label: 'Duplicate', type: 'script' },
+          { name: 'sys_export', label: 'Export', type: 'script' },
+        ],
+      });
+      const toolbar = container.querySelector('[role="toolbar"]');
+      expect(toolbar).toBeTruthy();
+      // 0 inline buttons + 1 overflow menu trigger
+      expect(toolbar!.children.length).toBe(1);
+    });
+
+    it('merges business overflow and systemActions into ONE overflow menu', () => {
+      const { container } = renderComponent({
+        type: 'action:bar',
+        maxVisible: 2,
+        actions: [
+          { name: 'biz1', label: 'Biz 1', type: 'script' },
+          { name: 'biz2', label: 'Biz 2', type: 'script' },
+          { name: 'biz3', label: 'Biz 3', type: 'script' },
+          { name: 'biz4', label: 'Biz 4', type: 'script' },
+        ],
+        systemActions: [
+          { name: 'sys_duplicate', label: 'Duplicate', type: 'script' },
+          { name: 'sys_delete', label: 'Delete', type: 'script' },
+        ],
+      });
+      const toolbar = container.querySelector('[role="toolbar"]');
+      // 2 inline buttons + exactly 1 overflow menu trigger — never two
+      expect(toolbar!.children.length).toBe(3);
+      // No business-action overflow was rendered as a separate menu
+      const menus = toolbar!.querySelectorAll('[aria-haspopup]');
+      expect(menus.length).toBe(1);
+    });
+
+    it('systemActions never appear inline regardless of maxVisible', () => {
+      const { container } = renderComponent({
+        type: 'action:bar',
+        maxVisible: 10,
+        actions: [
+          { name: 'biz1', label: 'Biz 1', type: 'script' },
+        ],
+        systemActions: [
+          { name: 'sys_duplicate', label: 'Duplicate', type: 'script' },
+        ],
+      });
+      const toolbar = container.querySelector('[role="toolbar"]');
+      // 1 inline business button + 1 overflow menu for the system action
+      expect(toolbar!.children.length).toBe(2);
+      // The system action label is not inline
+      const inlineButtons = toolbar!.querySelectorAll(':scope > button:not([aria-haspopup]), :scope > [role="button"]:not([aria-haspopup])');
+      const inlineText = Array.from(inlineButtons).map(b => b.textContent).join(' ');
+      expect(inlineText).not.toContain('Duplicate');
+    });
+
+    it('renders overflow menu when only systemActions exist even with empty actions', () => {
+      const { container } = renderComponent({
+        type: 'action:bar',
+        actions: [],
+        systemActions: [
+          { name: 'sys_history', label: 'History', type: 'script' },
+        ],
+      });
+      const toolbar = container.querySelector('[role="toolbar"]');
+      expect(toolbar).toBeTruthy();
+      expect(toolbar!.children.length).toBe(1);
+    });
+  });
+
   describe('styling', () => {
     it('applies custom className', () => {
       const { container } = renderComponent({

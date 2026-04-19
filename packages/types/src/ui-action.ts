@@ -212,6 +212,20 @@ export interface ActionSchema {
   
   /** Tags for categorization */
   tags?: string[];
+
+  /**
+   * UI-local escape hatch: synchronous/async callback invoked directly by
+   * UI action renderers (e.g., `action:menu`) instead of routing through
+   * {@link ActionEngine}. Intended for chrome-level concerns such as
+   * toggling inline-edit mode, opening a native Share sheet, or copying the
+   * URL to the clipboard — UI side-effects that are not part of the domain
+   * action protocol and therefore need not be serialized over the wire.
+   *
+   * When present, `onClick` takes precedence over `type` / `target` /
+   * `execute`. Prefer {@link ActionEngine}-routed actions for anything that
+   * could originate from server-driven metadata.
+   */
+  onClick?: () => void | Promise<void>;
 }
 
 /**
