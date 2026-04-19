@@ -334,11 +334,77 @@ ComponentRegistry.register('form',
                 // Resolve the component type: prefer widget override, fallback to field type
                 const resolvedType = widget || type;
 
-                // colSpan classes for grid layout
+                // colSpan classes for grid layout.
+                //
+                // When the container uses container-query-based grid classes
+                // (e.g. `@md:grid-cols-2`), the grid's base is `grid-cols-1`
+                // on narrow containers. Applying a bare `col-span-2` in that
+                // state causes CSS grid to synthesize an implicit 2nd column
+                // track, distorting column widths. We must mirror the same
+                // container-query prefix on the col-span utilities so they
+                // only engage once the grid is actually multi-column.
+                // The effective container is whatever wraps the fields: either
+                // `fieldContainerClass` (overrides, typically container-query based)
+                // or the locally-computed `gridClass` (viewport-based).
+                const containerClass = schema.fieldContainerClass || gridClass;
+                // Match both container-query (`@md:`) and viewport (`md:`) prefixes.
+                // Return an explicit, statically-detectable class so Tailwind JIT
+                // can scan and include it.
+                const pickSpanClass = (targetCols: number): string => {
+                  const re = /(@)?(sm|md|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl):grid-cols-(\d+)/g;
+                  const matches = Array.from(containerClass.matchAll(re)).map(m => ({
+                    at: m[1] || '',
+                    bp: m[2],
+                    cols: Number(m[3]),
+                  }));
+                  if (!matches.length) {
+                    // No responsive/container prefix found — bare class is safe
+                    // because the grid is already multi-column at all widths.
+                    if (targetCols === 2) return 'col-span-2';
+                    if (targetCols === 3) return 'col-span-3';
+                    return 'col-span-4';
+                  }
+                  const hit = matches.find(m => m.cols >= targetCols) || matches[matches.length - 1];
+                  const key = `${hit.at}${hit.bp}:${targetCols}`;
+                  // Explicit literal map so Tailwind JIT discovers these classes.
+                  const table: Record<string, string> = {
+                    '@sm:2':  '@sm:col-span-2',
+                    '@md:2':  '@md:col-span-2',
+                    '@lg:2':  '@lg:col-span-2',
+                    '@xl:2':  '@xl:col-span-2',
+                    '@2xl:2': '@2xl:col-span-2',
+                    '@sm:3':  '@sm:col-span-3',
+                    '@md:3':  '@md:col-span-3',
+                    '@lg:3':  '@lg:col-span-3',
+                    '@xl:3':  '@xl:col-span-3',
+                    '@2xl:3': '@2xl:col-span-3',
+                    '@4xl:3': '@4xl:col-span-3',
+                    '@sm:4':  '@sm:col-span-4',
+                    '@md:4':  '@md:col-span-4',
+                    '@lg:4':  '@lg:col-span-4',
+                    '@xl:4':  '@xl:col-span-4',
+                    '@2xl:4': '@2xl:col-span-4',
+                    '@4xl:4': '@4xl:col-span-4',
+                    'sm:2':   'sm:col-span-2',
+                    'md:2':   'md:col-span-2',
+                    'lg:2':   'lg:col-span-2',
+                    'xl:2':   'xl:col-span-2',
+                    'sm:3':   'sm:col-span-3',
+                    'md:3':   'md:col-span-3',
+                    'lg:3':   'lg:col-span-3',
+                    'xl:3':   'xl:col-span-3',
+                    'sm:4':   'sm:col-span-4',
+                    'md:4':   'md:col-span-4',
+                    'lg:4':   'lg:col-span-4',
+                    'xl:4':   'xl:col-span-4',
+                  };
+                  return table[key] || (targetCols === 2 ? 'col-span-2' : targetCols === 3 ? 'col-span-3' : 'col-span-4');
+                };
+
                 const colSpanClass = colSpan && colSpan > 1
-                  ? colSpan === 2 ? 'col-span-2'
-                  : colSpan === 3 ? 'col-span-3'
-                  : colSpan >= 4 ? 'col-span-4'
+                  ? colSpan === 2 ? pickSpanClass(2)
+                  : colSpan === 3 ? pickSpanClass(3)
+                  : colSpan >= 4 ? pickSpanClass(4)
                   : ''
                   : '';
 
