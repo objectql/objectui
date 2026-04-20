@@ -1,17 +1,18 @@
 /**
  * AppTopNav
  *
- * Horizontal top navigation bar for application pages (/apps/:appName/*).
- * Combines app branding, primary navigation, search, and user controls in a single row.
+ * Simplified top navigation bar for application pages (/apps/:appName/*).
+ * Contains only app switcher, search, and user controls.
+ * Navigation menu items are rendered in the left sidebar (UnifiedSidebar).
  *
  * Layout:
- *   [App Icon + Name] [Nav Items...] [Search] [Activity | Help] [Theme | Locale] [User]
+ *   [Sidebar Toggle] [App Icon + Name ▼] [Search] [Activity | Help] [Theme | Locale] [User]
  *
  * @module
  */
 
 import * as React from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
 import {
   Avatar,
@@ -26,10 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuGroup,
   Separator,
-  NavigationMenu,
-  NavigationMenuList,
-  NavigationMenuItem,
-  NavigationMenuLink,
+  SidebarTrigger,
 } from '@object-ui/components';
 import {
   Search,
@@ -40,19 +38,14 @@ import {
   ChevronsUpDown,
   Database,
   Home,
-  ChevronDown,
 } from 'lucide-react';
 import { useAuth, getUserInitials } from '@object-ui/auth';
 import { useObjectTranslation, useObjectLabel } from '@object-ui/i18n';
 import { ModeToggle } from './mode-toggle';
 import { LocaleSwitcher } from './LocaleSwitcher';
 import { ActivityFeed, type ActivityItem } from './ActivityFeed';
-import { useExpressionContext, evaluateVisibility } from '../context/ExpressionProvider';
-import { usePermissions } from '@object-ui/permissions';
-import type { NavigationItem } from '@object-ui/types';
 import { resolveI18nLabel } from '../utils';
 import { useMetadata } from '../context/MetadataProvider';
-import { cn } from '@object-ui/components';
 
 /**
  * Resolve a Lucide icon component by name string.
@@ -93,69 +86,16 @@ function openCommandPalette() {
 
 export function AppTopNav({ activeApp, onAppChange, activities }: AppTopNavProps) {
   const { t } = useObjectTranslation();
-  const { appLabel, appDescription, objectLabel: resolveNavObjectLabel } = useObjectLabel();
+  const { appLabel } = useObjectLabel();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const { apps: metadataApps } = useMetadata();
 
   const apps = metadataApps || [];
   const activeApps = apps.filter((a: any) => a.active !== false);
 
-  // Get navigation items from the active app
-  const areas: any[] = activeApp?.areas || [];
-  const activeArea = areas.length > 0 ? areas[0] : null;
-  const appNavigation: NavigationItem[] = activeArea?.navigation || activeApp?.navigation || [];
-
-  // Visibility and permission checks
-  const { evaluator } = useExpressionContext();
-  const { can } = usePermissions();
-
-  const evalVis = React.useCallback(
-    (expr: string | boolean | undefined) => evaluateVisibility(expr, evaluator),
-    [evaluator]
-  );
-
-  const checkPerm = React.useCallback(
-    (permissions: string[]) =>
-      permissions.every((perm: string) => {
-        const parts = perm.split(':');
-        const [object, action] = parts.length >= 2 ? [parts[0], parts[1]] : [perm, 'read'];
-        return can(object, action as any);
-      }),
-    [can]
-  );
-
-  // Filter visible and permitted navigation items
-  const visibleNavItems = appNavigation.filter((item: NavigationItem) => {
-    if (item.visible !== undefined && !evalVis(item.visible)) return false;
-    if (item.permissions && !checkPerm(item.permissions)) return false;
-    return true;
-  });
-
-  const basePath = `/apps/${activeApp.name}`;
   const logo = activeApp?.branding?.logo;
   const primaryColor = activeApp?.branding?.primaryColor;
-
-  // Helper to generate navigation href
-  const getNavHref = (item: NavigationItem): string => {
-    if (item.type === 'url' && item.url) return item.url;
-    if (item.type === 'object') {
-      const href = `${basePath}/${item.objectName}`;
-      return item.viewName ? `${href}/view/${item.viewName}` : href;
-    }
-    if (item.type === 'dashboard') return item.dashboardName ? `${basePath}/dashboard/${item.dashboardName}` : '#';
-    if (item.type === 'page') return item.pageName ? `${basePath}/page/${item.pageName}` : '#';
-    if (item.type === 'report') return item.reportName ? `${basePath}/report/${item.reportName}` : '#';
-    return '#';
-  };
-
-  // Check if navigation item is active
-  const isNavItemActive = (item: NavigationItem): boolean => {
-    const href = getNavHref(item);
-    if (href === '#') return false;
-    return location.pathname === href || location.pathname.startsWith(`${href}/`);
-  };
 
   return (
     <header
@@ -221,133 +161,9 @@ export function AppTopNav({ activeApp, onAppChange, activities }: AppTopNavProps
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Separator orientation="vertical" className="h-5 mx-1" />
-
-        {/* Primary Navigation - Desktop */}
-        <nav className="hidden lg:flex items-center gap-1 flex-1 min-w-0">
-          {visibleNavItems.slice(0, 6).map((item) => {
-            const NavIcon = getIcon(item.icon);
-            const href = getNavHref(item);
-            const isActive = isNavItemActive(item);
-            const label = resolveI18nLabel(item.label, t);
-
-            if (item.type === 'group' && item.children) {
-              return (
-                <DropdownMenu key={item.id}>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className={cn(
-                        'h-8 px-3 text-sm font-medium gap-1',
-                        isActive && 'bg-accent text-accent-foreground'
-                      )}
-                    >
-                      <NavIcon className="h-4 w-4" />
-                      <span>{label}</span>
-                      <ChevronDown className="h-3 w-3 opacity-50" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    {item.children
-                      .filter((child: NavigationItem) => {
-                        if (child.visible !== undefined && !evalVis(child.visible)) return false;
-                        if (child.permissions && !checkPerm(child.permissions)) return false;
-                        return true;
-                      })
-                      .map((child: NavigationItem) => {
-                        const ChildIcon = getIcon(child.icon);
-                        const childHref = getNavHref(child);
-                        const childLabel = resolveI18nLabel(child.label, t);
-                        return (
-                          <DropdownMenuItem key={child.id} asChild>
-                            <Link to={childHref} className="gap-2">
-                              <ChildIcon className="h-4 w-4" />
-                              {childLabel}
-                            </Link>
-                          </DropdownMenuItem>
-                        );
-                      })}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              );
-            }
-
-            return (
-              <Button
-                key={item.id}
-                variant="ghost"
-                size="sm"
-                asChild
-                className={cn(
-                  'h-8 px-3 text-sm font-medium',
-                  isActive && 'bg-accent text-accent-foreground'
-                )}
-              >
-                <Link to={href}>
-                  <NavIcon className="h-4 w-4 mr-1.5" />
-                  <span>{label}</span>
-                </Link>
-              </Button>
-            );
-          })}
-        </nav>
-
-        {/* Mobile Navigation - Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="lg:hidden h-8 px-2">
-              <span className="text-sm font-medium">Menu</span>
-              <ChevronDown className="ml-1 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56">
-            {visibleNavItems.map((item) => {
-              const NavIcon = getIcon(item.icon);
-              const href = getNavHref(item);
-              const label = resolveI18nLabel(item.label, t);
-
-              if (item.type === 'group' && item.children) {
-                return (
-                  <div key={item.id}>
-                    <DropdownMenuLabel className="flex items-center gap-2">
-                      <NavIcon className="h-4 w-4" />
-                      {label}
-                    </DropdownMenuLabel>
-                    {item.children
-                      .filter((child: NavigationItem) => {
-                        if (child.visible !== undefined && !evalVis(child.visible)) return false;
-                        if (child.permissions && !checkPerm(child.permissions)) return false;
-                        return true;
-                      })
-                      .map((child: NavigationItem) => {
-                        const ChildIcon = getIcon(child.icon);
-                        const childHref = getNavHref(child);
-                        const childLabel = resolveI18nLabel(child.label, t);
-                        return (
-                          <DropdownMenuItem key={child.id} asChild className="pl-8">
-                            <Link to={childHref} className="gap-2">
-                              <ChildIcon className="h-4 w-4" />
-                              {childLabel}
-                            </Link>
-                          </DropdownMenuItem>
-                        );
-                      })}
-                  </div>
-                );
-              }
-
-              return (
-                <DropdownMenuItem key={item.id} asChild>
-                  <Link to={href} className="gap-2">
-                    <NavIcon className="h-4 w-4" />
-                    {label}
-                  </Link>
-                </DropdownMenuItem>
-              );
-            })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Mobile sidebar trigger */}
+        <SidebarTrigger className="md:hidden shrink-0" />
+        <Separator orientation="vertical" className="md:hidden h-4 shrink-0" />
 
         {/* Search */}
         <button
