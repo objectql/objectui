@@ -1,20 +1,17 @@
 /**
  * ConsoleLayout
  *
- * Root layout shell for the console application. Composes the AppShell
- * with the UnifiedSidebar, header, and main content area.
+ * Root layout shell for the console application. Uses a top navigation bar
+ * instead of sidebar for a more modern, horizontal layout.
  * Includes the global floating chatbot (FAB) widget.
  * Sets navigation context to 'app' for app-specific routes.
  * @module
  */
 
 import React, { useEffect } from 'react';
-import { AppShell } from '@object-ui/layout';
 import { FloatingChatbot, useObjectChat, type ChatMessage } from '@object-ui/plugin-chatbot';
 import { useDiscovery } from '@object-ui/react';
-import { UnifiedSidebar } from './UnifiedSidebar';
-import { AppHeader } from './AppHeader';
-import { useResponsiveSidebar } from '../hooks/useResponsiveSidebar';
+import { AppTopNav } from './AppTopNav';
 import { useNavigationContext } from '../context/NavigationContext';
 import { resolveI18nLabel } from '../utils';
 import type { ConnectionState } from '../dataSource';
@@ -34,11 +31,6 @@ interface ConsoleLayoutProps {
   connectionState?: ConnectionState;
 }
 
-/** Inner component that can access SidebarProvider context */
-function ConsoleLayoutInner({ children }: { children: React.ReactNode }) {
-  useResponsiveSidebar();
-  return <>{children}</>;
-}
 
 /** Floating chatbot wired with useObjectChat for demo auto-response */
 function ConsoleFloatingChatbot({ appLabel, objects }: { appLabel: string; objects: ConsoleObject[] }) {
@@ -108,42 +100,42 @@ export function ConsoleLayout({
     setCurrentAppName(activeAppName);
   }, [setContext, setCurrentAppName, activeAppName]);
 
+  // Apply branding via CSS variables and document title
+  useEffect(() => {
+    if (activeApp?.branding) {
+      const { primaryColor, accentColor, favicon, title } = activeApp.branding;
+
+      if (primaryColor) {
+        document.documentElement.style.setProperty('--primary', primaryColor);
+      }
+      if (accentColor) {
+        document.documentElement.style.setProperty('--accent', accentColor);
+      }
+      if (favicon) {
+        const link = document.querySelector("link[rel*='icon']") as HTMLLinkElement || document.createElement('link');
+        link.type = 'image/x-icon';
+        link.rel = 'shortcut icon';
+        link.href = favicon;
+        document.getElementsByTagName('head')[0].appendChild(link);
+      }
+      if (title) {
+        document.title = `${resolveI18nLabel(activeApp.label)} — ObjectStack Console`;
+      }
+    }
+  }, [activeApp]);
+
   return (
-    <AppShell
-      sidebar={
-         <UnifiedSidebar
-           activeAppName={activeAppName}
-           onAppChange={onAppChange}
-         />
-      }
-      navbar={
-          <AppHeader
-            appName={appLabel}
-            objects={objects}
-            connectionState={connectionState}
-          />
-      }
-      className="p-0 overflow-hidden bg-muted/5"
-      branding={
-        activeApp?.branding
-          ? {
-              primaryColor: activeApp.branding.primaryColor,
-              accentColor: activeApp.branding.accentColor,
-              favicon: activeApp.branding.favicon,
-              logo: activeApp.branding.logo,
-              title: activeApp.label
-                ? `${resolveI18nLabel(activeApp.label)} — ObjectStack Console`
-                : undefined,
-            }
-          : undefined
-      }
-    >
-      <ConsoleLayoutInner>
+    <div className="flex min-h-svh w-full flex-col bg-muted/5" data-testid="console-layout">
+      <AppTopNav
+        activeApp={activeApp}
+        onAppChange={onAppChange}
+      />
+      <main className="flex-1 min-w-0 overflow-auto">
         {children}
-      </ConsoleLayoutInner>
+      </main>
 
       {/* Global floating chatbot — rendered only when AI service is available */}
       {isAiEnabled && <ConsoleFloatingChatbot appLabel={appLabel} objects={objects} />}
-    </AppShell>
+    </div>
   );
 }
