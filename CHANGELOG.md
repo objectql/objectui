@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **"Record not found" on the Vercel demo (`demo.objectui.org`).** The
+  Vercel build previously set `VITE_USE_MOCK_SERVER=false` in
+  `apps/console/vercel.json`, which caused the deployed console to
+  forward every `/api/v1/*` call to an external ObjectStack backend via
+  `VITE_SERVER_URL`. The example apps (`crm_enterprise`, `todo`,
+  `kitchen_sink`) are shipped as MSW seed data, not as data in that
+  remote backend, so clicking a record navigated to
+  `/apps/.../record/<composite-id>` and `findOne()` returned null —
+  `DetailView` then rendered its *Record not found* empty state. The
+  Vercel build is now aligned with the existing `build:vercel` script
+  in `apps/console/package.json` and sets `VITE_USE_MOCK_SERVER=true`,
+  so the deployed demo is fully self-contained: MSW boots the
+  in-memory ObjectStack kernel with the example apps' seed data,
+  records persist in `localStorage` across reloads, and record detail
+  URLs resolve against the same kernel that served the list.
+  `apps/console/README.md` now documents the self-contained demo mode
+  and the optional "point at a real backend" override.
+
 ### Changed
 
 - **`MetadataProvider` now lazy-loads metadata.** Previously the console
