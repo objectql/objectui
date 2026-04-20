@@ -99,9 +99,42 @@ export function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
   const { appName } = useParams();
-  const { apps, objects: allObjects, loading: metadataLoading } = useMetadata();
+  const { apps, objects: allObjects, loading: metadataLoading, ensureType } = useMetadata();
   const { t } = useObjectTranslation();
   const { objectLabel } = useObjectLabel();
+
+  // Preload the metadata buckets that the routes under /apps/:appName/* assume
+  // are fully loaded by render time. The Phase-1 MetadataProvider refactor
+  // made these buckets lazy (only `app` is eager); without this preload some
+  // legacy consumers (notably `ObjectView`) would mount with `objects=[]`,
+  // hit an `if (!objectDef) return <Empty/>` early-return, then break React's
+  // rules-of-hooks once the lazy fetch resolves and the hooks below the early
+  // return start running. /home and /login don't go through AppContent, so
+  // they keep the Phase-1 benefit of fetching only the `app` list at boot.
+  //
+  // `ensureType` is optional at the destructure site so that the many test
+  // files which provide a partial `useMetadata()` mock continue to work
+  // unchanged; in those environments the preload is a no-op (the mocked
+  // metadata arrays are already populated synchronously).
+  const [scopeMetaReady, setScopeMetaReady] = useState(!ensureType);
+  useEffect(() => {
+    if (!ensureType) {
+      setScopeMetaReady(true);
+      return;
+    }
+    let cancelled = false;
+    Promise.all([
+      ensureType('object'),
+      ensureType('dashboard'),
+      ensureType('report'),
+      ensureType('page'),
+    ]).finally(() => {
+      if (!cancelled) setScopeMetaReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [ensureType]);
   
   // Determine active app based on URL
   const activeApps = apps.filter((a: any) => a.active !== false);
@@ -253,7 +286,7 @@ export function AppContent() {
     [user, activeApp, editingRecord]
   );
 
-  if (!dataSource || metadataLoading) return <LoadingScreen />;
+  if (!dataSource || metadataLoading || !scopeMetaReady) return <LoadingScreen />;
 
   // Allow create-app route even when no active app exists
   const isCreateAppRoute = location.pathname.endsWith('/create-app');

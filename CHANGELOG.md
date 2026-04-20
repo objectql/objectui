@@ -30,6 +30,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **"Object Not Found" / React "Rendered more hooks" crash on app entry.**
+  A regression introduced by the lazy `MetadataProvider` refactor above:
+  `useMetadata().objects` started empty while the lazy fetch was in flight,
+  so `ObjectView` hit its `if (!objectDef) return <Empty/>` early return on
+  the first render; once the fetch resolved, the hooks declared below that
+  early return ran and React threw _"Rendered more hooks than during the
+  previous render"_. `AppContent` now preloads the `object`, `dashboard`,
+  `report`, and `page` buckets (via `ensureType`) before rendering the
+  routes under `/apps/:appName/*`, so legacy components that assume
+  metadata is fully loaded by render time continue to work. `/home`,
+  `/login` and `/register` do not go through `AppContent`, so the Phase 1
+  benefit of fetching only the `app` list at boot is preserved.
+
 - **Record detail header** no longer renders two separate "More" (⋯) overflow
   menus when an object defines more `record_header` actions than
   `maxVisible`. The hardcoded `<DropdownMenu>` inside
