@@ -7,7 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`MetadataProvider` now lazy-loads metadata.** Previously the console
+  fetched the full `app`, `object`, `dashboard`, `report`, and `page`
+  lists in parallel at app startup, so first-paint cost scaled linearly
+  with tenant size. The provider now only fetches the `app` list
+  eagerly (required by the router and the App switcher); the other
+  buckets are loaded on demand the first time a consumer reads them.
+  Concurrent reads share a single in-flight request, results are cached
+  with a 5 minute TTL, and the eager `app` list is hydrated from
+  `sessionStorage` on reload for an instant first paint.
+  - New context API: `ensureType(type)`, `getItem(type, name)`,
+    `invalidate(type, name?)`, `refresh(type?)` (per-type form).
+  - New hooks: `useMetadataType(type)`, `useMetadataItem(type, name)`.
+  - The legacy `useMetadata()` shape (`apps`, `objects`, `dashboards`,
+    `reports`, `pages`, `loading`, `error`, `refresh`,
+    `getItemsByType`) is preserved — reading any of the lazy array
+    properties transparently triggers `ensureType` so existing
+    components keep working without changes. The `loading` flag now
+    reflects only the initial `app` load, not lazy buckets.
+
 ### Fixed
+
+- **"Object Not Found" / React "Rendered more hooks" crash on app entry.**
+  A regression introduced by the lazy `MetadataProvider` refactor above:
+  `useMetadata().objects` started empty while the lazy fetch was in flight,
+  so `ObjectView` hit its `if (!objectDef) return <Empty/>` early return on
+  the first render; once the fetch resolved, the hooks declared below that
+  early return ran and React threw _"Rendered more hooks than during the
+  previous render"_. `AppContent` now preloads the `object`, `dashboard`,
+  `report`, and `page` buckets (via `ensureType`) before rendering the
+  routes under `/apps/:appName/*`, so legacy components that assume
+  metadata is fully loaded by render time continue to work. `/home`,
+  `/login` and `/register` do not go through `AppContent`, so the Phase 1
+  benefit of fetching only the `app` list at boot is preserved.
 
 - **Record detail header** no longer renders two separate "More" (⋯) overflow
   menus when an object defines more `record_header` actions than

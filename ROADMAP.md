@@ -1410,6 +1410,42 @@ Plugin architecture refactoring to support true modular development, plugin isol
 
 ## 🐛 Bug Fixes
 
+### Console Metadata Lazy Loading (Phase 1) (April 2026)
+
+**Root Cause:** The console's `MetadataProvider` fetched the full `app`,
+`object`, `dashboard`, `report`, and `page` lists in parallel at startup
+and held them in five top-level arrays via `useMetadata()`. As tenant
+metadata grew, first-paint TTI, browser memory, and API pressure all
+scaled linearly with total catalogue size — even when entering a single
+app that only needed a fraction of it.
+
+**Fix (Phase 1):** Refactored `MetadataProvider` to a per-type cache map
+(`status / items / byName / fetchedAt / promise`) with these
+characteristics:
+
+1. Only the `app` list is fetched on mount (required by router and App
+   switcher); other types are fully lazy.
+2. New imperative API on the context value: `ensureType(type)` (in-flight
+   de-duplicated), `getItem(type, name)` (single-record fetch + cache),
+   `invalidate(type, name?)`, and per-type `refresh(type?)`.
+3. New hooks: `useMetadataType(type)` and `useMetadataItem(type, name)`.
+4. 5-minute TTL freshness on list buckets; `app` list is hydrated from
+   `sessionStorage` on reload for instant first paint.
+5. Fully backward compatible: `apps / objects / dashboards / reports /
+   pages` are now lazy getters that auto-trigger `ensureType` on first
+   read, so all 20+ existing call sites keep working unchanged.
+6. Dev-only timing/cache-hit logs.
+
+**Tests:** 7 new `MetadataProviderLazy.test.tsx` cases (only `app`
+fetched on mount, lazy fetch on getter access, in-flight de-duplication,
+single-item fetch & cache, per-record invalidation, scoped `refresh`,
+`useMetadataItem` hook). Full console suite: 891 passed / 1 skipped.
+
+**Follow-ups (deferred to later phases of the original plan):** route-
+scoped `AppScopeProvider`, per-component migration to
+`useMetadataItem`, route-level `React.lazy` chunking, and server-side
+`?app=` filter pushdown / ETag support.
+
 ### Record Detail "Record Not Found" in External Metadata Environments (March 2026)
 
 **Root Cause:** Three compounding issues caused "Record not found" when navigating from a list to a record detail page in external metadata environments:
