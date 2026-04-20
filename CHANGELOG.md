@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`MetadataProvider` now lazy-loads metadata.** Previously the console
+  fetched the full `app`, `object`, `dashboard`, `report`, and `page`
+  lists in parallel at app startup, so first-paint cost scaled linearly
+  with tenant size. The provider now only fetches the `app` list
+  eagerly (required by the router and the App switcher); the other
+  buckets are loaded on demand the first time a consumer reads them.
+  Concurrent reads share a single in-flight request, results are cached
+  with a 5 minute TTL, and the eager `app` list is hydrated from
+  `sessionStorage` on reload for an instant first paint.
+  - New context API: `ensureType(type)`, `getItem(type, name)`,
+    `invalidate(type, name?)`, `refresh(type?)` (per-type form).
+  - New hooks: `useMetadataType(type)`, `useMetadataItem(type, name)`.
+  - The legacy `useMetadata()` shape (`apps`, `objects`, `dashboards`,
+    `reports`, `pages`, `loading`, `error`, `refresh`,
+    `getItemsByType`) is preserved — reading any of the lazy array
+    properties transparently triggers `ensureType` so existing
+    components keep working without changes. The `loading` flag now
+    reflects only the initial `app` load, not lazy buckets.
+
 ### Fixed
 
 - **Record detail header** no longer renders two separate "More" (⋯) overflow
