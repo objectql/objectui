@@ -33,14 +33,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Share sheet, toggling inline-edit mode) that depend on React state and
   are not part of the server-driven action protocol.
 
-- **Console home page (`/home`)** now uses a top navigation bar (`HomeTopNav`)
-  instead of the left `UnifiedSidebar`. This visually separates the workspace
-  landing page from individual applications (which still use `AppShell` +
-  `UnifiedSidebar` for their rich, contextual left-hand navigation). Fixes
-  confusion when the home page and an application page look visually
-  identical. The top nav keeps the workspace switcher, Home link, search
-  (⌘K), activity feed, help, theme toggle, locale switcher, and user
-  profile menu.
+- **Console layout (`/home` and `/apps/:appName/*`)** now uses a unified top
+  navigation bar approach. Both the home page (`HomeTopNav`) and application
+  pages (`AppTopNav`) use horizontal navigation instead of the previous
+  `UnifiedSidebar` left sidebar. This creates a more modern, streamlined layout
+  with all navigation, search (⌘K), activity feed, help, theme toggle, locale
+  switcher, and user profile menu in the top bar. App pages display primary
+  navigation items horizontally with support for dropdowns and mobile-responsive
+  menus.
 
 
 ## [3.3.0] - 2026-04-17
