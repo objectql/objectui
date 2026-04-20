@@ -33,14 +33,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Share sheet, toggling inline-edit mode) that depend on React state and
   are not part of the server-driven action protocol.
 
-- **Console layout architecture** now uses a hybrid approach for `/apps/:appName/*` routes:
-  - **Top navigation bar** (`AppTopNav`): Contains app logo, app switcher dropdown,
-    search (⌘K), activity feed, help, theme toggle, locale switcher, and user profile menu.
-  - **Left sidebar** (`UnifiedSidebar`): Displays application navigation menu items,
-    recent items, favorites, and settings.
-  - This combines the best of both worlds: compact top bar for global actions and
-    traditional left sidebar for contextual navigation.
-  - Home page (`/home`) continues to use `HomeTopNav` with no sidebar.
+- **Console layout architecture** now uses a v0-style approach for `/apps/:appName/*` routes:
+  - **Single top navigation bar** with horizontal menu layout (no left sidebar)
+  - **App logo & switcher**: Left side with dropdown to switch between applications
+  - **Horizontal navigation**: Primary navigation menu items displayed inline
+  - **Global actions**: Search (⌘K), activity feed, help, theme toggle, locale switcher, and user profile menu
+  - This creates a modern, clean interface similar to v0.dev with all navigation in a single top bar
+  - Maximizes content area by removing the left sidebar
+  - Home page (`/home`) continues to use `HomeTopNav` with the same pattern
 
 
 ## [3.3.0] - 2026-04-17
