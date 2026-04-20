@@ -32,6 +32,10 @@ function createMockAdapter() {
 }
 
 function flushAll() {
+  // Two microtask ticks are needed: one for the `ensureType` promise
+  // chain, another for the React state update that bumps the provider's
+  // version counter. `waitFor` is used elsewhere for assertion polling;
+  // `flushAll` just gets us past the initial mount transition.
   return act(async () => {
     await Promise.resolve();
     await Promise.resolve();

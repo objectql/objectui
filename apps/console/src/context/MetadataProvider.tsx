@@ -150,7 +150,24 @@ const TYPE_BY_STATE_KEY: Record<keyof Omit<MetadataState, 'loading' | 'error'>, 
 const SESSION_STORAGE_PREFIX = 'objectui:metadata:';
 
 /** Dev-only debug logger — silenced in production builds. */
-const DEV = typeof process !== 'undefined' && process.env && process.env.NODE_ENV !== 'production';
+// Vite replaces `import.meta.env.MODE` at build time. Fall back to `process.env`
+// for non-Vite runtimes (Node-based vitest, SSR) where `import.meta.env` is
+// undefined. Wrapped in try/catch so a missing global never breaks rendering.
+function isDev(): boolean {
+  try {
+    const meta: any = (import.meta as any);
+    if (meta && meta.env && typeof meta.env.MODE === 'string') {
+      return meta.env.MODE !== 'production';
+    }
+  } catch {
+    /* import.meta unavailable — fall through */
+  }
+  if (typeof process !== 'undefined' && process.env && typeof process.env.NODE_ENV === 'string') {
+    return process.env.NODE_ENV !== 'production';
+  }
+  return false;
+}
+const DEV = isDev();
 function debug(...args: unknown[]) {
   if (DEV) {
     // eslint-disable-next-line no-console
@@ -177,6 +194,16 @@ function extractItem(res: unknown): any | null {
     return (res as { item: any }).item ?? null;
   }
   return res;
+}
+
+/** Type guard for metadata items that carry a string `name` identifier. */
+function isNamedItem(item: unknown): item is { name: string } {
+  return (
+    !!item &&
+    typeof item === 'object' &&
+    'name' in item &&
+    typeof (item as { name: unknown }).name === 'string'
+  );
 }
 
 /** Build an empty cache entry for a type. */
@@ -278,8 +305,8 @@ export function MetadataProvider({ children, adapter, ttlMs = DEFAULT_TTL_MS }: 
           // Hydrate per-name cache so subsequent getItem() calls hit memory.
           entry.byName.clear();
           for (const it of items) {
-            if (it && typeof it === 'object' && 'name' in it && typeof (it as any).name === 'string') {
-              entry.byName.set((it as any).name, it);
+            if (isNamedItem(it)) {
+              entry.byName.set(it.name, it);
             }
           }
           if (type === 'app') saveToSession(type, items);
@@ -422,7 +449,7 @@ export function MetadataProvider({ children, adapter, ttlMs = DEFAULT_TTL_MS }: 
       entry.status = 'ready';
       entry.fetchedAt = 0; // mark as stale so a background refresh fires
       for (const it of cached) {
-        if (it && typeof it === 'object' && typeof it.name === 'string') {
+        if (isNamedItem(it)) {
           entry.byName.set(it.name, it);
         }
       }
