@@ -33,14 +33,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Share sheet, toggling inline-edit mode) that depend on React state and
   are not part of the server-driven action protocol.
 
-- **Console layout (`/home` and `/apps/:appName/*`)** now uses a unified top
-  navigation bar approach. Both the home page (`HomeTopNav`) and application
-  pages (`AppTopNav`) use horizontal navigation instead of the previous
-  `UnifiedSidebar` left sidebar. This creates a more modern, streamlined layout
-  with all navigation, search (⌘K), activity feed, help, theme toggle, locale
-  switcher, and user profile menu in the top bar. App pages display primary
-  navigation items horizontally with support for dropdowns and mobile-responsive
-  menus.
+- **Console layout architecture** now uses a hybrid approach for `/apps/:appName/*` routes:
+  - **Top navigation bar** (`AppTopNav`): Contains app logo, app switcher dropdown,
+    search (⌘K), activity feed, help, theme toggle, locale switcher, and user profile menu.
+  - **Left sidebar** (`UnifiedSidebar`): Displays application navigation menu items,
+    recent items, favorites, and settings.
+  - This combines the best of both worlds: compact top bar for global actions and
+    traditional left sidebar for contextual navigation.
+  - Home page (`/home`) continues to use `HomeTopNav` with no sidebar.
 
 
 ## [3.3.0] - 2026-04-17
