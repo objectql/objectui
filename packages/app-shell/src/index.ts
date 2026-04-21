@@ -14,7 +14,7 @@ export { FormRenderer } from './components/FormRenderer';
 
 // Providers
 export { AdapterProvider, useAdapter } from './providers/AdapterProvider';
-export { MetadataProvider, useMetadata } from './providers/MetadataProvider';
+export { MetadataProvider, useMetadata, useMetadataItem } from './providers/MetadataProvider';
 export { ExpressionProvider, useExpressionContext, evaluateVisibility } from './providers/ExpressionProvider';
 
 // Hooks
