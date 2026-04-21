@@ -14,11 +14,10 @@
  */
 
 import * as React from 'react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
 import {
   Sidebar,
-  SidebarHeader,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
@@ -28,40 +27,20 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarMenuAction,
-  SidebarInput,
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuGroup,
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
+  SidebarTrigger,
   useSidebar,
 } from '@object-ui/components';
 import {
-  ChevronsUpDown,
-  Settings,
-  LogOut,
-  Database,
   Clock,
   Star,
   StarOff,
-  Search,
-  Pencil,
   ChevronRight,
-  Home,
-  HelpCircle,
-  ArrowLeft,
   Layers,
 } from 'lucide-react';
 import { NavigationRenderer } from '@object-ui/layout';
 import type { NavigationItem } from '@object-ui/types';
 import { useMetadata } from '../context/MetadataProvider';
 import { useExpressionContext, evaluateVisibility } from '../context/ExpressionProvider';
-import { useAuth, getUserInitials } from '@object-ui/auth';
 import { usePermissions } from '@object-ui/permissions';
 import { useRecentItems } from '../hooks/useRecentItems';
 import { useFavorites } from '../hooks/useFavorites';
@@ -72,7 +51,6 @@ import { useObjectTranslation, useObjectLabel } from '@object-ui/i18n';
 // i18n lookup — `{ns}.apps.{name}.label` resolves to the translated label
 // loaded from /api/v1/i18n/translations/:locale.
 import { useNavigationContext } from '../context/NavigationContext';
-import { WorkspaceSwitcher } from './WorkspaceSwitcher';
 
 // ---------------------------------------------------------------------------
 // useNavOrder – localStorage-persisted drag-and-drop reorder for nav items
@@ -167,13 +145,11 @@ interface UnifiedSidebarProps {
   onAppChange?: (name: string) => void;
 }
 
-export function UnifiedSidebar({ activeAppName, onAppChange }: UnifiedSidebarProps) {
+export function UnifiedSidebar({ activeAppName }: UnifiedSidebarProps) {
   const { isMobile } = useSidebar();
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
   const { t } = useObjectTranslation();
-  const { objectLabel: resolveNavObjectLabel, appLabel, appDescription } = useObjectLabel();
+  const { objectLabel: resolveNavObjectLabel } = useObjectLabel();
   const { context, currentAppName } = useNavigationContext();
 
   // Swipe-from-left-edge gesture to open sidebar on mobile
@@ -205,9 +181,6 @@ export function UnifiedSidebar({ activeAppName, onAppChange }: UnifiedSidebarPro
   const apps = metadataApps || [];
   const activeApps = apps.filter((a: any) => a.active !== false);
   const activeApp = activeApps.find((a: any) => a.name === (activeAppName || currentAppName)) || activeApps[0];
-
-  const logo = activeApp?.branding?.logo;
-  const primaryColor = activeApp?.branding?.primaryColor;
 
   // Drag-reorder and pin persistence
   const { applyOrder, handleReorder } = useNavOrder(activeApp?.name || 'home');
@@ -245,9 +218,6 @@ export function UnifiedSidebar({ activeAppName, onAppChange }: UnifiedSidebarPro
     return applyPins(ordered);
   }, [navigationItems, applyOrder, applyPins]);
 
-  // Search filter state
-  const [navSearchQuery, setNavSearchQuery] = React.useState('');
-
   // Recent section collapsed by default
   const [recentExpanded, setRecentExpanded] = React.useState(false);
 
@@ -275,110 +245,11 @@ export function UnifiedSidebar({ activeAppName, onAppChange }: UnifiedSidebarPro
 
   return (
     <>
-    <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            {context === 'app' && activeApp ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton
-                  size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                >
-                  <div
-                    className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"
-                    style={primaryColor ? { backgroundColor: primaryColor } : undefined}
-                  >
-                     {logo ? (
-                       <img src={logo} alt={appLabel({ name: activeApp.name, label: resolveI18nLabel(activeApp.label, t) })} className="size-6 object-contain" />
-                     ) : (
-                       React.createElement(getIcon(activeApp.icon), { className: "size-4" })
-                     )}
-                  </div>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">{appLabel({ name: activeApp.name, label: resolveI18nLabel(activeApp.label, t) })}</span>
-                    <span className="truncate text-xs">
-                      {appDescription({ name: activeApp.name, description: resolveI18nLabel(activeApp.description, t) }) || `${activeApps.length} Apps Available`}
-                    </span>
-                  </div>
-                  <ChevronsUpDown className="ml-auto" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                align="start"
-                side={isMobile ? "bottom" : "right"}
-                sideOffset={4}
-              >
-                <DropdownMenuLabel className="text-xs text-muted-foreground">
-                  Switch Application
-                </DropdownMenuLabel>
-                {activeApps.map((app: any) => (
-                  <DropdownMenuItem
-                    key={app.name}
-                    onClick={() => onAppChange?.(app.name)}
-                    className="gap-2 p-2"
-                  >
-                    <div className="flex size-6 items-center justify-center rounded-sm border">
-                      {app.icon ? React.createElement(getIcon(app.icon), { className: "size-3" }) : <Database className="size-3" />}
-                    </div>
-                    {appLabel({ name: app.name, label: resolveI18nLabel(app.label, t) })}
-                    {activeApp.name === app.name && <span className="ml-auto text-xs">✓</span>}
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="gap-2 p-2" onClick={() => navigate('/home')} data-testid="home-link-btn">
-                  <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                    <Home className="size-4" />
-                  </div>
-                  <div className="font-medium text-muted-foreground">Back to Home</div>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="gap-2 p-2" onClick={() => navigate(`/apps/${activeApp.name}/edit-app/${activeApp.name}`)} data-testid="edit-app-btn">
-                  <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                    <Pencil className="size-4" />
-                  </div>
-                  <div className="font-medium text-muted-foreground">Edit App</div>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            ) : (
-            /* Home context header - Workspace selector */
-            <WorkspaceSwitcher
-              onWorkspaceChange={() => {
-                // Reload the page to reinitialize with the new tenant context.
-                // Use the current origin + console base path so we don't
-                // drop the `/console/` prefix configured via Vite base.
-                window.location.href = `${window.location.origin}/console/home`;
-              }}
-            />
-            )}
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-
-      <SidebarContent>
+    <Sidebar collapsible="icon" className="!top-14 !h-[calc(100svh-3.5rem)]">
+      <SidebarContent className="pt-2">
         <div className="transition-opacity duration-200 ease-in-out">
           {context === 'app' && activeApp ? (
            <>
-           {/* Back to Home button */}
-           <SidebarGroup className="py-0 pb-2">
-             <SidebarMenu>
-               <SidebarMenuItem>
-                 <SidebarMenuButton
-                   asChild
-                   className="text-muted-foreground hover:text-foreground"
-                 >
-                   <Link to="/home">
-                     <ArrowLeft className="h-4 w-4" />
-                     <span>Back to Home</span>
-                   </Link>
-                 </SidebarMenuButton>
-               </SidebarMenuItem>
-             </SidebarMenu>
-           </SidebarGroup>
-
            {/* Area Switcher */}
            {areas.length > 1 && (
              <SidebarGroup>
@@ -409,26 +280,12 @@ export function UnifiedSidebar({ activeAppName, onAppChange }: UnifiedSidebarPro
              </SidebarGroup>
            )}
 
-           {/* Navigation Search */}
-           <SidebarGroup className="py-0">
-             <SidebarGroupContent className="relative">
-               <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none opacity-70" />
-               <SidebarInput
-                 placeholder="Search navigation..."
-                 value={navSearchQuery}
-                 onChange={(e: any) => setNavSearchQuery(e.target.value)}
-                 className="pl-8"
-               />
-             </SidebarGroupContent>
-           </SidebarGroup>
-
            {/* App Navigation tree */}
            <NavigationRenderer
              items={processedNavigation}
              basePath={basePath}
              evaluateVisibility={evalVis}
              checkPermission={checkPerm}
-             searchQuery={navSearchQuery}
              enablePinning
              onPinToggle={togglePin}
              enableReorder
@@ -563,97 +420,8 @@ export function UnifiedSidebar({ activeAppName, onAppChange }: UnifiedSidebarPro
         </div>
       </SidebarContent>
 
-      {/* Pinned Bottom Area - Always visible */}
-      <SidebarFooter>
-        <SidebarMenu>
-          {/* Settings */}
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip={t('sidebar.settings', { defaultValue: 'Settings' })}>
-              <Link to={context === 'app' && activeApp ? `/apps/${activeApp.name}/system` : '/system'}>
-                <Settings className="h-4 w-4" />
-                <span>{t('sidebar.settings', { defaultValue: 'Settings' })}</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          {/* Help */}
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip={t('sidebar.helpTooltip', { defaultValue: 'Help & Documentation' })}>
-              <a href="https://docs.objectstack.ai" target="_blank" rel="noopener noreferrer">
-                <HelpCircle className="h-4 w-4" />
-                <span>{t('sidebar.help', { defaultValue: 'Help' })}</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          {/* User Profile */}
-          <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton
-                  size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                >
-                  <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src={user?.image ?? '/avatars/user.jpg'} alt={user?.name ?? 'User'} />
-                    <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
-                      {getUserInitials(user)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">{user?.name ?? 'User'}</span>
-                    <span className="truncate text-xs text-muted-foreground">{user?.email ?? ''}</span>
-                  </div>
-                  <ChevronsUpDown className="ml-auto size-4" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                side={isMobile ? "bottom" : "right"}
-                align="end"
-                sideOffset={4}
-              >
-                <DropdownMenuLabel className="p-0 font-normal">
-                  <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                    <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarImage src={user?.image ?? '/avatars/user.jpg'} alt={user?.name ?? 'User'} />
-                      <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
-                        {getUserInitials(user)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">{user?.name ?? 'User'}</span>
-                      <span className="truncate text-xs text-muted-foreground">{user?.email ?? ''}</span>
-                    </div>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem
-                    onClick={() => navigate('/apps/setup/system/profile')}
-                  >
-                    <LucideIcons.User className="mr-2 h-4 w-4" />
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => navigate('/apps/setup')}
-                  >
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
-                  onClick={() => signOut()}
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Log out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
-        </SidebarMenu>
+      <SidebarFooter className="border-t p-1">
+        <SidebarTrigger className="w-full justify-start pl-2 group-data-[state=collapsed]:justify-center group-data-[state=collapsed]:pl-0" />
       </SidebarFooter>
     </Sidebar>
     {isMobile && context === 'app' && (

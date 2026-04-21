@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import {
   SidebarProvider,
-  SidebarTrigger,
   SidebarInset,
   Sidebar
 } from '@object-ui/components';
@@ -132,18 +131,21 @@ export function AppShell({
   useAppShellBranding(branding, branding?.title);
 
   return (
-    <SidebarProvider defaultOpen={defaultOpen}>
-      {sidebar}
-      <SidebarInset>
-        <header className="flex h-14 sm:h-16 shrink-0 items-center gap-2 border-b bg-background px-2 sm:px-4">
-          <SidebarTrigger className="-ml-1 hidden md:inline-flex" />
-          <div className="w-px h-4 bg-border mx-1 sm:mx-2 hidden md:block" />
-          {navbar}
-        </header>
-        <main className={cn("flex-1 min-w-0 overflow-auto p-3 sm:p-4 md:p-6", className)}>
-          {children}
-        </main>
-      </SidebarInset>
+    <SidebarProvider defaultOpen={defaultOpen} className="!flex-col">
+      {/* 1. Full-width top bar spanning entire screen */}
+      <header className="sticky top-0 z-30 flex h-14 w-full shrink-0 items-center gap-2 border-b bg-background px-2 sm:px-4">
+        {navbar}
+      </header>
+
+      {/* 2. Lower section: sidebar + main content */}
+      <div className="flex flex-1 min-h-0 w-full">
+        {sidebar}
+        <SidebarInset className="min-w-0">
+          <main className={cn("flex-1 min-w-0 overflow-auto p-3 sm:p-4 md:p-6", className)}>
+            {children}
+          </main>
+        </SidebarInset>
+      </div>
     </SidebarProvider>
   );
 }
