@@ -26,7 +26,6 @@ import {
   ChevronDown,
   Settings,
   LogOut,
-  ChevronsUpDown,
   User as UserIcon,
   Boxes,
 } from 'lucide-react';
@@ -329,15 +328,13 @@ export function AppHeader({
         {/* User Profile */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 gap-1.5 px-1.5 shrink-0">
-              <Avatar className="h-6 w-6 rounded-md">
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 rounded-full">
+              <Avatar className="h-7 w-7 rounded-full">
                 <AvatarImage src={user?.image ?? '/avatars/user.jpg'} alt={user?.name ?? 'User'} />
-                <AvatarFallback className="rounded-md bg-primary text-primary-foreground text-xs">
+                <AvatarFallback className="rounded-full bg-primary text-primary-foreground text-xs">
                   {getUserInitials(user)}
                 </AvatarFallback>
               </Avatar>
-              <span className="hidden md:inline text-sm font-medium max-w-[100px] truncate">{user?.name ?? 'User'}</span>
-              <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-56 rounded-lg" sideOffset={4}>
