@@ -50,7 +50,6 @@ import {
   Star,
   StarOff,
   Search,
-  Pencil,
   ChevronRight,
   Home,
   HelpCircle,
@@ -280,69 +279,26 @@ export function UnifiedSidebar({ activeAppName, onAppChange }: UnifiedSidebarPro
         <SidebarMenu>
           <SidebarMenuItem>
             {context === 'app' && activeApp ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton
-                  size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            <SidebarMenuButton size="lg" asChild>
+              <Link to={`/apps/${activeApp.name}`}>
+                <div
+                  className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"
+                  style={primaryColor ? { backgroundColor: primaryColor } : undefined}
                 >
-                  <div
-                    className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"
-                    style={primaryColor ? { backgroundColor: primaryColor } : undefined}
-                  >
-                     {logo ? (
-                       <img src={logo} alt={appLabel({ name: activeApp.name, label: resolveI18nLabel(activeApp.label, t) })} className="size-6 object-contain" />
-                     ) : (
-                       React.createElement(getIcon(activeApp.icon), { className: "size-4" })
-                     )}
-                  </div>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">{appLabel({ name: activeApp.name, label: resolveI18nLabel(activeApp.label, t) })}</span>
-                    <span className="truncate text-xs">
-                      {appDescription({ name: activeApp.name, description: resolveI18nLabel(activeApp.description, t) }) || `${activeApps.length} Apps Available`}
-                    </span>
-                  </div>
-                  <ChevronsUpDown className="ml-auto" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                align="start"
-                side={isMobile ? "bottom" : "right"}
-                sideOffset={4}
-              >
-                <DropdownMenuLabel className="text-xs text-muted-foreground">
-                  Switch Application
-                </DropdownMenuLabel>
-                {activeApps.map((app: any) => (
-                  <DropdownMenuItem
-                    key={app.name}
-                    onClick={() => onAppChange?.(app.name)}
-                    className="gap-2 p-2"
-                  >
-                    <div className="flex size-6 items-center justify-center rounded-sm border">
-                      {app.icon ? React.createElement(getIcon(app.icon), { className: "size-3" }) : <Database className="size-3" />}
-                    </div>
-                    {appLabel({ name: app.name, label: resolveI18nLabel(app.label, t) })}
-                    {activeApp.name === app.name && <span className="ml-auto text-xs">✓</span>}
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="gap-2 p-2" onClick={() => navigate('/home')} data-testid="home-link-btn">
-                  <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                    <Home className="size-4" />
-                  </div>
-                  <div className="font-medium text-muted-foreground">Back to Home</div>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="gap-2 p-2" onClick={() => navigate(`/apps/${activeApp.name}/edit-app/${activeApp.name}`)} data-testid="edit-app-btn">
-                  <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                    <Pencil className="size-4" />
-                  </div>
-                  <div className="font-medium text-muted-foreground">Edit App</div>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                   {logo ? (
+                     <img src={logo} alt={appLabel({ name: activeApp.name, label: resolveI18nLabel(activeApp.label, t) })} className="size-6 object-contain" />
+                   ) : (
+                     React.createElement(getIcon(activeApp.icon), { className: "size-4" })
+                   )}
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">{appLabel({ name: activeApp.name, label: resolveI18nLabel(activeApp.label, t) })}</span>
+                  <span className="truncate text-xs">
+                    {appDescription({ name: activeApp.name, description: resolveI18nLabel(activeApp.description, t) }) || `${activeApps.length} Apps Available`}
+                  </span>
+                </div>
+              </Link>
+            </SidebarMenuButton>
             ) : (
             /* Home context header - Workspace selector */
             <WorkspaceSwitcher

@@ -121,6 +121,8 @@ export function ConsoleLayout({
             appName={appLabel}
             objects={objects}
             connectionState={connectionState}
+            activeAppName={activeAppName}
+            onAppChange={onAppChange}
           />
       }
       className="p-0 overflow-hidden bg-muted/5"

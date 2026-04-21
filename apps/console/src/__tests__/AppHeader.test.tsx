@@ -64,6 +64,14 @@ vi.mock('../components/ActivityFeed', () => ({
   ),
 }));
 
+vi.mock('../components/AppSwitcher', () => ({
+  AppSwitcher: ({ activeAppName, onAppChange }: any) => (
+    <div data-testid="app-switcher" onClick={() => onAppChange?.('other_app')}>
+      App: {activeAppName}
+    </div>
+  ),
+}));
+
 vi.mock('../context/AdapterProvider', () => ({
   useAdapter: () => null,
 }));

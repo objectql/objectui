@@ -33,6 +33,7 @@ import { ModeToggle } from './mode-toggle';
 import { LocaleSwitcher } from './LocaleSwitcher';
 import { ConnectionStatus } from './ConnectionStatus';
 import { ActivityFeed, type ActivityItem } from './ActivityFeed';
+import { AppSwitcher } from './AppSwitcher';
 import type { ConnectionState } from '../dataSource';
 import { useAdapter } from '../context/AdapterProvider';
 import { useObjectTranslation, useObjectLabel } from '@object-ui/i18n';
@@ -52,7 +53,7 @@ const FALLBACK_PRESENCE_USERS: PresenceUser[] = [
   { userId: 'u3', userName: 'Carol Li', color: '#e74c3c', status: 'active', lastActivity: new Date().toISOString() },
 ];
 
-export function AppHeader({ appName, objects, connectionState, presenceUsers, activities }: { appName: string, objects: any[], connectionState?: ConnectionState, presenceUsers?: PresenceUser[], activities?: ActivityItem[] }) {
+export function AppHeader({ appName, objects, connectionState, presenceUsers, activities, activeAppName, onAppChange }: { appName: string, objects: any[], connectionState?: ConnectionState, presenceUsers?: PresenceUser[], activities?: ActivityItem[], activeAppName?: string, onAppChange?: (name: string) => void }) {
     const location = useLocation();
     const params = useParams();
     const { isOnline } = useOffline();
@@ -158,12 +159,19 @@ export function AppHeader({ appName, objects, connectionState, presenceUsers, ac
     // Future: delegate full rendering to SchemaRenderer with header-bar schema.
 
     return (
-        <div className="flex items-center justify-between w-full h-full px-2 sm:px-3 md:px-4 gap-1.5 sm:gap-2">
+        <div className="flex items-center justify-between w-full h-full gap-1.5 sm:gap-2">
              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
+                {/* App Switcher - Desktop */}
+                {activeAppName && onAppChange && (
+                  <div className="hidden md:flex shrink-0">
+                    <AppSwitcher activeAppName={activeAppName} onAppChange={onAppChange} />
+                  </div>
+                )}
+
                 {/* Mobile sidebar trigger */}
                 <SidebarTrigger className="md:hidden shrink-0" />
-                <Separator orientation="vertical" className="h-4 md:hidden shrink-0" />
-                
+                <Separator orientation="vertical" className="h-4 shrink-0" />
+
                 <Breadcrumb className="hidden sm:flex min-w-0">
                   <BreadcrumbList>
                     {breadcrumbItems.map((item, index) => (
