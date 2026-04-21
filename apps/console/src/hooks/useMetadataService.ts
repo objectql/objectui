@@ -11,7 +11,7 @@
  */
 
 import { useMemo } from 'react';
-import { useAdapter } from '../context/AdapterProvider';
+import { useAdapter } from '@object-ui/app-shell';
 import { MetadataService } from '../services/MetadataService';
 
 export function useMetadataService(): MetadataService | null {

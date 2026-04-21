@@ -9,7 +9,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { ReportView } from '../components/ReportView';
-import { MetadataProvider } from '../context/MetadataProvider';
+import { MetadataProvider } from '@object-ui/app-shell';
 import { startMockServer, stopMockServer, getDriver } from '../mocks/server';
 import { ObjectStackAdapter } from '@object-ui/data-objectstack';
 import type { DataSource } from '@object-ui/types';

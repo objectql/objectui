@@ -31,7 +31,7 @@ import {
   Plus,
 } from 'lucide-react';
 import { useTheme } from './theme-provider';
-import { useExpressionContext, evaluateVisibility } from '../context/ExpressionProvider';
+import { useExpressionContext, evaluateVisibility } from '@object-ui/app-shell';
 import { useObjectTranslation } from '@object-ui/i18n';
 import { resolveI18nLabel } from '../utils';
 

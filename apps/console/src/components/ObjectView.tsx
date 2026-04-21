@@ -25,7 +25,7 @@ import { Plus, Table as TableIcon, Settings2, Wrench, KanbanSquare, Calendar, La
 import type { ListViewSchema, ViewNavigationConfig, FeedItem } from '@object-ui/types';
 import { MetadataToggle, MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import { ViewConfigPanel } from './ViewConfigPanel';
-import { useObjectActions } from '../hooks/useObjectActions';
+import { useObjectActions } from '@object-ui/app-shell';
 import { useObjectTranslation, useObjectLabel } from '@object-ui/i18n';
 import { usePermissions } from '@object-ui/permissions';
 import { useAuth } from '@object-ui/auth';

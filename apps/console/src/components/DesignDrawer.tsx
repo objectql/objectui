@@ -15,7 +15,7 @@ import {
   SheetDescription,
 } from '@object-ui/components';
 import { toast } from 'sonner';
-import { useAdapter } from '../context/AdapterProvider';
+import { useAdapter } from '@object-ui/app-shell';
 
 export interface DesignDrawerProps {
   /** Whether the drawer is open */
