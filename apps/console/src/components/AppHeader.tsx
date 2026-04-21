@@ -23,10 +23,15 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuGroup,
 } from '@object-ui/components';
-import { Search, HelpCircle, ChevronDown } from 'lucide-react';
+import { Search, HelpCircle, ChevronDown, Settings, LogOut, ChevronsUpDown } from 'lucide-react';
+import { User as UserIcon } from 'lucide-react';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useOffline } from '@object-ui/react';
 import { PresenceAvatars, type PresenceUser } from '@object-ui/collaboration';
 import { ModeToggle } from './mode-toggle';
@@ -38,6 +43,12 @@ import type { ConnectionState } from '../dataSource';
 import { useAdapter } from '../context/AdapterProvider';
 import { useObjectTranslation, useObjectLabel } from '@object-ui/i18n';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@object-ui/types';
+import { useAuth, getUserInitials } from '@object-ui/auth';
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from '@object-ui/components';
 
 /** Convert a slug like "crm_dashboard" or "audit-log" to "Crm Dashboard" / "Audit Log" */
 function humanizeSlug(slug: string): string {
@@ -56,7 +67,9 @@ const FALLBACK_PRESENCE_USERS: PresenceUser[] = [
 export function AppHeader({ appName, objects, connectionState, presenceUsers, activities, activeAppName, onAppChange }: { appName: string, objects: any[], connectionState?: ConnectionState, presenceUsers?: PresenceUser[], activities?: ActivityItem[], activeAppName?: string, onAppChange?: (name: string) => void }) {
     const location = useLocation();
     const params = useParams();
+    const navigate = useNavigate();
     const { isOnline } = useOffline();
+    const { user, signOut } = useAuth();
     const dataSource = useAdapter();
     const { t } = useObjectTranslation();
     const { objectLabel } = useObjectLabel();
@@ -274,19 +287,69 @@ export function AppHeader({ appName, objects, connectionState, presenceUsers, ac
                 </div>
                 
                 {/* Help */}
-                <Button variant="ghost" size="icon" className="h-8 w-8 hidden md:flex shrink-0">
-                  <HelpCircle className="h-4 w-4" />
+                <Button variant="ghost" size="icon" className="h-8 w-8 hidden md:flex shrink-0" asChild>
+                  <a href="https://docs.objectstack.ai" target="_blank" rel="noopener noreferrer">
+                    <HelpCircle className="h-4 w-4" />
+                  </a>
                 </Button>
-                
+
                 {/* Theme toggle */}
                 <div className="hidden sm:flex shrink-0">
                   <ModeToggle />
                 </div>
-                
+
                 {/* Language switcher */}
                 <div className="hidden sm:flex shrink-0">
                   <LocaleSwitcher />
                 </div>
+
+                {/* User Profile */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 gap-1.5 px-1.5 shrink-0">
+                      <Avatar className="h-6 w-6 rounded-md">
+                        <AvatarImage src={user?.image ?? '/avatars/user.jpg'} alt={user?.name ?? 'User'} />
+                        <AvatarFallback className="rounded-md bg-primary text-primary-foreground text-xs">
+                          {getUserInitials(user)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="hidden md:inline text-sm font-medium max-w-[100px] truncate">{user?.name ?? 'User'}</span>
+                      <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="min-w-56 rounded-lg" sideOffset={4}>
+                    <DropdownMenuLabel className="p-0 font-normal">
+                      <div className="flex items-center gap-2 px-2 py-2 text-left text-sm">
+                        <Avatar className="h-8 w-8 rounded-lg">
+                          <AvatarImage src={user?.image ?? '/avatars/user.jpg'} alt={user?.name ?? 'User'} />
+                          <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
+                            {getUserInitials(user)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="grid flex-1 text-left text-sm leading-tight">
+                          <span className="truncate font-semibold">{user?.name ?? 'User'}</span>
+                          <span className="truncate text-xs text-muted-foreground">{user?.email ?? ''}</span>
+                        </div>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem onClick={() => navigate('/apps/setup/system/profile')}>
+                        <UserIcon className="mr-2 h-4 w-4" />
+                        Profile
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/apps/setup')}>
+                        <Settings className="mr-2 h-4 w-4" />
+                        Settings
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => signOut()}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
              </div>
         </div>
     );
