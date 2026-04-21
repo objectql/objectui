@@ -60,29 +60,19 @@ Both modes support the same features and use the same codebase. Choose developme
 
 ## Vercel Deployment
 
-The console is deployed to Vercel (e.g. `demo.objectui.org`) as a **self-contained static SPA** — the MSW mock worker runs in the browser and serves all `/api/v1/*` requests from an in-memory ObjectStack kernel with persistent localStorage storage. No external backend is required.
+The console can be deployed as a standalone static SPA (e.g. to Vercel) that connects to a remote ObjectStack backend. The build configured in `vercel.json` disables the MSW mock worker (`VITE_USE_MOCK_SERVER=false`) so that all `/api/v1/*` requests go to the real backend.
 
-The build configured in `vercel.json` enables the MSW mock worker (`VITE_USE_MOCK_SERVER=true`) so that:
-
-- Seed data for the example apps (`crm_enterprise`, `todo`, `kitchen_sink`) is loaded on first visit.
-- Records, views, and user-created data persist in `localStorage` across page refreshes.
-- Record IDs (including composite driver-assigned IDs such as `crm__account-<timestamp>-<n>`) remain stable per-browser, so record detail URLs keep working after reload.
-
-No environment variables are required for the standalone demo deployment.
-
-### Optional: pointing at a real backend
-
-If you want to deploy the console against a live ObjectStack backend instead of the self-contained demo, override the build command to set `VITE_USE_MOCK_SERVER=false` and set `VITE_SERVER_URL` in the Vercel project settings:
+**Required environment variable** (set in the Vercel project's *Environment Variables* panel):
 
 | Variable | Example | Description |
 | --- | --- | --- |
-| `VITE_SERVER_URL` | `https://your-backend.example.com` | Absolute URL of the ObjectStack backend. When unset, requests default to the same origin — which will 404 on a static SPA host like Vercel. |
+| `VITE_SERVER_URL` | `https://demo.objectstack.ai` | Absolute URL of the ObjectStack backend. When unset, requests default to the same origin — which will 404 on a static SPA host. |
 
 Additional backend requirements for cross-origin deployments:
 
 1. The backend must allow CORS from the SPA origin (`Access-Control-Allow-Origin: <spa-origin>`, `Access-Control-Allow-Credentials: true`).
 2. Auth cookies must use `SameSite=None; Secure` so they are sent on cross-site requests.
-3. The apps and objects referenced in URLs (e.g. `crm_enterprise`, `lead`) must exist in the backend metadata and expose stable record IDs — otherwise the console will render its *object not found* / *record not found* empty state.
+3. The apps and objects referenced in URLs (e.g. `crm_enterprise`, `lead`) must actually exist in the backend metadata — otherwise the console will render its *object not found* empty state.
 
 ## ObjectStack Spec Compliance
 
