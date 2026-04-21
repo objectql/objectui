@@ -720,12 +720,18 @@ importers:
 
   packages/app-shell:
     dependencies:
+      '@object-ui/auth':
+        specifier: workspace:*
+        version: link:../auth
       '@object-ui/components':
         specifier: workspace:*
         version: link:../components
       '@object-ui/core':
         specifier: workspace:*
         version: link:../core
+      '@object-ui/data-objectstack':
+        specifier: workspace:*
+        version: link:../data-objectstack
       '@object-ui/fields':
         specifier: workspace:*
         version: link:../fields
@@ -738,19 +744,28 @@ importers:
       '@object-ui/types':
         specifier: workspace:*
         version: link:../types
-      react:
-        specifier: 19.2.5
-        version: 19.2.5
-      react-dom:
-        specifier: 19.2.5
-        version: 19.2.5(react@19.2.5)
+      sonner:
+        specifier: ^2.0.7
+        version: 2.0.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
     devDependencies:
+      '@types/node':
+        specifier: ^25.6.0
+        version: 25.6.0
       '@types/react':
         specifier: 19.2.14
         version: 19.2.14
       '@types/react-dom':
         specifier: 19.2.3
         version: 19.2.3(@types/react@19.2.14)
+      react:
+        specifier: 19.2.5
+        version: 19.2.5
+      react-dom:
+        specifier: 19.2.5
+        version: 19.2.5(react@19.2.5)
+      react-router-dom:
+        specifier: ^7.14.1
+        version: 7.14.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       typescript:
         specifier: ^6.0.2
         version: 6.0.2
