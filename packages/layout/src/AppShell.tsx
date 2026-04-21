@@ -133,23 +133,25 @@ export function AppShell({
 
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
-      {/* 1. Full-width top bar spanning entire screen - outside the flex container */}
-      <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-2 sm:px-4 w-full">
-        {navbar}
-      </header>
+      <div className="flex min-h-svh flex-col">
+        {/* 1. Full-width top bar spanning entire screen */}
+        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-2 sm:px-4 w-full">
+          {navbar}
+        </header>
 
-      {/* 2. Lower section: sidebar + main content */}
-      <div className="flex flex-1 min-h-0">
-        {sidebar}
-        <SidebarInset>
-          {/* Thin toolbar with SidebarTrigger for desktop */}
-          <div className="flex h-10 items-center border-b px-2 md:px-3">
-            <SidebarTrigger className="-ml-1" />
-          </div>
-          <main className={cn("flex-1 min-w-0 overflow-auto p-3 sm:p-4 md:p-6", className)}>
-            {children}
-          </main>
-        </SidebarInset>
+        {/* 2. Lower section: sidebar + main content */}
+        <div className="flex flex-1 min-h-0">
+          {sidebar}
+          <SidebarInset>
+            {/* Thin toolbar with SidebarTrigger for desktop */}
+            <div className="flex h-10 items-center border-b px-2 md:px-3">
+              <SidebarTrigger className="-ml-1" />
+            </div>
+            <main className={cn("flex-1 min-w-0 overflow-auto p-3 sm:p-4 md:p-6", className)}>
+              {children}
+            </main>
+          </SidebarInset>
+        </div>
       </div>
     </SidebarProvider>
   );
