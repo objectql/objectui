@@ -159,7 +159,12 @@ export function HomeTopNav({ activities }: HomeTopNavProps) {
               onWorkspaceChange={() => {
                 // Reload so adapter / permissions re-initialize with the new
                 // tenant context, matching the sidebar's prior behavior.
-                window.location.href = `${window.location.origin}/console/home`;
+                // Use Vite's BASE_URL so the redirect respects the deployment
+                // base path (e.g. `/console/` when served by HonoServerPlugin,
+                // `/` on standalone Vercel deployments).
+                const base = import.meta.env.BASE_URL || '/';
+                const normalizedBase = base.endsWith('/') ? base : `${base}/`;
+                window.location.href = `${window.location.origin}${normalizedBase}home`;
               }}
             />
           </div>
