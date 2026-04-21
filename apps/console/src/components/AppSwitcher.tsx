@@ -14,7 +14,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   Button,
 } from '@object-ui/components';
 import { ChevronsUpDown, Database } from 'lucide-react';

@@ -45,13 +45,11 @@ import {
   ChevronsUpDown,
   Settings,
   LogOut,
-  Database,
   Clock,
   Star,
   StarOff,
   Search,
   ChevronRight,
-  Home,
   HelpCircle,
   ArrowLeft,
   Layers,
@@ -166,7 +164,7 @@ interface UnifiedSidebarProps {
   onAppChange?: (name: string) => void;
 }
 
-export function UnifiedSidebar({ activeAppName, onAppChange }: UnifiedSidebarProps) {
+export function UnifiedSidebar({ activeAppName }: UnifiedSidebarProps) {
   const { isMobile } = useSidebar();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
