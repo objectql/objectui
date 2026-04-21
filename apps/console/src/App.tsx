@@ -60,6 +60,10 @@ const ProfilePage = lazy(() => import('./pages/system/ProfilePage').then(m => ({
 const HomePage = lazy(() => import('./pages/home/HomePage').then(m => ({ default: m.HomePage })));
 const HomeLayout = lazy(() => import('./pages/home/HomeLayout').then(m => ({ default: m.HomeLayout })));
 
+// Organizations Page (lazy — shown when no organization is active)
+const OrganizationsPage = lazy(() => import('./pages/organizations/OrganizationsPage').then(m => ({ default: m.OrganizationsPage })));
+const OrganizationsLayout = lazy(() => import('./pages/organizations/OrganizationsLayout').then(m => ({ default: m.OrganizationsLayout })));
+
 import { ThemeProvider } from './components/theme-provider';
 import { ConsoleToaster } from './components/ConsoleToaster';
 import { NavigationProvider } from './context/NavigationContext';
@@ -500,6 +504,28 @@ function findFirstRoute(items: any[]): string {
     return '';
 }
 
+/**
+ * RequireOrganization — redirects to `/organizations` when no org is active.
+ *
+ * Server deployments without the better-auth organization plugin return an
+ * empty `organizations` list and leave `activeOrganization` null; in that
+ * case we skip the gate and render the children so single-tenant setups
+ * continue to work.
+ */
+function RequireOrganization({ children }: { children: ReactNode }) {
+  const { activeOrganization, organizations, isOrganizationsLoading } = useAuth();
+
+  if (isOrganizationsLoading) return <LoadingScreen />;
+
+  const orgList = organizations ?? [];
+  const orgFeatureEnabled = orgList.length > 0 || !!activeOrganization;
+  if (orgFeatureEnabled && !activeOrganization) {
+    return <Navigate to="/organizations" replace />;
+  }
+
+  return <>{children}</>;
+}
+
 // Redirect root to home page
 function RootRedirect() {
     const { loading } = useMetadata();
@@ -563,10 +589,24 @@ export function App() {
                 <Route path="/home" element={
                   <AuthGuard fallback={<Navigate to="/login" />} loadingFallback={<LoadingScreen />}>
                     <ConnectedShell>
+                      <RequireOrganization>
+                        <Suspense fallback={<LoadingScreen />}>
+                          <HomeLayout>
+                            <HomePage />
+                          </HomeLayout>
+                        </Suspense>
+                      </RequireOrganization>
+                    </ConnectedShell>
+                  </AuthGuard>
+                } />
+                {/* Organizations — browse / switch / create (landing when no active org) */}
+                <Route path="/organizations" element={
+                  <AuthGuard fallback={<Navigate to="/login" />} loadingFallback={<LoadingScreen />}>
+                    <ConnectedShell>
                       <Suspense fallback={<LoadingScreen />}>
-                        <HomeLayout>
-                          <HomePage />
-                        </HomeLayout>
+                        <OrganizationsLayout>
+                          <OrganizationsPage />
+                        </OrganizationsLayout>
                       </Suspense>
                     </ConnectedShell>
                   </AuthGuard>
@@ -586,7 +626,9 @@ export function App() {
                 <Route path="/apps/:appName/*" element={
                   <AuthGuard fallback={<Navigate to="/login" />} loadingFallback={<LoadingScreen />}>
                     <ConnectedShell>
-                      <AppContent />
+                      <RequireOrganization>
+                        <AppContent />
+                      </RequireOrganization>
                     </ConnectedShell>
                   </AuthGuard>
                 } />

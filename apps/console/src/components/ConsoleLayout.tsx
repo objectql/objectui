@@ -118,6 +118,7 @@ export function ConsoleLayout({
       }
       navbar={
           <AppHeader
+            variant="app"
             appName={appLabel}
             objects={objects}
             connectionState={connectionState}
