@@ -16,7 +16,7 @@ import { FieldDesigner } from '@object-ui/plugin-designer';
 import type { DesignerFieldDefinition } from '@object-ui/types';
 import type { SchemaNode } from '@object-ui/core';
 import { toast } from 'sonner';
-import { useMetadata } from '../../context/MetadataProvider';
+import { useMetadata } from '@object-ui/app-shell';
 import { useMetadataService } from '../../hooks/useMetadataService';
 import { MetadataService } from '../../services/MetadataService';
 import { toFieldDefinition, type MetadataObject } from '../../utils/metadataConverters';

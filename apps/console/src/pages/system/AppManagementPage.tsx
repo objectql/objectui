@@ -27,7 +27,7 @@ import {
   Search,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useMetadata } from '../../context/MetadataProvider';
+import { useMetadata } from '@object-ui/app-shell';
 import { resolveI18nLabel } from '../../utils';
 
 export function AppManagementPage() {

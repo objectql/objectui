@@ -41,9 +41,27 @@ const mockAdapter = {
   getObjectSchema: vi.fn().mockResolvedValue({ name: 'test', fields: {} }),
 };
 
-vi.mock('../context/AdapterProvider', () => ({
-  useAdapter: () => mockAdapter,
-}));
+const mockRefresh = vi.fn().mockResolvedValue(undefined);
+vi.mock('@object-ui/app-shell', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+  return {
+    ...actual,
+    useAdapter: () => mockAdapter,
+    useMetadata: () => ({
+      apps: [
+        { name: 'crm', label: 'CRM', description: 'Customer management', active: true, isDefault: true },
+        { name: 'hr', label: 'HR', description: 'Human resources', active: false, isDefault: false },
+      ],
+      objects: [],
+      dashboards: [],
+      reports: [],
+      pages: [],
+      loading: false,
+      error: null,
+      refresh: mockRefresh,
+    }),
+  };
+});
 
 vi.mock('@object-ui/auth', () => ({
   useAuth: () => ({ user: { id: 'u1', name: 'Admin', role: 'admin' } }),
@@ -62,23 +80,6 @@ vi.mock('react-router-dom', async () => {
     useParams: () => ({ appName: 'test-app' }),
   };
 });
-
-const mockRefresh = vi.fn().mockResolvedValue(undefined);
-vi.mock('../context/MetadataProvider', () => ({
-  useMetadata: () => ({
-    apps: [
-      { name: 'crm', label: 'CRM', description: 'Customer management', active: true, isDefault: true },
-      { name: 'hr', label: 'HR', description: 'Human resources', active: false, isDefault: false },
-    ],
-    objects: [],
-    dashboards: [],
-    reports: [],
-    pages: [],
-    loading: false,
-    error: null,
-    refresh: mockRefresh,
-  }),
-}));
 
 // Import after mocks
 import { UserManagementPage } from '../pages/system/UserManagementPage';

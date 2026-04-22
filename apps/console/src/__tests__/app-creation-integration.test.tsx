@@ -42,32 +42,41 @@ vi.mock('../../objectstack.shared', () => ({
   },
 }));
 
-vi.mock('../context/MetadataProvider', () => ({
-  MetadataProvider: ({ children }: any) => <>{children}</>,
-  useMetadata: () => ({
-    apps: [
-      {
-        name: 'sales',
-        label: 'Sales App',
-        active: true,
-        icon: 'briefcase',
-        navigation: [
-          { id: 'nav_opp', label: 'Opportunities', type: 'object', objectName: 'opportunity' },
-        ],
-      },
-    ],
-    objects: [
-      { name: 'opportunity', label: 'Opportunity', fields: {} },
-      { name: 'contact', label: 'Contact', fields: {} },
-    ],
-    dashboards: [],
-    reports: [],
-    pages: [],
-    loading: false,
-    error: null,
-    refresh: vi.fn(),
-  }),
-}));
+vi.mock('@object-ui/app-shell', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+  return {
+    ...actual,
+    MetadataProvider: ({ children }: any) => <>{children}</>,
+    useMetadata: () => ({
+      apps: [
+        {
+          name: 'sales',
+          label: 'Sales App',
+          active: true,
+          icon: 'briefcase',
+          navigation: [
+            { id: 'nav_opp', label: 'Opportunities', type: 'object', objectName: 'opportunity' },
+          ],
+        },
+      ],
+      objects: [
+        { name: 'opportunity', label: 'Opportunity', fields: {} },
+        { name: 'contact', label: 'Contact', fields: {} },
+      ],
+      dashboards: [],
+      reports: [],
+      pages: [],
+      loading: false,
+      error: null,
+      refresh: vi.fn(),
+    }),
+    AdapterProvider: ({ children }: any) => <>{children}</>,
+    useAdapter: () => MockAdapterInstance,
+    useExpressionContext: () => ({ evaluator: {} }),
+    ExpressionProvider: ({ children }: any) => <>{children}</>,
+    evaluateVisibility: () => true,
+  };
+});
 
 vi.mock('@objectstack/client', () => ({
   ObjectStackClient: class {
@@ -75,7 +84,7 @@ vi.mock('@objectstack/client', () => ({
   },
 }));
 
-const MockAdapterInstance = {
+const MockAdapterInstance = vi.hoisted(() => ({
   find: vi.fn().mockResolvedValue([]),
   findOne: vi.fn(),
   create: vi.fn(),
@@ -92,7 +101,7 @@ const MockAdapterInstance = {
     },
   }),
   discovery: {},
-};
+}));
 
 vi.mock('../dataSource', () => {
   const MockAdapter = class {
@@ -111,11 +120,6 @@ vi.mock('../dataSource', () => {
     ObjectStackDataSource: MockAdapter,
   };
 });
-
-vi.mock('../context/AdapterProvider', () => ({
-  AdapterProvider: ({ children }: any) => <>{children}</>,
-  useAdapter: () => MockAdapterInstance,
-}));
 
 // Mock heavy page components
 vi.mock('../components/ObjectView', () => ({
@@ -191,13 +195,6 @@ vi.mock('lucide-react', async (importOriginal) => {
 // Mock theme provider (for CommandPalette)
 vi.mock('../components/theme-provider', () => ({
   useTheme: () => ({ theme: 'light', setTheme: vi.fn() }),
-}));
-
-// Mock expression provider
-vi.mock('../context/ExpressionProvider', () => ({
-  useExpressionContext: () => ({ evaluator: {} }),
-  ExpressionProvider: ({ children }: any) => <>{children}</>,
-  evaluateVisibility: () => true,
 }));
 
 // Mock auth

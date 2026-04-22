@@ -23,32 +23,33 @@ const mockNavigation = [
   },
 ];
 
-vi.mock('../context/MetadataProvider', () => ({
-  MetadataProvider: ({ children }: any) => <>{children}</>,
-  useMetadata: () => ({
-    apps: [
-      {
-        name: 'crm',
-        label: 'CRM App',
-        active: true,
-        icon: 'Briefcase',
-        navigation: mockNavigation,
-      },
-    ],
-    objects: [],
-    dashboards: [],
-    reports: [],
-    pages: [],
-    loading: false,
-    error: null,
-    refresh: vi.fn(),
-  }),
-}));
-
-vi.mock('../context/ExpressionProvider', () => ({
-  useExpressionContext: () => ({ evaluator: null }),
-  evaluateVisibility: () => true,
-}));
+vi.mock('@object-ui/app-shell', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+  return {
+    ...actual,
+    MetadataProvider: ({ children }: any) => <>{children}</>,
+    useMetadata: () => ({
+      apps: [
+        {
+          name: 'crm',
+          label: 'CRM App',
+          active: true,
+          icon: 'Briefcase',
+          navigation: mockNavigation,
+        },
+      ],
+      objects: [],
+      dashboards: [],
+      reports: [],
+      pages: [],
+      loading: false,
+      error: null,
+      refresh: vi.fn(),
+    }),
+    useExpressionContext: () => ({ evaluator: null }),
+    evaluateVisibility: () => true,
+  };
+});
 
 vi.mock('@object-ui/auth', () => ({
   useAuth: () => ({

@@ -26,8 +26,7 @@ import {
   User,
   Loader2,
 } from 'lucide-react';
-import { useAdapter } from '../../context/AdapterProvider';
-import { useMetadata } from '../../context/MetadataProvider';
+import { useAdapter, useMetadata } from '@object-ui/app-shell';
 import { getHubMetadataTypes } from '../../config/metadataTypeRegistry';
 import { getIcon } from '../../utils/getIcon';
 

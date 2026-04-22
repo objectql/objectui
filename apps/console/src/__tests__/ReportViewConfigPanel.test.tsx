@@ -39,27 +39,27 @@ const { stableReports, stableObjects, mockRefresh, mockUpdate } = vi.hoisted(() 
   };
 });
 
-// Mock MetadataProvider with stable references
-vi.mock('../context/MetadataProvider', () => ({
-  useMetadata: () => ({
-    apps: [],
-    objects: stableObjects,
-    dashboards: [],
-    reports: stableReports,
-    pages: [],
-    loading: false,
-    error: null,
-    refresh: mockRefresh,
-  }),
-}));
-
-// Mock AdapterProvider
-vi.mock('../context/AdapterProvider', () => ({
-  useAdapter: () => ({
-    update: mockUpdate,
-    create: vi.fn().mockResolvedValue({}),
-  }),
-}));
+// Mock @object-ui/app-shell (MetadataProvider + AdapterProvider) with stable references
+vi.mock('@object-ui/app-shell', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+  return {
+    ...actual,
+    useMetadata: () => ({
+      apps: [],
+      objects: stableObjects,
+      dashboards: [],
+      reports: stableReports,
+      pages: [],
+      loading: false,
+      error: null,
+      refresh: mockRefresh,
+    }),
+    useAdapter: () => ({
+      update: mockUpdate,
+      create: vi.fn().mockResolvedValue({}),
+    }),
+  };
+});
 
 // Mock sonner toast
 vi.mock('sonner', () => ({

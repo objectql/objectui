@@ -4,40 +4,44 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { PageView } from '../components/PageView';
 
-// Mock MetadataProvider to return static page metadata
-vi.mock('../context/MetadataProvider', () => ({
-  useMetadata: () => ({
-    apps: [],
-    objects: [],
-    dashboards: [],
-    reports: [],
-    pages: [
-      {
-        name: 'help_page',
-        type: 'app', 
-        label: 'Help Guide',
-        regions: [
-            {
-                name: 'main',
-                components: [
-                    { type: 'text', value: 'Content for Help Page' }
-                ]
-            }
-        ]
-      },
-      {
-        name: 'standard_page',
-        type: 'page',
-        children: [
-            { type: 'text', value: 'Standard Page Content' }
-        ]
-      }
-    ],
-    loading: false,
-    error: null,
-    refresh: vi.fn(),
-  }),
-}));
+// Mock @object-ui/app-shell to return static page metadata
+vi.mock('@object-ui/app-shell', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+  return {
+    ...actual,
+    useMetadata: () => ({
+      apps: [],
+      objects: [],
+      dashboards: [],
+      reports: [],
+      pages: [
+        {
+          name: 'help_page',
+          type: 'app',
+          label: 'Help Guide',
+          regions: [
+              {
+                  name: 'main',
+                  components: [
+                      { type: 'text', value: 'Content for Help Page' }
+                  ]
+              }
+          ]
+        },
+        {
+          name: 'standard_page',
+          type: 'page',
+          children: [
+              { type: 'text', value: 'Standard Page Content' }
+          ]
+        }
+      ],
+      loading: false,
+      error: null,
+      refresh: vi.fn(),
+    }),
+  };
+});
 
 // Mock SchemaRenderer to avoid complex component tree rendering
 // We just want to ensure PageView passes the correct schema to it

@@ -7,13 +7,14 @@ import { AppHeader } from '../components/AppHeader';
 vi.mock('react-router-dom', () => ({
   useLocation: () => ({ pathname: '/apps/crm_enterprise/contact/view/all' }),
   useParams: () => ({ appName: 'crm_enterprise' }),
+  useNavigate: () => vi.fn(),
   Link: ({ to, children, className }: any) => <a href={to} className={className}>{children}</a>,
 }));
 
 // Mock i18n
 vi.mock('@object-ui/i18n', () => ({
   useObjectTranslation: () => ({
-    t: (key: string) => key,
+    t: (key: string, opts?: { defaultValue?: string }) => opts?.defaultValue ?? key,
     language: 'en',
     changeLanguage: vi.fn(),
     direction: 'ltr',
@@ -72,9 +73,33 @@ vi.mock('../components/AppSwitcher', () => ({
   ),
 }));
 
-vi.mock('../context/AdapterProvider', () => ({
-  useAdapter: () => null,
+vi.mock('../context/NavigationContext', () => ({
+  useNavigationContext: () => ({
+    context: 'app',
+    setContext: vi.fn(),
+    currentAppName: 'crm_enterprise',
+    setCurrentAppName: vi.fn(),
+  }),
+  NavigationProvider: ({ children }: any) => children,
 }));
+
+vi.mock('@object-ui/app-shell', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+  return {
+    ...actual,
+    useAdapter: () => null,
+    useMetadata: () => ({
+      apps: [],
+      objects: [],
+      dashboards: [],
+      reports: [],
+      pages: [],
+      loading: false,
+      error: null,
+      refresh: vi.fn(),
+    }),
+  };
+});
 
 // Mock @object-ui/components
 vi.mock('@object-ui/components', () => ({
@@ -93,6 +118,12 @@ vi.mock('@object-ui/components', () => ({
   DropdownMenuTrigger: ({ children, className }: any) => <button data-testid="dropdown-trigger" className={className}>{children}</button>,
   DropdownMenuContent: ({ children }: any) => <div data-testid="dropdown-content">{children}</div>,
   DropdownMenuItem: ({ children }: any) => <div data-testid="dropdown-item">{children}</div>,
+  DropdownMenuLabel: ({ children, className }: any) => <div data-testid="dropdown-label" className={className}>{children}</div>,
+  DropdownMenuSeparator: () => <hr data-testid="dropdown-separator" />,
+  DropdownMenuGroup: ({ children }: any) => <div data-testid="dropdown-group">{children}</div>,
+  Avatar: ({ children, className }: any) => <div data-testid="avatar" className={className}>{children}</div>,
+  AvatarImage: ({ src, alt }: any) => <img data-testid="avatar-image" src={src} alt={alt} />,
+  AvatarFallback: ({ children }: any) => <div data-testid="avatar-fallback">{children}</div>,
 }));
 
 // Mock lucide-react
@@ -100,6 +131,10 @@ vi.mock('lucide-react', () => ({
   Search: () => <span data-testid="icon-search">🔍</span>,
   HelpCircle: () => <span data-testid="icon-help">❓</span>,
   ChevronDown: () => <span data-testid="icon-chevron">▼</span>,
+  Settings: () => <span data-testid="icon-settings">⚙️</span>,
+  LogOut: () => <span data-testid="icon-logout">🚪</span>,
+  User: () => <span data-testid="icon-user">👤</span>,
+  Boxes: () => <span data-testid="icon-boxes">📦</span>,
 }));
 
 describe('AppHeader', () => {

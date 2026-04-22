@@ -48,10 +48,14 @@ vi.mock('../components/theme-provider', () => ({
 }));
 
 // Mock expression provider
-vi.mock('../context/ExpressionProvider', () => ({
-  useExpressionContext: () => ({ evaluator: {} }),
-  evaluateVisibility: () => true,
-}));
+vi.mock('@object-ui/app-shell', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+  return {
+    ...actual,
+    useExpressionContext: () => ({ evaluator: {} }),
+    evaluateVisibility: () => true,
+  };
+});
 
 // Mock i18n
 vi.mock('@object-ui/i18n', () => ({

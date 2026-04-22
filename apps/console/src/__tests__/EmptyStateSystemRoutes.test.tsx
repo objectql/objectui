@@ -19,23 +19,7 @@ import { AppContent } from '../App';
 
 // --- Mocks ---
 
-// Mock MetadataProvider with NO apps (empty state)
-vi.mock('../context/MetadataProvider', () => ({
-  MetadataProvider: ({ children }: any) => <>{children}</>,
-  useMetadata: () => ({
-    apps: [],
-    objects: [],
-    dashboards: [],
-    reports: [],
-    pages: [],
-    loading: false,
-    error: null,
-    refresh: vi.fn(),
-  }),
-}));
-
-// Mock AdapterProvider
-const MockAdapterInstance = {
+const MockAdapterInstance = vi.hoisted(() => ({
   find: vi.fn().mockResolvedValue([]),
   findOne: vi.fn(),
   create: vi.fn(),
@@ -45,12 +29,28 @@ const MockAdapterInstance = {
   onConnectionStateChange: vi.fn().mockReturnValue(() => {}),
   getConnectionState: vi.fn().mockReturnValue('connected'),
   discovery: {},
-};
-
-vi.mock('../context/AdapterProvider', () => ({
-  AdapterProvider: ({ children }: any) => <>{children}</>,
-  useAdapter: () => MockAdapterInstance,
 }));
+
+// Mock @object-ui/app-shell (MetadataProvider + AdapterProvider)
+vi.mock('@object-ui/app-shell', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+  return {
+    ...actual,
+    MetadataProvider: ({ children }: any) => <>{children}</>,
+    useMetadata: () => ({
+      apps: [],
+      objects: [],
+      dashboards: [],
+      reports: [],
+      pages: [],
+      loading: false,
+      error: null,
+      refresh: vi.fn(),
+    }),
+    AdapterProvider: ({ children }: any) => <>{children}</>,
+    useAdapter: () => MockAdapterInstance,
+  };
+});
 
 vi.mock('../dataSource', () => {
   const MockAdapter = class {

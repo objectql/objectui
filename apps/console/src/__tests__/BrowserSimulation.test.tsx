@@ -104,17 +104,15 @@ vi.mock('../dataSource', () => ({
     ObjectStackDataSource: mocks.MockDataSource,
 }));
 
-// Mock AdapterProvider to provide a mock adapter directly
-vi.mock('../context/AdapterProvider', () => ({
-    AdapterProvider: ({ children }: any) => <>{children}</>,
-    useAdapter: () => new mocks.MockDataSource(),
-}));
-
-// Mock MetadataProvider to use the real objectstack.shared config as metadata
-vi.mock('../context/MetadataProvider', async () => {
+// Mock @object-ui/app-shell (MetadataProvider + AdapterProvider)
+vi.mock('@object-ui/app-shell', async () => {
+    const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
     const config = await import('../../objectstack.shared');
     const appConfig = (config.default as any).default || config.default;
     return {
+        ...actual,
+        AdapterProvider: ({ children }: any) => <>{children}</>,
+        useAdapter: () => new mocks.MockDataSource(),
         MetadataProvider: ({ children }: any) => <>{children}</>,
         useMetadata: () => ({
             apps: appConfig.apps || [],

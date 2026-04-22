@@ -35,41 +35,41 @@ const { rendererCalls, dashboardConfigCalls, widgetConfigCalls, mockRefresh } = 
   mockRefresh: vi.fn().mockResolvedValue(undefined),
 }));
 
-// Mock MetadataProvider with a dashboard
-vi.mock('../context/MetadataProvider', () => ({
-  useMetadata: () => ({
-    apps: [],
-    objects: [],
-    dashboards: [
-      {
-        name: 'crm-dashboard',
-        type: 'dashboard',
-        title: 'CRM Overview',
-        label: 'CRM Overview',
-        columns: 2,
-        widgets: [
-          { id: 'w1', title: 'Total Revenue', type: 'metric', object: 'orders', valueField: 'amount', aggregate: 'sum' },
-          { id: 'w2', title: 'Revenue Trends', type: 'line', object: 'orders', categoryField: 'month' },
-          { id: 'w3', title: 'Pipeline by Stage', type: 'bar', object: 'opportunities' },
-        ],
-      },
-    ],
-    reports: [],
-    pages: [],
-    loading: false,
-    error: null,
-    refresh: mockRefresh,
-  }),
-}));
-
-// Mock AdapterProvider
+// Mock @object-ui/app-shell (MetadataProvider + AdapterProvider)
 const { mockUpdate } = vi.hoisted(() => ({ mockUpdate: vi.fn().mockResolvedValue({}) }));
-vi.mock('../context/AdapterProvider', () => ({
-  useAdapter: () => ({
-    update: mockUpdate,
-    create: vi.fn().mockResolvedValue({}),
-  }),
-}));
+vi.mock('@object-ui/app-shell', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+  return {
+    ...actual,
+    useMetadata: () => ({
+      apps: [],
+      objects: [],
+      dashboards: [
+        {
+          name: 'crm-dashboard',
+          type: 'dashboard',
+          title: 'CRM Overview',
+          label: 'CRM Overview',
+          columns: 2,
+          widgets: [
+            { id: 'w1', title: 'Total Revenue', type: 'metric', object: 'orders', valueField: 'amount', aggregate: 'sum' },
+            { id: 'w2', title: 'Revenue Trends', type: 'line', object: 'orders', categoryField: 'month' },
+            { id: 'w3', title: 'Pipeline by Stage', type: 'bar', object: 'opportunities' },
+          ],
+        },
+      ],
+      reports: [],
+      pages: [],
+      loading: false,
+      error: null,
+      refresh: mockRefresh,
+    }),
+    useAdapter: () => ({
+      update: mockUpdate,
+      create: vi.fn().mockResolvedValue({}),
+    }),
+  };
+});
 
 // Mock DashboardRenderer to capture design mode props
 vi.mock('@object-ui/plugin-dashboard', () => ({

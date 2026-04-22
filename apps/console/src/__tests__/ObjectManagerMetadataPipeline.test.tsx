@@ -29,68 +29,68 @@ const mockGetItems = vi.fn().mockResolvedValue([
   { name: 'account', label: 'Accounts', description: 'Customer accounts' },
 ]);
 
-// Mock MetadataProvider
-vi.mock('../context/MetadataProvider', () => ({
-  useMetadata: () => ({
-    objects: [
-      {
-        name: 'account',
-        label: 'Accounts',
-        icon: 'Building',
-        description: 'Customer accounts',
-        enabled: true,
-        fields: [
-          { name: 'id', type: 'text', label: 'ID', readonly: true },
-          { name: 'name', type: 'text', label: 'Account Name', required: true },
-          { name: 'email', type: 'email', label: 'Email' },
-          { name: 'status', type: 'select', label: 'Status', options: ['active', 'inactive'] },
-        ],
-        relationships: [
-          { object: 'contact', type: 'one-to-many', name: 'contacts' },
-        ],
-      },
-      {
-        name: 'contact',
-        label: 'Contacts',
-        icon: 'Users',
-        fields: [
-          { name: 'id', type: 'text', label: 'ID', readonly: true },
-          { name: 'name', type: 'text', label: 'Name', required: true },
-        ],
-      },
-      {
-        name: 'sys_user',
-        label: 'Users',
-        icon: 'Users',
-        fields: [
-          { name: 'id', type: 'text', label: 'ID', readonly: true },
-          { name: 'name', type: 'text', label: 'Name', required: true },
-          { name: 'email', type: 'email', label: 'Email', required: true },
-        ],
-      },
-    ],
-    apps: [],
-    dashboards: [],
-    reports: [],
-    pages: [],
-    loading: false,
-    error: null,
-    refresh: mockRefresh,
-  }),
-}));
-
-// Mock AdapterProvider (useAdapter) – provides adapter to useMetadataService
-vi.mock('../context/AdapterProvider', () => ({
-  useAdapter: () => ({
-    getClient: () => ({
-      meta: {
-        saveItem: mockSaveItem,
-        getItem: mockGetItem,
-      },
+// Mock @object-ui/app-shell (MetadataProvider + AdapterProvider)
+vi.mock('@object-ui/app-shell', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+  return {
+    ...actual,
+    useMetadata: () => ({
+      objects: [
+        {
+          name: 'account',
+          label: 'Accounts',
+          icon: 'Building',
+          description: 'Customer accounts',
+          enabled: true,
+          fields: [
+            { name: 'id', type: 'text', label: 'ID', readonly: true },
+            { name: 'name', type: 'text', label: 'Account Name', required: true },
+            { name: 'email', type: 'email', label: 'Email' },
+            { name: 'status', type: 'select', label: 'Status', options: ['active', 'inactive'] },
+          ],
+          relationships: [
+            { object: 'contact', type: 'one-to-many', name: 'contacts' },
+          ],
+        },
+        {
+          name: 'contact',
+          label: 'Contacts',
+          icon: 'Users',
+          fields: [
+            { name: 'id', type: 'text', label: 'ID', readonly: true },
+            { name: 'name', type: 'text', label: 'Name', required: true },
+          ],
+        },
+        {
+          name: 'sys_user',
+          label: 'Users',
+          icon: 'Users',
+          fields: [
+            { name: 'id', type: 'text', label: 'ID', readonly: true },
+            { name: 'name', type: 'text', label: 'Name', required: true },
+            { name: 'email', type: 'email', label: 'Email', required: true },
+          ],
+        },
+      ],
+      apps: [],
+      dashboards: [],
+      reports: [],
+      pages: [],
+      loading: false,
+      error: null,
+      refresh: mockRefresh,
     }),
-    invalidateCache: mockInvalidateCache,
-  }),
-}));
+    useAdapter: () => ({
+      getClient: () => ({
+        meta: {
+          saveItem: mockSaveItem,
+          getItem: mockGetItem,
+        },
+      }),
+      invalidateCache: mockInvalidateCache,
+    }),
+  };
+});
 
 // Mock useMetadataService for MetadataDetailPage (which uses getItems)
 vi.mock('../hooks/useMetadataService', () => ({

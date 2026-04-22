@@ -9,40 +9,40 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { DashboardDesignPage } from '../pages/DashboardDesignPage';
 
-// Mock MetadataProvider
+// Mock @object-ui/app-shell (MetadataProvider + AdapterProvider)
 const { mockRefresh } = vi.hoisted(() => ({ mockRefresh: vi.fn().mockResolvedValue(undefined) }));
-vi.mock('../context/MetadataProvider', () => ({
-  useMetadata: () => ({
-    apps: [],
-    objects: [],
-    dashboards: [
-      {
-        name: 'sales-dashboard',
-        type: 'dashboard',
-        title: 'Sales Dashboard',
-        label: 'Sales Dashboard',
-        columns: 3,
-        widgets: [
-          { id: 'w1', title: 'Revenue', type: 'metric', layout: { x: 0, y: 0, w: 1, h: 1 } },
-        ],
-      },
-    ],
-    reports: [],
-    pages: [],
-    loading: false,
-    error: null,
-    refresh: mockRefresh,
-  }),
-}));
-
-// Mock AdapterProvider
 const { mockUpdate } = vi.hoisted(() => ({ mockUpdate: vi.fn().mockResolvedValue({}) }));
-vi.mock('../context/AdapterProvider', () => ({
-  useAdapter: () => ({
-    update: mockUpdate,
-    create: vi.fn().mockResolvedValue({}),
-  }),
-}));
+vi.mock('@object-ui/app-shell', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+  return {
+    ...actual,
+    useMetadata: () => ({
+      apps: [],
+      objects: [],
+      dashboards: [
+        {
+          name: 'sales-dashboard',
+          type: 'dashboard',
+          title: 'Sales Dashboard',
+          label: 'Sales Dashboard',
+          columns: 3,
+          widgets: [
+            { id: 'w1', title: 'Revenue', type: 'metric', layout: { x: 0, y: 0, w: 1, h: 1 } },
+          ],
+        },
+      ],
+      reports: [],
+      pages: [],
+      loading: false,
+      error: null,
+      refresh: mockRefresh,
+    }),
+    useAdapter: () => ({
+      update: mockUpdate,
+      create: vi.fn().mockResolvedValue({}),
+    }),
+  };
+});
 
 // Mock plugin-designer to avoid complex component tree
 vi.mock('@object-ui/plugin-designer', () => ({

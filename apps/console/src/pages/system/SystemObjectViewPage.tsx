@@ -12,7 +12,7 @@
 import type { ComponentType } from 'react';
 import { ObjectView } from '@object-ui/plugin-view';
 import type { ObjectViewSchema } from '@object-ui/types';
-import { useAdapter } from '../../context/AdapterProvider';
+import { useAdapter } from '@object-ui/app-shell';
 import { systemObjects } from './systemObjects';
 
 interface SystemObjectViewPageProps {

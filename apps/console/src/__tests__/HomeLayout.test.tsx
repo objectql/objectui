@@ -74,22 +74,22 @@ vi.mock('../context/NavigationContext', () => ({
   }),
 }));
 
-// Mock MetadataProvider
-vi.mock('../context/MetadataProvider', () => ({
-  useMetadata: () => ({
-    apps: [],
-    objects: [],
-    loading: false,
-  }),
-}));
-
-// Mock other required contexts
-vi.mock('../context/ExpressionProvider', () => ({
-  useExpressionContext: () => ({
-    evaluator: {},
-  }),
-  evaluateVisibility: () => true,
-}));
+// Mock @object-ui/app-shell (MetadataProvider + ExpressionProvider)
+vi.mock('@object-ui/app-shell', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+  return {
+    ...actual,
+    useMetadata: () => ({
+      apps: [],
+      objects: [],
+      loading: false,
+    }),
+    useExpressionContext: () => ({
+      evaluator: {},
+    }),
+    evaluateVisibility: () => true,
+  };
+});
 
 vi.mock('@object-ui/permissions', () => ({
   usePermissions: () => ({

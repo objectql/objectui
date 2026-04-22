@@ -35,8 +35,11 @@ vi.mock('../../objectstack.shared', () => ({
     }
 }));
 
-// Mock MetadataProvider to return static metadata (replaces objectstack.shared in components)
-vi.mock('../context/MetadataProvider', () => ({
+// Mock @object-ui/app-shell (MetadataProvider + AdapterProvider)
+vi.mock('@object-ui/app-shell', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+  return {
+    ...actual,
     MetadataProvider: ({ children }: any) => <>{children}</>,
     useMetadata: () => ({
         apps: [
@@ -66,7 +69,10 @@ vi.mock('../context/MetadataProvider', () => ({
         error: null,
         refresh: vi.fn(),
     }),
-}));
+    AdapterProvider: ({ children }: any) => <>{children}</>,
+    useAdapter: () => MockAdapterInstance,
+  };
+});
 
 // Mock Client and DataSource
 vi.mock('@objectstack/client', () => {
@@ -77,7 +83,7 @@ vi.mock('@objectstack/client', () => {
     };
 });
 
-const MockAdapterInstance = {
+const MockAdapterInstance = vi.hoisted(() => ({
     find: vi.fn().mockResolvedValue([]),
     findOne: vi.fn(),
     create: vi.fn(),
@@ -87,7 +93,7 @@ const MockAdapterInstance = {
     onConnectionStateChange: vi.fn().mockReturnValue(() => {}),
     getConnectionState: vi.fn().mockReturnValue('connected'),
     discovery: {},
-};
+}));
 
 vi.mock('../dataSource', () => {
     const MockAdapter = class {
@@ -106,12 +112,6 @@ vi.mock('../dataSource', () => {
         ObjectStackDataSource: MockAdapter,
     };
 });
-
-// Mock AdapterProvider to provide mock adapter directly
-vi.mock('../context/AdapterProvider', () => ({
-    AdapterProvider: ({ children }: any) => <>{children}</>,
-    useAdapter: () => MockAdapterInstance,
-}));
 
 // Mock Child Components (Integration level)
 // We want to verify routing, so we mock the "Page" components but keep Layout structure mostly

@@ -9,37 +9,37 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { PageView } from '../components/PageView';
 
-// Mock MetadataProvider
-vi.mock('../context/MetadataProvider', () => ({
-  useMetadata: () => ({
-    apps: [],
-    objects: [],
-    dashboards: [],
-    reports: [],
-    pages: [
-      {
-        name: 'test-page',
-        type: 'page',
-        title: 'Test Page',
-        children: [
-          { type: 'text', value: 'Original Content' },
-        ],
-      },
-    ],
-    loading: false,
-    error: null,
-    refresh: vi.fn(),
-  }),
-}));
-
-// Mock AdapterProvider
+// Mock @object-ui/app-shell (MetadataProvider + AdapterProvider)
 const { mockUpdate } = vi.hoisted(() => ({ mockUpdate: vi.fn().mockResolvedValue({}) }));
-vi.mock('../context/AdapterProvider', () => ({
-  useAdapter: () => ({
-    update: mockUpdate,
-    create: vi.fn().mockResolvedValue({}),
-  }),
-}));
+vi.mock('@object-ui/app-shell', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+  return {
+    ...actual,
+    useMetadata: () => ({
+      apps: [],
+      objects: [],
+      dashboards: [],
+      reports: [],
+      pages: [
+        {
+          name: 'test-page',
+          type: 'page',
+          title: 'Test Page',
+          children: [
+            { type: 'text', value: 'Original Content' },
+          ],
+        },
+      ],
+      loading: false,
+      error: null,
+      refresh: vi.fn(),
+    }),
+    useAdapter: () => ({
+      update: mockUpdate,
+      create: vi.fn().mockResolvedValue({}),
+    }),
+  };
+});
 
 // Mock SchemaRenderer to show current schema for preview verification
 vi.mock('@object-ui/react', () => ({

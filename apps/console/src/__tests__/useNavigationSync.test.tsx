@@ -41,22 +41,23 @@ let mockApps: any[] = [];
 let mockPages: any[] = [];
 let mockDashboards: any[] = [];
 
-vi.mock('../context/AdapterProvider', () => ({
-  useAdapter: () => ({
-    getClient: () => ({
-      meta: { saveItem: mockSaveItem },
+vi.mock('@object-ui/app-shell', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+  return {
+    ...actual,
+    useAdapter: () => ({
+      getClient: () => ({
+        meta: { saveItem: mockSaveItem },
+      }),
     }),
-  }),
-}));
-
-vi.mock('../context/MetadataProvider', () => ({
-  useMetadata: () => ({
-    apps: mockApps,
-    pages: mockPages,
-    dashboards: mockDashboards,
-    refresh: mockRefresh,
-  }),
-}));
+    useMetadata: () => ({
+      apps: mockApps,
+      pages: mockPages,
+      dashboards: mockDashboards,
+      refresh: mockRefresh,
+    }),
+  };
+});
 
 // Import after mocks are registered
 const { useNavigationSync, NavigationSyncEffect } = await import('../hooks/useNavigationSync');

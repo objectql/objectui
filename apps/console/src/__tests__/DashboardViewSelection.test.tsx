@@ -34,40 +34,40 @@ const { rendererCalls, dashboardConfigCalls, widgetConfigCalls, mockRefresh } = 
   mockRefresh: vi.fn().mockResolvedValue(undefined),
 }));
 
-// Mock MetadataProvider with a dashboard
-vi.mock('../context/MetadataProvider', () => ({
-  useMetadata: () => ({
-    apps: [],
-    objects: [],
-    dashboards: [
-      {
-        name: 'sales',
-        type: 'dashboard',
-        title: 'Sales Dashboard',
-        label: 'Sales Dashboard',
-        columns: 2,
-        widgets: [
-          { id: 'w1', title: 'Revenue', type: 'metric', object: 'orders', valueField: 'amount', aggregate: 'sum' },
-          { id: 'w2', title: 'Sales Chart', type: 'bar', object: 'orders', categoryField: 'month' },
-        ],
-      },
-    ],
-    reports: [],
-    pages: [],
-    loading: false,
-    error: null,
-    refresh: mockRefresh,
-  }),
-}));
-
-// Mock AdapterProvider
+// Mock @object-ui/app-shell (MetadataProvider + AdapterProvider)
 const { mockUpdate } = vi.hoisted(() => ({ mockUpdate: vi.fn().mockResolvedValue({}) }));
-vi.mock('../context/AdapterProvider', () => ({
-  useAdapter: () => ({
-    update: mockUpdate,
-    create: vi.fn().mockResolvedValue({}),
-  }),
-}));
+vi.mock('@object-ui/app-shell', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+  return {
+    ...actual,
+    useMetadata: () => ({
+      apps: [],
+      objects: [],
+      dashboards: [
+        {
+          name: 'sales',
+          type: 'dashboard',
+          title: 'Sales Dashboard',
+          label: 'Sales Dashboard',
+          columns: 2,
+          widgets: [
+            { id: 'w1', title: 'Revenue', type: 'metric', object: 'orders', valueField: 'amount', aggregate: 'sum' },
+            { id: 'w2', title: 'Sales Chart', type: 'bar', object: 'orders', categoryField: 'month' },
+          ],
+        },
+      ],
+      reports: [],
+      pages: [],
+      loading: false,
+      error: null,
+      refresh: mockRefresh,
+    }),
+    useAdapter: () => ({
+      update: mockUpdate,
+      create: vi.fn().mockResolvedValue({}),
+    }),
+  };
+});
 
 // Mock plugin-dashboard components to capture config panel interactions
 vi.mock('@object-ui/plugin-dashboard', () => ({

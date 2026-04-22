@@ -17,7 +17,7 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { useMetadata } from '../../context/MetadataProvider';
+import { useMetadata } from '@object-ui/app-shell';
 import { useRecentItems } from '../../hooks/useRecentItems';
 import { useFavorites } from '../../hooks/useFavorites';
 import { useObjectTranslation } from '@object-ui/i18n';

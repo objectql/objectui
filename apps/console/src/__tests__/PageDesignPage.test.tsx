@@ -9,37 +9,37 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { PageDesignPage } from '../pages/PageDesignPage';
 
-// Mock MetadataProvider
-vi.mock('../context/MetadataProvider', () => ({
-  useMetadata: () => ({
-    apps: [],
-    objects: [],
-    dashboards: [],
-    reports: [],
-    pages: [
-      {
-        name: 'test-page',
-        type: 'page',
-        title: 'Test Page',
-        children: [
-          { type: 'grid', id: 'grid-1', title: 'Orders Grid' },
-        ],
-      },
-    ],
-    loading: false,
-    error: null,
-    refresh: vi.fn(),
-  }),
-}));
-
-// Mock AdapterProvider
+// Mock @object-ui/app-shell (MetadataProvider + AdapterProvider)
 const { mockUpdate } = vi.hoisted(() => ({ mockUpdate: vi.fn().mockResolvedValue({}) }));
-vi.mock('../context/AdapterProvider', () => ({
-  useAdapter: () => ({
-    update: mockUpdate,
-    create: vi.fn().mockResolvedValue({}),
-  }),
-}));
+vi.mock('@object-ui/app-shell', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+  return {
+    ...actual,
+    useMetadata: () => ({
+      apps: [],
+      objects: [],
+      dashboards: [],
+      reports: [],
+      pages: [
+        {
+          name: 'test-page',
+          type: 'page',
+          title: 'Test Page',
+          children: [
+            { type: 'grid', id: 'grid-1', title: 'Orders Grid' },
+          ],
+        },
+      ],
+      loading: false,
+      error: null,
+      refresh: vi.fn(),
+    }),
+    useAdapter: () => ({
+      update: mockUpdate,
+      create: vi.fn().mockResolvedValue({}),
+    }),
+  };
+});
 
 // Mock plugin-designer to avoid complex component tree
 vi.mock('@object-ui/plugin-designer', () => ({
