@@ -45,7 +45,7 @@
     "@vitejs/plugin-react": "^6.0.1",
     "vite": "^8.0.9",
     "vite-plugin-dts": "^3.9.1",
-    "vitest": "^4.1.4"
+    "vitest": "^4.1.5"
   },
   "description": "Report plugin for Object UI \u2014 schema-driven pivot tables, grouped aggregations and printable report layouts",
   "keywords": [
