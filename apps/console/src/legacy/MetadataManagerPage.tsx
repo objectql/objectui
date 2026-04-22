@@ -34,7 +34,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@object-ui/auth';
-import { useMetadataService } from '../hooks/useMetadataService';
+import { useMetadataService } from '@object-ui/app-shell';
 import { useMetadata } from '@object-ui/app-shell';
 import { getMetadataTypeConfig, type MetadataTypeConfig } from '../config/metadataTypeRegistry';
 import { MetadataFormDialog } from '../components/MetadataFormDialog';

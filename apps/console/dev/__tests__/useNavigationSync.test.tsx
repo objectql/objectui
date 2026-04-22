@@ -14,7 +14,7 @@ import {
   removeNavigationItems,
   renameNavigationItems,
   navigationEqual,
-} from '../../src/hooks/useNavigationSync';
+} from '@object-ui/app-shell';
 
 // ---------------------------------------------------------------------------
 // Mock toast (sonner)
@@ -60,7 +60,7 @@ vi.mock('@object-ui/app-shell', async () => {
 });
 
 // Import after mocks are registered
-const { useNavigationSync, NavigationSyncEffect } = await import('../../src/hooks/useNavigationSync');
+const { useNavigationSync, NavigationSyncEffect } = await import('@object-ui/app-shell');
 
 // ===========================================================================
 // Pure utility tests

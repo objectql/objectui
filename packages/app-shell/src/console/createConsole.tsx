@@ -15,6 +15,14 @@ import { AuthGuard, useAuth } from '@object-ui/auth';
 import { AdapterProvider, useAdapter } from '../providers/AdapterProvider';
 import { MetadataProvider, useMetadata } from '../providers/MetadataProvider';
 import type { ConsoleConfig } from './types';
+import { AppContent as DefaultAppContent } from './AppContent';
+import { LoginPage as DefaultLoginPage } from './auth/LoginPage';
+import { RegisterPage as DefaultRegisterPage } from './auth/RegisterPage';
+import { ForgotPasswordPage as DefaultForgotPasswordPage } from './auth/ForgotPasswordPage';
+import { HomeLayout as DefaultHomeLayout } from './home/HomeLayout';
+import { HomePage as DefaultHomePage } from './home/HomePage';
+import { OrganizationsLayout as DefaultOrganizationsLayout } from './organizations/OrganizationsLayout';
+import { OrganizationsPage as DefaultOrganizationsPage } from './organizations/OrganizationsPage';
 
 /**
  * Generic loading fallback. Hosts that want a branded loader can wrap createConsole
@@ -93,13 +101,20 @@ function NoopAuthWrapper({ children }: { children: ReactNode }) {
  * the caller wrapping the result, so this factory stays free of console-private
  * dependencies (theme-provider, ConsoleToaster, ConditionalAuthWrapper, etc.).
  */
-export function createConsole(config: ConsoleConfig): ComponentType {
+export function createConsole(config: ConsoleConfig = {}): ComponentType {
   const {
     basename = '/',
-    authPages: { Login, Register, ForgotPassword },
-    homePage: { Layout: HomeLayout, Page: HomePage },
-    organizationsPage: { Layout: OrgsLayout, Page: OrgsPage },
-    AppContent,
+    authPages: {
+      Login = DefaultLoginPage,
+      Register = DefaultRegisterPage,
+      ForgotPassword = DefaultForgotPasswordPage,
+    } = {},
+    homePage: { Layout: HomeLayout = DefaultHomeLayout, Page: HomePage = DefaultHomePage } = {},
+    organizationsPage: {
+      Layout: OrgsLayout = DefaultOrganizationsLayout,
+      Page: OrgsPage = DefaultOrganizationsPage,
+    } = {},
+    AppContent = DefaultAppContent,
     CreateAppRoute,
   } = config;
 

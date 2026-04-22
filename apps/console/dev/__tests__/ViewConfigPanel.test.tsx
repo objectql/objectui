@@ -9,7 +9,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { ViewConfigPanel } from '../../src/components/ViewConfigPanel';
+import { ViewConfigPanel } from '@object-ui/app-shell';
 
 // Mock i18n — return keys as-is for test assertions
 vi.mock('@object-ui/i18n', () => ({

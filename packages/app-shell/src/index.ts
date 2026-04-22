@@ -53,3 +53,71 @@ export type {
   AuthPagesConfig,
   RouteSlot,
 } from './console/types';
+
+// Layout chrome
+export {
+  ConsoleLayout,
+  AppHeader,
+  AppSidebar,
+  UnifiedSidebar,
+  AppSwitcher,
+  ConnectionStatus,
+  ActivityFeed,
+  LocaleSwitcher,
+  ModeToggle,
+  AuthPageLayout,
+} from './layout';
+export type { ActivityItem } from './layout';
+
+// Top-level chrome (dialogs, providers, error boundaries)
+export {
+  CommandPalette,
+  KeyboardShortcutsDialog,
+  OnboardingWalkthrough,
+  ConditionalAuthWrapper,
+  ConsoleToaster,
+  ErrorBoundary,
+  LoadingScreen,
+  ThemeProvider,
+  useTheme,
+} from './chrome';
+
+// Standard inner-SPA views
+export {
+  ObjectView,
+  RecordDetailView,
+  DashboardView,
+  PageView,
+  ReportView,
+  SearchResultsPage,
+  ViewConfigPanel,
+} from './views';
+
+// Hooks
+export {
+  useFavorites,
+  useMetadataService,
+  useNavPins,
+  useNavigationSync,
+  NavigationSyncEffect,
+  addNavigationItem,
+  removeNavigationItems,
+  renameNavigationItems,
+  navigationEqual,
+  generateNavId,
+  useResponsiveSidebar,
+} from './hooks';
+export type { FavoriteItem } from './hooks';
+
+// Context providers
+export { NavigationProvider, useNavigationContext, FavoritesProvider } from './context';
+
+// Default page implementations (consumers can partial-override slots)
+export { AppContent as DefaultAppContent } from './console/AppContent';
+export { LoginPage as DefaultLoginPage } from './console/auth/LoginPage';
+export { RegisterPage as DefaultRegisterPage } from './console/auth/RegisterPage';
+export { ForgotPasswordPage as DefaultForgotPasswordPage } from './console/auth/ForgotPasswordPage';
+export { HomeLayout as DefaultHomeLayout, HomeLayout } from './console/home/HomeLayout';
+export { HomePage as DefaultHomePage, HomePage } from './console/home/HomePage';
+export { OrganizationsLayout as DefaultOrganizationsLayout } from './console/organizations/OrganizationsLayout';
+export { OrganizationsPage as DefaultOrganizationsPage } from './console/organizations/OrganizationsPage';

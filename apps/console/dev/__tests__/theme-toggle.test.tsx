@@ -10,7 +10,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import { ThemeProvider, useTheme } from '../../src/components/theme-provider';
+import { ThemeProvider, useTheme } from '@object-ui/app-shell';
 
 // Test helper component that exposes theme controls
 function ThemeConsumer() {

@@ -17,8 +17,8 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { AppContent } from '../../src/App';
-import { CommandPalette } from '../../src/components/CommandPalette';
-import { NavigationProvider } from '../../src/context/NavigationContext';
+import { CommandPalette } from '@object-ui/app-shell';
+import { NavigationProvider } from '@object-ui/app-shell';
 
 // --- Mocks ---
 

@@ -9,34 +9,22 @@
  */
 
 import { lazy } from 'react';
-import { createConsole } from '@object-ui/app-shell';
+import {
+  createConsole,
+  ThemeProvider,
+  ConsoleToaster,
+  ConditionalAuthWrapper,
+  NavigationProvider,
+  FavoritesProvider,
+} from '@object-ui/app-shell';
 import { PreviewBanner } from '@object-ui/auth';
 
-import { ThemeProvider } from './components/theme-provider';
-import { ConsoleToaster } from './components/ConsoleToaster';
-import { ConditionalAuthWrapper } from './components/ConditionalAuthWrapper';
-import { NavigationProvider } from './context/NavigationContext';
-import { FavoritesProvider } from './context/FavoritesProvider';
-
 import { AppContent } from './AppContent';
-
-const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
-const RegisterPage = lazy(() => import('./pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
-const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
-
-const HomePage = lazy(() => import('./pages/home/HomePage').then(m => ({ default: m.HomePage })));
-const HomeLayout = lazy(() => import('./pages/home/HomeLayout').then(m => ({ default: m.HomeLayout })));
-
-const OrganizationsPage = lazy(() => import('./pages/organizations/OrganizationsPage').then(m => ({ default: m.OrganizationsPage })));
-const OrganizationsLayout = lazy(() => import('./pages/organizations/OrganizationsLayout').then(m => ({ default: m.OrganizationsLayout })));
 
 const CreateAppPage = lazy(() => import('@object-ui/plugin-designer').then(m => ({ default: m.CreateAppPage })));
 
 const ConsoleApp = createConsole({
   basename: import.meta.env.BASE_URL?.replace(/\/$/, '') || '/',
-  authPages: { Login: LoginPage, Register: RegisterPage, ForgotPassword: ForgotPasswordPage },
-  homePage: { Layout: HomeLayout, Page: HomePage },
-  organizationsPage: { Layout: OrganizationsLayout, Page: OrganizationsPage },
   AppContent,
   CreateAppRoute: CreateAppPage,
 });

@@ -30,7 +30,7 @@ import {
 import type { SchemaNode } from '@object-ui/core';
 import { toast } from 'sonner';
 import { useMetadata } from '@object-ui/app-shell';
-import { useMetadataService } from '../../hooks/useMetadataService';
+import { useMetadataService } from '@object-ui/app-shell';
 import { toObjectDefinition, toFieldDefinition, type MetadataObject } from '../../utils/metadataConverters';
 import type { ObjectDefinitionRelationship } from '@object-ui/types';
 

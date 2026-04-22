@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import { AppSidebar } from '../../src/components/AppSidebar';
+import { AppSidebar } from '@object-ui/app-shell';
 import { SidebarProvider } from '@object-ui/components';
 
 // --- Mocks ---

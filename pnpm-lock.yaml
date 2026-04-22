@@ -778,6 +778,9 @@ importers:
       '@object-ui/auth':
         specifier: workspace:*
         version: link:../auth
+      '@object-ui/collaboration':
+        specifier: workspace:*
+        version: link:../collaboration
       '@object-ui/components':
         specifier: workspace:*
         version: link:../components
@@ -790,19 +793,64 @@ importers:
       '@object-ui/fields':
         specifier: workspace:*
         version: link:../fields
+      '@object-ui/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       '@object-ui/layout':
         specifier: workspace:*
         version: link:../layout
+      '@object-ui/permissions':
+        specifier: workspace:*
+        version: link:../permissions
       '@object-ui/react':
         specifier: workspace:*
         version: link:../react
       '@object-ui/types':
         specifier: workspace:*
         version: link:../types
+      lucide-react:
+        specifier: ^0.544.0
+        version: 0.544.0(react@19.2.5)
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
     devDependencies:
+      '@object-ui/plugin-calendar':
+        specifier: workspace:*
+        version: link:../plugin-calendar
+      '@object-ui/plugin-charts':
+        specifier: workspace:*
+        version: link:../plugin-charts
+      '@object-ui/plugin-chatbot':
+        specifier: workspace:*
+        version: link:../plugin-chatbot
+      '@object-ui/plugin-dashboard':
+        specifier: workspace:*
+        version: link:../plugin-dashboard
+      '@object-ui/plugin-designer':
+        specifier: workspace:*
+        version: link:../plugin-designer
+      '@object-ui/plugin-detail':
+        specifier: workspace:*
+        version: link:../plugin-detail
+      '@object-ui/plugin-form':
+        specifier: workspace:*
+        version: link:../plugin-form
+      '@object-ui/plugin-grid':
+        specifier: workspace:*
+        version: link:../plugin-grid
+      '@object-ui/plugin-kanban':
+        specifier: workspace:*
+        version: link:../plugin-kanban
+      '@object-ui/plugin-list':
+        specifier: workspace:*
+        version: link:../plugin-list
+      '@object-ui/plugin-report':
+        specifier: workspace:*
+        version: link:../plugin-report
+      '@object-ui/plugin-view':
+        specifier: workspace:*
+        version: link:../plugin-view
       '@types/node':
         specifier: ^25.6.0
         version: 25.6.0
@@ -9354,6 +9402,11 @@ packages:
   lru-cache@6.0.0:
     resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}
     engines: {node: '>=10'}
+
+  lucide-react@0.544.0:
+    resolution: {integrity: sha512-t5tS44bqd825zAW45UQxpG2CvcC4urOwn2TrwSH8u+MjeE+1NnWl6QqeQ/6NdjMqdOygyiT9p3Ev0p1NJykxjw==}
+    peerDependencies:
+      react: 19.2.5
 
   lucide-react@1.8.0:
     resolution: {integrity: sha512-WuvlsjngSk7TnTBJ1hsCy3ql9V9VOdcPkd3PKcSmM34vJD8KG6molxz7m7zbYFgICwsanQWmJ13JlYs4Zp7Arw==}
@@ -19366,6 +19419,10 @@ snapshots:
   lru-cache@6.0.0:
     dependencies:
       yallist: 4.0.0
+
+  lucide-react@0.544.0(react@19.2.5):
+    dependencies:
+      react: 19.2.5
 
   lucide-react@1.8.0(react@19.2.5):
     dependencies:

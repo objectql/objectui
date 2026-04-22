@@ -1,0 +1,11 @@
+export { ConsoleLayout } from './ConsoleLayout';
+export { AppHeader } from './AppHeader';
+export { AppSidebar } from './AppSidebar';
+export { UnifiedSidebar } from './UnifiedSidebar';
+export { AppSwitcher } from './AppSwitcher';
+export { ConnectionStatus } from './ConnectionStatus';
+export { ActivityFeed } from './ActivityFeed';
+export type { ActivityItem } from './ActivityFeed';
+export { LocaleSwitcher } from './LocaleSwitcher';
+export { ModeToggle } from './ModeToggle';
+export { AuthPageLayout } from './AuthPageLayout';

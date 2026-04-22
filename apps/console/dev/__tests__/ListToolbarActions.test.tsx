@@ -12,7 +12,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import { ObjectView } from '../../src/components/ObjectView';
+import { ObjectView } from '@object-ui/app-shell';
 import { ComponentRegistry } from '@object-ui/core';
 
 // Mock sonner toast

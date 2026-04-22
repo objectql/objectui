@@ -8,7 +8,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { CommandPalette } from '../../src/components/CommandPalette';
+import { CommandPalette } from '@object-ui/app-shell';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 // Mock @object-ui/components Command primitives

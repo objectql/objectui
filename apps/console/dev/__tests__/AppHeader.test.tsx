@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { AppHeader } from '../../src/components/AppHeader';
+import { AppHeader } from '@object-ui/app-shell';
 
 // Mock react-router-dom
 vi.mock('react-router-dom', () => ({

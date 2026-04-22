@@ -8,7 +8,7 @@ import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { ReportView } from '../../src/components/ReportView';
+import { ReportView } from '@object-ui/app-shell';
 import { MetadataProvider } from '@object-ui/app-shell';
 import { startMockServer, stopMockServer, getDriver } from '../mocks/server';
 import { ObjectStackAdapter } from '@object-ui/data-objectstack';

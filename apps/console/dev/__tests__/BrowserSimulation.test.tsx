@@ -129,8 +129,8 @@ vi.mock('@object-ui/app-shell', async () => {
 
 // --- 2. Import AppContent ---
 import { AppContent } from '../../src/App';
-import { NavigationProvider } from '../../src/context/NavigationContext';
-import { FavoritesProvider } from '../../src/context/FavoritesProvider';
+import { NavigationProvider } from '@object-ui/app-shell';
+import { FavoritesProvider } from '@object-ui/app-shell';
 
 describe('Console Application Simulation', () => {
 

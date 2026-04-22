@@ -3,8 +3,8 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { AppContent } from '../../src/App';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import { NavigationProvider } from '../../src/context/NavigationContext';
-import { FavoritesProvider } from '../../src/context/FavoritesProvider';
+import { NavigationProvider } from '@object-ui/app-shell';
+import { FavoritesProvider } from '@object-ui/app-shell';
 
 // --- Mocks ---
 
