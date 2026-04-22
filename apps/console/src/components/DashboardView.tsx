@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import { MetadataPanel, useMetadataInspector } from './MetadataInspector';
 import { SkeletonDashboard } from './skeletons';
-import { useMetadata } from '@object-ui/app-shell';
+import { useMetadata } from '../context/MetadataProvider';
 import { resolveI18nLabel } from '../utils';
 import { useAdapter } from '@object-ui/app-shell';
 import { useObjectTranslation } from '@object-ui/i18n';

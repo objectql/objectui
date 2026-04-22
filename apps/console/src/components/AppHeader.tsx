@@ -55,7 +55,7 @@ import { useAdapter } from '@object-ui/app-shell';
 import { useObjectTranslation, useObjectLabel } from '@object-ui/i18n';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@object-ui/types';
 import { useAuth, getUserInitials } from '@object-ui/auth';
-import { useMetadata } from '@object-ui/app-shell';
+import { useMetadata } from '../context/MetadataProvider';
 import { useNavigationContext } from '../context/NavigationContext';
 
 function humanizeSlug(slug: string): string {

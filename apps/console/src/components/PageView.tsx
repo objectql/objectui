@@ -10,7 +10,7 @@ import { SchemaRenderer } from '@object-ui/react';
 import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
 import { FileText, Pencil } from 'lucide-react';
 import { MetadataPanel, useMetadataInspector } from './MetadataInspector';
-import { useMetadata } from '@object-ui/app-shell';
+import { useMetadata } from '../context/MetadataProvider';
 import { DesignDrawer } from './DesignDrawer';
 import type { PageSchema } from '@object-ui/types';
 

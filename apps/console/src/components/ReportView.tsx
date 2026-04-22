@@ -4,7 +4,7 @@ import { ReportViewer, ReportConfigPanel } from '@object-ui/plugin-report';
 import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
 import { Pencil, BarChart3, Loader2 } from 'lucide-react';
 import { MetadataPanel, useMetadataInspector } from './MetadataInspector';
-import { useMetadata } from '@object-ui/app-shell';
+import { useMetadata } from '../context/MetadataProvider';
 import { useAdapter } from '@object-ui/app-shell';
 import type { DataSource } from '@object-ui/types';
 

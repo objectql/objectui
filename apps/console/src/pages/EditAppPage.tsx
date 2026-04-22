@@ -12,7 +12,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { AppCreationWizard } from '@object-ui/plugin-designer';
 import { wizardDraftToAppSchema } from '@object-ui/types';
 import type { AppWizardDraft, ObjectSelection } from '@object-ui/types';
-import { useMetadata } from '@object-ui/app-shell';
+import { useMetadata } from '../context/MetadataProvider';
 import { useAdapter } from '@object-ui/app-shell';
 import { toast } from 'sonner';
 

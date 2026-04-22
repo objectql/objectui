@@ -17,7 +17,7 @@ import {
   DropdownMenuSeparator,
 } from '@object-ui/components';
 import { ChevronDown, Check } from 'lucide-react';
-import { useMetadata } from '@object-ui/app-shell';
+import { useMetadata } from '../context/MetadataProvider';
 import { resolveI18nLabel } from '../utils';
 import { useObjectTranslation, useObjectLabel } from '@object-ui/i18n';
 

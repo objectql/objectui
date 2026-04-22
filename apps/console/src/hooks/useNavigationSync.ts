@@ -13,7 +13,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import type { NavigationItem, AppSchema } from '@object-ui/types';
 import { useAdapter } from '@object-ui/app-shell';
-import { useMetadata } from '@object-ui/app-shell';
+import { useMetadata } from '../context/MetadataProvider';
 
 // ============================================================================
 // Pure utility helpers (exported for testing)
