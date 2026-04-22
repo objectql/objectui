@@ -199,11 +199,11 @@
     "publish": "vsce publish"
   },
   "devDependencies": {
-    "@types/vscode": "^1.115.0",
-    "@vscode/vsce": "^3.7.1",
+    "@types/vscode": "^1.116.0",
+    "@vscode/vsce": "^3.9.1",
     "tsup": "^8.5.1",
-    "typescript": "^6.0.2",
-    "vitest": "^4.1.4"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
   },
   "dependencies": {
     "@object-ui/core": "workspace:*",
