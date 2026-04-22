@@ -14,7 +14,7 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { ExpressionEvaluator } from '@object-ui/core';
-import { ExpressionProvider, evaluateVisibility, useExpressionContext } from '../context/ExpressionProvider';
+import { ExpressionProvider, evaluateVisibility, useExpressionContext } from '@object-ui/app-shell';
 
 // ---------------------------------------------------------------------------
 // evaluateVisibility unit tests

@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useRecentItems } from '../hooks/useRecentItems';
+import { useRecentItems } from '@object-ui/app-shell';
 
 // Mock localStorage
 const localStorageMock = (() => {

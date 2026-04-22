@@ -5,12 +5,23 @@
  * Framework-agnostic rendering engine for third-party integration
  */
 
+// Components
 export { AppShell } from './components/AppShell';
 export { ObjectRenderer } from './components/ObjectRenderer';
 export { DashboardRenderer } from './components/DashboardRenderer';
 export { PageRenderer } from './components/PageRenderer';
 export { FormRenderer } from './components/FormRenderer';
 
+// Providers
+export { AdapterProvider, useAdapter } from './providers/AdapterProvider';
+export { MetadataProvider, useMetadata, useMetadataItem } from './providers/MetadataProvider';
+export { ExpressionProvider, useExpressionContext, evaluateVisibility } from './providers/ExpressionProvider';
+
+// Hooks
+export { useObjectActions } from './hooks/useObjectActions';
+export { useRecentItems } from './hooks/useRecentItems';
+
+// Types
 export type {
   AppShellProps,
   ObjectRendererProps,
@@ -18,3 +29,17 @@ export type {
   PageRendererProps,
   FormRendererProps,
 } from './types';
+
+export type {
+  MetadataState,
+  MetadataContextValue,
+  MetadataTypeStatus,
+} from './providers/MetadataProvider';
+
+export type {
+  ExpressionContextValue,
+} from './providers/ExpressionProvider';
+
+export type {
+  RecentItem,
+} from './hooks/useRecentItems';

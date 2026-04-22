@@ -18,7 +18,7 @@ import { Loader2 } from 'lucide-react';
 import { ObjectManager } from '@object-ui/plugin-designer';
 import type { ObjectDefinition } from '@object-ui/types';
 import { toast } from 'sonner';
-import { useMetadata } from '../context/MetadataProvider';
+import { useMetadata } from '@object-ui/app-shell';
 import { useMetadataService } from '../hooks/useMetadataService';
 import { MetadataService } from '../services/MetadataService';
 import { toObjectDefinition } from '../utils/metadataConverters';

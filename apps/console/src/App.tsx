@@ -7,8 +7,7 @@ import { SchemaRendererProvider, useActionRunner, useGlobalUndo } from '@object-
 import { useObjectTranslation, useObjectLabel } from '@object-ui/i18n';
 import type { ConnectionState } from './dataSource';
 import { AuthGuard, useAuth, PreviewBanner } from '@object-ui/auth';
-import { MetadataProvider, useMetadata } from './context/MetadataProvider';
-import { AdapterProvider, useAdapter } from './context/AdapterProvider';
+import { MetadataProvider, useMetadata, AdapterProvider, useAdapter, ExpressionProvider, evaluateVisibility, useRecentItems } from '@object-ui/app-shell';
 
 // Components (eagerly loaded — always needed)
 import { ConsoleLayout } from './components/ConsoleLayout';
@@ -16,12 +15,10 @@ import { CommandPalette } from './components/CommandPalette';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { LoadingScreen } from './components/LoadingScreen';
 import { ObjectView } from './components/ObjectView';
-import { ExpressionProvider, evaluateVisibility } from './context/ExpressionProvider';
 import { ExpressionEvaluator } from '@object-ui/core';
 import { ConditionalAuthWrapper } from './components/ConditionalAuthWrapper';
 import { KeyboardShortcutsDialog } from './components/KeyboardShortcutsDialog';
 import { OnboardingWalkthrough } from './components/OnboardingWalkthrough';
-import { useRecentItems } from './hooks/useRecentItems';
 import { NavigationSyncEffect } from './hooks/useNavigationSync';
 
 // Route-based code splitting — lazy-load less-frequently-used routes

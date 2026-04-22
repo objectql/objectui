@@ -9,7 +9,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, act, waitFor } from '@testing-library/react';
-import { MetadataProvider, useMetadata, useMetadataItem } from '../context/MetadataProvider';
+import { MetadataProvider, useMetadata, useMetadataItem } from '@object-ui/app-shell';
 
 // ---------------------------------------------------------------------------
 // Helpers
