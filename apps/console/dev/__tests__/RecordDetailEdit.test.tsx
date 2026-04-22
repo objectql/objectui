@@ -13,7 +13,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import { RecordDetailView } from '../components/RecordDetailView';
+import { RecordDetailView } from '../../src/components/RecordDetailView';
 import type { DataSource } from '@object-ui/types';
 
 // ─── Mocks ───────────────────────────────────────────────────────────────────

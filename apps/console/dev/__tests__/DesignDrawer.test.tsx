@@ -7,7 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { PageView } from '../components/PageView';
+import { PageView } from '../../src/components/PageView';
 
 // Mock @object-ui/app-shell (MetadataProvider + AdapterProvider)
 const { mockUpdate } = vi.hoisted(() => ({ mockUpdate: vi.fn().mockResolvedValue({}) }));

@@ -10,7 +10,7 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { ObjectStackClient } from '@objectstack/client';
 import { ObjectForm } from '@object-ui/plugin-form';
-import { ObjectStackDataSource } from '../dataSource';
+import { ObjectStackDataSource } from '../../src/dataSource';
 import { startMockServer, stopMockServer, getDriver } from '../mocks/server';
 
 describe('ObjectForm with MSW Integration', () => {

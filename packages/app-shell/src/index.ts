@@ -43,3 +43,13 @@ export type {
 export type {
   RecentItem,
 } from './hooks/useRecentItems';
+
+// Composable console factory — third-party hosts assemble the SPA shell by
+// passing auth pages, home/organizations slots, and an inner AppContent
+// component without forking apps/console.
+export { createConsole } from './console/createConsole';
+export type {
+  ConsoleConfig,
+  AuthPagesConfig,
+  RouteSlot,
+} from './console/types';

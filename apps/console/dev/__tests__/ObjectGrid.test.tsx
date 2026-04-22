@@ -10,7 +10,7 @@ import '@testing-library/jest-dom';
 import { ObjectStackClient } from '@objectstack/client';
 import { ObjectGrid } from '@object-ui/plugin-grid';
 import { startMockServer, stopMockServer } from '../mocks/server';
-import { ObjectStackDataSource } from '../dataSource';
+import { ObjectStackDataSource } from '../../src/dataSource';
 
 describe('ObjectGrid MSW Integration', () => {
   let client: ObjectStackClient;

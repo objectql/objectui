@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { ObjectView } from '../components/ObjectView';
+import { ObjectView } from '../../src/components/ObjectView';
 import { ComponentRegistry } from '@object-ui/core';
 
 /**

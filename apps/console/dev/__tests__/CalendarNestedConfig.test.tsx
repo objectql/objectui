@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import { ObjectView } from '../components/ObjectView';
+import { ObjectView } from '../../src/components/ObjectView';
 import { SchemaRendererProvider } from '@object-ui/react';
 import '@object-ui/plugin-grid';
 import '@object-ui/plugin-kanban';

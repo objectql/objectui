@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { MetadataService } from '../services/MetadataService';
+import { MetadataService } from '../../src/services/MetadataService';
 import type { ObjectDefinition, DesignerFieldDefinition } from '@object-ui/types';
 
 // ---------------------------------------------------------------------------

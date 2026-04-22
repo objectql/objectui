@@ -26,6 +26,9 @@ export default defineConfig({
       external: [
         'react',
         'react-dom',
+        '@dnd-kit/core',
+        '@dnd-kit/sortable',
+        '@dnd-kit/utilities',
         '@object-ui/components',
         '@object-ui/core',
         '@object-ui/plugin-form',

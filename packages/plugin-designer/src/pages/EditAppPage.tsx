@@ -9,7 +9,7 @@
 
 import { useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AppCreationWizard } from '@object-ui/plugin-designer';
+import { AppCreationWizard } from '../AppCreationWizard';
 import { wizardDraftToAppSchema } from '@object-ui/types';
 import type { AppWizardDraft, ObjectSelection } from '@object-ui/types';
 import { useMetadata } from '@object-ui/app-shell';

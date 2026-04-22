@@ -15,7 +15,7 @@ const mockGetItems = vi.fn().mockResolvedValue([]);
 const mockDeleteMetadataItem = vi.fn().mockResolvedValue(undefined);
 const mockSaveMetadataItem = vi.fn().mockResolvedValue(undefined);
 
-vi.mock('../hooks/useMetadataService', () => ({
+vi.mock('../../src/hooks/useMetadataService', () => ({
   useMetadataService: () => ({
     getItems: mockGetItems,
     deleteMetadataItem: mockDeleteMetadataItem,
@@ -59,7 +59,7 @@ vi.mock('react-router-dom', async () => {
 });
 
 // Import after mocks
-import { MetadataManagerPage } from '../pages/system/MetadataManagerPage';
+import { MetadataManagerPage } from '../../src/legacy/MetadataManagerPage';
 import { toast } from 'sonner';
 
 function renderWithRoute(metadataType: string) {

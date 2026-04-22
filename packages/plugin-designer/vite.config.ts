@@ -25,6 +25,7 @@ export default defineConfig({
       '@object-ui/fields': resolve(__dirname, '../fields/src'),
       '@object-ui/plugin-grid': resolve(__dirname, '../plugin-grid/src'),
       '@object-ui/plugin-form': resolve(__dirname, '../plugin-form/src'),
+      '@object-ui/app-shell': resolve(__dirname, '../app-shell/src'),
     },
   },
   build: {
@@ -37,6 +38,9 @@ export default defineConfig({
       external: [
         'react',
         'react-dom',
+        'react-router-dom',
+        'sonner',
+        '@object-ui/app-shell',
         '@object-ui/components',
         '@object-ui/core',
         '@object-ui/fields',

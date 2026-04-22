@@ -18,7 +18,7 @@ import { ComponentRegistry } from '@object-ui/core';
 const mockGetItems = vi.fn().mockResolvedValue([]);
 const mockSaveMetadataItem = vi.fn().mockResolvedValue(undefined);
 
-vi.mock('../hooks/useMetadataService', () => ({
+vi.mock('../../src/hooks/useMetadataService', () => ({
   useMetadataService: () => ({
     getItems: mockGetItems,
     saveMetadataItem: mockSaveMetadataItem,
@@ -90,7 +90,7 @@ ComponentRegistry.register('object-data-preview', mockWidget('object-data-previe
 ComponentRegistry.register('object-field-designer', mockWidget('object-field-designer'));
 
 // Import after registering mock components
-import { MetadataDetailPage } from '../pages/system/MetadataDetailPage';
+import { MetadataDetailPage } from '../../src/legacy/MetadataDetailPage';
 
 function renderWithRoute(metadataType: string, itemName: string) {
   return render(

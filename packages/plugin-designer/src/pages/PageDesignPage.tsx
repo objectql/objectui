@@ -8,7 +8,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { PageCanvasEditor } from '@object-ui/plugin-designer';
+import { PageCanvasEditor } from '../PageCanvasEditor';
 import type { PageSchema } from '@object-ui/types';
 import { toast } from 'sonner';
 import { useAdapter } from '@object-ui/app-shell';

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { AppHeader } from '../components/AppHeader';
+import { AppHeader } from '../../src/components/AppHeader';
 
 // Mock react-router-dom
 vi.mock('react-router-dom', () => ({
@@ -45,27 +45,27 @@ vi.mock('@object-ui/collaboration', () => ({
 }));
 
 // Mock console-specific components
-vi.mock('../components/mode-toggle', () => ({
+vi.mock('../../src/components/mode-toggle', () => ({
   ModeToggle: () => <div data-testid="mode-toggle">Theme</div>,
 }));
 
-vi.mock('../components/LocaleSwitcher', () => ({
+vi.mock('../../src/components/LocaleSwitcher', () => ({
   LocaleSwitcher: () => <div data-testid="locale-switcher">Locale</div>,
 }));
 
-vi.mock('../components/ConnectionStatus', () => ({
+vi.mock('../../src/components/ConnectionStatus', () => ({
   ConnectionStatus: ({ state }: any) => (
     <div data-testid="connection-status">{state?.status}</div>
   ),
 }));
 
-vi.mock('../components/ActivityFeed', () => ({
+vi.mock('../../src/components/ActivityFeed', () => ({
   ActivityFeed: ({ activities }: any) => (
     <div data-testid="activity-feed">{activities?.length ?? 0} activities</div>
   ),
 }));
 
-vi.mock('../components/AppSwitcher', () => ({
+vi.mock('../../src/components/AppSwitcher', () => ({
   AppSwitcher: ({ activeAppName, onAppChange }: any) => (
     <div data-testid="app-switcher" onClick={() => onAppChange?.('other_app')}>
       App: {activeAppName}
@@ -73,7 +73,7 @@ vi.mock('../components/AppSwitcher', () => ({
   ),
 }));
 
-vi.mock('../context/NavigationContext', () => ({
+vi.mock('../../src/context/NavigationContext', () => ({
   useNavigationContext: () => ({
     context: 'app',
     setContext: vi.fn(),

@@ -12,7 +12,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MemoryRouter } from 'react-router-dom';
-import { HomeLayout } from '../pages/home/HomeLayout';
+import { HomeLayout } from '../../src/pages/home/HomeLayout';
 
 // --- Mocks ---
 
@@ -59,13 +59,13 @@ vi.mock('@object-ui/components', async (importOriginal) => {
 
 // Mock AppHeader — HomeLayout tests verify layout composition, not the
 // top nav's internal rendering (user menu, org switcher, etc.).
-vi.mock('../components/AppHeader', () => ({
+vi.mock('../../src/components/AppHeader', () => ({
   AppHeader: () => <div data-testid="home-top-nav" />,
 }));
 
 // Mock NavigationContext
 const mockSetContext = vi.fn();
-vi.mock('../context/NavigationContext', () => ({
+vi.mock('../../src/context/NavigationContext', () => ({
   useNavigationContext: () => ({
     context: 'home',
     setContext: mockSetContext,
@@ -97,14 +97,14 @@ vi.mock('@object-ui/permissions', () => ({
   }),
 }));
 
-vi.mock('../hooks/useRecentItems', () => ({
+vi.mock('../../src/hooks/useRecentItems', () => ({
   useRecentItems: () => ({
     recentItems: [],
     addRecentItem: vi.fn(),
   }),
 }));
 
-vi.mock('../hooks/useFavorites', () => ({
+vi.mock('../../src/hooks/useFavorites', () => ({
   useFavorites: () => ({
     favorites: [],
     addFavorite: vi.fn(),
@@ -112,14 +112,14 @@ vi.mock('../hooks/useFavorites', () => ({
   }),
 }));
 
-vi.mock('../hooks/useNavPins', () => ({
+vi.mock('../../src/hooks/useNavPins', () => ({
   useNavPins: () => ({
     togglePin: vi.fn(),
     applyPins: (items: any[]) => items,
   }),
 }));
 
-vi.mock('../hooks/useResponsiveSidebar', () => ({
+vi.mock('../../src/hooks/useResponsiveSidebar', () => ({
   useResponsiveSidebar: () => {},
 }));
 

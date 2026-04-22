@@ -391,6 +391,55 @@ importers:
         specifier: ^4.1.4
         version: 4.1.4(@opentelemetry/api@1.9.0)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.4)(@vitest/ui@4.1.4)(happy-dom@20.9.0)(jsdom@29.0.2(@noble/hashes@2.2.0))(msw@2.13.3(@types/node@25.6.0)(typescript@6.0.2))(vite@8.0.9(@types/node@25.6.0)(esbuild@0.28.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
 
+  apps/console-starter:
+    dependencies:
+      '@object-ui/app-shell':
+        specifier: workspace:*
+        version: link:../../packages/app-shell
+      '@object-ui/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@object-ui/components':
+        specifier: workspace:*
+        version: link:../../packages/components
+      '@object-ui/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@object-ui/plugin-form':
+        specifier: workspace:*
+        version: link:../../packages/plugin-form
+      '@object-ui/plugin-grid':
+        specifier: workspace:*
+        version: link:../../packages/plugin-grid
+      '@object-ui/plugin-view':
+        specifier: workspace:*
+        version: link:../../packages/plugin-view
+      react:
+        specifier: 19.2.5
+        version: 19.2.5
+      react-dom:
+        specifier: 19.2.5
+        version: 19.2.5(react@19.2.5)
+      react-router-dom:
+        specifier: ^7.14.2
+        version: 7.14.2(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+    devDependencies:
+      '@types/react':
+        specifier: 19.2.14
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: 19.2.3
+        version: 19.2.3(@types/react@19.2.14)
+      '@vitejs/plugin-react':
+        specifier: ^6.0.1
+        version: 6.0.1(vite@8.0.9(@types/node@25.6.0)(esbuild@0.28.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
+      typescript:
+        specifier: ^6.0.2
+        version: 6.0.3
+      vite:
+        specifier: ^8.0.9
+        version: 8.0.9(@types/node@25.6.0)(esbuild@0.28.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
+
   apps/site:
     dependencies:
       '@monaco-editor/react':
@@ -1651,6 +1700,9 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.2.2
         version: 3.2.2(react@19.2.5)
+      '@object-ui/app-shell':
+        specifier: workspace:*
+        version: link:../app-shell
       '@object-ui/components':
         specifier: workspace:*
         version: link:../components
@@ -1687,6 +1739,12 @@ importers:
       react-dom:
         specifier: 19.2.5
         version: 19.2.5(react@19.2.5)
+      react-router-dom:
+        specifier: ^6.0.0 || ^7.0.0
+        version: 7.14.2(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      sonner:
+        specifier: ^2.0.7
+        version: 2.0.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       tailwind-merge:
         specifier: ^3.5.0
         version: 3.5.0

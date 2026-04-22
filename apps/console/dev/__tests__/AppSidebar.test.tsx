@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import { AppSidebar } from '../components/AppSidebar';
+import { AppSidebar } from '../../src/components/AppSidebar';
 import { SidebarProvider } from '@object-ui/components';
 
 // --- Mocks ---
@@ -65,15 +65,15 @@ vi.mock('@object-ui/permissions', () => ({
   }),
 }));
 
-vi.mock('../hooks/useRecentItems', () => ({
+vi.mock('../../src/hooks/useRecentItems', () => ({
   useRecentItems: () => ({ recentItems: [] }),
 }));
 
-vi.mock('../hooks/useFavorites', () => ({
+vi.mock('../../src/hooks/useFavorites', () => ({
   useFavorites: () => ({ favorites: [], removeFavorite: vi.fn() }),
 }));
 
-vi.mock('../hooks/useNavPins', () => ({
+vi.mock('../../src/hooks/useNavPins', () => ({
   useNavPins: () => ({
     pinnedIds: [],
     togglePin: vi.fn(),
@@ -83,7 +83,7 @@ vi.mock('../hooks/useNavPins', () => ({
   }),
 }));
 
-vi.mock('../utils', () => ({
+vi.mock('../../src/utils', () => ({
   resolveI18nLabel: (label: any) => {
     if (typeof label === 'string') return label;
     if (label && typeof label === 'object') return label.defaultValue || label.key || '';

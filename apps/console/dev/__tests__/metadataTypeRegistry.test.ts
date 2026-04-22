@@ -12,7 +12,7 @@ import {
   getHubMetadataTypes,
   DEFAULT_FORM_FIELDS,
   type MetadataTypeConfig,
-} from '../config/metadataTypeRegistry';
+} from '../../src/config/metadataTypeRegistry';
 
 describe('metadataTypeRegistry', () => {
   describe('METADATA_TYPES', () => {

@@ -16,13 +16,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import { AppContent } from '../App';
-import { CommandPalette } from '../components/CommandPalette';
-import { NavigationProvider } from '../context/NavigationContext';
+import { AppContent } from '../../src/App';
+import { CommandPalette } from '../../src/components/CommandPalette';
+import { NavigationProvider } from '../../src/context/NavigationContext';
 
 // --- Mocks ---
 
-vi.mock('../../objectstack.shared', () => ({
+vi.mock('../objectstack.shared', () => ({
   default: {
     apps: [
       {
@@ -103,7 +103,7 @@ const MockAdapterInstance = vi.hoisted(() => ({
   discovery: {},
 }));
 
-vi.mock('../dataSource', () => {
+vi.mock('../../src/dataSource', () => {
   const MockAdapter = class {
     find = vi.fn().mockResolvedValue([]);
     findOne = vi.fn();
@@ -122,15 +122,15 @@ vi.mock('../dataSource', () => {
 });
 
 // Mock heavy page components
-vi.mock('../components/ObjectView', () => ({
+vi.mock('../../src/components/ObjectView', () => ({
   ObjectView: () => <div data-testid="object-view">Object View</div>,
 }));
 
-vi.mock('../components/DashboardView', () => ({
+vi.mock('../../src/components/DashboardView', () => ({
   DashboardView: () => <div data-testid="dashboard-view">Dashboard View</div>,
 }));
 
-vi.mock('../components/PageView', () => ({
+vi.mock('../../src/components/PageView', () => ({
   PageView: () => <div data-testid="page-view">Page View</div>,
 }));
 
@@ -193,7 +193,7 @@ vi.mock('lucide-react', async (importOriginal) => {
 });
 
 // Mock theme provider (for CommandPalette)
-vi.mock('../components/theme-provider', () => ({
+vi.mock('../../src/components/theme-provider', () => ({
   useTheme: () => ({ theme: 'light', setTheme: vi.fn() }),
 }));
 
@@ -214,15 +214,15 @@ vi.mock('@object-ui/permissions', () => ({
 }));
 
 // Mock hooks
-vi.mock('../hooks/useRecentItems', () => ({
+vi.mock('../../src/hooks/useRecentItems', () => ({
   useRecentItems: () => ({ recentItems: [], addRecentItem: vi.fn() }),
 }));
 
-vi.mock('../hooks/useFavorites', () => ({
+vi.mock('../../src/hooks/useFavorites', () => ({
   useFavorites: () => ({ favorites: [], removeFavorite: vi.fn() }),
 }));
 
-vi.mock('../hooks/useNavPins', () => ({
+vi.mock('../../src/hooks/useNavPins', () => ({
   useNavPins: () => ({
     pinnedIds: [],
     togglePin: vi.fn(),
@@ -232,7 +232,7 @@ vi.mock('../hooks/useNavPins', () => ({
   }),
 }));
 
-vi.mock('../utils', () => ({
+vi.mock('../../src/utils', () => ({
   resolveI18nLabel: (label: any) => {
     if (typeof label === 'string') return label;
     if (label && typeof label === 'object') return label.defaultValue || label.key || '';

@@ -8,7 +8,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { DashboardView } from '../components/DashboardView';
+import { DashboardView } from '../../src/components/DashboardView';
 
 // Track the latest props passed to mocked components
 const { rendererCalls, dashboardConfigCalls, widgetConfigCalls, mockRefresh } = vi.hoisted(() => ({

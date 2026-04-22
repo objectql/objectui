@@ -8,7 +8,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { CommandPalette } from '../components/CommandPalette';
+import { CommandPalette } from '../../src/components/CommandPalette';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 // Mock @object-ui/components Command primitives
@@ -43,7 +43,7 @@ vi.mock('lucide-react', async (importOriginal) => {
 });
 
 // Mock theme provider
-vi.mock('../components/theme-provider', () => ({
+vi.mock('../../src/components/theme-provider', () => ({
   useTheme: () => ({ theme: 'light', setTheme: vi.fn() }),
 }));
 

@@ -1,15 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { AppContent } from '../App';
+import { AppContent } from '../../src/App';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import { NavigationProvider } from '../context/NavigationContext';
-import { FavoritesProvider } from '../context/FavoritesProvider';
+import { NavigationProvider } from '../../src/context/NavigationContext';
+import { FavoritesProvider } from '../../src/context/FavoritesProvider';
 
 // --- Mocks ---
 
 // Mock ObjectStack Config (still used by MSW mock setup)
-vi.mock('../../objectstack.shared', () => ({
+vi.mock('../objectstack.shared', () => ({
     default: {
         apps: [
             {
@@ -95,7 +95,7 @@ const MockAdapterInstance = vi.hoisted(() => ({
     discovery: {},
 }));
 
-vi.mock('../dataSource', () => {
+vi.mock('../../src/dataSource', () => {
     const MockAdapter = class {
         find = vi.fn().mockResolvedValue([]);
         findOne = vi.fn();
@@ -115,19 +115,19 @@ vi.mock('../dataSource', () => {
 
 // Mock Child Components (Integration level)
 // We want to verify routing, so we mock the "Page" components but keep Layout structure mostly
-vi.mock('../components/ObjectView', () => ({
+vi.mock('../../src/components/ObjectView', () => ({
     ObjectView: () => <div data-testid="object-view">Object View</div>
 }));
 
-vi.mock('../components/DashboardView', () => ({
+vi.mock('../../src/components/DashboardView', () => ({
     DashboardView: () => <div data-testid="dashboard-view">Dashboard View</div>
 }));
 
-vi.mock('../components/PageView', () => ({
+vi.mock('../../src/components/PageView', () => ({
     PageView: () => <div data-testid="page-view">Page View</div>
 }));
 
-vi.mock('../pages/system/ProfilePage', () => ({
+vi.mock('../../src/pages/system/ProfilePage', () => ({
     ProfilePage: () => <div data-testid="profile-page">Profile Page</div>
 }));
 

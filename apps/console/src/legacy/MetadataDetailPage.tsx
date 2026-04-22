@@ -37,11 +37,11 @@ import {
 import { SchemaRenderer } from '@object-ui/react';
 import { toast } from 'sonner';
 import { useAuth } from '@object-ui/auth';
-import { useMetadataService } from '../../hooks/useMetadataService';
+import { useMetadataService } from '../hooks/useMetadataService';
 import { useMetadata } from '@object-ui/app-shell';
-import { getMetadataTypeConfig, DEFAULT_FORM_FIELDS, type MetadataTypeConfig } from '../../config/metadataTypeRegistry';
-import { MetadataFormDialog } from '../../components/MetadataFormDialog';
-import { getIcon } from '../../utils/getIcon';
+import { getMetadataTypeConfig, DEFAULT_FORM_FIELDS, type MetadataTypeConfig } from '../config/metadataTypeRegistry';
+import { MetadataFormDialog } from '../components/MetadataFormDialog';
+import { getIcon } from '../utils/getIcon';
 import type { PageSchema, SchemaNode, BaseSchema } from '@object-ui/types';
 
 // ---------------------------------------------------------------------------

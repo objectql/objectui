@@ -3,7 +3,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import { OnboardingWalkthrough } from '../components/OnboardingWalkthrough';
+import { OnboardingWalkthrough } from '../../src/components/OnboardingWalkthrough';
 
 describe('OnboardingWalkthrough', () => {
   it('renders nothing (onboarding is disabled)', () => {

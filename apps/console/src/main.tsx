@@ -35,7 +35,7 @@ import './components/schema/registerObjectDetailWidgets';
 async function bootstrap() {
   // Initialize Mock Service Worker if enabled (lazy-loaded to keep production bundle lean)
   if (import.meta.env.VITE_USE_MOCK_SERVER !== 'false') {
-    const { startMockServer } = await import('./mocks/browser');
+    const { startMockServer } = await import('../dev/mocks/browser');
     await startMockServer();
   }
 

@@ -93,7 +93,7 @@ vi.mock('@object-ui/app-shell', async () => {
 });
 
 // Mock useMetadataService for MetadataDetailPage (which uses getItems)
-vi.mock('../hooks/useMetadataService', () => ({
+vi.mock('../../src/hooks/useMetadataService', () => ({
   useMetadataService: () => ({
     getItems: mockGetItems,
     saveMetadataItem: vi.fn().mockResolvedValue(undefined),
@@ -116,8 +116,8 @@ vi.mock('sonner', () => ({
 }));
 
 // Import after mocks
-import { MetadataManagerPage } from '../pages/system/MetadataManagerPage';
-import { MetadataDetailPage } from '../pages/system/MetadataDetailPage';
+import { MetadataManagerPage } from '../../src/legacy/MetadataManagerPage';
+import { MetadataDetailPage } from '../../src/legacy/MetadataDetailPage';
 
 // ---------------------------------------------------------------------------
 // Render helpers

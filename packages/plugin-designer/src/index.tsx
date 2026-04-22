@@ -64,6 +64,14 @@ export { Minimap } from './components/Minimap';
 export { PropertyEditor } from './components/PropertyEditor';
 export { VersionHistory } from './components/VersionHistory';
 
+// Route-ready designer pages — host apps mount these at their preferred routes.
+// Each page expects an active app/adapter context from @object-ui/app-shell and
+// uses react-router-dom hooks (useParams/useNavigate) for navigation.
+export { CreateAppPage } from './pages/CreateAppPage';
+export { EditAppPage } from './pages/EditAppPage';
+export { PageDesignPage } from './pages/PageDesignPage';
+export { DashboardDesignPage } from './pages/DashboardDesignPage';
+
 // Register page designer component
 ComponentRegistry.register(
   'page-designer',

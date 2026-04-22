@@ -34,7 +34,7 @@ vi.mock('lucide-react', () => ({
   Filter: () => <span>🔍</span>,
 }));
 
-import { ActivityFeed, type ActivityItem } from '../components/ActivityFeed';
+import { ActivityFeed, type ActivityItem } from '../../src/components/ActivityFeed';
 
 const sampleActivities: ActivityItem[] = [
   { id: '1', type: 'create', objectName: 'Lead', user: 'Alice', description: 'Created lead Alpha', timestamp: new Date().toISOString() },

@@ -9,7 +9,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { ReportView } from '../components/ReportView';
+import { ReportView } from '../../src/components/ReportView';
 
 // Stable references to prevent infinite re-render loops
 const { stableReports, stableObjects, mockRefresh, mockUpdate } = vi.hoisted(() => {

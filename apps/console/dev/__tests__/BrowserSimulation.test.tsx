@@ -99,7 +99,7 @@ vi.mock('@objectstack/client', () => ({
 }));
 
 // Important: Mock relative import used by App.tsx
-vi.mock('../dataSource', () => ({
+vi.mock('../../src/dataSource', () => ({
     ObjectStackAdapter: mocks.MockDataSource,
     ObjectStackDataSource: mocks.MockDataSource,
 }));
@@ -107,7 +107,7 @@ vi.mock('../dataSource', () => ({
 // Mock @object-ui/app-shell (MetadataProvider + AdapterProvider)
 vi.mock('@object-ui/app-shell', async () => {
     const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
-    const config = await import('../../objectstack.shared');
+    const config = await import('../objectstack.shared');
     const appConfig = (config.default as any).default || config.default;
     return {
         ...actual,
@@ -128,9 +128,9 @@ vi.mock('@object-ui/app-shell', async () => {
 });
 
 // --- 2. Import AppContent ---
-import { AppContent } from '../App';
-import { NavigationProvider } from '../context/NavigationContext';
-import { FavoritesProvider } from '../context/FavoritesProvider';
+import { AppContent } from '../../src/App';
+import { NavigationProvider } from '../../src/context/NavigationContext';
+import { FavoritesProvider } from '../../src/context/FavoritesProvider';
 
 describe('Console Application Simulation', () => {
 

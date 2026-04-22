@@ -2,7 +2,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { PageView } from '../components/PageView';
+import { PageView } from '../../src/components/PageView';
 
 // Mock @object-ui/app-shell to return static page metadata
 vi.mock('@object-ui/app-shell', async () => {

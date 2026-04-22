@@ -13,8 +13,13 @@
 import { useMemo, useEffect, useRef, useCallback } from 'react';
 import { ConfigPanelRenderer, useConfigDraft } from '@object-ui/components';
 import { useObjectTranslation } from '@object-ui/i18n';
-import { buildViewConfigSchema } from '../utils/view-config-schema';
-import { deriveFieldOptions, toFilterGroup, toSortItems, VIEW_TYPE_LABELS } from '../utils/view-config-utils';
+import {
+  buildViewConfigSchema,
+  deriveFieldOptions,
+  toFilterGroup,
+  toSortItems,
+  VIEW_TYPE_LABELS,
+} from '@object-ui/plugin-view';
 
 /** Editor panel types that can be opened from clickable rows */
 export type EditorPanelType = 'columns' | 'filter' | 'sort';

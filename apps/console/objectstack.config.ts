@@ -4,7 +4,7 @@ const require = createRequire(import.meta.url);
 // @ts-ignore
 globalThis.require = require;
 
-import { sharedConfig, appConfigs } from './objectstack.shared';
+import { sharedConfig, appConfigs } from './dev/objectstack.shared';
 
 // @ts-ignore
 import * as MSWPluginPkg from '@objectstack/plugin-msw';

@@ -4,7 +4,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { KeyboardShortcutsDialog } from '../components/KeyboardShortcutsDialog';
+import { KeyboardShortcutsDialog } from '../../src/components/KeyboardShortcutsDialog';
 
 // Mock @object-ui/components Dialog
 vi.mock('@object-ui/components', () => ({

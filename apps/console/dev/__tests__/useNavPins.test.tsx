@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useNavPins } from '../hooks/useNavPins';
+import { useNavPins } from '../../src/hooks/useNavPins';
 import type { NavigationItem } from '@object-ui/types';
 
 describe('useNavPins', () => {

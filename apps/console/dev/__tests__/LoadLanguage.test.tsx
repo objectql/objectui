@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { loadLanguage } from '../loadLanguage';
+import { loadLanguage } from '../../src/loadLanguage';
 
 // ---------------------------------------------------------------------------
 // Tests

@@ -10,7 +10,7 @@ import {
   toFieldDefinition,
   type MetadataObject,
   type MetadataField,
-} from '../utils/metadataConverters';
+} from '../../src/utils/metadataConverters';
 
 describe('metadataConverters', () => {
   describe('toObjectDefinition', () => {

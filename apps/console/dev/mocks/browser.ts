@@ -16,7 +16,7 @@ import { setupWorker } from 'msw/browser';
 import { ObjectKernel } from '@objectstack/runtime';
 import { InMemoryDriver } from '@objectstack/driver-memory';
 import type { MSWPlugin } from '@objectstack/plugin-msw';
-import { appConfigs, customReportsConfig } from '../../objectstack.shared';
+import { appConfigs, customReportsConfig } from '../objectstack.shared';
 import { createKernel } from './createKernel';
 import { createAuthHandlers } from './authHandlers';
 
