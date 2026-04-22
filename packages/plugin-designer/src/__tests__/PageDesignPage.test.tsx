@@ -41,8 +41,10 @@ vi.mock('@object-ui/app-shell', async () => {
   };
 });
 
-// Mock plugin-designer to avoid complex component tree
-vi.mock('@object-ui/plugin-designer', () => ({
+// Replace the heavy canvas editor with a stub that surfaces the schema/onChange
+// contract. Stub mirrors the file path PageDesignPage imports so vitest can
+// intercept the relative import.
+vi.mock('../PageCanvasEditor', () => ({
   PageCanvasEditor: ({ schema, onChange, readOnly }: any) => (
     <div data-testid="page-canvas-editor">
       <span>PageCanvasEditor: {schema.title || schema.name}</span>

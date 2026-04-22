@@ -44,8 +44,9 @@ vi.mock('@object-ui/app-shell', async () => {
   };
 });
 
-// Mock plugin-designer to avoid complex component tree
-vi.mock('@object-ui/plugin-designer', () => ({
+// Stub the dashboard editor so the test surfaces the schema/onChange contract
+// without dragging in the full editor tree.
+vi.mock('../DashboardEditor', () => ({
   DashboardEditor: ({ schema, onChange, readOnly }: any) => (
     <div data-testid="dashboard-editor">
       <span>DashboardEditor: {schema.title || schema.name}</span>

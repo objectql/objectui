@@ -44,10 +44,10 @@ import {
     SPEC_TO_BUILDER_OP,
     BUILDER_TO_SPEC_OP,
     ROW_HEIGHT_OPTIONS,
-} from '../utils/view-config-utils';
+} from '../config/view-config-utils';
 
-import { buildViewConfigSchema } from '../utils/view-config-schema';
-import type { FieldOption } from '../utils/view-config-utils';
+import { buildViewConfigSchema } from '../config/view-config-schema';
+import type { FieldOption } from '../config/view-config-utils';
 
 // ── Shared test data ────────────────────────────────────────────────────────
 
