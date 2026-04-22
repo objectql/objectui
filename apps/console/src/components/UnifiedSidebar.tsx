@@ -39,7 +39,7 @@ import {
 } from 'lucide-react';
 import { NavigationRenderer } from '@object-ui/layout';
 import type { NavigationItem } from '@object-ui/types';
-import { useMetadata } from '../context/MetadataProvider';
+import { useMetadata } from '@object-ui/app-shell';
 import { useExpressionContext, evaluateVisibility } from '@object-ui/app-shell';
 import { usePermissions } from '@object-ui/permissions';
 import { useRecentItems } from '@object-ui/app-shell';

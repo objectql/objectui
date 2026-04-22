@@ -23,7 +23,7 @@ import {
   BarChart3,
   ArrowLeft,
 } from 'lucide-react';
-import { useMetadata } from '../context/MetadataProvider';
+import { useMetadata } from '@object-ui/app-shell';
 
 interface SearchResult {
   id: string;

@@ -12,7 +12,7 @@ import { PageCanvasEditor } from '@object-ui/plugin-designer';
 import type { PageSchema } from '@object-ui/types';
 import { toast } from 'sonner';
 import { useAdapter } from '@object-ui/app-shell';
-import { useMetadata } from '../context/MetadataProvider';
+import { useMetadata } from '@object-ui/app-shell';
 import { ArrowLeft } from 'lucide-react';
 
 export function PageDesignPage() {
