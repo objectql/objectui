@@ -44,15 +44,17 @@ export type {
   RecentItem,
 } from './hooks/useRecentItems';
 
-// Composable console factory — third-party hosts assemble the SPA shell by
-// passing auth pages, home/organizations slots, and an inner AppContent
-// component without forking apps/console.
-export { createConsole } from './console/createConsole';
-export type {
-  ConsoleConfig,
-  AuthPagesConfig,
-  RouteSlot,
-} from './console/types';
+// Console building blocks — compose these in your App.tsx to build the console
+// routing tree. See apps/console-starter/src/App.tsx for a minimal example.
+export {
+  ConsoleShell,
+  ConnectedShell,
+  RequireOrganization,
+  AuthenticatedRoute,
+  RootRedirect,
+  SystemRedirect,
+  LoadingFallback,
+} from './console/ConsoleShell';
 
 // Layout chrome
 export {

@@ -1,21 +1,30 @@
 /**
  * App — top-level console assembly.
  *
- * Wires the routing factory `createConsole` from @object-ui/app-shell into the
- * console-specific provider stack (theme, toaster, conditional auth wrapper,
- * navigation/favorites contexts). Third-party hosts can replicate this file
- * with their own auth pages, home page, organization selector, and AppContent
- * implementation.
+ * Owns the full routing tree: import the building blocks from
+ * @object-ui/app-shell and wire them together with JSX. To customise the
+ * console, edit this file — don't look for a config object.
  */
 
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import {
-  createConsole,
+  ConsoleShell,
+  ConnectedShell,
+  AuthenticatedRoute,
+  RootRedirect,
+  SystemRedirect,
+  LoadingFallback,
   ThemeProvider,
   ConsoleToaster,
   ConditionalAuthWrapper,
-  NavigationProvider,
-  FavoritesProvider,
+  DefaultLoginPage,
+  DefaultRegisterPage,
+  DefaultForgotPasswordPage,
+  DefaultHomeLayout,
+  DefaultHomePage,
+  DefaultOrganizationsLayout,
+  DefaultOrganizationsPage,
 } from '@object-ui/app-shell';
 import { PreviewBanner } from '@object-ui/auth';
 
@@ -23,23 +32,47 @@ import { AppContent } from './AppContent';
 
 const CreateAppPage = lazy(() => import('@object-ui/plugin-designer').then(m => ({ default: m.CreateAppPage })));
 
-const ConsoleApp = createConsole({
-  basename: import.meta.env.BASE_URL?.replace(/\/$/, '') || '/',
-  AppContent,
-  CreateAppRoute: CreateAppPage,
-});
+const BASENAME = import.meta.env.BASE_URL?.replace(/\/$/, '') || '/';
+const AUTH_URL = `${import.meta.env.VITE_SERVER_URL || ''}/api/v1/auth`;
 
 export function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="object-ui-theme">
       <ConsoleToaster position="bottom-right" />
-      <ConditionalAuthWrapper authUrl={`${import.meta.env.VITE_SERVER_URL || ''}/api/v1/auth`}>
+      <ConditionalAuthWrapper authUrl={AUTH_URL}>
         <PreviewBanner />
-        <NavigationProvider>
-          <FavoritesProvider>
-            <ConsoleApp />
-          </FavoritesProvider>
-        </NavigationProvider>
+        <BrowserRouter basename={BASENAME}>
+          <ConsoleShell>
+            <Routes>
+              <Route path="/login" element={<DefaultLoginPage />} />
+              <Route path="/register" element={<DefaultRegisterPage />} />
+              <Route path="/forgot-password" element={<DefaultForgotPasswordPage />} />
+              <Route path="/home" element={
+                <AuthenticatedRoute>
+                  <DefaultHomeLayout><DefaultHomePage /></DefaultHomeLayout>
+                </AuthenticatedRoute>
+              } />
+              <Route path="/organizations" element={
+                <AuthenticatedRoute requireOrganization={false}>
+                  <DefaultOrganizationsLayout><DefaultOrganizationsPage /></DefaultOrganizationsLayout>
+                </AuthenticatedRoute>
+              } />
+              <Route path="/system/*" element={<SystemRedirect />} />
+              <Route path="/create-app" element={
+                <AuthenticatedRoute requireOrganization={false}>
+                  <Suspense fallback={<LoadingFallback />}><CreateAppPage /></Suspense>
+                </AuthenticatedRoute>
+              } />
+              <Route path="/apps/:appName/*" element={
+                <AuthenticatedRoute>
+                  <AppContent />
+                </AuthenticatedRoute>
+              } />
+              <Route path="/" element={<ConnectedShell><RootRedirect /></ConnectedShell>} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </ConsoleShell>
+        </BrowserRouter>
       </ConditionalAuthWrapper>
     </ThemeProvider>
   );

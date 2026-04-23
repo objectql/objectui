@@ -405,12 +405,39 @@ importers:
       '@object-ui/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@object-ui/plugin-calendar':
+        specifier: workspace:*
+        version: link:../../packages/plugin-calendar
+      '@object-ui/plugin-charts':
+        specifier: workspace:*
+        version: link:../../packages/plugin-charts
+      '@object-ui/plugin-chatbot':
+        specifier: workspace:*
+        version: link:../../packages/plugin-chatbot
+      '@object-ui/plugin-dashboard':
+        specifier: workspace:*
+        version: link:../../packages/plugin-dashboard
+      '@object-ui/plugin-designer':
+        specifier: workspace:*
+        version: link:../../packages/plugin-designer
+      '@object-ui/plugin-detail':
+        specifier: workspace:*
+        version: link:../../packages/plugin-detail
       '@object-ui/plugin-form':
         specifier: workspace:*
         version: link:../../packages/plugin-form
       '@object-ui/plugin-grid':
         specifier: workspace:*
         version: link:../../packages/plugin-grid
+      '@object-ui/plugin-kanban':
+        specifier: workspace:*
+        version: link:../../packages/plugin-kanban
+      '@object-ui/plugin-list':
+        specifier: workspace:*
+        version: link:../../packages/plugin-list
+      '@object-ui/plugin-report':
+        specifier: workspace:*
+        version: link:../../packages/plugin-report
       '@object-ui/plugin-view':
         specifier: workspace:*
         version: link:../../packages/plugin-view
@@ -427,6 +454,9 @@ importers:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
     devDependencies:
+      '@tailwindcss/postcss':
+        specifier: ^4.2.4
+        version: 4.2.4
       '@types/react':
         specifier: 19.2.14
         version: 19.2.14
@@ -436,6 +466,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^6.0.1
         version: 6.0.1(vite@8.0.9(@types/node@25.6.0)(esbuild@0.28.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
+      tailwindcss:
+        specifier: ^4.2.4
+        version: 4.2.4
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
