@@ -11,8 +11,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { PageCanvasEditor } from '../PageCanvasEditor';
 import type { PageSchema } from '@object-ui/types';
 import { toast } from 'sonner';
-import { useAdapter } from '@object-ui/app-shell';
-import { useMetadata } from '@object-ui/app-shell';
+import { useAdapter } from '@object-ui/react';
+import { useMetadata } from '@object-ui/react';
 import { ArrowLeft } from 'lucide-react';
 
 export function PageDesignPage() {

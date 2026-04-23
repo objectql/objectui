@@ -7,18 +7,12 @@
  * @module
  */
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { ObjectStackAdapter } from '@object-ui/data-objectstack';
 import { createAuthenticatedFetch } from '@object-ui/auth';
+import { AdapterCtx } from '@object-ui/react';
 
-const AdapterCtx = createContext<ObjectStackAdapter | null>(null);
-
-/**
- * Hook to access the ObjectStackAdapter from context.
- */
-export function useAdapter(): ObjectStackAdapter | null {
-  return useContext(AdapterCtx);
-}
+export { useAdapter } from '@object-ui/react';
 
 interface AdapterProviderProps {
   children: ReactNode;

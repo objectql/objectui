@@ -835,19 +835,6 @@ importers:
       '@object-ui/permissions':
         specifier: workspace:*
         version: link:../permissions
-      '@object-ui/react':
-        specifier: workspace:*
-        version: link:../react
-      '@object-ui/types':
-        specifier: workspace:*
-        version: link:../types
-      lucide-react:
-        specifier: ^0.544.0
-        version: 0.544.0(react@19.2.5)
-      sonner:
-        specifier: ^2.0.7
-        version: 2.0.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-    devDependencies:
       '@object-ui/plugin-calendar':
         specifier: workspace:*
         version: link:../plugin-calendar
@@ -884,6 +871,19 @@ importers:
       '@object-ui/plugin-view':
         specifier: workspace:*
         version: link:../plugin-view
+      '@object-ui/react':
+        specifier: workspace:*
+        version: link:../react
+      '@object-ui/types':
+        specifier: workspace:*
+        version: link:../types
+      lucide-react:
+        specifier: ^0.544.0
+        version: 0.544.0(react@19.2.5)
+      sonner:
+        specifier: ^2.0.7
+        version: 2.0.7(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+    devDependencies:
       '@types/node':
         specifier: ^25.6.0
         version: 25.6.0
@@ -1784,9 +1784,6 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.2.2
         version: 3.2.2(react@19.2.5)
-      '@object-ui/app-shell':
-        specifier: workspace:*
-        version: link:../app-shell
       '@object-ui/components':
         specifier: workspace:*
         version: link:../components
@@ -2552,6 +2549,9 @@ importers:
       '@object-ui/core':
         specifier: workspace:*
         version: link:../core
+      '@object-ui/data-objectstack':
+        specifier: workspace:*
+        version: link:../data-objectstack
       '@object-ui/i18n':
         specifier: workspace:*
         version: link:../i18n

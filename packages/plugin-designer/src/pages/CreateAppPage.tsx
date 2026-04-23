@@ -12,8 +12,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { AppCreationWizard } from '../AppCreationWizard';
 import { wizardDraftToAppSchema } from '@object-ui/types';
 import type { AppWizardDraft, ObjectSelection } from '@object-ui/types';
-import { useMetadata } from '@object-ui/app-shell';
-import { useAdapter } from '@object-ui/app-shell';
+import { useMetadata } from '@object-ui/react';
+import { useAdapter } from '@object-ui/react';
 import { toast } from 'sonner';
 
 const DRAFT_STORAGE_KEY = 'objectui-app-wizard-draft';
