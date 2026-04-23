@@ -19,12 +19,8 @@ export default defineConfig({
     // monorepo with thousands of tests that all pay the component-registry /
     // happy-dom boot cost.
     pool: 'threads',
-    poolOptions: {
-      threads: {
-        isolate: false,
-        singleThread: false,
-      },
-    },
+    isolate: false,
+    singleThread: false,
     // Per-file-type environment so pure logic tests (.test.ts) run in node
     // rather than paying happy-dom startup cost.
     environmentMatchGlobs: [
