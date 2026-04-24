@@ -11,7 +11,7 @@ export default defineConfig({
     environment: 'happy-dom',
     testTimeout: 15000, // Increase default timeout for integration tests with MSW
     setupFiles: [path.resolve(__dirname, 'vitest.setup.tsx')],
-    exclude: ['**/node_modules/**', '**/dist/**', '**/cypress/**', '**/e2e/**', '**/.{idea,git,cache,output,temp}/**'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/cypress/**', '**/e2e/**', '**/.{idea,git,cache,output,temp}/**', '**/.claude/**'],
     passWithNoTests: true,
     // Performance: use threads (lighter than forks) and share module graph across
     // files in the same worker. `isolate: false` means the heavy setup file runs
@@ -20,7 +20,6 @@ export default defineConfig({
     // happy-dom boot cost.
     pool: 'threads',
     isolate: false,
-    singleThread: false,
     // Per-file-type environment so pure logic tests (.test.ts) run in node
     // rather than paying happy-dom startup cost.
     environmentMatchGlobs: [
@@ -90,6 +89,7 @@ export default defineConfig({
       '@object-ui/permissions': path.resolve(__dirname, './packages/permissions/src'),
       '@object-ui/collaboration': path.resolve(__dirname, './packages/collaboration/src'),
       '@object-ui/tenant': path.resolve(__dirname, './packages/tenant/src'),
+      '@object-ui/app-shell': path.resolve(__dirname, './packages/app-shell/src'),
       '@': path.resolve(__dirname, './packages/components/src'),
       '@object-ui/ui': path.resolve(__dirname, './packages/ui/src'),
     },

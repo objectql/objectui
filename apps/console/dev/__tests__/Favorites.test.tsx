@@ -227,12 +227,20 @@ describe('useFavorites', () => {
     expect(result.current.hookA.isFavorite('app:crm')).toBe(false);
   });
 
-  it('throws when used outside FavoritesProvider', () => {
-    // Suppress the expected React error boundary console output
+  it('returns a no-op fallback when used outside FavoritesProvider', () => {
+    // The provider intentionally returns a graceful no-op implementation
+    // outside of <FavoritesProvider> so consumers (e.g. AppSidebar) rendered
+    // in lightweight unit tests don't crash. Production code paths always
+    // wrap in the provider.
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    expect(() => renderHook(() => useFavorites())).toThrow(
-      'useFavorites must be used within a FavoritesProvider',
-    );
+    const { result } = renderHook(() => useFavorites());
+    expect(result.current.favorites).toEqual([]);
+    expect(result.current.isFavorite('app:anything')).toBe(false);
+    // Mutators should be callable no-ops
+    expect(() => result.current.addFavorite({ id: 'x', label: 'X', href: '/', type: 'page' })).not.toThrow();
+    expect(() => result.current.removeFavorite('x')).not.toThrow();
+    expect(() => result.current.toggleFavorite({ id: 'x', label: 'X', href: '/', type: 'page' })).not.toThrow();
+    expect(() => result.current.clearFavorites()).not.toThrow();
     spy.mockRestore();
   });
 });

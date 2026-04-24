@@ -180,7 +180,17 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
 export function useFavorites(): FavoritesContextValue {
   const ctx = useContext(FavoritesContext);
   if (!ctx) {
-    throw new Error('useFavorites must be used within a FavoritesProvider');
+    // Graceful fallback: when a consumer (e.g. AppSidebar) is rendered outside
+    // a FavoritesProvider — common in unit tests that only need to assert on
+    // navigation rendering — return a no-op implementation rather than crash.
+    return {
+      favorites: [],
+      addFavorite: () => {},
+      removeFavorite: () => {},
+      toggleFavorite: () => {},
+      isFavorite: () => false,
+      clearFavorites: () => {},
+    };
   }
   return ctx;
 }

@@ -51,6 +51,33 @@ vi.mock('@object-ui/app-shell', async () => {
   };
 });
 
+// AppSidebar internally calls useMetadata from MetadataProvider, which re-exports
+// from @object-ui/react. Mock that source so the hook returns test fixtures.
+vi.mock('@object-ui/react', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/react')>('@object-ui/react');
+  return {
+    ...actual,
+    useMetadata: () => ({
+      apps: [
+        {
+          name: 'crm',
+          label: 'CRM App',
+          active: true,
+          icon: 'Briefcase',
+          navigation: mockNavigation,
+        },
+      ],
+      objects: [],
+      dashboards: [],
+      reports: [],
+      pages: [],
+      loading: false,
+      error: null,
+      refresh: vi.fn(),
+    }),
+  };
+});
+
 vi.mock('@object-ui/auth', () => ({
   useAuth: () => ({
     user: { name: 'Test User', email: 'test@test.com' },

@@ -12,8 +12,8 @@ import { DashboardDesignPage } from '../pages/DashboardDesignPage';
 // Mock @object-ui/app-shell (MetadataProvider + AdapterProvider)
 const { mockRefresh } = vi.hoisted(() => ({ mockRefresh: vi.fn().mockResolvedValue(undefined) }));
 const { mockUpdate } = vi.hoisted(() => ({ mockUpdate: vi.fn().mockResolvedValue({}) }));
-vi.mock('@object-ui/app-shell', async () => {
-  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+vi.mock('@object-ui/react', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/react')>('@object-ui/react');
   return {
     ...actual,
     useMetadata: () => ({

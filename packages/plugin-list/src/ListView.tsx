@@ -560,6 +560,10 @@ export const ListView = React.forwardRef<ListViewHandle, ListViewProps>(({
         setObjectDefLoaded(true);
         return;
       }
+      if (typeof dataSource.getObjectSchema !== 'function') {
+        setObjectDefLoaded(true);
+        return;
+      }
       try {
         const def = await dataSource.getObjectSchema(schema.objectName);
         if (isMounted) {

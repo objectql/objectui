@@ -126,16 +126,21 @@ vi.mock('@object-ui/components', () => ({
   AvatarFallback: ({ children }: any) => <div data-testid="avatar-fallback">{children}</div>,
 }));
 
-// Mock lucide-react
-vi.mock('lucide-react', () => ({
-  Search: () => <span data-testid="icon-search">🔍</span>,
-  HelpCircle: () => <span data-testid="icon-help">❓</span>,
-  ChevronDown: () => <span data-testid="icon-chevron">▼</span>,
-  Settings: () => <span data-testid="icon-settings">⚙️</span>,
-  LogOut: () => <span data-testid="icon-logout">🚪</span>,
-  User: () => <span data-testid="icon-user">👤</span>,
-  Boxes: () => <span data-testid="icon-boxes">📦</span>,
-}));
+// Mock lucide-react — extend rather than replace so other imports from
+// lucide-react (e.g. Grid in plugin-list ViewSwitcher) still resolve.
+vi.mock('lucide-react', async (importOriginal) => {
+  const actual = await importOriginal<any>();
+  return {
+    ...actual,
+    Search: () => <span data-testid="icon-search">🔍</span>,
+    HelpCircle: () => <span data-testid="icon-help">❓</span>,
+    ChevronDown: () => <span data-testid="icon-chevron">▼</span>,
+    Settings: () => <span data-testid="icon-settings">⚙️</span>,
+    LogOut: () => <span data-testid="icon-logout">🚪</span>,
+    User: () => <span data-testid="icon-user">👤</span>,
+    Boxes: () => <span data-testid="icon-boxes">📦</span>,
+  };
+});
 
 describe('AppHeader', () => {
   const mockObjects = [

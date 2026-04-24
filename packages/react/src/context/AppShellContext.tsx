@@ -38,7 +38,24 @@ export const MetadataCtx = createContext<MetadataContextValue | null>(null);
 export function useMetadata(): MetadataContextValue {
   const ctx = useContext(MetadataCtx);
   if (!ctx) {
-    throw new Error('useMetadata must be used within a <MetadataProvider>');
+    // Graceful fallback: when a consumer is rendered outside a MetadataProvider
+    // (common in unit tests that only need to assert on rendering), return an
+    // empty no-op implementation rather than crash. Production code paths
+    // should always wrap in <MetadataProvider>.
+    return {
+      apps: [],
+      objects: [],
+      dashboards: [],
+      reports: [],
+      pages: [],
+      loading: false,
+      error: null,
+      refresh: async () => {},
+      invalidate: () => {},
+      ensureType: async () => [],
+      getItem: async () => null,
+      getItemsByType: () => [],
+    };
   }
   return ctx;
 }

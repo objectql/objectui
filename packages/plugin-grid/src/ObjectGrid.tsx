@@ -307,6 +307,7 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
 
     const fetchSchema = async () => {
       try {
+        if (typeof dataSource.getObjectSchema !== 'function') return;
         const schemaData = await dataSource.getObjectSchema(objectName);
         if (!cancelled) {
           setObjectSchema(schemaData);
@@ -343,9 +344,13 @@ export const ObjectGrid: React.FC<ObjectGridProps> = ({
 
         if (objectName && dataSource) {
           // Always fetch full schema for field type metadata (enables rich type-aware rendering)
-          const schemaData = await dataSource.getObjectSchema(objectName);
-          if (cancelled) return;
-          resolvedSchema = schemaData;
+          if (typeof dataSource.getObjectSchema === 'function') {
+            const schemaData = await dataSource.getObjectSchema(objectName);
+            if (cancelled) return;
+            resolvedSchema = schemaData;
+          } else {
+            resolvedSchema = { name: objectName, fields: {} };
+          }
         } else if (cols && objectName) {
           // Fallback: minimal schema stub when no dataSource available
           resolvedSchema = { name: objectName, fields: {} };

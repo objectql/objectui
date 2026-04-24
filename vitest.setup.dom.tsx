@@ -14,6 +14,18 @@
 import './vitest.setup.base';
 import '@testing-library/jest-dom';
 import React from 'react';
+import { afterEach } from 'vitest';
+import { cleanup } from '@testing-library/react';
+
+// With `pool: 'threads'` + `isolate: false`, modules (including
+// @testing-library/react) are cached across test files in the same worker. RTL
+// installs its auto-cleanup `afterEach` only on first import, which means only
+// the first file in each worker gets cleaned up — subsequent files accumulate
+// DOM nodes between tests, producing the cascade of "Found multiple elements"
+// failures. Registering cleanup here ensures every test gets an unmount.
+afterEach(() => {
+  cleanup();
+});
 
 // Import packages to register components (side-effect imports)
 import '@object-ui/components'; // Register all ObjectUI components

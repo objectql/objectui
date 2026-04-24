@@ -61,6 +61,30 @@ vi.mock('@object-ui/app-shell', async () => {
   };
 });
 
+// ReportView's useMetadata/useAdapter resolve via the local providers, which
+// re-export from @object-ui/react. Mock that source too so internal hooks
+// receive the test fixtures.
+vi.mock('@object-ui/react', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/react')>('@object-ui/react');
+  return {
+    ...actual,
+    useMetadata: () => ({
+      apps: [],
+      objects: stableObjects,
+      dashboards: [],
+      reports: stableReports,
+      pages: [],
+      loading: false,
+      error: null,
+      refresh: mockRefresh,
+    }),
+    useAdapter: () => ({
+      update: mockUpdate,
+      create: vi.fn().mockResolvedValue({}),
+    }),
+  };
+});
+
 // Mock sonner toast
 vi.mock('sonner', () => ({
   toast: { success: vi.fn(), error: vi.fn() },
