@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import type { AuthUser, AuthClient, AuthProviderConfig, PreviewModeOptions, AuthOrganization, AuthPublicConfig, SignInWithProviderOptions } from './types';
+import type { AuthUser, AuthClient, AuthProviderConfig, PreviewModeOptions, AuthOrganization, AuthOrganizationMember, AuthInvitation, AuthPublicConfig, SignInWithProviderOptions } from './types';
 import { AuthCtx, type AuthContextValue } from './AuthContext';
 import { createAuthClient } from './createAuthClient';
 import { ActiveOrganizationStorage } from './createAuthenticatedFetch';
@@ -349,6 +349,99 @@ export function AuthProvider({
     [client, refreshOrganizations, switchOrganization],
   );
 
+  const updateOrganization = useCallback(
+    async (orgId: string, data: Partial<Pick<AuthOrganization, 'name' | 'slug' | 'logo' | 'metadata'>>) => {
+      const updated = await client.updateOrganization(orgId, data);
+      // Refresh local list & active org reference if it matches
+      await refreshOrganizations();
+      if (activeOrganization?.id === orgId) {
+        setActiveOrganization(updated);
+      }
+      return updated;
+    },
+    [client, refreshOrganizations, activeOrganization],
+  );
+
+  const deleteOrganization = useCallback(
+    async (orgId: string) => {
+      await client.deleteOrganization(orgId);
+      if (activeOrganization?.id === orgId) {
+        setActiveOrganization(null);
+        ActiveOrganizationStorage.clear();
+      }
+      await refreshOrganizations();
+    },
+    [client, activeOrganization, refreshOrganizations],
+  );
+
+  const leaveOrganization = useCallback(
+    async (orgId: string) => {
+      await client.leaveOrganization(orgId);
+      if (activeOrganization?.id === orgId) {
+        setActiveOrganization(null);
+        ActiveOrganizationStorage.clear();
+      }
+      await refreshOrganizations();
+    },
+    [client, activeOrganization, refreshOrganizations],
+  );
+
+  const getMembers = useCallback(
+    (orgId: string): Promise<AuthOrganizationMember[]> => client.getMembers(orgId),
+    [client],
+  );
+
+  const inviteMember = useCallback(
+    (data: { organizationId: string; email: string; role: string }): Promise<AuthInvitation> =>
+      client.inviteMember(data),
+    [client],
+  );
+
+  const removeMember = useCallback(
+    (data: { organizationId: string; memberIdOrUserId: string }): Promise<void> =>
+      client.removeMember(data),
+    [client],
+  );
+
+  const updateMemberRole = useCallback(
+    (data: { organizationId: string; memberId: string; role: string }): Promise<void> =>
+      client.updateMemberRole(data),
+    [client],
+  );
+
+  const listInvitations = useCallback(
+    (orgId: string): Promise<AuthInvitation[]> => client.listInvitations(orgId),
+    [client],
+  );
+
+  const cancelInvitation = useCallback(
+    (invitationId: string): Promise<void> => client.cancelInvitation(invitationId),
+    [client],
+  );
+
+  const getInvitation = useCallback(
+    (invitationId: string): Promise<AuthInvitation> => client.getInvitation(invitationId),
+    [client],
+  );
+
+  const acceptInvitation = useCallback(
+    async (invitationId: string): Promise<void> => {
+      await client.acceptInvitation(invitationId);
+      await refreshOrganizations();
+    },
+    [client, refreshOrganizations],
+  );
+
+  const rejectInvitation = useCallback(
+    (invitationId: string): Promise<void> => client.rejectInvitation(invitationId),
+    [client],
+  );
+
+  const listUserInvitations = useCallback(
+    (): Promise<AuthInvitation[]> => client.listUserInvitations(),
+    [client],
+  );
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
@@ -372,8 +465,28 @@ export function AuthProvider({
       switchOrganization,
       createOrganization,
       refreshOrganizations,
+      updateOrganization,
+      deleteOrganization,
+      leaveOrganization,
+      getMembers,
+      inviteMember,
+      removeMember,
+      updateMemberRole,
+      listInvitations,
+      cancelInvitation,
+      getInvitation,
+      acceptInvitation,
+      rejectInvitation,
+      listUserInvitations,
     }),
-    [user, session, isAuthenticated, isLoading, error, isPreviewMode, previewMode, signIn, signUp, signOut, updateUser, forgotPassword, resetPassword, getAuthConfig, signInWithProvider, organizations, activeOrganization, isOrganizationsLoading, switchOrganization, createOrganization, refreshOrganizations],
+    [
+      user, session, isAuthenticated, isLoading, error, isPreviewMode, previewMode,
+      signIn, signUp, signOut, updateUser, forgotPassword, resetPassword, getAuthConfig, signInWithProvider,
+      organizations, activeOrganization, isOrganizationsLoading, switchOrganization, createOrganization, refreshOrganizations,
+      updateOrganization, deleteOrganization, leaveOrganization,
+      getMembers, inviteMember, removeMember, updateMemberRole,
+      listInvitations, cancelInvitation, getInvitation, acceptInvitation, rejectInvitation, listUserInvitations,
+    ],
   );
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;

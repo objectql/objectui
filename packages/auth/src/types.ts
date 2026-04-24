@@ -167,13 +167,32 @@ export interface AuthClient {
   /** Get members of an organization */
   getMembers: (orgId: string) => Promise<AuthOrganizationMember[]>;
   /** Invite a member to an organization */
-  inviteMember: (data: { organizationId: string; email: string; role: string }) => Promise<void>;
+  inviteMember: (data: { organizationId: string; email: string; role: string }) => Promise<AuthInvitation>;
   /** Remove a member from an organization */
   removeMember: (data: { organizationId: string; memberIdOrUserId: string }) => Promise<void>;
+  /** Update a member's role */
+  updateMemberRole: (data: { organizationId: string; memberId: string; role: string }) => Promise<void>;
   /** Update organization details */
   updateOrganization: (orgId: string, data: Partial<Pick<AuthOrganization, 'name' | 'slug' | 'logo' | 'metadata'>>) => Promise<AuthOrganization>;
   /** Delete an organization */
   deleteOrganization: (orgId: string) => Promise<void>;
+  /** Current user leaves the given organization */
+  leaveOrganization: (orgId: string) => Promise<void>;
+
+  // --- Invitation methods ---
+
+  /** List pending invitations for an organization (owner/admin) */
+  listInvitations: (orgId: string) => Promise<AuthInvitation[]>;
+  /** Cancel an invitation (owner/admin) */
+  cancelInvitation: (invitationId: string) => Promise<void>;
+  /** Get an invitation by id (used by accept-invitation landing page) */
+  getInvitation: (invitationId: string) => Promise<AuthInvitation>;
+  /** Accept an invitation as the current user */
+  acceptInvitation: (invitationId: string) => Promise<void>;
+  /** Reject an invitation as the current user */
+  rejectInvitation: (invitationId: string) => Promise<void>;
+  /** List invitations addressed to the current user */
+  listUserInvitations: () => Promise<AuthInvitation[]>;
 }
 
 /**
@@ -220,6 +239,28 @@ export interface AuthOrganization {
   metadata?: Record<string, unknown>;
   /** Creation timestamp */
   createdAt?: string;
+}
+
+/** Organization invitation */
+export interface AuthInvitation {
+  /** Invitation record ID */
+  id: string;
+  /** Organization ID */
+  organizationId: string;
+  /** Invited email address */
+  email: string;
+  /** Role to be granted upon acceptance */
+  role: string;
+  /** Status: 'pending' | 'accepted' | 'rejected' | 'canceled' */
+  status: string;
+  /** Expiration timestamp */
+  expiresAt?: string;
+  /** ID of the inviting user */
+  inviterId?: string;
+  /** Organization snapshot (populated by getInvitation) */
+  organizationName?: string;
+  /** Organization slug snapshot */
+  organizationSlug?: string;
 }
 
 /** Organization member */

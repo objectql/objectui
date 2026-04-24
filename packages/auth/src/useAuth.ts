@@ -49,6 +49,19 @@ export function useAuth(): AuthContextValue {
       switchOrganization: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
       createOrganization: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
       refreshOrganizations: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
+      updateOrganization: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
+      deleteOrganization: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
+      leaveOrganization: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
+      getMembers: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
+      inviteMember: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
+      removeMember: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
+      updateMemberRole: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
+      listInvitations: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
+      cancelInvitation: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
+      getInvitation: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
+      acceptInvitation: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
+      rejectInvitation: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
+      listUserInvitations: async () => { throw new Error('useAuth must be used within an AuthProvider'); },
     };
   }
 

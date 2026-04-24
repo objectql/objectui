@@ -22,6 +22,7 @@ import { Plus, Search, Loader2 } from 'lucide-react';
 import { useAuth } from '@object-ui/auth';
 import type { AuthOrganization } from '@object-ui/auth';
 import { useObjectTranslation } from '@object-ui/i18n';
+import { useNavigate } from 'react-router-dom';
 import { CreateWorkspaceDialog } from './CreateWorkspaceDialog';
 
 function getOrgInitials(name: string): string {
@@ -35,6 +36,7 @@ function getOrgInitials(name: string): string {
 
 export function OrganizationsPage() {
   const { t } = useObjectTranslation();
+  const navigate = useNavigate();
   const {
     organizations,
     activeOrganization,
@@ -163,6 +165,12 @@ export function OrganizationsPage() {
                       : org.slug}
                   </div>
                 </div>
+                <span
+                  className="text-xs text-primary underline-offset-4 hover:underline shrink-0"
+                  onClick={(e) => { e.stopPropagation(); navigate(`/organizations/${org.slug}/members`); }}
+                >
+                  {t('organizations.manage', { defaultValue: 'Manage' })}
+                </span>
                 {isSwitching && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
               </button>
             );

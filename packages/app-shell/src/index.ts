@@ -123,3 +123,9 @@ export { HomeLayout as DefaultHomeLayout, HomeLayout } from './console/home/Home
 export { HomePage as DefaultHomePage, HomePage } from './console/home/HomePage';
 export { OrganizationsLayout as DefaultOrganizationsLayout } from './console/organizations/OrganizationsLayout';
 export { OrganizationsPage as DefaultOrganizationsPage } from './console/organizations/OrganizationsPage';
+
+export { OrganizationLayout as DefaultOrganizationLayout } from './console/organizations/manage/OrganizationLayout';
+export { MembersPage as DefaultMembersPage } from './console/organizations/manage/MembersPage';
+export { InvitationsPage as DefaultInvitationsPage } from './console/organizations/manage/InvitationsPage';
+export { SettingsPage as DefaultSettingsPage } from './console/organizations/manage/SettingsPage';
+export { AcceptInvitationPage as DefaultAcceptInvitationPage } from './console/organizations/manage/AcceptInvitationPage';

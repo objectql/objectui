@@ -48,6 +48,7 @@ export type {
   SignUpData,
   AuthOrganization,
   AuthOrganizationMember,
+  AuthInvitation,
   AuthSocialProvider,
   AuthPublicConfig,
   SignInWithProviderOptions,

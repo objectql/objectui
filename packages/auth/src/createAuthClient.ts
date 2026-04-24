@@ -10,7 +10,7 @@ import { createAuthClient as createBetterAuthClient } from 'better-auth/client';
 import { organizationClient } from 'better-auth/client/plugins';
 import type {
   AuthClient, AuthClientConfig, AuthUser, AuthSession, SignInCredentials, SignUpData,
-  AuthOrganization, AuthOrganizationMember, AuthPublicConfig, SignInWithProviderOptions,
+  AuthOrganization, AuthOrganizationMember, AuthInvitation, AuthPublicConfig, SignInWithProviderOptions,
 } from './types';
 
 const TOKEN_STORAGE_KEY = 'auth-session-token';
@@ -318,13 +318,14 @@ export function createAuthClient(config: AuthClientConfig): AuthClient {
       return (result?.members ?? []) as AuthOrganizationMember[];
     },
 
-    async inviteMember(inviteData: { organizationId: string; email: string; role: string }): Promise<void> {
-      const { error } = await (betterAuth as any).organization.inviteMember({
+    async inviteMember(inviteData: { organizationId: string; email: string; role: string }): Promise<AuthInvitation> {
+      const { data, error } = await (betterAuth as any).organization.inviteMember({
         organizationId: inviteData.organizationId,
         email: inviteData.email,
         role: inviteData.role,
       });
       if (error) throw new Error(error.message ?? 'Failed to invite member');
+      return data as unknown as AuthInvitation;
     },
 
     async removeMember(removeData: { organizationId: string; memberIdOrUserId: string }): Promise<void> {
@@ -333,6 +334,15 @@ export function createAuthClient(config: AuthClientConfig): AuthClient {
         memberIdOrUserId: removeData.memberIdOrUserId,
       });
       if (error) throw new Error(error.message ?? 'Failed to remove member');
+    },
+
+    async updateMemberRole(payload: { organizationId: string; memberId: string; role: string }): Promise<void> {
+      const { error } = await (betterAuth as any).organization.updateMemberRole({
+        organizationId: payload.organizationId,
+        memberId: payload.memberId,
+        role: payload.role,
+      });
+      if (error) throw new Error(error.message ?? 'Failed to update member role');
     },
 
     async updateOrganization(orgId: string, orgData: Partial<Pick<AuthOrganization, 'name' | 'slug' | 'logo' | 'metadata'>>): Promise<AuthOrganization> {
@@ -349,6 +359,52 @@ export function createAuthClient(config: AuthClientConfig): AuthClient {
         organizationId: orgId,
       });
       if (error) throw new Error(error.message ?? 'Failed to delete organization');
+    },
+
+    async leaveOrganization(orgId: string): Promise<void> {
+      const { error } = await (betterAuth as any).organization.leave({
+        organizationId: orgId,
+      });
+      if (error) throw new Error(error.message ?? 'Failed to leave organization');
+    },
+
+    // --- Invitation methods ---
+
+    async listInvitations(orgId: string): Promise<AuthInvitation[]> {
+      const { data, error } = await (betterAuth as any).organization.listInvitations({
+        query: { organizationId: orgId },
+      });
+      if (error) throw new Error(error.message ?? 'Failed to list invitations');
+      return (data ?? []) as AuthInvitation[];
+    },
+
+    async cancelInvitation(invitationId: string): Promise<void> {
+      const { error } = await (betterAuth as any).organization.cancelInvitation({ invitationId });
+      if (error) throw new Error(error.message ?? 'Failed to cancel invitation');
+    },
+
+    async getInvitation(invitationId: string): Promise<AuthInvitation> {
+      const { data, error } = await (betterAuth as any).organization.getInvitation({
+        query: { id: invitationId },
+      });
+      if (error) throw new Error(error.message ?? 'Failed to load invitation');
+      return data as unknown as AuthInvitation;
+    },
+
+    async acceptInvitation(invitationId: string): Promise<void> {
+      const { error } = await (betterAuth as any).organization.acceptInvitation({ invitationId });
+      if (error) throw new Error(error.message ?? 'Failed to accept invitation');
+    },
+
+    async rejectInvitation(invitationId: string): Promise<void> {
+      const { error } = await (betterAuth as any).organization.rejectInvitation({ invitationId });
+      if (error) throw new Error(error.message ?? 'Failed to reject invitation');
+    },
+
+    async listUserInvitations(): Promise<AuthInvitation[]> {
+      const { data, error } = await (betterAuth as any).organization.listUserInvitations();
+      if (error) throw new Error(error.message ?? 'Failed to list invitations');
+      return (data ?? []) as AuthInvitation[];
     },
   };
 }

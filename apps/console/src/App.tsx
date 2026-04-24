@@ -25,6 +25,11 @@ import {
   DefaultHomePage,
   DefaultOrganizationsLayout,
   DefaultOrganizationsPage,
+  DefaultOrganizationLayout,
+  DefaultMembersPage,
+  DefaultInvitationsPage,
+  DefaultSettingsPage,
+  DefaultAcceptInvitationPage,
 } from '@object-ui/app-shell';
 import { PreviewBanner } from '@object-ui/auth';
 
@@ -57,6 +62,17 @@ export function App() {
                   <DefaultOrganizationsLayout><DefaultOrganizationsPage /></DefaultOrganizationsLayout>
                 </AuthenticatedRoute>
               } />
+              <Route path="/organizations/:slug" element={
+                <AuthenticatedRoute requireOrganization={false}>
+                  <DefaultOrganizationLayout />
+                </AuthenticatedRoute>
+              }>
+                <Route index element={<Navigate to="members" replace />} />
+                <Route path="members" element={<DefaultMembersPage />} />
+                <Route path="invitations" element={<DefaultInvitationsPage />} />
+                <Route path="settings" element={<DefaultSettingsPage />} />
+              </Route>
+              <Route path="/accept-invitation/:invitationId" element={<DefaultAcceptInvitationPage />} />
               <Route path="/system/*" element={<SystemRedirect />} />
               <Route path="/create-app" element={
                 <AuthenticatedRoute requireOrganization={false}>
