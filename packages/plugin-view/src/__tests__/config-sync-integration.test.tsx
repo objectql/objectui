@@ -19,14 +19,17 @@ import { ObjectView } from '../ObjectView';
 import type { ObjectViewSchema, DataSource } from '@object-ui/types';
 
 // Mock @object-ui/react to avoid circular dependency issues
-vi.mock('@object-ui/react', () => ({
-  SchemaRenderer: ({ schema }: any) => (
-    <div data-testid="schema-renderer" data-schema-type={schema?.type}>
-      {schema?.type}
-    </div>
-  ),
-  SchemaRendererContext: null,
-}));
+vi.mock('@object-ui/react', () => {
+  const React = require('react');
+  return {
+    SchemaRenderer: ({ schema }: any) => (
+      <div data-testid="schema-renderer" data-schema-type={schema?.type}>
+        {schema?.type}
+      </div>
+    ),
+    SchemaRendererContext: React.createContext(null),
+  };
+});
 
 // Mock @object-ui/plugin-grid
 vi.mock('@object-ui/plugin-grid', () => ({

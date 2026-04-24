@@ -4,9 +4,13 @@ import React from 'react';
 import { ObjectGanttRenderer } from './index';
 
 // Mock dependencies
-vi.mock('@object-ui/react', () => ({
-  useSchemaContext: vi.fn(() => ({ dataSource: { type: 'mock-datasource' } })),
-}));
+vi.mock('@object-ui/react', () => {
+  const React = require('react');
+  return {
+    useSchemaContext: vi.fn(() => ({ dataSource: { type: 'mock-datasource' } })),
+    SchemaRendererContext: React.createContext(null),
+  };
+});
 
 vi.mock('./ObjectGantt', () => ({
   ObjectGantt: ({ dataSource }: any) => (

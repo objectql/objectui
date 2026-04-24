@@ -5,15 +5,19 @@ import type { DashboardSchema } from '@object-ui/types';
 
 // Mock SchemaRenderer to avoid pulling in the full renderer tree.
 // Forwards className and includes an interactive child to simulate real chart content.
-vi.mock('@object-ui/react', () => ({
-  SchemaRenderer: ({ schema, className }: { schema: any; className?: string }) => (
-    <div data-testid="schema-renderer" className={className}>
-      <button data-testid={`interactive-child-${schema?.type ?? 'unknown'}`}>
-        {schema?.type ?? 'unknown'}
-      </button>
-    </div>
-  ),
-}));
+vi.mock('@object-ui/react', () => {
+  const React = require('react');
+  return {
+    SchemaRenderer: ({ schema, className }: { schema: any; className?: string }) => (
+      <div data-testid="schema-renderer" className={className}>
+        <button data-testid={`interactive-child-${schema?.type ?? 'unknown'}`}>
+          {schema?.type ?? 'unknown'}
+        </button>
+      </div>
+    ),
+    SchemaRendererContext: React.createContext(null),
+  };
+});
 
 const DASHBOARD_WITH_WIDGETS: DashboardSchema = {
   type: 'dashboard',

@@ -63,23 +63,27 @@ vi.mock('@object-ui/components', () => ({
   ),
 }));
 
-vi.mock('@object-ui/react', () => ({
-  useHasDndProvider: () => false,
-  useDnd: () => ({
-    startDrag: vi.fn(),
-    endDrag: vi.fn(),
-  }),
-  useDataScope: () => undefined,
-  useNavigationOverlay: () => ({
-    isOverlay: false,
-    handleClick: vi.fn(),
-    selectedRecord: null,
-    isOpen: false,
-    close: vi.fn(),
-    setIsOpen: vi.fn(),
-    mode: 'page' as const,
-  }),
-}));
+vi.mock('@object-ui/react', () => {
+  const React = require('react');
+  return {
+    useHasDndProvider: () => false,
+    useDnd: () => ({
+      startDrag: vi.fn(),
+      endDrag: vi.fn(),
+    }),
+    useDataScope: () => undefined,
+    useNavigationOverlay: () => ({
+      isOverlay: false,
+      handleClick: vi.fn(),
+      selectedRecord: null,
+      isOpen: false,
+      close: vi.fn(),
+      setIsOpen: vi.fn(),
+      mode: 'page' as const,
+    }),
+    SchemaRendererContext: React.createContext(null),
+  };
+});
 
 vi.mock('lucide-react', () => ({
   Plus: () => <span>+</span>,

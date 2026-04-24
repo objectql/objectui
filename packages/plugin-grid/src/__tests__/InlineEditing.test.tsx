@@ -15,6 +15,7 @@ import { InlineEditing } from '../InlineEditing';
 vi.mock('lucide-react', () => ({
   Check: (props: any) => <svg data-testid="icon-check" {...props} />,
   X: (props: any) => <svg data-testid="icon-x" {...props} />,
+  Grid: (props: any) => <svg data-testid="icon-grid" {...props} />,
 }));
 
 // Mock cn utility to pass through classes

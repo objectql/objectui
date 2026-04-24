@@ -12,21 +12,25 @@ import '@testing-library/jest-dom';
 import { ObjectTimeline } from '../ObjectTimeline';
 
 // Mock dependencies
-vi.mock('@object-ui/react', () => ({
-  useDataScope: () => undefined,
-  useNavigationOverlay: () => ({
-    isOverlay: false,
-    handleClick: vi.fn(),
-    selectedRecord: null,
-    isOpen: false,
-    close: vi.fn(),
-    setIsOpen: vi.fn(),
-    mode: 'page' as const,
-    width: undefined,
-    view: undefined,
-    open: vi.fn(),
-  }),
-}));
+vi.mock('@object-ui/react', () => {
+  const React = require('react');
+  return {
+    useDataScope: () => undefined,
+    useNavigationOverlay: () => ({
+      isOverlay: false,
+      handleClick: vi.fn(),
+      selectedRecord: null,
+      isOpen: false,
+      close: vi.fn(),
+      setIsOpen: vi.fn(),
+      mode: 'page' as const,
+      width: undefined,
+      view: undefined,
+      open: vi.fn(),
+    }),
+    SchemaRendererContext: React.createContext(null),
+  };
+});
 
 vi.mock('@object-ui/components', () => ({
   NavigationOverlay: () => null,

@@ -42,14 +42,18 @@ vi.mock('@object-ui/app-shell', async () => {
 });
 
 // Mock SchemaRenderer to show current schema for preview verification
-vi.mock('@object-ui/react', () => ({
-  SchemaRenderer: ({ schema }: { schema: any }) => (
-    <div data-testid="schema-renderer">
-      Rendered {schema.type}: {schema.name || 'unnamed'}
-      {schema.children?.[0]?.value}
-    </div>
-  ),
-}));
+vi.mock('@object-ui/react', () => {
+  const React = require('react');
+  return {
+    SchemaRenderer: ({ schema }: { schema: any }) => (
+      <div data-testid="schema-renderer">
+        Rendered {schema.type}: {schema.name || 'unnamed'}
+        {schema.children?.[0]?.value}
+      </div>
+    ),
+    SchemaRendererContext: React.createContext(null),
+  };
+});
 
 // Mock plugin-designer
 vi.mock('@object-ui/plugin-designer', () => ({

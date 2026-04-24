@@ -59,6 +59,35 @@ vi.mock('@object-ui/app-shell', async () => {
   };
 });
 
+// useNavigationSync internally imports from local AdapterProvider /
+// MetadataProvider, which re-export the hooks from @object-ui/react.
+// Mock that source too so the hook receives the test fixtures.
+vi.mock('@object-ui/react', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/react')>('@object-ui/react');
+  return {
+    ...actual,
+    useAdapter: () => ({
+      getClient: () => ({
+        meta: { saveItem: mockSaveItem },
+      }),
+    }),
+    useMetadata: () => ({
+      apps: mockApps,
+      objects: [],
+      dashboards: mockDashboards,
+      reports: [],
+      pages: mockPages,
+      loading: false,
+      error: null,
+      refresh: mockRefresh,
+      invalidate: () => {},
+      ensureType: async () => [],
+      getItem: async () => null,
+      getItemsByType: () => [],
+    }),
+  };
+});
+
 // Import after mocks are registered
 const { useNavigationSync, NavigationSyncEffect } = await import('@object-ui/app-shell');
 

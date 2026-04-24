@@ -12,11 +12,15 @@ import { DashboardWithConfig } from '../DashboardWithConfig';
 import type { DashboardSchema } from '@object-ui/types';
 
 // Mock SchemaRenderer to avoid deep component tree
-vi.mock('@object-ui/react', () => ({
-  SchemaRenderer: ({ schema }: any) => (
-    <div data-testid="schema-renderer">{schema?.type ?? 'unknown'}</div>
-  ),
-}));
+vi.mock('@object-ui/react', () => {
+  const React = require('react');
+  return {
+    SchemaRenderer: ({ schema }: any) => (
+      <div data-testid="schema-renderer">{schema?.type ?? 'unknown'}</div>
+    ),
+    SchemaRendererContext: React.createContext(null),
+  };
+});
 
 const sampleSchema: DashboardSchema = {
   type: 'dashboard',

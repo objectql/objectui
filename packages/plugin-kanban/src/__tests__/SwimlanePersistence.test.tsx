@@ -59,13 +59,17 @@ vi.mock('@object-ui/components', () => ({
   Input: (props: any) => <input {...props} />,
 }));
 
-vi.mock('@object-ui/react', () => ({
-  useHasDndProvider: () => false,
-  useDnd: () => ({
-    startDrag: vi.fn(),
-    endDrag: vi.fn(),
-  }),
-}));
+vi.mock('@object-ui/react', () => {
+  const React = require('react');
+  return {
+    useHasDndProvider: () => false,
+    useDnd: () => ({
+      startDrag: vi.fn(),
+      endDrag: vi.fn(),
+    }),
+    SchemaRendererContext: React.createContext(null),
+  };
+});
 
 vi.mock('lucide-react', () => ({
   Plus: () => <span>+</span>,

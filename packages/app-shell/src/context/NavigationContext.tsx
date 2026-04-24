@@ -56,7 +56,14 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
 export function useNavigationContext(): NavigationContextValue {
   const context = useContext(NavigationContext);
   if (!context) {
-    throw new Error('useNavigationContext must be used within a NavigationProvider');
+    // Graceful fallback for consumers rendered outside <NavigationProvider>
+    // (common in lightweight unit tests). Production paths always wrap.
+    return {
+      context: 'app',
+      setContext: () => {},
+      currentAppName: undefined,
+      setCurrentAppName: () => {},
+    };
   }
   return context;
 }

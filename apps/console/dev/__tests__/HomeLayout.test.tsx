@@ -59,13 +59,13 @@ vi.mock('@object-ui/components', async (importOriginal) => {
 
 // Mock AppHeader — HomeLayout tests verify layout composition, not the
 // top nav's internal rendering (user menu, org switcher, etc.).
-vi.mock('../../src/components/AppHeader', () => ({
+vi.mock('../../../../packages/app-shell/src/layout/AppHeader', () => ({
   AppHeader: () => <div data-testid="home-top-nav" />,
 }));
 
 // Mock NavigationContext
 const mockSetContext = vi.fn();
-vi.mock('../../src/context/NavigationContext', () => ({
+vi.mock('../../../../packages/app-shell/src/context/NavigationContext', () => ({
   useNavigationContext: () => ({
     context: 'home',
     setContext: mockSetContext,

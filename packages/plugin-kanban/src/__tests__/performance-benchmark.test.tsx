@@ -66,13 +66,17 @@ vi.mock('@object-ui/components', () => ({
 }));
 
 // Mock @object-ui/react
-vi.mock('@object-ui/react', () => ({
-  useHasDndProvider: () => false,
-  useDnd: () => ({
-    startDrag: vi.fn(),
-    endDrag: vi.fn(),
-  }),
-}));
+vi.mock('@object-ui/react', () => {
+  const React = require('react');
+  return {
+    useHasDndProvider: () => false,
+    useDnd: () => ({
+      startDrag: vi.fn(),
+      endDrag: vi.fn(),
+    }),
+    SchemaRendererContext: React.createContext(null),
+  };
+});
 
 // --- Data generators ---
 

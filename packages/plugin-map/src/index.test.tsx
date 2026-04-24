@@ -7,9 +7,13 @@ import { ObjectMapRenderer } from './index';
 // import { ComponentRegistry } from '@object-ui/core';
 
 // Mock dependencies
-vi.mock('@object-ui/react', () => ({
-  useSchemaContext: vi.fn(() => ({ dataSource: { type: 'mock-datasource' } })),
-}));
+vi.mock('@object-ui/react', () => {
+  const React = require('react');
+  return {
+    useSchemaContext: vi.fn(() => ({ dataSource: { type: 'mock-datasource' } })),
+    SchemaRendererContext: React.createContext(null),
+  };
+});
 
 vi.mock('./ObjectMap', () => ({
   ObjectMap: ({ dataSource }: any) => (

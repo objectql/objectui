@@ -65,10 +65,14 @@ vi.mock('@dnd-kit/utilities', () => ({
   },
 }));
 
-vi.mock('@object-ui/react', () => ({
-  useHasDndProvider: () => false,
-  useDnd: vi.fn(),
-}));
+vi.mock('@object-ui/react', () => {
+  const React = require('react');
+  return {
+    useHasDndProvider: () => false,
+    useDnd: vi.fn(),
+    SchemaRendererContext: React.createContext(null),
+  };
+});
 
 describe('P3.3 Kanban View States', () => {
   // ---------------------------------------------------------------

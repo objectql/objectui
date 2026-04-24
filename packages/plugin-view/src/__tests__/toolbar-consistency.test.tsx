@@ -34,14 +34,17 @@ import type {
 // ---------------------------------------------------------------------------
 // Mocks – mirrors ObjectView.test.tsx
 // ---------------------------------------------------------------------------
-vi.mock('@object-ui/react', () => ({
-  SchemaRenderer: ({ schema }: any) => (
-    <div data-testid="schema-renderer" data-schema-type={schema?.type}>
-      {schema?.type}
-    </div>
-  ),
-  SchemaRendererContext: null,
-}));
+vi.mock('@object-ui/react', () => {
+  const React = require('react');
+  return {
+    SchemaRenderer: ({ schema }: any) => (
+      <div data-testid="schema-renderer" data-schema-type={schema?.type}>
+        {schema?.type}
+      </div>
+    ),
+    SchemaRendererContext: React.createContext(null),
+  };
+});
 
 vi.mock('@object-ui/plugin-grid', () => ({
   ObjectGrid: ({ schema }: any) => (

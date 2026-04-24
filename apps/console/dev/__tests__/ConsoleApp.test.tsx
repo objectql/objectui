@@ -35,6 +35,50 @@ vi.mock('../objectstack.shared', () => ({
     }
 }));
 
+// MetadataProvider/AdapterProvider in @object-ui/app-shell re-export
+// useMetadata/useAdapter from @object-ui/react. DefaultAppContent reads them
+// via those local providers, so mocking only @object-ui/app-shell isn't enough
+// — we must intercept the underlying hooks at @object-ui/react too.
+vi.mock('@object-ui/react', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/react')>('@object-ui/react');
+  return {
+    ...actual,
+    useAdapter: () => MockAdapterInstance,
+    useMetadata: () => ({
+      apps: [
+        {
+          name: 'sales',
+          label: 'Sales App',
+          active: true,
+          icon: 'briefcase',
+          navigation: [
+            { id: 'nav_opp', label: 'Opportunities', type: 'object', objectName: 'opportunity' }
+          ]
+        },
+        {
+          name: 'admin',
+          label: 'Admin',
+          active: true,
+          navigation: []
+        }
+      ],
+      objects: [
+        { name: 'opportunity', label: 'Opportunity', fields: {} }
+      ],
+      dashboards: [],
+      reports: [],
+      pages: [],
+      loading: false,
+      error: null,
+      refresh: vi.fn(),
+      invalidate: () => {},
+      ensureType: async () => [],
+      getItem: async () => null,
+      getItemsByType: () => [],
+    }),
+  };
+});
+
 // Mock @object-ui/app-shell (MetadataProvider + AdapterProvider)
 vi.mock('@object-ui/app-shell', async () => {
   const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
@@ -115,15 +159,15 @@ vi.mock('../../src/dataSource', () => {
 
 // Mock Child Components (Integration level)
 // We want to verify routing, so we mock the "Page" components but keep Layout structure mostly
-vi.mock('../../src/components/ObjectView', () => ({
+vi.mock('../../../../packages/app-shell/src/views/ObjectView', () => ({
     ObjectView: () => <div data-testid="object-view">Object View</div>
 }));
 
-vi.mock('../../src/components/DashboardView', () => ({
+vi.mock('../../../../packages/app-shell/src/views/DashboardView', () => ({
     DashboardView: () => <div data-testid="dashboard-view">Dashboard View</div>
 }));
 
-vi.mock('../../src/components/PageView', () => ({
+vi.mock('../../../../packages/app-shell/src/views/PageView', () => ({
     PageView: () => <div data-testid="page-view">Page View</div>
 }));
 
