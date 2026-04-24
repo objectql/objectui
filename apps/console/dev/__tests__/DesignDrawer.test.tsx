@@ -42,16 +42,37 @@ vi.mock('@object-ui/app-shell', async () => {
 });
 
 // Mock SchemaRenderer to show current schema for preview verification
-vi.mock('@object-ui/react', () => {
-  const React = require('react');
+vi.mock('@object-ui/react', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/react')>('@object-ui/react');
   return {
+    ...actual,
     SchemaRenderer: ({ schema }: { schema: any }) => (
       <div data-testid="schema-renderer">
         Rendered {schema.type}: {schema.name || 'unnamed'}
         {schema.children?.[0]?.value}
       </div>
     ),
-    SchemaRendererContext: React.createContext(null),
+    useMetadata: () => ({
+      apps: [],
+      objects: [],
+      dashboards: [],
+      reports: [],
+      pages: [
+        {
+          name: 'test-page',
+          type: 'page',
+          title: 'Test Page',
+          children: [{ type: 'text', value: 'Original Content' }],
+        },
+      ],
+      loading: false,
+      error: null,
+      refresh: vi.fn(),
+    }),
+    useAdapter: () => ({
+      update: mockUpdate,
+      create: vi.fn().mockResolvedValue({}),
+    }),
   };
 });
 

@@ -45,18 +45,44 @@ vi.mock('@object-ui/app-shell', async () => {
 
 // Mock SchemaRenderer to avoid complex component tree rendering
 // We just want to ensure PageView passes the correct schema to it
-vi.mock('@object-ui/react', () => {
-  const React = require('react');
+vi.mock('@object-ui/react', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/react')>('@object-ui/react');
   return {
+    ...actual,
     SchemaRenderer: ({ schema }: { schema: any }) => (
       <div data-testid="schema-renderer">
         Rendered {schema.type}: {schema.name || 'unnamed'}
-        {/* Render simple children for text check */}
         {schema.regions?.[0]?.components?.[0]?.value}
         {schema.children?.[0]?.value}
       </div>
     ),
-    SchemaRendererContext: React.createContext(null),
+    useMetadata: () => ({
+      apps: [],
+      objects: [],
+      dashboards: [],
+      reports: [],
+      pages: [
+        {
+          name: 'help_page',
+          type: 'app',
+          label: 'Help Guide',
+          regions: [
+            {
+              name: 'main',
+              components: [{ type: 'text', value: 'Content for Help Page' }],
+            },
+          ],
+        },
+        {
+          name: 'standard_page',
+          type: 'page',
+          children: [{ type: 'text', value: 'Standard Page Content' }],
+        },
+      ],
+      loading: false,
+      error: null,
+      refresh: vi.fn(),
+    }),
   };
 });
 

@@ -127,6 +127,28 @@ vi.mock('@object-ui/app-shell', async () => {
     };
 });
 
+// Mock @object-ui/react — internal app-shell components import useMetadata/useAdapter
+// from relative paths that re-export from @object-ui/react, bypassing the app-shell mock above.
+vi.mock('@object-ui/react', async () => {
+    const actual = await vi.importActual<typeof import('@object-ui/react')>('@object-ui/react');
+    const config = await import('../objectstack.shared');
+    const appConfig = (config.default as any).default || config.default;
+    return {
+        ...actual,
+        useAdapter: () => new mocks.MockDataSource(),
+        useMetadata: () => ({
+            apps: appConfig.apps || [],
+            objects: appConfig.objects || [],
+            dashboards: appConfig.dashboards || [],
+            reports: (appConfig as any).reports || [],
+            pages: appConfig.pages || [],
+            loading: false,
+            error: null,
+            refresh: vi.fn(),
+        }),
+    };
+});
+
 // --- 2. Import AppContent ---
 import { AppContent } from '../../src/App';
 import { NavigationProvider } from '@object-ui/app-shell';

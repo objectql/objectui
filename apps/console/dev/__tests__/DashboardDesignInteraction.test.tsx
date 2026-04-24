@@ -37,33 +37,42 @@ const { rendererCalls, dashboardConfigCalls, widgetConfigCalls, mockRefresh } = 
 
 // Mock @object-ui/app-shell (MetadataProvider + AdapterProvider)
 const { mockUpdate } = vi.hoisted(() => ({ mockUpdate: vi.fn().mockResolvedValue({}) }));
+const dashboardMetadata = {
+  apps: [],
+  objects: [],
+  dashboards: [
+    {
+      name: 'crm-dashboard',
+      type: 'dashboard',
+      title: 'CRM Overview',
+      label: 'CRM Overview',
+      columns: 2,
+      widgets: [
+        { id: 'w1', title: 'Total Revenue', type: 'metric', object: 'orders', valueField: 'amount', aggregate: 'sum' },
+        { id: 'w2', title: 'Revenue Trends', type: 'line', object: 'orders', categoryField: 'month' },
+        { id: 'w3', title: 'Pipeline by Stage', type: 'bar', object: 'opportunities' },
+      ],
+    },
+  ],
+  reports: [],
+  pages: [],
+  loading: false,
+  error: null,
+  refresh: mockRefresh,
+};
+vi.mock('@object-ui/react', async () => {
+  const actual = await vi.importActual<typeof import('@object-ui/react')>('@object-ui/react');
+  return {
+    ...actual,
+    useMetadata: () => dashboardMetadata,
+    useAdapter: () => ({ update: mockUpdate, create: vi.fn().mockResolvedValue({}) }),
+  };
+});
 vi.mock('@object-ui/app-shell', async () => {
   const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
   return {
     ...actual,
-    useMetadata: () => ({
-      apps: [],
-      objects: [],
-      dashboards: [
-        {
-          name: 'crm-dashboard',
-          type: 'dashboard',
-          title: 'CRM Overview',
-          label: 'CRM Overview',
-          columns: 2,
-          widgets: [
-            { id: 'w1', title: 'Total Revenue', type: 'metric', object: 'orders', valueField: 'amount', aggregate: 'sum' },
-            { id: 'w2', title: 'Revenue Trends', type: 'line', object: 'orders', categoryField: 'month' },
-            { id: 'w3', title: 'Pipeline by Stage', type: 'bar', object: 'opportunities' },
-          ],
-        },
-      ],
-      reports: [],
-      pages: [],
-      loading: false,
-      error: null,
-      refresh: mockRefresh,
-    }),
+    useMetadata: () => dashboardMetadata,
     useAdapter: () => ({
       update: mockUpdate,
       create: vi.fn().mockResolvedValue({}),

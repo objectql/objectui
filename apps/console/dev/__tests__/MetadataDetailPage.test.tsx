@@ -18,18 +18,15 @@ import { ComponentRegistry } from '@object-ui/core';
 const mockGetItems = vi.fn().mockResolvedValue([]);
 const mockSaveMetadataItem = vi.fn().mockResolvedValue(undefined);
 
-vi.mock('../../src/hooks/useMetadataService', () => ({
-  useMetadataService: () => ({
-    getItems: mockGetItems,
-    saveMetadataItem: mockSaveMetadataItem,
-  }),
-}));
-
 const mockRefresh = vi.fn().mockResolvedValue(undefined);
 vi.mock('@object-ui/app-shell', async () => {
   const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
   return {
     ...actual,
+    useMetadataService: () => ({
+      getItems: mockGetItems,
+      saveMetadataItem: mockSaveMetadataItem,
+    }),
     useMetadata: () => ({
       apps: [],
       objects: [

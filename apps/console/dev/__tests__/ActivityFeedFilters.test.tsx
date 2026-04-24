@@ -25,14 +25,18 @@ vi.mock('@object-ui/components', () => ({
   SheetTrigger: ({ children }: any) => <>{children}</>,
 }));
 
-vi.mock('lucide-react', () => ({
-  Bell: () => <span data-testid="bell-icon">🔔</span>,
-  Plus: () => <span>+</span>,
-  Pencil: () => <span>✏</span>,
-  Trash2: () => <span>🗑</span>,
-  MessageSquare: () => <span>💬</span>,
-  Filter: () => <span>🔍</span>,
-}));
+vi.mock('lucide-react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('lucide-react')>();
+  return {
+    ...actual,
+    Bell: () => <span data-testid="bell-icon">🔔</span>,
+    Plus: () => <span>+</span>,
+    Pencil: () => <span>✏</span>,
+    Trash2: () => <span>🗑</span>,
+    MessageSquare: () => <span>💬</span>,
+    Filter: () => <span>Filter</span>,
+  };
+});
 
 import { ActivityFeed, type ActivityItem } from '@object-ui/app-shell';
 

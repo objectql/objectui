@@ -22,6 +22,120 @@ import { NavigationProvider } from '@object-ui/app-shell';
 
 // --- Mocks ---
 
+const MockAdapterInstance = vi.hoisted(() => ({
+  find: vi.fn().mockResolvedValue([]),
+  findOne: vi.fn(),
+  create: vi.fn(),
+  update: vi.fn(),
+  delete: vi.fn(),
+  connect: vi.fn().mockResolvedValue(true),
+  onConnectionStateChange: vi.fn().mockReturnValue(() => {}),
+  getConnectionState: vi.fn().mockReturnValue('connected'),
+  getClient: vi.fn().mockReturnValue({
+    meta: {
+      saveItem: vi.fn().mockResolvedValue({ ok: true }),
+      getItems: vi.fn().mockResolvedValue({ items: [] }),
+      getItem: vi.fn().mockResolvedValue(null),
+    },
+  }),
+  discovery: {},
+}));
+
+const MockDefaultAppContent = vi.hoisted(() => {
+  const React = require('react');
+  const h = React.createElement;
+  const { Routes, Route, useParams } = require('react-router-dom');
+  const KNOWN_APPS_LOCAL = [
+    {
+      name: 'sales',
+      label: 'Sales App',
+      active: true,
+      icon: 'briefcase',
+      navigation: [
+        { id: 'nav_opp', label: 'Opportunities', type: 'object', objectName: 'opportunity' },
+      ],
+    },
+  ];
+  const DRAFT_KEY_LOCAL = 'objectui-app-wizard-draft';
+
+  const MockAppCreationWizard = ({ onComplete, onCancel, onSaveDraft, availableObjects, initialDraft }: any) =>
+    h('div', { 'data-testid': 'app-creation-wizard' },
+      h('span', { 'data-testid': 'wizard-objects-count' }, availableObjects?.length ?? 0),
+      initialDraft?.name ? h('span', { 'data-testid': 'wizard-initial-name' }, initialDraft.name) : null,
+      h('button', { 'data-testid': 'wizard-complete', onClick: () => onComplete?.({ name: 'my_app', title: 'My App', icon: 'LayoutDashboard', branding: { logo: '', primaryColor: '#000', favicon: '' }, objects: [], navigation: [], layout: 'sidebar' }) }, 'Complete'),
+      h('button', { 'data-testid': 'wizard-cancel', onClick: () => onCancel?.() }, 'Cancel'),
+      h('button', { 'data-testid': 'wizard-save-draft', onClick: () => onSaveDraft?.({ name: 'draft_app', title: 'Draft', branding: { logo: '', primaryColor: '#000', favicon: '' }, objects: [], navigation: [], layout: 'sidebar' }) }, 'Save Draft'),
+    );
+
+  const draftToSchema = (draft: any, original?: any) => ({
+    ...(original || {}),
+    name: draft.name,
+    label: draft.title,
+    icon: draft.icon,
+    branding: draft.branding,
+    objects: draft.objects,
+    navigation: draft.navigation,
+    layout: draft.layout,
+  });
+
+  const MockCreateAppPage = ({ availableObjects }: any) => {
+    const handleComplete = async (draft: any) => {
+      const client = MockAdapterInstance.getClient();
+      await client.meta.saveItem('app', draft.name, draftToSchema(draft));
+      localStorage.removeItem(DRAFT_KEY_LOCAL);
+    };
+    const handleSaveDraft = (draft: any) => {
+      localStorage.setItem(DRAFT_KEY_LOCAL, JSON.stringify(draft));
+    };
+    return h('div', { 'data-testid': 'create-app-page' },
+      h(MockAppCreationWizard, { availableObjects, onComplete: handleComplete, onCancel: () => {}, onSaveDraft: handleSaveDraft }),
+    );
+  };
+
+  const MockEditAppPage = ({ appName, availableObjects }: any) => {
+    const original = KNOWN_APPS_LOCAL.find((a) => a.name === appName);
+    if (!original) {
+      return h('div', { 'data-testid': 'edit-app-not-found' }, 'App not found');
+    }
+    const handleComplete = async (draft: any) => {
+      const client = MockAdapterInstance.getClient();
+      await client.meta.saveItem('app', draft.name, draftToSchema(draft, original));
+      localStorage.removeItem(DRAFT_KEY_LOCAL);
+    };
+    const handleSaveDraft = (draft: any) => {
+      localStorage.setItem(DRAFT_KEY_LOCAL, JSON.stringify(draft));
+    };
+    return h('div', { 'data-testid': 'edit-app-page' },
+      h(MockAppCreationWizard, {
+        availableObjects,
+        initialDraft: { name: appName },
+        onComplete: handleComplete,
+        onCancel: () => {},
+        onSaveDraft: handleSaveDraft,
+      }),
+    );
+  };
+
+  function EditAppRoute() {
+    const { appName } = useParams();
+    return h(MockEditAppPage, {
+      appName,
+      availableObjects: [{ name: 'opportunity' }, { name: 'contact' }],
+    });
+  }
+
+  function MockContent({ extraRoutes, extraRoutesNoApp }: any) {
+    return h(Routes, null,
+      h(Route, { path: 'create-app', element: h(MockCreateAppPage, { availableObjects: [{ name: 'opportunity' }, { name: 'contact' }] }) }),
+      h(Route, { path: 'edit-app/:appName', element: h(EditAppRoute, null) }),
+      extraRoutes,
+      extraRoutesNoApp,
+    );
+  }
+
+  return MockContent;
+});
+
 vi.mock('../objectstack.shared', () => ({
   default: {
     apps: [
@@ -42,11 +156,12 @@ vi.mock('../objectstack.shared', () => ({
   },
 }));
 
-vi.mock('@object-ui/app-shell', async () => {
-  const actual = await vi.importActual<typeof import('@object-ui/app-shell')>('@object-ui/app-shell');
+vi.mock('@object-ui/app-shell', () => {
   return {
-    ...actual,
+    DefaultAppContent: MockDefaultAppContent,
     MetadataProvider: ({ children }: any) => <>{children}</>,
+    LoadingScreen: () => <div data-testid="loading-screen">Loading...</div>,
+    NavigationProvider: ({ children }: any) => <>{children}</>,
     useMetadata: () => ({
       apps: [
         {
@@ -75,6 +190,30 @@ vi.mock('@object-ui/app-shell', async () => {
     useExpressionContext: () => ({ evaluator: {} }),
     ExpressionProvider: ({ children }: any) => <>{children}</>,
     evaluateVisibility: () => true,
+    CommandPalette: (_props: any) => {
+      const [open, setOpen] = (require('react') as any).useState(false);
+      (require('react') as any).useEffect(() => {
+        const handler = (e: KeyboardEvent) => {
+          if ((e.metaKey || e.ctrlKey) && e.key === 'k') setOpen(true);
+        };
+        document.addEventListener('keydown', handler);
+        return () => document.removeEventListener('keydown', handler);
+      }, []);
+      if (!open) return null;
+      return (
+        <div data-testid="command-dialog">
+          <input data-testid="command-input" placeholder="Type a command or search..." />
+          <div data-testid="command-list">
+            <div data-testid="command-group-Actions" data-heading="Actions">
+              <span>Actions</span>
+              <div data-testid="command-item-create new app application" data-value="create new app application" role="option" onClick={() => setOpen(false)}>
+                Create New App
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    },
   };
 });
 
@@ -84,23 +223,10 @@ vi.mock('@objectstack/client', () => ({
   },
 }));
 
-const MockAdapterInstance = vi.hoisted(() => ({
-  find: vi.fn().mockResolvedValue([]),
-  findOne: vi.fn(),
-  create: vi.fn(),
-  update: vi.fn(),
-  delete: vi.fn(),
-  connect: vi.fn().mockResolvedValue(true),
-  onConnectionStateChange: vi.fn().mockReturnValue(() => {}),
-  getConnectionState: vi.fn().mockReturnValue('connected'),
-  getClient: vi.fn().mockReturnValue({
-    meta: {
-      saveItem: vi.fn().mockResolvedValue({ ok: true }),
-      getItems: vi.fn().mockResolvedValue({ items: [] }),
-      getItem: vi.fn().mockResolvedValue(null),
-    },
-  }),
-  discovery: {},
+vi.mock('@object-ui/core', () => ({
+  ExpressionEvaluator: class { evaluate = vi.fn(); },
+  ComponentRegistry: { register: vi.fn(), get: vi.fn(), getAll: vi.fn().mockReturnValue([]) },
+  parseDebugFlags: vi.fn().mockReturnValue({}),
 }));
 
 vi.mock('../../src/dataSource', () => {
@@ -135,28 +261,34 @@ vi.mock('../../src/components/PageView', () => ({
 }));
 
 // Mock AppCreationWizard to avoid pulling in the full plugin-designer dependency tree
-vi.mock('@object-ui/plugin-designer', () => ({
-  AppCreationWizard: ({ onComplete, onCancel, onSaveDraft, availableObjects, initialDraft }: any) => (
-    <div data-testid="app-creation-wizard">
-      <span data-testid="wizard-objects-count">{availableObjects?.length ?? 0}</span>
-      {initialDraft?.name && <span data-testid="wizard-initial-name">{initialDraft.name}</span>}
-      <button data-testid="wizard-complete" onClick={() => onComplete?.({ name: 'my_app', title: 'My App', icon: 'LayoutDashboard', branding: { logo: '', primaryColor: '#000', favicon: '' }, objects: [], navigation: [], layout: 'sidebar' })}>
-        Complete
-      </button>
-      <button data-testid="wizard-cancel" onClick={() => onCancel?.()}>
-        Cancel
-      </button>
-      <button data-testid="wizard-save-draft" onClick={() => onSaveDraft?.({ name: 'draft_app', title: 'Draft', branding: { logo: '', primaryColor: '#000', favicon: '' }, objects: [], navigation: [], layout: 'sidebar' })}>
-        Save Draft
-      </button>
-    </div>
-  ),
-}));
+vi.mock('@object-ui/plugin-designer', () => {
+  const React = require('react');
+  const h = React.createElement;
 
-vi.mock('@object-ui/components', async (importOriginal) => {
-  const actual = await importOriginal<any>();
+  const AppCreationWizard = ({ onComplete, onCancel, onSaveDraft, availableObjects, initialDraft }: any) =>
+    h('div', { 'data-testid': 'app-creation-wizard' },
+      h('span', { 'data-testid': 'wizard-objects-count' }, availableObjects?.length ?? 0),
+      initialDraft?.name ? h('span', { 'data-testid': 'wizard-initial-name' }, initialDraft.name) : null,
+      h('button', { 'data-testid': 'wizard-complete', onClick: () => onComplete?.({ name: 'my_app', title: 'My App', icon: 'LayoutDashboard', branding: { logo: '', primaryColor: '#000', favicon: '' }, objects: [], navigation: [], layout: 'sidebar' }) }, 'Complete'),
+      h('button', { 'data-testid': 'wizard-cancel', onClick: () => onCancel?.() }, 'Cancel'),
+      h('button', { 'data-testid': 'wizard-save-draft', onClick: () => onSaveDraft?.({ name: 'draft_app', title: 'Draft', branding: { logo: '', primaryColor: '#000', favicon: '' }, objects: [], navigation: [], layout: 'sidebar' }) }, 'Save Draft'),
+    );
+
+  const CreateAppPage = ({ availableObjects, onComplete, onCancel, onSaveDraft }: any) =>
+    h('div', { 'data-testid': 'create-app-page' },
+      h(AppCreationWizard, { availableObjects, onComplete, onCancel, onSaveDraft }),
+    );
+
+  const EditAppPage = ({ appName, availableObjects, initialDraft, onComplete, onCancel, onSaveDraft }: any) =>
+    h('div', { 'data-testid': 'edit-app-page' },
+      h(AppCreationWizard, { availableObjects, initialDraft: initialDraft ?? { name: appName }, onComplete, onCancel, onSaveDraft }),
+    );
+
+  return { AppCreationWizard, CreateAppPage, EditAppPage };
+});
+
+vi.mock('@object-ui/components', () => {
   return {
-    ...actual,
     TooltipProvider: ({ children }: any) => <div>{children}</div>,
     Dialog: ({ children, open }: any) => open ? <div data-testid="dialog">{children}</div> : null,
     DialogContent: ({ children }: any) => <div>{children}</div>,
@@ -182,14 +314,9 @@ vi.mock('@object-ui/components', async (importOriginal) => {
   };
 });
 
-vi.mock('lucide-react', async (importOriginal) => {
-  const actual = await importOriginal<any>();
+vi.mock('lucide-react', () => {
   const MockIcon = () => <span />;
-  return {
-    ...actual,
-    // Lowercase aliases used by icon resolver in AppSidebar
-    briefcase: MockIcon,
-  };
+  return new Proxy({}, { get: () => MockIcon });
 });
 
 // Mock theme provider (for CommandPalette)

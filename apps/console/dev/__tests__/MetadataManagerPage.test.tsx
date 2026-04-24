@@ -38,6 +38,11 @@ vi.mock('@object-ui/app-shell', async () => {
       error: null,
       refresh: mockRefresh,
     }),
+    useMetadataService: () => ({
+      getItems: mockGetItems,
+      deleteMetadataItem: mockDeleteMetadataItem,
+      saveMetadataItem: mockSaveMetadataItem,
+    }),
   };
 });
 
