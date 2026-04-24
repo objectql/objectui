@@ -27,6 +27,7 @@ export { AuthGuard, type AuthGuardProps } from './AuthGuard';
 export { LoginForm, type LoginFormProps, type LoginFormLabels } from './LoginForm';
 export { RegisterForm, type RegisterFormProps, type RegisterFormLabels } from './RegisterForm';
 export { ForgotPasswordForm, type ForgotPasswordFormProps, type ForgotPasswordFormLabels } from './ForgotPasswordForm';
+export { SocialSignInButtons, type SocialSignInButtonsProps } from './SocialSignInButtons';
 export { UserMenu, type UserMenuProps } from './UserMenu';
 export { PreviewBanner, type PreviewBannerProps } from './PreviewBanner';
 export { createAuthClient, TokenStorage } from './createAuthClient';
@@ -47,6 +48,9 @@ export type {
   SignUpData,
   AuthOrganization,
   AuthOrganizationMember,
+  AuthSocialProvider,
+  AuthPublicConfig,
+  SignInWithProviderOptions,
 } from './types';
 
 export type { AuthContextValue } from './AuthContext';

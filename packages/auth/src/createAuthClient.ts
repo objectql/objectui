@@ -10,7 +10,7 @@ import { createAuthClient as createBetterAuthClient } from 'better-auth/client';
 import { organizationClient } from 'better-auth/client/plugins';
 import type {
   AuthClient, AuthClientConfig, AuthUser, AuthSession, SignInCredentials, SignUpData,
-  AuthOrganization, AuthOrganizationMember,
+  AuthOrganization, AuthOrganizationMember, AuthPublicConfig, SignInWithProviderOptions,
 } from './types';
 
 const TOKEN_STORAGE_KEY = 'auth-session-token';
@@ -226,6 +226,51 @@ export function createAuthClient(config: AuthClientConfig): AuthClient {
       // The server response may wrap the user in a `user` key or return it directly
       const raw = data as unknown as Record<string, unknown>;
       return (raw && typeof raw === 'object' && 'user' in raw ? raw.user : raw) as AuthUser;
+    },
+
+    async getConfig(): Promise<AuthPublicConfig> {
+      const url = `${origin}${basePath}/config`;
+      const response = await bearerFetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to load auth config (status ${response.status})`);
+      }
+      const body = (await response.json()) as
+        | { success?: boolean; data?: AuthPublicConfig; error?: { message?: string } }
+        | AuthPublicConfig;
+      // Server wraps the payload as `{ success, data }`; tolerate both shapes.
+      if (body && typeof body === 'object' && 'data' in body && body.data) {
+        return body.data as AuthPublicConfig;
+      }
+      return body as AuthPublicConfig;
+    },
+
+    async signInWithProvider(providerId: string, options: SignInWithProviderOptions = {}) {
+      const { type = 'social', callbackURL, errorCallbackURL } = options;
+      // better-auth handles the redirect to the provider for us.
+      if (type === 'oidc') {
+        const oauth2 = (betterAuth as unknown as {
+          signIn: { oauth2?: (args: Record<string, unknown>) => Promise<{ error: { message?: string; status: number } | null }> };
+        }).signIn.oauth2;
+        if (!oauth2) {
+          throw new Error('OIDC sign-in is not supported by this auth client build');
+        }
+        const { error } = await oauth2({ providerId, callbackURL, errorCallbackURL });
+        if (error) {
+          throw new Error(error.message ?? `Auth request failed with status ${error.status}`);
+        }
+        return;
+      }
+      const { error } = await betterAuth.signIn.social({
+        provider: providerId as Parameters<typeof betterAuth.signIn.social>[0]['provider'],
+        callbackURL,
+        errorCallbackURL,
+      });
+      if (error) {
+        throw new Error(error.message ?? `Auth request failed with status ${error.status}`);
+      }
     },
 
     // --- Organization / Workspace methods ---

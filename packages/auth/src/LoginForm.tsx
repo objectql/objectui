@@ -8,6 +8,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from './useAuth';
+import { SocialSignInButtons } from './SocialSignInButtons';
 import type { AuthLinkComponentProps } from './types';
 
 /** Translatable labels for the LoginForm */
@@ -108,6 +109,8 @@ export function LoginForm({
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        <SocialSignInButtons mode="sign-in" />
+
         {error && (
           <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive" role="alert">
             {error}

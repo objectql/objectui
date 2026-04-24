@@ -7,7 +7,7 @@
  */
 
 import { createContext } from 'react';
-import type { AuthUser, AuthSession, PreviewModeOptions, AuthOrganization } from './types';
+import type { AuthUser, AuthSession, PreviewModeOptions, AuthOrganization, AuthPublicConfig, SignInWithProviderOptions } from './types';
 
 export interface AuthContextValue {
   /** Current authenticated user */
@@ -36,6 +36,10 @@ export interface AuthContextValue {
   forgotPassword: (email: string) => Promise<void>;
   /** Reset password with token */
   resetPassword: (token: string, newPassword: string) => Promise<void>;
+  /** Fetch the public auth configuration (providers, features) */
+  getAuthConfig: () => Promise<AuthPublicConfig>;
+  /** Initiate sign-in with a third-party provider (Google, GitHub, OIDC, etc.) */
+  signInWithProvider: (providerId: string, options?: SignInWithProviderOptions) => Promise<void>;
 
   // --- Organization / Workspace ---
 

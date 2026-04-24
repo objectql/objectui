@@ -94,6 +94,44 @@ export interface AuthClientConfig {
   fetchFn?: typeof fetch;
 }
 
+/** Social/OIDC provider exposed by the server's `/auth/config` endpoint */
+export interface AuthSocialProvider {
+  /** Provider id (e.g. 'google', 'github', 'microsoft') */
+  id: string;
+  /** Display name (e.g. 'Google') */
+  name: string;
+  /** Whether the provider is enabled on the server */
+  enabled: boolean;
+  /** 'social' uses better-auth built-in providers, 'oidc' uses generic oauth2 */
+  type?: 'social' | 'oidc';
+}
+
+/** Public auth configuration returned by the server */
+export interface AuthPublicConfig {
+  emailPassword?: {
+    enabled: boolean;
+    disableSignUp?: boolean;
+    requireEmailVerification?: boolean;
+  };
+  socialProviders?: AuthSocialProvider[];
+  features?: {
+    twoFactor?: boolean;
+    passkeys?: boolean;
+    magicLink?: boolean;
+    organization?: boolean;
+  };
+}
+
+/** Options when initiating a third-party sign-in */
+export interface SignInWithProviderOptions {
+  /** URL the provider redirects to after a successful authentication */
+  callbackURL?: string;
+  /** URL the provider redirects to on error */
+  errorCallbackURL?: string;
+  /** Provider type — 'social' (default) or 'oidc' for generic oauth2 */
+  type?: 'social' | 'oidc';
+}
+
 /** Auth client interface - abstracts the underlying auth library */
 export interface AuthClient {
   /** Sign in with email/password */
@@ -110,6 +148,11 @@ export interface AuthClient {
   resetPassword: (token: string, newPassword: string) => Promise<void>;
   /** Update user profile */
   updateUser: (data: Partial<AuthUser>) => Promise<AuthUser>;
+
+  /** Fetch the public auth configuration from the server (providers, features) */
+  getConfig: () => Promise<AuthPublicConfig>;
+  /** Initiate sign-in with a third-party provider (Google, GitHub, OIDC, etc.) */
+  signInWithProvider: (providerId: string, options?: SignInWithProviderOptions) => Promise<void>;
 
   // --- Organization / Workspace methods ---
 

@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import type { AuthUser, AuthClient, AuthProviderConfig, PreviewModeOptions, AuthOrganization } from './types';
+import type { AuthUser, AuthClient, AuthProviderConfig, PreviewModeOptions, AuthOrganization, AuthPublicConfig, SignInWithProviderOptions } from './types';
 import { AuthCtx, type AuthContextValue } from './AuthContext';
 import { createAuthClient } from './createAuthClient';
 import { ActiveOrganizationStorage } from './createAuthenticatedFetch';
@@ -257,6 +257,25 @@ export function AuthProvider({
     [client],
   );
 
+  const getAuthConfig = useCallback(
+    (): Promise<AuthPublicConfig> => client.getConfig(),
+    [client],
+  );
+
+  const signInWithProvider = useCallback(
+    async (providerId: string, options?: SignInWithProviderOptions) => {
+      setError(null);
+      try {
+        await client.signInWithProvider(providerId, options);
+      } catch (err) {
+        const authError = err instanceof Error ? err : new Error(String(err));
+        setError(authError);
+        throw authError;
+      }
+    },
+    [client],
+  );
+
   // --- Organization methods ---
 
   const refreshOrganizations = useCallback(async () => {
@@ -345,6 +364,8 @@ export function AuthProvider({
       updateUser,
       forgotPassword,
       resetPassword,
+      getAuthConfig,
+      signInWithProvider,
       organizations,
       activeOrganization,
       isOrganizationsLoading,
@@ -352,7 +373,7 @@ export function AuthProvider({
       createOrganization,
       refreshOrganizations,
     }),
-    [user, session, isAuthenticated, isLoading, error, isPreviewMode, previewMode, signIn, signUp, signOut, updateUser, forgotPassword, resetPassword, organizations, activeOrganization, isOrganizationsLoading, switchOrganization, createOrganization, refreshOrganizations],
+    [user, session, isAuthenticated, isLoading, error, isPreviewMode, previewMode, signIn, signUp, signOut, updateUser, forgotPassword, resetPassword, getAuthConfig, signInWithProvider, organizations, activeOrganization, isOrganizationsLoading, switchOrganization, createOrganization, refreshOrganizations],
   );
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
