@@ -1140,8 +1140,8 @@ importers:
         specifier: 19.2.5
         version: 19.2.5(react@19.2.5)
       react-hook-form:
-        specifier: ^7.73.1
-        version: 7.73.1(react@19.2.5)
+        specifier: ^7.74.0
+        version: 7.74.0(react@19.2.5)
       react-resizable-panels:
         specifier: ^4.10.0
         version: 4.10.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -2568,8 +2568,8 @@ importers:
         specifier: 19.2.5
         version: 19.2.5(react@19.2.5)
       react-hook-form:
-        specifier: ^7.73.1
-        version: 7.73.1(react@19.2.5)
+        specifier: ^7.74.0
+        version: 7.74.0(react@19.2.5)
     devDependencies:
       '@types/react':
         specifier: 19.2.14
@@ -10440,8 +10440,8 @@ packages:
       react: 19.2.5
       react-dom: 19.2.5
 
-  react-hook-form@7.73.1:
-    resolution: {integrity: sha512-VAfVYOPcx3piiEVQy95vyFmBwbVUsP/AUIN+mpFG8h11yshDd444nn0VyfaGWSRnhOLVgiDu7HIuBtAIzxn9dA==}
+  react-hook-form@7.74.0:
+    resolution: {integrity: sha512-yR6wHr99p9wFv686jhRWVSFhUvDvNbdUf2dKlbno8/VKOCuoNobDGC6S+M2dua9A9Yo8vpcrp8assIYbsZCQ9g==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: 19.2.5
@@ -20773,7 +20773,7 @@ snapshots:
       react-resizable: 3.1.3(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       resize-observer-polyfill: 1.5.1
 
-  react-hook-form@7.73.1(react@19.2.5):
+  react-hook-form@7.74.0(react@19.2.5):
     dependencies:
       react: 19.2.5
 
