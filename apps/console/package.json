@@ -90,7 +90,7 @@
     "autoprefixer": "^10.5.0",
     "happy-dom": "^20.9.0",
     "lucide-react": "^1.8.0",
-    "msw": "^2.13.4",
+    "msw": "^2.13.6",
     "postcss": "^8.5.11",
     "react": "19.2.5",
     "react-dom": "19.2.5",
