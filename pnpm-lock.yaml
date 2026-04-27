@@ -604,22 +604,22 @@ importers:
         version: 1.19.14(hono@4.12.15)
       '@objectstack/core':
         specifier: ^4.0.4
-        version: 4.0.4(pino@8.21.0)
+        version: 4.0.4(pino@10.3.1)
       '@objectstack/driver-memory':
         specifier: ^4.0.4
-        version: 4.0.4(pino@8.21.0)
+        version: 4.0.4(pino@10.3.1)
       '@objectstack/objectql':
         specifier: ^4.0.4
-        version: 4.0.4(pino@8.21.0)
+        version: 4.0.4(pino@10.3.1)
       '@objectstack/plugin-auth':
         specifier: ^4.0.4
-        version: 4.0.4(@opentelemetry/api@1.9.0)(better-sqlite3@12.9.0)(next@16.2.4(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(pino@8.21.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vitest@4.1.5)
+        version: 4.0.4(@opentelemetry/api@1.9.0)(better-sqlite3@12.9.0)(next@16.2.4(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(pino@10.3.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vitest@4.1.5)
       '@objectstack/plugin-hono-server':
         specifier: ^4.0.4
-        version: 4.0.4(pino@8.21.0)
+        version: 4.0.4(pino@10.3.1)
       '@objectstack/runtime':
         specifier: ^4.0.4
-        version: 4.0.4(pino@8.21.0)
+        version: 4.0.4(pino@10.3.1)
       '@objectstack/spec':
         specifier: ^4.0.4
         version: 4.0.4
@@ -627,15 +627,15 @@ importers:
         specifier: ^4.12.15
         version: 4.12.15
       pino:
-        specifier: ^8.21.0
-        version: 8.21.0
+        specifier: ^10.3.1
+        version: 10.3.1
       pino-pretty:
         specifier: ^13.1.3
         version: 13.1.3
     devDependencies:
       '@objectstack/cli':
         specifier: ^4.0.4
-        version: 4.0.4(@ai-sdk/anthropic@3.0.69(zod@4.3.6))(@ai-sdk/google@3.0.63(zod@4.3.6))(@ai-sdk/openai@3.0.52(zod@4.3.6))(@objectstack/core@4.0.4(pino@8.21.0))(esbuild@0.28.0)(pino@8.21.0)
+        version: 4.0.4(@ai-sdk/anthropic@3.0.69(zod@4.3.6))(@ai-sdk/google@3.0.63(zod@4.3.6))(@ai-sdk/openai@3.0.52(zod@4.3.6))(@objectstack/core@4.0.4(pino@10.3.1))(esbuild@0.28.0)(pino@10.3.1)
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
@@ -4554,6 +4554,9 @@ packages:
 
   '@oxc-project/types@0.126.0':
     resolution: {integrity: sha512-oGfVtjAgwQVVpfBrbtk4e1XDyWHRFta6BS3GWVzrF8xYBT2VGQAk39yJS/wFSMrZqoiCU4oghT3Ch0HaHGIHcQ==}
+
+  '@pinojs/redact@0.4.0':
+    resolution: {integrity: sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -10361,6 +10364,13 @@ packages:
   pino-std-serializers@6.2.2:
     resolution: {integrity: sha512-cHjPPsE+vhj/tnhCy/wiMh3M3z3h/j15zHQX+S9GkTBgqJuTuJzYJ4gUyACLhDaJ7kk9ba9iRDmbH2tJU03OiA==}
 
+  pino-std-serializers@7.1.0:
+    resolution: {integrity: sha512-BndPH67/JxGExRgiX1dX0w1FvZck5Wa4aal9198SrRhZjH3GxKQUKIBnYJTdj2HDN3UQAS06HlfcSbQj2OHmaw==}
+
+  pino@10.3.1:
+    resolution: {integrity: sha512-r34yH/GlQpKZbU1BvFFqOjhISRo1MNx1tWYsYvmj6KIRHSPMT2+yHOEb1SG6NMvRoHRF0a07kCOox/9yakl1vg==}
+    hasBin: true
+
   pino@8.21.0:
     resolution: {integrity: sha512-ip4qdzjkAyDDZklUaZkcRFb2iA118H9SgRh8yzTkSQK8HilsOJF7rSY8HoW5+I0M46AZgX/pxbprf2vvzQCE0Q==}
     hasBin: true
@@ -10490,6 +10500,9 @@ packages:
 
   process-warning@3.0.0:
     resolution: {integrity: sha512-mqn0kFRl0EoqhnL0GQ0veqFHyIN1yig9RHh/InzORTUiZHFRAur+aMtRkELNwGs9aNwKS6tg/An4NYBPGwvtzQ==}
+
+  process-warning@5.0.0:
+    resolution: {integrity: sha512-a39t9ApHNx2L4+HBnQKqxxHNs1r7KF+Intd8Q/g1bUh6q0WIp9voPXJ/x0j+ZL45KF1pJd9+q2jLIRMfvEshkA==}
 
   process@0.11.10:
     resolution: {integrity: sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==}
@@ -11425,6 +11438,10 @@ packages:
 
   thread-stream@2.7.0:
     resolution: {integrity: sha512-qQiRWsU/wvNolI6tbbCKd9iKaTnCXsTwVxhhKM6nctPdujTyztjlbUkUTUymidWcMnZ5pWR0ej4a0tjsW021vw==}
+
+  thread-stream@4.0.0:
+    resolution: {integrity: sha512-4iMVL6HAINXWf1ZKZjIPcz5wYaOdPhtO8ATvZ+Xqp3BTdaqtAwQkNmKORqcIo5YkQqGXq5cwfswDwMqqQNrpJA==}
+    engines: {node: '>=20'}
 
   throttleit@2.1.0:
     resolution: {integrity: sha512-nt6AMGKW1p/70DF/hGBdJB57B8Tspmbp5gfJ8ilhLnt7kkr2ye7hzD6NVG8GGErk2HWF34igrL2CXmNIkzKqKw==}
@@ -14001,6 +14018,33 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
 
+  '@objectstack/cli@4.0.4(@ai-sdk/anthropic@3.0.69(zod@4.3.6))(@ai-sdk/google@3.0.63(zod@4.3.6))(@ai-sdk/openai@3.0.52(zod@4.3.6))(@objectstack/core@4.0.4(pino@10.3.1))(esbuild@0.28.0)(pino@10.3.1)':
+    dependencies:
+      '@ai-sdk/gateway': 3.0.104(zod@4.3.6)
+      '@objectstack/client': 4.0.4(pino@10.3.1)
+      '@objectstack/core': 4.0.4(pino@10.3.1)
+      '@objectstack/driver-memory': 4.0.4(pino@10.3.1)
+      '@objectstack/objectql': 4.0.4(pino@10.3.1)
+      '@objectstack/plugin-hono-server': 4.0.4(pino@10.3.1)
+      '@objectstack/plugin-setup': 4.0.4(pino@10.3.1)
+      '@objectstack/rest': 4.0.4(pino@10.3.1)
+      '@objectstack/runtime': 4.0.4(pino@10.3.1)
+      '@objectstack/service-ai': 4.0.4(@ai-sdk/anthropic@3.0.69(zod@4.3.6))(@ai-sdk/gateway@3.0.104(zod@4.3.6))(@ai-sdk/google@3.0.63(zod@4.3.6))(@ai-sdk/openai@3.0.52(zod@4.3.6))(pino@10.3.1)(zod@4.3.6)
+      '@objectstack/spec': 4.0.4
+      '@oclif/core': 4.10.5
+      bundle-require: 5.1.0(esbuild@0.28.0)
+      chalk: 5.6.2
+      dotenv-flow: 4.1.0
+      tsx: 4.21.0
+      yaml: 2.8.3
+      zod: 4.3.6
+    transitivePeerDependencies:
+      - '@ai-sdk/anthropic'
+      - '@ai-sdk/google'
+      - '@ai-sdk/openai'
+      - esbuild
+      - pino
+
   '@objectstack/cli@4.0.4(@ai-sdk/anthropic@3.0.69(zod@4.3.6))(@ai-sdk/google@3.0.63(zod@4.3.6))(@ai-sdk/openai@3.0.52(zod@4.3.6))(@objectstack/core@4.0.4(pino@8.21.0))(esbuild@0.28.0)(pino@8.21.0)':
     dependencies:
       '@ai-sdk/gateway': 3.0.104(zod@4.3.6)
@@ -14028,12 +14072,27 @@ snapshots:
       - esbuild
       - pino
 
+  '@objectstack/client@4.0.4(pino@10.3.1)':
+    dependencies:
+      '@objectstack/core': 4.0.4(pino@10.3.1)
+      '@objectstack/spec': 4.0.4
+    transitivePeerDependencies:
+      - pino
+
   '@objectstack/client@4.0.4(pino@8.21.0)':
     dependencies:
       '@objectstack/core': 4.0.4(pino@8.21.0)
       '@objectstack/spec': 4.0.4
     transitivePeerDependencies:
       - pino
+
+  '@objectstack/core@4.0.4(pino@10.3.1)':
+    dependencies:
+      '@objectstack/spec': 4.0.4
+      pino-pretty: 13.1.3
+      zod: 4.3.6
+    optionalDependencies:
+      pino: 10.3.1
 
   '@objectstack/core@4.0.4(pino@8.21.0)':
     dependencies:
@@ -14043,11 +14102,27 @@ snapshots:
     optionalDependencies:
       pino: 8.21.0
 
+  '@objectstack/driver-memory@4.0.4(pino@10.3.1)':
+    dependencies:
+      '@objectstack/core': 4.0.4(pino@10.3.1)
+      '@objectstack/spec': 4.0.4
+      mingo: 7.2.1
+    transitivePeerDependencies:
+      - pino
+
   '@objectstack/driver-memory@4.0.4(pino@8.21.0)':
     dependencies:
       '@objectstack/core': 4.0.4(pino@8.21.0)
       '@objectstack/spec': 4.0.4
       mingo: 7.2.1
+    transitivePeerDependencies:
+      - pino
+
+  '@objectstack/objectql@4.0.4(pino@10.3.1)':
+    dependencies:
+      '@objectstack/core': 4.0.4(pino@10.3.1)
+      '@objectstack/spec': 4.0.4
+      '@objectstack/types': 4.0.4
     transitivePeerDependencies:
       - pino
 
@@ -14058,6 +14133,35 @@ snapshots:
       '@objectstack/types': 4.0.4
     transitivePeerDependencies:
       - pino
+
+  '@objectstack/plugin-auth@4.0.4(@opentelemetry/api@1.9.0)(better-sqlite3@12.9.0)(next@16.2.4(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(pino@10.3.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vitest@4.1.5)':
+    dependencies:
+      '@objectstack/core': 4.0.4(pino@10.3.1)
+      '@objectstack/spec': 4.0.4
+      better-auth: 1.6.5(@opentelemetry/api@1.9.0)(better-sqlite3@12.9.0)(next@16.2.4(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vitest@4.1.5)
+    transitivePeerDependencies:
+      - '@cloudflare/workers-types'
+      - '@lynx-js/react'
+      - '@opentelemetry/api'
+      - '@prisma/client'
+      - '@sveltejs/kit'
+      - '@tanstack/react-start'
+      - '@tanstack/solid-start'
+      - better-sqlite3
+      - drizzle-kit
+      - drizzle-orm
+      - mongodb
+      - mysql2
+      - next
+      - pg
+      - pino
+      - prisma
+      - react
+      - react-dom
+      - solid-js
+      - svelte
+      - vitest
+      - vue
 
   '@objectstack/plugin-auth@4.0.4(@opentelemetry/api@1.9.0)(better-sqlite3@12.9.0)(next@16.2.4(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(pino@8.21.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(vitest@4.1.5)':
     dependencies:
@@ -14088,6 +14192,15 @@ snapshots:
       - vitest
       - vue
 
+  '@objectstack/plugin-hono-server@4.0.4(pino@10.3.1)':
+    dependencies:
+      '@hono/node-server': 1.19.14(hono@4.12.15)
+      '@objectstack/core': 4.0.4(pino@10.3.1)
+      '@objectstack/spec': 4.0.4
+      hono: 4.12.15
+    transitivePeerDependencies:
+      - pino
+
   '@objectstack/plugin-hono-server@4.0.4(pino@8.21.0)':
     dependencies:
       '@hono/node-server': 1.19.14(hono@4.12.15)
@@ -14110,6 +14223,13 @@ snapshots:
       - pino
       - typescript
 
+  '@objectstack/plugin-setup@4.0.4(pino@10.3.1)':
+    dependencies:
+      '@objectstack/core': 4.0.4(pino@10.3.1)
+      '@objectstack/spec': 4.0.4
+    transitivePeerDependencies:
+      - pino
+
   '@objectstack/plugin-setup@4.0.4(pino@8.21.0)':
     dependencies:
       '@objectstack/core': 4.0.4(pino@8.21.0)
@@ -14117,10 +14237,28 @@ snapshots:
     transitivePeerDependencies:
       - pino
 
+  '@objectstack/rest@4.0.4(pino@10.3.1)':
+    dependencies:
+      '@objectstack/core': 4.0.4(pino@10.3.1)
+      '@objectstack/spec': 4.0.4
+      zod: 4.3.6
+    transitivePeerDependencies:
+      - pino
+
   '@objectstack/rest@4.0.4(pino@8.21.0)':
     dependencies:
       '@objectstack/core': 4.0.4(pino@8.21.0)
       '@objectstack/spec': 4.0.4
+      zod: 4.3.6
+    transitivePeerDependencies:
+      - pino
+
+  '@objectstack/runtime@4.0.4(pino@10.3.1)':
+    dependencies:
+      '@objectstack/core': 4.0.4(pino@10.3.1)
+      '@objectstack/rest': 4.0.4(pino@10.3.1)
+      '@objectstack/spec': 4.0.4
+      '@objectstack/types': 4.0.4
       zod: 4.3.6
     transitivePeerDependencies:
       - pino
@@ -14134,6 +14272,21 @@ snapshots:
       zod: 4.3.6
     transitivePeerDependencies:
       - pino
+
+  '@objectstack/service-ai@4.0.4(@ai-sdk/anthropic@3.0.69(zod@4.3.6))(@ai-sdk/gateway@3.0.104(zod@4.3.6))(@ai-sdk/google@3.0.63(zod@4.3.6))(@ai-sdk/openai@3.0.52(zod@4.3.6))(pino@10.3.1)(zod@4.3.6)':
+    dependencies:
+      '@ai-sdk/provider': 3.0.8
+      '@objectstack/core': 4.0.4(pino@10.3.1)
+      '@objectstack/spec': 4.0.4
+      ai: 6.0.168(zod@4.3.6)
+    optionalDependencies:
+      '@ai-sdk/anthropic': 3.0.69(zod@4.3.6)
+      '@ai-sdk/gateway': 3.0.104(zod@4.3.6)
+      '@ai-sdk/google': 3.0.63(zod@4.3.6)
+      '@ai-sdk/openai': 3.0.52(zod@4.3.6)
+    transitivePeerDependencies:
+      - pino
+      - zod
 
   '@objectstack/service-ai@4.0.4(@ai-sdk/anthropic@3.0.69(zod@4.3.6))(@ai-sdk/gateway@3.0.104(zod@4.3.6))(@ai-sdk/google@3.0.63(zod@4.3.6))(@ai-sdk/openai@3.0.52(zod@4.3.6))(pino@8.21.0)(zod@4.3.6)':
     dependencies:
@@ -14219,6 +14372,8 @@ snapshots:
   '@orama/orama@3.1.18': {}
 
   '@oxc-project/types@0.126.0': {}
+
+  '@pinojs/redact@0.4.0': {}
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -16598,6 +16753,7 @@ snapshots:
   abort-controller@3.0.0:
     dependencies:
       event-target-shim: 5.0.1
+    optional: true
 
   accepts@1.3.8:
     dependencies:
@@ -16858,7 +17014,8 @@ snapshots:
 
   balanced-match@4.0.4: {}
 
-  base64-js@1.5.1: {}
+  base64-js@1.5.1:
+    optional: true
 
   baseline-browser-mapping@2.10.20: {}
 
@@ -17045,6 +17202,7 @@ snapshots:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
+    optional: true
 
   bundle-name@4.1.0:
     dependencies:
@@ -17955,11 +18113,13 @@ snapshots:
 
   etag@1.8.1: {}
 
-  event-target-shim@5.0.1: {}
+  event-target-shim@5.0.1:
+    optional: true
 
   eventemitter3@5.0.4: {}
 
-  events@3.3.0: {}
+  events@3.3.0:
+    optional: true
 
   eventsource-parser@3.0.8: {}
 
@@ -18130,7 +18290,8 @@ snapshots:
 
   fast-levenshtein@2.0.6: {}
 
-  fast-redact@3.5.0: {}
+  fast-redact@3.5.0:
+    optional: true
 
   fast-safe-stringify@2.1.1: {}
 
@@ -18834,7 +18995,8 @@ snapshots:
     dependencies:
       safer-buffer: 2.1.2
 
-  ieee754@1.2.1: {}
+  ieee754@1.2.1:
+    optional: true
 
   ignore@5.3.2: {}
 
@@ -20763,6 +20925,7 @@ snapshots:
     dependencies:
       readable-stream: 4.7.0
       split2: 4.2.0
+    optional: true
 
   pino-abstract-transport@3.0.0:
     dependencies:
@@ -20784,7 +20947,24 @@ snapshots:
       sonic-boom: 4.2.1
       strip-json-comments: 5.0.3
 
-  pino-std-serializers@6.2.2: {}
+  pino-std-serializers@6.2.2:
+    optional: true
+
+  pino-std-serializers@7.1.0: {}
+
+  pino@10.3.1:
+    dependencies:
+      '@pinojs/redact': 0.4.0
+      atomic-sleep: 1.0.0
+      on-exit-leak-free: 2.1.2
+      pino-abstract-transport: 3.0.0
+      pino-std-serializers: 7.1.0
+      process-warning: 5.0.0
+      quick-format-unescaped: 4.0.4
+      real-require: 0.2.0
+      safe-stable-stringify: 2.5.0
+      sonic-boom: 4.2.1
+      thread-stream: 4.0.0
 
   pino@8.21.0:
     dependencies:
@@ -20799,6 +20979,7 @@ snapshots:
       safe-stable-stringify: 2.5.0
       sonic-boom: 3.8.1
       thread-stream: 2.7.0
+    optional: true
 
   pirates@4.0.7: {}
 
@@ -20914,7 +21095,10 @@ snapshots:
     dependencies:
       fromentries: 1.3.2
 
-  process-warning@3.0.0: {}
+  process-warning@3.0.0:
+    optional: true
+
+  process-warning@5.0.0: {}
 
   process@0.11.10: {}
 
@@ -21204,6 +21388,7 @@ snapshots:
       events: 3.3.0
       process: 0.11.10
       string_decoder: 1.3.0
+    optional: true
 
   readdirp@4.1.2: {}
 
@@ -21792,6 +21977,7 @@ snapshots:
   sonic-boom@3.8.1:
     dependencies:
       atomic-sleep: 1.0.0
+    optional: true
 
   sonic-boom@4.2.1:
     dependencies:
@@ -22103,6 +22289,11 @@ snapshots:
       any-promise: 1.3.0
 
   thread-stream@2.7.0:
+    dependencies:
+      real-require: 0.2.0
+    optional: true
+
+  thread-stream@4.0.0:
     dependencies:
       real-require: 0.2.0
 
