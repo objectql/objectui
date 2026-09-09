@@ -5,7 +5,7 @@ The standard field library and registry for Object UI.
 ## Features
 
 - 📚 **Standard Fields** - Implementation of all ObjectStack protocol fields (Text, Number, Date, Lookup, etc.)
-- 🔌 **Plugin System** - `FieldRegistry` allows registering custom renderers or overriding standard ones.
+- 🔌 **Plugin System** - `registerFieldRenderer` registers custom renderers, or overrides standard ones.
 - 🛠 **Helpers** - Utilities for schema mapping, validation, and expression evaluation.
 
 ## Installation
@@ -40,10 +40,15 @@ registerFieldRenderer('color', MyCustomColorPicker);
 View components use `getCellRenderer` to resolve the correct component for a field type.
 
 ```tsx
-import { getCellRenderer, type CellRendererProps } from '@object-ui/fields';
+import { getCellRenderer, resolveCellRendererType, type CellRendererProps } from '@object-ui/fields';
 
 const MyGridCell = ({ field, value }: CellRendererProps) => {
-  const Renderer = getCellRenderer(field.type);
+  // Resolve the renderer KEY first, then the renderer. A field's declared
+  // `type` is not always the renderer's key: a textual field carrying a
+  // format hint (`Field.text({ format: 'phone' })`) resolves to the richer
+  // renderer. Passing `field.type` raw skips that mapping and draws such a
+  // column as bare text, silently. Every shipped view calls this pair.
+  const Renderer = getCellRenderer(resolveCellRendererType(field));
   return <Renderer field={field} value={value} />;
 };
 ```
