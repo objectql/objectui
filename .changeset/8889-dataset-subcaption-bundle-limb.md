@@ -32,3 +32,9 @@ limb is untouched, an inline per-locale map still collapses through the same
 `pickLocalized` seam, and a tile with neither channel still grows no caption
 node at all. `DatasetWidget` rendered outside a dashboard surface resolves the
 authored limb for itself exactly as before.
+
+`@object-ui/sdui-parser` is touched in the same change but releases nothing new: the
+renderer-consumed-keys census watches `plugin-dashboard`'s source text from inside that
+package, so moving the sub-caption read moved its evidence anchor. Only the census test
+and one prose paragraph in the census module's header changed there — no runtime
+behaviour, no key set, no diagnostic.
