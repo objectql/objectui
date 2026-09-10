@@ -644,7 +644,19 @@ function firstPartyCommands(text: string): Set<string> {
   const found = new Set<string>();
   // A gate that lives in this repo's `scripts/` tree. The `node ` prefix is not
   // required: the workflows write `node scripts/x.mjs`, the page writes the path.
-  for (const m of text.matchAll(/scripts\/[\w./-]+\.mjs/g)) found.add(m[0]);
+  //
+  // ⛔ Except when the path is a shell-single-quoted ARGUMENT (objectui#8647).
+  // This repository writes path LISTS quoted and invocations unquoted — every
+  // `on.paths:` entry across `.github/workflows/` is `'scripts/x.mjs'`, and
+  // since objectui#8647 the `docs` job's `git diff … -- <pathspec>` names four
+  // scripts the same way, because turbo declares them as inputs to every
+  // `build`. Counting those as commands the job RUNS would demand the page
+  // document four gates that never execute in that job — a false statement,
+  // extracted from a parser rather than from the workflow.
+  for (const m of text.matchAll(/scripts\/[\w./-]+\.mjs/g)) {
+    const quoted = text[m.index - 1] === "'" && text[m.index + m[0].length] === "'";
+    if (!quoted) found.add(m[0]);
+  }
   // A root `package.json` script. `install`, `--version`, `exec` and `--filter`
   // are not scripts, so the setup steps need no exemption list.
   for (const m of text.matchAll(/\bpnpm\s+([\w:.-]+)/g)) {
@@ -912,6 +924,21 @@ describe('ci-cd-pipeline.md — ci.yml job table', () => {
           `produced it — objectui#3653: two locale gates ran in \`type-check\` unlisted, because ` +
           `the pins on this page read job keys and job names but never read the steps.`,
       ).toEqual([]);
+    });
+
+    it('reads a quoted pathspec as an argument and an unquoted path as a command', () => {
+      // The control for the exclusion above (objectui#8647). Without the first
+      // assertion the exclusion is unverified; without the second it could
+      // silently swallow every real gate and leave both directions green.
+      const ran = commandsByJob().flatMap((j) => [...j.ran]);
+      expect(
+        ran,
+        'a `git diff` pathspec entry is not a command the job runs',
+      ).not.toContain('scripts/check-dist-completeness.mjs');
+      expect(
+        ran,
+        'an unquoted `node scripts/…` invocation must still be counted',
+      ).toContain('scripts/check-doc-expression-carriage.mjs');
     });
 
     it('credits no job with a first-party command it does not run', () => {

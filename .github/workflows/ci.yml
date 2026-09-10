@@ -1497,21 +1497,123 @@ jobs:
             echo 'Not a pull request: push is filtered at the trigger, and a merge_group build is the last validation before main. Building the site.'
             exit 0
           fi
+          # ── What this job validates, and therefore what must trigger it ──
+          # (objectui#8647). Until then this list was `apps/site/` +
+          # `content/` alone, which is the *output* surface of the site, not
+          # its *input* surface: `pnpm turbo run build --filter='@object-ui/site'`
+          # builds the whole workspace closure before it runs `next build`
+          # (measured here: 30 tasks, 2m28s with an empty turbo cache), so a
+          # change to any of them changes what this job compiles. A pull
+          # request touching only `packages/**` therefore reported `success`
+          # in seconds having built nothing — and a skipped build and a passed
+          # build are the same green to every reader downstream. That is not
+          # hypothetical for this repository: objectui#8344's getter-binding
+          # route was green on rollup and red on Next/Turbopack, which is why
+          # a green here is written into card acceptance criteria at all.
+          #
+          # ⭐ The list below is DERIVED, not curated, and
+          # `scripts/__tests__/docs-build-trigger.test.ts` re-derives it on
+          # every pull request and fails when this list stops covering it:
+          #   - one entry per workspace package in the site's build closure —
+          #     the package-manifest graph reached from `@object-ui/site` over
+          #     `dependencies`, `devDependencies` and `peerDependencies` on the
+          #     `workspace:` protocol, which is the graph turbo walks for
+          #     `^build` (measured against `turbo run build
+          #     --filter='@object-ui/site' --dry=json`: 31 entries = these 30
+          #     packages plus the site; one of them, `packages/test-support`,
+          #     declares no `build` script, so 30 tasks actually execute);
+          #   - one entry per root-level input `turbo.json` declares for the
+          #     `build` task (`$TURBO_ROOT$/...`), because turbo names them as
+          #     things a build's output depends on;
+          #   - the four workspace manifests, since they decide which versions
+          #     of everything the build resolves.
+          # ⇒ Adding a dependency to any of these packages, or a root build
+          # input to `turbo.json`, turns that test red rather than quietly
+          # narrowing this gate again.
+          #
+          # One entry is deliberate rather than derived: this workflow file.
+          # It is what decides whether and how the site is built, so a pull
+          # request that edits it should be validated by the very job it
+          # edits — the alternative is changing this gate and getting the
+          # 13-second green as the acceptance evidence for the change. It is
+          # not `.github/` wholesale: nothing else under there feeds this
+          # build, and the pin asserts an unrelated workflow still skips.
+          # Measured over the same 400: 2 of them touch this file.
+          #
+          # What is deliberately NOT here, priced over the 400 most recent
+          # merged pull requests: the 11 workspace packages outside the
+          # closure (`app-shell`, `auth`, `cli`, `collaboration`,
+          # `create-plugin`, `plugin-ai`, `plugin-designer`, `plugin-report`,
+          # `plugin-tree`, `runner`, `vscode-extension`) — including them
+          # would fire on a further 15 points of pull requests and cannot
+          # change what `next build` compiles; and `scripts/**` beyond the
+          # entries turbo itself declares, a further 13 points for the same
+          # reason. Cost of the list as it stands, measured over those 400 by
+          # replaying this exact pathspec against each merge: it fires on 281
+          # (70%) where the old list fired on 54 (13.5%) — 227 (56.8%) newly
+          # pay for a site build. ⛔ Narrowing it by excluding the tooling
+          # files under those packages (238/400, a further 11 points, sound
+          # today because every published build program excludes tooling
+          # directories) was considered and declined: this gate's whole defect
+          # class is under-firing silently, and an exclusion is a second thing
+          # that has to stay true for it not to recur.
           if ! CHANGED=$(git diff --name-only \
             '${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}' -- \
+            '.github/workflows/ci.yml' \
             'apps/site/' \
-            'content/'); then
+            'content/' \
+            'examples/schema-catalog/' \
+            'packages/components/' \
+            'packages/core/' \
+            'packages/data-objectstack/' \
+            'packages/fields/' \
+            'packages/i18n/' \
+            'packages/layout/' \
+            'packages/mobile/' \
+            'packages/permissions/' \
+            'packages/plugin-calendar/' \
+            'packages/plugin-charts/' \
+            'packages/plugin-chatbot/' \
+            'packages/plugin-dashboard/' \
+            'packages/plugin-detail/' \
+            'packages/plugin-editor/' \
+            'packages/plugin-form/' \
+            'packages/plugin-gantt/' \
+            'packages/plugin-grid/' \
+            'packages/plugin-kanban/' \
+            'packages/plugin-list/' \
+            'packages/plugin-map/' \
+            'packages/plugin-markdown/' \
+            'packages/plugin-timeline/' \
+            'packages/plugin-view/' \
+            'packages/providers/' \
+            'packages/react/' \
+            'packages/react-runtime/' \
+            'packages/sdui-parser/' \
+            'packages/test-support/' \
+            'packages/types/' \
+            'scripts/build-plugin-stylesheet.mjs' \
+            'scripts/check-dist-completeness.mjs' \
+            'scripts/invoked-as.mjs' \
+            'scripts/vite-*.ts' \
+            'scripts/vitest-invocation-guard.mjs' \
+            'tsconfig.json' \
+            'tsconfig.base.json' \
+            'package.json' \
+            'pnpm-lock.yaml' \
+            'pnpm-workspace.yaml' \
+            'turbo.json'); then
             echo 'should_run=true' >> "$GITHUB_OUTPUT"
             echo 'Could not diff against the merge base. Building the site rather than skipping silently.'
             exit 0
           fi
           if [ -n "$CHANGED" ]; then
             echo 'should_run=true' >> "$GITHUB_OUTPUT"
-            echo 'Docs-related files changed:'
+            echo 'Files the site build consumes changed:'
             echo "$CHANGED"
           else
             echo 'should_run=false' >> "$GITHUB_OUTPUT"
-            echo 'No docs-related files changed. Skipping the steps below; this check still reports.'
+            echo 'Nothing the site build consumes changed. Skipping the steps below; this check still reports.'
           fi
 
       - name: Enable Corepack and download the pinned pnpm
@@ -1609,11 +1711,15 @@ jobs:
       # It sits in THIS job because its surface is `content/docs/**` and this job
       # is the one that already knows whether docs changed; it needs the install
       # (it reads the carriage map out of the built `@objectstack/spec`) and
-      # nothing built beyond it. Consequence worth stating: on a pull request that
-      # changes no `content/` or `apps/site/` file the census does not run — a
-      # spec bump that moves the carriage map is reported by the next docs PR, not
-      # by the bump itself. A pull request that edits only the gate is covered
-      # elsewhere and does not need this step: `scripts/__tests__/check-doc-
+      # nothing built beyond it. Consequence worth stating: it runs only when this
+      # job's own filter fired, so a pull request that touches nothing the site
+      # build consumes does not census either. objectui#8647 shrank that blind
+      # spot rather than removing it — a `@objectstack/spec` bump moves
+      # `pnpm-lock.yaml`, which is now in the filter, so the census does see the
+      # bump that moves the carriage map; a change reaching the map by some other
+      # route outside the filter is still reported by the next docs PR. A pull
+      # request that edits only the gate is covered elsewhere and does not need
+      # this step: `scripts/__tests__/check-doc-
       # expression-carriage.test.ts` runs the controls AND the real-tree census in
       # the ordinary vitest suite, which any PR touching `scripts/**` gets.
       - name: Docs expression-carriage census (report-only)
@@ -1631,8 +1737,8 @@ jobs:
       # fences inheriting that 5, so here is this site's own arithmetic. This
       # cache is `.turbo/cache`, and this job's own save of it measured 5s on
       # 2026-09-02 (`Post Turbo Cache`, job 100094597253, a `merge_group` build
-      # where this job's steps actually run — on a pull request without
-      # `apps/site/` or `content/` changes they all skip). 5 minutes is 60x
+      # where this job's steps actually run — on a pull request that touches
+      # nothing the site build consumes they all skip). 5 minutes is 60x
       # that, so it cannot fire on a working runner.
       # Ceiling check: 5 x 2 = 10 <= 15, so bookkeeping cannot crowd out the
       # checking steps — whose whole verdict path measured 4m26s on that job.
