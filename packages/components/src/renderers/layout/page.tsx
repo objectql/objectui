@@ -267,7 +267,7 @@ const FlatContent: React.FC<{ schema: PageNodeSchema }> = ({ schema }) => {
   const nodes: SchemaNode[] = Array.isArray(content)
     ? content
     : content
-      ? [content as SchemaNode]
+      ? [content]
       : [];
 
   if (nodes.length === 0) return null;
