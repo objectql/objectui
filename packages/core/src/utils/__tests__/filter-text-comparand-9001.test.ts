@@ -156,12 +156,30 @@ function matcherReason(refusal: string | undefined): string {
   return refusal.slice(MATCHER_PREFIX.length, refusal.length - MATCHER_SUFFIX.length);
 }
 
+/**
+ * `JSON.stringify` for a diagnostic that must survive the values this file
+ * deliberately feeds it.
+ *
+ * Measured during this card's ablation: with the guard removed, the BigInt case
+ * below reddened — correctly — but through `JSON.stringify`'s own "Do not know
+ * how to serialize a BigInt", so the failure text named the HARNESS instead of
+ * the defect. A red that misdirects the next reader is a red that costs a
+ * debugging session, so the diagnostic is made total.
+ */
+function show(value: unknown): string {
+  try {
+    return JSON.stringify(value) ?? String(value);
+  } catch {
+    return String(value);
+  }
+}
+
 function refusalFrom(filter: Record<string, any>): FilterOperatorError {
   try {
     const lowered = convertFiltersToAST(filter);
     throw new Error(
-      `convertFiltersToAST(${JSON.stringify(filter)}) did NOT refuse — it lowered `
-      + `${JSON.stringify(lowered)} onto the wire. That is objectui#9001.`,
+      `convertFiltersToAST(${show(filter)}) did NOT refuse — it lowered `
+      + `${show(lowered)} onto the wire. That is objectui#9001.`,
     );
   } catch (error) {
     if (error instanceof FilterOperatorError) return error;
