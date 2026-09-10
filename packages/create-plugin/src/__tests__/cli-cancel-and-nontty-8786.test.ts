@@ -386,4 +386,131 @@ describe('create-plugin CLI — cancelling and non-TTY runs (objectui#8786)', ()
       expect(run.files).toBeNull();
     }, 60_000);
   });
+  /**
+   * The four source files a scaffold writes for the AUTHOR claim nothing
+   * (objectui#8778).
+   *
+   * Lives in this file for the same reason the objectui#8892 block above does:
+   * these assertions are about what lands on disk, and only the built bin can
+   * answer that. A `buildPluginFiles` test would be asserting about a string
+   * this package might not be shipping — and a SECOND test file that built this
+   * package would clean `dist/` out from under every run here.
+   *
+   * ⭐ The defect was a statement, so the test reads statements. Until this card
+   * `src/index.tsx`, `src/<Pascal>Impl.tsx`, `src/types.ts` and
+   * `src/<Pascal>Impl.test.tsx` each opened with
+   * `Copyright (c) <year>-present ObjectStack Inc.` under an `ObjectUI` title —
+   * this project's ownership claim over the author's own code. Nothing replaced
+   * it, because every replacement is an unruled legal assertion about that
+   * code, so the assertion is ABSENCE: no holder, no year, no SPDX id, and in
+   * particular not the author's own name either. `Ada` is answered at the
+   * prompt precisely so the fenced substitution has a value to have been made
+   * from — a run with a blank author could not tell "we chose not to name the
+   * author" from "there was no author to name".
+   *
+   * ⚠️ Absence is exactly the assertion that passes while witnessing nothing:
+   * `run.contents` is null for a run that wrote no files, and `?? ''` contains
+   * no marker either. Hence the two controls — the file list is pinned before
+   * anything is read, and the LICENSE from the SAME run is required to carry
+   * the copyright line these four must not.
+   */
+  describe('the four source files a scaffold writes for the author', () => {
+    const AUTHOR_SOURCES = ['src/index.tsx', 'src/DemoImpl.tsx', 'src/types.ts', 'src/DemoImpl.test.tsx'] as const;
+
+    /**
+     * Every spelling an ownership claim reaches a file in.
+     *
+     * `ObjectUI` is here as well as `ObjectStack`: the block that carried the
+     * claim was titled with it, and a title line naming this project on the
+     * author's source is the same defect one line shorter. None of the four
+     * emitted bodies mentions either name — they import the lowercase
+     * `@object-ui/*` specifiers, which is why this is a whole-file sweep and
+     * not a first-N-lines one.
+     */
+    const OWNERSHIP_MARKERS = [
+      'Copyright',
+      'copyright',
+      '(c)',
+      '(C)',
+      '©',
+      'ObjectStack',
+      'ObjectUI',
+      'SPDX',
+      'All rights reserved',
+    ] as const;
+
+    let scaffolded: Run | null = null;
+    /** The shared run, or a loud failure — never an unasserted `undefined`. */
+    const sharedRun = (): Run => {
+      if (scaffolded === null) throw new Error('the shared scaffold run never completed');
+      return scaffolded;
+    };
+
+    beforeAll(async () => {
+      scaffolded = await driveCli(
+        ['demo'],
+        [
+          { waitFor: 'Plugin description:', send: ENTER },
+          { waitFor: 'Author name:', send: `Ada${ENTER}` },
+          { waitFor: 'License:', send: ENTER },
+        ],
+        { pty: true },
+      );
+    }, 60_000);
+
+    it('claim ownership of nothing — no holder, no year, no SPDX id, not even the author', () => {
+      const run = sharedRun();
+
+      // ⭐ CONTROL, before a single absence is read: the run wrote the whole
+      // plugin. Without this a scaffold that created nothing satisfies every
+      // `not.toContain` below.
+      expect(run.code).toBe(0);
+      expect(run.files).toEqual([...EXPECTED_FILES]);
+      expect(run.contents).not.toBeNull();
+
+      for (const path of AUTHOR_SOURCES) {
+        const text = run.contents?.[path];
+        expect(text, path).toBeDefined();
+        expect((text ?? '').length, path).toBeGreaterThan(0);
+        for (const marker of OWNERSHIP_MARKERS) {
+          expect(text, `${path} must not claim ownership via "${marker}"`).not.toContain(marker);
+        }
+        // The author's answer is not a substitute for our name.
+        expect(text, `${path} must not name the author either`).not.toContain('Ada');
+      }
+
+      // ⭐ CONTROL, after: the copyright line the four must not carry is one
+      // this same run really does emit — into the LICENSE, where the author is
+      // the holder because the author chose the licence (objectui#8041). So the
+      // absences above are a property of these four files, not of the reader.
+      expect(run.license).toContain('Copyright (c)');
+      expect(run.license).toContain('Ada');
+    });
+
+    it('open with the licence pointer and nothing else', () => {
+      const run = sharedRun();
+
+      // The remaining block is pinned VERBATIM rather than pattern-matched,
+      // because "no copyright header" and "no header" are different landings
+      // and only one of them is this card's. The licence pointer is true and
+      // load-bearing — it is one of the six agreeing licence statements
+      // objectui#8041 and objectui#8892 built — so it stays, and it stays
+      // alone.
+      const claimed = run.manifest?.license;
+      expect(claimed).toBe('MIT');
+
+      const expected = [
+        '/**',
+        ` * This source code is licensed under the ${claimed as string} license found in the`,
+        ' * LICENSE file in the root directory of this source tree.',
+        ' */',
+      ].join('\n');
+
+      for (const path of AUTHOR_SOURCES) {
+        const text = run.contents?.[path] ?? '';
+        expect(text.indexOf('*/'), `${path} opens with a block comment`).toBeGreaterThan(0);
+        expect(text.slice(0, text.indexOf('*/') + 2), path).toBe(expected);
+      }
+    });
+  });
 });
