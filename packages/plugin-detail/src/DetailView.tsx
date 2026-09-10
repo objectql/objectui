@@ -53,6 +53,7 @@ import { getCellRenderer, resolveCellRendererType, coerceToSafeValue } from '@ob
 import { hasCellValue } from './emptiness';
 import { enrichDetailField } from './fieldEnrichment';
 import { chipTakesCellRenderer } from './summaryChipRenderers';
+import { summaryChipPercentPoints } from './summaryChipPercent';
 
 
 /** Stable empty draft so the section `data`-merge identity is preserved when
@@ -1085,11 +1086,16 @@ export const DetailView: React.FC<DetailViewProps> = ({
                     } else if (ftype === 'percent') {
                       const num = Number(val);
                       if (!Number.isNaN(num)) {
-                        display = `${num}%`;
-                        // Normalize to 0..100 for the bar; values <=1 are
-                        // treated as ratios (0.6 → 60%), otherwise capped.
-                        const normalized = num <= 1 ? num * 100 : num;
-                        percentValue = Math.max(0, Math.min(100, normalized));
+                        // ONE number, read by both halves of this chip: the
+                        // text states it, the bar below draws it clamped to
+                        // its track. They used to scale `num` by two different
+                        // rules, so a stored `0.123` said `0.123%` beside a bar
+                        // at 12.3% (objectui#8728). Which rule survived, and
+                        // why it is not the repo-wide one, is in
+                        // `./summaryChipPercent`.
+                        const points = summaryChipPercentPoints(num);
+                        display = `${points}%`;
+                        percentValue = Math.max(0, Math.min(100, points));
                       }
                     } else if (ftype === 'select' || ftype === 'status' || ftype === 'multiselect') {
                       // Resolve raw option label from field metadata as
