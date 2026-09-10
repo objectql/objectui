@@ -318,10 +318,22 @@ decision as a defect is how a warning channel gets ignored:
   width?: string,                              // CSS width (e.g., '400px')
   collapsible?: boolean,                       // Enable collapse toggle
   defaultCollapsed?: boolean,                  // Start collapsed
-  feed?: RecordActivityComponentProps,         // Activity feed config
+  feed?: RecordActivityComponentProps,         // Activity feed AFFORDANCES — see below
   aria?: RecordComponentAriaProps              // Accessibility props
 }
 ```
+
+<Callout type="warn">
+  **`feed` carries the affordance members only.** Its type is
+  `RecordActivityComponentProps`, but `RecordChatterPanel` hands `config.feed`
+  straight to `RecordActivityTimeline`, which reads exactly `showFilterToggle`,
+  `showCommentInput`, `enableReactions`, `enableThreading` and
+  `showSubscriptionToggle`. The four filter members — `types`, `limit`,
+  `showCompleted` and `unifiedTimeline` — are applied by `applyFeedConfig`,
+  which runs only on the `record:activity` render path, so one authored inside
+  `feed` is accepted and then ignored. Use a `record:activity` block to filter a
+  timeline (objectui#8934).
+</Callout>
 
 ### RecordActivityTimeline Config
 

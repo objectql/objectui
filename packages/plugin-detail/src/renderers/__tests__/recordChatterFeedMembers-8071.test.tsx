@@ -17,10 +17,14 @@
  * `record-picker-label-placeholder-i18n.test.tsx` already set for a pair of
  * keys covered by a single mechanism (objectui#8071 slice 3).
  *
- * `feed` is declared a bare `type: 'object'` — "Activity-feed config nested
- * inside the panel". The only prior coverage, `record-chatter.loading.test.tsx`
- * (read end to end before this file was written), is about the host's `loading`
- * signal reaching the panel and never authors `feed` at all.
+ * `feed` is declared a bare `type: 'object'`: the registration carries no
+ * member list at all, so its `description` is the whole published statement of
+ * what the key admits. (objectui#8934 rewrote that description; the
+ * declaration was measured and deliberately left alone — `ComponentInput` has
+ * no member-list slot for a fixed-key record.) The only prior coverage,
+ * `record-chatter.loading.test.tsx` (read end to end before this file was
+ * written), is about the host's `loading` signal reaching the panel and never
+ * authors `feed` at all.
  *
  * ## The member fact that matters most: authoring `feed` REPLACES it
  *
@@ -39,17 +43,30 @@
  *
  * ## LIMIT — which members of `feed` are live on THIS path
  *
- * Stated rather than assumed, because the registration's description ("same
- * shape as record:activity") reads wider than the read site is. `config.feed`
- * is handed straight to `RecordActivityTimeline`, which reads exactly the five
- * AFFORDANCE members (`showFilterToggle`, `showCommentInput`, `enableReactions`,
- * `enableThreading`, `showSubscriptionToggle`). The FILTER members of
- * `record:activity` (`types` / `limit` / `showCompleted` / `unifiedTimeline`)
- * are applied by `applyFeedConfig`, which only `record-activity.tsx` calls —
- * so they do nothing nested inside `feed` (filed as objectui#8934). This file pins the live members and
- * does NOT pin the inert ones: "this member is dead" is a claim about a
- * contract defect, which objectui#8071 slice 6 filed separately rather than
- * freezing here.
+ * `config.feed` is handed straight to `RecordActivityTimeline`, which reads
+ * exactly the five AFFORDANCE members (`showFilterToggle`,
+ * `showCommentInput`, `enableReactions`, `enableThreading`,
+ * `showSubscriptionToggle`). The FILTER members of `record:activity`
+ * (`types` / `limit` / `showCompleted` / `unifiedTimeline`) are applied by
+ * `applyFeedConfig`, which only `record-activity.tsx` calls — so they do
+ * nothing nested inside `feed`.
+ *
+ * ⚠️ RE-POINTED (objectui#8934). This section used to state the reading above
+ * as a correction to the registration, whose description then read "same shape
+ * as record:activity" — wider than the read site is. That gap is closed at the
+ * source: the maintainer ruled on 2026-09-10 that the DESCRIPTION changes and
+ * the rendering path does not, so the registration now names the five
+ * affordances and says the four filter members are not read on this path. The
+ * reading above no longer contradicts the published contract; it agrees with
+ * it.
+ *
+ * This file still pins only the LIVE members. The behaviour the corrected
+ * description claims — the five affordances move the timeline, a filter member
+ * authored inside `feed` moves nothing, with `applyFeedConfig` as the firing
+ * control that makes that zero a reading — is pinned next door in
+ * `recordChatterFeedAffordanceOnly-8934.test.tsx`. "This member is dead" is
+ * asserted in neither file: that is a claim about a contract defect, and the
+ * defect was answered by correcting the contract.
  *
  * ## Resolution
  *

@@ -700,7 +700,29 @@ const CHATTER_INPUTS: ComponentInput[] = [
   { name: 'width', type: 'string', description: 'Panel width as a CSS value (side positions only)' },
   { name: 'collapsible', type: 'boolean' },
   { name: 'defaultCollapsed', type: 'boolean' },
-  { name: 'feed', type: 'object', description: 'Activity-feed config nested inside the panel — same shape as record:activity' },
+  // `feed` is nested config, and what it carries is NARROWER than the block it
+  // is named after. `RecordChatterPanel` hands `config?.feed` straight to
+  // `RecordActivityTimeline`, which reads exactly the five AFFORDANCE members
+  // in one block (`RecordActivityTimeline.tsx:213-217`). The four FILTER inputs
+  // of `record:activity` (`types` / `limit` / `showCompleted` /
+  // `unifiedTimeline`) are applied by `applyFeedConfig`, whose ONE non-test
+  // call site is `record-activity.tsx`; nothing on the chatter/discussion path
+  // reaches it, so a filter authored in here is accepted and then discarded.
+  // The description used to read "same shape as record:activity" and was
+  // therefore advertising four members this path never reads (objectui#8934).
+  //
+  // ⚠️ The DECLARATION is deliberately unchanged, and that is a measurement
+  // rather than an omission: there is no member list here to narrow.
+  // `ComponentInput` carries `name` / `type` / `of` / `required` / `enum` /
+  // `description`, and the only slot one level down is `of` — the coarse KIND
+  // of the members of an ARRAY, or of an object used as a MAP, explicitly "NOT
+  // a nested schema: it names no object keys" (`@object-ui/types` `base.ts`).
+  // `feed` is a fixed-key record, not a map, so `of` has no true answer to
+  // give; inventing a member schema to have something to narrow would be the
+  // second source of truth the 2026-08-17 expression-ceiling ruling declined.
+  // Per that ruling the domain is spelled out in `description`, which IS what
+  // ships to `sdui.manifest.json` and is therefore what an AI author reads.
+  { name: 'feed', type: 'object', description: 'Activity-feed affordances nested inside the panel: showFilterToggle, showCommentInput, enableReactions, enableThreading, showSubscriptionToggle (that last one renders nothing on any path — see record:activity). The four FILTER inputs of record:activity (types, limit, showCompleted, unifiedTimeline) are not read here; filtering runs only on the record:activity render path, so one authored inside feed is accepted and then ignored. Use a record:activity block to filter a timeline.' },
 ];
 
 ComponentRegistry.register('chatter', RecordChatterRenderer, {
