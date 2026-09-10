@@ -58,10 +58,13 @@ const schema: ObjectKanbanSchema = {
       title: 'Done',
       cards: []
     }
-  ],
-  onCardMove: (cardId: string, fromCol: string, toCol: string, index: number) => {
-    console.log(`Card ${cardId} moved`)
-  }
+  ]
+}
+
+// `onCardMove` is NOT a document key — JSON has no function value. The host
+// supplies it as a React prop, separate from `schema` above.
+const onCardMove = (cardId: string, fromCol: string, toCol: string, index: number) => {
+  console.log(`Card ${cardId} moved`)
 }
 ```
 
@@ -75,13 +78,16 @@ const schema: ObjectKanbanSchema = {
 
 ## Schema API
 
+`onCardMove` is NOT a document key: it is a React prop the host supplies (JSON
+has no function value), never a member of the schema object below —
+`packages/plugin-kanban/README.md` documents this the same way.
+
 ```plaintext
 {
   type: 'object-kanban',
   groupBy: 'status',
   data: [],
   columns?: KanbanColumn[],
-  onCardMove?: (cardId, fromColumnId, toColumnId, newIndex) => void,
   className?: string
 }
 
@@ -111,7 +117,6 @@ interface KanbanCard {
 | `columns` | KanbanColumn[] | Array of column definitions |
 | `filter` | ViewFilterRule[] | Query filter for an object-driven board, lowered to `$filter` |
 | `limit` | number | Rows fetched by an object-driven board (default 100) |
-| `onCardMove` | function | Callback when a card is moved |
 | `className` | string | Additional Tailwind CSS classes |
 
 ### Column Properties
@@ -233,11 +238,14 @@ const taskBoard: ObjectKanbanSchema = {
       title: 'Done',
       cards: []
     }
-  ],
-  onCardMove: (cardId: string, fromCol: string, toCol: string, index: number) => {
-    // Update backend/state
-    console.log(`Moved ${cardId} from ${fromCol} to ${toCol}`)
-  }
+  ]
+}
+
+// `onCardMove` is NOT a document key — the host supplies it as a React prop,
+// separate from `taskBoard` above.
+const onCardMove = (cardId: string, fromCol: string, toCol: string, index: number) => {
+  // Update backend/state
+  console.log(`Moved ${cardId} from ${fromCol} to ${toCol}`)
 }
 ```
 
@@ -390,18 +398,21 @@ export function useBoard(initialColumns: KanbanColumn[]) {
     groupBy: 'status',
     data: [],
     columns,
-    // `onCardMove` returns void, so the callback cannot be awaited by the board:
-    // start the write and update local state without blocking the drop.
-    onCardMove: (cardId: string, fromColumnId: string, toColumnId: string, newIndex: number) => {
-      // Update database
-      void updateCardColumn(cardId, toColumnId, newIndex)
-
-      // Update local state
-      setColumns((prev) => moveCard(prev, cardId, toColumnId, newIndex))
-    },
   }
 
-  return schema
+  // `onCardMove` is NOT a document key — the host supplies it as a React prop,
+  // separate from `schema` above. It returns void, so the callback cannot be
+  // awaited by the board: start the write and update local state without
+  // blocking the drop.
+  const onCardMove = (cardId: string, fromColumnId: string, toColumnId: string, newIndex: number) => {
+    // Update database
+    void updateCardColumn(cardId, toColumnId, newIndex)
+
+    // Update local state
+    setColumns((prev) => moveCard(prev, cardId, toColumnId, newIndex))
+  }
+
+  return { schema, onCardMove }
 }
 ```
 

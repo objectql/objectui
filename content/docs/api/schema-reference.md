@@ -946,6 +946,8 @@ A drag-and-drop Kanban board. The `object-kanban` type key validates the shape t
 
 > The retired `kanban` arm declared `columns`, `cardTitle`, `swimlaneField`, `grouping` and `navigation`; the `object-kanban` face never did, and it is unchanged. The renderer still reads those keys, so a board may carry them — they are simply not judged. The board's React host supplies `onCardMove` / `onCardClick` / `onQuickAdd` as props; none of the three is authorable in JSON.
 
+> `data` and `bind` are [`BaseSchema`](#baseschema) members, not narrowed here, but this face requires **one of** `bind`, `data`, `objectName` — the renderer's own record-source ladder (an external `data` prop → `bind` via `useDataScope` → this schema's own `data` → a fetch keyed by `objectName`). A purely static board (lanes carrying their own cards, no record source) authors `"groupBy"` and `"data": []`.
+
 **Related:** [ObjectViewSchema](#objectviewschema), [ObjectGridSchema](#objectgridschema)
 
 ---
