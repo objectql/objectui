@@ -590,29 +590,43 @@ const TimelineConfig = stripImportedDefaults(SpecTimelineConfigSchema).partial()
 const ViewKindEnum = SpecListViewSchema.shape.type.removeDefault();
 
 /**
- * User Actions — the spec's `UserActionsConfigSchema` plus the three toolbar
- * affordances it does not model yet (#2890 scope A step 3).
+ * User Actions — `@objectstack/spec/ui`'s `UserActionsConfigSchema`, mirrored
+ * BY REFERENCE (objectui#8992).
  *
  * The spec documents this object as "which interactive actions are available to
  * users in the view toolbar — each boolean toggles the corresponding toolbar
- * element on/off", and already carries `rowHeight` (objectui's old
- * `showDensity`). Grouping, column visibility and row coloring are the same kind
- * of toggle — the spec models all three as CONFIGURATION (`grouping`,
- * `hiddenFields`, `rowColor`) but has no "may the user change it" switch for
- * any of them, so an author cannot express a complete toolbar policy. These
- * three are named after the config key they gate, following the precedent
- * `rowHeight` set.
+ * element on/off". Grouping, column visibility and row coloring are the same
+ * kind of toggle as `rowHeight` (objectui's old `showDensity`), each named
+ * after the config key it gates (`grouping`, `hiddenFields`, `rowColor`).
  *
- * This `.extend()` is temporary: it collapses into a plain re-export once the
- * keys land upstream. Note `UserActionsConfigSchema` is NOT `.strict()`, so
- * before this extension an author writing `userActions: { group: false }` had
- * it silently stripped — valid on parse, no effect at render.
+ * This read `stripImportedDefaults(Spec).extend({ group, hideFields, rowColor })`
+ * for as long as the protocol declared none of the three while
+ * `normalizeListViewSchema` folded objectui's legacy `showGroup` /
+ * `showHideFields` / `showColor` onto them. The protocol declares all three
+ * now — the maintainer ruled option A on objectui#5435 (2026-08-22) and the
+ * spec adopted them in 17.3.0 — so the extension collapses, exactly as its own
+ * note said it would. A redundant local extension is how two faces start to
+ * drift.
+ *
+ * ⛔ AN UNDECLARED KEY IS REFUSED HERE, BY NAME (`unrecognized_keys`, one
+ * issue, the key named) — it is NOT dropped. The note this replaces claimed
+ * the opposite: "`UserActionsConfigSchema` is NOT `.strict()`, so ... an author
+ * writing `userActions: { group: false }` had it silently stripped — valid on
+ * parse, no effect at render". That was false at every published 17.x —
+ * measured by parsing a one-undeclared-key document against the published
+ * artifacts of 17.0.0, 17.2.0, 17.3.0 and the resolved 17.4.0, each of which
+ * refuses and names the key. Silent-tolerance prose in front of a
+ * loud-rejection runtime is the worst direction for a comment to be wrong in:
+ * it tells an author — human or AI — that a config which will FAIL the save
+ * gate is harmless. `__tests__/user-actions-mirror-8992.test.ts` pins the
+ * refusal so this paragraph cannot rot back into the one it replaced.
+ *
+ * ⚠️ The three keys are VERSION-BORNE from here on. `@object-ui/types` declares
+ * `@objectstack/spec: ^17.3.0`, and that floor is load-bearing for them: 17.2.0
+ * declares 8 keys, 17.3.0 declares 11. The extension used to carry the three
+ * locally whatever version resolved; it no longer does.
  */
-export const UserActionsSchema = stripImportedDefaults(SpecUserActionsConfigSchema).extend({
-  group: z.boolean().optional().describe('Allow users to group records'),
-  hideFields: z.boolean().optional().describe('Allow users to show/hide columns'),
-  rowColor: z.boolean().optional().describe('Allow users to color rows by a field value'),
-});
+export const UserActionsSchema = stripImportedDefaults(SpecUserActionsConfigSchema);
 
 export const ListViewSchema = BaseSchema
   // Spec-owned fields by reference. `specFieldsExcept` reads the spec object's
