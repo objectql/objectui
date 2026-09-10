@@ -67,10 +67,22 @@ export const RecordChatterRenderer: React.FC<RecordChatterRendererProps> = ({
   const discussion = useDiscussionContext();
   const { designer } = splitDesigner(props);
 
-  // Merge schema-supplied config (position, feed sub-config) with sane
-  // defaults that match the auto-appended panel used by RecordDetailView
-  // — so an author-placed `record:discussion` looks identical to the
-  // fallback the host injects when no component is present.
+  // Merge schema-supplied config (position, feed sub-config) with the same
+  // three AFFORDANCE defaults the host's auto-appended panel hard-codes
+  // (`@object-ui/app-shell` `RecordDetailView.tsx:2549`).
+  //
+  // ⚠️ The affordance defaults still match. The rendered FEED no longer does,
+  // and this comment used to claim it did — "so an author-placed
+  // `record:discussion` looks identical to the fallback the host injects when
+  // no component is present". That sentence was true until objectui#8934 and
+  // is false now: this path runs `applyFeedConfig` below, so the protocol's
+  // `feed` defaults apply here (completed activities hidden, a 20-item page
+  // window with "Load more"), while the fallback hands its rows to
+  // `RecordChatterPanel` raw — no pipeline, no paging. Measured on the same
+  // feed: three comments plus one `task` row renders four rows there and
+  // three here; twenty-five comments renders twenty-five there and twenty
+  // plus a "Load more" here. Tracked as objectui#8983.
+  // ⛔ Do not restore the old sentence without closing that divergence first.
   const config = {
     position: 'bottom',
     collapsible: false,

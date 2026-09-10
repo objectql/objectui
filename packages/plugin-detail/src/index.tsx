@@ -705,7 +705,10 @@ const CHATTER_INPUTS: ComponentInput[] = [
   // `RecordChatterProps.feed: RecordActivityProps.optional()`
   // (`component.zod.ts:1366`), bound to both names (`:2948` / `:2962`). So the
   // description names the declaration it delegates to instead of re-listing
-  // eleven members that would then be free to drift from it.
+  // its members, which would then be free to drift from it. (Re-listing would
+  // also have to decide what to do with `aria`, which the spec shape carries
+  // and `record:activity`'s own registration does not — one more reason the
+  // delegation is the honest statement.)
   //
   // objectui#8934: the four FILTER members of that shape (`types` / `limit` /
   // `showCompleted` / `unifiedTimeline`) used to be discarded on this path
@@ -716,7 +719,7 @@ const CHATTER_INPUTS: ComponentInput[] = [
   // ⛔ Do not narrow this declaration to match an implementation: the protocol
   // is the contract, and a protocol that is wrong is changed in
   // `@objectstack/spec` first.
-  { name: 'feed', type: 'object', description: 'Activity-feed configuration nested inside the panel — the same shape as record:activity. The spec declares this key as RecordActivityProps (RecordChatterProps.feed), so its members are exactly the inputs record:activity declares; see that block for what each one does.' },
+  { name: 'feed', type: 'object', description: 'Activity-feed configuration nested inside the panel — the same shape as record:activity. The spec declares this key as RecordActivityProps (RecordChatterProps.feed), so its members are the inputs record:activity declares; see that block for what each one does.' },
 ];
 
 ComponentRegistry.register('chatter', RecordChatterRenderer, {
