@@ -36,7 +36,7 @@ import {
   RefreshIndicator,
 } from '@object-ui/components';
 import { usePullToRefresh } from '@object-ui/mobile';
-import { resolveConditionalFormatting, leadWithNameField, buildExpandFields, buildExportFileName, columnIdentity, collectPredicateFieldRefs, collectGroupingFieldRefs, listViewPredicates, isObjectInlineEditable, isProjectableField, isExpandableFieldType, isUnmaterializedFieldType, readObjectSortability, isPlatformSortableField, filterPlatformSortableSort, toFilterNode, ROW_HEIGHT_TO_DENSITY_MODE, resolveRecordSourceConfig, resolveRecordSourceObjectName } from '@object-ui/core';
+import { resolveConditionalFormatting, leadWithNameField, buildExpandFields, buildExportFileName, columnIdentity, collectPredicateFieldRefs, collectGroupingFieldRefs, listViewPredicates, isObjectInlineEditable, isProjectableField, isExpandableFieldType, isUnmaterializedFieldType, readObjectSortability, isPlatformSortableField, filterPlatformSortableSort, toFilterNode, convertSortToQueryParams, type QuerySortEntry, ROW_HEIGHT_TO_DENSITY_MODE, resolveRecordSourceConfig, resolveRecordSourceObjectName } from '@object-ui/core';
 import { usePermissions } from '@object-ui/permissions';
 import { ChevronRight, ChevronLeft, ChevronsLeft, ChevronsRight, Download, Rows2, Rows3, Rows4, AlignJustify, Type, Hash, Calendar, CheckSquare, User, Tag, Clock, Loader2 } from 'lucide-react';
 import { useRowColor } from './useRowColor';
@@ -59,12 +59,21 @@ import type { BulkActionDef } from '@object-ui/types';
 /**
  * A view's declared `sort` → the shape the table's header indicators read.
  *
- * `@objectstack/spec` allows `"name desc"`, `["name desc", …]` and
- * `[{ field, order }, …]`, and this grid's own fetch path already reads all
- * three. The headers have to agree with it: a view that arrives sorted by
+ * `[{ field, order }, …]` is the ONE spelling `@objectstack/spec` still
+ * declares (objectui#8221 retired the string clauses). The headers have to
+ * agree with the fetch path on it: a view that arrives sorted by
  * `created_at desc` should show that arrow before anyone clicks anything —
  * otherwise the first click on that column produces `asc` while the list was
  * already `desc`, and the arrow tells the truth only from the second click on.
+ *
+ * ⚠️ This reader is WIDER than the fetch path as of objectui#8767, and the
+ * sentence this docblock used to carry — that the fetch path reads all three
+ * spellings — is no longer true. The fetch path now REFUSES a string and sends
+ * no `$orderby` at all, while this reader still parses `"name desc"` and
+ * `["name desc", …]`, so a grid authored with a retired spelling shows an
+ * arrow for an ordering its query does not carry. Narrowing this reader moves
+ * the wire shape and takes the export path with it — the route the #8767
+ * ruling deliberately did not take. It is NOT fixed here.
  *
  * Exported for the test that pins it against the fetch path's own reading.
  */
@@ -1851,7 +1860,30 @@ export const ObjectGrid: React.FC<ObjectGridComponentProps> = ({
             params.$orderby = headerSort.map((s) => ({ field: s.field, order: s.order }));
           } else if (schemaSort) {
             if (typeof schemaSort === 'string') {
-              params.$orderby = schemaSort;
+              // objectui#8767 — the legacy string `sort` clause is RETIRED
+              // (objectui#8221, decision batch #77) and is REFUSED here rather
+              // than lowered. This block owns a PRIVATE lowering, so #8758's
+              // narrowing of the shared sink never reached it: a bare
+              // `object-grid` went on honouring a spelling `object-view`
+              // already refuses — one key meaning two things depending on which
+              // block you are on, which is the per-block divergence the #8221
+              // ruling declined by name.
+              //
+              // The refusal is #8758's OWN, not a second one: calling the
+              // shared sink on this arm reports the retired spelling once per
+              // spelling and answers `undefined`, so the query carries no
+              // `$orderby`. Its return value is deliberately unused — the wire
+              // shape stays this block's, and the array arm below is untouched
+              // (with it the export path and `parseSchemaSort`). Routing the
+              // whole key through the sink is a different card: it would send
+              // the sink's `{field: direction}` map where every grid today
+              // sends a `"field order"` string.
+              //
+              // Read through `unknown`, exactly as the sink does: types are
+              // erased, so the array-only `ObjectGridSchema.sort` declaration
+              // cannot stop a string arriving from authored JSON, a stored
+              // `sys_metadata` row or an `as any` bag.
+              convertSortToQueryParams(schemaSort as unknown as QuerySortEntry[]);
             } else if (Array.isArray(schemaSort)) {
               params.$orderby = schemaSort
                 .map((s: any) => `${s.field} ${s.order}`)
@@ -4022,6 +4054,11 @@ export const ObjectGrid: React.FC<ObjectGridComponentProps> = ({
   // same sort. Without that a view arriving `created_at desc` would show no
   // arrow, and the first click on that column would ask for `asc` on a list
   // that was already `desc`.
+  //
+  // ⚠️ One spelling now escapes that agreement: since objectui#8767 the fetch
+  // path REFUSES a string `sort` and sends no `$orderby`, while
+  // {@link parseSchemaSort} still parses one. Closing that gap narrows this
+  // reader and moves the wire shape with it — the route #8767 did not take.
   //
   // A plain expression, not a `useMemo`: this sits below the component's early
   // returns, where a hook would be skipped on some renders and change the hook
