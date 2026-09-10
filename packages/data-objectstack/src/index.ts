@@ -4610,7 +4610,17 @@ export class ObjectStackAdapter<T = unknown> implements DataSource<T> {
           // same stored filter.
           options.filters = translateFilterArray(params.$filter);
         } else {
-          options.filters = convertFiltersToAST(params.$filter);
+          // `undefined` means the filter constrains nothing — a filter that is
+          // nothing but TRUE-identity combinators (`{ $and: [] }`,
+          // objectui#8770). The slot is SKIPPED rather than assigned, the same
+          // answer the raw-GET route's `if (translated !== undefined)` gives,
+          // so the client emits no `filter` parameter and the server returns
+          // every row. Assigning it would be harmless today (the client tests
+          // `filterValue` for truthiness) but would make this route's contract
+          // depend on that, and the two `find()` routes must not disagree about
+          // one filter.
+          const lowered = convertFiltersToAST(params.$filter);
+          if (lowered !== undefined) options.filters = lowered;
         }
       }
     }
