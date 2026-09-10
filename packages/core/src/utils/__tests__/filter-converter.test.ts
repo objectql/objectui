@@ -20,15 +20,27 @@ describe('Filter Converter Utilities', () => {
       expect(convertOperatorToAST('$lte')).toBe('<=');
       expect(convertOperatorToAST('$in')).toBe('in');
       expect(convertOperatorToAST('$nin')).toBe('nin');
-      expect(convertOperatorToAST('$notin')).toBe('nin');
       expect(convertOperatorToAST('$contains')).toBe('contains');
-      expect(convertOperatorToAST('$startswith')).toBe('startswith');
+      expect(convertOperatorToAST('$notContains')).toBe('notcontains');
+      expect(convertOperatorToAST('$startsWith')).toBe('startswith');
+      expect(convertOperatorToAST('$endsWith')).toBe('endswith');
       expect(convertOperatorToAST('$between')).toBe('between');
     });
 
     it('should return null for unknown operators', () => {
       expect(convertOperatorToAST('$unknown')).toBe(null);
       expect(convertOperatorToAST('$exists')).toBe(null);
+    });
+
+    // objectui#8568 retired the four lowercase aliases. They are answered by
+    // name one layer up, in `convertFiltersToAST` — this function has no error
+    // channel, so `null` is all it can say. The named refusal and the spec
+    // derivation behind it are pinned in filter-alias-retirement-8568.test.ts.
+    it('should return null for the retired lowercase aliases (objectui#8568)', () => {
+      expect(convertOperatorToAST('$notin')).toBe(null);
+      expect(convertOperatorToAST('$notcontains')).toBe(null);
+      expect(convertOperatorToAST('$startswith')).toBe(null);
+      expect(convertOperatorToAST('$endswith')).toBe(null);
     });
   });
 
