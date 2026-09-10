@@ -51,6 +51,11 @@
  *   - `aggregate`, `filter` — AUTHORABLE. `@objectstack/spec` names their
  *     carrier as this component's own react props and parses `aggregate` at the
  *     react-page publish gate; the registry `inputs` advertises both.
+ *     ⭐ `aggregate` is therefore declared BY REFERENCE (`ChartAggregate` /
+ *     `ChartAggregateSchema`), not as a local shape of the same name: where the
+ *     spec owns the authoring door, one symbol is the whole point, and the
+ *     differential at the bottom of the mirror section is what proves it is the
+ *     spec's and not a look-alike.
  *   - `xAxisKey`, `series` — INTERNAL. All five producers COMPUTE them, the
  *     spec's author-facing vocabulary spells the same slots `xAxis`/`{ name }`
  *     and REFUSES the internal spellings by name, and neither appears in the
@@ -69,6 +74,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { ChartAggregateSchema as SpecChartAggregateSchema, type ChartAggregate } from '@objectstack/spec/ui';
 import type { BaseSchema } from '../base.js';
 import type { ObjectChartSchema } from '../objectql.js';
 import { ObjectChartSchema as ObjectChartMirror } from '../zod/objectql.zod.js';
@@ -106,8 +112,36 @@ export type assertionFilterAdmitsBothArms = Expect<Equal<ObjectChartSchema['filt
  * the shape twice and drift.
  */
 export type assertionSeriesBindsDataKey = Expect<Equal<NonNullable<ObjectChartSchema['series']>[number]['dataKey'], string>>;
+/**
+ * ⭐ `aggregate` is the SPEC's symbol, by reference — not a local shape that
+ * happens to look like it. `Equal` against `ChartAggregate` itself is the only
+ * assertion that can tell those apart: a structurally identical local copy
+ * satisfies every `extends` check in both directions and would let the two
+ * dialects drift apart the day the protocol moves.
+ */
+export type assertionAggregateIsSpecSymbolByReference =
+  Expect<Equal<NonNullable<ObjectChartSchema['aggregate']>, ChartAggregate>>;
+/**
+ * The two members the spec REQUIRES, read off this interface rather than off the
+ * import — so a local re-declaration that made either optional is red here even
+ * if someone kept the name. `field` stays optional (only `count` counts rows
+ * rather than a column), which is the third member and the control that this
+ * pin is measuring requiredness rather than asserting it everywhere.
+ */
+export type assertionAggregateFunctionIsRequired =
+  Expect<Equal<undefined extends NonNullable<ObjectChartSchema['aggregate']>['function'] ? true : false, false>>;
+export type assertionAggregateGroupByIsRequired =
+  Expect<Equal<undefined extends NonNullable<ObjectChartSchema['aggregate']>['groupBy'] ? true : false, false>>;
+export type assertionAggregateFieldStaysOptional =
+  Expect<Equal<undefined extends NonNullable<ObjectChartSchema['aggregate']>['field'] ? true : false, true>>;
+/**
+ * The structured `groupBy` arm names its `field` — the spec's shape, and the
+ * one the renderer's `aggregateGroupByKey` (`gb.alias || gb.field`) resolves. An
+ * earlier draft declared this arm locally with `field?: string`, which published
+ * a node that cannot resolve a category axis at all.
+ */
 export type assertionAggregateGroupByAdmitsStructuredNode =
-  Expect<Equal<NonNullable<NonNullable<ObjectChartSchema['aggregate']>['groupBy']>, string | { field?: string; dateGranularity?: 'day' | 'week' | 'month' | 'quarter' | 'year'; alias?: string }>>;
+  Expect<Equal<NonNullable<NonNullable<ObjectChartSchema['aggregate']>['groupBy']>, string | { field: string; dateGranularity?: 'day' | 'week' | 'month' | 'quarter' | 'year'; alias?: string }>>;
 /** The helpers can FAIL — synthetic controls. */
 export type assertionExtendsBaseCanFail = Expect<Equal<ExtendsBase<{ objectName: string }>, false>>;
 export type assertionEqualCanFail = Expect<Equal<Equal<any, string | undefined>, false>>;
@@ -153,17 +187,86 @@ describe('the zod mirror declares the same keys (objectui#7946)', () => {
     expect(Object.keys(ObjectChartMirror.shape)).toContain('colors');
   });
 
-  it('the mirror CHECKS the declared values, not just their presence', () => {
-    // Non-vacuity for the four `.toContain` assertions above: a key declared
-    // as `z.any()` would satisfy them and validate nothing.
-    const ok = ObjectChartMirror.safeParse({ type: 'object-chart', chartType: 'bar', xAxisKey: 'stage', series: [{ dataKey: 'amount' }] });
+  it('the mirror CHECKS the declared values, not just their presence — every declared key', () => {
+    // Non-vacuity for the `.toContain` assertions above: a key declared as
+    // `z.any()` would satisfy them and validate nothing. One accepting case
+    // first, so a mirror that refused EVERYTHING would not pass this by
+    // refusing on cue.
+    const ok = ObjectChartMirror.safeParse({
+      type: 'object-chart', chartType: 'bar',
+      xAxisKey: 'stage', series: [{ dataKey: 'amount' }],
+      aggregate: { field: 'amount', function: 'sum', groupBy: 'stage' },
+      filter: [['stage', '=', 'won']], colors: ['#10B981'],
+    });
+    expect(ok.error?.issues ?? []).toEqual([]);
     expect(ok.success).toBe(true);
-    const bad = ObjectChartMirror.safeParse({ type: 'object-chart', chartType: 'bar', xAxisKey: 0 });
-    expect(bad.success).toBe(false);
-    const badSeries = ObjectChartMirror.safeParse({ type: 'object-chart', chartType: 'bar', series: [{ label: 'no binding key' }] });
-    expect(badSeries.success).toBe(false);
-    const badFn = ObjectChartMirror.safeParse({ type: 'object-chart', chartType: 'bar', aggregate: { function: 'average', groupBy: 'stage' } });
-    expect(badFn.success).toBe(false);
+
+    const refusals: Array<readonly [string, unknown]> = [
+      ['xAxisKey is a column NAME, not an index', { xAxisKey: 0 }],
+      ['a series entry binds through `dataKey`', { series: [{ label: 'no binding key' }] }],
+      ['`average` is not the declared function vocabulary', { aggregate: { function: 'average', groupBy: 'stage' } }],
+      // F6 — the two keys the first cut declared but never probed on this face.
+      ['filter is a FilterArray or an ObjectQL $filter object, never a query STRING', { filter: 'stage=won' }],
+      ['colors is a palette or a value→color map, not a number', { colors: 42 }],
+    ];
+    for (const [why, patch] of refusals) {
+      const r = ObjectChartMirror.safeParse({ type: 'object-chart', chartType: 'bar', ...(patch as object) });
+      expect(r.success, why).toBe(false);
+    }
+  });
+
+  /**
+   * ⭐ What binding `aggregate` to `@objectstack/spec`'s own schema buys on THIS
+   * face, and it is not cosmetic. The first cut declared a local `z.object`
+   * mirror of it; zod 4 objects STRIP unknown keys, so a mis-cased member
+   * parsed clean and was silently dropped — the failure `ChartAggregateSchema`'s
+   * `strictObject` posture exists to prevent. Bound by reference, the posture
+   * and the requiredness arrive with the schema.
+   */
+  describe('`aggregate` is the spec schema by reference (objectui#7946 rework)', () => {
+    const parse = (aggregate: unknown) =>
+      ObjectChartMirror.safeParse({ type: 'object-chart', chartType: 'bar', aggregate });
+
+    it('REFUSES a mis-cased member instead of dropping it', () => {
+      const r = parse({ groupby: 'stage', function: 'count' });
+      expect(r.success, 'a strip-postured local copy accepts this and loses `groupby`').toBe(false);
+      // Named, not just counted: the refusal must be ABOUT the unknown key, so a
+      // pass caused by the missing `groupBy` cannot stand in for it.
+      expect(JSON.stringify(r.error?.issues)).toContain('groupby');
+    });
+
+    it('REFUSES the members the spec requires being left out', () => {
+      expect(parse({}).success).toBe(false);
+      expect(parse({ field: 'amount' }).success).toBe(false);
+      expect(parse({ function: 'sum' }).success, 'groupBy is required').toBe(false);
+      // …and a structured `groupBy` node that names no field, which
+      // `runAggregate` sends to the server verbatim and which can resolve no
+      // category column at all.
+      expect(parse({ function: 'count', groupBy: { dateGranularity: 'day' } }).success).toBe(false);
+    });
+
+    it('ACCEPTS what the spec accepts — the control for the four refusals above', () => {
+      expect(parse({ function: 'count', groupBy: 'stage' }).success).toBe(true);
+      expect(parse({ field: 'amount', function: 'sum', groupBy: 'stage' }).success).toBe(true);
+      expect(parse({ function: 'count', groupBy: { field: 'close_date', dateGranularity: 'month', alias: 'month' } }).success).toBe(true);
+    });
+
+    it('answers exactly as `ChartAggregateSchema` itself does — the by-reference property, differentially', () => {
+      // The assertion a structurally-similar local copy would fail. Probes span
+      // both verdicts so agreement is not agreement-on-refusing-everything.
+      const probes: unknown[] = [
+        {}, { field: 'amount' }, { function: 'sum' }, { function: 'count', groupBy: 'stage' },
+        { groupby: 'stage', function: 'count' }, { function: 'average', groupBy: 'stage' },
+        { function: 'count', groupBy: { dateGranularity: 'day' } },
+        { function: 'count', groupBy: { field: 'close_date', dateGranularity: 'month', alias: 'month' } },
+        { function: 'count', groupBy: 'stage', dateGranularity: 'month' },
+      ];
+      const mine = probes.map((p) => parse(p).success);
+      const spec = probes.map((p) => SpecChartAggregateSchema.safeParse(p).success);
+      expect(mine).toEqual(spec);
+      // Non-vacuity: the two verdict lists must contain both answers.
+      expect(new Set(spec)).toEqual(new Set([true, false]));
+    });
   });
 });
 
@@ -190,8 +293,14 @@ const LEDGERED_UNDECLARED_READS = [
   // component's own registry `inputs` and by the spec's `ChartDrillDownSchema`,
   // and by neither published copy of this shape.
   'drillDown',
-  // `schema.title || 'Details'` — the drill drawer heading. Not a `BaseSchema`
-  // member either, so it rides the index signature as `any`.
+  // `pickLocalized(schema.title, language) || 'Details'` — the drill drawer
+  // heading fallback. Not a `BaseSchema` member either, so it rides the index
+  // signature as `any`. ⚠️ The read is now resolved through the published
+  // locale-aware resolver rather than used as a bare string: the spec types this
+  // slot as `I18nLabel` (a string OR an inline locale map), so the raw read put
+  // an OBJECT in a heading for the map arm. Declaring the key here is
+  // objectui#8885's, and the resolver is what makes this component correct
+  // either way in the meantime.
   'title',
 ] as const;
 

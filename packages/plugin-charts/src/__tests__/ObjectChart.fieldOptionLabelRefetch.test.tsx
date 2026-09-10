@@ -117,12 +117,17 @@ const settle = (ms = 40) => new Promise((resolve) => setTimeout(resolve, ms));
  */
 async function countFetchesAcrossRerenders(wrap: (chart: React.ReactElement) => React.ReactElement) {
   const src = makeSource();
-  // The `tick` used to ride ON `ObjectChart` as an undeclared prop, which only
-  // compiled because the component was published as `(props: any)`
-  // (objectui#7946). It never reached the component — it exists to make each
-  // rendered element distinct — so it moves to a wrapper element that really
-  // takes it. What the test measures (re-render count vs fetch count) is
-  // unchanged.
+  // The `tick` used to ride on `ObjectChart` as a bare `tick={n}` prop, which
+  // only compiled because the component was published as `(props: any)`
+  // (objectui#7946). It is spelled `data-tick` now, and ⚠️ the reason that
+  // compiles is worth stating exactly rather than approximately: TypeScript does
+  // not check JSX attribute names containing a hyphen against the component's
+  // prop type at all, so `data-tick` is accepted by the anchored
+  // `ObjectChartProps` without being declared on it. It still does not reach the
+  // component — `ObjectChart` reads only `schema` / `dataSource` /
+  // `onSegmentClick` — which is fine, because its only job is to make each
+  // rendered element distinct. What the test measures (re-render count vs fetch
+  // count) is unchanged.
   const tree = (tick: number) => wrap(<ObjectChart key="chart" schema={SCHEMA} dataSource={src} data-tick={tick} />);
 
   const { rerender } = render(tree(0));

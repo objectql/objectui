@@ -135,6 +135,45 @@ describe('ObjectChartProps.schema — anchored to ObjectChartSchema (objectui#79
     expect([badX.xAxisKey, badSeries.series, badSeriesEntry.series, badFn.aggregate, badGranularity.aggregate, badFilter.filter]).toHaveLength(6);
   });
 
+  /**
+   * ⭐ What binding `aggregate` to `@objectstack/spec`'s `ChartAggregate`
+   * bought, on the face an author writes against.
+   *
+   * The first cut of this card declared `aggregate` as a local near-copy with
+   * all three members optional, reasoning from the RENDERER's accept set (every
+   * read here is guarded). What that published was an authoring door wider than
+   * the spec's — `{}` and `{ field: 'amount' }` were legal — on a shape whose
+   * publish gate parses `ChartAggregateSchema`. Every literal below compiled
+   * under that declaration and is refused now, and nothing in the workspace
+   * needed the relaxation: every live producer forwards this key as `any`.
+   *
+   * ⚠️ The renderer still ACCEPTS these documents at runtime, by design — see
+   * `ObjectChart.absentCategoryAxisRefusal-8168.test.tsx`, which asserts the
+   * named refusal screen each of them draws. The two facts are not in tension:
+   * one is what an author may write, the other is what a renderer owes a
+   * document an untyped producer handed it.
+   */
+  it('REFUSES the aggregates the SPEC refuses — the by-reference narrowing', () => {
+    // @ts-expect-error — `function` and `groupBy` are REQUIRED; an empty bag names neither a measure nor a category.
+    const empty: ObjectChartProps['schema'] = { type: 'object-chart', chartType: 'bar', aggregate: {} };
+    // @ts-expect-error — a measure with no category axis: `groupBy` is required.
+    const noCategory: ObjectChartProps['schema'] = { type: 'object-chart', chartType: 'bar', aggregate: { field: 'amount', function: 'sum' } };
+    // @ts-expect-error — `function` is required even when the category is declared.
+    const noFunction: ObjectChartProps['schema'] = { type: 'object-chart', chartType: 'bar', aggregate: { groupBy: 'stage' } };
+    // @ts-expect-error — the structured `groupBy` node must NAME its field; `runAggregate` sends the node to the server verbatim, so a node without one can resolve no category column at all.
+    const nodeWithoutField: ObjectChartProps['schema'] = { type: 'object-chart', chartType: 'bar', aggregate: { function: 'count', groupBy: { dateGranularity: 'day' } } };
+    // @ts-expect-error — the spec's object is STRICT: a mis-cased member is refused by name, where a local `z.object` copy would have dropped it silently.
+    const misCased: ObjectChartProps['schema'] = { type: 'object-chart', chartType: 'bar', aggregate: { function: 'count', groupby: 'stage' } };
+
+    // …and the control: `field` stays OPTIONAL, because `count` counts rows
+    // rather than a column. Without this the block above would be equally green
+    // for a declaration that simply required all three.
+    const counting: ObjectChartProps['schema'] = { type: 'object-chart', chartType: 'bar', aggregate: { function: 'count', groupBy: 'stage' } };
+
+    expect([empty, noCategory, noFunction, nodeWithoutField, misCased]).toHaveLength(5);
+    expect(counting.aggregate?.field).toBeUndefined();
+  });
+
   it('REFUSES the `colors` drift the two copies used to disagree about', () => {
     // The zod mirror has declared `colors` since objectui#3913; the TS
     // interface did not, so on THIS face a number palette was `any`.

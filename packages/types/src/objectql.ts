@@ -97,6 +97,7 @@ import type {
   GalleryConfig,
   TimelineConfig,
   NavigationConfig,
+  ChartAggregate,
   GanttConfig as SpecGanttConfig,
   CalendarConfig as SpecCalendarConfig,
 } from '@objectstack/spec/ui';
@@ -3075,12 +3076,16 @@ export type KanbanConditionalFormattingRule =
  * The four keys added by that card do NOT share one verdict, and the ruling
  * asked for the reading rather than the assumption:
  *
- *   - `aggregate` — AUTHORABLE. `@objectstack/spec`'s `ChartAggregateSchema`
- *     calls itself "Inline aggregation for an OBJECT-bound chart", names its
- *     carrier as the react tier's `<ObjectChart objectName aggregate={…}>`
- *     (ADR-0081), and objectstack#5020 wired the publish gate
- *     (`validate-react-page-props.ts` calls `ChartAggregateSchema.safeParse()`).
- *     This component's registry `inputs` advertises it too.
+ *   - `aggregate` — AUTHORABLE, and declared BY REFERENCE as the spec's own
+ *     `ChartAggregate`. `ChartAggregateSchema` calls itself "Inline aggregation
+ *     for an OBJECT-bound chart", names its carrier as the react tier's
+ *     `<ObjectChart objectName aggregate={…}>` (ADR-0081), and objectstack#5020
+ *     wired the publish gate (`validate-react-page-props.ts` calls
+ *     `ChartAggregateSchema.safeParse()`). This component's registry `inputs`
+ *     advertises it too. Because the spec already owns the shape, the ONLY
+ *     defensible declaration here is that same symbol: two dialects on one
+ *     published key is the drift this whole card exists to close, and the
+ *     member doc records what the first cut's local near-copy published.
  *   - `filter` — AUTHORABLE. The spec spells the carrier literally
  *     (`ChartAggregateSchema`'s own guidance: "`filter` is a prop on the chart
  *     itself (`<ObjectChart filter={…}>`)"), declares `ObjectChart.filter` as a
@@ -3138,41 +3143,69 @@ export interface ObjectChartSchema extends BaseSchema {
    * (`{ close_date: { $gte, $lte } }`) against fakes that read it that way.
    * Declaring only the array arm would have refused live, working charts.
    *
-   * Narrowing the two arms to ONE is a contract decision across every
-   * `object-*` widget's `filter`, not this card's: objectui#7946 declares the
-   * accept set it measured. What it buys today is that `filter: 'stage=won'`
-   * and `filter: 42` are compile errors, where before they were not.
+   * ⚠️ Narrowing to ONE arm is a decision LOCAL TO THIS NODE, not a
+   * cross-widget one — an earlier draft of this docblock said the opposite and
+   * the census refutes it. Six sibling `object-*` widgets declare `filter` on
+   * this interface and every one of them is array-only
+   * ({@link ObjectGanttSchema.filter}, {@link ObjectKanbanSchema.filter} and
+   * four more); this key is the only `object-*` `filter` with a record arm. So
+   * there is no fleet-wide convention to renegotiate — what is unresolved is
+   * only this component's own two-armed read, and objectui#7946 declares the
+   * accept set it measured rather than picking an arm without a ruling.
+   *
+   * ⭐ Successor, named rather than implied: the drill-down spread below
+   * (`{ ...(schema.filter || {}), ...computeDrillFilter(…) }`) MIS-COMPOSES the
+   * array arm — spreading a `FilterArray` into an object yields index keys
+   * (`{ 0: […] }`), not conditions. Fixing that composition is the work that
+   * makes narrowing to the spec's array-only `FilterArray` possible; until it
+   * lands, declaring only the array arm would refuse live, working charts.
+   *
+   * What this declaration buys today is that `filter: 'stage=won'` and
+   * `filter: 42` are compile errors, where before they were not.
    */
   filter?: any[] | Record<string, any>;
   /**
    * AUTHORABLE — inline aggregation for the legacy `objectName` path.
    *
-   * Every member is optional because every READ here is guarded — `if
-   * (schema.aggregate)`, `schema.aggregate?.groupBy`, and `aggregateValueKey`,
-   * which types the bag `{ field?: string; function?: string }`. That is this
-   * renderer's accept set and NOT a relaxation of the authoring door:
-   * `@objectstack/spec`'s `ChartAggregateSchema` keeps `function` and `groupBy`
-   * REQUIRED, and the react-page publish gate still parses against it.
+   * ⛔ `ChartAggregate` from `@objectstack/spec/ui` BY REFERENCE, never a local
+   * near-copy — this file's standing rule ("Never Redefine Types. ALWAYS import
+   * them.") and the fork `check:spec-symbols` exists to stop.
+   *
+   * The first cut of objectui#7946 declared it as a local copy with all three
+   * members OPTIONAL, reasoning from this renderer's accept set (every read is
+   * guarded: `if (schema.aggregate)`, `schema.aggregate?.groupBy`,
+   * `aggregateValueKey`). What that PUBLISHES is a different thing, and the
+   * contract review measured it:
+   *
+   *   - the TS face advertised `aggregate: {}` and `{ field: 'amount' }` as
+   *     legal authoring, which `ChartAggregateSchema` refuses;
+   *   - the zod mirror's local `z.object` is strip-postured, so
+   *     `{ groupby: 'stage', function: 'count' }` parsed CLEAN and dropped the
+   *     mis-cased key silently — the exact failure the spec's own
+   *     `strictObject` history text was written to prevent;
+   *   - no typed in-tree producer needed the relaxation: every live forward of
+   *     this key is `any` (`DashboardRenderer`'s `(widget as any).data`,
+   *     app-shell's `viewDef: any`).
+   *
+   * ⭐ And the cost is asymmetric — declaring the spec's requiredness now is
+   * free, tightening it later is a `major` on a published package. So the
+   * authoring door and this declaration are ONE shape: `function` and `groupBy`
+   * required, `field` optional (only `count` counts rows rather than a column),
+   * and the structured `groupBy` arm naming its `field`.
+   *
+   * The RENDERER's accept set is wider than this and stays wider on purpose —
+   * `ObjectChart.tsx` guards every read and draws an explicit refusal screen for
+   * an aggregate that names no category (objectui#8168), because untyped
+   * producers still hand it documents this declaration refuses. That refusal is
+   * what the narrower door costs at runtime; it is not a reason to advertise the
+   * wider shape as authorable.
    *
    * `groupBy` is the category axis — a bare field name, or the structured
    * date-bucketing node the engine takes. `alias`, when present, is the column
-   * the projected group value lands under, which is what
-   * `ObjectChart.tsx`'s `gbRaw.alias || gbRaw.field` read resolves.
+   * the projected group value lands under, which is what `ObjectChart.tsx`'s
+   * `aggregateGroupByKey` (`gb.alias || gb.field`) resolves.
    */
-  aggregate?: {
-    /** Field to aggregate — required for sum/avg/min/max, optional for count */
-    field?: string;
-    /** Aggregation function; the vocabulary `ChartAggregateFunctionSchema` declares */
-    function?: 'count' | 'sum' | 'avg' | 'min' | 'max';
-    /** Field the rows are grouped by — the chart's category axis */
-    groupBy?:
-      | string
-      | {
-          field?: string;
-          dateGranularity?: 'day' | 'week' | 'month' | 'quarter' | 'year';
-          alias?: string;
-        };
-  };
+  aggregate?: ChartAggregate;
   /**
    * INTERNAL (relay-composed) — the category column the renderer binds the x
    * axis to. Authors write `xAxisField` above (or, one layer down, the spec's

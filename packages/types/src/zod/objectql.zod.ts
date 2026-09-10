@@ -34,6 +34,7 @@ import {
   UserActionsConfigSchema as SpecUserActionsConfigSchema,
   AriaPropsSchema as SpecAriaPropsSchema,
   NavigationConfigSchema as SpecNavigationConfigSchema,
+  ChartAggregateSchema as SpecChartAggregateSchema,
 } from '@objectstack/spec/ui';
 import { BaseSchema, specFieldsExcept } from './base.zod.js';
 import { handlerKeyRefusal, retirementTombstone } from './tombstone.zod.js';
@@ -1258,32 +1259,39 @@ export const ObjectChartSchema = BaseSchema.extend({
   // form is repeated in each `.describe()` because that string is what an
   // author-facing tool renders.
   //
+  // ⭐ Where the SPEC already owns the shape, the binding is BY REFERENCE and
+  // the local spelling is a defect, not a style: see `aggregate` below. A
+  // near-copy publishes a second dialect of one key, and — because a local
+  // `z.object` strips where the spec's `strictObject` refuses — the copy is
+  // quietly the more permissive of the two.
+  //
   // Declaring an INTERNAL key here is not a promotion. `BaseSchema` is
   // `.passthrough()`, so `xAxisKey` and `series` already rode through this
   // mirror unexamined; what changes is that their VALUES are checked. Leaving
   // them undeclared would instead have put them in `zod-mirror-parity`'s
   // `UnmirroredDeclared` ledger — which that file calls a real defect in the
   // pair, not a neutral state.
-  // BOTH arms are live and both are measured — see the twin docblock in
+  // BOTH `filter` arms are live and both are measured — see the twin docblock in
   // `../objectql.ts`. The array arm is the spec's published `FilterArray` and
   // the registry `inputs` spelling; the record arm is the ObjectQL `$filter`
   // object the drill-down spread requires and the in-repo corpus authors.
+  // ⚠️ Narrowing to one arm is a decision local to THIS node — the six sibling
+  // `object-*` widgets are already array-only — and it is blocked on the
+  // drill-down spread, which mis-composes the array arm into index keys.
   filter: z.union([
     z.array(z.any()),
     z.record(z.string(), z.any()),
   ]).optional().describe('AUTHORABLE — query filter, forwarded verbatim as $filter on both query legs, then spread into the drill-down filter. FilterArray (the spec/react-blocks and registry-inputs spelling) OR the ObjectQL $filter object'),
-  aggregate: z.object({
-    field: z.string().optional().describe('Field to aggregate — required for sum/avg/min/max, optional for count'),
-    function: z.enum(['count', 'sum', 'avg', 'min', 'max']).optional().describe('Aggregation function — the vocabulary ChartAggregateFunctionSchema declares'),
-    groupBy: z.union([
-      z.string(),
-      z.object({
-        field: z.string().optional().describe('Field to group by'),
-        dateGranularity: z.enum(['day', 'week', 'month', 'quarter', 'year']).optional().describe('Bucket date values into uniform periods'),
-        alias: z.string().optional().describe('Alias for the projected group value — this becomes the category column'),
-      }),
-    ]).optional().describe('Field the rows are grouped by — the chart category axis; bare name or the structured date-bucketing node'),
-  }).optional().describe('AUTHORABLE — inline aggregation for the legacy objectName path. Every member optional because every READ is guarded; the authoring door (@objectstack/spec ChartAggregateSchema, parsed by the react-page publish gate) keeps function and groupBy REQUIRED'),
+  // ⛔ `aggregate` is the SPEC's own schema, never a local near-copy. The first
+  // cut of objectui#7946 spelled it as a local `z.object` with all three members
+  // optional; zod 4 objects are STRIP-postured, so
+  // `{ groupby: 'stage', function: 'count' }` parsed clean and dropped the
+  // mis-cased key silently — the failure `ChartAggregateSchema`'s own
+  // `strictObject` posture exists to prevent, reintroduced by the copy. Bound by
+  // reference the strict posture and the requiredness come with it, and the
+  // authoring door here and at the react-page publish gate are one shape.
+  aggregate: stripImportedDefaults(SpecChartAggregateSchema).optional()
+    .describe('AUTHORABLE — inline aggregation for the legacy objectName path. @objectstack/spec ChartAggregateSchema ({ field?, function, groupBy }), the same schema the react-page publish gate parses: function and groupBy are REQUIRED, field is optional because only count counts rows rather than a column, and unknown keys are refused rather than dropped'),
   xAxisKey: z.string().optional().describe('INTERNAL (relay-composed) — the category column the renderer binds the x axis to. Authors write xAxisField (or the spec xAxis: { field } one layer down); all five producers compute this key'),
   series: z.array(z.object({
     dataKey: z.string().describe('Result column this series plots'),

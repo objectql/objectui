@@ -6,7 +6,7 @@ import { normalizeChartSchema } from './normalizeChartSchema';
 import { ComponentRegistry, chartMeasureKey, humanizeLabel, extractRecords, computeDrillFilter, isDrillEnabled, resolveDrillTitle, resolveFilterPlaceholders, resolveContextTokens, shiftFilterByCompareTo, compareToTrendLabelKey, buildChartSeries, buildOptionColorMap, deriveDimensionLabelMaps, dimensionOptionTranslator, loadDimensionFieldMeta, relabelDimensions, localizeFieldOptions, elementDataSourceBlock, type DimensionFieldMeta, type CompareToConfig, type DrillEvent, type ChartResultField, type ChartSegmentClickEvent } from '@object-ui/core';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, Dialog, DialogContent, DialogHeader, DialogTitle, RefreshIndicator, Button, ChartSkeleton, DataEmptyState } from '@object-ui/components';
 import { AlertCircle, ArrowUpRight, Inbox } from 'lucide-react';
-import { builtinAggregateLabels, useSafeFieldLabel, useSafeTranslate } from '@object-ui/i18n';
+import { builtinAggregateLabels, useSafeFieldLabel, useSafeTranslate, useObjectTranslation, pickLocalized } from '@object-ui/i18n';
 import type { DrillDownConfig, ObjectChartSchema } from '@object-ui/types';
 
 /**
@@ -488,6 +488,15 @@ export const ObjectChart = (props: ObjectChartProps) => {
   // Host-provided "open in list" navigation for the drill escape hatch.
   const { openRecordList } = useDrillNavigation();
   const tt = useSafeTranslate();
+  // The active UI language, for `pickLocalized` on the drill heading below.
+  // Read HERE rather than at the read site because that site lives inside
+  // `drillDrawer`, which runs after this component's conditional early returns —
+  // a hook called there would desync hook order between renders.
+  //
+  // `useObjectTranslation` is provider-safe (optional context read, falling back
+  // to the react-i18next global instance), which is why it can sit beside
+  // `useSafeTranslate` above without a provider in tests.
+  const { language } = useObjectTranslation();
 
   // Stable JSON keys for aggregate/filter so that callers passing a fresh
   // object literal on each render (e.g. DashboardRenderer.getComponentSchema)
@@ -651,7 +660,15 @@ export const ObjectChart = (props: ObjectChartProps) => {
   // windows). Extracted so the two queries share identical logic.
   const runAggregate = useCallback(async (ds: any, filterForRun: any): Promise<any[]> => {
     if (schema.aggregate && typeof ds.aggregate === 'function') {
-      const gb = schema.aggregate.groupBy as any;
+      // ⚠️ The RAW union, deliberately — this is the one read in the file that
+      // must NOT go through `aggregateGroupByKey`. The structured node is sent
+      // to the server verbatim as the query's `groupBy`, so normalising it to
+      // its projected column here would drop `dateGranularity` and turn a
+      // date-bucketed query into an ungrouped one. Every read that indexes a ROW
+      // or names a FIELD uses the helper instead. The `as any` this line used to
+      // carry is gone with objectui#7946's by-reference `aggregate`: the union is
+      // declared now, so `Array.isArray` narrows it without a cast.
+      const gb = schema.aggregate.groupBy;
       // Structured GroupBy node (e.g. `{ field, dateGranularity: 'day' }`)
       // requires the spec-shape `{ groupBy: GroupByNode[], aggregations,
       // where }` payload so the server-side date-bucket engine kicks in.
@@ -778,10 +795,15 @@ export const ObjectChart = (props: ObjectChartProps) => {
           // groupBy may be a bare string or a structured `{field, dateGranularity}`
           // node (when categoryGranularity is configured upstream). Normalise
           // to the underlying string field name so all column lookups work.
-          const gbRaw = schema.aggregate?.groupBy as any;
-          const groupByField: string | undefined = (gbRaw && typeof gbRaw === 'object' && !Array.isArray(gbRaw))
-            ? gbRaw.alias || gbRaw.field
-            : (gbRaw || schema.xAxisKey);
+          //
+          // ⭐ Through {@link aggregateGroupByKey}, the SAME spelling the drill /
+          // label leg below uses — the whole point of hoisting it (objectui#7946).
+          // This site carried its own inline copy of the normalisation behind an
+          // `as any`; while the two were spelled separately, one of them could
+          // drift without the other, which is precisely how the drill leg came to
+          // be missing it. One expression, two call sites, no cast.
+          const groupByField: string | undefined =
+            aggregateGroupByKey(schema.aggregate) || schema.xAxisKey;
           if (wantsComparison && comparisonRows.length > 0 && schema.aggregate) {
             const aggField = schema.aggregate.field;
             const aggFn = schema.aggregate.function;
@@ -930,18 +952,27 @@ export const ObjectChart = (props: ObjectChartProps) => {
   // — including `'navigate'` — is honoured below, and the two keys no renderer
   // read at all (`view`, `sort`) are gone from `DrillDownConfig`.
   //
-  // That leaves ONE asymmetry, deliberately not papered over here. The spec's
-  // `ChartDrillDownSchema` declares `target: 'drawer' | 'dialog'`, and its
-  // stated rationale was a measurement — every key has an `ObjectChart` read
-  // site, and at the time this component ignored `'navigate'`. That measurement
-  // changed with this issue, so the protocol's union is now narrower than what
-  // the renderer delivers. The fix belongs in the spec (extend the union), not
-  // here (objectstack#5435): widening the union renderer-side is free, but
-  // ADVERTISING it before
-  // the protocol does would collide with the publish gate that parses the
-  // strict schema. Until the spec moves, `'navigate'` works for any host that
-  // composes an `object-chart` schema directly, and stays absent from the
-  // registry `inputs` below.
+  // ⚠️ The asymmetry this paragraph used to describe IS GONE, and the correction
+  // is recorded rather than quietly deleted because the stale claim outlived the
+  // fact by two releases. It said `ChartDrillDownSchema` declares
+  // `target: 'drawer' | 'dialog'`, so the protocol's union was narrower than
+  // what this renderer delivers and `'navigate'` could not be advertised without
+  // colliding with the publish gate. objectstack#5435 extended the union — the
+  // spec now declares `['drawer', 'dialog', 'navigate']`
+  // (`@objectstack/spec/ui`, `ChartDrillDownSchema.target`), and the publish
+  // gate parses that same schema, so it accepts `'navigate'` today.
+  //
+  // ⇒ What is left is NOT a protocol gap: it is an unmade decision about the
+  // designer palette. The `description` on the registry `inputs` below still
+  // lists two arms, and `index.test.ts` pins that withholding by name. Widening
+  // an advertised authoring vocabulary is a contract decision about `drillDown`,
+  // a key objectui#7946 declares on NEITHER published face — it belongs to
+  // objectui#8885, which owns `drillDown` there and already records these sites.
+  // So this round corrects the false statement and leaves the advertisement
+  // alone; see this PR's acceptance notes for the named successor.
+  //
+  // `'navigate'` works today for any host that composes an `object-chart`
+  // schema directly.
   const drillDown = (schema as { drillDown?: DrillDownConfig }).drillDown;
   // Spelled through the shared normalisation rather than `aggregate?.groupBy`
   // raw: this value is used as a ROW INDEX (`row[groupByField]`), as a FIELD
@@ -1323,7 +1354,30 @@ export const ObjectChart = (props: ObjectChartProps) => {
   // drill to the host's list page, so the in-place drawer must not flash.
   const drillDrawer = !onSegmentClick && drillEvent && schema.objectName && !navigateOnly ? (() => {
     const merged = drillFilter ?? {};
-    const title = resolveDrillTitle(drillDown, drillEvent, schema.title || 'Details');
+    // `schema.title` is the drill drawer's heading FALLBACK, and it is not a
+    // plain string: `@objectstack/spec`'s `ChartConfigSchema.title` is
+    // `I18nLabel` — a string OR an inline locale map — and this package's
+    // `normalizeChartSchema` already resolves the chart's own heading through
+    // `label()`, which accepts both. This site did not, so an author who wrote
+    // the locale-map arm got the OBJECT here, stringified into the heading.
+    //
+    // ⛔ Resolved through `pickLocalized` from `@object-ui/i18n` — the published,
+    // locale-aware resolver whose docblock names avoiding exactly this
+    // stringification, and which is pinned as the twin of the spec's own
+    // `resolveI18nLabel` (`i18nLabel-resolver-parity.test.ts`). ⛔ NOT through
+    // this module's private `labelOf`-style helpers: those are not locale-aware,
+    // and a second answer here would disagree with the published resolver on the
+    // same value.
+    //
+    // `pickLocalized` answers `''` for an absent value, so `|| 'Details'` keeps
+    // the pre-existing fallback exactly as it was for the string arm.
+    //
+    // ⚠️ KNOWN INCONSISTENCY, recorded rather than papered over: this makes the
+    // DRILL heading locale-aware while the chart heading beside it still is not
+    // (that one is resolved one layer down, in `normalizeChartSchema`, from a
+    // schema this component has already narrowed). The asymmetry predates this
+    // change and is a successor, not a regression introduced here.
+    const title = resolveDrillTitle(drillDown, drillEvent, pickLocalized(schema.title, language) || 'Details');
     const target = drillDown?.target ?? 'drawer';
     const tableSchema = {
       type: 'object-data-table',
@@ -1459,16 +1513,21 @@ ComponentRegistry.register('object-chart', ObjectChartBlock, {
         // framework#5022 closed — one layer down, in the designer palette.
         //
         // `target: 'navigate'` is DELIVERED by this component since
-        // objectui#3354 but is deliberately NOT advertised here yet, and the
-        // asymmetry is on purpose. `ChartDrillDownSchema` (`@objectstack/spec`)
-        // landed the chart drill as `target: 'drawer' | 'dialog'` — strict, and
-        // enforced at publish by `validate-react-page-props`, which PARSES it
-        // against the authored `drillDown={{…}}` literal. Listing `'navigate'`
-        // in this palette would therefore hand an author a value the publish
-        // gate then rejects: the platform's authority for a key its own gate
-        // refuses, which is precisely the failure framework#5022 was opened to
-        // stop. The protocol's union is the thing that has to move first; until
-        // it does, this description tracks the spec, not the renderer.
+        // objectui#3354 and is still NOT advertised here — but ⚠️ NOT for the
+        // reason this comment used to give. It said `ChartDrillDownSchema`
+        // "landed the chart drill as `target: 'drawer' | 'dialog'` — strict",
+        // so listing `'navigate'` would hand an author a value
+        // `validate-react-page-props` then rejects. That is FALSE as of
+        // objectstack#5435: the spec declares `['drawer','dialog','navigate']`
+        // and the publish gate parses that same schema, so it accepts the value.
+        //
+        // What remains is an unmade decision, not a protocol gap: widening an
+        // ADVERTISED authoring vocabulary is a contract decision about
+        // `drillDown` — a key objectui#7946 declares on neither published face
+        // and objectui#8885 does. Until that card takes it, the description
+        // below and the pin in `index.test.ts` stay as they are, with the reason
+        // written down where the next reader will find it rather than
+        // rediscovered from a claim that has already gone stale twice.
         //
         // `view` / `sort` are gone from `DrillDownConfig` entirely
         // (objectui#3354) — no renderer ever read them, so there is no longer a
