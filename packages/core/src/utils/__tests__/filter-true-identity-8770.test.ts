@@ -128,6 +128,16 @@ describe('objectui#8770 — nothing unreadable is handed back', () => {
 // 3. The ruled row sets, through a real matcher
 // ---------------------------------------------------------------------------
 
+/**
+ * ⚠️ This section does NOT witness this card's fix, and is kept anyway — say so
+ * rather than let the next reader assume it does. Both legs of the ablation
+ * (fold removed / fold restored) leave every case here GREEN, because
+ * objectui#8513 already taught `ValueDataSource`'s matcher to answer the object
+ * dialect correctly: the unlowered `{ $and: [] }` and the absent filter select
+ * the same four rows. What it pins is the direction the triage ruling names —
+ * the producer aligning to the consumer — so a fix that moved the two apart
+ * again, or that started answering these identities FALSE, reddens here.
+ */
 describe('objectui#8770 — the ruling reaches the consumer', () => {
   it.each(TRUE_IDENTITIES)('%s selects EVERY row after lowering', async (_label, filter) => {
     expect(await selectedIds(toFilterNode(filter))).toEqual(ALL_IDS);
