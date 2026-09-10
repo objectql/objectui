@@ -792,9 +792,31 @@ export interface DetailViewSchema extends BaseSchema {
      */
     data?: any[];
     /**
-     * Columns for table view
+     * Columns for the table view — either a bare FIELD NAME or a fully
+     * spelled adapter column.
+     *
+     * The bare-string arm is the one `@objectstack/spec` declares: its
+     * `RecordRelatedListProps.columns` is `z.array(z.string())` ("Fields to
+     * display in the related list"), and the objectui mirror of that block,
+     * `RecordRelatedListComponentProps.columns`, is `string[]` to match.
+     * `RelatedList.normalizeColumn` has always resolved a bare string against
+     * the related object's schema — deriving the header from the field's label
+     * and attaching a type-aware cell renderer — so `columns: ['status']`
+     * renders BETTER than the hand-spelled equivalent, whose header stops
+     * following a label rename.
+     *
+     * Only this declaration disagreed, and only on the typed authoring path:
+     * `DetailView` reaches the renderer through `columns={related.columns as
+     * any}`, so the cast — not the type — was carrying the string arm.
+     * Widened under the maintainer principle that the objectstack protocol is
+     * the reference and the documentation follows the real implementation
+     * (objectui#7997).
+     *
+     * The object arm is kept: this is objectui's own host-facing view schema,
+     * not a spec surface, and `TableColumn` entries are what the renderer's
+     * non-string branch consumes.
      */
-    columns?: TableColumn[];
+    columns?: Array<TableColumn | string>;
     /**
      * Fields for list view
      */
