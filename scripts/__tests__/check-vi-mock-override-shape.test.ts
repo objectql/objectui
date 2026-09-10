@@ -95,7 +95,7 @@ function mockSource(overrides: string): string {
  */
 function fixture(
   overrides: string,
-  opts: { provider?: string; index?: string } = {},
+  opts: { provider?: string; index?: string; filler?: number } = {},
 ): { root: string; files: string[]; cleanup: () => void } {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'vi-mock-override-shape-'));
   const pkg = path.join(root, 'packages', 'collaboration');
@@ -129,17 +129,37 @@ function fixture(
   fs.mkdirSync(testDir, { recursive: true });
   fs.writeFileSync(path.join(testDir, 'RecordDetailView.fixture.test.tsx'), mockSource(overrides));
 
+  const files = [
+    'packages/collaboration/package.json',
+    'packages/collaboration/src/index.ts',
+    'packages/collaboration/src/PresenceProvider.tsx',
+    'packages/app-shell/src/views/RecordDetailView.fixture.test.tsx',
+  ];
+
+  // A clean population around the one site under test, so that a red run means
+  // the MISMATCH and not the vacuity floor. Without it the probe tree collapses
+  // and both legs exit 1 -- which would make the exit code prove nothing, the
+  // exact confound this gate exists to catch one level up.
+  const filler = opts.filler ?? 0;
+  if (filler > 0) {
+    const dir = path.join(root, 'packages', 'app-shell', 'src', 'filler');
+    fs.mkdirSync(dir, { recursive: true });
+    const body = mockSource(`useRecordPresence: () => [],`);
+    for (let i = 0; i < filler; i++) {
+      fs.writeFileSync(path.join(dir, `filler-${i}.test.tsx`), body);
+      files.push(`packages/app-shell/src/filler/filler-${i}.test.tsx`);
+    }
+  }
+
   return {
     root,
-    files: [
-      'packages/collaboration/package.json',
-      'packages/collaboration/src/index.ts',
-      'packages/collaboration/src/PresenceProvider.tsx',
-      'packages/app-shell/src/views/RecordDetailView.fixture.test.tsx',
-    ],
+    files,
     cleanup: () => fs.rmSync(root, { recursive: true, force: true }),
   };
 }
+
+/** Enough clean sites to clear every floor in `FLOORS`. */
+const CLEAN_POPULATION = 1001;
 
 /** `scan` with the vacuity floors disabled — those have their own cases. */
 function scanFixture(overrides: string, opts: Parameters<typeof fixture>[1] = {}) {
@@ -195,9 +215,14 @@ describe('the historical thirteen (objectui#8083 / PR #8902)', () => {
   it('goes GREEN on the repaired stub — the other leg of the same mutation', () => {
     const result = scanFixture(REPAIRED);
     expect(result.unregistered).toHaveLength(0);
-    expect(result.census.judged, 'the repaired site must still be JUDGED, not merely silent').toBe(1);
-    expect(result.sites[0].verdict).toBe('match');
-    expect(result.sites[0].declared).toBe('a function returning an array');
+
+    // Not merely silent: the site must still be JUDGED, and judged to the
+    // RETURN shape -- the depth the drift lives at.
+    const site = result.sites.find((x) => x.exportName === 'useRecordPresence');
+    expect(site?.verdict).toBe('match');
+    expect(site?.declared).toBe('a function returning an array');
+    expect(site?.actual).toBe('a function returning an array');
+    expect(result.census.deep).toBeGreaterThan(0);
   });
 
   it('exits 1 end to end on the drift, and 0 on the repair', () => {
@@ -205,20 +230,26 @@ describe('the historical thirteen (objectui#8083 / PR #8902)', () => {
       [DRIFTED, 1],
       [REPAIRED, 0],
     ] as const) {
-      const f = fixture(overrides);
+      const f = fixture(overrides, { filler: CLEAN_POPULATION });
       try {
         const run = runGateIn(f.root);
+        // The population clears every floor either way, so the exit code here
+        // is about the OVERRIDE and nothing else.
+        expect(run.stderr, 'the probe tree must not be vacuous, or the exit code proves nothing').not.toContain('COLLAPSED');
         expect(run.status, `${overrides} must exit ${expected}`).toBe(expected);
         if (expected === 1) {
+          expect(run.stderr).toContain('1 override(s) do not match the declared export');
           expect(run.stderr).toContain('useRecordPresence');
           expect(run.stderr).toContain('a function returning an array');
           expect(run.stderr).toContain('a function returning an object');
+        } else {
+          expect(run.stdout).toContain('check-vi-mock-override-shape: OK');
         }
       } finally {
         f.cleanup();
       }
     }
-  });
+  }, 60_000);
 });
 
 // ---------------------------------------------------------------------------
@@ -226,12 +257,11 @@ describe('the historical thirteen (objectui#8083 / PR #8902)', () => {
 // ---------------------------------------------------------------------------
 
 describe('never reddens what it cannot read with certainty', () => {
+  // Nothing about the VALUE is readable, so the site is counted and never judged.
   const opaqueOverrides = [
     ['a vi.fn()', `useRecordPresence: vi.fn(),`],
     ['an identifier', `useRecordPresence: stubPresence,`],
     ['a call', `useRecordPresence: makeStub(),`],
-    ['a function returning an identifier', `useRecordPresence: () => stubValue,`],
-    ['a function returning a call', `useRecordPresence: () => makeStub(),`],
   ] as const;
 
   for (const [label, override] of opaqueOverrides) {
@@ -239,9 +269,38 @@ describe('never reddens what it cannot read with certainty', () => {
       const result = scanFixture(override);
       expect(result.unregistered).toHaveLength(0);
       expect(result.census.overrides, 'it must still be COUNTED — an uncounted site is an invisible one').toBeGreaterThan(0);
-      expect(result.sites.some((s) => s.exportName === 'useRecordPresence' && s.verdict === 'opaque')).toBe(true);
+      const site = result.sites.find((s) => s.exportName === 'useRecordPresence');
+      expect(site?.verdict).toBe('opaque');
     });
   }
+
+  // The value IS a function, so the KIND is judged; what it returns is not.
+  // This is the honest middle of the gate's reach and is pinned as such: the
+  // stub is compared at the level the gate can read, and never below it.
+  const shallowOverrides = [
+    ['a function returning an identifier', `useRecordPresence: () => stubValue,`],
+    ['a function returning a call', `useRecordPresence: () => makeStub(),`],
+  ] as const;
+
+  for (const [label, override] of shallowOverrides) {
+    it(`judges the KIND of ${label} but never its return`, () => {
+      const result = scanFixture(override);
+      expect(result.unregistered).toHaveLength(0);
+      const site = result.sites.find((s) => s.exportName === 'useRecordPresence');
+      expect(site?.verdict).toBe('match');
+      expect(site?.declared).toBe('a function returning an array');
+      expect(site?.actual).toBe('a function returning unknown');
+    });
+  }
+
+  it('still reddens a wrong KIND even when the return is unreadable', () => {
+    // The reach above is not an escape hatch: stub the function export with a
+    // plain array and the top-level kind conflict is still a finding.
+    const result = scanFixture(`useRecordPresence: [],`);
+    expect(result.unregistered).toHaveLength(1);
+    expect(result.unregistered[0].declared).toBe('a function returning an array');
+    expect(result.unregistered[0].actual).toBe('an array');
+  });
 
   it('does not judge an export that is exported as a TYPE', () => {
     const result = scanFixture(`useRecordPresence: () => ({ viewers: [] }),`, {

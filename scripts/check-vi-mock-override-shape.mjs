@@ -499,6 +499,21 @@ function trackedFiles(root) {
     .filter(Boolean);
 }
 
+/**
+ * The one scan. `main()`, `--list`, `--json` and the test suite all go through
+ * here, so the tests exercise the real code path rather than an imitation.
+ *
+ * @param {string} root  Repository root to scan.
+ * @param {{ files?: string[] | null, floors?: Record<string, number>, covered?: readonly string[], baseline?: readonly string[] }} [options]
+ *   `files` overrides the `git ls-files` walk (fixtures pass their own list);
+ *   `floors` overrides `FLOORS` -- pass `{}` to switch the collapse check off
+ *   for a fixture tree, which is legitimately far below every repo floor;
+ *   `covered` overrides `COVERED_SPECIFIERS`, so a fixture can exercise the
+ *   scope boundary without waiting for the real list to grow;
+ *   `baseline` overrides `KNOWN_SHAPE_MISMATCHES`, so the ledger's two
+ *   behaviours -- suppress a registered entry, FAIL on a stale one -- are
+ *   testable without registering anything in the real tree.
+ */
 export function scan(root, { files = null, floors = FLOORS, covered = COVERED_SPECIFIERS, baseline = KNOWN_SHAPE_MISMATCHES } = {}) {
   const tracked = files || trackedFiles(root);
   const sources = tracked.filter((f) => SOURCE_FILE_RE.test(f) && !EXCLUDED.test(f));
@@ -584,22 +599,22 @@ function main() {
   const result = scan(repoRoot());
   const { unregistered, stale, vacuous } = result;
   if (unregistered.length === 0 && stale.length === 0 && vacuous.length === 0) {
-    console.log(`OK  check-vi-mock-override-shape: (${summarise(result)}).`);
+    console.log(`✅  check-vi-mock-override-shape: OK (${summarise(result)}).`);
     process.exit(0);
   }
   if (unregistered.length > 0) {
-    console.error(`FAIL  check-vi-mock-override-shape: ${unregistered.length} override(s) do not match the declared export\n`);
+    console.error(`❌  check-vi-mock-override-shape: ${unregistered.length} override(s) do not match the declared export\n`);
     for (const m of unregistered) {
       console.error(`    - ${m.file}:${m.line} -- vi.mock(${JSON.stringify(m.specifier)}) overrides ${m.exportName}`);
       console.error(`      declared ${m.declared} at ${m.declaredAt}, stub is ${m.actual}: ${m.text}`);
     }
   }
   if (stale.length > 0) {
-    console.error(`\nFAIL  check-vi-mock-override-shape: ${stale.length} registered baseline entry/entries no longer mismatch\n`);
+    console.error(`\n❌  check-vi-mock-override-shape: ${stale.length} registered baseline entry/entries no longer mismatch\n`);
     for (const id of stale) console.error(`    - ${id}`);
   }
   if (vacuous.length > 0) {
-    console.error('\nFAIL  check-vi-mock-override-shape: the population COLLAPSED\n');
+    console.error('\n❌  check-vi-mock-override-shape: the population COLLAPSED\n');
     for (const v of vacuous) console.error(`    - ${v.counter}: found ${v.value}, floor is ${v.floor}`);
     console.error(`\nCensus: ${summarise(result)}`);
   }
