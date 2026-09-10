@@ -2706,3 +2706,206 @@ describe('ci-cd-pipeline.md — the four sections measured as parity defects', (
     });
   });
 });
+
+/**
+ * objectui#8629: three live populations on this page were written down as literals
+ * with nothing deriving them — the docs-page population the eager-closure section
+ * credits to the route, the file population the shell-escape section credits to the
+ * `skills` scan root, and the sweeper's page window, copied out of a source
+ * constant. The first was already false when the card was filed. ⛔ Correcting the
+ * numerals would have been the same card again in a month, which is the ruling
+ * objectui#7448, objectui#7825 and objectui#7965 have each recorded after doing
+ * exactly that; the page now names the tree each population is derived from and the
+ * run that prints it, and these pins refuse a count written back.
+ *
+ * ## ⭐ The unit, which is the transferable half
+ *
+ * Both defective sentences WRAP: the numeral sat at the end of one line and its noun
+ * at the start of the next. A per-line reader returns **zero** for each of them on a
+ * file where they are plainly present — measured, not theorised, twice: by the seat
+ * that verified this card and by objectui#8606 from the workflow-header side. So
+ * every assertion below judges JOINED text, and the first test proves the unit is
+ * really joined by finding a phrase this page carries that no single line contains.
+ *
+ * ## Why these are section-scoped and not page-wide
+ *
+ * ⛔ A page-wide ban on "N files" would flag the sentences that are CORRECT — the
+ * skills-paths measurement and the test-file cell each state the commit they were
+ * measured on, the changeset-overwrite figure states its window. Those declare what
+ * they measured, which is the remedy, not the defect; rewriting them into live
+ * figures would create the defect. The scope of each pin is therefore the one
+ * section whose sentence was stating a population it did not derive.
+ *
+ * ⚠️ Known gap, recorded rather than papered over: the family's noun pattern needs
+ * whitespace before the noun, so a hyphenated population ("a 556-page docs build",
+ * which this page also carries and which is mirrored in the gate's own header) is
+ * invisible to it. That instance is filed as objectui#9004; widening the noun
+ * pattern is not a change this pin may make alone, because the same pattern is
+ * shared with the other carriers of the family.
+ */
+describe('ci-cd-pipeline.md — populations are pointed at, never counted in prose', () => {
+  const EAGER_HEADING = '## Docs Route Eager Closure (`docs-route-eager-closure.yml`)';
+  const RESIDUE_HEADING = '## Shell Escape Residue (`shell-escape-residue.yml`)';
+  const PATROL_HEADING = '### Half-State Patrol (`half-state-patrol.yml`)';
+
+  /** A section of the page as one line — the unit every assertion here judges. */
+  const flat = (heading: string): string => section(heading).replace(/\s+/g, ' ').trim();
+
+  /** `<number> <noun>`, the family's own shape, applied to joined text. */
+  const population = (noun: string): RegExp =>
+    new RegExp(
+      String.raw`\b(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+${noun}\b`,
+      'i',
+    );
+
+  it('judges joined text — a per-line reader cannot see these sentences at all', () => {
+    // The control is built from the page rather than hard-coded, so a re-wrap moves
+    // it instead of breaking it: three consecutive words that straddle a line break
+    // and appear on no single line. If this page ever stops wrapping its prose the
+    // control goes undefined and says so, rather than passing on a reader that has
+    // quietly become per-line-equivalent.
+    const lines = doc.split('\n');
+    const joined = doc.replace(/\s+/g, ' ');
+    let control: string | undefined;
+    for (let i = 0; i < lines.length - 1; i += 1) {
+      const before = lines[i].trim().split(/\s+/);
+      const after = lines[i + 1].trim().split(/\s+/);
+      if (before.length < 3 || after.length < 3) continue;
+      const candidate = `${before[before.length - 2]} ${before[before.length - 1]} ${after[0]}`;
+      if (!/^[\w'’,.—-]+ [\w'’,.—-]+ [\w'’,.—-]+$/.test(candidate)) continue;
+      if (!joined.includes(candidate)) continue;
+      if (lines.some((line) => line.includes(candidate))) continue;
+      control = candidate;
+      break;
+    }
+    expect(
+      control,
+      'no phrase on this page straddles a line break any more, so the joined-text unit below is ' +
+        'no longer demonstrably stronger than a per-line one. Check how the page is wrapped ' +
+        'before trusting any zero from the assertions in this block.',
+    ).toBeDefined();
+
+    // Both halves asserted, so "clean" can never mean "unreadable": the phrase IS in
+    // the joined text and is NOT in any line. That gap is exactly the one that hid
+    // two of this card's three defects from the census that went looking for them.
+    expect(joined).toContain(control!);
+    expect(lines.filter((line) => line.includes(control!))).toEqual([]);
+  });
+
+  it('states no docs-page population, and names what derives it instead', () => {
+    const sec = flat(EAGER_HEADING);
+
+    // Positive controls first: an assertion that the section does not contain a count
+    // is vacuously green on a section that moved or emptied.
+    for (const anchor of [
+      'registerCatalogBlocks.ts',
+      'apps/site/source.config.ts',
+      '`content/docs`',
+      '`gauge:`',
+    ]) {
+      expect(
+        sec,
+        `the Docs Route Eager Closure section no longer names ${anchor}. That is the pointer this ` +
+          'card put in place of the count, so re-point it (or the negative assertion below is ' +
+          'guarding nothing).',
+      ).toContain(anchor);
+    }
+
+    // Parity: the two things the page now points at have to be real, or the pointer is
+    // just a different kind of unchecked prose.
+    const sourceConfig = fs.readFileSync(path.join(repoRoot, 'apps/site/source.config.ts'), 'utf8');
+    expect(
+      sourceConfig,
+      "apps/site/source.config.ts no longer declares `dir: '../../content/docs'`. The page tells " +
+        'readers the docs-page population is derived from the directory this file declares — ' +
+        'say where it is derived from now.',
+    ).toMatch(/dir:\s*'\.\.\/\.\.\/content\/docs'/);
+    const gate = fs.readFileSync(
+      path.join(repoRoot, 'scripts/check-docs-route-eager-closure.mjs'),
+      'utf8',
+    );
+    expect(
+      gate,
+      'scripts/check-docs-route-eager-closure.mjs no longer prints a `gauge:` line naming the ' +
+        'route roots it crawled. The page points at that line as the live reading, so either the ' +
+        'line comes back or the page must point somewhere else.',
+    ).toMatch(/gauge: \$\{[^}]+\} modules crawled from \$\{[^}]+\} route roots/);
+
+    const counted = sec.match(population('(?:docs\\s+)?pages?'));
+    expect(
+      counted?.[0],
+      `the Docs Route Eager Closure section states a docs-page population again (found ` +
+        `"${counted?.[0]}"). ⛔ That is the defect this card removed, not a stale number to ` +
+        `refresh: "all 181 docs pages" was false against a corpus of 184 git-tracked .md/.mdx ` +
+        `files and nothing could go red over it. The population is derived from the docs ` +
+        `collection directory on every run — name the directory and the reading, never the number.`,
+    ).toBeUndefined();
+  });
+
+  it('states no `skills` file population, and points at the per-root reading', () => {
+    const sec = flat(RESIDUE_HEADING);
+
+    for (const anchor of ['`SCAN_ROOTS`', 'scripts/check-shell-escape-residue.mjs', 'file(s)']) {
+      expect(
+        sec,
+        `the Shell Escape Residue section no longer names ${anchor} — the negative assertion ` +
+          'below needs that pointer present to be guarding anything.',
+      ).toContain(anchor);
+    }
+
+    // Parity: the gate really does print a per-root reading in the shape the page
+    // quotes. Without this, the page could point at a reading that no longer exists.
+    const gate = fs.readFileSync(path.join(repoRoot, 'scripts/check-shell-escape-residue.mjs'), 'utf8');
+    for (const [pattern, what] of [
+      [/file\(s\)/, 'a per-root `N file(s)` figure'],
+      [/fence\(s\)/, 'a per-root `N fence(s)` figure'],
+    ] as const) {
+      expect(
+        gate,
+        `scripts/check-shell-escape-residue.mjs no longer prints ${what}. The page sends readers ` +
+          'to that run for what the `skills` root holds, so the reading has to survive or the ' +
+          'page has to be re-pointed.',
+      ).toMatch(pattern);
+    }
+
+    const counted = sec.match(population('files?'));
+    expect(
+      counted?.[0],
+      `the Shell Escape Residue section states a file population again (found "${counted?.[0]}"). ` +
+        '⛔ A live count of what the `skills` scan root holds, written where nothing derives it, ' +
+        'is what this card removed. The gate prints that figure per root on every run — point at ' +
+        'the run, never at a numeral.',
+    ).toBeUndefined();
+  });
+
+  it('copies no page window out of the sweeper, and names the export instead', () => {
+    const sec = flat(PATROL_HEADING);
+
+    // ⚠️ This pin decides nothing about whether a `pages?` noun that means *paginated
+    // API result pages* belongs to objectui#7448's family at all — that question is
+    // objectui#7966's and it is open. It holds only the local fact: a constant copied
+    // into prose rots when the export moves, whichever way the noun set is ruled.
+    expect(
+      sec,
+      'the Half-State Patrol section no longer names `CLOSED_ISSUE_WINDOW_PAGES`. That name is ' +
+        'what replaced the copied value, so restore the pointer rather than the number.',
+    ).toContain('`CLOSED_ISSUE_WINDOW_PAGES`');
+
+    const sweeper = fs.readFileSync(path.join(repoRoot, 'scripts/pm/check-half-states.mjs'), 'utf8');
+    const literal = /^export const CLOSED_ISSUE_WINDOW_PAGES = (\d+);$/m.exec(sweeper)?.[1];
+    expect(
+      literal,
+      '`CLOSED_ISSUE_WINDOW_PAGES` is no longer a plain literal export of ' +
+        'scripts/pm/check-half-states.mjs, so this test can no longer tell whether the page ' +
+        'restates it. Re-point the extraction before trusting the green below.',
+    ).toBeDefined();
+
+    const counted = sec.match(population('pages?'));
+    expect(
+      counted?.[0],
+      `the Half-State Patrol section states a page window again (found "${counted?.[0]}"). The ` +
+        `sweeper exports it as CLOSED_ISSUE_WINDOW_PAGES (${literal} today) — naming the export ` +
+        `survives the value moving, a copy of the value does not.`,
+    ).toBeUndefined();
+  });
+});
