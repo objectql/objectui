@@ -35,6 +35,7 @@
 
 import { describe, it, expect } from 'vitest';
 import type { ComponentProps } from 'react';
+import type { SortItem, FilterGroup } from '@object-ui/components';
 import { ListView, type ListViewProps } from '../ListView';
 
 type Assert<T extends true> = T;
@@ -87,6 +88,31 @@ type _DataSourceIsDeclared = Assert<'dataSource' extends keyof ListViewProps ? t
 type _OnEditIsDeclared = Assert<Equal<CallSiteProps['onEdit'], ((record: any) => void) | undefined>>;
 type _OnBulkDeleteIsDeclared = Assert<
   Equal<CallSiteProps['onBulkDelete'], ((records: any[]) => void) | undefined>
+>;
+
+// 8. objectui#8106 — the two callbacks the #4528 sweep left at `any`, pinned
+//    at the type their emit sites actually fire with. Both were measured at the
+//    CALL SITE, not read off the declaration, and they are asymmetric on
+//    purpose: `sort` crosses `emitSortChange`, whose two legs are the array it
+//    is handed and `filterPlatformSortableSort`'s return — generic in the
+//    element, so `SortItem[]` either way; `filters` is the toolbar
+//    `FilterBuilder`'s own `onChange` value passed straight through, which is
+//    why it is the builder's `FilterGroup` and NOT the later query-path AST.
+//
+//    The `IsAny` halves are the discriminating ones, exactly as in pin 2: a
+//    re-widening to `any` must fail loudly here rather than silently
+//    re-admitting every shape the way it did before objectui#8106.
+type _OnSortChangeIsDeclared = Assert<
+  Equal<CallSiteProps['onSortChange'], ((sort: SortItem[]) => void) | undefined>
+>;
+type _OnSortChangeParamIsNotAny = Assert<
+  Equal<IsAny<Parameters<NonNullable<CallSiteProps['onSortChange']>>[0]>, false>
+>;
+type _OnFilterChangeIsDeclared = Assert<
+  Equal<CallSiteProps['onFilterChange'], ((filters: FilterGroup) => void) | undefined>
+>;
+type _OnFilterChangeParamIsNotAny = Assert<
+  Equal<IsAny<Parameters<NonNullable<CallSiteProps['onFilterChange']>>[0]>, false>
 >;
 
 describe('objectui#4528 — ListView serves its declared props', () => {
