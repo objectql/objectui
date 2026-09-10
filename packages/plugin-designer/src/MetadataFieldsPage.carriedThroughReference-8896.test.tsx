@@ -54,14 +54,16 @@
  * spelling `reference`; the retired key still never reaches the wire.
  *
  * This is the same shape the designable half already uses — read the target
- * wherever the stored document put it, write it under the one spelling the
- * spec declares.
+ * wherever the stored document put it, write it under the one spelling the spec
+ * declares — and it is the SAME reader: both halves now go through
+ * `storedRelationshipTarget`, the function objectui#8058 added and argued. One
+ * spelling rule, stated once, for the two branches of one writer.
  *
  * ⚠️ Scope: this file drives the PRESERVED branch only, with a stored type
  * (`master_detail`) `DESIGNER_FIELD_TYPES` does not carry. The designable
- * half's own read door is objectui#8058 and is NOT touched here — the pin at
- * the bottom of `MetadataFieldsPage.specKeyReference.test.tsx` still owns that
- * state and must stay green.
+ * half's read door landed as objectui#8058 and is not re-opened here — its pins
+ * in `MetadataFieldsPage.specKeyReference.test.tsx` still own that state and
+ * must stay green.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -235,8 +237,13 @@ describe('objectui#8896 · firing control — a genuinely target-less preserved 
   });
 
   it('refuses a preserved field whose retired spelling holds an unusable value', async () => {
-    // `referenceTo: ''` names no object, so recovering it would smuggle the
-    // empty target past the gate the previous case proves is live.
+    // The carry-through adopts what the document HOLDS and judges nothing — the
+    // same division of labour the designable half has: `storedRelationshipTarget`
+    // decides the SPELLING, `assertRelationshipTargetPresent` decides whether the
+    // value can be a target. So a whitespace-only retired target arrives as the
+    // emitted `reference` and is refused on the guard's own blank branch, by
+    // name and before the request, rather than being smuggled through as "a
+    // target was found".
     await renderServing({
       name: { type: 'text', label: 'Name', required: true },
       parent_id: { type: 'master_detail', label: 'Parent', referenceTo: '   ' },
@@ -244,7 +251,9 @@ describe('objectui#8896 · firing control — a genuinely target-less preserved 
     await relabelUnrelated();
 
     await waitFor(() =>
-      expect(screen.getByTestId('metadata-fields-page-error').textContent).toMatch(/`parent_id`/),
+      expect(screen.getByTestId('metadata-fields-page-error').textContent).toMatch(
+        /cannot save the field `parent_id`.*whitespace names no object/s,
+      ),
     );
     expect(puts).toEqual([]);
   });
