@@ -3,7 +3,7 @@ import React, { useState, useEffect, useContext, useCallback, useMemo } from 're
 import { useDataScope, SchemaRendererContext, SchemaRenderer, useDrillNavigation, useFilterScope, ElementDataSourceGate, type ElementDataSourceMapping } from '@object-ui/react';
 import { ChartRenderer } from './ChartRenderer';
 import { normalizeChartSchema } from './normalizeChartSchema';
-import { ComponentRegistry, chartMeasureKey, humanizeLabel, extractRecords, computeDrillFilter, composeDrillFilter, isDrillEnabled, resolveDrillTitle, resolveFilterPlaceholders, resolveContextTokens, shiftFilterByCompareTo, compareToTrendLabelKey, buildChartSeries, buildOptionColorMap, deriveDimensionLabelMaps, dimensionOptionTranslator, loadDimensionFieldMeta, relabelDimensions, localizeFieldOptions, elementDataSourceBlock, type DimensionFieldMeta, type CompareToConfig, type DrillEvent, type ChartResultField, type ChartSegmentClickEvent } from '@object-ui/core';
+import { ComponentRegistry, chartMeasureKey, isStructuredGroupBy, objectAggregateSpecQuery, humanizeLabel, extractRecords, computeDrillFilter, composeDrillFilter, isDrillEnabled, resolveDrillTitle, resolveFilterPlaceholders, resolveContextTokens, shiftFilterByCompareTo, compareToTrendLabelKey, buildChartSeries, buildOptionColorMap, deriveDimensionLabelMaps, dimensionOptionTranslator, loadDimensionFieldMeta, relabelDimensions, localizeFieldOptions, elementDataSourceBlock, type DimensionFieldMeta, type CompareToConfig, type DrillEvent, type ChartResultField, type ChartSegmentClickEvent } from '@object-ui/core';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, Dialog, DialogContent, DialogHeader, DialogTitle, RefreshIndicator, Button, ChartSkeleton, DataEmptyState } from '@object-ui/components';
 import { AlertCircle, ArrowUpRight, Inbox } from 'lucide-react';
 import { builtinAggregateLabels, useSafeFieldLabel, useSafeTranslate, useObjectTranslation, pickLocalized } from '@object-ui/i18n';
@@ -685,26 +685,19 @@ export const ObjectChart = (props: ObjectChartProps) => {
       // where }` payload so the server-side date-bucket engine kicks in.
       // The legacy `{ field, function, groupBy, filter }` cube/analytics
       // path does NOT honour `dateGranularity`.
-      const isStructured = gb && typeof gb === 'object' && !Array.isArray(gb);
-      if (isStructured) {
-        const aggField = schema.aggregate.field;
-        const aggFn = schema.aggregate.function;
-        // Project the measure under its plain field name so downstream
-        // (xAxisKey + series.dataKey lookups) finds it unchanged — the
-        // object-bound result-column convention (framework#3701).
-        const alias = aggregateValueKey(schema.aggregate);
-        // For `count`, omit `field` so the engine emits `count(*)` /
-        // `COUNT(*)`. The upstream dashboard wiring defaults `field: 'value'`
-        // for charts without an explicit valueField, which crashes on SQL
-        // drivers ("no such column: value") since dashboards typically
-        // count rows, not a measure column.
-        const aggregationNode: Record<string, unknown> = { function: aggFn, alias };
-        if (aggFn !== 'count' && aggField) aggregationNode.field = aggField;
-        const results = await ds.aggregate(schema.objectName, {
-          groupBy: [gb],
-          aggregations: [aggregationNode],
-          where: filterForRun,
-        });
+      //
+      // Both halves — the test and the payload — now live in
+      // `objectAggregateSpecQuery` (`@object-ui/core`, objectui#8613), because
+      // the metric family needs the identical call and a transcription there
+      // was the second opinion that let the two wires disagree. The alias it
+      // projects is `chartMeasureKey`'s answer, i.e. what `aggregateValueKey`
+      // above already delegates to, so the column this branch produces is
+      // unchanged.
+      if (isStructuredGroupBy(gb)) {
+        const results = await ds.aggregate(
+          schema.objectName,
+          objectAggregateSpecQuery(schema.aggregate, gb, filterForRun),
+        );
         return Array.isArray(results) ? results : [];
       }
       const results = await ds.aggregate(schema.objectName, {
