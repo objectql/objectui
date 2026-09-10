@@ -1,6 +1,7 @@
 ---
 '@object-ui/app-shell': minor
 '@object-ui/react': patch
+'@object-ui/components': patch
 ---
 
 Stop binding an ambient `data` root on record surfaces, so a `data.*` predicate faults
@@ -50,4 +51,8 @@ metadata-admin designer is unaffected: its `data` is the DRAFT under edit (ADR-0
 identity roots from this bag and assigns its own `data` last.
 
 `@object-ui/react` carries a docblock correction only: the `app-shell` tier paragraph in
-`utils/visibilityDiagnostic.ts` described the bag this change edits.
+`utils/visibilityDiagnostic.ts` described the bag this change edits. `@object-ui/components`
+carries no runtime change at all — three form/predicate tests hand-transcribe the app-shell
+bag (importing it would invert the package dependency) and each literal carried the removed
+`data: {}`; the transcriptions are corrected so they cannot go on describing a scope that no
+longer exists.
