@@ -1216,10 +1216,16 @@ export const KanbanConditionalFormattingRuleSchema = z.union([
  * The protocol names no mixed example. A declaration that admits a shape the
  * renderer mishandles is the defect this card removes, so it is refused here.
  *
- * ⚠️ The STRING arm is admitted for protocol parity and is INERT on this face:
- * the renderer's string branch returns only under `if (!schema.groupBy)`, and
- * `groupBy` is required here. Its requiredness is objectui#8990; ⛔ this
- * schema does not wait on that card.
+ * ⭐ The STRING arm is REACHABLE since objectui#8990. The renderer's string
+ * branch returns only under `if (!schema.groupBy)`, and `groupBy` was required
+ * on this face — so objectui#8913 admitted the arm (refusing it would have
+ * been a second narrowing) while recording that nothing could reach it.
+ * objectui#8990 made `groupBy` OPTIONAL, and a `groupBy`-less board with
+ * `columns: ['todo', 'doing']` now parses AND draws those two lanes, titled by
+ * the RAW strings rather than the picklist labels a grouped board would show.
+ * ⚠️ Reachable is not populated — a lane-less board holds zero cards, because
+ * `bucketCardsIntoColumns` returns before distributing records when there is
+ * no lane key.
  *
  * ⛔ NOT `KanbanColumnSchema`, whose `cards` is REQUIRED: that mirror is the
  * RUNTIME lane (`bucketCardsIntoColumns` fills `cards` before `KanbanImpl`
@@ -1268,7 +1274,16 @@ function requireKanbanRecordSource(
 export const ObjectKanbanSchema = BaseSchema.extend({
   type: z.literal('object-kanban'),
   objectName: z.string().optional().describe('ObjectQL object name — the LAST rung of the board ladder, after the pre-fetched data prop, bind and the inline row array on data; one of bind, data, objectName must be present (objectui#7780)'),
-  groupBy: z.string().describe('Field whose value places a record in a lane — the lane key the object-kanban renderer reads (ObjectKanban.tsx, thirteen sites); required, as the retired groupField was'),
+  // objectui#8990 — OPTIONAL, mirroring `@objectstack/spec`
+  // (`ObjectKanbanPropsSchema.groupBy` is `z.string().optional()`). Required
+  // here until this card, so this validator refused a document the protocol
+  // accepts — including this repo's own documented `{ type, dataSource }`
+  // board (`content/docs/utilities/data-objectstack.mdx`) and the node
+  // `plugin-list/src/ListView.tsx` generates when a view declares no lane
+  // field (`groupBy: laneField`, `laneField = … || undefined`). Requiredness
+  // is the ONLY thing that moved; the measured behaviour of a lane-less board
+  // (lanes drawn, ZERO cards, moves inert) is reasoned on the TS twin.
+  groupBy: z.string().optional().describe('Field whose value places a record in a lane — the lane key the object-kanban renderer reads (ObjectKanban.tsx, thirteen sites). Optional, as @objectstack/spec declares it: a board with no lane key renders its declared lanes and holds no cards, since the bucketer needs a key to distribute records'),
   groupField: retirementTombstone('RETIRED (objectui#7322) — `groupField` is not read by the object-kanban renderer; author `groupBy`. (The view-level `kanban.groupField` alias is unaffected.)'),
   // objectui#8913 — the lane vocabulary the renderer reads and neither face
   // named. Mirrors `../objectql.ts` member for member; the element union, the

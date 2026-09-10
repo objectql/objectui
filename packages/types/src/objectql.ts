@@ -2923,19 +2923,80 @@ export interface ObjectKanbanSchema extends BaseSchema {
    *
    * The lane key the `object-kanban` renderer actually reads —
    * `packages/plugin-kanban/src/ObjectKanban.tsx` reads `schema.groupBy` at
-   * thirteen sites: lane materialisation (`:601`, `:625`, `:640`), card moves
-   * (`:747`, `:865`) and their effect deps. Undeclared here until
+   * thirteen sites: lane materialisation (`:970`, `:982`, `:994`, `:1009`),
+   * card moves (`:1125`, `:1243`) and their effect deps. Undeclared here until
    * objectui#7322, so an authored value reached the renderer only through
    * {@link BaseSchema}'s `[key: string]: any` — admitted, never examined.
    *
-   * REQUIRED, as the retired `groupField` was: a board is a grouping of records
-   * by one field. The renderer's `if (!schema.groupBy)` branches (`:601`,
-   * `:613`) are defensive early-returns, not a lane-less mode — every
-   * documented and tested `object-kanban` node authors this key, and the
-   * `dataSource` binding (`ElementDataSourceGate`) supplies `objectName`,
-   * never a lane key.
+   * OPTIONAL since objectui#8990, matching `@objectstack/spec`, which declares
+   * `groupBy: z.string().optional()` on `ObjectKanbanPropsSchema`
+   * (`packages/spec/src/ui/component.zod.ts`, read at objectstack
+   * `eabdd66f45f402eba0f8404a8a9de4a501fc83a6`). It was REQUIRED here on both
+   * faces, so this package REFUSED A DOCUMENT THE PROTOCOL ACCEPTS — the one
+   * direction the maintainer principle in force forbids (2026-09-09, recorded
+   * verbatim and untranslated):
+   * 「我们的项目以 objectstack 协议为准，文档应该以实际实现为准。协议不正确的应该先修改协议。」
+   *
+   * ## The requiredness was refuted by the corpus, not just by the protocol
+   *
+   * objectui#7322 justified it as "every documented and tested `object-kanban`
+   * node authors this key". Two lane-less producers were excluded from that
+   * count at objectui#7780 and neither has gone away:
+   *
+   *   1. `content/docs/utilities/data-objectstack.mdx` documents an
+   *      `object-kanban` node that is exactly `{ type, dataSource }` — no
+   *      `groupBy`. The published validator refused this repository's own
+   *      documented example.
+   *   2. `packages/plugin-list/src/ListView.tsx` GENERATES the node with
+   *      `groupBy: laneField`, where
+   *      `laneField = groupByField || groupField || detectStatusField(objectDef) || undefined`
+   *      — an explicit `|| undefined`. A view that declares no lane field and
+   *      whose object has no detectable status field emits `groupBy: undefined`
+   *      at runtime, which the renderer serves and both faces refused.
+   *
+   * Same shape as {@link objectName} (objectui#7780): a key the renderer guards
+   * at every read, declared REQUIRED, refusing boards that render today.
+   *
+   * ## What a lane-less board actually does — MEASURED, not argued
+   *
+   * The `if (!schema.groupBy)` branches are defensive early-returns and the
+   * board degrades rather than breaking. Rendered through `SchemaRenderer` with
+   * a real `dataSource` (pinned in
+   * `plugin-kanban/src/__tests__/laneLessBoard-8990.test.tsx`):
+   *
+   *   - no `groupBy`, no `columns` -> `effectiveColumns` falls past all three
+   *     of its `schema.groupBy &&` guards and returns `[]`: an empty board, no
+   *     lanes, no crash.
+   *   - no `groupBy`, bare-string `columns` -> the lanes are DRAWN, titled by
+   *     the raw strings (see {@link columns}); this is the arm this card
+   *     unlocks.
+   *   - EVERY lane-less board holds ZERO cards, whatever its `columns`.
+   *     `bucketCardsIntoColumns` opens with `if (!data || !groupBy ||
+   *     !Array.isArray(data)) return columns.map(...)`, so with no lane key the
+   *     records are never distributed. A lane-less board is lane HEADINGS, not
+   *     a populated board — which is the honest rendering of "no field places
+   *     these records", and is why relaxing this key is not a licence to author
+   *     it away.
+   *   - card moves are inert, by the same guards: `persistCardMove` and the
+   *     `handleCardMove` callback both open `if (!groupBy) return`, so nothing
+   *     is written back.
+   *
+   * ⇒ The widening admits documents that RENDER; it does not admit documents
+   * that crash. ⛔ It is NOT an invitation to omit the key: a board that groups
+   * by nothing shows no cards.
+   *
+   * ## ⛔ What this does NOT reach — objectui#8993
+   *
+   * `bucketCardsIntoColumns`'s double-bucketing of a non-string lane id lives
+   * AFTER that `!groupBy` early return (the `knownIds` set and the
+   * `__uncolumned__` lane below it). A lane-less board returns before reaching
+   * it, and the picklist-materialised lanes whose ids come straight from
+   * `opt.value` are built under `if (schema.groupBy && ...)` — a branch a
+   * lane-less board cannot enter. So this card can only NARROW objectui#8993's
+   * reachable set on the documents it newly admits, never widen it. Measured
+   * both ways in the pin file above.
    */
-  groupBy: string;
+  groupBy?: string;
   /**
    * RETIRED (objectui#7322) — the lane key this node's renderer never read.
    * `ObjectKanban.tsx` reads {@link groupBy} thirteen times and `groupField`
@@ -3039,15 +3100,29 @@ export interface ObjectKanbanSchema extends BaseSchema {
    * from those read sites too — see {@link id} for the one this card had to
    * correct.
    *
-   * ## ⚠️ The bare-string arm is admitted for PROTOCOL PARITY and is inert here
+   * ## ⭐ The bare-string arm is REACHABLE since objectui#8990
    *
    * The `object-kanban` renderer honours a bare-string lane list only when no
    * `groupBy` is authored (`ObjectKanban.tsx`, the `effectiveColumns` memo:
-   * the string branch returns only under `if (!schema.groupBy)`). `groupBy` is
-   * REQUIRED on this face, so no document that passes this schema can reach
-   * that branch — the arm is admitted because refusing it would make objectui
-   * narrower than the protocol, not because it does anything. The requiredness
-   * itself is objectui#8990; ⛔ this member does not wait on it.
+   * the string branch returns only under `if (!schema.groupBy)`). While
+   * {@link groupBy} was REQUIRED, no document that passed this schema could
+   * reach that branch, and objectui#8913 admitted the arm anyway — refusing it
+   * would have made objectui narrower than the protocol — recording it as
+   * inert. objectui#8990 made {@link groupBy} OPTIONAL, which is what made the
+   * arm live: a `groupBy`-less board with `columns: ['todo', 'doing']` now
+   * parses AND draws those two lanes, titled by the raw strings.
+   *
+   * ⚠️ RAW strings, not localized labels, and the difference is the arm's
+   * signature. The string branch returns `{ id: val, title: val }` and never
+   * calls `localizeColumn`; the picklist branch a GROUPED board takes returns
+   * the option LABELS. Measured on one object whose `status` options are
+   * `todo -> 'To Do'` / `doing -> 'Doing'`: lane-less draws `todo` / `doing`,
+   * the grouped control draws `To Do` / `Doing`.
+   *
+   * ⚠️ Reachable is not populated: every lane-less board holds ZERO cards,
+   * because `bucketCardsIntoColumns` early-returns before distributing records
+   * when there is no lane key. See {@link groupBy} for the full measured vector.
+   * Pinned in `plugin-kanban/src/__tests__/laneLessBoard-8990.test.tsx`.
    *
    * ⚠️ An undeclared lane key is ACCEPTED AND DROPPED from the parsed output,
    * not refused — the lane arm is a plain (non-passthrough) object, the same
