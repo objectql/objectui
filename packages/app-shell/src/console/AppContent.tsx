@@ -658,12 +658,22 @@ export function AppContent({ extraRoutes, extraRoutesNoApp }: AppContentProps = 
   const expressionEvaluator = useMemo(
     // ⛔ No `app`: objectui#8155 removed it from the predicate scope, because
     // neither ADR-0068 nor the engine's `SCOPE_ROOTS` declares such a root.
+    //
+    // ⛔ No `data` either: objectui#8166. This site passed `editingRecord` under
+    // that root, and it was the ONE mount in the repo where the ambient `data`
+    // was not empty — so an authored `visibleWhen: "data.status == 'x'"`
+    // RESOLVED here, silently, against the record being edited, while the SAME
+    // predicate on the SAME modal's per-field rules (form.tsx, over the
+    // provider's `data={{}}`) faulted, and the same predicate in CREATE mode
+    // (`editingRecord` null) faulted too. One authored string, three answers,
+    // none of them the row's canonical `record.*` binding (objectui#5741).
+    // The row reaches field predicates as `record`, from the form's own
+    // `ruleRecord` — not from this bag, which is why nothing is lost here.
     () => createExpressionEvaluator({
       user: buildExpressionUser(user),
-      data: editingRecord || {},
       features,
     }),
-    [user, editingRecord, features],
+    [user, features],
   );
 
   // objectui#5619 — `isWorkspaceAdminResolved` belongs in this readiness gate
