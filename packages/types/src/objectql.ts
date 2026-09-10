@@ -97,6 +97,7 @@ import type {
   GalleryConfig,
   TimelineConfig,
   NavigationConfig,
+  ChartAggregate,
   GanttConfig as SpecGanttConfig,
   CalendarConfig as SpecCalendarConfig,
 } from '@objectstack/spec/ui';
@@ -3051,7 +3052,60 @@ export type KanbanConditionalFormattingRule =
   | SpecConditionalFormattingRule;
 
 /**
- * Object Chart Component Schema
+ * Object Chart Component Schema — the node `plugin-charts`' `ObjectChart`
+ * renders (registered as `object-chart`) and, since objectui#7946, the anchor
+ * of the published `ObjectChartProps.schema`.
+ *
+ * Until that card this shape anchored NOTHING: `ObjectChart` was published as
+ * `(props: any)`, so every `schema={{ … }}` literal handed to it was checked
+ * against nothing at all, and four keys its producers write and its renderer
+ * reads — `xAxisKey`, `series`, `aggregate`, `filter` — were declared on
+ * neither this interface nor its zod mirror. They rode `BaseSchema`'s
+ * `[key: string]: any` / `.passthrough()` and arrived UNVALIDATED.
+ *
+ * ## The ceiling, stated rather than assumed (objectui#5155)
+ *
+ * `BaseSchema` still carries `[key: string]: any`, so anchoring buys DECLARED
+ * members their declared types — `xAxisKey: 42` is refused now — but does NOT
+ * buy rejection of a MISSPELLING: `xAxisKy: 'x'` still compiles, exactly as it
+ * does on `ObjectGallerySchema` (objectui#6576). The counter-probe in
+ * `__tests__/widget-schema-anchors-7946.test.ts` pins that honestly.
+ *
+ * ## AUTHORABLE vs INTERNAL, per key (objectui#7946, ADR-0049)
+ *
+ * The four keys added by that card do NOT share one verdict, and the ruling
+ * asked for the reading rather than the assumption:
+ *
+ *   - `aggregate` — AUTHORABLE, and declared BY REFERENCE as the spec's own
+ *     `ChartAggregate`. `ChartAggregateSchema` calls itself "Inline aggregation
+ *     for an OBJECT-bound chart", names its carrier as the react tier's
+ *     `<ObjectChart objectName aggregate={…}>` (ADR-0081), and objectstack#5020
+ *     wired the publish gate (`validate-react-page-props.ts` calls
+ *     `ChartAggregateSchema.safeParse()`). This component's registry `inputs`
+ *     advertises it too. Because the spec already owns the shape, the ONLY
+ *     defensible declaration here is that same symbol: two dialects on one
+ *     published key is the drift this whole card exists to close, and the
+ *     member doc records what the first cut's local near-copy published.
+ *   - `filter` — AUTHORABLE. The spec spells the carrier literally
+ *     (`ChartAggregateSchema`'s own guidance: "`filter` is a prop on the chart
+ *     itself (`<ObjectChart filter={…}>`)"), declares `ObjectChart.filter` as a
+ *     `FilterArray` in its react-blocks prop table, and this component's
+ *     registry `inputs` advertises `{ name: 'filter', type: 'array' }`.
+ *   - `xAxisKey` — INTERNAL (relay-composed). `ChartRendererProps` calls it
+ *     "Internal binding. Authors write the spec `xAxis: { field }`"; the
+ *     author-facing spelling ON THIS NODE is `xAxisField` above. All five
+ *     producers COMPUTE it (`dims[0]`, `chartCategoryKey(...)`), none forwards
+ *     an authored value, and it is absent from the registry `inputs`.
+ *   - `series` — INTERNAL (relay-composed). The `{ dataKey }` shape below is
+ *     the renderer's internal contract; the spec's author-facing
+ *     `ChartSeriesSchema` REFUSES `dataKey` by name (`dataKey` → `name`
+ *     rename). All five producers compose it from something else.
+ *
+ * Both internal keys are still declared HERE and on the mirror: they are read
+ * and written today, `BaseSchema` is `.passthrough()`, so leaving them
+ * undeclared does not make them unauthorable — it only means an `xAxisKey: 42`
+ * rides through unchecked. Declaring buys the VALUE check without minting new
+ * authorable vocabulary, and the descriptions say which is which.
  */
 export interface ObjectChartSchema extends BaseSchema {
   type: 'object-chart';
@@ -3072,6 +3126,128 @@ export interface ObjectChartSchema extends BaseSchema {
   dimensions?: string[];
   /** Dataset measure names */
   values?: string[];
+  /**
+   * AUTHORABLE — query filter, forwarded verbatim as `$filter` on both query
+   * legs (`ds.aggregate` and `ds.find`), then spread into the drill-down
+   * filter.
+   *
+   * ⚠️ BOTH shapes, and the union is measured rather than tidied. The array arm
+   * is what `@objectstack/spec` publishes for this prop (`ObjectChart.filter`
+   * is a `FilterArray` in its react-blocks table) and what this component's
+   * registry `inputs` advertises (`{ name: 'filter', type: 'array' }`) — it is
+   * the spelling {@link ObjectGanttSchema.filter} and
+   * {@link ObjectKanbanSchema.filter} carry. The RECORD arm is what the reads
+   * require: the drill-down filter is built by spreading this value into an
+   * object (`{ ...(schema.filter || {}), ...computeDrillFilter(…) }`), and the
+   * in-repo corpus authors the ObjectQL object form
+   * (`{ close_date: { $gte, $lte } }`) against fakes that read it that way.
+   * Declaring only the array arm would have refused live, working charts.
+   *
+   * ⚠️ Narrowing to ONE arm is a decision LOCAL TO THIS NODE, not a
+   * cross-widget one — an earlier draft of this docblock said the opposite and
+   * the census refutes it. Six sibling `object-*` widgets declare `filter` on
+   * this interface and every one of them is array-only
+   * ({@link ObjectGanttSchema.filter}, {@link ObjectKanbanSchema.filter} and
+   * four more); this key is the only `object-*` `filter` with a record arm. So
+   * there is no fleet-wide convention to renegotiate — what is unresolved is
+   * only this component's own two-armed read, and objectui#7946 declares the
+   * accept set it measured rather than picking an arm without a ruling.
+   *
+   * ⭐ Successor, named rather than implied: the drill-down spread below
+   * (`{ ...(schema.filter || {}), ...computeDrillFilter(…) }`) MIS-COMPOSES the
+   * array arm — spreading a `FilterArray` into an object yields index keys
+   * (`{ 0: […] }`), not conditions. Fixing that composition is the work that
+   * makes narrowing to the spec's array-only `FilterArray` possible; until it
+   * lands, declaring only the array arm would refuse live, working charts.
+   *
+   * What this declaration buys today is that `filter: 'stage=won'` and
+   * `filter: 42` are compile errors, where before they were not.
+   */
+  filter?: any[] | Record<string, any>;
+  /**
+   * AUTHORABLE — inline aggregation for the legacy `objectName` path.
+   *
+   * ⛔ `ChartAggregate` from `@objectstack/spec/ui` BY REFERENCE, never a local
+   * near-copy — this file's standing rule ("Never Redefine Types. ALWAYS import
+   * them.") and the fork `check:spec-symbols` exists to stop.
+   *
+   * The first cut of objectui#7946 declared it as a local copy with all three
+   * members OPTIONAL, reasoning from this renderer's accept set (every read is
+   * guarded: `if (schema.aggregate)`, `schema.aggregate?.groupBy`,
+   * `aggregateValueKey`). What that PUBLISHES is a different thing, and the
+   * contract review measured it:
+   *
+   *   - the TS face advertised `aggregate: {}` and `{ field: 'amount' }` as
+   *     legal authoring, which `ChartAggregateSchema` refuses;
+   *   - the zod mirror's local `z.object` is strip-postured, so
+   *     `{ groupby: 'stage', function: 'count' }` parsed CLEAN and dropped the
+   *     mis-cased key silently — the exact failure the spec's own
+   *     `strictObject` history text was written to prevent;
+   *   - no typed in-tree producer needed the relaxation: every live forward of
+   *     this key is `any` (`DashboardRenderer`'s `(widget as any).data`,
+   *     app-shell's `viewDef: any`).
+   *
+   * ⭐ And the cost is asymmetric — declaring the spec's requiredness now is
+   * free, tightening it later is a `major` on a published package. So the
+   * authoring door and this declaration are ONE shape: `function` and `groupBy`
+   * required, `field` optional (only `count` counts rows rather than a column),
+   * and the structured `groupBy` arm naming its `field`.
+   *
+   * The RENDERER's accept set is wider than this and stays wider on purpose —
+   * `ObjectChart.tsx` guards every read and draws an explicit refusal screen for
+   * an aggregate that names no category (objectui#8168), because untyped
+   * producers still hand it documents this declaration refuses. That refusal is
+   * what the narrower door costs at runtime; it is not a reason to advertise the
+   * wider shape as authorable.
+   *
+   * `groupBy` is the category axis — a bare field name, or the structured
+   * date-bucketing node the engine takes. `alias`, when present, is the column
+   * the projected group value lands under, which is what `ObjectChart.tsx`'s
+   * `aggregateGroupByKey` (`gb.alias || gb.field`) resolves.
+   */
+  aggregate?: ChartAggregate;
+  /**
+   * INTERNAL (relay-composed) — the category column the renderer binds the x
+   * axis to. Authors write `xAxisField` above (or, one layer down, the spec's
+   * `xAxis: { field }`, which `normalizeChartSchema` resolves); the five
+   * producers of an `object-chart` node compute this key.
+   *
+   * Typed `string` from `ChartRendererProps.schema.xAxisKey`, the read this
+   * value ends at.
+   */
+  xAxisKey?: string;
+  /**
+   * INTERNAL (relay-composed) — the plotted series, in the renderer's internal
+   * `{ dataKey }` contract.
+   *
+   * The element type is `ChartRendererProps.schema.series`' internal arm
+   * VERBATIM — that is the read this value ends at, and the ruling on
+   * objectui#7946 asked for the reads rather than a copy of any producer's
+   * literal. The spec's AUTHOR-facing `ChartSeriesSchema` is the other arm
+   * (`{ name }`), and it refuses `dataKey` by name; `normalizeChartSchema` is
+   * the one translation between them.
+   */
+  series?: Array<{
+    dataKey: string;
+    label?: string;
+    variant?: 'current' | 'comparison';
+    opacity?: number;
+    dashArray?: string;
+    chartType?: 'bar' | 'line' | 'area';
+    stack?: string;
+    yAxis?: 'left' | 'right';
+    color?: string;
+  }>;
+  /**
+   * Positional palette (`string[]`) OR a value→color map
+   * (`{ value: color }`, kanban-style). Select/lookup option colors and
+   * explicit maps win over the palette per category.
+   *
+   * The zod mirror has declared this since objectui#3913; this interface did
+   * not, and nothing ratchets the mirror-declares-more direction — so the two
+   * published copies of one shape disagreed silently until objectui#7946.
+   */
+  colors?: string[] | Record<string, string>;
 }
 
 /**

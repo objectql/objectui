@@ -3096,6 +3096,12 @@ const SPEC_DERIVED_PAIRS: readonly string[] = [
   'complex.zod.ts#KanbanSchema',
   'form.zod.ts#SelectOptionSchema',
   'layout.zod.ts#PageNodeSchema',
+  // objectui#7946 (rework round): `aggregate` is `SpecChartAggregateSchema` by
+  // reference rather than the local near-copy the first cut declared, so a spec
+  // bump that widens or narrows the object-bound aggregation vocabulary moves
+  // ONE side of this pair — which is exactly what this list exists to make
+  // legible rather than mysterious.
+  'objectql.zod.ts#ObjectChartSchema',
   'objectql.zod.ts#ObjectGallerySchema',
   'objectql.zod.ts#ObjectGanttSchema',
   // objectui#7762: `exportOptions` is the spec's OBJECT ARM by reference — peeled out of
