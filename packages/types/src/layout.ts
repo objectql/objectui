@@ -779,8 +779,15 @@ export interface PageNodeSchema extends BaseSchema {
    * which this package already applies to this face (see
    * `zod/tombstone.zod.ts`'s `retirementTombstone`).
    *
-   * Nothing ever read it: a point-access probe (`\.breadcrumbs`) scores 0
-   * across the tree against 10 files for `\.breadcrumb\b` as the lit control.
+   * Nothing ever read it, and the frame that number belongs to is stated so
+   * this docblock and `zod/layout.zod.ts`'s twin cannot drift apart on it. On
+   * this branch's BASE (`93127bd6f`) a point-access probe (`\.breadcrumbs`)
+   * scores 0 across the tree (exit 1), against 12 files tree-wide — 10 of them
+   * under `packages/` — for `\.breadcrumb\b` as the lit control. At HEAD those
+   * rise to 16 and 13 and `\.breadcrumbs` turns exit 0 over 4 files, every one
+   * of them a file of THIS branch quoting the probe string (the changeset, the
+   * refusal pin, this file and `zod/layout.zod.ts`); the tree-scoped pin's own
+   * exclusions take HEAD back to exit 1.
    * ⛔ A bare-word probe is worthless here — the word also names Sentry's own
    * unrelated concept and appears in two comments listing UI surfaces, so a
    * bare grep reports readers that do not exist. `BaseSchema` is

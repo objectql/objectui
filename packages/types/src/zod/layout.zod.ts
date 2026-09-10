@@ -519,12 +519,20 @@ const PAGE_ACTIONS_REFUSAL =
  * already carries one of its refusal arms one member up. "Declared-or-authored
  * but unread" is the population the gate names, and this key is in it.
  *
- * ## What was measured (objectui#8871, on this branch's base)
+ * ## What was measured (objectui#8871, on this branch's BASE `93127bd6f`)
  *
- * ZERO readers. `git grep "\.breadcrumbs"` over the whole tree returns nothing
- * (exit 1); the same shape one letter shorter, `"\.breadcrumb\b"`, returns 16
- * files tree-wide (13 under `packages/`) — the lit control that says the
- * probe runs. ⛔ A BARE-WORD probe is useless here and the reason this note
+ * ZERO readers — and the FRAME is load-bearing: every number below is a
+ * reading on the BASE unless it says HEAD. On the base,
+ * `git grep -E "\.breadcrumbs"` over the whole tree returns nothing (exit 1);
+ * the same shape one letter shorter, `"\.breadcrumb\b"`, returns 12 files
+ * tree-wide (10 under `packages/`) — the lit control that says the probe
+ * runs. At HEAD those two read 16 and 13, and `\.breadcrumbs` itself turns
+ * exit 0 over 4 files / 6 lines, because THIS branch's own four files — the
+ * changeset, `page-breadcrumbs-refusal-8871.test.ts`, `layout.ts` and this one
+ * — QUOTE the probe string; subtract the eight exclusions the tree-scoped pin
+ * spells out and HEAD is back at exit 1. `layout.ts`'s twin docblock states the
+ * same frame, and the two must not be allowed to drift apart on it again.
+ * ⛔ A BARE-WORD probe is useless here and the reason this note
  * spells the shape out: `breadcrumbs` is heavily overloaded in this tree, and
  * a bare grep hits Sentry's own unrelated breadcrumbs concept
  * (`app-shell/src/observability/sentry.ts`) plus two comments listing UI

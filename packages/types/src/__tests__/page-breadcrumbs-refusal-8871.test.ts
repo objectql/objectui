@@ -28,11 +28,19 @@
  * modules; 63 changesets cite the ADR; and `PageNodeSchema` already carries one
  * of its refusal arms one member up.
  *
- * ## What was measured
+ * ## What was measured — the frame is BASE `93127bd6f`, stated out loud
  *
  * ZERO readers, ⛔ measured with a POINT-ACCESS probe rather than a bare word.
- * `\.breadcrumbs` scores 0 over the whole tree (exit 1) against 16 files
- * tree-wide (13 under `packages/`) for `\.breadcrumb\b` as the lit control.
+ * On the base, `\.breadcrumbs` scores 0 over the whole tree (exit 1) against 12
+ * files tree-wide (10 under `packages/`) for `\.breadcrumb\b` as the lit
+ * control. At HEAD those two become 16 and 13, and `\.breadcrumbs` itself turns
+ * exit 0 over 4 files / 6 lines — every one of those hits is one of THIS
+ * branch's own four files (the changeset, this pin, `layout.ts`,
+ * `zod/layout.zod.ts`) matching only because it QUOTES the probe string, and
+ * the eight exclusions spelled out at the tree-scoped pin below take HEAD back
+ * to exit 1. ⛔ Do not mix the two frames: the base numbers are the
+ * measurement, the head numbers are this branch's own echo of it, and no
+ * single tree satisfies a sentence that pairs one with the other.
  * The bare word would have lied: it also names Sentry's own unrelated concept
  * (`app-shell/src/observability/sentry.ts`) and appears in two comments
  * listing UI surfaces (`core/src/utils/record-title.ts`,
@@ -190,11 +198,20 @@ describe('objectui#8871 — the guide teaches the node, not the key', () => {
   });
 
   it('no passage authors or declares `breadcrumbs` any more', () => {
-    // Read by TEXT, not by parsed page nodes. That is deliberate: objectui#7926's
-    // census filtered on `type: 'page'` and therefore counted ONE site where there
-    // were three — the Schema API block declared the member with no `type` in
-    // scope, and Best Practices §2 authored it on an untagged fragment. A text
-    // scan is the shape that sees all three.
+    // Read by TEXT, not by parsed page nodes. That is deliberate, and the reason
+    // is a FENCE-LANGUAGE blind spot — ⛔ not a missing `type` key. objectui#7926's
+    // census (PR #8870) reads, in that PR's own words, "every git-tracked JSON
+    // file, every `json` fence in `.md`/`.mdx`, and every TS/TSX object literal
+    // (TypeScript AST)". It reported ONE site where there are three, for TWO
+    // DIFFERENT reasons. The Schema API block's literal DOES carry `type: 'page'`
+    // (guide `:201`, inside the fence opened at `:199` and closed at `:225`) —
+    // but that fence is tagged `typescript`, a fence LANGUAGE that population
+    // never visits, so the block was never read at all. Best Practices §2 does
+    // sit in a `json` fence the census reads (`:680`), but that fragment never
+    // writes `type` (`:682` is the bare `"breadcrumbs": [`), so a `page`-tagged
+    // filter correctly excluded it. Only the "Detail Page with Actions" fence
+    // (`:533`/`:535`/`:537`) is visible to both instruments. A text scan has
+    // neither blind spot, which is why it is the shape that sees all three.
     const offenders = guide
       .split('\n')
       .map((line, i) => ({ line: i + 1, text: line }))

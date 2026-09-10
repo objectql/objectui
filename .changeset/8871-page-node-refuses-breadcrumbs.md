@@ -23,9 +23,13 @@ arms one member up. objectui#7926 left this key parsing on purpose so that retir
 be a decision rather than an accident, and wrote a pin saying so; that pin is **flipped**,
 not deleted.
 
-**What was measured.** Zero readers, with a **point-access** probe rather than a bare word:
-`\.breadcrumbs` scores 0 tree-wide (exit 1) against `\.breadcrumb\b`'s 16 files tree-wide (13
-under `packages/`) as the lit control. The bare word would have lied — it also names
+**What was measured, on this branch's base `93127bd6f`.** Zero readers, with a **point-access**
+probe rather than a bare word: on that base `\.breadcrumbs` scores 0 tree-wide (exit 1) against
+`\.breadcrumb\b`'s **12** files tree-wide (**10** under `packages/`) as the lit control. At head
+the same two probes read 16 and 13 and `\.breadcrumbs` is exit 0 over 4 files — every hit one of
+this branch's own four files (this changeset, the refusal pin, `layout.ts`, `zod/layout.zod.ts`)
+quoting the probe string, and the pin's own exclusions put head back at exit 1. The base reading
+is the measurement; the head reading is this branch's echo of it. The bare word would have lied — it also names
 Sentry's own unrelated concept (`app-shell/src/observability/sentry.ts`) and appears in two
 comments listing UI surfaces (`core/src/utils/record-title.ts`,
 `layout/src/NavigationRenderer.tsx`), so a bare probe reports five readers that do not exist.
@@ -84,5 +88,9 @@ changeset's own lead sentence is *"Accept-set change, deliberately"* — the rea
 版本号策略 gives `minor` for objectui's own breaking changes. objectui#7926's `patch` does not
 transfer here: its ruling was **specified** with `Clause-②: no`, a different premise, so
 citing it for the level would import that ruling's conclusion without its premise. The
-precedents that share this card's `Clause-②: yes` reading — objectui#5905 (both changesets),
-objectui#4919, objectui#5453 — all took `minor`.
+precedent that literally shares this card's `Clause-②: yes` reading is **objectui#5905**, where
+the declaration is explicit on the card and both changesets took `minor`. Two further
+retirements of the same shape also took `minor` but do **not** carry the declaration, so they
+corroborate the level and ⛔ not the clause reading: objectui#4919 (a published TS type removed,
+but the card pre-dates the `Clause-②:` spelling entirely) and objectui#5453 (no Clause-②
+declaration, and its own ACCEPT record measured that narrowing as *"not consumer-visible"*).
