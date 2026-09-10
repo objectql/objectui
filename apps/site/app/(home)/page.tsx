@@ -10,8 +10,9 @@ const DESCRIPTION =
 // The route had no metadata at all, so the homepage shipped with no <title>,
 // no description and no link-preview fields. Open Graph and Twitter carry no
 // image: the site ships none, and naming one it does not serve would render a
-// broken preview. No `metadataBase` is needed here either — nothing below
-// resolves against an origin (no OG image, no `alternates.canonical`).
+// broken preview. Nothing here resolves against an origin, so this object needs
+// no `metadataBase` of its own; `app/layout.tsx` sets one for the docs pages,
+// whose OG images are site-relative.
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
