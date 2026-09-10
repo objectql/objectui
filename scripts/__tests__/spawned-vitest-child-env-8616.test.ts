@@ -1,0 +1,263 @@
+import { describe, expect, it } from 'vitest';
+import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import { createRequire } from 'node:module';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import ts from 'typescript';
+import { childVitestEnv } from './helpers/child-vitest-env';
+
+/**
+ * A vitest a TEST spawns must not inherit this container's AGENT markers
+ * (objectui#8616).
+ *
+ * ## The defect this closes, and why it needs a gate rather than a comment
+ *
+ * Vitest asks `std-env` whether it runs under an AI agent and configures itself
+ * differently when it does — no colour at all, its `agent` reporter instead of
+ * `default`, different coverage defaults. `isAgent` comes from the ENVIRONMENT
+ * (`CLAUDECODE`, `AI_AGENT`, and nine more), and a child inherits its parent's.
+ * So a vitest spawned from inside an agent container is a DIFFERENT program
+ * from the same command on CI, and every assertion made on its output is
+ * verified against a byte stream CI never produces.
+ *
+ * ⚠️ The reason this is a gate and not a note: the obvious reproduction does
+ * not reproduce. `CI=true` / `GITHUB_ACTIONS=true` — imitating CI, the correct
+ * instinct — leaves `isAgent` true and stays green; so does `FORCE_COLOR=1`,
+ * because `disableDefaultColors()` overwrites the palette after `FORCE_COLOR`
+ * was consulted. Only removing the markers flips it. An author who checks
+ * their new pin the sensible way gets a green that means nothing, and nothing
+ * in the tree tells them otherwise. That is what this file is for.
+ *
+ * ⛔ Not repaired by loosening the assertions to accept either stream: that
+ * discards what the pins exist to check. The repair belongs at the SPAWN — the
+ * only place that knows its child is a fresh CLI and not this run's worker —
+ * which is where objectui#8598's `BUILD_ENV` and objectui#8590's scoped
+ * `VITEST` scrub both landed, for the same reason. `childVitestEnv()` in
+ * `helpers/child-vitest-env.ts` is the one shared spelling of it.
+ *
+ * ## What is asserted
+ *
+ *  1. The population is derived from the tree, never listed — a hand-copied
+ *     enumeration drifts toward checking fewer call sites. ⚠️ Measured on
+ *     `4d65991c5`: the `git grep -E "spawn.*vitest|execa.*vitest"` this card
+ *     was triaged from returned six files, of which FIVE matched only a
+ *     COMMENT naming `spawned-build-vitest-env-8598.test.ts` — one line that
+ *     carries both words — and the real spawner behind two of them was not in
+ *     the list at all. A substring census of this class is not a census.
+ *  2. It has a FLOOR and a named member, so a walk that resolves nothing goes
+ *     red instead of green. That is the one failure a ratchet cannot notice
+ *     about itself.
+ *  3. Spawns are found by AST with identifiers RESOLVED to their declarations,
+ *     because both halves of what is judged — which program is started, and
+ *     which env it is given — are naturally written as named constants.
+ *  4. ⭐ And the helper is MEASURED, not trusted: a real child process reports
+ *     `std-env`'s own `isAgent` back, once under the helper's env and once
+ *     under an env the helper produced and a caller then re-marked. A helper
+ *     that silently stopped scrubbing would pass every static check above.
+ */
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+
+/** Node child-process entry points that start a program. */
+const SPAWNERS = new Set(['spawnSync', 'spawn', 'execFileSync', 'execFile', 'execSync', 'exec', 'fork']);
+
+/** Test files anywhere in the workspace — the only files this gate judges. */
+function testFiles(): string[] {
+  const found: string[] = [];
+  const skip = new Set(['node_modules', 'dist', 'build', 'coverage', '.turbo', '.next', '.git']);
+  const walk = (dir: string): void => {
+    let entries: fs.Dirent[];
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (skip.has(entry.name)) continue;
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (/\.(test|spec)\.tsx?$/.test(entry.name)) found.push(path.relative(ROOT, full));
+    }
+  };
+  for (const top of ['packages', 'apps', 'scripts', 'examples']) walk(path.join(ROOT, top));
+  return found.sort();
+}
+
+/** The initializer text of a `const`/`let` named `name` in this file, if there is one. */
+function declarationText(source: ts.SourceFile, name: string): string | null {
+  let text: string | null = null;
+  const visit = (node: ts.Node): void => {
+    if (
+      ts.isVariableDeclaration(node) &&
+      ts.isIdentifier(node.name) &&
+      node.name.text === name &&
+      node.initializer !== undefined
+    ) {
+      text = node.initializer.getText(source);
+    }
+    node.forEachChild(visit);
+  };
+  visit(source);
+  return text;
+}
+
+/** An expression's own text, with a bare IDENTIFIER resolved to its declaration. */
+function resolved(node: ts.Node, source: ts.SourceFile): string {
+  const own = node.getText(source);
+  if (ts.isIdentifier(node)) return `${own} ${declarationText(source, node.text) ?? ''}`;
+  return own;
+}
+
+/**
+ * Does this call start a VITEST?
+ *
+ * ⚠️ Deliberately narrow in one direction and wide in another. Wide: any
+ * argument that resolves to text naming `vitest` counts, so `vitestCli`,
+ * `node_modules/.bin/vitest`, `['pnpm', 'exec', 'vitest']` and a shell string
+ * are all seen — the spelling is what the triage grep got wrong. Narrow: a
+ * token that names a vitest CONFIG rather than the runner is not a spawn of
+ * vitest, so it is excluded by name; `configPath` is passed to plenty of
+ * children that are not vitest.
+ */
+function namesAVitest(node: ts.CallExpression, source: ts.SourceFile): boolean {
+  const tokens: string[] = [];
+  for (const arg of node.arguments) {
+    if (ts.isArrayLiteralExpression(arg)) for (const el of arg.elements) tokens.push(resolved(el, source));
+    else if (!ts.isObjectLiteralExpression(arg)) tokens.push(resolved(arg, source));
+  }
+  return tokens.some((t) => /vitest/i.test(t.replace(/vitest[.\-\w]*config[.\w]*/gi, '')));
+}
+
+interface VitestSpawn {
+  readonly file: string;
+  readonly line: number;
+  /** Text of the `env:` value passed in the options object, if any — IDENTIFIER resolved. */
+  readonly env: string | null;
+}
+
+/** Every call in `file` that starts a child vitest. */
+function vitestSpawns(file: string): VitestSpawn[] {
+  const abs = path.join(ROOT, file);
+  const text = fs.readFileSync(abs, 'utf8');
+  // Cheap pre-filter, then AST. Every judgement below is made on the AST.
+  if (!text.includes('vitest')) return [];
+
+  const source = ts.createSourceFile(abs, text, ts.ScriptTarget.Latest, true);
+  const found: VitestSpawn[] = [];
+
+  const visit = (node: ts.Node): void => {
+    if (ts.isCallExpression(node)) {
+      const callee = ts.isPropertyAccessExpression(node.expression)
+        ? node.expression.name.text
+        : ts.isIdentifier(node.expression)
+          ? node.expression.text
+          : '';
+      if (SPAWNERS.has(callee) && namesAVitest(node, source)) {
+        const options = node.arguments.find(ts.isObjectLiteralExpression.bind(ts));
+        let env: string | null = null;
+        if (options !== undefined) {
+          for (const property of options.properties) {
+            const key =
+              property.name !== undefined && ts.isIdentifier(property.name) ? property.name.text : '';
+            if (key !== 'env') continue;
+            if (ts.isShorthandPropertyAssignment(property)) {
+              env = declarationText(source, property.name.text) ?? property.name.text;
+            } else if (ts.isPropertyAssignment(property)) {
+              env = resolved(property.initializer, source);
+            }
+          }
+        }
+        found.push({
+          file,
+          line: source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1,
+          env,
+        });
+      }
+    }
+    node.forEachChild(visit);
+  };
+  visit(source);
+  return found;
+}
+
+const SPAWNS = testFiles().flatMap(vitestSpawns);
+
+/**
+ * The floor, plus a named member.
+ *
+ * The floor is set at 1 rather than at today's count on purpose: it is a
+ * vacuity guard, not a second copy of the census, so retiring one spawn stays
+ * an ordinary green change while a walk that resolves nothing does not.
+ */
+const POPULATION_FLOOR = 1;
+const NAMED_MEMBER = 'scripts/__tests__/network-escape-worker-coverage-8537.test.ts';
+
+describe(`objectui#8616 — ${SPAWNS.length} vitest spawn(s) in the test tree`, () => {
+  it(`finds a real population: floor ${POPULATION_FLOOR}, and ${NAMED_MEMBER}`, () => {
+    expect(SPAWNS.length).toBeGreaterThanOrEqual(POPULATION_FLOOR);
+    expect(SPAWNS.map((s) => s.file)).toContain(NAMED_MEMBER);
+  });
+
+  it('every one of them builds the child environment with childVitestEnv()', () => {
+    const leaking = SPAWNS.filter((s) => s.env === null || !s.env.includes('childVitestEnv')).map(
+      (s) => `${s.file}:${s.line}`,
+    );
+
+    expect(
+      leaking,
+      'These start a VITEST from inside a vitest worker without going through ' +
+        '`childVitestEnv()`, so the child inherits this container\'s agent markers. ' +
+        'Vitest reads those and turns off colour, swaps in its `agent` reporter and ' +
+        'changes coverage defaults — so whatever is asserted on the output below is a ' +
+        'byte stream CI never produces, and the assertion is verified against the wrong ' +
+        'thing forever (objectui#8616). ⛔ Imitating CI with `CI=true` does not expose ' +
+        'it, and neither does `FORCE_COLOR=1`. Use `childVitestEnv()` from ' +
+        '`scripts/__tests__/helpers/child-vitest-env.ts`:\n  ' +
+        leaking.join('\n  '),
+    ).toEqual([]);
+  });
+});
+
+/**
+ * The live control. `std-env` is resolved through VITEST's own require, because
+ * it is vitest's dependency and not a root one — resolving it from here is how
+ * the answer stays the one vitest itself would get.
+ */
+const stdEnvUrl = (() => {
+  const fromVitest = createRequire(createRequire(path.join(ROOT, 'noop.js')).resolve('vitest/package.json'));
+  return pathToFileURL(fromVitest.resolve('std-env')).href;
+})();
+
+const PROBE = `import { isAgent } from ${JSON.stringify(stdEnvUrl)}; process.stdout.write(String(isAgent));`;
+
+function childSaysIsAgent(env: NodeJS.ProcessEnv): string {
+  const child = spawnSync(process.execPath, ['--input-type=module', '-e', PROBE], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    env,
+    timeout: 60_000,
+  });
+  expect(child.status, `the isAgent probe did not run: ${child.stderr}`).toBe(0);
+  return child.stdout.trim();
+}
+
+describe('objectui#8616 — the helper is measured, not trusted', () => {
+  it('a child given childVitestEnv() is read as a NON-agent', () => {
+    expect(childSaysIsAgent(childVitestEnv())).toBe('false');
+  });
+
+  it('control — the same probe still says true when a marker survives', () => {
+    // Without this, a probe that had stopped detecting anything would report
+    // `false` for both, and the case above would pass while measuring nothing.
+    // `overrides` win over the scrub by design, so this is also the pin on that.
+    expect(childSaysIsAgent(childVitestEnv({ AI_AGENT: 'objectui-8616-control' }))).toBe('true');
+  });
+
+  it('the child carries no VITEST marker either — it is a fresh CLI', () => {
+    const env = childVitestEnv();
+    expect(Object.keys(env).filter((k) => k.startsWith('VITEST'))).toEqual([]);
+    // And this process really is a worker, so the line above removed something.
+    expect(Object.keys(process.env).filter((k) => k.startsWith('VITEST')).length).toBeGreaterThan(0);
+  });
+});
