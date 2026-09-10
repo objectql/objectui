@@ -41,6 +41,7 @@ one has its own section below.
 | `shell-escape-residue.yml` | Shell Escape Residue Scan | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a fenced block in `AGENTS.md`, `CLAUDE.md`, `skills/**` or `content/docs/**` carries the enumerated machine-produced shell escape, or a scan root fails to resolve |
 | `readme-exports.yml` | README Export Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a `packages/**/README.md` imports a name from its own package that the package does not export, or the scan's population collapses |
 | `docs-route-eager-closure.yml` | Docs Route Eager Closure Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a package named in `apps/site/app/components/registerCatalogBlocks.ts` is not already reachable from the docs route's module graph (exit 1), or when the gate's own gauge cannot be trusted (exit 2) |
+| `line-citation-gate.yml` | Line Citation Gate | PR to `main`, `develop` — **no path filter**; manual | No — **report-only** while it beds in; it exits 0 whatever it finds, and exits 1 only when one of its own synthetic controls fails. It declares no `merge_group` trigger, so it cannot be a required context in its current state |
 | `governed-surface-guard.yml` | Governed Surface Queue Guard | PR to `main`, `develop` (incl. `ready_for_review`) — **no path filter**; merge-queue builds | **Yes on a queue build only** — a governed-surface diff with no authorized approval record (on any commit) is refused there; on the pull request itself it is deliberately green and prints an early warning |
 | `performance-budget.yml` | Bundle Analysis | Push / PR touching `packages/**`, `apps/console/**`, `pnpm-lock.yaml` | **Yes** — the console entry gzip budget |
 | `lockfile-integrity.yml` | Lockfile Integrity Check | PR to `main`, `develop` touching `pnpm-lock.yaml` or the gate's own two files; manual | No — **deliberately not a blocking context** ([#8326](https://github.com/objectstack-ai/objectui/issues/8326)); it names the packages and the Dependabot merge gate classifies it `NOT_A_GATE` |
@@ -1596,6 +1597,78 @@ The predicates are covered by `node scripts/check-governed-queue-guard.mjs --sel
 workflow runs as its own first step because a rotted predicate must redden rather than wave a
 governed diff through, and the wiring is pinned by
 `scripts/__tests__/check-governed-queue-guard.test.ts`.
+
+## Line Citations (`line-citation-gate.yml`)
+
+**Triggers:** Pull requests to `main`/`develop`, with **no path filter**, plus manual dispatch. It
+appears in the checks list as **Line Citation Gate**.
+
+**What it runs:** `node scripts/check-new-cross-file-line-citations.mjs` — one `node` call over the
+pull request's own diff. No install, no build.
+
+**Report-only.** This step **exits 0 regardless of what it finds**. It is not a required context, it
+declares no `merge_group` trigger, and `scripts/dependabot-merge-gate.mjs` classifies it
+`NOT_A_GATE` for that reason. The one thing that does make it exit 1 is a failure of its own
+synthetic controls — a differential gate reporting zero through a broken differ is indistinguishable
+from a clean branch, so the instrument is checked on every run.
+
+### What it reads, and the word that decides its shape
+
+The maintainer ruled the class on 2026-09-10, verbatim: 「跨文件的「某文件第几行」引用，
+这种完全没必要吧，是否应该避免」. A cross-file line address points somewhere the reader is not
+looking, and nothing tells them when it moves. Five spellings are read, written here with `NNN`
+standing in for the digits **on purpose** — a real address in this paragraph would be one more
+citation for the gate to report, which is the shape of the problem rather than a description of it:
+
+| spelling | example, digits elided |
+|---|---|
+| the dominant form | `NAME.ts:NNN` |
+| the GitHub permalink form | `NAME.ts#LNNN` |
+| the address written first | `line NNN of NAME.ts` |
+| the address written second | `NAME.ts line NNN` |
+| the **continuation** form, which carries no filename at all | a bare `:NNN` beside an address written on a neighbouring line |
+
+The continuation form is the one no basename-anchored probe can see, and it is why a one-syntax
+count is not a reading. Measured on this tree: 1,267 such citations, 540 of them already false.
+
+The gate is **differential**. It reads only what a pull request **adds**, against its merge base with
+the target branch. The 540 existing citations are **not** its denominator and it does **not** sweep
+them in: shifting an already-false address by a hunk delta moves a wrong pointer to a differently
+wrong place while making the diff look diligent.
+
+An absolute count was refused on a measurement rather than on taste. PR #8887's line shifts flipped
+one citation from `drifted` to `resolves` by accident, moving the tree-wide false count 540 → 539 —
+an unearned green that belonged to nobody, and one a total-reading gate would have scored as
+progress.
+
+### The three verdicts, and the one that must not collapse
+
+Every added citation is a finding — the convention is that the address is not written, not that it
+is written accurately — but each carries the verdict a reader would reach by following it:
+
+| verdict | meaning |
+|---|---|
+| `false` | the cited line does not carry what the citing prose says it does |
+| `resolving` | it does, today |
+| `unresolvable` | nothing can ever decide it — chiefly citations into regenerated `dist/*.d.ts`, which are untracked and rebuilt, plus bare basenames that name several tracked files at once |
+
+`unresolvable` is **never** counted as `false`. Calling an undecidable citation wrong is an
+assertion, and the split is pinned by a synthetic control so it cannot quietly regress.
+
+### What flips it to blocking
+
+`ENFORCEMENT` in the script is the whole switch, and its test reads the landed value, so the flip
+cannot happen without the pin moving with it. It flips once the gate reads zero new citations across
+the in-flight population and the convention text has landed in `AGENTS.md` — an author failed by a
+rule is owed a document to be failed against. When it does flip, this workflow owes a `merge_group`
+leg before the context may be required: a required check that never reports on a queue build stalls
+the queue until the ruleset's 60-minute timeout fails it.
+
+### The related report
+
+`pnpm census:cross-file-line-citations` is the tree-wide census the differential gate was derived
+from. It runs in no workflow, prints the whole population with its per-directory split, and is the
+right instrument for asking how large the existing class is — never for deciding a pull request.
 
 ## Lockfile Integrity (`lockfile-integrity.yml`)
 

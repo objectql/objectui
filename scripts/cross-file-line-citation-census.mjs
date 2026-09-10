@@ -230,10 +230,23 @@ const SCANNED_EXT = new Set([
 /** Generated or vendored text nothing authors by hand. */
 const SKIP_FILES = new Set(['pnpm-lock.yaml', 'skills-lock.json']);
 
-/** The instrument may not count itself: both files carry addresses as fixtures. */
-const SELF_FILES = new Set([
+/**
+ * The instrument may not count itself: every file here carries addresses as
+ * FIXTURE DATA -- controls, worked examples, the shapes a syntax must and must
+ * not match. Counting them would be the instrument reading itself.
+ *
+ * ⚠️ It is one list for BOTH readers. The differential gate
+ * (`check-new-cross-file-line-citations.mjs`, objectui#8875 clause 2) imports
+ * this set rather than keeping a second copy: two carve-out lists over one
+ * population drift, and the direction they drift in is silent -- a file carved
+ * out of one reader and counted by the other makes the two answers disagree
+ * with no error anywhere.
+ */
+export const SELF_FILES = new Set([
   'scripts/cross-file-line-citation-census.mjs',
   'scripts/__tests__/cross-file-line-citation-census.test.ts',
+  'scripts/check-new-cross-file-line-citations.mjs',
+  'scripts/__tests__/check-new-cross-file-line-citations.test.ts',
 ]);
 
 /**
@@ -729,7 +742,7 @@ function main(argv) {
     console.log('');
     console.log(`Excluded, same-file citations (#8047's carve-out still holds) : ${sameFile.length}`);
     console.log(`Excluded, released CHANGELOG sections (dated records)         : ${carvedOut.length}`);
-    console.log(`Excluded, this census and its own test (fixture addresses)    : ${selfCarved}`);
+    console.log(`Excluded, the two citation readers and their tests (fixtures): ${selfCarved}`);
     console.log(`Reaching a test name (objectui#8047's rule owns these)        : ${inTestName.length}`);
     console.log("  ^ this zero is a reading only because the classifier controls above fired.");
     console.log('');

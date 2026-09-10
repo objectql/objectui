@@ -117,7 +117,7 @@ function predicateSourceText(raw: unknown): string {
  * does not promise and this paragraph therefore does not advertise).
  *
  * `'app-shell'` — the chrome gate. `ExpressionProvider.tsx` builds
- * `{ current_user, user, ctx: { user }, os: { user }, data, features }`.
+ * `{ current_user, user, ctx: { user }, os: { user }, features }`.
  * There is no `record` and no `page` in it at all, which is the defect this
  * type exists to fix. The four identity spellings are the ADR-0068 aliases and
  * all four resolve; `features` is the deployment-flag root that provider's own
@@ -131,10 +131,14 @@ function predicateSourceText(raw: unknown): string {
  * predicate faults, so it would answer "why did my predicate not resolve?"
  * with the root that is the reason.
  *
- * `data` is bound at the app-shell tier but is deliberately NOT advertised
- * there: every mount of `ExpressionProvider` in this repo passes `data={{}}`
- * or omits it, so naming it would point an author at a root that answers
- * nothing.
+ * ⛔ No `data` either, since objectui#8166 (ruled 2026-09-10). It WAS bound at
+ * the app-shell tier and was already withheld from the paragraph below, on the
+ * grounds that every `ExpressionProvider` mount passes `data={{}}` — but
+ * `AppContent`'s own field-list evaluator passed the record under edit, so on
+ * that one leg an authored `data.*` resolved silently against the host's record
+ * instead of faulting. `buildExpressionScope` stopped binding it; a `data.*`
+ * predicate at this tier now reaches this reporter with the engine's
+ * `Unknown variable: data`, the same verdict the server gives it.
  */
 export type PredicateScopeTier = 'page-component' | 'app-shell';
 
