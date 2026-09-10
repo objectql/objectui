@@ -138,9 +138,14 @@ describe('ObjectGrid — column-header sorting is server-side (#3106)', () => {
 
   it('replaces the view\'s declared sort rather than stacking on it', async () => {
     const ds = makeDataSource();
-    const { container } = renderGrid(ds, { sort: 'name desc' });
+    const { container } = renderGrid(ds, { sort: [{ field: 'name', order: 'desc' }] });
     await waitFor(() => expect(screen.getByText('Row 0')).toBeInTheDocument());
-    // The declared sort goes out as the string form it was authored in.
+    // Authored in the ONE declared spelling. This case used to author the
+    // retired string clause and assert that it went out verbatim; objectui#8767
+    // made this block REFUSE a string (objectui#8221), so a string here would
+    // reach no `$orderby` at all and the click would have nothing to replace.
+    // The array arm still lowers to this block's own `"field order"` string —
+    // unchanged, which is the point of route C.
     expect(lastFindParams(ds).$orderby).toBe('name desc');
 
     fireEvent.click(headerCell(container, 'Status'));
@@ -153,6 +158,14 @@ describe('ObjectGrid — column-header sorting is server-side (#3106)', () => {
   it('shows the view\'s declared sort before anyone clicks', async () => {
     // Otherwise the first click on that column asks for `asc` on a list that is
     // already `desc`, and the arrow only tells the truth from click two on.
+    //
+    // ⚠️ This case deliberately still authors the RETIRED string spelling, and
+    // is left that way: it is the one place in the suite that shows the header
+    // reader (`parseSchemaSort`) is now WIDER than the fetch path — since
+    // objectui#8767 the query carries no `$orderby` for this schema while the
+    // arrow below still appears. Narrowing the reader moves the wire shape and
+    // the export path with it; that is the route-B card #8767 did not take, so
+    // the divergence is recorded here rather than papered over.
     const ds = makeDataSource();
     const { container } = renderGrid(ds, { sort: 'status desc' });
     await waitFor(() => expect(screen.getByText('Row 0')).toBeInTheDocument());
