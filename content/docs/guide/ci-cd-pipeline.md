@@ -450,13 +450,21 @@ are checkable offline.
 **Triggers:** Push and PR when changes touch `packages/`, `apps/console/`, or `pnpm-lock.yaml`.
 Its display name in the checks list is **Bundle Analysis**.
 
-### Enforced limit
+### Enforced limits
 
-Exactly one bundle-size number in this repository is enforced — this one:
+The `Check console performance budget` step makes **two** measurements and returns one verdict.
+Both run before either may fail the step, and **either one can fail it** — this is not a single
+enforced number with a second advisory reading beside it:
 
 | Bundle | Max gzip size | Enforced |
 |--------|---------------|----------|
 | Console main entry (`apps/console/dist/assets/index-*.js`) | **350 KB** (`MAX_ENTRY_GZIP_KB`) | Yes — the step exits non-zero when the entry chunk exceeds it |
+| Eager closure — every chunk the entry reaches through **static** imports, i.e. everything the browser must fetch and parse before the app renders | ⛔ Deliberately not restated here. The ceiling lives in `scripts/check-eager-closure-budget.mjs` beside the argument that produced it, and `pnpm check:eager-closure` prints the measured payload, the ceiling and the headroom together in one verdict line | Yes — the step captures that gate's exit code and exits non-zero on it |
+
+Measurement 1 alone was the whole budget until
+[#5324](https://github.com/objectstack-ai/objectui/issues/5324): `advancedChunks` routes vendor and
+workspace code into named chunks on purpose, so most regressions land **outside** `index-*.js` where
+the entry-chunk line cannot see them.
 
 > The 350 KB above is **pinned to the workflow**, not retyped from memory:
 > `scripts/__tests__/ci-cd-pipeline-doc.test.ts` reads `MAX_ENTRY_GZIP_KB` out of
@@ -464,9 +472,10 @@ Exactly one bundle-size number in this repository is enforced — this one:
 > disagrees with it. Change one and you must change the other — the number cannot
 > drift silently again ([#3197](https://github.com/objectstack-ai/objectui/issues/3197)).
 
-- Builds the console app and measures bundle sizes.
+- Builds the workspace packages with `turbo run build` (filtered to `packages/*`), then builds the console app, and measures bundle sizes.
 - Posts a PR comment with the budget report and pass/fail status — but **only when the bundle was actually measured**. A run that was cancelled (a second push supersedes the first via `cancel-in-progress`) posts nothing, and a run whose build never produced a bundle posts a neutral "not measured" note instead of a verdict. A `FAIL` verdict therefore always carries the measured size that exceeded the budget.
 - The comment is rendered by `scripts/render-budget-comment.mjs` (unit-tested), not by logic inlined in YAML.
+- Runs `pnpm check:sdui-registration-pins` in a step of its own, after the budget step. This is the **artifact** half of the `sideEffects` contract: the static gate in `ci.yml` proves the array agrees with the module bodies, but only a real bundler run proves the SDUI widget registrations still reach a chunk. The step declares no `continue-on-error`, so a dropped registration fails this workflow — a size win bought by silently deleting a feature must not read as a size win.
 
 **If it fails:** the step prints `BUDGET EXCEEDED: Main entry is <n> KB gzip (limit: 350 KB)`
 and the PR comment carries the same two numbers, so the log already tells you the size and the
@@ -475,6 +484,14 @@ overshoot. Read the package size report appended to that comment next: the entry
 new eager import pulling a dependency in. Fix it at that import. Raising `MAX_ENTRY_GZIP_KB`
 is a deliberate decision, not a workaround for a red check — and it cannot be done quietly,
 because the pin above fails until this page states the new number too.
+
+**If the eager-closure half fails:** the same step reports it, and the gate's two non-zero exit
+codes are different verdicts on purpose. `1` is a verdict about the **bundle** — the closure is over
+its ceiling. `2` is a verdict about the **gauge** — the report could not be read, or a ceiling has
+drifted out of range of the regression it exists to catch, or it was replaced on the base branch
+after this checkout was made. The step turns a `2` into a failing run carrying a message that says
+so, because a run that measured nothing is not a passing budget and is not a size regression either.
+Run `pnpm check:eager-closure` locally to see which it is; the step log names the half that spoke.
 
 ### Package size report — advisory, not a gate
 
@@ -824,8 +841,8 @@ repository's recurring "looks like enforcement, isn't" class. A marker shown as 
 another fence is neither an opt-in nor an orphan: it is not at top level, so it claims nothing.
 
 **It builds, unlike `skills-paths.yml`:** the criterion is the *published* type surface, so the
-packages the marked fences import must exist as `dist/*.d.ts` first. The build is filtered to exactly
-those packages, and the filter is emitted by the gate itself
+packages the marked fences import must exist as `dist/*.d.ts` first. The job therefore runs
+`turbo run build`, filtered to exactly those packages, and the filter is emitted by the gate itself
 (`node scripts/check-skill-examples.mjs --build-filter`) rather than hand-maintained in the workflow,
 so it grows only as the marked population grows.
 
@@ -1170,9 +1187,20 @@ path filter at all**. A module mock can be written into any package in any shape
 the scan costs a checkout plus one `node` call, so there is nothing to gain by hiding it behind a
 filter. It appears in the checks list as **Inert vi.mock Specifier Check**.
 
-Runs `scripts/check-vi-mock-specifiers.mjs`. It walks every tracked JS/TS-family source file, finds
-each `vi.mock` / `vi.doMock` call site, and resolves the **relative** specifiers against the calling
-file's own directory. Any that resolves to no file fails the run.
+**Two gates run here, over one population, and both block a merge.**
+`scripts/check-vi-mock-specifiers.mjs` and `scripts/check-vi-mock-inherit.mjs` are steps of the same
+job, so either one failing fails the check — and `dependabot-merge-gate.mjs` classifies **Inert
+vi.mock Specifier Check** as a required context. (Named without its `scripts/` path on purpose: this
+section reads as this job's gate list, and that script runs in `dependabot-auto-merge.yml`, so
+spelling the path here would credit this job with a gate it does not run.) They read the same
+`vi.mock` call sites deliberately: a population that drifted between them would be a hole neither
+one reports, which is why they share a workflow instead of each registering a context of its own.
+The workflow `name:` and the job `name:` are therefore broader than the older of the two gates, and
+are left that way on purpose — renaming a required context silently un-requires it.
+
+**The specifier gate.** `scripts/check-vi-mock-specifiers.mjs` walks every tracked JS/TS-family
+source file, finds each `vi.mock` / `vi.doMock` call site, and resolves the **relative** specifiers
+against the calling file's own directory. Any that resolves to no file fails the run.
 
 **Why it needed a gate.** A mock whose specifier names no file does **not** error. Vitest registers
 it against a module id nothing imports, the run proceeds with the *real* module everywhere, and the
@@ -1204,11 +1232,31 @@ literal is counted but not judged — an ESLint `RuleTester` code sample is sour
 misspelled too, but resolving one needs the workspace map rather than the filesystem — a different
 check with a different failure mode. Bare specifiers are counted in the census and never judged.
 
-**If it fails:** it names the file, the line and the specifier, and the first path it tried. Fix the
-specifier, then confirm the mock is really installed by reverting the code under test and checking
-that the suite goes red. Run it locally with `pnpm check:vi-mock-specifiers`, or
-`node scripts/check-vi-mock-specifiers.mjs --list` to see every call site the walk found. It needs no
-install and no build.
+**The inherit gate.** `scripts/check-vi-mock-inherit.mjs` judges the same call sites for the sibling
+property: a factory that **hand-lists** the exports it returns freezes the mock's export surface at
+whatever the author typed that day. The real module keeps growing, and the next export any module in
+the file's import graph reads *at module scope* resolves to `undefined` against the frozen stand-in —
+so the file dies during **collection**, before a single test in it runs. Measured on
+[#6768](https://github.com/objectstack-ai/objectui/issues/6768): `Test Files 3 failed | 546 passed`
+alongside `Tests 6694 passed`, with **zero** failed assertions, because the tests in those three
+files never ran. It reads as flake to whoever meets it, and the bill lands on whoever added the
+export.
+
+Its recogniser is **semantic**, never a grep for `importOriginal`: that spelling mis-counted eleven
+correct files as broken *and* missed a broken one
+([#6849](https://github.com/objectstack-ai/objectui/issues/6849)). It asks whether the factory
+*obtains* the real module — a callback parameter under any name, or `vi.importActual` of the same
+specifier — and **spreads** it. Its scope is a declared, grow-only set of covered workspace
+specifiers rather than every factory, because the failure mechanism needs an export surface that
+grows: relative specifiers (whole-module replacement) and third-party packages are counted and never
+judged. Like its sibling it is green at rest, so a collapsed population is a failure here too.
+
+**If they fail:** the specifier gate names the file, the line and the specifier, and the first path
+it tried — fix the specifier, then confirm the mock is really installed by reverting the code under
+test and checking that the suite goes red. The inherit gate names each frozen call site as
+`file:line`, with the specifier and the shape it wants instead. Run them locally with
+`pnpm check:vi-mock-specifiers` and `pnpm check:vi-mock-inherit`, either with `--list` after the
+script path to see every call site the walk found. Neither needs an install or a build.
 
 ## Shell Escape Residue (`shell-escape-residue.yml`)
 
@@ -1633,12 +1681,27 @@ version it exists to ship is still absent. A repo/npm divergence is a failing ru
 
 The refresh lane is invoked **without** a `publish:` script and **without** npm credentials, so
 it cannot publish by construction rather than by a condition — the release act in this
-repository stays the human merge of the version PR. The publish lane runs
-`pnpm changeset:publish`, and that script is
-`node scripts/check-published-dist-tooling.mjs && changeset publish` — the **blocking** copy of
-the Published Dist Gate above. A published package whose `dist/` carries tooling material stops
-the publish before a single tarball reaches npm, which is where that defect actually costs
-anything ([#4846](https://github.com/objectstack-ai/objectui/issues/4846)).
+repository stays the human merge of the version PR.
+
+Before either lane's changesets step, the release job runs `pnpm build` — the publish lane ships
+what that build produced, and the gates below judge the built `dist/`, so there is nothing for them
+to read until it has run.
+
+The publish lane then runs `pnpm changeset:publish`, and that script is
+`node scripts/check-published-dist-tooling.mjs && node scripts/check-spec-range-floors.mjs && changeset publish`
+— the **blocking** copies of the Published Dist Gate and the Spec Range Floors
+gate above. A published package whose `dist/` carries tooling material, or one whose declared
+`@objectstack/spec` floor is missing a symbol its own artifact uses, stops the publish before a
+single tarball reaches npm, which is where those defects actually cost anything
+([#4846](https://github.com/objectstack-ai/objectui/issues/4846)).
+
+> ⚠️ **`pnpm changeset:publish` and `pnpm check:published-dist` are named above on purpose, and a
+> `run:`-only reading of this workflow will not find them.** They reach the runner through
+> `changesets/action@v1`'s `publish:` **input**, not through a `run:` step, so a tool — or a person
+> — scanning the YAML for `run:` lines sees a section naming two commands the job appears not to
+> run. It runs them. ⛔ Do not "fix" them out of this section; the parity pin in
+> `scripts/__tests__/ci-cd-pipeline-doc.test.ts` declares them as expected and fails if either the
+> declaration or the prose goes away.
 
 #### The release PR runs no CI, so the refresh lane validates the tree itself
 
@@ -1737,7 +1800,8 @@ workflow; manual. **It carries no `pull_request` trigger, on purpose.**
 
 A package's declared `@objectstack/spec` floor must carry every symbol that package's own
 build output references. The gate is `scripts/check-spec-range-floors.mjs`
-(`pnpm check:spec-floors`); the workflow builds every published package, then the gate compares
+(`pnpm check:spec-floors`); the workflow builds every published package with `turbo run build`
+(filtered only to exclude the docs site), then the gate compares
 each one's `dist` imports of `@objectstack/spec/*` against the export set of the version that
 package's own range admits at its lowest.
 
@@ -1913,14 +1977,15 @@ one by hand is what removes that guarantee.
 > `skip-changeset` or `dependencies` label. None of it existed;
 > [#3724](https://github.com/objectstack-ai/objectui/issues/3724) deleted the page.
 >
-> ⚠️ **The label object came back, and it still does nothing.** This note used to report a
-> point-in-time labels-API reading (2026-08-08: of the two names only `dependencies` existed).
-> That reading has since expired — a `skip-changeset` label now exists in this repository's
-> label set, because GitHub mints a label the first time one is applied by name, so a single
-> API call that applies it is enough to create it. By 2026-08-25 it sat on **seven** pull
-> requests, carrying the default grey `ededed` and an empty description that tell an
-> auto-minted label apart from a curated one.
-> [#4912](https://github.com/objectstack-ai/objectui/issues/4912) tracks deleting the object.
+> ⚠️ **The label object has been minted here before, and it never did anything.** This note
+> used to report a point-in-time labels-API reading (2026-08-08: of the two names only
+> `dependencies` existed), and that reading expired, because GitHub mints a label the first
+> time one is applied by name — so a single API call that applies it is enough to create it.
+> One did: by 2026-08-25 a `skip-changeset` label sat on **seven** pull requests, carrying the
+> default grey `ededed` and an empty description that tell an auto-minted label apart from a
+> curated one. [#4912](https://github.com/objectstack-ai/objectui/issues/4912) deleted that
+> object on 2026-09-09, and ⛔ that deletion is no more durable than the reading it replaced:
+> the same single API call re-mints it.
 >
 > ⛔ **Whether or not you can still see it in the picker, applying it declares nothing** — no
 > gate in this repository reads it. The real gate has no label escape hatch by design: its
@@ -2311,11 +2376,25 @@ instead of quietly dropping out of the wait.
 
 ### Shadcn Component Check (`shadcn-check.yml`)
 
-**Trigger:** Weekly on Monday at 9:00 AM UTC, or manual dispatch.
+**Trigger:** Weekly on Monday at 9:00 AM UTC, or manual dispatch. Nothing here blocks a merge — it
+runs on a schedule, and its alarm is an issue rather than the job colour.
 
-- Runs offline and online analysis of shadcn/ui components.
-- Creates or updates a GitHub issue if components need review or updating.
-- Uploads analysis artifacts for reference.
+Three first-party commands, in this order:
+
+- `pnpm shadcn:analyze` — the offline analysis of the vendored shadcn/ui components. Its exit code is
+  captured rather than tolerated: the one non-zero it can produce is an uncaught crash, and a crash
+  on a weekly schedule goes red where nobody looks.
+- `pnpm shadcn:check` — the online half, 46 serial registry requests. It exits non-zero for one
+  reason only, a declared local patch that is missing or no longer applies; ordinary drift and an
+  unreachable registry both stay exit 0 by design, because this gate must only ever accuse real
+  drift.
+- `node scripts/shadcn-check-report.mjs` — classifies both exit codes, the cross-run registry streak
+  and the step summary, and renders the issue body. It exits 0 for every *classified* outcome,
+  alarms included; it going red means the classifier itself crashed. It is covered by
+  `scripts/__tests__/shadcn-check-report.test.ts`.
+
+The job then creates or updates a single tracking issue when the classifier raises an alarm, and
+uploads the analysis artifacts for reference.
 
 ## Lockfile Merge Driver
 

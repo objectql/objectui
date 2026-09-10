@@ -767,7 +767,9 @@ export const UNGATED_EXAMPLES = {
     reason:
       'usage fragment: references `FormField`, which the example never declares',
   },
-  'packages/plugin-form/src/ObjectForm.tsx:123 ObjectForm': {
+  // Line moved 123 -> 124 (objectui#8738 route 1: one new import line added
+  // above this JSDoc block, in ObjectForm.tsx, for `warnUnresolvedTopLevelField`).
+  'packages/plugin-form/src/ObjectForm.tsx:124 ObjectForm': {
     card: null,
     codes: [2304],
     reason:
@@ -923,7 +925,7 @@ export const UNGATED_EXAMPLES = {
     reason:
       'usage fragment: references `User`, `setUser`, `useEffect`, which the example never declares',
   },
-  'packages/react/src/hooks/useExpression.ts:163 useExpression': {
+  'packages/react/src/hooks/useExpression.ts:165 useExpression': {
     card: null,
     codes: [18004],
     reason:
@@ -1013,7 +1015,7 @@ export const UNGATED_EXAMPLES = {
     reason:
       'usage fragment: references `save`, `storedPage`, which the example never declares',
   },
-  'packages/types/src/objectql.ts:1608 ObjectFormSchema': {
+  'packages/types/src/objectql.ts:1614 ObjectFormSchema': {
     card: null,
     codes: [1005, 1109],
     reason:

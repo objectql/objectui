@@ -2042,6 +2042,24 @@ const MULTI_KIND_MEMBER_CONTRACTS: Record<string, string> = {
 // exercised — had no existing candidate anywhere in the repo, so it is a new
 // file. See `MEMBER_PIN_EXEMPTION_CEILING`'s own docblock for the accounting.
 //
+// ⭐ FOURTH SLICE, THE SECOND WHOLE BLOCK CLOSED, AND A TWO-KEY FAMILY.
+// objectui#8071's fourth slice converted both remaining keys of ONE block —
+// `record:quick_actions`'s `actionNames` and `requiredPermissions` — chosen
+// because the block's remaining population is small enough to close outright
+// (the shape this card's own dispatch names, over an arbitrary four). Neither
+// key needed `NO_READ_SITE_TO_PIN`: `actionNames` drives a real
+// `useMetadataItem` lookup against the object's own `actions`, and
+// `requiredPermissions` is a block-level gate (`required.every((p) =>
+// perms.can(objectName, p))`) that hides the whole bar before anything is
+// drawn — a DIFFERENT mechanism from an `ActionDef`'s own per-action field of
+// the same name, which a pre-existing fixture already exercised without
+// touching this key at all. Measured over this file's own ledger, before and
+// after: 90 array/object-armed inputs, 40 pinned, 50 exempt -> 90, 42 pinned,
+// 48 exempt, and `MEMBER_PIN_EXEMPTION_CEILING` follows 50 -> 48 in the same
+// commit. One of the two pins PROMOTES a pre-existing file
+// (`recordQuickActionsInputs.actionNamesFallback.test.tsx`); the other
+// (`requiredPermissions`) is new, for the reason above.
+//
 // A list this size is the transition case, and this file already owns the
 // pattern for it —
 // `OFF_SPEC_EXEMPTIONS` / `UNPUBLISHED_EXEMPTIONS` / `OFF_SPEC_ARM_EXEMPTIONS`
@@ -2145,7 +2163,7 @@ const MEMBER_PINS: Record<string, MemberPin> = {
   },
   'element:record_picker.filter': {
     file: 'packages/components/src/__tests__/record-picker-inputs-spec-parity.test.ts',
-    pins: 'The `object` arm is `FilterConditionSchema` — field keys plus `$and`/`$or`/`$not` — with the rule-ARRAY spelling every sibling `filter` uses rejected outright, and the description pinned to the renderer\'s own precedence read (`composed?.filter ?? props.filter`), objectui#3830.',
+    pins: 'The `array` arm is `ViewFilterRuleSchema[]` — the one filter orthography this map\'s array-declared `filter` doors share — with the MongoDB-style RECORD spelling (`{ status }`, `{ $and }`) refused by kind at `filter` and a bare tuple refused at `filter.0`, and the description pinned to the renderer\'s own precedence read (`composed?.filter ?? props.filter`). objectui#3830 declared the key; objectstack#14406 converged it off the record form and objectui#7663 moved this side onto the array arm.',
   },
   'element:record_picker.label': {
     file: 'packages/components/src/renderers/basic/__tests__/record-picker-label-placeholder-i18n.test.tsx',
@@ -2193,7 +2211,7 @@ const MEMBER_PINS: Record<string, MemberPin> = {
   },
   'object-form.fields': {
     file: 'packages/plugin-form/src/__tests__/objectFormFieldsMembers-8071.test.tsx',
-    pins: 'Members are BARE FIELD NAMES resolved against the object schema — authored order preserved (against a control with no `fields`, whose order differs), a name the object does not declare dropped rather than rendered as an untyped stub, and the `{ name }` object spelling recorded as the read site\'s tolerance rather than a second contract. The sharp row is the one no other file can make: `object-form` carries a SECOND surface spelled `fields` (`sections[].fields`), whose canonical member is the spec `FormFieldSchema` object keyed on `field` — and that exact entry as a member of the TOP-LEVEL key resolves to no name and is dropped in SILENCE (no throw, no warning), with the same entry inside a section rendering as the live control so the negative cannot come from an object that never renders that field. Asserted through the real `ObjectForm`, because the sink is its own `fieldsToShow` loop rather than the `normalizeSectionField` chokepoint the sibling key uses. The spec row is `z.array(z.unknown())` and the registration declares no `of`, so the read site is the whole member contract (objectui#8071).',
+    pins: 'Members are BARE FIELD NAMES resolved against the object schema — authored order preserved (against a control with no `fields`, whose order differs), a name the object does not declare dropped rather than rendered as an untyped stub, and the `{ name }` object spelling recorded as the read site\'s tolerance rather than a second contract. The sharp row is the one no other file can make: `object-form` carries a SECOND surface spelled `fields` (`sections[].fields`), whose canonical member is the spec `FormFieldSchema` object keyed on `field` — and that exact entry as a member of the TOP-LEVEL key resolves to no name and is dropped from render (no throw) — SILENTLY until objectui#8738 route 1 added a named `console.warn` for exactly this case (also pinned in the same file), with the same entry inside a section rendering as the live control so the negative cannot come from an object that never renders that field. Asserted through the real `ObjectForm`, because the sink is its own `fieldsToShow` loop rather than the `normalizeSectionField` chokepoint the sibling key uses. The spec row is `z.array(z.unknown())` and the registration declares no `of`, so the read site is the whole member contract (objectui#8071).',
   },
   'object-grid.bulkActionDefs': {
     file: 'packages/plugin-grid/src/__tests__/bulkActionMembers-8071.test.tsx',
@@ -2270,6 +2288,14 @@ const MEMBER_PINS: Record<string, MemberPin> = {
   'record:highlights.fields': {
     file: 'packages/plugin-detail/src/__tests__/recordHighlightsInputs.spec-parity.test.ts',
     pins: 'Members are objects carrying `readonly` PER ENTRY — asserted to be per-entry rather than top-level, and every spec entry key must be discoverable from the `fields` description (objectui#3407).',
+  },
+  'record:quick_actions.actionNames': {
+    file: 'packages/plugin-detail/src/__tests__/recordQuickActionsInputs.actionNamesFallback.test.tsx',
+    pins: 'Members are action-id STRINGS resolved against the object\'s own `actions` through the real renderer: with no `actionNames` (and no host `actions`) the metadata layer is NEVER queried and the bar\'s empty placeholder renders, while naming an id drives the same `useMetadataItem` lookup and the resolved action\'s button actually appears — the positive control that keeps the negative case from reading as "the wiring was never exercised". Pre-existing file, promoted to a pin here after being read end to end; it was written for objectui#4663 (the registered description promised a fallback that exists on no path) rather than for this direction, but its second case already drives the exact read this key needs pinned (objectui#8071).',
+  },
+  'record:quick_actions.requiredPermissions': {
+    file: 'packages/plugin-detail/src/renderers/__tests__/record-quick-actions.requiredPermissions-gate.test.tsx',
+    pins: 'The BLOCK-LEVEL gate (`required.every((p) => perms.can(objectName, p))`) that hides the whole bar before any action is drawn — distinct from an `ActionDef`\'s own per-action `requiredPermissions`, which `record-quick-actions.declared-action-ids-7182.test.tsx`\'s `gated` fixture already covers. No key at all: the bar renders on the (empty) grant set, so the gate is provably driven by the key\'s PRESENCE. A single held permission gates as expected, and the discriminating row is a PARTIAL grant on a two-entry array — gated only when read as `.every` over the WHOLE array rather than its first element — with the all-granted case as that row\'s own positive control. New file: no existing test drove `schema.requiredPermissions` itself, only the unrelated per-action field of the same name (objectui#8071).',
   },
   'record:related_list.add': {
     file: 'packages/plugin-detail/src/__tests__/recordRelatedListInputs.spec-parity.test.ts',
@@ -2467,9 +2493,9 @@ const MEMBER_PIN_EXEMPTIONS: Record<string, string> = {
   // record:path
   'record:path.stages': AWAITING_A_PIN,
 
-  // record:quick_actions
-  'record:quick_actions.actionNames': AWAITING_A_PIN,
-  'record:quick_actions.requiredPermissions': AWAITING_A_PIN,
+  // record:quick_actions — objectui#8071 slice 4 pinned both remaining keys
+  // (`actionNames`, `requiredPermissions`); the block is now fully pinned and
+  // this header stays only as a note for the next reader who greps for it.
 
   // record:related_list — objectui#8071 slice 2 pinned `columns`, `dataSource`,
   // `filter` and `sort`. `actions` is the one left, and it is left for a
@@ -2583,11 +2609,31 @@ const NEWLY_JUDGED_UNPINNED_MEMBERS = [
  * `properties.sort` key before this slice — so it is the one genuinely new
  * file.
  *
+ * ## 50 -> 48, the fourth slice, and a two-key block closed the same way
+ *
+ * objectui#8071's fourth slice converted both remaining keys of ONE block —
+ * `record:quick_actions`'s `actionNames` and `requiredPermissions` — and
+ * deleted their two entries, so the ceiling follows to 48 in the same commit.
+ * Like `element:record_picker` (slice 3) and unlike `record:related_list`
+ * (slice 2), this block has no `NO_READ_SITE_TO_PIN` leftover: both declared
+ * keys have a real read site in `renderers/record-quick-actions.tsx` — the
+ * `actionNames` -> `useMetadataItem` lookup, and the `requiredPermissions`
+ * block-level gate that runs before any action is drawn — so the block drops
+ * out of `MEMBER_PIN_EXEMPTIONS` entirely.
+ *
+ * One of the two pins PROMOTES a pre-existing file
+ * (`recordQuickActionsInputs.actionNamesFallback.test.tsx`, written for
+ * objectui#4663 but already driving the exact `actionNames` read this key
+ * needs, read end to end before being credited); `requiredPermissions` had no
+ * candidate — every existing reference to that name in this renderer's test
+ * suite is an ActionDef's own PER-ACTION field, a different mechanism — so it
+ * is a new file.
+ *
  * ⇒ The rule for every future slice of objectui#8071: delete the entry, register
  * the pin, and set this constant to the new count. Not to the new count plus
  * room.
  */
-const MEMBER_PIN_EXEMPTION_CEILING = 50;
+const MEMBER_PIN_EXEMPTION_CEILING = 48;
 
 /**
  * Every test file a member pin can live in, as LAZY `?raw` loaders.
