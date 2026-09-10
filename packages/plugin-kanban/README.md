@@ -45,9 +45,10 @@ import '@object-ui/plugin-kanban';
 // `object-kanban`. (The STORED `NamedListView.type` value `"kanban"` is a
 // different layer and is unaffected — do not rewrite saved views.)
 //
-// `groupBy` and ONE record source (`data`, `bind` or `objectName`) are what the
-// surviving face requires of every board; the shape below is the one the
-// catalog fixture `plugin-kanban/basic-kanban-board.json` carries.
+// ONE record source (`data`, `bind` or `objectName`) is what the surviving face
+// requires of every board; `groupBy` is OPTIONAL since objectui#8990 but is what
+// makes the lanes hold cards, so every working board authors it. The shape below
+// is the one the catalog fixture `plugin-kanban/basic-kanban-board.json` carries.
 const schema = {
   type: 'object-kanban',
   groupBy: 'status',
@@ -106,8 +107,9 @@ const column: KanbanColumn = {
 };
 
 // ⚠️ `object-kanban`: the bare `kanban` node type key and its `KanbanSchema`
-// arm RETIRED in objectui#8802. `groupBy` and one of `bind` / `data` /
-// `objectName` are what the surviving face requires of every board.
+// arm RETIRED in objectui#8802. One of `bind` / `data` / `objectName` is what the
+// surviving face requires of every board; `groupBy` is optional since
+// objectui#8990, and authored here because a board without it holds no cards.
 const schema: ObjectKanbanSchema = {
   type: 'object-kanban',
   groupBy: 'status',
@@ -123,9 +125,14 @@ import type { ObjectKanbanSchema } from '@object-ui/types';
 
 declare const columns: KanbanColumn[];
 
-// The board document. `type` and `groupBy` are required, and so is ONE record
-// source — `bind`, `data` or `objectName`. `columns` and `className` are
-// optional.
+// The board document. `type` is required, and so is ONE record source — `bind`,
+// `data` or `objectName`. `groupBy`, `columns` and `className` are optional.
+//
+// `groupBy` is OPTIONAL since objectui#8990, matching `@objectstack/spec`. It is
+// still the key that makes the board work: with no lane key the records are never
+// distributed, so a lane-less board draws whatever lanes `columns` declares and
+// holds NO cards, and dragging a card writes nothing back. Omitting it is valid,
+// not useful — author it on any board meant to group records.
 //
 // ⚠️ `onCardMove` is NOT a document key: it is a React prop the host supplies
 // (JSON has no function value), which is why it is spelled with explicit
@@ -136,7 +143,7 @@ declare const columns: KanbanColumn[];
 // not what catches a misspelt board key.
 const board: ObjectKanbanSchema = {
   type: 'object-kanban',
-  groupBy: 'status',                  // required — the field that makes the lanes
+  groupBy: 'status',                  // optional, but the field that makes the lanes
   data: [],                           // one record source is required
   columns,                            // Array of columns
   className: 'h-full',                // Tailwind classes

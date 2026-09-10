@@ -21,11 +21,17 @@ objectui#7322 justified it as "every documented and tested `object-kanban` node 
 this key", and objectui#7780 recorded two producers excluded from that count; both are
 still live:
 
-- `content/docs/utilities/data-objectstack.mdx` documents an `object-kanban` node that
-  is exactly `{ type, dataSource }`, with no `groupBy`;
 - `packages/plugin-list/src/ListView.tsx` **generates** the node as
-  `groupBy: laneField`, where `laneField` ends in an explicit `|| undefined`, so a view
-  that declares no lane field emits `groupBy: undefined` at runtime.
+  `groupBy: laneField`. `objectDef` loads asynchronously, so `laneField` is `undefined`
+  on every load until it lands, and stays `undefined` whenever the object offers no
+  `stageField` hint and none of `status` / `stage` / `state` / `phase`. The renderer
+  serves that node; both published faces refused it.
+- `content/docs/utilities/data-objectstack.mdx` documents an `object-kanban` node that
+  is exactly `{ type, dataSource }`, with no `groupBy`. ⚠️ This one is weaker and is
+  cited for what it is: that fragment is **still** refused after this change, at
+  `RECORD_SOURCE_REQUIRED`, because `dataSource` is not a rung of the record-source
+  ladder. It shows a lane-less board is a documented authoring; it is not a document
+  this change admits.
 
 **What a lane-less board does, measured rather than assumed.** Every `schema.groupBy`
 read in `ObjectKanban.tsx` is a guarded early-return, so the board degrades instead of

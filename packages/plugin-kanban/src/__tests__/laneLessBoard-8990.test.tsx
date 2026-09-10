@@ -28,7 +28,11 @@
  * `effectiveColumns` memo). While `groupBy` was REQUIRED, no schema-valid
  * document could reach that branch: objectui#8913 admitted the arm anyway
  * (refusing it would have been a second narrowing) and recorded it as
- * unreachable. Making `groupBy` optional is what makes it live.
+ * unreachable. Making `groupBy` optional is what makes it reachable BY A
+ * SCHEMA-VALID DOCUMENT — the qualifier matters, and the section headed "WHICH
+ * legs guard the widening" below is where it is measured: the RENDERER never
+ * consulted this package's validator, so the branch was always live for a
+ * document that reached it unvalidated. ⛔ Not "dead code that came alive".
  *
  * ⚠️ "The arm fires" is not observable from the lane COUNT alone — a grouped
  * board draws two lanes too. It is observable from the lane TITLES, and that is
@@ -77,9 +81,10 @@
  * lane below it. A lane-less board returns before reaching any of it, and the
  * picklist-materialised lanes whose ids come straight from `opt.value` are
  * built under `if (schema.groupBy && ...)`, a branch a lane-less board cannot
- * enter. ⇒ This card can only NARROW objectui#8993's reachable set on the
- * documents it newly admits, never widen it. ⛔ Nothing here fixes #8993; it is
- * a renderer behaviour change with its own card.
+ * enter. ⇒ objectui#8993's reachable set is UNCHANGED by this card: admitting
+ * documents cannot shrink it, and none of the documents newly admitted can reach
+ * the defect. ⛔ Not "narrowed" — the claim is that nothing was widened. ⛔ And
+ * nothing here fixes #8993; it is a renderer behaviour change with its own card.
  */
 
 import React from 'react';

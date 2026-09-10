@@ -2928,11 +2928,12 @@ export interface ObjectKanbanSchema extends BaseSchema {
    * from-data branch), `persistCardMove`, and the `handleCardMove` callback —
    * plus their effect deps.
    *
-   * ⚠️ Anchored by SYMBOL, deliberately. The docblock this replaces cited
-   * `:601` / `:613` / `:625` / `:640` / `:747` / `:865`; every one of those had
-   * rotted by the time this card re-derived them (the same reads now sit ~370
-   * lines lower). `check:new-cross-file-line-citations` says the same thing in
-   * its own words — shifting an already-false address by a hunk delta just
+   * ⚠️ Anchored by SYMBOL, deliberately. The docblock this replaces carried six
+   * bare line addresses into that file and EVERY ONE had rotted by the time this
+   * card re-derived them — the same reads now sit some 370 lines lower. The
+   * numbers are not restated here even as history: a literal address in prose is
+   * the thing that rots, and `check:new-cross-file-line-citations` says the same
+   * in its own words — shifting an already-false address by a hunk delta only
    * moves a wrong pointer somewhere else. Undeclared here until
    * objectui#7322, so an authored value reached the renderer only through
    * {@link BaseSchema}'s `[key: string]: any` — admitted, never examined.
@@ -2954,17 +2955,31 @@ export interface ObjectKanbanSchema extends BaseSchema {
    *
    *   1. `content/docs/utilities/data-objectstack.mdx` documents an
    *      `object-kanban` node that is exactly `{ type, dataSource }` — no
-   *      `groupBy`. The published validator refused this repository's own
-   *      documented example.
+   *      `groupBy`. ⚠️ WEAKER THAN IT LOOKS, and the limit is worth stating: that
+   *      fragment is STILL refused after this card, at `RECORD_SOURCE_REQUIRED`
+   *      — `dataSource` is not a rung of this ladder — so it is evidence that a
+   *      lane-less board is a DOCUMENTED AUTHORING, not a document this card
+   *      admits. ⛔ Do not cite it as "objectui refuses its own documented
+   *      example" without that qualifier; the record-source half of the refusal
+   *      is deliberate and survives.
    *   2. `packages/plugin-list/src/ListView.tsx` GENERATES the node with
    *      `groupBy: laneField`, where
-   *      `laneField = groupByField || groupField || detectStatusField(objectDef) || undefined`
-   *      — an explicit `|| undefined`. A view that declares no lane field and
-   *      whose object has no detectable status field emits `groupBy: undefined`
-   *      at runtime, which the renderer serves and both faces refused.
+   *      `laneField = groupByField || groupField || detectStatusField(objectDef) || undefined`.
+   *      ⭐ This is the load-bearing one, and it is stronger than the explicit
+   *      `|| undefined` alone suggests: `objectDef` loads ASYNCHRONOUSLY, so
+   *      `laneField` is `undefined` on EVERY load until it lands — transiently
+   *      for every list-view kanban — and PERSISTENTLY in two cases from
+   *      `detectStatusField` (`packages/types/src/record-semantics.ts`): the
+   *      object declares no `stageField` role AND carries no field named
+   *      `status` / `stage` / `state` / `phase` and none typed `status`/`stage`;
+   *      or it sets `stageField: false`, which suppresses detection outright
+   *      (ADR-0085 — a status-shaped field that is not a linear flow). The
+   *      renderer serves that node and both published faces refused it.
    *
-   * Same shape as {@link objectName} (objectui#7780): a key the renderer guards
-   * at every read, declared REQUIRED, refusing boards that render today.
+   * ⇒ Evidence 2 carries this on its own; evidence 1 supports the authoring
+   * shape, not the accept set. Same shape as {@link objectName} (objectui#7780):
+   * a key the renderer guards at every read, declared REQUIRED, refusing boards
+   * that render today.
    *
    * ## What a lane-less board actually does — MEASURED, not argued
    *
@@ -3001,9 +3016,11 @@ export interface ObjectKanbanSchema extends BaseSchema {
    * `__uncolumned__` lane below it). A lane-less board returns before reaching
    * it, and the picklist-materialised lanes whose ids come straight from
    * `opt.value` are built under `if (schema.groupBy && ...)` — a branch a
-   * lane-less board cannot enter. So this card can only NARROW objectui#8993's
-   * reachable set on the documents it newly admits, never widen it. Measured
-   * both ways in the pin file above.
+   * lane-less board cannot enter. So objectui#8993's reachable set is UNCHANGED
+   * by this card — admitting documents cannot shrink it, and none of the
+   * documents newly admitted can reach the defect. ⛔ Not "narrowed": the
+   * containment is that nothing was widened. Measured both ways in the pin file
+   * above.
    */
   groupBy?: string;
   /**
@@ -3117,9 +3134,18 @@ export interface ObjectKanbanSchema extends BaseSchema {
    * {@link groupBy} was REQUIRED, no document that passed this schema could
    * reach that branch, and objectui#8913 admitted the arm anyway — refusing it
    * would have made objectui narrower than the protocol — recording it as
-   * inert. objectui#8990 made {@link groupBy} OPTIONAL, which is what made the
-   * arm live: a `groupBy`-less board with `columns: ['todo', 'doing']` now
-   * parses AND draws those two lanes, titled by the raw strings.
+   * inert. objectui#8990 made {@link groupBy} OPTIONAL, which is what makes the
+   * arm reachable BY A SCHEMA-VALID DOCUMENT: a `groupBy`-less board with
+   * `columns: ['todo', 'doing']` now parses AND draws those two lanes, titled by
+   * the raw strings.
+   *
+   * ⚠️ The qualifier is load-bearing, and matches {@link groupBy}'s. The RENDERER
+   * never consulted this package's validator — `SchemaRenderer` runs core's
+   * structural `validateSchema`, which carries no kanban rule — so the string
+   * branch was always live for a document that reached it WITHOUT passing the
+   * published faces (`ListView.tsx`'s generated node; any host not running
+   * `os check`). What the requiredness prevented was a document being valid AND
+   * getting there. ⛔ Do not restate this as "the arm was dead code".
    *
    * ⚠️ RAW strings, not localized labels, and the difference is the arm's
    * signature. The string branch returns `{ id: val, title: val }` and never
