@@ -2273,6 +2273,14 @@ const MEMBER_PINS: Record<string, MemberPin> = {
     file: 'apps/console/src/__tests__/component-input-union-specimens.test.ts',
     pins: 'The `object` arm is the inline translation map, with a non-matching control (objectui#3832).',
   },
+  'record:activity.types': {
+    file: 'packages/plugin-detail/src/renderers/__tests__/recordActivityFeed.test.ts',
+    pins: 'The allow-list\'s MEMBERS, asserted on `applyFeedConfig` — the call `record-activity.tsx` makes on every render — rather than through a DOM: each entry must name a `FeedItemType` the spec declares (the vocabulary is read from `@objectstack/spec`, never re-typed), a recognised list narrows the timeline to exactly those kinds, and the three ways a list can fail to name anything are kept APART from "no filter at all" (objectui#5841): `types: []`, an all-unrecognised list, and a non-array `types: \'comment\'` each render an EMPTY timeline, while an omitted `types` renders every kind. A mixed list keeps the recognised members and drops the rest. Both diagnostic channels are asserted in both directions with controls that a well-formed filter stays silent — including the objectui#5877 channel for a declared kind no producer emits, whose populations are derived from the producers rather than hand-listed. Pre-existing file, promoted to a pin here after being read end to end (objectui#8071 slice 6).',
+  },
+  'record:alert.action': {
+    file: 'packages/plugin-detail/src/renderers/__tests__/recordAlertActionMembers-8071.test.tsx',
+    pins: 'The CTA member object `{ actionName, label?, variant? }`, read through the real renderer with only `useMetadataItem` doubled. `actionName` is a REFERENCE resolved against the object metadata `actions[]`, so a name resolving to nothing renders NO button rather than an inert one — controlled by emptying `actions[]`, and by declaring a second action to show the named one is what dispatches. `label` OVERRIDES the resolved `ActionDef.label`, falls back to it and then to the action NAME, and accepts an inline translation map resolved to the session language (controlled against the same map under a second language). `variant` reaches the button\'s paint and OUTRANKS the severity-derived default, pinned on the discriminating case where the two disagree — an `error` banner with an authored `variant` (objectui#8071 slice 6).',
+  },
   'record:alert.body': {
     file: 'apps/console/src/__tests__/component-input-union-specimens.test.ts',
     pins: 'The `object` arm is the inline translation map, with a non-matching control (objectui#3832).',
@@ -2280,6 +2288,10 @@ const MEMBER_PINS: Record<string, MemberPin> = {
   'record:alert.title': {
     file: 'apps/console/src/__tests__/component-input-union-specimens.test.ts',
     pins: 'The `object` arm is the inline translation map, with a non-matching control (objectui#3832).',
+  },
+  'record:chatter.feed': {
+    file: 'packages/plugin-detail/src/renderers/__tests__/recordChatterFeedMembers-8071.test.tsx',
+    pins: 'The nested activity-feed config\'s MEMBERS, and the fact that authoring the object REPLACES rather than merges. `record-chatter.tsx` composes `{ position, collapsible, feed: DEFAULTS, ...schema }` — a shallow spread — so an authored `feed` displaces the renderer\'s three defaults wholesale and every member not restated falls back to `RecordActivityTimeline`\'s own default. Those defaults are NOT uniform, which is the trap this pin exists for and is asserted per member: `showCommentInput` is `!== false` (ON when absent) while `enableReactions` and `enableThreading` are `?? false` (OFF), so `feed: {}` silently takes reactions and threading down while leaving the composer up. Each of the three carries its own observable — composer placeholder, the `Add reaction` affordance, and whether a reply is pulled out of the ROOT row list — each with the absent-`feed` control (objectui#8071 slice 6).',
   },
   'record:details.fields': {
     file: 'packages/plugin-detail/src/__tests__/recordDetailsInputs.spec-parity.test.ts',
@@ -2293,9 +2305,17 @@ const MEMBER_PINS: Record<string, MemberPin> = {
     file: 'packages/plugin-detail/src/__tests__/recordDetailsInputs.spec-parity.test.ts',
     pins: 'Members are OBJECTS: every spec member key must be discoverable from the description, the retired section-id spelling must be ruled out by name, and the three renderer-only keys the spec refuses (`title`, `showBorder`, `hideEmpty`) may not be taught — filtered through the spec at runtime so a stale prohibition drops out on its own (objectui#3807).',
   },
+  'record:discussion.feed': {
+    file: 'packages/plugin-detail/src/renderers/__tests__/recordChatterFeedMembers-8071.test.tsx',
+    pins: 'The same key on the same renderer under its other registered name — `record:chatter` and `record:discussion` are one `RecordChatterRenderer` sharing `CHATTER_INPUTS`, so both rows point at the one file, which runs every case against BOTH names. See `record:chatter.feed` for what it constrains (objectui#8071 slice 6).',
+  },
   'record:highlights.fields': {
     file: 'packages/plugin-detail/src/__tests__/recordHighlightsInputs.spec-parity.test.ts',
     pins: 'Members are objects carrying `readonly` PER ENTRY — asserted to be per-entry rather than top-level, and every spec entry key must be discoverable from the `fields` description (objectui#3407).',
+  },
+  'record:path.stages': {
+    file: 'packages/plugin-detail/src/renderers/__tests__/recordPathStagesMembers-8071.test.tsx',
+    pins: 'The stage member set `{ value, label, terminal? }`, read through the real renderer. `value` is stage IDENTITY — compared against the record\'s `statusField` to choose the current stage, controlled by moving the RECORD rather than the array, by an unmatched value leaving NO stage current, and by a record carrying some stage\'s LABEL still matching nothing. `label` is the rendered text and the `value` behind it never appears. `terminal` OUTRANKS the `WON_TOKENS`/`LOST_TOKENS` heuristic, pinned only on fixtures where the member CONTRADICTS the heuristic and each paired with the identical stage minus `terminal` to show which way the heuristic was pointing, plus an unclassified control. Deliberately the DESKTOP row only: `record-path.crossRowClassification.test.tsx` owns the cross-row agreement invariant, which is a different claim (objectui#8071 slice 6).',
   },
   'record:quick_actions.actionNames': {
     file: 'packages/plugin-detail/src/__tests__/recordQuickActionsInputs.actionNamesFallback.test.tsx',
@@ -2486,20 +2506,18 @@ const MEMBER_PIN_EXEMPTIONS: Record<string, string> = {
   // page:tabs
   'page:tabs.items': AWAITING_A_PIN,
 
-  // record:activity
-  'record:activity.types': AWAITING_A_PIN,
+  // record:activity — objectui#8071 slice 6 pinned `types`, the block's one
+  // remaining key; fully pinned, header kept as a landmark for a future grep.
 
-  // record:alert
-  'record:alert.action': AWAITING_A_PIN,
+  // record:alert — objectui#8071 slice 6 pinned `action`, joining the `title`
+  // and `body` pins this block already carried; fully pinned.
 
-  // record:chatter
-  'record:chatter.feed': AWAITING_A_PIN,
+  // record:chatter / record:discussion — ONE renderer under two names, so
+  // objectui#8071 slice 6 pinned both `feed` keys in one file; both fully
+  // pinned.
 
-  // record:discussion
-  'record:discussion.feed': AWAITING_A_PIN,
-
-  // record:path
-  'record:path.stages': AWAITING_A_PIN,
+  // record:path — objectui#8071 slice 6 pinned `stages`, the block's one
+  // remaining key; fully pinned.
 
   // record:quick_actions — objectui#8071 slice 4 pinned both remaining keys
   // (`actionNames`, `requiredPermissions`); the block is now fully pinned and
@@ -2679,11 +2697,54 @@ const NEWLY_JUDGED_UNPINNED_MEMBERS = [
  * resolution, or the object-vs-flat precedence — so it is a new file,
  * `objectCalendarConfigMembers-8071.test.tsx`.
  *
+ * ## 46 -> 41, the sixth slice, and FIVE whole blocks closed at once
+ *
+ * objectui#8071's sixth slice took the five `record:*` detail-panel blocks that
+ * each carried exactly ONE unpinned key — `record:activity.types`,
+ * `record:alert.action`, `record:chatter.feed`, `record:discussion.feed` and
+ * `record:path.stages` — and pinned all five, so the ceiling follows to 41 in
+ * the same commit. Every one of the five blocks now carries zero exemptions,
+ * the shape `element:record_picker` (slice 3), `record:quick_actions` (slice 4)
+ * and `object-calendar` (slice 5) each closed in; this slice is the first to
+ * close more than one block, and the batch is coherent rather than opportunistic
+ * — one package (`packages/plugin-detail`), one family, and the selection rule
+ * is stateable in a sentence (every block whose remainder was exactly one key).
+ *
+ * `record:chatter.feed` and `record:discussion.feed` are ONE key on ONE
+ * renderer: the console registers `RecordChatterRenderer` under both names
+ * against the same `CHATTER_INPUTS`, so both rows point at one file that runs
+ * every case against both names — the shape slice 3 used for
+ * `record-picker-label-placeholder-i18n.test.tsx`, which covered `label` and
+ * `placeholder` together.
+ *
+ * One of the five PROMOTES a pre-existing file: `recordActivityFeed.test.ts`
+ * for `record:activity.types`, read end to end before being credited rather
+ * than trusted on its greps — it already asserts the allow-list's member
+ * semantics directly on `applyFeedConfig` (the call the renderer makes on every
+ * render), including objectui#5841's three distinct ways an authored list can
+ * name nothing and why none of them is "no filter". The other three files are
+ * new: the six existing `record:path` suites all use `stages[]` as a FIXTURE
+ * for a different subject (accessible names, the container label, the readout's
+ * inertness, cross-row agreement) and none would fail if `value`, `label` and
+ * `terminal` swapped roles; the six `record:alert` suites reference `action`
+ * only inside a props bag whose subject is `resultDialog` or the `visible`
+ * predicate; and the one `record:chatter` suite is about the host's `loading`
+ * signal and never authors `feed` at all.
+ *
+ * ⚠️ The `feed` pin records a LIMIT rather than pretending the key is uniform:
+ * `config.feed` reaches `RecordActivityTimeline`, which reads the five
+ * AFFORDANCE members only. `record:activity`'s FILTER members (`types`,
+ * `limit`, `showCompleted`, `unifiedTimeline`) are applied by `applyFeedConfig`,
+ * which only `record-activity.tsx` calls — so they are inert nested inside
+ * `feed`, even though the registration describes it as "same shape as
+ * record:activity". That is a contract defect rather than a member shape, so it
+ * is filed (objectui#8934) rather than frozen into the pin.
+ *
  * ⇒ The rule for every future slice of objectui#8071: delete the entry, register
  * the pin, and set this constant to the new count. Not to the new count plus
  * room.
  */
-const MEMBER_PIN_EXEMPTION_CEILING = 46;
+const MEMBER_PIN_EXEMPTION_CEILING = 41;
 
 /**
  * Every test file a member pin can live in, as LAZY `?raw` loaders.
