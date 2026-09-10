@@ -15,6 +15,8 @@ import { attachedDocs } from './helpers/attached-docs';
 // re-adding one is now itself an error (TS2578). See objectui#3494.
 import {
   BASELINE,
+  EXHAUSTED_HEADROOM_ALLOWANCES,
+  EXHAUSTED_HEADROOM_FLOOR_MULTIPLE,
   MAX_EAGER_CLOSURE_GZIP_BYTES,
   PER_CHUNK_BASELINE,
   PER_CHUNK_GZIP_CEILINGS,
@@ -710,6 +712,158 @@ describe('ceiling sensitivity, judged live (objectui#5924)', () => {
     ).toBe('pass');
     expect(evaluateClosureBudget({ report: injected }).status).toBe('fail');
   });
+
+  /**
+   * The other end of the same range (objectui#8554).
+   *
+   * The leg above answers "is this ceiling still LOW enough to mean anything?".
+   * Until this block it was the only question asked, so a ceiling with one byte
+   * left drew a green tick — and the reading that produced this card is exactly
+   * that: `framework` at 70,999 gzipped bytes against a 71,000 ceiling, across
+   * at least two merges, rendered ✅ with the run exiting 0, until an ordinary
+   * change turned `main` red.
+   */
+  describe('the exhausted end (objectui#8554)', () => {
+    /** The floor in bytes — a tenth of the regression, computed and not pinned. */
+    const FLOOR = REGRESSION_THIS_GATE_MUST_CATCH_BYTES * EXHAUSTED_HEADROOM_FLOOR_MULTIPLE;
+
+    /**
+     * The predicate as it stood before this card: one-sided, and no allowances.
+     * Passing these two makes a case a CONTROL rather than an assertion about
+     * arithmetic — the same fixture, judged by the old leg.
+     */
+    const AS_IT_STOOD = { floorMultiple: 0, allowances: {} } as const;
+
+    /**
+     * ⭐ The firing control triage asked for, on the row this card was filed
+     * about: the exact `framework` reading, red now and green before.
+     */
+    it("reds on this card's own reading — `framework` at 70,999 under a 71,000 ceiling", () => {
+      const input = {
+        report: sensitivityReport(BASELINE.gzipBytes, { framework: 70_999 }),
+        ceilings: { ...PER_CHUNK_GZIP_CEILINGS, framework: 71_000 },
+      };
+
+      // Green before, which is the defect and not a hypothetical.
+      expect(evaluateHeadroomSensitivity({ ...input, ...AS_IT_STOOD }).status).toBe('pass');
+
+      const result = evaluateHeadroomSensitivity(input);
+      expect(result.status).toBe('error');
+      expect(result.exhausted).toEqual(['framework']);
+      // Not the other leg: this row is nowhere near blind, so a green blind list
+      // is what proves the new predicate is the one that fired.
+      expect(result.blind).toEqual([]);
+      expect(result.message).toContain('EXHAUSTED');
+      // The constant to act on, so the fix is one named edit — the blind side's
+      // convention, applied to the row at the other end.
+      expect(result.message).toContain("PER_CHUNK_GZIP_CEILINGS['framework']");
+    });
+
+    it('renders the failing row ❌ rather than ✅ — the tick follows the verdict', () => {
+      const input = {
+        report: sensitivityReport(BASELINE.gzipBytes, { framework: 70_999 }),
+        ceilings: { ...PER_CHUNK_GZIP_CEILINGS, framework: 71_000 },
+      };
+      // The row renderer was a second copy of the predicate, so a floor that
+      // moved the verdict without moving the tick would print a green line under
+      // a red verdict — the same silence one indirection along.
+      expect(evaluateHeadroomSensitivity({ ...input, ...AS_IT_STOOD }).message).toContain(
+        '✅ chunk `framework`',
+      );
+      expect(evaluateHeadroomSensitivity(input).message).toContain('❌ chunk `framework`');
+    });
+
+    it('is exactly a tenth of a regression wide, from either side of the line', () => {
+      const measured = PER_CHUNK_BASELINE.framework;
+      const at = (headroom: number) =>
+        evaluateHeadroomSensitivity({
+          report: sensitivityReport(BASELINE.gzipBytes),
+          ceilings: { ...PER_CHUNK_GZIP_CEILINGS, framework: measured + headroom },
+        }).status;
+
+      expect(FLOOR).toBe(9_113.6);
+      expect(at(Math.ceil(FLOOR))).toBe('pass');
+      expect(at(Math.floor(FLOOR))).toBe('error');
+    });
+
+    /**
+     * The bound this leg must NOT own. A ceiling under its payload is an
+     * over-budget bundle: it is also under the floor, arithmetically, and
+     * counting it here would convert the size verdict's exit 1 into a gauge
+     * error and teach a reader that exit 2 does not mean what this file says.
+     */
+    it('leaves an OVER-budget ceiling to the size verdict, at this bound too', () => {
+      const result = evaluateHeadroomSensitivity({
+        report: sensitivityReport(BASELINE.gzipBytes, {
+          framework: PER_CHUNK_GZIP_CEILINGS.framework + 1,
+        }),
+      });
+      expect(result.status).toBe('pass');
+      expect(result.exhausted).toEqual([]);
+      expect(result.message).toContain('the size verdict owns this row');
+    });
+
+    it('holds a DECLARED row open at its allowance, and reds one byte tighter', () => {
+      // 394,708 is the live `ui-components` measurement the allowance was read
+      // from, so this pair is the ratchet at its own hinge rather than a
+      // rounded neighbourhood of it.
+      const at = (measuredBytes: number) =>
+        evaluateHeadroomSensitivity({
+          report: sensitivityReport(BASELINE.gzipBytes, { 'ui-components': measuredBytes }),
+        });
+
+      expect(at(394_708).status).toBe('pass');
+
+      const tighter = at(394_709);
+      expect(tighter.status).toBe('error');
+      expect(tighter.exhausted).toEqual(['ui-components']);
+    });
+
+    it('names every declared row in the PASSING verdict, not only when one fires', () => {
+      // A debt list that is only legible on the run that reds is the parenthetical
+      // this card is about: noticing stays manual, and it already failed twice.
+      const result = evaluateHeadroomSensitivity({
+        report: sensitivityReport(BASELINE.gzipBytes),
+      });
+      expect(result.status).toBe('pass');
+      for (const [name, allowance] of Object.entries(EXHAUSTED_HEADROOM_ALLOWANCES)) {
+        expect(result.message).toContain(`chunk \`${name}\``);
+        expect(result.message).toContain(`declared ${allowance}-byte allowance`);
+      }
+    });
+
+    /**
+     * The allowance table is a RATCHET, and the whole of its ratchet-ness is
+     * that these numbers can only be paid down. Nothing in the runtime can
+     * enforce that — the constant is whatever the file says — so the pin is the
+     * enforcement: an edit in either direction has to come here and be argued.
+     */
+    describe('the allowance table is a ratchet, pinned', () => {
+      it('holds exactly the rows measured under the floor on the day it landed', () => {
+        expect(EXHAUSTED_HEADROOM_ALLOWANCES).toEqual({
+          'i18n-locales': 8_804,
+          'ui-components': 4_292,
+        });
+      });
+
+      it('every entry is real debt — strictly under the floor it excuses', () => {
+        // An allowance at or above the floor is not debt, it is a second floor
+        // for one row, and the row should simply have been dropped from here.
+        for (const allowance of Object.values(EXHAUSTED_HEADROOM_ALLOWANCES)) {
+          expect(allowance).toBeLessThan(FLOOR);
+        }
+      });
+
+      it('every entry names a ceiling that exists', () => {
+        // An allowance for a key with no ceiling excuses nothing and would sit
+        // here unread, which is how a table of debt becomes a table of noise.
+        const judged = ['aggregate', ...Object.keys(PER_CHUNK_GZIP_CEILINGS)];
+        for (const key of Object.keys(EXHAUSTED_HEADROOM_ALLOWANCES)) {
+          expect(judged).toContain(key);
+        }
+      });
+    });
+  });
 });
 
 describe('renderTopChunks', () => {
@@ -928,6 +1082,20 @@ describe('main', () => {
    */
   it('exits 2 when a ceiling has drifted out of range of the regression it must catch', () => {
     const { code, outputs } = run(budgeted({}, -REGRESSION_THIS_GATE_MUST_CATCH_BYTES));
+    expect(code).toBe(2);
+    expect(outputs.closure_status).toBe('pass');
+    expect(outputs.closure_chunk_status).toBe('pass');
+    expect(outputs.closure_headroom_status).toBe('error');
+  });
+
+  /**
+   * objectui#8554: the same blind spot at the other end. `framework` one byte
+   * under its own ceiling is inside every size line in the file — both size
+   * halves pass, and every one of this gate's other exits is 0 — so the exit
+   * code here is produced by the exhausted leg alone.
+   */
+  it('exits 2 when a ceiling has no headroom left to measure with', () => {
+    const { code, outputs } = run(budgeted({ framework: PER_CHUNK_GZIP_CEILINGS.framework - 1 }));
     expect(code).toBe(2);
     expect(outputs.closure_status).toBe('pass');
     expect(outputs.closure_chunk_status).toBe('pass');
