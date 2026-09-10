@@ -6,6 +6,7 @@
 '@object-ui/cli': patch
 '@object-ui/console': patch
 '@object-ui/runner': patch
+'@object-ui/sdui-parser': minor
 ---
 
 Four node type keys retire, and the kanban and gantt families converge on their
@@ -117,3 +118,27 @@ for a consumer. With `kanban-enhanced` unregistered, `KanbanEnhanced.tsx` has
 zero non-test importers. ⛔ The file is deliberately left in place: deleting
 published-but-unreachable source is a further narrowing and needs its own
 maintainer ruling, which this change does not have.
+
+**⚠️ `@object-ui/sdui-parser`: `QUICK_ADD_HOST_TYPES` loses `kanban` with the
+registration.** The `inert-quick-add` diagnostic (objectui#8285) named the two
+tags `ObjectKanbanRenderer` answered to; one of them retires here, so the set is
+now `{ 'object-kanban' }`. ⛔ Nothing is silently dropped by that narrowing, and
+this is measured rather than argued: `checkKanbanQuickAdd` has exactly one call
+site — `validate.ts`'s per-prop walk — and that walk runs only in the branch
+where the manifest RESOLVED the tag. A tag no registration produces is answered
+one level up by `unknown-component`, an **error**, and its props are never
+walked, so on a manifest built from the live registry a `<kanban quickAdd>` node
+draws `error/unknown-component` and nothing else, against a firing control on
+`<object-kanban quickAdd>` that still draws `warning/inert-quick-add`. Keeping
+`kanban` in the set would have been reachable only through a hand-built manifest
+declaring a component of that name — which, after this retirement, is somebody
+else's component, and the message asserts things about `ObjectKanban` that would
+be false of it. This supersedes the `kanban` half of the objectui#8285 entry.
+
+**The diagnostic's remedy text moves from a tag to a component.** It used to end
+"render `<kanban-ui>` from a React host that passes `onQuickAdd`". That sentence
+is falsified by this change: `kanban-ui` is no longer a node type key, so a page
+written to the old advice draws `unknown-component`. It now names
+`KanbanRenderer` from `@object-ui/plugin-kanban` — still exported, still
+forwarding both halves by identity — which is the surviving way to get the pair.
+`content/docs/plugins/plugin-kanban.mdx` says the same thing the same way.
