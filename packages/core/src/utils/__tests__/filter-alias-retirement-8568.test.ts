@@ -190,8 +190,17 @@ describe('objectui#8568 — the four lowercase aliases are refused by name', () 
     expect(refusal).toMatchObject({ code: 'INVALID_FILTER', httpStatus: 400 });
   });
 
-  it.each([...RETIRED])('`%s` names `%s` in the refusal', (alias, canonical) => {
-    expect(refusalFor(alias).message).toContain(canonical);
+  // ⚠️ MEASURED, not assumed: `toContain(canonical)` ALONE does not discriminate.
+  // Ablating the named arm — so all four fall through to the generic message —
+  // left this case GREEN, because the generic message's own "Supported
+  // operators:" list already spells `$nin`, `$notContains`, `$startsWith` and
+  // `$endsWith`. A weaker assertion here would have been a case that passes
+  // while witnessing nothing. The PRESCRIPTION phrase is what only the named arm
+  // can produce, so that is what is asserted; the ablation moves it now.
+  it.each([...RETIRED])('`%s` prescribes `%s` by name in the refusal', (alias, canonical) => {
+    const message = refusalFor(alias).message;
+    expect(message).toContain(canonical);
+    expect(message).toContain(`Write '${canonical}' instead`);
   });
 
   it.each([...RETIRED])('`%s` does not fall through to the generic unknown-operator message', (alias) => {
