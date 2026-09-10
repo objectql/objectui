@@ -3021,7 +3021,7 @@ const EXCLUSIONS: Readonly<Record<string, string>> = {
   'objectql.zod.ts#PaginationConfigSchema':
     "spec-owned BY REFERENCE — the local `.extend(…)` adds renderer props that no TS declaration in this package restates",
   'objectql.zod.ts#UserActionsSchema':
-    "spec-owned BY REFERENCE — the local `.extend(…)` adds renderer props that no TS declaration in this package restates",
+    "spec-owned BY REFERENCE — a plain `stripImportedDefaults(Spec…)` re-export since objectui#8992 collapsed its `.extend(…)` (the protocol declares `group` / `hideFields` / `rowColor` itself from 17.3.0), and the TS name for it, `UserActionsConfig`, is re-exported FROM `@objectstack/spec/ui` by `../index.ts` rather than restated here — so there is no second definition to drift from",
   'objectql.zod.ts#ListViewSchema':
     "the DECLARATION is derived FROM this mirror — `ListViewSchema = ListViewInferred & ListViewRuntimeProps`, and `ListViewInferred = z.input<typeof ListViewSchema>` (`../objectql.ts`). Asserting parity here would be true no matter what either side said: a phantom assertion, not a check.",
   'objectql.zod.ts#ObjectQLComponentSchema':
