@@ -20,12 +20,38 @@ with private code, so a bare grid went on honouring at runtime a spelling
 — which is the per-block divergence the ruling declined by name when it
 rejected option A.
 
-**Migration.** Write the array: `sort: [{ field: 'name', order: 'desc' }]`
-(`order` is optional and means `'asc'`). That is the only spelling
+**Migration.** Write the array: `sort: [{ field: 'name', order: 'desc' }]`.
+**Both keys are required.** `SortConfig.order` carries no `?` in
+`@object-ui/types` (`packages/types/src/objectql.ts`) and no `.optional()` in
+its zod mirror, and the protocol's own reusable `SortItemSchema` requires
+`order` as well — measured: that schema refuses `[{ field: 'name' }]` with
+`invalid_value` at `0.order`. Do not omit it: this block's array arm
+interpolates whatever is present, so an omitted `order` lowers to
+`$orderby: 'name undefined'` today. That is pre-existing behaviour on the arm
+this change does not touch, and it is filed as a successor card rather than
+widened into here.
+
+**What the spec face does and does not say.** Measured against the installed
+`@objectstack/spec@17.4.0`: `ui.ObjectGridPropsSchema` is **value-agnostic** on
+this key — `sort` is `z.unknown().optional()`, so `safeParse` accepts
+`'name desc'`, `'name'`, `42`, `['name desc']` and `{ name: 'desc' }` alike,
+while an undeclared `bogusProp` is refused with `unrecognized_keys` (the
+control that shows those parse readings are real and not a schema that accepts
+everything). So the protocol's **validator** does not refuse the string, and
+this change is not a narrowing the validator already performed.
+
+What the protocol **declares and documents** is the array, in three places:
+that same key's own `describe` reads `Initial sort (array of { field, order })`;
+the sibling `ElementRecordPickerPropsSchema.sort` spells the identical intent as
+a typed `z.array(SortItemSchema)`, which refuses a string outright; and the
+`defaultSort` retirement text instructs authors to rename the key to `sort` and
+`wrap the value in an array`. The array is likewise the only spelling
 `ObjectGridSchema.sort` has declared since #8221, the only one the registered
-`sort` input publishes, and the only one `@objectstack/spec` accepts — so
-type-checked metadata is already on it, and only untyped JSON or a stored
-`sys_metadata` row can still carry the string.
+`sort` input publishes (`type: 'array'`), and the only one
+`convertSortToQueryParams` lowers. So type-checked metadata is already on it,
+and only untyped JSON or a stored `sys_metadata` row can still carry the string
+— which is exactly why the refusal is a loud runtime diagnostic rather than a
+type change.
 
 **What is deliberately unchanged.** The wire shape. The array arm still lowers
 to this block's own `"field order[, field order]"` join string, and the export

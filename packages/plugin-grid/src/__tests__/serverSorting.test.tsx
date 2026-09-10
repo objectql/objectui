@@ -22,6 +22,7 @@ import React from 'react';
 
 import { ObjectGrid, parseSchemaSort } from '../ObjectGrid';
 import { registerAllFields } from '@object-ui/fields';
+import { resetRetiredSortSpellingReports } from '@object-ui/core';
 import { ActionProvider } from '@object-ui/react';
 
 registerAllFields();
@@ -159,15 +160,13 @@ describe('ObjectGrid — column-header sorting is server-side (#3106)', () => {
     // Otherwise the first click on that column asks for `asc` on a list that is
     // already `desc`, and the arrow only tells the truth from click two on.
     //
-    // ⚠️ This case deliberately still authors the RETIRED string spelling, and
-    // is left that way: it is the one place in the suite that shows the header
-    // reader (`parseSchemaSort`) is now WIDER than the fetch path — since
-    // objectui#8767 the query carries no `$orderby` for this schema while the
-    // arrow below still appears. Narrowing the reader moves the wire shape and
-    // the export path with it; that is the route-B card #8767 did not take, so
-    // the divergence is recorded here rather than papered over.
+    // Authored in the ONE declared spelling. This case used to author the
+    // retired string clause; the subject is the header behaviour and the
+    // spelling was incidental, so it moves to the array for the same reason
+    // the sibling case above did. What a string does to this same schema is
+    // pinned deliberately, in the case below.
     const ds = makeDataSource();
-    const { container } = renderGrid(ds, { sort: 'status desc' });
+    const { container } = renderGrid(ds, { sort: [{ field: 'status', order: 'desc' }] });
     await waitFor(() => expect(screen.getByText('Row 0')).toBeInTheDocument());
 
     expect(headerCell(container, 'Status').querySelector('[class*="chevron-down"]')).not.toBeNull();
@@ -177,6 +176,48 @@ describe('ObjectGrid — column-header sorting is server-side (#3106)', () => {
     await waitFor(() => {
       expect(lastFindParams(ds).$orderby).toEqual([{ field: 'status', order: 'asc' }]);
     });
+  });
+
+  it('DIVERGENCE, pinned not tolerated (objectui#8961): a retired STRING sort still draws the arrow while the wire carries NO ordering', async () => {
+    // objectui#8767 made the fetch path REFUSE a string `sort`. The header
+    // indicators are fed by `parseSchemaSort`, a second private reader that
+    // the ruling deliberately left alone — and it still parses a string. So
+    // the two readers of one key now disagree, and this asserts BOTH halves of
+    // that disagreement.
+    //
+    // Asserting only the arrow (which is what this file did before) leaves a
+    // green test that reads as "string sort ⇒ arrow, as intended". A green
+    // test does not make a divergence visible; it certifies it. Naming both
+    // halves is what makes the state a recorded defect instead of an expected
+    // one, and makes THIS the case that has to change when objectui#8961
+    // closes the gap — narrowing the reader moves the wire shape and takes the
+    // export path with it, the route objectui#8767 did not take.
+    resetRetiredSortSpellingReports();
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const ds = makeDataSource();
+      const { container } = renderGrid(ds, { sort: 'status desc' });
+      await waitFor(() => expect(screen.getByText('Row 0')).toBeInTheDocument());
+
+      // Half one — the header still tells the user this list is `status desc`.
+      expect(
+        headerCell(container, 'Status').querySelector('[class*="chevron-down"]'),
+      ).not.toBeNull();
+
+      // Half two — and the query it was fetched with carries no ordering at
+      // all. `hasOwnProperty`, not `toBeUndefined`: the key is absent, which is
+      // a different claim from "present and undefined".
+      const params = lastFindParams(ds);
+      expect(Object.prototype.hasOwnProperty.call(params, '$orderby')).toBe(false);
+
+      // …and the disagreement is announced once, by PR #8758's own reporter.
+      const retired = errorSpy.mock.calls.filter((c) =>
+        String(c[0]).includes('objectui#8221'),
+      );
+      expect(retired).toHaveLength(1);
+    } finally {
+      errorSpy.mockRestore();
+    }
   });
 
   it('withholds the sort affordance from a relational column (#3096)', async () => {
@@ -195,7 +236,16 @@ describe('ObjectGrid — column-header sorting is server-side (#3106)', () => {
   });
 });
 
-describe('parseSchemaSort — the header reads what the fetch path reads', () => {
+/**
+ * ⚠️ This block pins the header reader's OWN contract, which since
+ * objectui#8767 is WIDER than the fetch path's — hence the renamed title. The
+ * cases below still admit the retired string spellings because this reader
+ * still admits them; the fetch path refuses them (see the divergence pin
+ * above). Re-judging these inputs belongs to objectui#8961, which narrows this
+ * reader and moves the wire shape with it. Until then they are read as "what
+ * `parseSchemaSort` accepts", never as "what the grid queries with".
+ */
+describe('parseSchemaSort — the header reader\'s own contract, wider than the fetch path (objectui#8961)', () => {
   it('reads the bare-string form', () => {
     expect(parseSchemaSort('name desc')).toEqual([{ field: 'name', order: 'desc' }]);
   });
