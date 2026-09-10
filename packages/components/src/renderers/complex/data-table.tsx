@@ -2177,16 +2177,29 @@ const DataTableRenderer = ({ schema }: { schema: DataTableSchema }) => {
 
                         - `toRenderableSchema` is the repo's permanent bridge
                           onto `SchemaRendererProps['schema']`, which declares
-                          no `number` / `boolean` (objectui#4548 ruling Q2). It
-                          maps those two onto their `String` form, which is
-                          behaviour-preserving for the TRUTHY ones - that is
-                          what the renderer's own defensive branch produces -
-                          but NOT for `0` / `false`, which `SchemaRenderer`
-                          renders as nothing (pinned, objectui#4548). Gating on
-                          truthiness keeps those two away from the bridge, so
-                          they keep the platform's answer instead of arriving as
-                          the text "0" and "false". Do not "tidy" the leg into a
-                          nullish test.
+                          no `number` / `boolean` (objectui#4548 ruling Q2).
+                          Since objectui#8908 it is behaviour-preserving across
+                          the WHOLE union: a truthy primitive becomes its text,
+                          which is what the renderer's own defensive branch
+                          produces, and a falsy one becomes nothing, which is
+                          what the renderer's first leg produces. Until then it
+                          mapped every `number` / `boolean` onto its `String`
+                          form, so `0` / `false` arrived as the text "0" and
+                          "false" while `SchemaRenderer` renders them as nothing
+                          (pinned, objectui#4548) - and gating on truthiness is
+                          what kept THIS slot out of that defect while the
+                          shipped `empty` renderer, which gates on nullish,
+                          printed a stray "0".
+                        - So the truthiness leg no longer DECIDES the answer;
+                          it reaches the same one a step earlier. It stays
+                          anyway, and objectui#8908 said so rather than letting
+                          it vanish as tidying: it is what makes this slot's
+                          answer independent of the bridge, which is the whole
+                          reason this slot survived the bridge being wrong. ⛔ Do
+                          not drop it as redundant without re-measuring both
+                          paths - the pins below assert the OUTCOME, and they
+                          would stay green through the removal right up until
+                          the bridge regressed again.
                         - The ternary replaces an `&&` chain that LEAKED: with
                           `emptyAction: 0` the chain evaluated to the number `0`
                           itself, which React renders as a stray "0" inside the
