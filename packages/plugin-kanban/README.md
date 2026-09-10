@@ -5,7 +5,7 @@ A lazy-loaded kanban board component for Object UI based on @dnd-kit for drag-an
 ## Features
 
 - **Internal Lazy Loading**: @dnd-kit libraries are loaded on-demand using `React.lazy()` and `Suspense`
-- **Zero Configuration**: Just import the package and use `type: 'kanban'` in your schema
+- **Zero Configuration**: Just import the package and use `type: 'object-kanban'` in your schema
 - **Automatic Registration**: Components auto-register with the ComponentRegistry
 - **Skeleton Loading**: Shows a skeleton while @dnd-kit loads
 - **Drag and Drop**: Full drag-and-drop support for cards between columns
@@ -39,9 +39,19 @@ themed styling at all ([#4929](https://github.com/objectstack-ai/objectui/issues
 // In your app entry point (e.g., App.tsx or main.tsx)
 import '@object-ui/plugin-kanban';
 
-// Now you can use kanban type in your schemas
+// Now you can author the `object-kanban` node type in your schemas.
+// ⛔ The bare `kanban` node type key RETIRED in objectui#8802 — a
+// `{ type: 'kanban' }` document is now refused BY NAME and told to write
+// `object-kanban`. (The STORED `NamedListView.type` value `"kanban"` is a
+// different layer and is unaffected — do not rewrite saved views.)
+//
+// `groupBy` and ONE record source (`data`, `bind` or `objectName`) are what the
+// surviving face requires of every board; the shape below is the one the
+// catalog fixture `plugin-kanban/basic-kanban-board.json` carries.
 const schema = {
-  type: 'kanban',
+  type: 'object-kanban',
+  groupBy: 'status',
+  data: [],
   columns: [
     {
       id: 'todo',
@@ -145,7 +155,9 @@ interface KanbanColumn {
   cards: KanbanCard[];
   limit?: number;                     // WIP limit — the count at which the lane warns
   className?: string;
-  collapsed?: boolean;                // Lane renders collapsed (honoured by KanbanEnhanced)
+  collapsed?: boolean;                // Lane renders collapsed (read by the KanbanEnhanced
+                                      // source module, which objectui#8257 left
+                                      // with no registry key — see CHANGELOG)
   color?: never;                      // RETIRED — refused by name; style a lane through className
 }
 
@@ -189,7 +201,7 @@ When bundled, Vite automatically creates separate chunks:
 - `index.js` (~200 bytes) - The entry point
 - `KanbanImpl-xxx.js` (~100-150 KB) - The lazy-loaded implementation
 
-The @dnd-kit libraries are only downloaded when a `kanban` component is actually rendered, not on initial page load.
+The @dnd-kit libraries are only downloaded when an `object-kanban` component is actually rendered, not on initial page load.
 
 ## Bundle Size Impact
 

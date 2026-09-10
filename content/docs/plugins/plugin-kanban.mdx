@@ -423,8 +423,14 @@ The kanban board includes:
 
 ## TypeScript Support
 
+`ObjectKanbanSchema` is published by `@object-ui/types` (and its Zod mirror by
+`@object-ui/types/zod`); `@object-ui/plugin-kanban` publishes the card and column
+shapes. Importing all three from the plugin does not resolve — its barrel never
+exported the schema type.
+
 ```plaintext
-import type { ObjectKanbanSchema, KanbanCard, KanbanColumn } from '@object-ui/plugin-kanban'
+import type { ObjectKanbanSchema } from '@object-ui/types'
+import type { KanbanCard, KanbanColumn } from '@object-ui/plugin-kanban'
 
 const column: KanbanColumn = {
   id: 'todo',

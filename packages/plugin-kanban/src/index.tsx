@@ -330,9 +330,18 @@ export const kanbanComponents = {
  * the same firing control (`object-grid`, 2 JSON / 128 TS) and silent control
  * (`zzz-not-a-type`, 0) the `kanban-ui` note above cites.
  *
- * `KanbanEnhanced` itself is untouched and still importable from
- * `@object-ui/plugin-kanban/KanbanEnhanced`; what is gone is the registry key
- * and the `React.lazy` wrapper that existed only to serve it.
+ * `KanbanEnhanced.tsx` itself is untouched on disk. ⛔ It is NOT, and never
+ * was, reachable from outside this package: `package.json` `exports` publishes
+ * exactly two entries — `.` and `./style.css` — and this barrel does not
+ * re-export the component, so `@object-ui/plugin-kanban/KanbanEnhanced` has
+ * never been a resolvable specifier for a consumer. (An earlier revision of
+ * this note claimed it was; that claim was wrong and is corrected here rather
+ * than deleted, because it is what a reader would otherwise copy.) What this
+ * card removes is the registry key and the `React.lazy` wrapper that existed
+ * only to serve it; what it leaves behind is a module with zero non-test
+ * importers — `cardPredicateScope.test.tsx` reaches it by relative path.
+ * ⛔ Deleting the file is a FURTHER narrowing of published source and needs its
+ * own maintainer ruling, which this card does not carry, so it stays.
  *
  * Pinned in `src/__tests__/kanban-family-registry-keys-retired-8257.test.ts`.
  */

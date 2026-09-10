@@ -2,8 +2,10 @@
 '@object-ui/types': minor
 '@object-ui/plugin-kanban': minor
 '@object-ui/plugin-gantt': minor
+'@object-ui/components': patch
 '@object-ui/cli': patch
 '@object-ui/console': patch
+'@object-ui/runner': patch
 ---
 
 Four node type keys retire, and the kanban and gantt families converge on their
@@ -69,5 +71,49 @@ pinned where it can be seen rather than left to be rediscovered.
 `objectName`; a purely static board (lanes carrying their own cards, no record
 source) adds `"groupBy"` and `"data": []`. `kanban-ui` and `kanban-enhanced`
 have no authored documents anywhere in this repository to migrate.
-`KanbanRenderer` and `KanbanEnhanced` are still exported and still importable —
-only their registry keys are gone.
+
+**⚠️ The namespaced spellings retire with the registrations — `view:kanban` and
+`view:gantt` are the same two keys.** `ComponentRegistry.register(type, C,
+{ namespace })` stores BOTH `namespace:type` and a bare-`type` fallback, so
+every one of these keys had a namespaced twin that goes with it:
+
+| retired spelling | namespaced twin | author instead |
+| --- | --- | --- |
+| `kanban` | `view:kanban` | `object-kanban` |
+| `gantt` | `view:gantt` | `object-gantt` |
+| `kanban-ui` | `plugin-kanban:kanban-ui` | `object-kanban` |
+| `kanban-enhanced` | `plugin-kanban:kanban-enhanced` | `object-kanban` |
+
+Both spellings are pinned as gone, each against a firing control on the
+surviving key, in `plugin-kanban/src/__tests__/kanban-family-registry-keys-retired-8257.test.ts`
+and `plugin-gantt/src/__tests__/bare-gantt-node-key-retired-8008.test.ts`.
+
+**What an unmigrated `view:kanban` / `view:gantt` node now renders depends on
+the host.** In `apps/console` it renders the protocol **placeholder** panel, not
+the OBJUI-001 "Unknown component type" error: the console calls the opt-in
+`registerPlaceholders()` (`@object-ui/components`, `renderers/placeholders.tsx`)
+*after* its plugin registrations, `view:kanban` and `view:gantt` are both in
+that file's `PROTOCOL_COMPONENTS` list, and the placeholder only claims a key
+nothing else has taken — which, until this change, `@object-ui/plugin-kanban`
+and `@object-ui/plugin-gantt` had. In every other host, which does not call that
+bootstrap, the same node renders OBJUI-001.
+
+**⚠️ `objectui check` will NOT flag either namespaced spelling.** The CLI's
+`known-schema-types.ts` is generated from the repository's real registration
+calls, and the placeholder registration is a real one — so `view:kanban` and
+`view:gantt` are still on that list and still validate green, while the node
+renders a placeholder rather than a board. The bare `kanban` / `gantt` entries
+DID leave the generated list; only the namespaced pair survives, and only
+because of the placeholder. Grep your documents for the namespaced spellings
+directly; do not rely on `objectui check` to find them.
+
+`KanbanRenderer` is still exported from this package's entry point
+(`@object-ui/plugin-kanban`); only its registry key is gone. ⚠️ `KanbanEnhanced`
+is a different case, and the earlier draft of this note stated it wrongly: this
+package's `exports` map has exactly two entries — `.` and `./style.css` — and
+the barrel never re-exported the component, so
+`@object-ui/plugin-kanban/KanbanEnhanced` has never been a resolvable specifier
+for a consumer. With `kanban-enhanced` unregistered, `KanbanEnhanced.tsx` has
+zero non-test importers. ⛔ The file is deliberately left in place: deleting
+published-but-unreachable source is a further narrowing and needs its own
+maintainer ruling, which this change does not have.

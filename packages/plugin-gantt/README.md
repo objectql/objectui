@@ -230,7 +230,7 @@ chart renders empty:
 
 ```typescript
 const recordSource = {
-  type: 'gantt',
+  type: 'object-gantt',
 
   // Pick ONE of the three:
   objectName: 'project_tasks',                          // load through the host DataSource
@@ -257,7 +257,7 @@ block was discarded silently.
 
 ```typescript
 const fieldMapping = {
-  type: 'gantt',
+  type: 'object-gantt',
   objectName: 'project_tasks',
 
   // (a) flat spelling — read only when there is no `gantt` block,
@@ -290,7 +290,7 @@ the renderer's `'day'` fallback.
 
 Earlier revisions of this README showed a task-array schema. Those keys have no
 read site anywhere in `src/` — a schema built from them renders an **empty
-chart with no diagnostic**, because `type: 'gantt'` *is* a registered type, so
+chart with no diagnostic**, because `type: 'object-gantt'` *is* a registered type, so
 the node mounts and simply finds nothing to draw:
 
 | Key shown before | Status | Use instead |
@@ -442,7 +442,7 @@ names are yours; only the `*Field` keys are fixed vocabulary.
 
 ```typescript
 const schema = {
-  type: 'gantt',
+  type: 'object-gantt',
   viewMode: 'week',
   startDateField: 'start',
   endDateField: 'end',
@@ -579,7 +579,7 @@ it needs the field mapping beside it (or a `gantt` block of its own):
 
 ```typescript
 const schema = {
-  type: 'gantt',
+  type: 'object-gantt',
   viewMode: 'month',
   objectName: 'project_tasks',
   startDateField: 'start_date',
