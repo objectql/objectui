@@ -27,7 +27,13 @@ import { isSystemManagedField, normalizeTableColumnType } from '@object-ui/types
 import type { I18nLabel } from '@objectstack/spec/ui';
 import { SchemaRenderer, useDataScope, useNavigationOverlay, useAction, useSafeFieldLabel, usePredicateScope, useRelatedRecordActions } from '@object-ui/react';
 import { createSafeTranslation } from '@object-ui/i18n';
-import { getCellRenderer, resolveCellRendererType, formatCurrency, formatCompactCurrency, formatDate, formatPercent, humanizeLabel, getBadgeColorClasses, getBadgeHexAppearance, FieldEditWidget, hasFieldEditWidget, DISCRETE_EDIT_TYPES, coerceToSafeValue } from '@object-ui/fields';
+// objectui#8920 — the grid reaches a cell renderer through THIS module and
+// nowhere else. `getCellRenderer` / `resolveCellRendererType` are deliberately
+// NOT imported here: six sites spelling the resolve three different ways is
+// what dropped a `format`-hinted column's renderer, and one shared owner is
+// what stops a seventh site picking a convention of its own.
+import { resolveGridCellRendering, gridCellRendererForFixedKey, BADGE_PREFIX_RENDERER_KEY } from './cellRendererResolution';
+import { formatCurrency, formatCompactCurrency, formatDate, formatPercent, humanizeLabel, getBadgeColorClasses, getBadgeHexAppearance, FieldEditWidget, hasFieldEditWidget, DISCRETE_EDIT_TYPES, coerceToSafeValue } from '@object-ui/fields';
 import { useLocalization, useDisplayLocale, resolveFieldCurrency } from '@object-ui/i18n';
 import { stateMachineNextValues, isFieldInlineEditable } from './inline-edit-options';
 import {
@@ -2483,7 +2489,8 @@ export const ObjectGrid: React.FC<ObjectGridComponentProps> = ({
 
             // Type-based cell renderer: explicit col type > objectDef type > heuristic inference.
             // Format hints (e.g. `text` + `format: 'phone'`) promote to the
-            // richer renderer (PhoneCellRenderer) via resolveCellRendererType.
+            // richer renderer (PhoneCellRenderer) via the grid's one shared
+            // resolve, `./cellRendererResolution` (objectui#8920).
             const objectDefField = objectSchema?.fields?.[col.field];
             // ⭐ ANNOTATED, and the annotation is load-bearing (objectui#6004).
             // `objectSchema` is `useState<any>`, so `objectDefField?.type` is
@@ -2497,10 +2504,11 @@ export const ObjectGrid: React.FC<ObjectGridComponentProps> = ({
             // object-field fallback below is now the only road, which is what
             // every measured author already used.
             const formatHint = objectDefField?.format;
-            const inferredType: string | null = baseInferredType
-              ? resolveCellRendererType({ type: baseInferredType, format: formatHint })
-              : null;
-            const CellRenderer = inferredType ? getCellRenderer(inferredType) : null;
+            // Both answers, from the one shared resolve (objectui#8920):
+            // `baseInferredType` is the DECLARED type the inline editor reads,
+            // `inferredType` the renderer key it promotes to.
+            const { rendererType: inferredType, Renderer } = resolveGridCellRendering({ type: baseInferredType, format: formatHint });
+            const CellRenderer = inferredType ? Renderer : null;
 
             // Build field metadata for cell renderers with objectDef enrichment
             const fieldMeta: Record<string, any> = { name: col.field, type: inferredType || 'text' };
@@ -2636,12 +2644,17 @@ export const ObjectGrid: React.FC<ObjectGridComponentProps> = ({
             const prefixConfig = col.prefix;
             if (prefixConfig?.field) {
               const baseCellRenderer = cellRenderer;
-              const PrefixRenderer = prefixConfig.type === 'badge' ? getCellRenderer('select') : null;
+              // ⭐ The one site whose contract is NOT "declared type + format
+              // hint": a FIXED registry key for the badge, owned by this
+              // component rather than by the prefixed field (objectui#8920).
+              // Named and routed through the same module so it reads as the
+              // declared exception it is, not as a fifth silent convention.
+              const PrefixRenderer = prefixConfig.type === 'badge' ? gridCellRendererForFixedKey(BADGE_PREFIX_RENDERER_KEY) : null;
               cellRenderer = (value: any, row: any) => {
                 const prefixValue = row[prefixConfig.field];
                 const prefixEl = prefixValue != null && prefixValue !== ''
                   ? PrefixRenderer
-                    ? <PrefixRenderer value={prefixValue} field={{ name: prefixConfig.field, type: 'select' } as any} />
+                    ? <PrefixRenderer value={prefixValue} field={{ name: prefixConfig.field, type: BADGE_PREFIX_RENDERER_KEY } as any} />
                     : <span className="text-muted-foreground text-xs mr-1.5">{String(prefixValue)}</span>
                   : null;
                 return (
@@ -2698,16 +2711,29 @@ export const ObjectGrid: React.FC<ObjectGridComponentProps> = ({
           const rawHeader = rawFieldLabel || fieldName.charAt(0).toUpperCase() + fieldName.slice(1).replace(/_/g, ' ');
           const header = schema.objectName ? resolveFieldLabel(schema.objectName, fieldName, rawHeader) : rawHeader;
 
-          // Resolve type: objectDef type > heuristic inference (consistent with ListColumn path)
-          // Annotated for the same reason as path A's `baseInferredType`
-          // above: `fieldDef` is `any`, and an `any` reaching the `...(resolvedType
-          // && { type: resolvedType })` spread below collapses the emit literal
-          // to `any` (objectui#6004).
-          const resolvedType: string | null = fieldDef?.type || inferColumnType({ field: fieldName }) || null;
-          const CellRenderer = resolvedType ? getCellRenderer(resolvedType) : null;
+          // TWO resolves, two names (objectui#8920). "Resolve type" here means
+          // objectDef type > heuristic inference — WHICH TYPE THE FIELD HAS,
+          // and that is `declaredType`. The published second step, WHICH
+          // RENDERER THE TYPE MAPS TO, is `rendererType`; this path used to
+          // skip it entirely, so a `text` + `format: 'phone'` column got
+          // `TextCellRenderer` and the hint vanished with no diagnostic.
+          // A local called `resolvedType` holding only the FIRST answer is the
+          // trap that hid that for four of the six sites.
+          //
+          // The `string | null` annotation path A's `baseInferredType` needs
+          // (objectui#6004: `fieldDef` is `any`, and an `any` reaching the
+          // `...(declaredType && { type: declaredType })` spread below
+          // collapses the emit literal) now lives on `GridCellRendering`'s
+          // members — it moved into the helper's return type, it did not go
+          // away.
+          const { declaredType, rendererType, Renderer } = resolveGridCellRendering({
+            type: fieldDef?.type || inferColumnType({ field: fieldName }),
+            format: fieldDef?.format,
+          });
+          const CellRenderer = rendererType ? Renderer : null;
 
           // Build field metadata with objectDef enrichment
-          const fieldMeta: Record<string, any> = { name: fieldName, type: resolvedType || 'text' };
+          const fieldMeta: Record<string, any> = { name: fieldName, type: rendererType || 'text' };
           if (fieldDef) {
             if (fieldDef.label) fieldMeta.label = fieldDef.label;
             if (fieldDef.currency) fieldMeta.currency = fieldDef.currency;
@@ -2721,16 +2747,16 @@ export const ObjectGrid: React.FC<ObjectGridComponentProps> = ({
           // reads the schema def directly, see `renderCellEditor` (objectui#7154).
           applyRelationalMeta(fieldMeta, fieldDef as any);
           // Auto-generate select options from data when no options defined
-          if (resolvedType === 'select' && !fieldMeta.options) {
+          if (rendererType === 'select' && !fieldMeta.options) {
             const uniqueValues = Array.from(new Set(data.map(row => row[fieldName]).filter(Boolean)));
             fieldMeta.options = uniqueValues.map((v: any) => ({ value: v, label: humanizeLabel(String(v)) }));
           }
-          if ((resolvedType === 'select' || resolvedType === 'status') && (fieldDef as any)?.appearance != null) {
+          if ((rendererType === 'select' || rendererType === 'status') && (fieldDef as any)?.appearance != null) {
             fieldMeta.appearance = (fieldDef as any).appearance;
           }
 
           const numericTypes = ['number', 'currency', 'percent'];
-          const inferredAlign = resolvedType && numericTypes.includes(resolvedType) ? 'right' as const : undefined;
+          const inferredAlign = rendererType && numericTypes.includes(rendererType) ? 'right' as const : undefined;
 
           // Auto-link primary field (first column) to record detail
           const isPrimaryField = colIndex === 0;
@@ -2768,9 +2794,12 @@ export const ObjectGrid: React.FC<ObjectGridComponentProps> = ({
           return {
             header,
             accessorKey: fieldName,
-            // Forward the resolved field type for the type-aware inline editor.
-            ...(resolvedType && { type: resolvedType }),
-            ...(schema.showColumnTypeIcons && resolvedType && { headerIcon: getTypeIcon(resolvedType) }),
+            // Forward the DECLARED type for the type-aware inline editor — the
+            // renderer key would make a `format`-hinted text column edit as a
+            // phone/currency control it never declared. Path A forwards
+            // `baseInferredType` for exactly this reason (objectui#8920).
+            ...(declaredType && { type: declaredType }),
+            ...(schema.showColumnTypeIcons && rendererType && { headerIcon: getTypeIcon(rendererType) }),
             ...(inferredAlign && { align: inferredAlign }),
             ...(cellRenderer && { cell: cellRenderer }),
             sortable: fieldDef?.sortable !== false,
@@ -2859,13 +2888,18 @@ export const ObjectGrid: React.FC<ObjectGridComponentProps> = ({
         });
         return fieldsToShow.map((fieldName) => {
           const fieldDef = objectSchema?.fields?.[fieldName];
-          // Annotated for the same reason as paths A and B (objectui#6004).
-          const resolvedType: string | null = fieldDef?.type || inferColumnType({ field: fieldName }) || null;
-          const CellRenderer = resolvedType ? getCellRenderer(resolvedType) : null;
+          // The same two resolves as path B, through the same shared owner
+          // (objectui#8920) — and the same objectui#6004 annotation, now
+          // carried by `GridCellRendering`'s `string | null` members.
+          const { declaredType, rendererType, Renderer } = resolveGridCellRendering({
+            type: fieldDef?.type || inferColumnType({ field: fieldName }),
+            format: fieldDef?.format,
+          });
+          const CellRenderer = rendererType ? Renderer : null;
           const header = fieldDef?.label || fieldName.charAt(0).toUpperCase() + fieldName.slice(1).replace(/_/g, ' ');
 
           // Build field metadata with objectDef enrichment
-          const fieldMeta: Record<string, any> = { name: fieldName, type: resolvedType || 'text' };
+          const fieldMeta: Record<string, any> = { name: fieldName, type: rendererType || 'text' };
           if (fieldDef) {
             if (fieldDef.label) fieldMeta.label = fieldDef.label;
             if (fieldDef.currency) fieldMeta.currency = fieldDef.currency;
@@ -2879,23 +2913,26 @@ export const ObjectGrid: React.FC<ObjectGridComponentProps> = ({
           // reads the schema def directly, see `renderCellEditor` (objectui#7154).
           applyRelationalMeta(fieldMeta, fieldDef as any);
           // Auto-generate select options from data when no options defined
-          if (resolvedType === 'select' && !fieldMeta.options) {
+          if (rendererType === 'select' && !fieldMeta.options) {
             const uniqueValues = Array.from(new Set(data.map(row => row[fieldName]).filter(Boolean)));
             fieldMeta.options = uniqueValues.map((v: any) => ({ value: v, label: humanizeLabel(String(v)) }));
           }
-          if ((resolvedType === 'select' || resolvedType === 'status') && (fieldDef as any)?.appearance != null) {
+          if ((rendererType === 'select' || rendererType === 'status') && (fieldDef as any)?.appearance != null) {
             fieldMeta.appearance = (fieldDef as any).appearance;
           }
 
           const numericTypes = ['number', 'currency', 'percent'];
-          const inferredAlign = resolvedType && numericTypes.includes(resolvedType) ? 'right' as const : undefined;
+          const inferredAlign = rendererType && numericTypes.includes(rendererType) ? 'right' as const : undefined;
 
           return {
             header,
             accessorKey: fieldName,
-            // Forward the resolved field type for the type-aware inline editor.
-            ...(resolvedType && { type: resolvedType }),
-            ...(schema.showColumnTypeIcons && resolvedType && { headerIcon: getTypeIcon(resolvedType) }),
+            // Forward the DECLARED type for the type-aware inline editor — the
+            // renderer key would make a `format`-hinted text column edit as a
+            // phone/currency control it never declared. Path A forwards
+            // `baseInferredType` for exactly this reason (objectui#8920).
+            ...(declaredType && { type: declaredType }),
+            ...(schema.showColumnTypeIcons && rendererType && { headerIcon: getTypeIcon(rendererType) }),
             ...(inferredAlign && { align: inferredAlign }),
             ...(CellRenderer && { cell: (value: any) => <CellRenderer value={value} field={fieldMeta as any} /> }),
             sortable: fieldDef?.sortable !== false,
@@ -2980,9 +3017,12 @@ export const ObjectGrid: React.FC<ObjectGridComponentProps> = ({
         && !perms.checkField(schema.objectName, fieldName, 'read')) return;
 
       // Annotated for the same reason as paths A-C (objectui#6004): `field` is
-      // `any`, so this value has to be named before it reaches a spread below.
-      const fieldType: string | undefined = field.type;
-      const CellRenderer = getCellRenderer(field.type);
+      // `any`, so these values have to be named before they reach a spread
+      // below — the naming now lives on `GridCellRendering`'s `string | null`
+      // members. `fieldType` is the DECLARED type the emit forwards to the
+      // inline editor; the renderer comes from the `format`-promoted key, which
+      // this path used to skip (objectui#8920).
+      const { declaredType: fieldType, rendererType, Renderer: CellRenderer } = resolveGridCellRendering(field);
       const numericTypes = ['number', 'currency', 'percent'];
       const translatedField = field.options
         ? { ...field, options: translateOptions(schema.objectName, fieldName, field.options) }
@@ -2993,7 +3033,9 @@ export const ObjectGrid: React.FC<ObjectGridComponentProps> = ({
         accessorKey: fieldName,
         // Forward the field type for the type-aware inline editor.
         ...(fieldType && { type: fieldType }),
-        ...(numericTypes.includes(field.type) && { align: 'right' as const }),
+        // Aligned on the RENDERER key, like paths A-C: a `text` column with
+        // `format: 'currency'` renders as currency, so it aligns as currency.
+        ...(!!rendererType && numericTypes.includes(rendererType) && { align: 'right' as const }),
         cell: (value: any) => <CellRenderer value={value} field={fieldForCell} />,
         sortable: field.sortable !== false,
       });
@@ -4433,11 +4475,17 @@ export const ObjectGrid: React.FC<ObjectGridComponentProps> = ({
 
       // Use objectSchema field type for type-aware rendering
       const fieldDef = objectSchema?.fields?.[key];
-      if (fieldDef?.type) {
-        const CellRenderer = getCellRenderer(fieldDef.type);
-        if (CellRenderer) {
-          return <CellRenderer value={value} field={fieldDef} />;
-        }
+      // Through the shared resolve, so the panel honours a `format` hint the
+      // same way the row above it does (objectui#8920). `rendererType` is null
+      // exactly when the key has no declared type, which is the guard this
+      // used to spell as `if (fieldDef?.type)`. The old inner
+      // `if (CellRenderer)` was DEAD — `getCellRenderer` ends in
+      // `standardMap[key] || TextCellRenderer` and never returns anything
+      // falsy — and `GridCellRendering.Renderer` states that totality in the
+      // type, so the dead branch goes with it.
+      const { rendererType, Renderer } = resolveGridCellRendering(fieldDef);
+      if (rendererType) {
+        return <Renderer value={value} field={fieldDef} />;
       }
 
       // Fallback: infer from value and key name
