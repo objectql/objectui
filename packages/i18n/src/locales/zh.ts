@@ -138,9 +138,9 @@ const zh = {
     // numbers, a missing one cannot name how many. Same split as
     // `grid.grouping.partialNotice`. Kept terse deliberately — this copy is
     // eagerly loaded, and since objectui#7399 these bytes are budgeted by the
-    // `i18n-locales` chunk, not `framework` — a ceiling set 8,924 B above the
-    // baseline it was measured from, about sixty short keys' worth across ten
-    // locales. `pnpm check:eager-closure` prints the figure in force.
+    // `i18n-locales` chunk, not `framework`. ⛔ That ceiling's headroom is
+    // deliberately NOT restated here — it moves on every re-baseline, and the
+    // figure that was here went stale. `pnpm check:eager-closure` prints it.
     rowCeilingNote: '仅显示 {{total}} 条记录中的前 {{shown}} 条。请缩小筛选范围。',
     rowCeilingNoteUnknownTotal: '仅显示前 {{shown}} 条记录。请缩小筛选范围。',
   },
@@ -1533,6 +1533,9 @@ const zh = {
     importMappingsUnavailable: "无法加载 {{object}} 的已保存导入映射",
     importMappingsRefused: "服务器拒绝了此请求，因此该列表为空是因为读取失败，而不是因为没有注册任何映射。请重新登录，或联系管理员申请访问权限。",
     importMappingsUnreadable: "该列表为空是因为读取失败，而不是因为没有注册任何映射。请重试；如果反复出现，请反馈此问题。",
+    savedViewsUnavailable: "无法加载 {{object}} 的已保存视图",
+    savedViewsRefused: "服务器拒绝了此请求，因此该列表为空是因为读取失败，而不是因为该对象没有已保存的视图。请重新登录，或联系管理员申请访问权限。",
+    savedViewsUnreadable: "该列表为空是因为读取失败，而不是因为该对象没有已保存的视图。请重试；如果反复出现，请反馈此问题。",
     title: 'ObjectStack 控制台',
     initializing: '正在初始化应用程序…',
     search: '搜索…',

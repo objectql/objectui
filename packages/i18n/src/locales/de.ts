@@ -131,9 +131,9 @@ const de = {
     // numbers, a missing one cannot name how many. Same split as
     // `grid.grouping.partialNotice`. Kept terse deliberately — this copy is
     // eagerly loaded, and since objectui#7399 these bytes are budgeted by the
-    // `i18n-locales` chunk, not `framework` — a ceiling set 8,924 B above the
-    // baseline it was measured from, about sixty short keys' worth across ten
-    // locales. `pnpm check:eager-closure` prints the figure in force.
+    // `i18n-locales` chunk, not `framework`. ⛔ That ceiling's headroom is
+    // deliberately NOT restated here — it moves on every re-baseline, and the
+    // figure that was here went stale. `pnpm check:eager-closure` prints it.
     rowCeilingNote: "Erste {{shown}} von {{total}} Datensätzen. Filter eingrenzen.",
     rowCeilingNoteUnknownTotal: "Erste {{shown}} Datensätze. Filter eingrenzen.",
   },
@@ -1468,6 +1468,9 @@ const de = {
     importMappingsUnavailable: "Gespeicherte Importzuordnungen für {{object}} konnten nicht geladen werden",
     importMappingsRefused: "Der Server hat diese Anfrage abgelehnt. Die Liste ist also leer, weil sie nicht gelesen werden konnte — nicht, weil nichts registriert ist. Melden Sie sich erneut an oder bitten Sie eine Administratorin oder einen Administrator um Zugriff.",
     importMappingsUnreadable: "Diese Liste ist leer, weil sie nicht gelesen werden konnte, nicht weil nichts registriert ist. Versuchen Sie es erneut und melden Sie das Problem, wenn es weiterhin auftritt.",
+    savedViewsUnavailable: "Gespeicherte Ansichten für {{object}} konnten nicht geladen werden",
+    savedViewsRefused: "Der Server hat diese Anfrage abgelehnt. Die Liste ist also leer, weil sie nicht gelesen werden konnte — nicht, weil dieses Objekt keine gespeicherten Ansichten hätte. Melden Sie sich erneut an oder bitten Sie eine Administratorin oder einen Administrator um Zugriff.",
+    savedViewsUnreadable: "Diese Liste ist leer, weil sie nicht gelesen werden konnte, nicht weil dieses Objekt keine gespeicherten Ansichten hätte. Versuchen Sie es erneut und melden Sie das Problem, wenn es weiterhin auftritt.",
     settingsHub: {
       title: "Einstellungen",
       subtitle: "Konfigurieren Sie Ihren Workspace, Integrationen und Feature-Flags.",

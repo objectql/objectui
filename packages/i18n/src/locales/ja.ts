@@ -131,9 +131,9 @@ const ja = {
     // numbers, a missing one cannot name how many. Same split as
     // `grid.grouping.partialNotice`. Kept terse deliberately — this copy is
     // eagerly loaded, and since objectui#7399 these bytes are budgeted by the
-    // `i18n-locales` chunk, not `framework` — a ceiling set 8,924 B above the
-    // baseline it was measured from, about sixty short keys' worth across ten
-    // locales. `pnpm check:eager-closure` prints the figure in force.
+    // `i18n-locales` chunk, not `framework`. ⛔ That ceiling's headroom is
+    // deliberately NOT restated here — it moves on every re-baseline, and the
+    // figure that was here went stale. `pnpm check:eager-closure` prints it.
     rowCeilingNote: "{{total}} 件中、最初の {{shown}} 件を表示しています。フィルターを絞り込んでください。",
     rowCeilingNoteUnknownTotal: "最初の {{shown}} 件を表示しています。フィルターを絞り込んでください。",
   },
@@ -1468,6 +1468,9 @@ const ja = {
     importMappingsUnavailable: "{{object}} の保存済みインポートマッピングを読み込めませんでした",
     importMappingsRefused: "サーバーがこのリクエストを拒否しました。つまりこのリストが空なのは読み取れなかったためであり、何も登録されていないためではありません。再度サインインするか、管理者にアクセス権を依頼してください。",
     importMappingsUnreadable: "このリストが空なのは読み取れなかったためであり、何も登録されていないためではありません。再試行し、繰り返し発生する場合は報告してください。",
+    savedViewsUnavailable: "{{object}} の保存済みビューを読み込めませんでした",
+    savedViewsRefused: "サーバーがこのリクエストを拒否しました。つまりこのリストが空なのは読み取れなかったためであり、このオブジェクトに保存済みビューがないためではありません。再度サインインするか、管理者にアクセス権を依頼してください。",
+    savedViewsUnreadable: "このリストが空なのは読み取れなかったためであり、このオブジェクトに保存済みビューがないためではありません。再試行し、繰り返し発生する場合は報告してください。",
     settingsHub: {
       title: "設定",
       subtitle: "ワークスペース、連携、機能フラグを設定します。",

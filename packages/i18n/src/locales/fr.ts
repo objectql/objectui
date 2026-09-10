@@ -131,9 +131,9 @@ const fr = {
     // numbers, a missing one cannot name how many. Same split as
     // `grid.grouping.partialNotice`. Kept terse deliberately — this copy is
     // eagerly loaded, and since objectui#7399 these bytes are budgeted by the
-    // `i18n-locales` chunk, not `framework` — a ceiling set 8,924 B above the
-    // baseline it was measured from, about sixty short keys' worth across ten
-    // locales. `pnpm check:eager-closure` prints the figure in force.
+    // `i18n-locales` chunk, not `framework`. ⛔ That ceiling's headroom is
+    // deliberately NOT restated here — it moves on every re-baseline, and the
+    // figure that was here went stale. `pnpm check:eager-closure` prints it.
     rowCeilingNote: "Affichage des {{shown}} premiers enregistrements sur {{total}}. Affinez le filtre.",
     rowCeilingNoteUnknownTotal: "Affichage des {{shown}} premiers enregistrements. Affinez le filtre.",
   },
@@ -1470,6 +1470,9 @@ const fr = {
     importMappingsUnavailable: "Impossible de charger les mappages d’import enregistrés pour {{object}}",
     importMappingsRefused: "Le serveur a refusé cette requête : cette liste est donc vide parce qu’elle n’a pas pu être lue, et non parce que rien n’est enregistré. Reconnectez-vous ou demandez un accès à un administrateur.",
     importMappingsUnreadable: "Cette liste est vide parce qu’elle n’a pas pu être lue, et non parce que rien n’est enregistré. Réessayez, et signalez le problème s’il persiste.",
+    savedViewsUnavailable: "Impossible de charger les vues enregistrées pour {{object}}",
+    savedViewsRefused: "Le serveur a refusé cette requête : cette liste est donc vide parce qu’elle n’a pas pu être lue, et non parce que cet objet n’aurait aucune vue enregistrée. Reconnectez-vous ou demandez un accès à un administrateur.",
+    savedViewsUnreadable: "Cette liste est vide parce qu’elle n’a pas pu être lue, et non parce que cet objet n’aurait aucune vue enregistrée. Réessayez, et signalez le problème s’il persiste.",
     settingsHub: {
       title: "Paramètres",
       subtitle: "Configurez votre espace de travail, vos intégrations et vos indicateurs de fonctionnalité.",

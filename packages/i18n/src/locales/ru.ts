@@ -137,9 +137,9 @@ const ru = {
     // numbers, a missing one cannot name how many. Same split as
     // `grid.grouping.partialNotice`. Kept terse deliberately — this copy is
     // eagerly loaded, and since objectui#7399 these bytes are budgeted by the
-    // `i18n-locales` chunk, not `framework` — a ceiling set 8,924 B above the
-    // baseline it was measured from, about sixty short keys' worth across ten
-    // locales. `pnpm check:eager-closure` prints the figure in force.
+    // `i18n-locales` chunk, not `framework`. ⛔ That ceiling's headroom is
+    // deliberately NOT restated here — it moves on every re-baseline, and the
+    // figure that was here went stale. `pnpm check:eager-closure` prints it.
     rowCeilingNote: "Показаны первые {{shown}} из {{total}} записей. Сузьте фильтр.",
     rowCeilingNoteUnknownTotal: "Показаны первые {{shown}} записей. Сузьте фильтр.",
   },
@@ -1478,6 +1478,9 @@ const ru = {
     importMappingsUnavailable: "Не удалось загрузить сохранённые сопоставления импорта для {{object}}",
     importMappingsRefused: "Сервер отклонил этот запрос, поэтому список пуст из-за того, что его не удалось прочитать, а не потому, что ничего не зарегистрировано. Войдите заново или запросите доступ у администратора.",
     importMappingsUnreadable: "Список пуст из-за того, что его не удалось прочитать, а не потому, что ничего не зарегистрировано. Повторите попытку и сообщите о проблеме, если она повторяется.",
+    savedViewsUnavailable: "Не удалось загрузить сохранённые представления для {{object}}",
+    savedViewsRefused: "Сервер отклонил этот запрос, поэтому список пуст из-за того, что его не удалось прочитать, а не потому, что у этого объекта нет сохранённых представлений. Войдите заново или запросите доступ у администратора.",
+    savedViewsUnreadable: "Список пуст из-за того, что его не удалось прочитать, а не потому, что у этого объекта нет сохранённых представлений. Повторите попытку и сообщите о проблеме, если она повторяется.",
     settingsHub: {
       title: "Настройки",
       subtitle: "Настройте рабочее пространство, интеграции и флаги функций.",
