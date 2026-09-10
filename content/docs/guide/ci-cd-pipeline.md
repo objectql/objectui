@@ -1396,14 +1396,22 @@ a **fenced code block** contains one of the enumerated machine-produced shell-qu
 
 The contributor tree `.claude/skills/` joined that list in
 [#7403](https://github.com/objectstack-ai/objectui/issues/7403). It is not published, but it is
-agent-**written** and agent-**read**, which is both halves of the mechanism this gate exists for — and
-[#7251](https://github.com/objectstack-ai/objectui/issues/7251) had moved two contributor guides there
-out of `skills/objectui/`, taking 18 fenced blocks off the surface in one commit with nothing turning
-red. Nothing could have turned red: the `skills` row's file floor is a **collapse** detector, and 16
-files stayed behind to satisfy it while the two that left went unmeasured. A floor measures the roots
-that are declared, never the tree that walked out of them, so a move and its `SCAN_ROOTS` row belong
-in one change. The sibling gate `check-skills-paths` lost 55 stated paths to the same move and was
-widened the same way in [#7358](https://github.com/objectstack-ai/objectui/issues/7358).
+agent-**written** and agent-**read**, which is both halves of the mechanism this gate exists for —
+and [#7251](https://github.com/objectstack-ai/objectui/issues/7251) had moved two contributor guides
+there out of `skills/objectui/`, taking 18 fenced blocks off the surface in one commit with nothing
+turning red. Nothing could have turned red: the `skills` row's file floor is a **collapse**
+detector, and the files that stayed behind were enough to satisfy it while the two that left went
+unmeasured. A floor measures the roots that are declared, never the tree that walked out of them, so
+a move and its `SCAN_ROOTS` row belong in one change. ⛔ How many stayed is not stated here,
+deliberately: this sentence used to carry that as a literal, the tree moved under it, and nothing
+went red over that distance, because nothing fails on a number written in prose
+([#8629](https://github.com/objectstack-ai/objectui/issues/8629),
+[#7448](https://github.com/objectstack-ai/objectui/issues/7448)). The gate derives every root's
+population from `SCAN_ROOTS` on each run and prints it — its result line carries a per-root `N
+file(s), N fence(s)` reading — so running `scripts/check-shell-escape-residue.mjs` is the live
+answer to what the `skills` root holds today. The sibling gate `check-skills-paths` lost 55 stated
+paths to the same move and was widened the same way in
+[#7358](https://github.com/objectstack-ai/objectui/issues/7358).
 
 **Why it needed a gate.** In [#5150](https://github.com/objectstack-ai/objectui/issues/5150) the
 `git commit -F -` example in `AGENTS.md` §9 shipped with its heredoc terminator wrapped in the
@@ -1536,9 +1544,15 @@ one `node` call over the source tree, **no install and no build**, ~1.3 s.
 
 **What it weighs, and what was not weighing it.**
 `apps/site/app/components/registerCatalogBlocks.ts` is a list of side-effect imports, and each one
-pulls its package's module graph into the Next docs route `/docs/[[...slug]]` — a route **all 181
-docs pages share**, not just the catalog gallery. The cards that added to that list said the cost
-was governed by `check:eager-closure`. It was not:
+pulls its package's module graph into the Next docs route `/docs/[[...slug]]` — a route **every docs
+page shares**, not just the catalog gallery. ⛔ No page count here, deliberately: this sentence used
+to state one as a literal, it went stale, and nothing went red over that distance, because nothing
+fails on a number written in prose ([#8629](https://github.com/objectstack-ai/objectui/issues/8629),
+[#7448](https://github.com/objectstack-ai/objectui/issues/7448)). That population is derived on
+every run from the directory `apps/site/source.config.ts` declares as the docs collection —
+`content/docs` — and this gate prints how much of it the walk reached: the `gauge:` line reports the
+route roots it crawled and how many of those are compiled MDX modules out of that directory. The
+cards that added to that list said the cost was governed by `check:eager-closure`. It was not:
 `scripts/check-eager-closure-budget.mjs` reads `apps/console/dist/eager-closure.json` and
 `performance-budget.yml` builds `@object-ui/console`, so that budget weighs the **console**. The
 only measurement of the docs route that has ever existed was reconstructed by hand, once, from the
@@ -2382,8 +2396,10 @@ and is meant to stay re-syncable, so this install keeps its differences in one p
 sweeper's closed-card reader (`pm:*` labels left on cards that already closed) is *called* here: the
 reader is **on**, with a dated floor. The sweep step sets `PM_SWEEP_CLOSED_FLOOR: '2026-08-28'`, so
 only cards closed on or after that cutover are judged, and the page window is deliberately left
-unset — back to the sweeper's own upstream default of 4 pages. The floor, not a zeroed window, is
-what holds the historical carriers out.
+unset — back to the sweeper's own upstream default, which `scripts/pm/check-half-states.mjs` exports
+as `CLOSED_ISSUE_WINDOW_PAGES` rather than being restated here, a constant copied into prose being a
+number that rots the moment the export moves. The floor, not a zeroed window, is what holds the
+historical carriers out.
 
 **Why a floor rather than a plain "on".** Stripping `pm:*` on close only became this repo's practice
 on the cutover date, and the measurement taken just before it says what an unfloored reader would do
