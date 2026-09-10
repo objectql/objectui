@@ -60,11 +60,14 @@
  * arity of one declared key; it does not turn `PageNodeSchema` into a closed
  * surface, and nothing here should be quoted as if it did.
  *
- * ⚠️ A second, unrelated defect in the same fence, measured while writing this
- * file and filed as objectui#8912: the flagship grid spells its child list
- * `items`, a key `grid` never reads, so that example draws an EMPTY grid. It is
- * transcribed here verbatim — `items` and all — because this file asks about
- * `body`'s ARITY and must not quietly repair a defect it does not own.
+ * ⚠️ A second, unrelated defect in the same fence was measured while writing
+ * this file and filed as objectui#8912: the flagship grid SPELLED its child
+ * list `items`, a key `grid` never reads, so that example drew an EMPTY grid.
+ * That card has since repaired all three teaching surfaces to `children`, and
+ * the transcription below follows the repaired flagship. This file still asks
+ * only about `body`'s ARITY and rules on nothing else; the child key is pinned
+ * by the render pin in
+ * `packages/components/src/__tests__/page-body-single-node-8310.test.tsx`.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -85,11 +88,15 @@ const README = readFileSync(join(REPO_ROOT, 'README.md'), 'utf8');
 /* Leg 1 — compile-time, compiled by `tsc -p packages/types/tsconfig.test.json` */
 /* -------------------------------------------------------------------------- */
 
-/** The `grid` node the README's flagship example hands to `body`. */
+/**
+ * The `grid` node the README's flagship example hands to `body` — child list
+ * spelled `children`, the key `GridSchema` declares and `grid` reads
+ * (objectui#8912).
+ */
 const flagshipGrid: SchemaNode = {
   type: 'grid',
   columns: 3,
-  items: [
+  children: [
     { type: 'statistic', label: 'Total Users', value: '${stats.users}' },
     { type: 'statistic', label: 'Revenue', value: '${stats.revenue}' },
     { type: 'statistic', label: 'Orders', value: '${stats.orders}' },
@@ -221,7 +228,7 @@ describe('PageNodeSchema.body still refuses a non-node — the widening kept its
 /**
  * The `const schema = {` object literal inside the README's "Basic Usage"
  * fence, returned as source text. Scanned with brace-depth tracking rather
- * than a regex so a nested `items[]` cannot end the span early.
+ * than a regex so a nested `children[]` cannot end the span early.
  */
 function basicUsageSchemaLiteral(): string {
   const heading = README.indexOf('#### Basic Usage');

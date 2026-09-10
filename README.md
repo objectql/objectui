@@ -233,7 +233,7 @@ const schema = {
   body: {
     type: "grid",
     columns: 3,
-    items: [
+    children: [
       { type: "statistic", label: "Total Users", value: "${stats.users}" },
       { type: "statistic", label: "Revenue", value: "${stats.revenue}" },
       { type: "statistic", label: "Orders", value: "${stats.orders}" }
