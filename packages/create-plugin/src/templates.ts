@@ -375,6 +375,35 @@ ${vars.license} © ${vars.author}
 }
 
 /**
+ * ⛔ The four emitted `src/*` files carry NO copyright header (objectui#8778).
+ *
+ * `buildIndexFile`, `buildImplFile`, `buildTypesFile` and `buildTestFile` — the
+ * four builders below, and the only four that write source into the author's
+ * package — each used to open the file they emit with
+ * `Copyright (c) <year>-present ObjectStack Inc.` under an `ObjectUI` title
+ * line. That is this project asserting ownership of code a third party has not
+ * written yet, in a package they publish under their own name: a false
+ * statement the tool emitted, not a style preference, which is why it is gone
+ * rather than reworded.
+ *
+ * ⛔ Do not put anything back in its place. Every candidate — a placeholder, an
+ * SPDX line, `vars.author`, this project's name — is a fresh legal assertion
+ * about somebody else's code, and none has been ruled on. Emitting nothing is
+ * the only option that asserts nothing. If a specific string ever does belong
+ * here it arrives as a maintainer decision, never as a template edit.
+ *
+ * What REMAINS is the licence pointer, and it stays because it is TRUE.
+ * `vars.license` is the licence the author chose at the prompt (objectui#8041),
+ * the LICENSE file the sentence points at really is emitted beside these four
+ * (see {@link buildPluginFiles}), and {@link buildLicenseFile} refuses an id it
+ * has no text for (objectui#8892) — so it cannot name a licence the package
+ * does not carry. It is also one of the six agreeing licence statements those
+ * two cards built: for any one of these files the other five are the manifest,
+ * the README and its three sibling headers. Deleting the whole block, rather
+ * than the ownership lines alone, would silently drop four of the six.
+ */
+
+/**
  * The generated plugin's `src/index.tsx` (entry point + registry registration).
  *
  * The `./types` re-export is load-bearing, not tidiness (objectui#3759). The
@@ -396,9 +425,6 @@ ${vars.license} © ${vars.author}
  */
 export function buildIndexFile(vars: PluginTemplateVars): string {
   return `/**
- * ObjectUI
- * Copyright (c) ${vars.year}-present ObjectStack Inc.
- *
  * This source code is licensed under the ${vars.license} license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -432,9 +458,6 @@ ComponentRegistry.register('${vars.pluginName}', ${vars.pascalName}Renderer, {
 /** The generated plugin's `src/<Pascal>Impl.tsx`. */
 export function buildImplFile(vars: PluginTemplateVars): string {
   return `/**
- * ObjectUI
- * Copyright (c) ${vars.year}-present ObjectStack Inc.
- *
  * This source code is licensed under the ${vars.license} license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -481,9 +504,6 @@ export const ${vars.pascalName}: React.FC<${vars.pascalName}Props> = ({ classNam
  */
 export function buildTypesFile(vars: PluginTemplateVars): string {
   return `/**
- * ObjectUI
- * Copyright (c) ${vars.year}-present ObjectStack Inc.
- *
  * This source code is licensed under the ${vars.license} license found in the
  * LICENSE file in the root directory of this source tree.
  */
@@ -506,9 +526,6 @@ export interface ${vars.pascalName}Schema extends BaseSchema {
 /** The generated plugin's example test, `src/<Pascal>Impl.test.tsx`. */
 export function buildTestFile(vars: PluginTemplateVars): string {
   return `/**
- * ObjectUI
- * Copyright (c) ${vars.year}-present ObjectStack Inc.
- *
  * This source code is licensed under the ${vars.license} license found in the
  * LICENSE file in the root directory of this source tree.
  */
