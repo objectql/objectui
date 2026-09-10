@@ -52,6 +52,24 @@
  * documents that RENDER (lane headings, no crash), not documents that work
  * better. ⛔ It is not an invitation to omit the key.
  *
+ * ## ⚠️ WHICH legs guard the widening — measured by ablation, and not obvious
+ *
+ * Reverting `groupBy` to REQUIRED on both faces (source-only mutation, no
+ * rebuild; the `dist/` marker read both ways and unchanged, so the run was
+ * reading source through vitest's `@object-ui/types` alias) turns exactly the
+ * CONTRACT legs of this file red — `safeParse` / `safeValidateSchema` — and
+ * leaves every RENDER leg green.
+ *
+ * ⭐ That is a fact about the system, not a weakness of the pins: `SchemaRenderer`
+ * runs the structural `validateSchema`, never this package's zod mirror, so the
+ * renderer's bare-string branch was ALWAYS live for a document that reached it
+ * without passing the published validator — `ListView.tsx`'s generated node, or
+ * any host not running `os check`. What the requiredness made impossible was a
+ * SCHEMA-VALID document reaching that branch. ⇒ ⛔ Do not read the render legs
+ * below as guarding the declaration; they pin renderer BEHAVIOUR, and the
+ * contract legs above are what pin the widening. Deleting the contract legs
+ * would leave this file fully green against a re-narrowed schema.
+ *
  * ## ⛔ objectui#8993 is NOT reached from here, and that is asserted
  *
  * objectui#8993 (`bucketCardsIntoColumns` double-buckets a non-string lane id)
