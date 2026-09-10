@@ -29,8 +29,11 @@
  * plus ONE undeclared key with a real read site:
  *
  *   description — the metric-card sub-caption channel. Read at
- *   `DashboardRenderer.tsx` (`(widget.options as …)?.description`,
- *   objectui#4032 item 4) and, since objectui#7293, at `DatasetWidget.tsx`'s
+ *   `widgetSubCaption.ts` (`(widget.options as …)?.description`, objectui#4032
+ *   item 4 — that read sat inline in `DashboardRenderer.tsx` until
+ *   objectui#8889 moved it, verbatim, into the hook BOTH dashboard surfaces
+ *   now call, so the authored and bundle channels compose at one decision
+ *   point) and, since objectui#7293, at `DatasetWidget.tsx`'s
  *   metric branch, which renders it in the caption row; the server's
  *   `translateDashboard` OVERLAYS the `widgets.{id}.subCaption` translation
  *   onto this key (objectstack#8056, objectstack#5428 item-4: 「两个作者字段两个
