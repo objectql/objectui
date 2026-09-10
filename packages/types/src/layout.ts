@@ -816,9 +816,32 @@ export interface PageNodeSchema extends BaseSchema {
   // blankLayout removed — the `blank` page type has no renderer and was dropped
   // from @objectstack/spec PageTypeSchema (framework#2265, enforce-or-remove).
   /**
-   * Main content array (Legacy/Simple mode)
+   * Main content (Legacy/Simple mode) — ONE node, or a list of them.
+   *
+   * The union is the declaration catching up to its reader, not a widening for
+   * convenience (objectui#8310, maintainer ruling 2026-09-07). This key read
+   * `SchemaNode[]` and was the OUTLIER in this file: `CardSchema.body` and
+   * `AspectRatioSchema.body` already spell the union, and so does
+   * `BaseSchema.body` — the channel this interface inherits and then narrowed.
+   * `PageRenderer`'s `FlatContent` fallback
+   * (`packages/components/src/renderers/layout/page.tsx`) has always accepted a
+   * bare node, normalizing it into a one-element list; under the narrowing that
+   * branch was unreachable through the renderer's own declared props and stood
+   * only behind a `content as SchemaNode` cast, which the same ruling deletes.
+   *
+   * The refused value is authored on this project's own landing page: the root
+   * `README.md` "Basic Usage" example gives `body` a single `grid` node. It
+   * type-checked only because that snippet is annotated `BaseSchema` — the
+   * WIDER parent — so nothing on the authoring path ever asked this key about
+   * its arity. Pinned by `__tests__/page-body-arity-8310.test.ts`.
+   *
+   * ⚠️ Bounded, and the bound was measured: `BaseSchema` carries
+   * `[key: string]: any`, so annotating an authored page catches a value of the
+   * WRONG TYPE (TS2322) and never a MISSPELLED key (an undeclared key is
+   * absorbed by the index signature, zero diagnostics). This union repairs the
+   * first case only.
    */
-  body?: SchemaNode[];
+  body?: SchemaNode | SchemaNode[];
   /**
    * Alternative content prop
    */
