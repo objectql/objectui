@@ -365,6 +365,7 @@ import {
   deriveDeclaredDependencyPaths,
   derivePackageTypePaths,
   moduleSpecifiersOfBlock,
+  peerMappedCount,
 } from './check-doc-snippet-types.mjs';
 import { isEntrypoint } from './invoked-as.mjs';
 
@@ -1374,6 +1375,7 @@ export function analyze({ root = repoRoot, measure = false, baseline = KNOWN_BAR
 
   const {
     paths: dependencyPaths,
+    declaredIn: dependencyDeclaredIn,
     untyped: untypedDependencies,
     declared: declaredSpecifiers,
   } = deriveDeclaredDependencyPaths(root, neededPackages, packageDirOf);
@@ -1450,6 +1452,7 @@ export function analyze({ root = repoRoot, measure = false, baseline = KNOWN_BAR
     // — "import it from lucide-react" is not a remedy for this defect class.
     workspacePaths: paths,
     dependencyPaths,
+    dependencyDeclaredIn,
     untypedDependencies,
     declaredSpecifiers,
     neededPackages,
@@ -1769,7 +1772,7 @@ function main() {
 
   const { lines: controlLines, failures: controlFailures } = evaluateControls(run, publishedSurface);
   console.log(
-    `Third-party resolution: ${Object.keys(state.dependencyPaths).length} specifier(s) mapped from the declared dependencies of ${state.neededPackages.size} imported package(s); ${state.untypedDependencies.length} declared specifier(s) ship no types here and stay unresolvable.`,
+    `Third-party resolution: ${Object.keys(state.dependencyPaths).length} specifier(s) mapped from the declared dependencies of ${state.neededPackages.size} imported package(s), ${peerMappedCount(state)} of them from a REQUIRED peerDependency this workspace resolves; ${state.untypedDependencies.length} declared specifier(s) ship no types here and stay unresolvable.`,
   );
   console.log(
     state.unmappedSpecifiers.size === 0
