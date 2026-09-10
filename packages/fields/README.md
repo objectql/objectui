@@ -47,7 +47,8 @@ const MyGridCell = ({ field, value }: CellRendererProps) => {
   // `type` is not always the renderer's key: a textual field carrying a
   // format hint (`Field.text({ format: 'phone' })`) resolves to the richer
   // renderer. Passing `field.type` raw skips that mapping and draws such a
-  // column as bare text, silently. Every shipped view calls this pair.
+  // column as bare text, silently. Resolving first is never worse: with no
+  // format hint the resolver returns the declared `type` unchanged.
   const Renderer = getCellRenderer(resolveCellRendererType(field));
   return <Renderer field={field} value={value} />;
 };
