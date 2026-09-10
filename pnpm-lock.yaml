@@ -2810,7 +2810,7 @@ importers:
   packages/types:
     dependencies:
       '@objectstack/spec':
-        specifier: ^17.3.0
+        specifier: ^17.4.0
         version: 17.4.0(ai@7.0.65(zod@4.4.3))
       zod:
         specifier: ^4.4.3
