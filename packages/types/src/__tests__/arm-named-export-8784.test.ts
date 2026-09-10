@@ -22,7 +22,7 @@
  * maps it to `dist/zod/index.zod.js`) and `index.zod.ts` carries no star
  * re-export — every name on that barrel is written out by hand. So an arm added
  * to a category module and not to the barrel is declared-and-unreachable, and
- * BOTH of the ways that has happened were silent:
+ * TWO of the three ways that has happened were silent:
  *
  *  - `BreadcrumbSchema` was on the barrel at creation and was dropped by
  *    `d908a82f4`, a "Fix schema duplication" dedup, as COLLATERAL — no
@@ -31,11 +31,31 @@
  *  - `ObjectTreeSchema` was never added at all: PR #1892's file list omits the
  *    barrel.
  *
- * ⚠️ Neither failure mode was hypothetical when this pin was written, and one
- * of them was LIVE: `507b61bf7` (PR #8763, objectui#8499) armed four new arms
- * in `layout.zod.ts` and `form.zod.ts` and touched no barrel, 48 minutes after
- * objectui#8784 was filed on a census that read 107 arms / 107 named / 0
- * unnamed. Those four are the `ABSENT_PENDING_RULING` rows below.
+ * ⭐ The third way is neither of those, and it is the one live on this tree:
+ * a DECLARED deferral. `507b61bf7` (PR #8763, objectui#8499, merged
+ * 2026-09-09T08:11:20Z) armed four new arms in `layout.zod.ts` and
+ * `form.zod.ts` and left the barrel alone ON PURPOSE. Its own changeset,
+ * `.changeset/8499-node-slot-registered-arms.md`, declares the omission, the
+ * metric it moves, and the reason: exporting a `SemanticElementSchema` /
+ * `HtmlElementSchema` pair "would publish a NAMED authoring surface (`z.enum`
+ * families, not per-tag schemas) that this card's ruling does not cover", so
+ * "the metric is left to move and said out loud instead" and "whoever wants
+ * the number back down should treat naming these families as its own
+ * decision". objectui#8499's ceiling review raised the omission as blocking
+ * F1 (`5597569641`), a delta commit carrying the eight barrel lines was
+ * prepared, and the review then PASSed the deferral "on the surface-widening
+ * reason alone" (`5598263402`). ⛔ So this is NOT `d908a82f4` recurring: no
+ * one forgot, and the four rows below say "a decision is owed", not "someone
+ * slipped".
+ *
+ * ⚠️ It is still exactly what this pin is for, and the reason is where the
+ * declaration LIVES. A `.changeset/*.md` is consumed and deleted at release —
+ * measured, e.g. `59f61cfb8` "chore: release packages (#4655)" removes the
+ * batch it versioned. The absence outlives its own explanation, and once the
+ * explanation is gone a deferred non-export and a collateral drop are the same
+ * two lines of nothing in `index.zod.ts`. The rows below move that reason into
+ * the tree, where it is re-read on every run and deleted only when it stops
+ * being true.
  *
  * ## Why the existing checks could not see it
  *
@@ -76,9 +96,12 @@
  * (four did, mid-card), and a number stated in a comment that nothing checks is
  * objectui#8606. The only bound asserted against the real union is a floor read
  * off that union's own top-level option count, which is what proves the walk
- * recursed rather than stopping at the 13 sub-unions — the reviewer's first
- * census stopped there and reported a plausible, fully-populated, entirely
- * wrong "13 arms / 2 literals".
+ * recursed rather than stopping at those top-level members — the reviewer's
+ * first census stopped there and reported a plausible, fully-populated,
+ * entirely wrong "13 arms / 2 literals". ⚠️ Those 13 are 12 sub-unions plus one
+ * object arm (`AppComponentSchema`, an arm at depth 1), not 13 sub-unions; the
+ * floor holds either way, and the count is read off the union rather than
+ * written down here.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -105,7 +128,9 @@ import * as viewsZod from '../zod/views.zod.js';
 /* ── The ledger ──────────────────────────────────────────────────────────────
  *
  * ⛔ NOT a claim that every arm must be exported — only that the answer is
- * DECLARED rather than accidental. A row is keyed by ONE `type` literal of the
+ * DECLARED, in the tree, where it is re-read on every run. Neither row below
+ * records a slip: one is a decision taken and four are a decision deferred with
+ * its reason on the record. A row is keyed by ONE `type` literal of the
  * arm, because an arm with no barrel export has, by definition, no barrel name
  * to key on; `every ledger row still names an arm` below fails if that literal
  * stops existing, so the key cannot rot into a comment.
@@ -121,25 +146,54 @@ const ABSENT_BY_DECISION: Readonly<Record<string, string>> = {
 };
 
 /**
- * Arms absent from the barrel with the answer still OWED.
+ * Arms whose absence from the barrel was DEFERRED, with the decision still owed.
  *
- * ⚠️ These are NOT exemptions. All four were armed by `507b61bf7`
- * (objectui#8499) without a barrel line, all four are registered as first-class
- * mirror pairs by `zod-mirror-parity.test.ts` with a TypeScript counterpart,
- * and none carries any of this directory's "Deliberately NOT exported" markers
- * — the same evidence objectui#7917 used to conclude its two omissions were
- * accidental. Exporting them mints new names on a published surface, so the
- * reading was reported and the ruling is objectui#9067's. The rows exist so the
- * state is visible and so a NEW omission cannot hide behind them.
+ * ⛔ These are not oversights, and reading them as oversights is the mistake
+ * this comment exists to prevent. All four were armed by `507b61bf7`
+ * (objectui#8499), which left the barrel alone deliberately: its changeset,
+ * `.changeset/8499-node-slot-registered-arms.md`, declares the omission, states
+ * that exporting a `SemanticElementSchema` / `HtmlElementSchema` pair "would
+ * publish a NAMED authoring surface (`z.enum` families, not per-tag schemas)
+ * that this card's ruling does not cover", and closes by saying "whoever wants
+ * the number back down should treat naming these families as its own decision".
+ * The objectui#8499 ceiling review raised the omission as blocking F1
+ * (`5597569641`) and then PASSed the deferral "on the surface-widening reason
+ * alone" (`5598263402`).
+ *
+ * ⇒ The state is "a decision is owed", which is what these rows record, and the
+ * argument AGAINST naming them is on the record too. objectui#9067 carries the
+ * decision; anyone acting on it should read the changeset passage first, not
+ * only the case for exporting.
+ *
+ * ⚠️ They are ledgered anyway rather than left to that changeset, because a
+ * `.changeset/*.md` is consumed and deleted at release (measured: `59f61cfb8`
+ * "chore: release packages (#4655)" removes the batch it versioned). The rows
+ * keep the reason next to the state it explains.
  */
-const ABSENT_PENDING_RULING: Readonly<Record<string, string>> = {
-  aside: 'layout.zod.ts#SemanticElementSchema — ruling owed, objectui#9067',
-  h1: 'layout.zod.ts#HtmlElementSchema — ruling owed, objectui#9067',
-  email: 'form.zod.ts#InputShorthandSchema — ruling owed, objectui#9067',
-  'ui:calendar': 'form.zod.ts#UiCalendarSchema — ruling owed, objectui#9067',
+const ABSENT_PENDING_DECISION: Readonly<Record<string, string>> = {
+  aside: 'layout.zod.ts#SemanticElementSchema — deferred by objectui#8499, decision owed on objectui#9067',
+  h1: 'layout.zod.ts#HtmlElementSchema — deferred by objectui#8499, decision owed on objectui#9067',
+  email: 'form.zod.ts#InputShorthandSchema — deferred by objectui#8499, decision owed on objectui#9067',
+  'ui:calendar': 'form.zod.ts#UiCalendarSchema — deferred by objectui#8499, decision owed on objectui#9067',
 };
 
-const LEDGER: Readonly<Record<string, string>> = { ...ABSENT_BY_DECISION, ...ABSENT_PENDING_RULING };
+const LEDGER: Readonly<Record<string, string>> = { ...ABSENT_BY_DECISION, ...ABSENT_PENDING_DECISION };
+
+/**
+ * Own-key test. ⛔ Not `key in ledger`: these are plain object literals, so `in`
+ * answers `true` for every `Object.prototype` key and an arm declaring
+ * `type: 'constructor'` or `'toString'` would ledger itself.
+ *
+ * `Object.hasOwn` is the modern spelling and does not compile here — measured:
+ * `packages/types/tsconfig.json` sets `"lib": ["ES2020", "DOM"]`, and tsc says
+ * `TS2550: Property 'hasOwn' does not exist on type 'ObjectConstructor'. …Try
+ * changing the 'lib' compiler option to 'es2022' or later`. A lib bump is a
+ * build-config change this pin does not own, so the `.call` form stands.
+ * ⛔ Do not "modernise" it back without moving the lib first.
+ */
+function hasRow(ledger: Readonly<Record<string, string>>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(ledger, key);
+}
 
 /* ── The census ──────────────────────────────────────────────────────────────*/
 
@@ -193,9 +247,15 @@ function censusOf(union: unknown): Census {
   const seen = new Set<unknown>();
 
   const walk = (schema: unknown, chain: readonly unknown[]): void => {
-    const def = defOf(schema);
-    if (!def || seen.has(schema)) return;
+    if (seen.has(schema)) return;
     seen.add(schema);
+    const def = defOf(schema);
+    if (def === undefined) {
+      // ⛔ Not a silent `return`: a member with no `_zod` is a shape this walk
+      // does not understand, and dropping it would hide whatever arm it holds.
+      unresolved.push('(member carries no zod definition)');
+      return;
+    }
     if (def.type === 'union') {
       // A union is a CONTAINER, so each option starts its own chain.
       for (const option of def.options ?? []) walk(option, [option]);
@@ -270,14 +330,18 @@ const UNNAMED = CENSUS.arms.filter((arm) => namesOn(BARREL, arm).length === 0);
 
 describe('every AnyComponentSchema arm is nameable on `./zod` (objectui#8784)', () => {
   it('no arm is missing from the barrel without a ledger row saying why', () => {
-    const undeclared = UNNAMED.filter((arm) => !arm.literals.some((literal) => literal in LEDGER));
+    // `hasRow`, ⛔ not `in` — see its docblock for why, and why not `Object.hasOwn`.
+    const undeclared = UNNAMED.filter((arm) => !arm.literals.some((literal) => hasRow(LEDGER, literal)));
     expect(
       undeclared.map(describeArm),
       'These `AnyComponentSchema` arms have no named export on `./zod`, so no consumer can '
       + 'validate one of these node types on its own — `AnyComponentSchema` only answers "is '
-      + 'this SOME valid node". Re-export each from packages/types/src/zod/index.zod.ts, or, '
-      + 'if it is deliberately internal, add a row to ABSENT_BY_DECISION in this file with the '
-      + 'reason (the way RetiredKanbanNodeSchema carries one).',
+      + 'this SOME valid node". Three answers are acceptable and a fourth is not. Re-export '
+      + 'each from packages/types/src/zod/index.zod.ts; or, if it is deliberately internal, '
+      + 'add a row to ABSENT_BY_DECISION with the reason (the way RetiredKanbanNodeSchema '
+      + 'carries one); or, if naming it is a decision your card does not cover, add a row to '
+      + 'ABSENT_PENDING_DECISION naming the card that holds it. What is not acceptable is '
+      + 'leaving the answer to be inferred from an absence.',
     ).toEqual([]);
   });
 
@@ -297,8 +361,8 @@ describe('every AnyComponentSchema arm is nameable on `./zod` (objectui#8784)', 
   });
 
   it('states each absence once — the two ledgers do not overlap', () => {
-    const both = Object.keys(ABSENT_BY_DECISION).filter((key) => key in ABSENT_PENDING_RULING);
-    expect(both, 'A row cannot be both a decision taken and a ruling owed.').toEqual([]);
+    const both = Object.keys(ABSENT_BY_DECISION).filter((key) => hasRow(ABSENT_PENDING_DECISION, key));
+    expect(both, 'A row cannot be both a decision taken and a decision owed.').toEqual([]);
   });
 });
 
