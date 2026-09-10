@@ -42,7 +42,7 @@ import {
   RefreshIndicator,
 } from '@object-ui/components';
 import { usePullToRefresh } from '@object-ui/mobile';
-import { resolveConditionalFormatting, leadWithNameField, buildExpandFields, buildExportFileName, columnIdentity, collectPredicateFieldRefs, collectGroupingFieldRefs, listViewPredicates, isObjectInlineEditable, isProjectableField, isExpandableFieldType, isUnmaterializedFieldType, readObjectSortability, isPlatformSortableField, filterPlatformSortableSort, toFilterNode, convertSortToQueryParams, type QuerySortEntry, ROW_HEIGHT_TO_DENSITY_MODE, resolveRecordSourceConfig, resolveRecordSourceObjectName } from '@object-ui/core';
+import { resolveConditionalFormatting, leadWithNameField, buildExpandFields, buildExportFileName, columnIdentity, collectPredicateFieldRefs, collectGroupingFieldRefs, listViewPredicates, isObjectInlineEditable, isProjectableField, isExpandableFieldType, isUnmaterializedFieldType, readObjectSortability, isPlatformSortableField, filterPlatformSortableSort, toFilterNode, convertSortToQueryParams, normalizeSortEntries, type QuerySortEntry, ROW_HEIGHT_TO_DENSITY_MODE, resolveRecordSourceConfig, resolveRecordSourceObjectName } from '@object-ui/core';
 import { usePermissions } from '@object-ui/permissions';
 import { ChevronRight, ChevronLeft, ChevronsLeft, ChevronsRight, Download, Rows2, Rows3, Rows4, AlignJustify, Type, Hash, Calendar, CheckSquare, User, Tag, Clock, Loader2 } from 'lucide-react';
 import { useRowColor } from './useRowColor';
@@ -83,6 +83,38 @@ import type { BulkActionDef } from '@object-ui/types';
  *
  * Exported for the test that pins it against the fetch path's own reading.
  */
+/**
+ * A declared `sort` → the `"field order"` join string THIS block sends as
+ * `$orderby` (objectui#8973).
+ *
+ * ⚠️ Read the split before editing either half. WHICH entries survive and what
+ * a missing `order` means is `normalizeSortEntries`' decision — the governed
+ * one in `@object-ui/core`, shared with `convertSortToQueryParams` and every
+ * sibling block. Only the JOIN is this block's, because only this block sends
+ * a join string: the sink's `{field: direction}` map is route B on
+ * objectui#8767, declined by the maintainer 2026-09-10 pending a card that
+ * measures the server contract and both readers. So the operation with two
+ * copies (the normalization) has one implementation, and the shape the
+ * declination protects does not move.
+ *
+ * What this closes: the arms below used to interpolate every key
+ * unconditionally, so an entry missing `field` or `order` reached the wire as
+ * the literal text `undefined`. `$orderby: 'name undefined'` is not a
+ * degraded ordering — `normalizeSortNodes` (`@objectstack/metadata-protocol`,
+ * the one normalizer every server ingress funnels through) reads `undefined`
+ * as a direction that is "neither 'asc' nor 'desc'" and answers
+ * `400 INVALID_QUERY`.
+ *
+ * @returns `undefined` when nothing orderable survives, so the caller omits
+ * `$orderby` entirely instead of sending `""` — the same correction
+ * `toFilterNode` already made for `$filter: {}` on the filter leg above.
+ */
+function toOrderByClause(sort: QuerySortEntry[] | undefined | null): string | undefined {
+  const ordered = normalizeSortEntries(sort);
+  if (!ordered) return undefined;
+  return ordered.map((s) => `${s.field} ${s.order}`).join(', ');
+}
+
 export function parseSchemaSort(sort: unknown): TableSortItem[] {
   const entries = typeof sort === 'string' ? [sort] : Array.isArray(sort) ? sort : [];
   const items: TableSortItem[] = [];
@@ -1891,13 +1923,26 @@ export const ObjectGrid: React.FC<ObjectGridComponentProps> = ({
               // `sys_metadata` row or an `as any` bag.
               convertSortToQueryParams(schemaSort as unknown as QuerySortEntry[]);
             } else if (Array.isArray(schemaSort)) {
-              params.$orderby = schemaSort
-                .map((s: any) => `${s.field} ${s.order}`)
-                .join(', ');
+              // objectui#8973 — normalize before joining. Every key used to be
+              // interpolated unconditionally, so `[{ field: 'name' }]` went out
+              // as `'name undefined'` and `[]` as `''`. The join, and only the
+              // join, stays this block's (see {@link toOrderByClause}).
+              const orderBy = toOrderByClause(schemaSort as unknown as QuerySortEntry[]);
+              if (orderBy !== undefined) {
+                params.$orderby = orderBy;
+              }
             }
           } else if (schema.defaultSort) {
-            // Legacy support
-            params.$orderby = `${(schema.defaultSort as any).field} ${(schema.defaultSort as any).order}`;
+            // Legacy support — through the SAME normalizer as the array arm
+            // above, because it had the SAME defect (objectui#8973): a
+            // `defaultSort` missing `order` was interpolated straight into
+            // `$orderby: 'name undefined'`, which the server answers
+            // `400 INVALID_QUERY`. Fixing one arm and not its neighbour would
+            // leave the class open in the same `if`/`else` chain.
+            const orderBy = toOrderByClause([schema.defaultSort as QuerySortEntry]);
+            if (orderBy !== undefined) {
+              params.$orderby = orderBy;
+            }
           }
 
           // Search (objectui#3118). The term the toolbar box holds is a question

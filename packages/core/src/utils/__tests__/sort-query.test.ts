@@ -27,7 +27,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { convertSortToQueryParams, resetRetiredSortSpellingReports } from '../sort-query';
+import { convertSortToQueryParams, normalizeSortEntries, resetRetiredSortSpellingReports } from '../sort-query';
 
 /** The retired spelling, reached the only way it still can be: at runtime. */
 const asRuntimeValue = (value: unknown) => value as unknown as Parameters<typeof convertSortToQueryParams>[0];
@@ -151,5 +151,113 @@ describe('convertSortToQueryParams — the retired string clause (objectui#8221)
     // disconnected mock.
     expect(convertSortToQueryParams(asRuntimeValue('   '))).toBeUndefined();
     expect(errorSpy).toHaveBeenCalledTimes(1);
+  });
+});
+
+/**
+ * `normalizeSortEntries` — the decision `convertSortToQueryParams` was built
+ * on, lifted out so a block that sends a DIFFERENT wire shape can share it
+ * (objectui#8973).
+ *
+ * `object-grid` sends a `"field order"` join string, not this module's map, and
+ * moving it onto the map is route B on objectui#8767 — declined by the
+ * maintainer on 2026-09-10 pending its own card. It re-implemented the "which
+ * entries survive, what does a missing `order` mean" decision privately and got
+ * it wrong (`$orderby: 'name undefined'`). Exporting the decision without the
+ * map is what lets the two agree without the shape moving.
+ *
+ * The second describe below is the load-bearing half: the map builder is now a
+ * projection of this function, so every case must answer exactly what it
+ * answered when it was a single loop. A refactor that quietly changed the map
+ * would be a wire change in `object-calendar`, `object-gantt`, `object-map`,
+ * `object-timeline` and `record:line_items` at once.
+ */
+describe('normalizeSortEntries (objectui#8973)', () => {
+  it('fills a missing `order` with `asc` rather than dropping the key', () => {
+    expect(normalizeSortEntries([{ field: 'name' }])).toEqual([{ field: 'name', order: 'asc' }]);
+  });
+
+  it('preserves authored order and keeps duplicates as separate entries', () => {
+    // The map projection collapses these; the entry list deliberately does not,
+    // because a join-string caller must be able to see what it was handed.
+    expect(
+      normalizeSortEntries([
+        { field: 'stage', order: 'desc' },
+        { field: 'stage', order: 'asc' },
+      ]),
+    ).toEqual([
+      { field: 'stage', order: 'desc' },
+      { field: 'stage', order: 'asc' },
+    ]);
+  });
+
+  it('skips entries that name no usable field', () => {
+    expect(normalizeSortEntries([{ order: 'desc' }, { field: '' }, { field: 'name' }])).toEqual([
+      { field: 'name', order: 'asc' },
+    ]);
+  });
+
+  it('normalizes a garbage direction to `asc` instead of forwarding it', () => {
+    expect(normalizeSortEntries([{ field: 'name', order: 'DESCENDING' as never }])).toEqual([
+      { field: 'name', order: 'asc' },
+    ]);
+  });
+
+  it('answers `undefined`, never `[]`, so a caller can omit the query key', () => {
+    expect(normalizeSortEntries([])).toBeUndefined();
+    expect(normalizeSortEntries([{ order: 'desc' }])).toBeUndefined();
+    expect(normalizeSortEntries(undefined)).toBeUndefined();
+    expect(normalizeSortEntries(null)).toBeUndefined();
+  });
+
+  it('refuses a retired string clause with the SAME reporter, not a second one', () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      resetRetiredSortSpellingReports();
+      expect(normalizeSortEntries(asRuntimeValue('name desc'))).toBeUndefined();
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(String(spy.mock.calls[0][0])).toContain('objectui#8221');
+    } finally {
+      spy.mockRestore();
+    }
+  });
+});
+
+describe('convertSortToQueryParams — REGRESSION PIN: the refactor moved no behaviour', () => {
+  /**
+   * Expected values were captured from the PRE-REFACTOR implementation (the
+   * single map-building loop) and are written out as LITERALS on purpose.
+   * Deriving them from `normalizeSortEntries` would only prove the projection
+   * is self-consistent — it would pass just as happily if both halves had moved
+   * together, which is exactly the regression that matters: this map is the
+   * `$orderby` of `object-calendar`, `object-gantt`, `object-map`,
+   * `object-timeline` and `record:line_items`.
+   */
+  const CASES: Array<[string, unknown, Record<string, 'asc' | 'desc'> | undefined]> = [
+    ['fully specified', [{ field: 'stage', order: 'asc' }, { field: 'amount', order: 'desc' }], { stage: 'asc', amount: 'desc' }],
+    ['order omitted means asc', [{ field: 'name' }], { name: 'asc' }],
+    ['field omitted is skipped', [{ order: 'desc' }], undefined],
+    ['empty field is skipped', [{ field: '' }], undefined],
+    ['duplicate field collapses last-wins', [{ field: 'stage', order: 'desc' }, { field: 'stage', order: 'asc' }], { stage: 'asc' }],
+    ['empty array yields undefined', [], undefined],
+    ['array of strings yields undefined', ['name desc'], undefined],
+    ['null entry is skipped', [null], undefined],
+    ['garbage direction normalizes to asc', [{ field: 'name', order: 'sideways' }], { name: 'asc' }],
+    ['undefined', undefined, undefined],
+    ['null', null, undefined],
+    ['a number', 42, undefined],
+    ['a bare unwrapped node', { field: 'name', order: 'desc' }, undefined],
+  ];
+
+  it.each(CASES)('%s', (_label, input, expected) => {
+    const actual = convertSortToQueryParams(asRuntimeValue(input));
+    expect(actual).toEqual(expected);
+    // Key ORDER is part of this map's contract (the first test in this file
+    // pins it), and `toEqual` does not compare it.
+    expect(actual && Object.keys(actual)).toEqual(expected && Object.keys(expected));
+  });
+
+  it('CONTROL — the pin can fail: a deliberately wrong expectation is rejected', () => {
+    expect(convertSortToQueryParams([{ field: 'name' }])).not.toEqual({ name: 'desc' });
   });
 });
