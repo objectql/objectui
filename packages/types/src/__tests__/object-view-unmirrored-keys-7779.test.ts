@@ -57,11 +57,41 @@
  * are asserted against the SPEC schema here, so the day the spec relaxes (or
  * the renderer's read set moves) the measurement — and the stop — is re-taken
  * rather than remembered.
+ *
+ * ## objectui#7924 — the same measurement, now PER MEMBER
+ *
+ * The two figures above were a COUNT and a name list. objectui#7924 asks which
+ * members, by name, are on each side, because that is the input the `listViews`
+ * value-type ruling (objectui#7928) needs: tombstoning the unread ones narrows a
+ * published accept set, and making the renderer read them is capability growth.
+ * ⛔ Neither is dispatched or decided here — this file only measures.
+ *
+ * The census lives in the last describe block and changes the INSTRUMENT as well
+ * as the resolution:
+ *
+ * - the declared set is walked with the TypeScript parser (`ts.createSourceFile`,
+ *   the interface's own `PropertySignature` members), ⛔ not a regex and ⛔ not a
+ *   brace-depth count — a brace parser on this repo has already failed to
+ *   terminate at an object's close (objectui#8071). The two regexes are kept and
+ *   asserted AGAINST the parser, so the instrument swap is itself a reading:
+ *   strict regex 47 = parser 47, loose regex 59.
+ * - the read set is derived by walking every route from `schema.listViews` to a
+ *   named view, and every occurrence of that record is CLASSIFIED — so a new
+ *   route fails as `UNCLASSIFIED` instead of silently shrinking the read set.
+ *   That found a named-view read the old `currentNamedViewConfig?.KEY` regex
+ *   cannot see: `{view.label || key}` on the tab strip.
+ * - each of the 47 members is then pinned BY NAME on its side of the partition,
+ *   so a member moving between read and unread fails in EITHER direction.
+ *
+ * ⚠️ The distinction the whole finding turns on: a member reached through
+ * `activeView?.KEY` — the host's `views` prop — is NOT read off the named view.
+ * `rowHeight: activeView?.rowHeight` is the pinned counter-control below.
  */
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import ts from 'typescript';
 import {
   ListViewSchema as SpecListViewSchema,
   ObjectListViewSchema as SpecObjectListViewSchema,
@@ -134,6 +164,76 @@ const CONTROL_KEY = 'viewSwitcherPosition';
 
 /** The seven `NamedListView` members the renderer reads off a named view. */
 const NAMED_VIEW_READS = ['columns', 'data', 'filter', 'label', 'options', 'sort', 'type'] as const;
+
+/* ── objectui#7924 — the per-member liveness census ───────────────────────────
+ * Both halves below are RE-DERIVED at test time (`namedListViewMembers()` /
+ * `deriveNamedViewReads()`); the literals are the pinned READING, so a member
+ * that moves between the two sets — in EITHER direction — fails by name.
+ */
+
+/** Every top-level member `NamedListView` declares. 47 today, sorted. */
+const NAMED_LIST_VIEW_DECLARED = [
+  'addDeleteRecordsInline', 'addRecord', 'addRecordViaForm', 'allowExport', 'allowPrinting',
+  'aria', 'bulkActionDefs', 'bulkActions', 'clickIntoRecordDetails', 'collapseAllByDefault',
+  'color', 'columns', 'compactToolbar', 'conditionalFormatting', 'densityMode', 'description',
+  'emptyState', 'exportOptions', 'fieldTextColor', 'filter', 'filterableFields', 'hiddenFields',
+  'inlineEdit', 'label', 'navigation', 'options', 'pagination', 'prefixField', 'resizable',
+  'rowActions', 'rowHeight', 'searchableFields', 'selection', 'sharing', 'showColor',
+  'showDensity', 'showDescription', 'showFilters', 'showGroup', 'showHideFields',
+  'showRecordCount', 'showSearch', 'showSort', 'sort', 'type', 'userFilters', 'wrapHeaders',
+] as const;
+
+/** The six DECLARED members the renderer reads off a named view. */
+const NAMED_VIEW_READ_DECLARED = ['columns', 'filter', 'label', 'options', 'sort', 'type'] as const;
+
+/**
+ * Read off a named view but NOT declared on `NamedListView`: it arrives through
+ * an `as any` cast (`(currentNamedViewConfig as any)?.data`). objectui#7928
+ * requires this card to answer the key: it is still declared nowhere, so it is
+ * the one member of the read set the "47 minus the read set" arithmetic must
+ * NOT subtract.
+ */
+const NAMED_VIEW_READ_UNDECLARED = ['data'] as const;
+
+/**
+ * The census result: declared, and NOT read off a named view. 41 today. A
+ * document authoring any of these validates green (`BaseSchema` is
+ * `.passthrough()`) and changes nothing — the finding objectui#7924 records.
+ */
+const NAMED_LIST_VIEW_UNREAD = [
+  'addDeleteRecordsInline', 'addRecord', 'addRecordViaForm', 'allowExport', 'allowPrinting',
+  'aria', 'bulkActionDefs', 'bulkActions', 'clickIntoRecordDetails', 'collapseAllByDefault',
+  'color', 'compactToolbar', 'conditionalFormatting', 'densityMode', 'description', 'emptyState',
+  'exportOptions', 'fieldTextColor', 'filterableFields', 'hiddenFields', 'inlineEdit',
+  'navigation', 'pagination', 'prefixField', 'resizable', 'rowActions', 'rowHeight',
+  'searchableFields', 'selection', 'sharing', 'showColor', 'showDensity', 'showDescription',
+  'showFilters', 'showGroup', 'showHideFields', 'showRecordCount', 'showSearch', 'showSort',
+  'userFilters', 'wrapHeaders',
+] as const;
+
+/**
+ * Two members of the unread set that the renderer does not mention AT ALL —
+ * not off the named view, not off `activeView`, not off the node. The sharp end
+ * of the census: for these the "declared, unenforced, unread" reading has no
+ * host-side twin to weigh against it.
+ */
+const UNREAD_ABSENT_FROM_RENDERER = ['bulkActionDefs', 'exportOptions'] as const;
+
+/**
+ * The named-view read probe's FIRING CONTROL, and its negative twin. Both are
+ * declared members; the control is read off a named view and the counter-control
+ * is not, so a probe that returns them correctly is a probe that is running.
+ */
+const NAMED_VIEW_READ_CONTROL = 'columns';
+const NAMED_VIEW_UNREAD_CONTROL = 'rowHeight';
+/** A plausible list-view spelling that is neither declared nor read. */
+const NAMED_VIEW_ABSENT_CONTROL = 'stickyHeader';
+
+/** The syntactic roles every occurrence of the named-views RECORD may take. */
+const RECORD_ROLES = [
+  'COMPARISON', 'CONDITION', 'DECLARATION', 'ELEMENT_ACCESS', 'HOOK_DEPENDENCY',
+  'OBJECT_ENTRIES', 'OBJECT_KEYS',
+] as const;
 
 /** The documented node; every assertion below is a delta on it. */
 const NODE = { type: 'object-view', objectName: 'accounts' } as const;
@@ -211,6 +311,225 @@ function namedListViewMemberCount(): number {
   const end = src.indexOf('\n}\n', start);
   const body = src.slice(start, end);
   return [...body.matchAll(/^ {2}[A-Za-z_$][\w$]*\??:/gm)].length;
+}
+
+/**
+ * The SAME count with the indent anchor dropped — the looser instrument. It also
+ * matches nested object-literal lines inside the members' inline types, which is
+ * why it reads higher. Kept so the gap between the two instruments is an
+ * assertion rather than a sentence: the retired "about 52 members" is a hand
+ * figure that sits between them and is neither.
+ */
+function namedListViewLooseMemberCount(): number {
+  const src = readRepo(DECLARATION);
+  const start = src.indexOf('export interface NamedListView {');
+  const end = src.indexOf('\n}\n', start);
+  return [...src.slice(start, end).matchAll(/^\s*[A-Za-z_$][\w$]*\??:/gm)].length;
+}
+
+/* ── objectui#7924: the census instruments, by the TypeScript parser ────────
+ * ⛔ NOT a regex and ⛔ NOT a brace-depth count. A brace parser on this repo has
+ * already failed to terminate at an object's close (objectui#8071), and the two
+ * regexes above are the instrument this pair replaces — they are kept only as
+ * the cross-check that the reading did not move when the instrument did.
+ */
+
+function sourceFileOf(rel: string, kind: ts.ScriptKind): ts.SourceFile {
+  const abs = join(REPO_ROOT, rel);
+  return ts.createSourceFile(abs, readFileSync(abs, 'utf8'), ts.ScriptTarget.Latest, true, kind);
+}
+
+function allNodes(sf: ts.SourceFile): ts.Node[] {
+  const out: ts.Node[] = [];
+  (function walk(n: ts.Node) { out.push(n); ts.forEachChild(n, walk); })(sf);
+  return out;
+}
+
+/** Strip the wrappers an access rides through: `( )`, `!`, `as T`, `satisfies T`. */
+function unwrapExpr(e: ts.Expression): ts.Expression {
+  for (;;) {
+    if (ts.isParenthesizedExpression(e) || ts.isNonNullExpression(e) || ts.isAsExpression(e) || ts.isSatisfiesExpression(e)) {
+      e = e.expression;
+      continue;
+    }
+    return e;
+  }
+}
+
+/** Is `node` the call `Object.METHOD(...)`? */
+function isObjectStatic(node: ts.Node, method: string): node is ts.CallExpression {
+  if (!ts.isCallExpression(node)) return false;
+  const callee = unwrapExpr(node.expression);
+  return ts.isPropertyAccessExpression(callee)
+    && ts.isIdentifier(callee.expression)
+    && callee.expression.text === 'Object'
+    && callee.name.text === method;
+}
+
+const DEP_ARRAY_HOOKS = new Set(['useMemo', 'useCallback', 'useEffect', 'useLayoutEffect']);
+
+interface NamedListViewCensus {
+  /** Declared member names, in declaration order. */
+  names: string[];
+  /** The members with no `?` — the census records shape, not only names. */
+  required: string[];
+  /** Anything that is not a plain named property signature (index signature, call signature…). */
+  nonProperty: string[];
+  heritage: string[];
+}
+
+/** `NamedListView`'s top-level members, walked off the interface's own AST. */
+function namedListViewMembers(): NamedListViewCensus {
+  const sf = sourceFileOf(DECLARATION, ts.ScriptKind.TS);
+  let iface: ts.InterfaceDeclaration | undefined;
+  for (const n of allNodes(sf)) {
+    if (ts.isInterfaceDeclaration(n) && n.name.text === 'NamedListView') iface = n;
+  }
+  expect(iface, `\`NamedListView\` is no longer an interface declaration in ${DECLARATION}`).toBeDefined();
+  const names: string[] = [];
+  const required: string[] = [];
+  const nonProperty: string[] = [];
+  for (const m of iface!.members) {
+    if (!ts.isPropertySignature(m)) { nonProperty.push(ts.SyntaxKind[m.kind]); continue; }
+    const name = ts.isIdentifier(m.name) || ts.isStringLiteral(m.name) ? m.name.text : null;
+    if (name === null) { nonProperty.push('ComputedPropertyName'); continue; }
+    names.push(name);
+    if (!m.questionToken) required.push(name);
+  }
+  return { names, required, nonProperty, heritage: (iface!.heritageClauses ?? []).map((h) => h.getText(sf)) };
+}
+
+interface NamedViewReadDerivation {
+  /** Variables bound to the named-views RECORD (`schema.listViews`). */
+  record: string[];
+  /** Variables holding a single named VIEW. */
+  valueBindings: string[];
+  /** Property names read off a named view, sorted. */
+  reads: string[];
+  /** Read name → the 1-based lines it is read on. */
+  readSites: Record<string, number[]>;
+  /** `line:ROLE` for every occurrence of a record binding. */
+  recordRoles: string[];
+}
+
+/**
+ * What the renderer reads OFF A NAMED VIEW — kept strictly apart from what it
+ * reads off `activeView` (the host's `views` prop), which is the whole finding:
+ * `rowHeight: activeView?.rowHeight` is NOT a named-view read.
+ *
+ * Every route from the record to a named view is derived, not listed:
+ *   RECORD  — a variable initialised from `schema.listViews`.
+ *   VALUE   — a binding annotated `NamedListView`; the value binding of
+ *             `Object.entries(RECORD).map(([key, view]) => …)` (through an
+ *             intermediate `const entries = …` too); or an element access
+ *             straight off the RECORD.
+ *   READ    — a property access whose object is a VALUE, after `( )` / `!` /
+ *             `as any` are stripped. The cast is why `data` is found at all.
+ *
+ * `recordRoles` is the completeness half: every occurrence of the RECORD is
+ * classified, so a NEW route to a named view lands as `UNCLASSIFIED` and fails
+ * before this census can silently under-count.
+ */
+function deriveNamedViewReads(): NamedViewReadDerivation {
+  const sf = sourceFileOf(READER, ts.ScriptKind.TSX);
+  const all = allNodes(sf);
+  const lineOf = (n: ts.Node) => sf.getLineAndCharacterOfPosition(n.getStart(sf)).line + 1;
+
+  const record = new Set<string>();
+  for (const n of all) {
+    if (!ts.isVariableDeclaration(n) || !n.initializer || !ts.isIdentifier(n.name)) continue;
+    const init = unwrapExpr(n.initializer);
+    if (ts.isPropertyAccessExpression(init) && ts.isIdentifier(init.expression)
+      && init.expression.text === 'schema' && init.name.text === LEDGERED) {
+      record.add(n.name.text);
+    }
+  }
+
+  const valueBindings = new Set<string>();
+  for (const n of all) {
+    if (!ts.isVariableDeclaration(n) || !ts.isIdentifier(n.name) || !n.type) continue;
+    let mentions = false;
+    (function walk(t: ts.Node) {
+      if (ts.isTypeReferenceNode(t) && ts.isIdentifier(t.typeName) && t.typeName.text === 'NamedListView') mentions = true;
+      ts.forEachChild(t, walk);
+    })(n.type);
+    if (mentions) valueBindings.add(n.name.text);
+  }
+
+  const entryBindings = new Set<string>();
+  for (const n of all) {
+    if (!ts.isVariableDeclaration(n) || !n.initializer || !ts.isIdentifier(n.name)) continue;
+    const init = unwrapExpr(n.initializer);
+    if (!isObjectStatic(init, 'entries')) continue;
+    const arg = init.arguments[0] && unwrapExpr(init.arguments[0]);
+    if (arg && ts.isIdentifier(arg) && record.has(arg.text)) entryBindings.add(n.name.text);
+  }
+  const isEntriesOfRecord = (e: ts.Expression): boolean => {
+    const x = unwrapExpr(e);
+    if (ts.isIdentifier(x) && entryBindings.has(x.text)) return true;
+    if (isObjectStatic(x, 'entries')) {
+      const arg = x.arguments[0] && unwrapExpr(x.arguments[0]);
+      return !!arg && ts.isIdentifier(arg) && record.has(arg.text);
+    }
+    return false;
+  };
+  for (const n of all) {
+    if (!ts.isCallExpression(n)) continue;
+    const callee = unwrapExpr(n.expression);
+    if (!ts.isPropertyAccessExpression(callee) || callee.name.text !== 'map') continue;
+    if (!isEntriesOfRecord(callee.expression)) continue;
+    const cb = n.arguments[0];
+    if (!cb || !(ts.isArrowFunction(cb) || ts.isFunctionExpression(cb))) continue;
+    const p0 = cb.parameters[0];
+    if (!p0 || !ts.isArrayBindingPattern(p0.name)) continue;
+    const el = p0.name.elements[1];
+    if (el && ts.isBindingElement(el) && ts.isIdentifier(el.name)) valueBindings.add(el.name.text);
+  }
+
+  const isNamedViewValue = (e: ts.Expression): boolean => {
+    const x = unwrapExpr(e);
+    if (ts.isIdentifier(x) && valueBindings.has(x.text)) return true;
+    if (ts.isElementAccessExpression(x)) {
+      const obj = unwrapExpr(x.expression);
+      return ts.isIdentifier(obj) && record.has(obj.text);
+    }
+    return false;
+  };
+
+  const readSites: Record<string, number[]> = {};
+  for (const n of all) {
+    if (!ts.isPropertyAccessExpression(n) || !isNamedViewValue(n.expression)) continue;
+    (readSites[n.name.text] ??= []).push(lineOf(n));
+  }
+
+  const recordRoles: string[] = [];
+  for (const n of all) {
+    if (!ts.isIdentifier(n) || !record.has(n.text) || !n.parent) continue;
+    const p = n.parent;
+    const gp = p.parent as ts.Node | undefined;
+    let role = 'UNCLASSIFIED';
+    if (ts.isVariableDeclaration(p) && p.name === n) role = 'DECLARATION';
+    else if (ts.isElementAccessExpression(p) && p.expression === n) role = 'ELEMENT_ACCESS';
+    else if (ts.isNonNullExpression(p) && gp && ts.isElementAccessExpression(gp) && gp.expression === p) role = 'ELEMENT_ACCESS';
+    else if (isObjectStatic(p, 'keys')) role = 'OBJECT_KEYS';
+    else if (isObjectStatic(p, 'entries')) role = 'OBJECT_ENTRIES';
+    else if (ts.isNonNullExpression(p) && gp && isObjectStatic(gp, 'keys')) role = 'OBJECT_KEYS';
+    else if (ts.isNonNullExpression(p) && gp && isObjectStatic(gp, 'entries')) role = 'OBJECT_ENTRIES';
+    else if (ts.isBinaryExpression(p)) role = 'COMPARISON';
+    else if (ts.isIfStatement(p) && p.expression === n) role = 'CONDITION';
+    else if (ts.isPrefixUnaryExpression(p) && p.operator === ts.SyntaxKind.ExclamationToken) role = 'CONDITION';
+    else if (ts.isArrayLiteralExpression(p) && gp && ts.isCallExpression(gp) && gp.arguments[1] === p
+      && ts.isIdentifier(gp.expression) && DEP_ARRAY_HOOKS.has(gp.expression.text)) role = 'HOOK_DEPENDENCY';
+    recordRoles.push(`${lineOf(n)}:${role}`);
+  }
+
+  return {
+    record: [...record].sort(),
+    valueBindings: [...valueBindings].sort(),
+    reads: Object.keys(readSites).sort(),
+    readSites,
+    recordRoles,
+  };
 }
 
 function shapeKeys(schema: unknown): string[] {
@@ -571,14 +890,17 @@ describe('objectui#7779 — `listViews` stays unmirrored on the ruling\'s fallba
     // without a new assertion: were `data` ever declared, the exact count
     // moves 47 → 48 and fails here; were the cast read dropped,
     // `namedViewReads()` returns six entries and fails above.
-    const declared = namedListViewMemberCount();
-    // HOW THIS NUMBER IS TAKEN: `namedListViewMemberCount()` above — the two-space
-    // indent in its `/^ {2}[A-Za-z_$][\w$]*\??:/gm` regex is what makes it a
-    // TOP-LEVEL member count. A looser count that drops that indent anchor also
-    // matches nested object-literal lines inside the members' inline types and
-    // gives 59 on the same declaration; a hand figure between the two instruments
-    // is where the retired "about 52 members" came from. ⛔ Do not re-derive the
-    // loose number and quote it beside this one — they measure different things.
+    const declared = namedListViewMembers().names.length;
+    // HOW THIS NUMBER IS TAKEN: `namedListViewMembers()` — the TypeScript parser
+    // walking the interface's own `PropertySignature` members (objectui#7924).
+    // It REPLACED the regex `namedListViewMemberCount()`, which is kept beside it
+    // and asserted to agree, so the instrument change is itself a measurement.
+    // A looser count that drops that regex's two-space indent anchor also matches
+    // nested object-literal lines inside the members' inline types and gives 59 on
+    // the same declaration; a hand figure between the two is where the retired
+    // "about 52 members" came from. ⛔ Do not re-derive the loose number and quote
+    // it beside this one — they measure different things. The three instruments
+    // are pinned against each other in the objectui#7924 census below.
     // Pinned EXACT rather than floored: the retired `>= 40` floor permitted the
     // declaration to shed seven members, including a shrink toward the read set,
     // which is exactly the condition that re-opens the `listViews` decision
@@ -593,6 +915,149 @@ describe('objectui#7779 — `listViews` stays unmirrored on the ruling\'s fallba
 
   it('the TS face still declares `listViews` as the local record (neither face moved)', () => {
     expect(readRepo(DECLARATION)).toContain('listViews?: Record<string, NamedListView>;');
+  });
+});
+
+/* ── objectui#7924: the per-member liveness census ────────────────────────── */
+
+describe('objectui#7924 — the per-member liveness census on `NamedListView`, re-derived by the TypeScript parser', () => {
+  it('the declaration is a plain interface — no heritage clause, no index signature, no computed member — so its property signatures ARE the population', () => {
+    const { nonProperty, heritage, required } = namedListViewMembers();
+    // Each of these would silently widen the population the census claims to
+    // cover: inherited members are not walked, and an index signature admits
+    // names no member list can enumerate.
+    expect(nonProperty, 'a non-property member appeared; "the property signatures" is no longer the whole population').toEqual([]);
+    expect(heritage, '`NamedListView` gained a heritage clause; inherited members are NOT in this census').toEqual([]);
+    // `label` is the one member without a `?`. The census records shape, not
+    // just names: a member turning required (or optional) moves what an author
+    // must write, so it is pinned too.
+    expect(required).toEqual(['label']);
+  });
+
+  it('the declared member set is EXACTLY the census, by name', () => {
+    expect([...namedListViewMembers().names].sort()).toEqual([...NAMED_LIST_VIEW_DECLARED].sort());
+    expect(NAMED_LIST_VIEW_DECLARED).toHaveLength(47);
+    expect(new Set<string>(NAMED_LIST_VIEW_DECLARED).size).toBe(47);
+  });
+
+  it('all three instruments read the same declaration, and the two that disagree disagree for a stated reason', () => {
+    const ast = namedListViewMembers().names.length;
+    // The parser and the strict regex agree — that agreement is what licenses
+    // replacing the regex without re-opening the number.
+    expect(ast).toBe(47);
+    expect(namedListViewMemberCount()).toBe(ast);
+    // …and the loose regex does NOT, by 12, because it also counts nested
+    // object-literal lines. Pinned so "52 is between two instruments and is
+    // neither" stays a reading rather than a remembered sentence.
+    expect(namedListViewLooseMemberCount()).toBe(59);
+    expect(namedListViewLooseMemberCount()).toBeGreaterThan(ast);
+  });
+
+  it('every route from `schema.listViews` to a named view is the one this census walks', () => {
+    const d = deriveNamedViewReads();
+    expect(d.record, 'the named-views record is bound somewhere new').toEqual(['namedListViews']);
+    // Two bindings hold a single named view: the memoised active config, and
+    // the tab strip's `Object.entries(...).map(([key, view]) => …)` element.
+    expect(d.valueBindings).toEqual(['currentNamedViewConfig', 'view']);
+  });
+
+  it('every occurrence of the record sits in a CLASSIFIED role — a new route fails here before the census can go stale', () => {
+    const roles = deriveNamedViewReads().recordRoles;
+    expect(roles.length).toBeGreaterThan(0);
+    const unclassified = roles.filter((r) => r.endsWith(':UNCLASSIFIED'));
+    expect(
+      unclassified,
+      'a new syntactic route from `schema.listViews` to a named view appeared at these lines. '
+        + 'The read set below cannot be trusted until it is walked too: extend `deriveNamedViewReads()`, '
+        + 'then re-derive the census — do NOT add the role to RECORD_ROLES to make this green.',
+    ).toEqual([]);
+    for (const role of roles) {
+      expect(RECORD_ROLES as readonly string[]).toContain(role.split(':')[1]);
+    }
+  });
+
+  it('the renderer reads exactly seven names off a named view — six declared, plus the undeclared `data`', () => {
+    const d = deriveNamedViewReads();
+    expect(d.reads).toEqual([...NAMED_VIEW_READS]);
+    expect(d.reads).toHaveLength(7);
+    // The AST derivation reproduces the regex reading it replaces: the
+    // instrument changed, the reading did not. ⭐ It also finds STRICTLY more
+    // sites — `{view.label || key}` on the tab strip is a named-view read the
+    // `currentNamedViewConfig?.KEY` regex cannot see — so the agreement is on
+    // the SET, and the AST's extra site is asserted rather than lost.
+    expect(d.reads).toEqual(namedViewReads());
+    expect(d.readSites.label.length, '`label` is read at two sites: the delegation and the tab strip').toBe(2);
+  });
+
+  it('the census partitions the declaration exactly: 6 read + 41 unread = 47, disjoint and exhaustive', () => {
+    const declared = new Set(namedListViewMembers().names);
+    const reads = new Set(deriveNamedViewReads().reads);
+    const read = [...declared].filter((m) => reads.has(m)).sort();
+    const unread = [...declared].filter((m) => !reads.has(m)).sort();
+    expect(read).toEqual([...NAMED_VIEW_READ_DECLARED]);
+    expect(unread).toEqual([...NAMED_LIST_VIEW_UNREAD]);
+    expect(read).toHaveLength(6);
+    expect(unread).toHaveLength(41);
+    expect(read.length + unread.length).toBe(declared.size);
+    expect(read.filter((m) => unread.includes(m))).toEqual([]);
+  });
+
+  it('`data` is READ off a named view and declared NOWHERE — the cast class objectui#7928 sends here', () => {
+    const declared = new Set(namedListViewMembers().names);
+    const reads = deriveNamedViewReads();
+    const undeclared = reads.reads.filter((r) => !declared.has(r));
+    // Still exactly one, and still `data`. If a SECOND cast-only read appears,
+    // this fails and the ruling request gets the new name with the old one.
+    expect(undeclared).toEqual([...NAMED_VIEW_READ_UNDECLARED]);
+    expect(declared.has('data'), '`data` became a declared member; the census arithmetic now subtracts seven, not six').toBe(false);
+    // …and it is genuinely reached through the cast, not through a declared path.
+    expect(readRepo(READER)).toContain('data: (currentNamedViewConfig as any)?.data');
+  });
+
+  it.each(NAMED_VIEW_READ_DECLARED)('READ — `%s` is declared AND read off a named view', (member) => {
+    expect(namedListViewMembers().names, `\`${member}\` is no longer declared`).toContain(member);
+    expect(deriveNamedViewReads().reads, `\`${member}\` is no longer read off a named view`).toContain(member);
+  });
+
+  it.each(NAMED_LIST_VIEW_UNREAD)('UNREAD — `%s` is declared and NOT read off a named view', (member) => {
+    expect(namedListViewMembers().names, `\`${member}\` is no longer declared`).toContain(member);
+    expect(
+      deriveNamedViewReads().reads,
+      `\`${member}\` is now READ off a named view. That is the census moving, not a test to update: `
+        + 'move it to NAMED_VIEW_READ_DECLARED, re-derive the counts, and say so on objectui#7924 — '
+        + 'the listViews mirror decision (objectui#7928) reads these two sets.',
+    ).not.toContain(member);
+  });
+
+  it('the controls fire on the same instruments that produce every zero above', () => {
+    const declared = namedListViewMembers().names;
+    const reads = deriveNamedViewReads().reads;
+    // ⭐ The firing control. The query that returns NOTHING for the 41 unread
+    // members is the query that returns `columns` — so a zero is a reading and
+    // not a parser that found nothing.
+    expect(reads).toContain(NAMED_VIEW_READ_CONTROL);
+    expect(declared).toContain(NAMED_VIEW_READ_CONTROL);
+    // …and its negative twin: declared, and NOT read off a named view. It is
+    // read off `activeView` instead (`rowHeight: activeView?.rowHeight`), which
+    // is the distinction the whole finding turns on.
+    expect(declared).toContain(NAMED_VIEW_UNREAD_CONTROL);
+    expect(reads).not.toContain(NAMED_VIEW_UNREAD_CONTROL);
+    expect(readRepo(READER)).toContain('rowHeight: activeView?.rowHeight,');
+    // A spelling that is in neither set: non-vacuity for both probes at once.
+    expect(declared).not.toContain(NAMED_VIEW_ABSENT_CONTROL);
+    expect(reads).not.toContain(NAMED_VIEW_ABSENT_CONTROL);
+  });
+
+  it('two unread members are absent from the renderer ENTIRELY — no named-view read, no `activeView` read, no node read', () => {
+    const src = readRepo(READER);
+    for (const member of UNREAD_ABSENT_FROM_RENDERER) {
+      expect(NAMED_LIST_VIEW_UNREAD as readonly string[]).toContain(member);
+      expect(src, `\`${member}\` now appears in the renderer; re-take the census's absence column`)
+        .not.toMatch(new RegExp(`\\b${member}\\b`));
+    }
+    // The control for those two absences: a member that IS mentioned, measured
+    // by the same query. Without it "not found" is an unrun grep.
+    expect(src).toMatch(new RegExp(`\\b${NAMED_VIEW_UNREAD_CONTROL}\\b`));
   });
 });
 

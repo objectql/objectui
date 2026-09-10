@@ -135,9 +135,9 @@ const ar = {
     // numbers, a missing one cannot name how many. Same split as
     // `grid.grouping.partialNotice`. Kept terse deliberately — this copy is
     // eagerly loaded, and since objectui#7399 these bytes are budgeted by the
-    // `i18n-locales` chunk, not `framework` — a ceiling set 8,924 B above the
-    // baseline it was measured from, about sixty short keys' worth across ten
-    // locales. `pnpm check:eager-closure` prints the figure in force.
+    // `i18n-locales` chunk, not `framework`. ⛔ That ceiling's headroom is
+    // deliberately NOT restated here — it moves on every re-baseline, and the
+    // figure that was here went stale. `pnpm check:eager-closure` prints it.
     rowCeilingNote: "يتم عرض أول {{shown}} من أصل {{total}} سجل. ضيّق عامل التصفية.",
     rowCeilingNoteUnknownTotal: "يتم عرض أول {{shown}} سجل. ضيّق عامل التصفية.",
   },
@@ -1475,6 +1475,9 @@ const ar = {
     importMappingsUnavailable: "تعذّر تحميل تعيينات الاستيراد المحفوظة لـ {{object}}",
     importMappingsRefused: "رفض الخادم هذا الطلب، لذلك فإن هذه القائمة فارغة لأنه تعذّرت قراءتها، لا لأنه لا يوجد شيء مسجَّل. سجّل الدخول مرة أخرى أو اطلب صلاحية الوصول من المسؤول.",
     importMappingsUnreadable: "هذه القائمة فارغة لأنه تعذّرت قراءتها، لا لأنه لا يوجد شيء مسجَّل. أعد المحاولة، وأبلغ عن المشكلة إذا استمرت.",
+    savedViewsUnavailable: "تعذّر تحميل العروض المحفوظة لـ {{object}}",
+    savedViewsRefused: "رفض الخادم هذا الطلب، لذلك فإن هذه القائمة فارغة لأنه تعذّرت قراءتها، لا لأن هذا الكائن ليس لديه عروض محفوظة. سجّل الدخول مرة أخرى أو اطلب صلاحية الوصول من المسؤول.",
+    savedViewsUnreadable: "هذه القائمة فارغة لأنه تعذّرت قراءتها، لا لأن هذا الكائن ليس لديه عروض محفوظة. أعد المحاولة، وأبلغ عن المشكلة إذا استمرت.",
     settingsHub: {
       title: "الإعدادات",
       subtitle: "اضبط مساحة العمل والتكاملات وأعلام الميزات.",
@@ -3007,6 +3010,20 @@ const ar = {
       countDashboards: "{{count}} لوحات معلومات",
       countDashboards_one: "{{count}} لوحة معلومات",
       countSeedData: "بيانات تجريبية",
+    },
+    build: {
+      building: "جارٍ إنشاء {{app}}…",
+      built: "تم إنشاء {{app}}",
+      appFallback: "تطبيقك",
+      addingSampleData: "جارٍ إضافة بيانات تجريبية",
+      group: {
+        object: "الكائنات",
+        view: "طرق العرض",
+        dashboard: "لوحات المعلومات",
+        app: "التطبيق",
+        seed: "بيانات تجريبية",
+      },
+      moreArtifacts: "+{{n}} أخرى",
     },
   },
   chatbotError: {

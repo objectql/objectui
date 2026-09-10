@@ -3096,14 +3096,22 @@ const SPEC_DERIVED_PAIRS: readonly string[] = [
   'complex.zod.ts#KanbanSchema',
   'form.zod.ts#SelectOptionSchema',
   'layout.zod.ts#PageNodeSchema',
-  // objectui#8885: the three keys `ObjectChart.tsx` reads that neither published
-  // face declared are each the SPEC's own schema at the crossing —
-  // `SpecChartDrillDownSchema`, `SpecI18nLabelSchema`, and
-  // `SpecDashboardWidgetSchema.shape.compareTo` by reference (the producer's own
-  // declaration: `DashboardRenderer` forwards `widget.compareTo` verbatim). So a
-  // spec bump that moves the chart drill vocabulary, the i18n label union, or the
-  // widget's comparison directive moves ONE side of this pair, which is exactly
-  // what this list exists to make legible rather than mysterious.
+  // ⭐ ONE entry, FOUR spec crossings — two cards put them there and both grounds
+  // are recorded, because either one alone is enough to keep this membership and
+  // deleting the entry needs both to be gone.
+  //   - objectui#7946 (rework round): `aggregate` is `SpecChartAggregateSchema` by
+  //     reference rather than the local near-copy the first cut declared, so a
+  //     spec bump that widens or narrows the object-bound aggregation vocabulary
+  //     moves ONE side of this pair.
+  //   - objectui#8885: the three keys `ObjectChart.tsx` reads that neither
+  //     published face declared are each the SPEC's own schema at the crossing —
+  //     `SpecChartDrillDownSchema`, `SpecI18nLabelSchema`, and
+  //     `SpecDashboardWidgetSchema.shape.compareTo` by reference (the producer's
+  //     own declaration: `DashboardRenderer` forwards `widget.compareTo`
+  //     verbatim). So a spec bump that moves the chart drill vocabulary, the
+  //     i18n label union, or the widget's comparison directive moves ONE side too.
+  // Either way it is exactly what this list exists to make legible rather than
+  // mysterious.
   'objectql.zod.ts#ObjectChartSchema',
   'objectql.zod.ts#ObjectGallerySchema',
   'objectql.zod.ts#ObjectGanttSchema',

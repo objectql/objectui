@@ -769,6 +769,43 @@ export interface PageNodeSchema extends BaseSchema {
    */
   actions?: never;
   /**
+   * ⛔ REFUSED BY NAME — `breadcrumbs` is not a member of this node and never
+   * was (objectui#8871, ADR-0049 enforce-or-remove).
+   *
+   * objectui#7926 measured this key on this node and deliberately LEFT it
+   * parsing, so that retiring it would be a decision rather than an accident;
+   * this is that decision. Its ruling is not borrowed — it covers `actions`
+   * only — what reaches this key is the standing enforce-or-remove discipline,
+   * which this package already applies to this face (see
+   * `zod/tombstone.zod.ts`'s `retirementTombstone`).
+   *
+   * Nothing ever read it, and the frame that number belongs to is stated so
+   * this docblock and `zod/layout.zod.ts`'s twin cannot drift apart on it. On
+   * this branch's BASE (`93127bd6f`) a point-access probe (`\.breadcrumbs`)
+   * scores 0 across the tree (exit 1), against 12 files tree-wide — 10 of them
+   * under `packages/` — for `\.breadcrumb\b` as the lit control. At HEAD those
+   * rise to 16 and 13 and `\.breadcrumbs` turns exit 0 over 4 files, every one
+   * of them a file of THIS branch quoting the probe string (the changeset, the
+   * refusal pin, this file and `zod/layout.zod.ts`); the tree-scoped pin's own
+   * exclusions take HEAD back to exit 1.
+   * ⛔ A bare-word probe is worthless here — the word also names Sentry's own
+   * unrelated concept and appears in two comments listing UI surfaces, so a
+   * bare grep reports readers that do not exist. `BaseSchema` is
+   * `.passthrough()`, so the authored array was never refused, only KEPT.
+   *
+   * The remedy is a NODE that already ships: put
+   * `{ "type": "breadcrumb", "items": [{ "label": "Home", "href": "/" }] }` in
+   * {@link body}. `breadcrumb` is a registered renderer taking that exact item
+   * shape, plus `separator`, `maxItems` and a per-item `icon`.
+   * ⛔ Not the `page:header` block's `breadcrumb`: that one is SINGULAR and a
+   * BOOLEAN display toggle, not a list of links.
+   *
+   * `?: never` is the twin of `layout.zod.ts`'s `retirementTombstone` arm — the
+   * pair is what `__tests__/zod-mirror-parity.test.ts` compares, and it is what
+   * makes `tsc` refuse the key at the authoring site before anything runs.
+   */
+  breadcrumbs?: never;
+  /**
    * Page title
    */
   title?: string;
@@ -816,9 +853,32 @@ export interface PageNodeSchema extends BaseSchema {
   // blankLayout removed — the `blank` page type has no renderer and was dropped
   // from @objectstack/spec PageTypeSchema (framework#2265, enforce-or-remove).
   /**
-   * Main content array (Legacy/Simple mode)
+   * Main content (Legacy/Simple mode) — ONE node, or a list of them.
+   *
+   * The union is the declaration catching up to its reader, not a widening for
+   * convenience (objectui#8310, maintainer ruling 2026-09-07). This key read
+   * `SchemaNode[]` and was the OUTLIER in this file: `CardSchema.body` and
+   * `AspectRatioSchema.body` already spell the union, and so does
+   * `BaseSchema.body` — the channel this interface inherits and then narrowed.
+   * `PageRenderer`'s `FlatContent` fallback
+   * (`packages/components/src/renderers/layout/page.tsx`) has always accepted a
+   * bare node, normalizing it into a one-element list; under the narrowing that
+   * branch was unreachable through the renderer's own declared props and stood
+   * only behind a `content as SchemaNode` cast, which the same ruling deletes.
+   *
+   * The refused value is authored on this project's own landing page: the root
+   * `README.md` "Basic Usage" example gives `body` a single `grid` node. It
+   * type-checked only because that snippet is annotated `BaseSchema` — the
+   * WIDER parent — so nothing on the authoring path ever asked this key about
+   * its arity. Pinned by `__tests__/page-body-arity-8310.test.ts`.
+   *
+   * ⚠️ Bounded, and the bound was measured: `BaseSchema` carries
+   * `[key: string]: any`, so annotating an authored page catches a value of the
+   * WRONG TYPE (TS2322) and never a MISSPELLED key (an undeclared key is
+   * absorbed by the index signature, zero diagnostics). This union repairs the
+   * first case only.
    */
-  body?: SchemaNode[];
+  body?: SchemaNode | SchemaNode[];
   /**
    * Alternative content prop
    */

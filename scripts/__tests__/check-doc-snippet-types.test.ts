@@ -59,12 +59,17 @@ import {
  *     would check the docs against code no consumer sees.
  *  5. **The gate is wired**, in a workflow a docs-only pull request can start.
  *  6. **Third-party resolution reaches exactly as far as the imported packages
- *     DECLARE** (objectui#6120). This one's failure mode is the worst in the list
+ *     DECLARE** (objectui#6120), in either of the two fields the map reads —
+ *     `dependencies`, and the REQUIRED `peerDependencies` this workspace
+ *     resolves (objectui#8919). This one's failure mode is the worst in the list
  *     because it is invisible: widen resolution past the declarations and every
  *     document stays green while the gate stops being able to fail. The suite
- *     therefore pins both directions — a declared dependency IS mapped, and an
+ *     therefore pins every direction — a declared dependency IS mapped, a
+ *     required peer IS mapped, an OPTIONAL peer and a devDependency are NOT, an
  *     installed-but-undeclared one is NOT — plus the two preconditions the
- *     UNDECLARED control needs in order to mean anything.
+ *     UNDECLARED control needs in order to mean anything. The peer half is
+ *     pinned as an ADDITION: `dependencies` still decides every specifier it
+ *     names, first, from its own owner's directory.
  *  7. **The exit path tells "I could not run" from "I ran and found errors"**
  *     (objectui#5465). A run that resolved against nothing produced no verdict
  *     about any document; leaving through the same code as a real snippet
@@ -931,12 +936,15 @@ describe('third-party resolution reaches exactly as far as the imported packages
     });
   }
 
+  type Derived = {
+    paths: Record<string, string[]>;
+    declaredBy: Record<string, string>;
+    declaredIn: Record<string, string>;
+    untyped: { specifier: string; field: string }[];
+  };
+
   const derive = (root: string, imported: string[] = ['pkg-a']) =>
-    deriveDeclaredDependencyPaths(root, imported, { 'pkg-a': 'packages/pkg-a' }) as unknown as {
-      paths: Record<string, string[]>;
-      declaredBy: Record<string, string>;
-      untyped: { specifier: string }[];
-    };
+    deriveDeclaredDependencyPaths(root, imported, { 'pkg-a': 'packages/pkg-a' }) as unknown as Derived;
 
   it('maps a specifier the imported package DECLARES — that is what a consumer resolves', () => {
     const { paths, declaredBy } = derive(treeWithDependency());
@@ -952,10 +960,84 @@ describe('third-party resolution reaches exactly as far as the imported packages
     expect(Object.keys(paths)).not.toContain('undeclared-dep');
   });
 
-  it('does not map peerDependencies or devDependencies — it fails CLOSED', () => {
+  it('maps a REQUIRED peerDependency this workspace resolves, and records which field it came from (objectui#8919)', () => {
+    // The widening. A required peer is not an optional extra a reader may lack:
+    // the package declares it cannot function without it, so it reaches every
+    // reader who can use the package at all. The reason is stated in the gate's
+    // own header, and pinned below.
+    const { paths, declaredBy, declaredIn } = derive(treeWithDependency());
+    expect(Object.keys(paths)).toContain('peer-dep');
+    expect(paths['peer-dep'][0]).toMatch(/peer-dep[\\/]index\.d\.ts$/);
+    expect(declaredBy['peer-dep']).toBe('pkg-a');
+    expect(declaredIn['peer-dep']).toBe('peerDependencies');
+    // Told apart from the other half in the same reading, so a report can say
+    // how much of the map rests on "the reader must already have it".
+    expect(declaredIn['declared-dep']).toBe('dependencies');
+  });
+
+  it('does NOT map devDependencies — they reach no consumer at all', () => {
     const { paths } = derive(treeWithDependency());
-    expect(Object.keys(paths)).not.toContain('peer-dep');
     expect(Object.keys(paths)).not.toContain('dev-dep');
+  });
+
+  it('does NOT map an OPTIONAL peer — that is the case the fail-CLOSED reason describes', () => {
+    // Same tree, same shape, same node_modules layout: the ONLY difference
+    // between the two specifiers is `peerDependenciesMeta`. `req-peer` is the
+    // control that keeps the zero below a reading rather than an empty probe.
+    const root = tempTree({
+      'packages/pkg-a/package.json': JSON.stringify({
+        name: 'pkg-a',
+        peerDependencies: { 'opt-peer': '^1.0.0', 'req-peer': '^1.0.0' },
+        peerDependenciesMeta: { 'opt-peer': { optional: true } },
+      }),
+      'packages/pkg-a/node_modules/opt-peer/package.json': JSON.stringify({ name: 'opt-peer', types: 'index.d.ts' }),
+      'packages/pkg-a/node_modules/opt-peer/index.d.ts': 'export declare const opt: number;\n',
+      'packages/pkg-a/node_modules/req-peer/package.json': JSON.stringify({ name: 'req-peer', types: 'index.d.ts' }),
+      'packages/pkg-a/node_modules/req-peer/index.d.ts': 'export declare const req: number;\n',
+    });
+    const { paths } = derive(root);
+    expect(Object.keys(paths)).toContain('req-peer');
+    expect(Object.keys(paths)).not.toContain('opt-peer');
+  });
+
+  it('leaves a REQUIRED peer that ships no types unresolvable rather than approximating it', () => {
+    const root = tempTree({
+      'packages/pkg-a/package.json': JSON.stringify({
+        name: 'pkg-a',
+        peerDependencies: { 'untyped-peer': '^1.0.0' },
+      }),
+      'packages/pkg-a/node_modules/untyped-peer/package.json': JSON.stringify({
+        name: 'untyped-peer',
+        main: 'index.js',
+      }),
+      'packages/pkg-a/node_modules/untyped-peer/index.js': 'module.exports = {};\n',
+    });
+    const { paths, untyped } = derive(root);
+    expect(Object.keys(paths)).not.toContain('untyped-peer');
+    expect(untyped.map((u) => u.specifier)).toContain('untyped-peer');
+    expect(untyped.find((u) => u.specifier === 'untyped-peer')!.field).toBe('peerDependencies');
+  });
+
+  it('lets `dependencies` decide first — the peer half can only ADD a specifier, never re-own one', () => {
+    // `pkg-a` sorts first and declares `shared` as a peer, so ONE pass per owner
+    // would hand the specifier to the peer and resolve it from `pkg-a`'s
+    // directory. Two passes is what makes the widening strictly additive: every
+    // mapping a `dependencies` entry backs is decided before any peer is read.
+    const root = tempTree({
+      'packages/pkg-a/package.json': JSON.stringify({ name: 'pkg-a', peerDependencies: { shared: '^1.0.0' } }),
+      'packages/pkg-a/node_modules/shared/package.json': JSON.stringify({ name: 'shared', types: 'from-peer.d.ts' }),
+      'packages/pkg-a/node_modules/shared/from-peer.d.ts': 'export declare const which: number;\n',
+      'packages/pkg-b/package.json': JSON.stringify({ name: 'pkg-b', dependencies: { shared: '^1.0.0' } }),
+      'packages/pkg-b/node_modules/shared/package.json': JSON.stringify({ name: 'shared', types: 'from-dep.d.ts' }),
+      'packages/pkg-b/node_modules/shared/from-dep.d.ts': 'export declare const which: number;\n',
+    });
+    const { paths, declaredBy, declaredIn } = deriveDeclaredDependencyPaths(root, ['pkg-a', 'pkg-b'], {
+      'pkg-a': 'packages/pkg-a',
+      'pkg-b': 'packages/pkg-b',
+    }) as unknown as Derived;
+    expect(declaredBy['shared']).toBe('pkg-b');
+    expect(declaredIn['shared']).toBe('dependencies');
+    expect(paths['shared'][0]).toMatch(/from-dep\.d\.ts$/);
   });
 
   it('maps nothing for a package no covered document imports', () => {
@@ -997,6 +1079,22 @@ describe('third-party resolution reaches exactly as far as the imported packages
   });
 
   describe('in this repository', () => {
+    it('maps `react`, which every documented React package REQUIRES of its consumer (objectui#8919)', () => {
+      // The measured half of the widening, in the tree it was written for. It is
+      // NOT a restatement of the unit fixture above: this asserts that on THIS
+      // corpus `react` arrives through the peer field and through nothing else,
+      // which is the fact the 34 refused blocks turned on. `dependencies` must
+      // not be what backs it — a package pinning its own React is the defect
+      // objectui#8303 removed, and the map silently rested on it.
+      const state = analyze({}) as unknown as {
+        dependencyPaths: Record<string, string[]>;
+        dependencyDeclaredIn: Record<string, string>;
+      };
+      expect(Object.keys(state.dependencyPaths)).toContain('react');
+      expect(state.dependencyDeclaredIn['react']).toBe('peerDependencies');
+      expect(state.dependencyPaths['react'][0]).toMatch(/\.d\.ts$/);
+    });
+
     it("maps lucide-react, which the documented packages declare (objectui#6120)", () => {
       const state = analyze({}) as unknown as {
         dependencyPaths: Record<string, string[]>;
@@ -1025,18 +1123,36 @@ describe('third-party resolution reaches exactly as far as the imported packages
       ).toBeTruthy();
     });
 
-    it('the UNDECLARED control specifier is declared by no workspace package at all', () => {
+    it('neither control specifier is declared by any workspace package, in EITHER field the map reads', () => {
+      // Widened with the map (objectui#8919). A control that stays green only
+      // because the suite asks about one of two fields is a control that can be
+      // satisfied by the other one, silently — and both of these controls exist
+      // to notice exactly that class of drift.
       const packagesDir = path.join(repoRoot, 'packages');
-      const declaring = fs
-        .readdirSync(packagesDir)
-        .filter((d) => fs.existsSync(path.join(packagesDir, d, 'package.json')))
-        .filter((d) => {
-          const manifest = JSON.parse(
-            fs.readFileSync(path.join(packagesDir, d, 'package.json'), 'utf8'),
-          ) as { dependencies?: Record<string, string> };
-          return Boolean(manifest.dependencies?.[UNDECLARED_CONTROL_PACKAGE]);
-        });
-      expect(declaring, 'pick a control specifier no package declares').toEqual([]);
+      const declarers = (specifier: string) =>
+        fs
+          .readdirSync(packagesDir)
+          .filter((d) => fs.existsSync(path.join(packagesDir, d, 'package.json')))
+          .filter((d) => {
+            const manifest = JSON.parse(
+              fs.readFileSync(path.join(packagesDir, d, 'package.json'), 'utf8'),
+            ) as {
+              dependencies?: Record<string, string>;
+              peerDependencies?: Record<string, string>;
+            };
+            return Boolean(manifest.dependencies?.[specifier] || manifest.peerDependencies?.[specifier]);
+          });
+      expect(declarers(UNDECLARED_CONTROL_PACKAGE), 'pick a control specifier no package declares').toEqual(
+        [],
+      );
+      expect(
+        declarers(ROOT_DECLARED_CONTROL_PACKAGE),
+        'pick a control specifier the map cannot cover',
+      ).toEqual([]);
+      // The probe itself is known to find a positive of this shape: `react` IS
+      // declared, in the second field, by the packages the docs import. Without
+      // this leg the two zeros above could be a reader that looks at nothing.
+      expect(declarers('react').length).toBeGreaterThan(0);
     });
   });
 });
@@ -1275,10 +1391,13 @@ describe('the ROOT BOUND — what only this repository declares does not resolve
       const source = fs.readFileSync(path.join(repoRoot, SCRIPT), 'utf8');
 
       // 1. "DECLARES" is qualified, so the sentence stops reading as impossible
-      //    on a package that declares the specifier in `peerDependencies`.
+      //    on a package that declares the specifier in `peerDependencies`. Since
+      //    objectui#8919 the map READS that field for a required peer, so the
+      //    message names it as a route rather than as a field it cannot use, and
+      //    the "may be unmet" reason narrows to the peers it is still true of.
       expect(source).toContain('Import what an imported ');
-      expect(source).toContain('package declares in its `dependencies`.');
-      expect(source).toContain('a peer is a requirement ON the reader');
+      expect(source).toContain('package declares in its `dependencies`, or REQUIRES of its consumer in its ');
+      expect(source).toContain('an optional peer is a requirement ON the reader');
 
       // 2. The stand-in shape is named, with the property that earns it: the
       //    block still compiles, so the documented surface stays judged.
@@ -1296,10 +1415,32 @@ describe('the ROOT BOUND — what only this repository declares does not resolve
       const banner = source.indexOf('── Fence scanning');
       expect(banner).toBeGreaterThan(0);
       const header = source.slice(0, banner);
-      expect(header).toContain('**`dependencies` only**');
+      expect(header).toContain('**`dependencies`, plus the REQUIRED `peerDependencies` this workspace');
       expect(header).toContain('without surrendering the block: stand');
       expect(header).toContain("the peer's bindings in with `declare const`");
       expect(header).toContain('reads as IMPOSSIBLE on a');
+    });
+
+    /**
+     * objectui#8919 — the edge this widening replaced reserved the right to
+     * widen and named the price: "widening it later is a VISIBLE EDIT WITH A
+     * REASON, not a silent drift". A widening whose reason lives only in a PR
+     * body is a silent drift six months later, so the reason is required to be
+     * in the file, and this is what requires it.
+     */
+    it('the peer widening carries its reason in the source, not only in a PR body (objectui#8919)', () => {
+      const source = fs.readFileSync(path.join(repoRoot, SCRIPT), 'utf8');
+      const banner = source.indexOf('── Fence scanning');
+      const header = source.slice(0, banner);
+      // The class it admits, why that class is sound, and what it still refuses
+      // — a widening stated without the third part is a licence, not a class.
+      expect(header).toContain('THE CLASS IT NOW RESOLVES');
+      expect(header).toContain('WHY THAT IS SOUND');
+      expect(header).toContain('WHAT STAYS CLOSED');
+      expect(header).toContain('peerDependenciesMeta');
+      // And the run says it out loud, every time, so the size of the widening is
+      // readable off a green without opening a manifest.
+      expect(source).toContain('of them from a REQUIRED peerDependency this workspace resolves');
     });
   });
 });

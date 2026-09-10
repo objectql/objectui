@@ -155,9 +155,9 @@ const en = {
     // numbers, a missing one cannot name how many. Same split as
     // `grid.grouping.partialNotice`. Kept terse deliberately — this copy is
     // eagerly loaded, and since objectui#7399 these bytes are budgeted by the
-    // `i18n-locales` chunk, not `framework` — a ceiling set 8,924 B above the
-    // baseline it was measured from, about sixty short keys' worth across ten
-    // locales. `pnpm check:eager-closure` prints the figure in force.
+    // `i18n-locales` chunk, not `framework`. ⛔ That ceiling's headroom is
+    // deliberately NOT restated here — it moves on every re-baseline, and the
+    // figure that was here went stale. `pnpm check:eager-closure` prints it.
     rowCeilingNote: 'Showing the first {{shown}} of {{total}} records. Narrow the filter.',
     rowCeilingNoteUnknownTotal: 'Showing the first {{shown}} records. Narrow the filter.',
   },
@@ -1694,6 +1694,9 @@ const en = {
     importMappingsUnavailable: 'Saved import mappings for {{object}} could not be loaded',
     importMappingsRefused: 'The server refused this request, so this list is empty because it could not be read — not because nothing is registered. Sign in again, or ask an administrator for access.',
     importMappingsUnreadable: 'This list is empty because it could not be read, not because nothing is registered. Try again, and report this if it keeps happening.',
+    savedViewsUnavailable: 'Saved views for {{object}} could not be loaded',
+    savedViewsRefused: 'The server refused this request, so this list is empty because it could not be read — not because this object has no saved views. Sign in again, or ask an administrator for access.',
+    savedViewsUnreadable: 'This list is empty because it could not be read, not because this object has no saved views. Try again, and report this if it keeps happening.',
     title: 'ObjectOS',
     initializing: 'Initializing application…',
     search: 'Search…',
@@ -3340,6 +3343,13 @@ const en = {
   //   `toolState.*` — the card-header badge + activity-chip vocabulary. ONE
   //                   set for both surfaces (they used to carry separate
   //                   tables and disagreed on casing).
+  //   `build.*`    — the apply_blueprint BUILD PANEL's own copy (objectui#7388).
+  //                   Everything else on that panel is fed by the host as an
+  //                   already-translated prop; these strings were literals in
+  //                   the component, so they stayed English in every language.
+  //                   `building`/`built` interpolate `appFallback` when the
+  //                   build has no app label, so each pack must keep BOTH
+  //                   frames in the one case/gender that noun phrase is in.
   //   `plan.*`      — the "N objects · N views · N dashboards" strip. Plural
   //                   FAMILIES (base key + `_one`): i18next resolves every
   //                   CLDR category a pack does not enumerate to the base key,
@@ -3409,6 +3419,20 @@ const en = {
       countDashboards: '{{count}} dashboards',
       countDashboards_one: '{{count}} dashboard',
       countSeedData: 'sample data',
+    },
+    build: {
+      building: 'Building {{app}}…',
+      built: 'Built {{app}}',
+      appFallback: 'your app',
+      addingSampleData: 'adding sample data',
+      group: {
+        object: 'Objects',
+        view: 'Views',
+        dashboard: 'Dashboards',
+        app: 'App',
+        seed: 'Sample data',
+      },
+      moreArtifacts: '+{{n}} more',
     },
   },
   chatbotError: {
