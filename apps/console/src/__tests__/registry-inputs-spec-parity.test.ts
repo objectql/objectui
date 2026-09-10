@@ -2149,9 +2149,17 @@ interface MemberPin {
  * was built for.
  */
 const MEMBER_PINS: Record<string, MemberPin> = {
+  'element:button.action': {
+    file: 'packages/components/src/__tests__/elementButtonActionMembers-8071.test.tsx',
+    pins: 'The inline ActionDef\'s member set as a WHITELIST, driven through the real renderer and asserted on what the ActionRunner is handed: the forwarded keys are pinned as a SORTED SET, so a member silently added to or dropped from `ElementButtonRenderer`\'s explicit forward list is red in either direction — the defect shape objectstack#6837 (`bodyExtra`) and objectstack#6938 (`bodyShape`) were both filed for, an authored key that validates, publishes and then evaporates one hop before the runner. Three off-list keys are authored alongside and asserted ABSENT: `bodyShape` (deliberately not inline vocabulary — `action-bodyShape-forward.test.tsx` argues the boundary in prose, this pins it as behaviour) plus `icon` and `variant`, the block\'s own sibling props misplaced one level in. `actionType` OUTRANKS `type` with the losing spelling\'s handler asserted un-run, an ARRAY `params` is re-routed to `actionParams` while an OBJECT `params` stays `params` (objectstack#5777 direction A) with each arm controlling the other, the navigation members reach the navigation handler, and an omitted `action` dispatches nothing at all — the non-vacuity control for every row. LIMIT: `confirmText` is on the whitelist but unexercised, because the runner awaits confirmation before the dispatch this file observes. New file (objectui#8071 slice 7).',
+  },
   'element:button.label': {
     file: 'apps/console/src/__tests__/component-input-union-specimens.test.ts',
     pins: 'The `object` arm is the inline translation map `{ en, "zh-CN" }` and nothing else — driven through the real `manifestFromConfigs` + `validateTree` pair the JSX-page compiler and the save gate use, each positive paired with a value matching NEITHER arm that must still be reported (objectui#4970).',
+  },
+  'element:number.filter': {
+    file: 'packages/components/src/renderers/basic/__tests__/elementNumberFilterMembers-8071.test.tsx',
+    pins: 'The TWO wire spellings one authored predicate takes, chosen by an adapter capability the author cannot see, plus the re-query rule — asserted through the real renderer on a stubbed adapter. `aggregate()` receives it FLAT under its own name and beside the members that make the call an aggregate (`field`, `function`, `groupBy: \'_all\'`), asserted as the whole options bag rather than the one key; the `find()` fallback receives it WRAPPED as `$filter`; and an unfiltered metric sends `undefined` rather than an empty envelope some adapters read as "match nothing". Collapsing the two spellings into one drops the predicate silently and the metric paints a confidently wrong number over every row, with no diagnostic and no empty state. The third half is that the key is read BY VALUE, not by identity (`filterKey` is a `JSON.stringify` memo): a deep-equal filter rebuilt by a re-rendering parent must NOT re-probe, while a changed comparand MUST and carries the new predicate — each arm the other\'s control, so a dependency array "simplified" to the raw object (a per-render fetch storm) is red. New file (objectui#8071 slice 7).',
   },
   'element:record_picker.dataSource': {
     file: 'packages/components/src/__tests__/record-picker-element-data-source.test.tsx',
@@ -2257,6 +2265,10 @@ const MEMBER_PINS: Record<string, MemberPin> = {
     file: 'packages/plugin-kanban/src/__tests__/ObjectKanban.structuredMembersReachTheirSinks-8313.test.tsx',
     pins: 'ONE nested position and no more: `schema.grouping?.fields?.[0]?.field` is the FALLBACK source of `swimlaneField`, and that is the entire member contract this board carries for the key. Three rows make it a reading rather than a claim — the swimlane layout appears keyed by `fields[0].field` where without the key there is none; an explicit `swimlaneField` WINS over it; and a second `fields` entry changes nothing, which is what pins the read at `[0]` rather than at "the fields list". The declared description says the rest is inert precisely so the declaration does not recommend a write the renderer cannot honour — this file is what keeps that sentence true. The spec row is `z.unknown()`, so the read site is the whole member contract (objectui#8313).',
   },
+  'page:accordion.items': {
+    file: 'packages/components/src/__tests__/pageAccordionItemMembers-8071.test.tsx',
+    pins: 'Which member of one panel definition becomes which part of the rendered accordion — the four `PageAccordionItem` members (`label`, `icon`, `collapsed`, `children`) asserted as a SET through the real renderer, which nothing did before: `label` becomes the trigger\'s accessible name and `children` the panel BODY, asserted against each other so a renderer painting the wrong one cannot pass. `collapsed` is the reading with real semantics to get wrong and it is strictly `=== false`: `collapsed: false` OPENS a panel while `collapsed: true` AND an omitted `collapsed` both leave it shut — the omitted-key arm is the control an "obvious" edit to `!it.collapsed` breaks, and a no-opener fixture keeps the two shut rows from passing on a renderer that opens nothing. The single/multiple split is pinned on the SAME items so only `allowMultiple` varies: single mode takes `defaultOpen[0]` and drops later openers, multiple mode opens them all without opening panels that never asked. `icon` is covered narrowly on purpose — `page-accordion-icon.test.tsx` (objectui#4721) is its pin and is not re-litigated. New file (objectui#8071 slice 7).',
+  },
   'page:card.title': {
     file: 'apps/console/src/__tests__/component-input-union-specimens.test.ts',
     pins: 'The `object` arm is the inline translation map, with a non-matching control that must still be reported (objectui#3832).',
@@ -2272,6 +2284,10 @@ const MEMBER_PINS: Record<string, MemberPin> = {
   'page:header.title': {
     file: 'apps/console/src/__tests__/component-input-union-specimens.test.ts',
     pins: 'The `object` arm is the inline translation map, with a non-matching control (objectui#3832).',
+  },
+  'page:tabs.items': {
+    file: 'packages/components/src/__tests__/pageTabsItemMembers-8071.test.tsx',
+    pins: 'The SIX members of one tab definition (`label`, `value`, `icon`, `count`, `visibleWhen`, `children`) mapped to the six different parts of the strip they each become, driven through the real renderer — the mapping as a set, which none of the five pre-existing `page:tabs` suites asserts (each pins one member, so none would fail if `count` and `value` swapped roles). `label` becomes the trigger name and `children` the PANEL, with the inactive tab\'s body asserted absent since Radix renders only the active one. `value` is pinned BEHAVIOURALLY through `defaultTab` — the host key app-shell restores `?tab=` with — so selecting a tab by its authored value proves the member is the tab\'s identity without reaching into Radix\'s generated ids; both fallback arms follow, an absent `value` and an EMPTY-STRING one each becoming the positional `tab-INDEX`, which is what separates the real read from a bare `typeof value === \'string\'`. `count` is gated on `Number(count) > 0`, NOT on presence: an authored `count: 0` paints no badge, with a positive count on the same strip as its control. `icon` and `count` are asserted per-item against a neighbour declaring neither, so neither can be strip-wide. `visibleWhen` is covered narrowly — `page-tabs-visibility.test.tsx` is its pin. New file (objectui#8071 slice 7).',
   },
   'record:activity.types': {
     file: 'packages/plugin-detail/src/renderers/__tests__/recordActivityFeed.test.ts',
@@ -2447,11 +2463,11 @@ const NO_READ_SITE_TO_PIN =
  * 51st entry, because the count may only go down.
  */
 const MEMBER_PIN_EXEMPTIONS: Record<string, string> = {
-  // element:button
-  'element:button.action': AWAITING_A_PIN,
+  // element:button — objectui#8071 slice 7 pinned `action`, the block's one
+  // remaining key; fully pinned, header kept as a landmark for a future grep.
 
-  // element:number
-  'element:number.filter': AWAITING_A_PIN,
+  // element:number — objectui#8071 slice 7 pinned `filter`, the block's one
+  // remaining key; fully pinned.
 
   // element:record_picker — objectui#8071 slice 3 pinned all four remaining
   // keys (`dataSource`, `label`, `placeholder`, `sort`); the block is now
@@ -2500,11 +2516,11 @@ const MEMBER_PIN_EXEMPTIONS: Record<string, string> = {
   'object-metric.filter': AWAITING_A_PIN,
   'object-metric.trend': AWAITING_A_PIN,
 
-  // page:accordion
-  'page:accordion.items': AWAITING_A_PIN,
+  // page:accordion — objectui#8071 slice 7 pinned `items`, the block's one
+  // remaining key; fully pinned.
 
-  // page:tabs
-  'page:tabs.items': AWAITING_A_PIN,
+  // page:tabs — objectui#8071 slice 7 pinned `items`, the block's one
+  // remaining key; fully pinned.
 
   // record:activity — objectui#8071 slice 6 pinned `types`, the block's one
   // remaining key; fully pinned, header kept as a landmark for a future grep.
@@ -2740,11 +2756,66 @@ const NEWLY_JUDGED_UNPINNED_MEMBERS = [
  * record:activity". That is a contract defect rather than a member shape, so it
  * is filed (objectui#8934) rather than frozen into the pin.
  *
+ * ## 41 -> 37, the seventh slice, and the LAST four one-key blocks closed
+ *
+ * objectui#8071's seventh slice applied slice 6's selection rule to what it left
+ * behind: every block whose remainder was exactly one key. Four qualified —
+ * `element:button.action`, `element:number.filter`, `page:accordion.items` and
+ * `page:tabs.items` — so the ceiling follows to 37 in the same commit, and all
+ * four blocks now carry zero exemptions.
+ *
+ * The batch is coherent rather than opportunistic on the same terms slice 6 set:
+ * one package (`packages/components`) registers all four, the two `element:*`
+ * keys sharing `renderers/basic/elements.tsx` and the two `page:*` keys sharing
+ * `renderers/layout/containers.tsx`, and the rule is stateable in a sentence.
+ *
+ * ⚠️ TWO one-key blocks were deliberately NOT taken, and neither is a leftover
+ * this slice could have absorbed:
+ *
+ *   - `record:related_list.actions` is the `NO_READ_SITE_TO_PIN` sentinel, and
+ *     the reading was RE-MEASURED here rather than inherited: on this tree
+ *     `renderers/record-related-list.tsx` still contains ZERO case-sensitive
+ *     occurrences of `actions` (control: `import` reads 9 in the same file), and
+ *     the only near-matches are `useRelatedRecordActions` / `relatedActions` —
+ *     the host bridge the constant already names. Nothing to pin, still.
+ *   - `object-kanban`'s `columns` / `dataSource` are the
+ *     `NEWLY_JUDGED_UNPINNED_MEMBERS` pair, held by an unruled contract question
+ *     (objectui#8913) about whether `columns` survives as judged structure at
+ *     all. Pinning a shape a pending ruling may delete would be worse than
+ *     leaving it exempt, so `NEWLY_JUDGED_UNPINNED_MEMBERS` is UNCHANGED by this
+ *     slice — no block it names was touched.
+ *
+ * ⇒ After this slice every remaining exemption sits on one of four
+ * MULTI-key blocks (`object-grid` 15, `object-form` 7,
+ * `object-master-detail-form` 6, `object-metric` 6) plus the two held keys. The
+ * "close a block outright by taking its last key" shape is now EXHAUSTED, and
+ * the next slice is the first that has to take a partial block or close a
+ * multi-key one whole — stated here so the next reader does not spend the
+ * search rediscovering it.
+ *
+ * Three of the four pins are new files; none of the four keys had a
+ * pre-existing file covering its member SET, and each candidate was read end to
+ * end before being rejected rather than dismissed on its greps.
+ * `element-button-action.test.tsx` drives only `type` and `to` on one
+ * navigation action; `action-bodyExtra-forward.test.tsx` pins one member across
+ * four renderers; `page-accordion-icon.test.tsx` pins `icon` alone; the five
+ * `page:tabs` suites pin one member each; and
+ * `element-number.contractEnvelope-6726.test.tsx` drives the same `find()`
+ * fallback branch but never authors a `filter`, so the locator itself would
+ * refuse it. ⚠️ `action-bodyShape-forward.test.tsx` is the one that had to be
+ * refused rather than merely passed over: it NAMES `element:button` and the key
+ * `action`, so it would satisfy the locator, while what it actually says is
+ * that `element:button` is deliberately out of its scope. Crediting it would
+ * have been a pin that asserts the opposite of its claim — the false-negative
+ * shape objectui#8068 exists to end. Its boundary is instead pinned as
+ * behaviour in the new file, which authors `bodyShape` and asserts it is
+ * dropped.
+ *
  * ⇒ The rule for every future slice of objectui#8071: delete the entry, register
  * the pin, and set this constant to the new count. Not to the new count plus
  * room.
  */
-const MEMBER_PIN_EXEMPTION_CEILING = 41;
+const MEMBER_PIN_EXEMPTION_CEILING = 37;
 
 /**
  * Every test file a member pin can live in, as LAZY `?raw` loaders.
