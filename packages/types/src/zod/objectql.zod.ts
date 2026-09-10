@@ -1199,11 +1199,27 @@ export const KanbanConditionalFormattingRuleSchema = z.union([
  *
  * ⭐ Both arms, because `@objectstack/spec` admits both. Its
  * `ObjectKanbanPropsSchema.columns` is `z.array(z.unknown()).optional()` and
- * states the element shape in its `describe` prose — "{ id, title } per
- * `groupBy` value, or bare value strings". Admitting only the object arm would
- * make this repository NARROWER than the protocol, which the maintainer
- * principle in force forbids (2026-09-09, verbatim, untranslated):
+ * states the shape in its `describe` prose — "{ id, title } per `groupBy`
+ * value, or bare value strings". Admitting only the object arm would make this
+ * repository NARROWER than the protocol, which the maintainer principle in
+ * force forbids (2026-09-09, verbatim, untranslated):
  * 「我们的项目以 objectstack 协议为准，文档应该以实际实现为准。协议不正确的应该先修改协议。」
+ *
+ * ⛔ Both arms WHOLE, not per element: `columns` is a UNION OF TWO ARRAYS, and
+ * a MIXED array is refused. objectui#8913's first cut spelled it
+ * `z.array(z.union([...]))` and so admitted a mix. `effectiveColumns` dispatches
+ * on `columns[0]` alone, so an object-first mix pushes every string element
+ * through the object branch and a string-first mix is ignored whole; measured
+ * on the real bucketer with `[{ id: 'done', title: 'Done' }, 'todo']` the lanes
+ * are `done:r2, undefined:, __uncolumned__:r1` — a blank lane whose own keys
+ * are `["0","1","2","3","cards"]` and the `todo` record in "Uncategorized".
+ * The protocol names no mixed example. A declaration that admits a shape the
+ * renderer mishandles is the defect this card removes, so it is refused here.
+ *
+ * ⚠️ The STRING arm is admitted for protocol parity and is INERT on this face:
+ * the renderer's string branch returns only under `if (!schema.groupBy)`, and
+ * `groupBy` is required here. Its requiredness is objectui#8990; ⛔ this
+ * schema does not wait on that card.
  *
  * ⛔ NOT `KanbanColumnSchema`, whose `cards` is REQUIRED: that mirror is the
  * RUNTIME lane (`bucketCardsIntoColumns` fills `cards` before `KanbanImpl`
@@ -1219,7 +1235,7 @@ export const KanbanConditionalFormattingRuleSchema = z.union([
  * objectui#6939's judging — a lane card with no `title` is refused again.
  */
 const ObjectKanbanLaneSchema = z.object({
-  id: z.union([z.string(), z.number()]).describe('Lane id — matched against the groupBy value; the renderer coerces it with String()'),
+  id: z.string().describe('Lane id — matched against the groupBy value. STRING only: the bucketer builds knownIds from the raw col.id and compares it with Object.keys(groups), which are strings, so a numeric id buckets every card TWICE (objectui#8993)'),
   title: z.string().describe('Lane heading, localized against the groupBy picklist option labels'),
   cards: z.array(KanbanCardSchema).optional().describe('Cards this lane carries — a STATIC board only; an object-bound board buckets records into the lane by groupBy'),
   limit: z.number().optional().describe('WIP limit — the card count at which the lane warns; never reaches the query'),
@@ -1258,8 +1274,8 @@ export const ObjectKanbanSchema = BaseSchema.extend({
   // named. Mirrors `../objectql.ts` member for member; the element union, the
   // optional `cards` and the reason this is not `KanbanColumnSchema` are
   // reasoned on `ObjectKanbanLaneSchema` above and on the TS twin.
-  columns: z.array(z.union([z.string(), ObjectKanbanLaneSchema])).optional()
-    .describe('Swimlane definitions — { id, title } per groupBy value, or bare value strings; NOT a field projection (the fields drawn on a card are cardFields)'),
+  columns: z.union([z.array(z.string()), z.array(ObjectKanbanLaneSchema)]).optional()
+    .describe('Swimlane definitions — EITHER an array of { id, title } lanes per groupBy value OR an array of bare value strings; NOT a field projection (the fields drawn on a card are cardFields), and not a mix of the two, which the renderer cannot dispatch'),
   limit: z.number().int().positive().optional().describe('Row cap — the most records the board fetches, sent as a real $top on the query; default 100 (DEFAULT_KANBAN_LIMIT)'),
   // objectui#8174 — the query key `ObjectKanban.tsx` lowers onto its own
   // `dataSource.find` (`$filter: schema.filter`), alongside the `$top` that

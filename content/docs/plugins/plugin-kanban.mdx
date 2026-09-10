@@ -83,24 +83,39 @@ has no function value), never a member of the schema object below —
 `packages/plugin-kanban/README.md` documents this the same way.
 
 `columns` are the board's **swimlanes**, not a field projection — the fields drawn
-on a card are `cardFields`. The element is a **union**, and it is the one
-`@objectstack/spec` declares: a `{ id, title }` lane per `groupBy` value, or a bare
-value string. `cards` is **optional** on a lane — an object-bound board buckets its
-records into the lane by `groupBy`, and only a static board writes a lane's cards
-itself. Both faces of `@object-ui/types` declare this since objectui#8913, so a
-lane and its cards are validated: a card with no `title` is refused.
+on a card are `cardFields`. It is **one of two array shapes**, the pair
+`@objectstack/spec` declares: an array of `{ id, title }` lanes (one per `groupBy`
+value), **or** an array of bare value strings. ⛔ Not a mix of the two — the
+renderer decides which shape it has by looking at the first element only, so a
+mixed array produces a blank lane and mis-bucketed cards. `cards` is **optional**
+on a lane — an object-bound board buckets its records into the lane by `groupBy`,
+and only a static board writes a lane's cards itself. Both faces of
+`@object-ui/types` declare this since objectui#8913, so a lane and its cards are
+validated: a card with no `title` is refused.
+
+<Callout type="warn">
+  **The bare-string array is accepted but has no effect on `object-kanban`.** It is
+  declared so this package does not refuse an authoring `@objectstack/spec` allows.
+  The renderer only reads a bare-string lane list when a board has **no** `groupBy`
+  — and `groupBy` is required on `object-kanban`, so on this block the strings are
+  always ignored and the lanes come from the group field's picklist options or from
+  the data. Write the `{ id, title }` array to control the lanes. The requiredness of
+  `groupBy` is tracked as objectui#8990.
+</Callout>
 
 ```plaintext
 {
   type: 'object-kanban',
   groupBy: 'status',
   data: [],
-  columns?: Array<string | KanbanLane>,
+  columns?: string[] | KanbanLane[],   // one shape or the other, never mixed
   className?: string
 }
 
+// `KanbanLane` is a name for this page only — the shape is declared inline on
+// `ObjectKanbanSchema` and is not importable.
 interface KanbanLane {
-  id: string | number         // matched against the groupBy value
+  id: string                  // matched against the groupBy value
   title: string
   cards?: KanbanCard[]        // a STATIC board's lane only
   limit?: number              // Max cards allowed (WIP limit)
@@ -123,7 +138,7 @@ interface KanbanCard {
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `columns` | `Array<string \| KanbanLane>` | Swimlane definitions — a `{ id, title }` lane per `groupBy` value, or a bare value string. NOT a field projection. |
+| `columns` | `string[] \| KanbanLane[]` | Swimlane definitions — an array of `{ id, title }` lanes (one per `groupBy` value), **or** an array of bare value strings; never a mix. NOT a field projection. The bare-string array is accepted for spec parity but is ignored on this block (see the note above). |
 | `filter` | ViewFilterRule[] | Query filter for an object-driven board, lowered to `$filter` |
 | `limit` | number | Rows fetched by an object-driven board (default 100) |
 | `className` | string | Additional Tailwind CSS classes |
@@ -134,7 +149,7 @@ An undeclared lane key is accepted and dropped, not refused.
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `id` | `string \| number` | Lane identifier, matched against the `groupBy` value (the renderer coerces it with `String()`) |
+| `id` | string | Lane identifier, matched against the `groupBy` value. Strings only: a non-string id makes the board render every card twice, once in its lane and once in "Uncategorized" (objectui#8993) |
 | `title` | string | Lane title, localized against the `groupBy` picklist's option labels |
 | `cards` | KanbanCard[] | Cards this lane carries — **optional**, and a static board's option; an object-bound board's cards arrive from the record source |
 | `limit` | number | Max cards allowed (WIP limit). Never reaches the query — the fetch window is the board's `limit` |

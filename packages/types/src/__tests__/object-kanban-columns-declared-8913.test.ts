@@ -53,6 +53,49 @@
  * ⇒ `cards` is OPTIONAL and both arms are admitted. Narrowing further is an
  * `@objectstack/spec` card, not a local edit.
  *
+ * ## ⚠️ And the two shapes the first cut got WRONG in the other direction
+ *
+ * Contract review caught this file pinning two shapes as ACCEPTED that the
+ * renderer mishandles — freezing a defect as correct, which is worse than not
+ * pinning at all. Both are measured at the real `bucketCardsIntoColumns`, each
+ * against a control leg, and both now sit in `REFUSED`:
+ *
+ *   - **a NUMERIC lane id.** The first cut admitted one, justified by "the
+ *     renderer coerces with `String(col.id)`". That is true at the i18n lookup
+ *     in `localizeColumn` and FALSE where lane membership is decided: the
+ *     bucketer builds `knownIds` from the RAW `col.id` and compares it with
+ *     `Object.keys(groups)`, which are strings. Lanes `{ id: 1 }, { id: 2 }`
+ *     with records `status: 1` / `status: '2'` come back
+ *     `1:r1, 2:r2, __uncolumned__:r1+r2` — every card rendered TWICE — against
+ *     a clean `one:r1` string control. Carrier for the renderer defect:
+ *     objectui#8993. `KanbanColumn.id` and its mirror are `string`, and the
+ *     protocol names no type, so refusing it here is not a narrowing below the
+ *     protocol.
+ *   - **a MIXED array.** `columns` is a UNION OF TWO ARRAYS, not an array of a
+ *     union. `effectiveColumns` dispatches on `columns[0]` ALONE, so an
+ *     object-first mix sends every string element down the object branch and a
+ *     string-first mix is ignored whole. Measured with
+ *     `[{ id: 'done', title: 'Done' }, 'todo']`:
+ *     `done:r2, undefined:, __uncolumned__:r1` — a blank lane whose own keys
+ *     are `["0","1","2","3","cards"]` and the `todo` record in
+ *     "Uncategorized". The protocol's "or" names two array shapes and no mixed
+ *     example; if a later ruling reads it as a per-element union, that is an
+ *     `@objectstack/spec` card.
+ *
+ * ## ⚠️ The bare-string arm is admitted for PARITY and is INERT on this face
+ *
+ * The renderer honours a bare-string lane list only when no `groupBy` is
+ * authored (`ObjectKanban.tsx`, the `effectiveColumns` memo: the string branch
+ * returns only under `if (!schema.groupBy)`), and `groupBy` is REQUIRED on this
+ * face. So no document that passes this schema can reach it. It is admitted
+ * because refusing an arm the protocol names would be a second narrowing, not
+ * because it does anything; the requiredness is objectui#8990, and ⛔ this card
+ * does not wait on it.
+ *
+ * ⚠️ "Accepted and dropped" (the strip row below) is the TOLERANT face's
+ * posture. The strict authoring twin refuses the same undeclared lane key by
+ * name.
+ *
  * ## The firing control, and why it is this one
  *
  * Every refusal below is paired with the SAME lane bag written under an
@@ -139,12 +182,8 @@ describe('the protocol union is admitted whole (objectui#8913)', () => {
     ).toEqual([]);
   });
 
-  it('a NUMERIC lane id — the renderer coerces with `String(col.id)`', () => {
-    expect(reasons(board([{ id: 1, title: 'Stage one' }]))).toEqual([]);
-  });
-
-  it('the two arms mix in one array, as a partially-labelled board authors them', () => {
-    expect(reasons(board(['todo', { id: 'done', title: 'Done' }]))).toEqual([]);
+  it('an EMPTY array — neither arm is chosen and nothing is refused', () => {
+    expect(reasons(board([]))).toEqual([]);
   });
 });
 
@@ -165,6 +204,13 @@ const REFUSED: Array<readonly [string, unknown]> = [
   ['a WIP `limit` that is not a number', [{ id: 'todo', title: 'To Do', limit: 'three' }]],
   ['a `collapsed` that is not a boolean', [{ id: 'todo', title: 'To Do', collapsed: 'yes' }]],
   ['a `className` that is not a string', [{ id: 'todo', title: 'To Do', className: 42 }]],
+  // The two rows contract review moved out of the ACCEPT set. Both parsed green
+  // before this card AND under objectui#8913's first cut, which is why they
+  // belong here with the same control as every other row: the failure they
+  // guard is a declaration blessing a shape the renderer mishandles.
+  ['⭐ a NUMERIC lane id — the bucketer renders every such card twice (objectui#8993)', [{ id: 1, title: 'Stage one' }]],
+  ['⭐ a MIXED array, string first — the renderer ignores the whole list', ['todo', { id: 'done', title: 'Done' }]],
+  ['⭐ a MIXED array, object first — the renderer emits a blank lane and mis-buckets', [{ id: 'done', title: 'Done' }, 'todo']],
 ];
 
 describe('the restored refusals, each against a firing control (objectui#8913)', () => {
@@ -225,7 +271,7 @@ export const SWIMLANES: TsObjectKanbanSchema = {
   data: [],
   columns: [
     { id: 'todo', title: 'To Do' },
-    { id: 2, title: 'In Progress' },
+    { id: 'in_progress', title: 'In Progress' },
   ],
 };
 
