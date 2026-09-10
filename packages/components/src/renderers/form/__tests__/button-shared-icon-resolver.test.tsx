@@ -142,8 +142,21 @@ describe('ui:button icon resolution (objectui#5993)', () => {
       // The single entry both maps carried. It is the one input whose answer
       // would have changed had the dedupe dropped the alias on the floor.
       const button = renderButton({ icon: 'home' });
-      expect(button.querySelector('svg.lucide-house')).not.toBeNull();
-      expect(button.querySelector('svg.lucide-home')).toBeNull();
+      const house = button.querySelector('svg.lucide-house');
+      expect(house).not.toBeNull();
+      // The negative half used to read `querySelector('svg.lucide-home')` is
+      // null. That form RETIRED on lucide-react 1.43.0, which reshaped
+      // `createLucideIcon` to take an icon-data object carrying `aliases` and
+      // to emit one class PER ALIAS: `house` now renders
+      // `class="lucide lucide-house lucide-home ..."` itself, so the class no
+      // longer says which glyph was drawn (measured: 248 of 1818 icon modules
+      // carry aliases; 1.31.0 icon modules have no `aliases` field at all).
+      // The discriminating form is below and still fires for the same defect:
+      // `Home` is not a key of the runtime record, so had the rename been
+      // dropped this button would render NO glyph at all, and any SECOND glyph
+      // would be a different element from `house`.
+      expect(button.querySelectorAll('svg')).toHaveLength(1);
+      expect(button.querySelector('svg.lucide-home')).toBe(house);
     });
 
     it('renders NO glyph for a retired spelling — the RECORD surface, not a fallback', () => {
