@@ -67,22 +67,28 @@ export const RecordChatterRenderer: React.FC<RecordChatterRendererProps> = ({
   const discussion = useDiscussionContext();
   const { designer } = splitDesigner(props);
 
-  // Merge schema-supplied config (position, feed sub-config) with the same
-  // three AFFORDANCE defaults the host's auto-appended panel hard-codes
-  // (`@object-ui/app-shell` `RecordDetailView.tsx:2549`).
+  // Merge schema-supplied config (position, feed sub-config) with the three
+  // AFFORDANCE defaults a host fallback wants when no author supplied any.
   //
-  // ⚠️ The affordance defaults still match. The rendered FEED no longer does,
-  // and this comment used to claim it did — "so an author-placed
-  // `record:discussion` looks identical to the fallback the host injects when
-  // no component is present". That sentence was true until objectui#8934 and
-  // is false now: this path runs `applyFeedConfig` below, so the protocol's
-  // `feed` defaults apply here (completed activities hidden, a 20-item page
-  // window with "Load more"), while the fallback hands its rows to
-  // `RecordChatterPanel` raw — no pipeline, no paging. Measured on the same
-  // feed: three comments plus one `task` row renders four rows there and
-  // three here; twenty-five comments renders twenty-five there and twenty
-  // plus a "Load more" here. Tracked as objectui#8983.
-  // ⛔ Do not restore the old sentence without closing that divergence first.
+  // ⭐ These defaults are the WHOLE of what the host's auto-appended discussion
+  // is, because since objectui#8983 that fallback mounts THIS renderer with no
+  // schema (`@object-ui/app-shell` `RecordDetailView.tsx`, the
+  // `showAutoDiscussion` branch) instead of reaching past it to
+  // `RecordChatterPanel` with raw rows. So the two chatter surfaces on a record
+  // page render the same feed again, and they do it by running one pipeline
+  // rather than by keeping two copies of it in agreement.
+  //
+  // ⚠️ The history is worth keeping because it is the failure this file is one
+  // half of. This comment once said an author-placed `record:discussion` "looks
+  // identical to the fallback the host injects when no component is present".
+  // objectui#8934 made that false by adding `applyFeedConfig` here only:
+  // measured on the same feed, three comments plus one `task` row rendered four
+  // rows through the fallback and three here, and twenty-five comments rendered
+  // twenty-five there and twenty plus a "Load more" here. objectui#8983 closed
+  // it at the BINDING, not by teaching the fallback its own copy of the filter
+  // logic. ⛔ A future edit that gives the fallback its own items/config path
+  // re-opens the divergence — `RecordDetailView.discussionFallbackPipeline-8983`
+  // in `@object-ui/app-shell` is the pin that turns red when it does.
   const config = {
     position: 'bottom',
     collapsible: false,
