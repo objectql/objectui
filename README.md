@@ -81,7 +81,7 @@ const schema = {
   body: {
     type: "grid",
     columns: 3,
-    items: [
+    children: [
       { type: "statistic", label: "Total Users", value: "${stats.users}" },
       { type: "statistic", label: "Revenue", value: "${stats.revenue}" },
       { type: "statistic", label: "Orders", value: "${stats.orders}" }
@@ -230,7 +230,7 @@ docs render, a smoke test mounts, and AI agents use as a few-shot corpus.
 
 ```json
 {
-  "type": "kanban",
+  "type": "object-kanban",
   "objectName": "tasks",
   "groupBy": "status",
   "titleField": "title",

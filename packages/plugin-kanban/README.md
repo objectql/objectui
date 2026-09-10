@@ -5,7 +5,7 @@ A lazy-loaded kanban board component for Object UI based on @dnd-kit for drag-an
 ## Features
 
 - **Internal Lazy Loading**: @dnd-kit libraries are loaded on-demand using `React.lazy()` and `Suspense`
-- **Zero Configuration**: Just import the package and use `type: 'kanban'` in your schema
+- **Zero Configuration**: Just import the package and use `type: 'object-kanban'` in your schema
 - **Automatic Registration**: Components auto-register with the ComponentRegistry
 - **Skeleton Loading**: Shows a skeleton while @dnd-kit loads
 - **Drag and Drop**: Full drag-and-drop support for cards between columns
@@ -39,9 +39,19 @@ themed styling at all ([#4929](https://github.com/objectstack-ai/objectui/issues
 // In your app entry point (e.g., App.tsx or main.tsx)
 import '@object-ui/plugin-kanban';
 
-// Now you can use kanban type in your schemas
+// Now you can author the `object-kanban` node type in your schemas.
+// ⛔ The bare `kanban` node type key RETIRED in objectui#8802 — a
+// `{ type: 'kanban' }` document is now refused BY NAME and told to write
+// `object-kanban`. (The STORED `NamedListView.type` value `"kanban"` is a
+// different layer and is unaffected — do not rewrite saved views.)
+//
+// `groupBy` and ONE record source (`data`, `bind` or `objectName`) are what the
+// surviving face requires of every board; the shape below is the one the
+// catalog fixture `plugin-kanban/basic-kanban-board.json` carries.
 const schema = {
-  type: 'kanban',
+  type: 'object-kanban',
+  groupBy: 'status',
+  data: [],
   columns: [
     {
       id: 'todo',
@@ -76,7 +86,8 @@ Object.entries(kanbanComponents).forEach(([type, component]) => {
 The plugin exports TypeScript types for full type safety:
 
 ```typescript
-import type { KanbanSchema, KanbanCard, KanbanColumn } from '@object-ui/plugin-kanban';
+import type { KanbanCard, KanbanColumn } from '@object-ui/plugin-kanban';
+import type { ObjectKanbanSchema } from '@object-ui/types';
 
 const card: KanbanCard = {
   id: 'task-1',
@@ -94,8 +105,13 @@ const column: KanbanColumn = {
   limit: 5
 };
 
-const schema: KanbanSchema = {
-  type: 'kanban',
+// ⚠️ `object-kanban`: the bare `kanban` node type key and its `KanbanSchema`
+// arm RETIRED in objectui#8802. `groupBy` and one of `bind` / `data` /
+// `objectName` are what the surviving face requires of every board.
+const schema: ObjectKanbanSchema = {
+  type: 'object-kanban',
+  groupBy: 'status',
+  data: [],
   columns: [column]
 };
 ```
@@ -103,25 +119,33 @@ const schema: KanbanSchema = {
 ## Schema API
 
 ```typescript
-import type { KanbanSchema } from '@object-ui/plugin-kanban';
+import type { ObjectKanbanSchema } from '@object-ui/types';
 
 declare const columns: KanbanColumn[];
 
-// The board document. `type` is the only required member — `columns`,
-// `onCardMove` and `className` are all optional. The annotation is the type
-// this package ships, so each member below is compiled against it rather than
-// read as prose: a `columns` array of the wrong shape, or an `onCardMove`
-// whose parameters drift from the shipped signature, fails here. An unknown
-// key does not — `KanbanSchema` extends `BaseSchema`, whose index signature
-// deliberately accepts type-specific extensions, so the compiler is not what
-// catches a misspelt board key.
-const board: KanbanSchema = {
-  type: 'kanban',
+// The board document. `type` and `groupBy` are required, and so is ONE record
+// source — `bind`, `data` or `objectName`. `columns` and `className` are
+// optional.
+//
+// ⚠️ `onCardMove` is NOT a document key: it is a React prop the host supplies
+// (JSON has no function value), which is why it is spelled with explicit
+// parameter types below rather than inferred from the annotation. The
+// annotation is the type this package's renderer consumes; an unknown key does
+// not fail it — `ObjectKanbanSchema` extends `BaseSchema`, whose index
+// signature deliberately accepts type-specific extensions, so the compiler is
+// not what catches a misspelt board key.
+const board: ObjectKanbanSchema = {
+  type: 'object-kanban',
+  groupBy: 'status',                  // required — the field that makes the lanes
+  data: [],                           // one record source is required
   columns,                            // Array of columns
-  onCardMove: (cardId, fromColumnId, toColumnId, newIndex) => {
-    // see "Example with Callbacks" below
-  },
   className: 'h-full',                // Tailwind classes
+};
+
+// Supplied by the React host, never authored in JSON:
+const onCardMove = (cardId: string, fromColumnId: string, toColumnId: string, newIndex: number) => {
+  // see "Example with Callbacks" below
+  void [cardId, fromColumnId, toColumnId, newIndex];
 };
 
 // Column structure
@@ -131,7 +155,9 @@ interface KanbanColumn {
   cards: KanbanCard[];
   limit?: number;                     // WIP limit — the count at which the lane warns
   className?: string;
-  collapsed?: boolean;                // Lane renders collapsed (honoured by KanbanEnhanced)
+  collapsed?: boolean;                // Lane renders collapsed (read by the KanbanEnhanced
+                                      // source module, which objectui#8257 left
+                                      // with no registry key — see CHANGELOG)
   color?: never;                      // RETIRED — refused by name; style a lane through className
 }
 
@@ -175,7 +201,7 @@ When bundled, Vite automatically creates separate chunks:
 - `index.js` (~200 bytes) - The entry point
 - `KanbanImpl-xxx.js` (~100-150 KB) - The lazy-loaded implementation
 
-The @dnd-kit libraries are only downloaded when a `kanban` component is actually rendered, not on initial page load.
+The @dnd-kit libraries are only downloaded when an `object-kanban` component is actually rendered, not on initial page load.
 
 ## Bundle Size Impact
 
@@ -197,17 +223,22 @@ pnpm build
 ## Example with Callbacks
 
 ```typescript
-import type { KanbanColumn, KanbanSchema } from '@object-ui/plugin-kanban';
+import type { KanbanColumn } from '@object-ui/plugin-kanban';
+import type { ObjectKanbanSchema } from '@object-ui/types';
 
 declare const columns: KanbanColumn[];
 
-const schema: KanbanSchema = {
-  type: 'kanban',
+const schema: ObjectKanbanSchema = {
+  type: 'object-kanban',
+  groupBy: 'status',
+  data: [],
   columns,
-  onCardMove: (cardId, fromColumnId, toColumnId, newIndex) => {
-    console.log(`Card ${cardId} moved from ${fromColumnId} to ${toColumnId} at index ${newIndex}`);
-    // Update your backend or state here
-  }
+};
+
+// The host supplies the handler as a React prop — JSON has no function value.
+const onCardMove = (cardId: string, fromColumnId: string, toColumnId: string, newIndex: number) => {
+  console.log(`Card ${cardId} moved from ${fromColumnId} to ${toColumnId} at index ${newIndex}`);
+  // Update your backend or state here
 };
 ```
 

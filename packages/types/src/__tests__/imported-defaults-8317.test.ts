@@ -73,6 +73,8 @@ import {
   AriaPropsSchema as SpecAriaPropsSchema,
   NavigationConfigSchema as SpecNavigationConfigSchema,
   I18nLabelSchema as SpecI18nLabelSchema,
+  ChartAggregateSchema as SpecChartAggregateSchema,
+  ChartDrillDownSchema as SpecChartDrillDownSchema,
 } from '@objectstack/spec/ui';
 import { SelectOptionSchema as SpecSelectOptionSchema } from '@objectstack/spec/data';
 import { stripImportedDefaults } from '../zod/imported-defaults.js';
@@ -173,6 +175,9 @@ const IMPORTED: Array<readonly [string, z.ZodType]> = [
   ['AriaPropsSchema', SpecAriaPropsSchema],
   ['NavigationConfigSchema', SpecNavigationConfigSchema],
   ['I18nLabelSchema', SpecI18nLabelSchema],
+  ['ChartAggregateSchema', SpecChartAggregateSchema],
+  // objectui#8885: `ObjectChartSchema.drillDown` crosses this boundary.
+  ['ChartDrillDownSchema', SpecChartDrillDownSchema],
   ['SelectOptionSchema', SpecSelectOptionSchema],
 ] as const;
 

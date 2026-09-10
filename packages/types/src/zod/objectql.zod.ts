@@ -34,6 +34,10 @@ import {
   UserActionsConfigSchema as SpecUserActionsConfigSchema,
   AriaPropsSchema as SpecAriaPropsSchema,
   NavigationConfigSchema as SpecNavigationConfigSchema,
+  ChartAggregateSchema as SpecChartAggregateSchema,
+  ChartDrillDownSchema as SpecChartDrillDownSchema,
+  I18nLabelSchema as SpecI18nLabelSchema,
+  DashboardWidgetSchema as SpecDashboardWidgetSchema,
 } from '@objectstack/spec/ui';
 import { BaseSchema, specFieldsExcept } from './base.zod.js';
 import { handlerKeyRefusal, retirementTombstone } from './tombstone.zod.js';
@@ -1249,6 +1253,60 @@ export const ObjectChartSchema = BaseSchema.extend({
   dataset: z.string().optional().describe('Semantic-layer dataset name (ADR-0021)'),
   dimensions: z.array(z.string()).optional().describe('Dataset dimension names'),
   values: z.array(z.string()).optional().describe('Dataset measure names'),
+  // ── objectui#7946: the four keys the producers write and the renderer reads ──
+  //
+  // Declared on BOTH published copies by the 2026-09-09 ruling (option A), with
+  // value types derived from `ChartRendererProps` / `ObjectChart.tsx`'s reads
+  // and NOT copied from any producer's literal. `../objectql.ts`'s docblock
+  // carries the per-key AUTHORABLE / INTERNAL verdict and its ground; the short
+  // form is repeated in each `.describe()` because that string is what an
+  // author-facing tool renders.
+  //
+  // ⭐ Where the SPEC already owns the shape, the binding is BY REFERENCE and
+  // the local spelling is a defect, not a style: see `aggregate` below. A
+  // near-copy publishes a second dialect of one key, and — because a local
+  // `z.object` strips where the spec's `strictObject` refuses — the copy is
+  // quietly the more permissive of the two.
+  //
+  // Declaring an INTERNAL key here is not a promotion. `BaseSchema` is
+  // `.passthrough()`, so `xAxisKey` and `series` already rode through this
+  // mirror unexamined; what changes is that their VALUES are checked. Leaving
+  // them undeclared would instead have put them in `zod-mirror-parity`'s
+  // `UnmirroredDeclared` ledger — which that file calls a real defect in the
+  // pair, not a neutral state.
+  // BOTH `filter` arms are live and both are measured — see the twin docblock in
+  // `../objectql.ts`. The array arm is the spec's published `FilterArray` and
+  // the registry `inputs` spelling; the record arm is the ObjectQL `$filter`
+  // object the drill-down spread requires and the in-repo corpus authors.
+  // ⚠️ Narrowing to one arm is a decision local to THIS node — the six sibling
+  // `object-*` widgets are already array-only — and it is blocked on the
+  // drill-down spread, which mis-composes the array arm into index keys.
+  filter: z.union([
+    z.array(z.any()),
+    z.record(z.string(), z.any()),
+  ]).optional().describe('AUTHORABLE — query filter, forwarded verbatim as $filter on both query legs, then spread into the drill-down filter. FilterArray (the spec/react-blocks and registry-inputs spelling) OR the ObjectQL $filter object'),
+  // ⛔ `aggregate` is the SPEC's own schema, never a local near-copy. The first
+  // cut of objectui#7946 spelled it as a local `z.object` with all three members
+  // optional; zod 4 objects are STRIP-postured, so
+  // `{ groupby: 'stage', function: 'count' }` parsed clean and dropped the
+  // mis-cased key silently — the failure `ChartAggregateSchema`'s own
+  // `strictObject` posture exists to prevent, reintroduced by the copy. Bound by
+  // reference the strict posture and the requiredness come with it, and the
+  // authoring door here and at the react-page publish gate are one shape.
+  aggregate: stripImportedDefaults(SpecChartAggregateSchema).optional()
+    .describe('AUTHORABLE — inline aggregation for the legacy objectName path. @objectstack/spec ChartAggregateSchema ({ field?, function, groupBy }), the same schema the react-page publish gate parses: function and groupBy are REQUIRED, field is optional because only count counts rows rather than a column, and unknown keys are refused rather than dropped'),
+  xAxisKey: z.string().optional().describe('INTERNAL (relay-composed) — the category column the renderer binds the x axis to. Authors write xAxisField (or the spec xAxis: { field } one layer down); all five producers compute this key'),
+  series: z.array(z.object({
+    dataKey: z.string().describe('Result column this series plots'),
+    label: z.string().optional().describe('Series display label'),
+    variant: z.enum(['current', 'comparison']).optional().describe('Comparison overlays render muted'),
+    opacity: z.number().optional().describe('Series opacity override (0-1)'),
+    dashArray: z.string().optional().describe('SVG stroke-dasharray override'),
+    chartType: z.enum(['bar', 'line', 'area']).optional().describe('Per-series family override (combo charts)'),
+    stack: z.string().optional().describe('Stack identifier to group series'),
+    yAxis: z.enum(['left', 'right']).optional().describe('Bind to a specific Y axis'),
+    color: z.string().optional().describe('Series color (hex/rgb/token)'),
+  })).optional().describe("INTERNAL (relay-composed) — plotted series in the renderer's internal { dataKey } contract, the arm ChartRendererProps declares. The spec's author-facing ChartSeriesSchema is the { name } arm and refuses dataKey by name; normalizeChartSchema is the one translation"),
   // Colors are overloaded kanban-style: a string[] is the positional palette
   // (applied per category in order; fallback only), while a Record<value,color>
   // is an explicit value→color map. A select/lookup dimension's option colors —
@@ -1258,6 +1316,29 @@ export const ObjectChartSchema = BaseSchema.extend({
     z.array(z.string()),
     z.record(z.string(), z.string()),
   ]).optional().describe('Positional palette (string[]) OR a value→color map ({ value: color }, kanban-style). Select/lookup option colors and explicit maps win over the palette per category.'),
+  // ── objectui#8885: three more keys `ObjectChart.tsx` reads that neither
+  // published copy of this shape declared. Each is the SPEC's own schema at the
+  // crossing, never a local near-copy — see the TS twin in `../objectql.ts` for
+  // the per-key measurement.
+  //
+  // ⚠️ The keys ABOVE (`filter` / `aggregate` / `xAxisKey` / `series` /
+  // `colors`) are objectui#7946's and were ruled on separately; this card swept
+  // none of them in, and that card swept none of these three in. The two census
+  // pins record the split — `../__tests__/object-chart-undeclared-keys-8885.test.ts`
+  // and `../__tests__/widget-schema-anchors-7946.test.ts` each ledger the other
+  // card's keys BY NAME and assert only that each is STILL READ, never that it
+  // is still undeclared, which is why the landing order of the two never
+  // mattered.
+  drillDown: stripImportedDefaults(SpecChartDrillDownSchema).optional()
+    .describe('Segment drill config — @objectstack/spec ChartDrillDownSchema ({ enabled?, filter?, title?, target?: drawer | dialog | navigate, columns?, maxRows? }). Present = on; {} is enough. NOT the wider DrillDownConfig: a chart reads neither `mode` nor `report`.'),
+  title: stripImportedDefaults(SpecI18nLabelSchema).optional()
+    .describe('Chart heading, and the drill drawer heading fallback. @objectstack/spec I18nLabel — a plain string or an inline locale map, the union `normalizeChartSchema`’s `label()` resolves. Not a BaseSchema member.'),
+  // Strip-then-slot, the objectui#7779 idiom `ObjectViewSchema` above uses:
+  // the boundary is applied to the whole imported schema and the slot is taken
+  // off the RESULT, so the crossing is visible to the objectui#8317 census in
+  // the position it reads (`stripImportedDefaults(<binding>)`).
+  compareTo: stripImportedDefaults(SpecDashboardWidgetSchema).shape.compareTo
+    .describe('Period-over-period comparison directive, forwarded verbatim from the dashboard widget key of the same name — bound BY REFERENCE to `DashboardWidgetSchema.shape.compareTo` so the producer and this consumer cannot drift into two dialects.'),
 });
 
 /**

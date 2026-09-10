@@ -34,7 +34,7 @@ one has its own section below.
 | `skill-examples.yml` | Skill Example Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a MARKED fenced example in a `skills/` or `.claude/skills/` guide no longer compiles against the packages' built types, no longer parses as JSON, uses a bare `any`, or carries a marker that opts nothing in |
 | `skill-eval-tokens.yml` | Skill Eval Token Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when an eval assertion's `must_contain` token is not taught as a whole token anywhere in its own `skills/` bundle |
 | `doc-component-types.yml` | Doc Component Type Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a `content/docs/**.mdx` snippet teaches a `type` nothing registers |
-| `doc-snippet-types.yml` | Doc Snippet Type Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a covered documentation snippet no longer compiles against the packages' built types |
+| `doc-snippet-types.yml` | Doc Snippet Type Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a covered documentation snippet no longer compiles against the packages' built types, **or** when a covered JSDoc `@example` block does (two gates, one job — see below) |
 | `doc-fence-languages.yml` | Doc Fence Language Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a TypeScript block sits under a fence the snippet gate does not read |
 | `pre-install-import-graph.yml` | Pre-Install Import Graph Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a gate a workflow runs *before* `pnpm install` reaches a package anywhere in its import graph |
 | `vi-mock-specifiers.yml` | Inert vi.mock Specifier Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a `vi.mock` / `vi.doMock` relative specifier resolves to no file, or the scan's population collapses |
@@ -50,7 +50,6 @@ one has its own section below.
 | `cross-repo-issue-closer.yml` | Cross-repo Issue Closer | PR `closed` (acts only when merged) | No — runs after merge |
 | `changeset-release.yml` | Changeset Release | Push to `main` (publish half); 6-hourly cron `0 */6 * * *`; manual (version-PR refresh half) | n/a |
 | `changelog.yml` | Auto Changelog | Manual dispatch only — nothing triggers it automatically | n/a |
-| `stale.yml` | Stale Issues & PRs | Daily cron `0 0 * * *`; manual | n/a |
 | `shadcn-check.yml` | Check Shadcn Components | Weekly cron `0 9 * * 1`; manual | n/a |
 | `check-links.yml` | Check Links | Weekly cron `17 4 * * 0`; manual | n/a — reports, never gates |
 | `published-dist-gate.yml` | Published Dist Tooling Scan | Nightly cron `41 3 * * *`; push to `main` touching the gate; manual | No — the blocking copy runs on the publish path, not here |
@@ -302,6 +301,21 @@ first, which is what stops a scanner that recognises nothing from reporting a cl
   itself live under `e2e/live/ci/`
   ([#7692](https://github.com/objectstack-ai/objectui/issues/7692)).
 - Then `pnpm lint`.
+- Then `scripts/check-vi-mock-override-shape.mjs` — a `vi.mock` factory that overrides a typed
+  export must hand back the shape that export declares. Its two siblings run in
+  `vi-mock-specifiers.yml` and judge different properties of the same call sites: whether a relative
+  specifier resolves, and whether the factory inherits the real module. Neither judges what the
+  override is **worth**, and `tsc` never looks — a `vi.mock` factory is untyped, so the compiler
+  never compares a stub against the export's type. Measured rather than argued: thirteen
+  `RecordDetailView` stubs returned `{ viewers, others }` where `useRecordPresence` is declared
+  `PresenceUser[]`, and with all thirteen back on disk both existing gates printed a **byte-identical
+  verdict line and exit 0** ([#8083](https://github.com/objectstack-ai/objectui/issues/8083), repaired
+  by [#8902](https://github.com/objectstack-ai/objectui/pull/8902)). The failure mode is the
+  asymmetric one: when the stubbed contract moves, the files that stubbed it correctly go red and the
+  drifted ones stay green. It runs **after** the install rather than beside its siblings because it
+  reads declared return types with the TypeScript parser, and every pre-install gate's import graph is
+  held to node builtins plus local modules
+  ([#8903](https://github.com/objectstack-ai/objectui/issues/8903)).
 - Then `scripts/check-cross-repo-closer-outcome.mjs` — it extracts the ~250 lines of inline
   `github-script` out of `cross-repo-issue-closer.yml` with a real parser, never a retyped copy,
   runs it under doubles the way `actions/github-script` does, and pins each exit's outcome: which
@@ -411,9 +425,17 @@ not a reason, and the gate does not read it as one.
 [objectui#8465](https://github.com/objectstack-ai/objectui/issues/8465). There were 13 distinct
 action references in this directory. Exactly **one** was spelled differently from the other twelve —
 a commit SHA on `actions/stale` — and it was the only reference in the repository that had **never
-resolved**: 236 scheduled runs of `stale.yml` since 2026-01-16, **0 successes**, every one failing
-in `Set up job`, unnoticed for eight months because nothing downstream consumes that job. The broken
-reference itself is [objectui#8126](https://github.com/objectstack-ai/objectui/issues/8126).
+resolved**: 236 scheduled runs of the stale-issues workflow since 2026-01-16, **0 successes**, every
+one failing in `Set up job`, unnoticed for eight months because nothing downstream consumes that
+job. The broken reference itself was
+[objectui#8126](https://github.com/objectstack-ai/objectui/issues/8126).
+
+That workflow no longer exists. [objectui#8548](https://github.com/objectstack-ai/objectui/issues/8548)
+retired it under enforce-or-remove — a declared automation with zero successes, zero consumers and no
+external authors on the open board is removed rather than repaired — and #8126 closed with it. The
+`DECLARED_EXCEPTIONS` entry that had covered its SHA pin was deleted in the same commit: an entry
+matching nothing is red under the second rule below, so a deletion that left it behind would have
+reddened this gate on `main` for every pull request.
 
 This is **not** an argument that SHA pinning is wrong — it is normally the *more* secure spelling and
 supply-chain guidance recommends it. The failure was the *shape*: one ref written in a form nothing
@@ -1073,6 +1095,60 @@ re-read on every run instead of being skipped exactly when the corpus moved.
 at the harness. Either fix what the snippet teaches, or — if the block is genuinely partial — declare
 it with a reason. Run it locally with `pnpm check:doc-snippets` (after building the packages it
 names: `pnpm exec turbo run build $(node scripts/check-doc-snippet-types.mjs --build-filter)`).
+
+### JSDoc `@example` Types — the second gate in this job (`doc-snippet-types.yml`)
+
+The same job's **last** step runs `scripts/check-doc-example-types.mjs`
+(`pnpm check:doc-examples`). It asks the snippet gate's question of a different corpus: every fenced
+`ts` / `tsx` block inside a JSDoc `@example` on an **exported** declaration under
+`packages/NAME/src/**` must compile `--strict` against the packages' built `dist/*.d.ts`, or be
+declared in the script's `UNGATED_EXAMPLES` ledger with a written reason and the diagnostics it
+currently produces. That population is invisible to every gate above it, whose scan surface stops at
+the authored pages: [#7974](https://github.com/objectstack-ai/objectui/issues/7974) is the shape —
+`useSpecGesture`'s own `@example` passed a scalar where the declared type is an array, so a reader
+copying it out of an IDE hover got TS2322, and nothing in this repository had ever compiled it.
+
+| Command | Reads | Blocks a PR? |
+|---|---|---|
+| `pnpm check:doc-snippets` (`scripts/check-doc-snippet-types.mjs`) | fenced `ts` / `tsx` blocks in the **documents** the `UNGATED_DOCS` ledger does not exempt | **Yes** |
+| `pnpm check:doc-snippets --emit-census` | code this repository's generators emit from **template literals** | No — report-only |
+| `pnpm check:doc-examples` (`scripts/check-doc-example-types.mjs`) | fenced `ts` / `tsx` blocks in JSDoc **`@example`** tags on exported declarations under `packages/NAME/src/**` | **Yes** |
+
+**Why it shares this job rather than getting a workflow.** It is a *sibling* of the gate above, not a
+fork: it imports that script's compiler host, its built-`.d.ts` resolution and every one of its
+controls, and reuses its `analyze()` wholesale — so an `@example` block is judged by exactly the
+program a documentation fence is judged by, and its precondition is the very filtered build this job
+already pays for. A workflow of its own would install the workspace and rebuild the same closure a
+second time for no additional coverage; and it could not even derive that filter without naming
+`scripts/check-doc-snippet-types.mjs` in a second workflow file, which that gate's own pin
+(*"lives in exactly one workflow — one gate, one home"*) fails on by design.
+
+**Why it runs last.** Both gates block, so whichever runs second is skipped when the first is red.
+Ordering the newly wired gate first would let it mask an established one, which is the worse of the
+two directions.
+
+**Its exit codes are three, not two** — the same three as its sibling, for the same reason: `0` every
+covered example compiles or fails exactly as its ledger row says; `1` the gate ran and found errors;
+`2` the gate **could not run** — the packages are unbuilt or typed from source, the walk collapsed,
+or one of the harness's own controls failed, in which case nothing it printed is a verdict about any
+example. Locally that third one is what you get before building, and it is neither green nor red.
+
+**It was declared and run by nothing until
+[#8757](https://github.com/objectstack-ai/objectui/issues/8757).** The command sat in the root
+`package.json` while no workflow named it — measured there, with the sibling's workflow mentions as
+the control that the zero was a reading and not a failed grep. What that cost is on the record: a
+defect this gate catches reached `main` and was repaired 71 minutes later with nothing observing in
+either direction, and the card reporting the red was written from a stale merge base because there
+was no run to read. Its first wired run, on unmodified `main`, exited **0** over 124 blocks — 35
+compiling and 89 declared — so the wiring adds enforcement without importing a backlog. ⛔ A newly
+wired gate is never made green by narrowing what it scans.
+
+**If it fails:** the failing key is the block's path, line and symbol, and the ledger is keyed the
+same way — so a row can be invalidated by an edit that merely moves lines above it, which is
+[#8614](https://github.com/objectstack-ai/objectui/issues/8614) and is **not** fixed here. Fix the
+example, or declare it. Run it locally exactly as this job does: build first
+(`pnpm exec turbo run build $(node scripts/check-doc-snippet-types.mjs --build-filter)`), then
+`pnpm check:doc-examples`; the gate prints that same recipe when it exits `2`.
 
 ## Fence Languages (`doc-fence-languages.yml`)
 
@@ -2134,21 +2210,6 @@ It uses `pull_request_target` rather than `pull_request` because the latter with
 secrets from fork-originated runs. The usual hazard of `pull_request_target` does not apply here:
 the job never checks out the head ref and never executes anything from the PR — it reads the body
 and calls the issues API.
-
-### Stale Issues (`stale.yml`)
-
-**Trigger:** Daily at 00:00 UTC (cron), or manual dispatch.
-
-| Resource | Stale after | Close after | Exempt labels |
-|----------|-------------|-------------|---------------|
-| Issues | 60 days | 7 days | `pinned`, `security`, `critical`, `bug`, `enhancement` |
-| Pull Requests | 45 days | 14 days | `pinned`, `security`, `in-progress`, `blocked` |
-
-The two exemption lists are set separately (`exempt-issue-labels` and `exempt-pr-labels`) and
-neither is a subset of the other: `critical`, `bug` and `enhancement` exempt issues only,
-`in-progress` and `blocked` exempt pull requests only. This page used to state one merged list
-— `pinned`, `security`, `critical`, `in-progress` — which was wrong in both directions for
-both resources ([#3724](https://github.com/objectstack-ai/objectui/issues/3724)).
 
 ### Half-State Patrol (`half-state-patrol.yml`)
 

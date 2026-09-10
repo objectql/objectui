@@ -86,6 +86,7 @@
     "check:pre-install-import-graph": "node scripts/check-pre-install-import-graph.mjs",
     "check:vi-mock-specifiers": "node scripts/check-vi-mock-specifiers.mjs",
     "check:vi-mock-inherit": "node scripts/check-vi-mock-inherit.mjs",
+    "check:vi-mock-override-shape": "node scripts/check-vi-mock-override-shape.mjs",
     "check:shell-escape-residue": "node scripts/check-shell-escape-residue.mjs",
     "check:readme-exports": "node scripts/check-readme-exports.mjs",
     "check:unreferenced-sources": "node scripts/check-unreferenced-sources.mjs",

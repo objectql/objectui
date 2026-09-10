@@ -2149,9 +2149,17 @@ interface MemberPin {
  * was built for.
  */
 const MEMBER_PINS: Record<string, MemberPin> = {
+  'element:button.action': {
+    file: 'packages/components/src/__tests__/elementButtonActionMembers-8071.test.tsx',
+    pins: 'The inline ActionDef\'s member set as a WHITELIST, driven through the real renderer and asserted on what the ActionRunner is handed: the forwarded keys are pinned as a SORTED SET, so a member silently added to or dropped from `ElementButtonRenderer`\'s explicit forward list is red in either direction — the defect shape objectstack#6837 (`bodyExtra`) and objectstack#6938 (`bodyShape`) were both filed for, an authored key that validates, publishes and then evaporates one hop before the runner. Three off-list keys are authored alongside and asserted ABSENT: `bodyShape` (deliberately not inline vocabulary — `action-bodyShape-forward.test.tsx` argues the boundary in prose, this pins it as behaviour) plus `icon` and `variant`, the block\'s own sibling props misplaced one level in. `actionType` OUTRANKS `type` with the losing spelling\'s handler asserted un-run, an ARRAY `params` is re-routed to `actionParams` while an OBJECT `params` stays `params` (objectstack#5777 direction A) with each arm controlling the other, the navigation members reach the navigation handler, and an omitted `action` dispatches nothing at all — the non-vacuity control for every row. LIMIT: `confirmText` is on the whitelist but unexercised, because the runner awaits confirmation before the dispatch this file observes. New file (objectui#8071 slice 7).',
+  },
   'element:button.label': {
     file: 'apps/console/src/__tests__/component-input-union-specimens.test.ts',
     pins: 'The `object` arm is the inline translation map `{ en, "zh-CN" }` and nothing else — driven through the real `manifestFromConfigs` + `validateTree` pair the JSX-page compiler and the save gate use, each positive paired with a value matching NEITHER arm that must still be reported (objectui#4970).',
+  },
+  'element:number.filter': {
+    file: 'packages/components/src/renderers/basic/__tests__/elementNumberFilterMembers-8071.test.tsx',
+    pins: 'The TWO wire spellings one authored predicate takes, chosen by an adapter capability the author cannot see, plus the re-query rule — asserted through the real renderer on a stubbed adapter. `aggregate()` receives it FLAT under its own name and beside the members that make the call an aggregate (`field`, `function`, `groupBy: \'_all\'`), asserted as the whole options bag rather than the one key; the `find()` fallback receives it WRAPPED as `$filter`; and an unfiltered metric sends `undefined` rather than an empty envelope some adapters read as "match nothing". Collapsing the two spellings into one drops the predicate silently and the metric paints a confidently wrong number over every row, with no diagnostic and no empty state. The third half is that the key is read BY VALUE, not by identity (`filterKey` is a `JSON.stringify` memo): a deep-equal filter rebuilt by a re-rendering parent must NOT re-probe, while a changed comparand MUST and carries the new predicate — each arm the other\'s control, so a dependency array "simplified" to the raw object (a per-render fetch storm) is red. New file (objectui#8071 slice 7).',
   },
   'element:record_picker.dataSource': {
     file: 'packages/components/src/__tests__/record-picker-element-data-source.test.tsx',
@@ -2257,6 +2265,26 @@ const MEMBER_PINS: Record<string, MemberPin> = {
     file: 'packages/plugin-kanban/src/__tests__/ObjectKanban.structuredMembersReachTheirSinks-8313.test.tsx',
     pins: 'ONE nested position and no more: `schema.grouping?.fields?.[0]?.field` is the FALLBACK source of `swimlaneField`, and that is the entire member contract this board carries for the key. Three rows make it a reading rather than a claim — the swimlane layout appears keyed by `fields[0].field` where without the key there is none; an explicit `swimlaneField` WINS over it; and a second `fields` entry changes nothing, which is what pins the read at `[0]` rather than at "the fields list". The declared description says the rest is inert precisely so the declaration does not recommend a write the renderer cannot honour — this file is what keeps that sentence true. The spec row is `z.unknown()`, so the read site is the whole member contract (objectui#8313).',
   },
+  'object-metric.aggregate': {
+    file: 'packages/plugin-dashboard/src/__tests__/objectMetricQueryMembers-8071.test.tsx',
+    pins: 'A three-member options bag whose members are read TWICE — once into the adapter call, once back out of the response. `field`/`function`/`groupBy` become `ds.aggregate(object, { field, function, groupBy, filter })` with `groupBy` OPTIONAL and defaulting to `\'_all\'` (one bucket) and an authored value outranking it; the bag is asserted AS A WHOLE so a member added to or dropped from the call is red in either direction. The readback is the half that has no second chance: `function: \'count\'` sums `<field>_count` across EVERY returned row while any other function reads the FIRST row\'s `<field>_<function>`, and the two arms run on the SAME two-row response so only a readback reading both members can answer 120 on one and 7 on the other — a `field`/`function` that reached the query but not the readback paints 0 over a response that carried the right number. `<field>` unsuffixed is pinned as the chain\'s second limb. The key\'s ABSENCE is a member semantic in its own right and is the file\'s non-vacuity floor: with no `aggregate` the query VERB changes to `find()` and the value becomes the row count. Driven through the registered block, not the bare widget. New file (objectui#8071 slice 8).',
+  },
+  'object-metric.compareTo': {
+    file: 'packages/plugin-dashboard/src/__tests__/ObjectMetricWidget.compareTo.test.tsx',
+    pins: 'The `{ kind, dimension? }` member set under objectstack#5011\'s converged shape: `kind` alone chooses BOTH the comparison window and the trend label, pinned on a QUARTER-scoped filter so the two admitted values disagree about each (`previousYear` = the same quarter one year back and "vs last year"; `previousPeriod` = the quarter before and "vs last quarter") — a year-scoped fixture would have let a `previousYear` that fell through to the other branch pass. `dimension` is CARRIED but inert on this inline path (it addresses a dataset time dimension the executor resolves), asserted by the query\'s filter keys being unchanged by it. An absent `compareTo` runs a single pass and paints no trend, which is the control that keeps the other rows from reading as a coincidence. Pre-existing file (objectui#3337), promoted here after being read end to end; objectui#8071 slice 8 added the row that mounts `type: \'object-metric\'` through `SchemaRenderer`, so the claim that the block\'s gate forwards this key untouched is asserted rather than assumed.',
+  },
+  'object-metric.dataSource': {
+    file: 'packages/plugin-dashboard/src/ObjectMetric.elementDataSource.test.tsx',
+    pins: 'The per-element binding\'s members as a WHITELIST in both directions. Acting: `object` is what gets aggregated, and a named `view`\'s own `filter` becomes the metric\'s scope — with an unresolvable `view` REPORTING instead of aggregating the whole object, which for a metric is the quiet failure (one number, no rows, nothing to notice). Not acting: the same view fixture declares `columns`, `sort` and `pagination`, and the aggregate options bag is asserted whole to keep all three OUT — `OBJECT_METRIC_DATA_SOURCE` names only `filter`, because a metric is one aggregated number with no projection, ordering or page for the rest to act on. A metric with NO binding behaving exactly as before is the control. Pre-existing file (objectstack#6953), promoted here after being read end to end; objectui#8071 slice 8 added the whole-bag row, without which the pin would have been satisfied by a mapping that forwarded everything.',
+  },
+  'object-metric.filter': {
+    file: 'packages/plugin-dashboard/src/__tests__/objectMetricQueryMembers-8071.test.tsx',
+    pins: 'No named member set — the renderer never inspects the predicate — so the member shape is the SPELLING it arrives under, and there are two, chosen by an adapter capability the author cannot see: FLAT under its own name inside the aggregate options bag, and WRAPPED as `$filter` on the no-`aggregate()` `find()` fallback. Collapsing them into one drops the predicate on whichever path lost and the tile counts every row — the same defect `element:number.filter` was pinned for (slice 7) on a different renderer. Two further halves: placeholders are resolved BEFORE the query (an authored `{current_quarter_start}` reaches the adapter as a real date, and a macro surviving onto the wire is a literal nobody matches), and the key is read BY VALUE rather than by identity (`JSON.stringify` memo) — a deep-equal rebuild by a re-rendering parent must NOT re-probe while a changed comparand MUST and carries the new predicate, each arm the other\'s control against a dependency "simplified" to the raw object. New file (objectui#8071 slice 8).',
+  },
+  'page:accordion.items': {
+    file: 'packages/components/src/__tests__/pageAccordionItemMembers-8071.test.tsx',
+    pins: 'Which member of one panel definition becomes which part of the rendered accordion — the four `PageAccordionItem` members (`label`, `icon`, `collapsed`, `children`) asserted as a SET through the real renderer, which nothing did before: `label` becomes the trigger\'s accessible name and `children` the panel BODY, asserted against each other so a renderer painting the wrong one cannot pass. `collapsed` is the reading with real semantics to get wrong and it is strictly `=== false`: `collapsed: false` OPENS a panel while `collapsed: true` AND an omitted `collapsed` both leave it shut — the omitted-key arm is the control an "obvious" edit to `!it.collapsed` breaks, and a no-opener fixture keeps the two shut rows from passing on a renderer that opens nothing. The single/multiple split is pinned on the SAME items so only `allowMultiple` varies: single mode takes `defaultOpen[0]` and drops later openers, multiple mode opens them all without opening panels that never asked. `icon` is covered narrowly on purpose — `page-accordion-icon.test.tsx` (objectui#4721) is its pin and is not re-litigated. New file (objectui#8071 slice 7).',
+  },
   'page:card.title': {
     file: 'apps/console/src/__tests__/component-input-union-specimens.test.ts',
     pins: 'The `object` arm is the inline translation map, with a non-matching control that must still be reported (objectui#3832).',
@@ -2272,6 +2300,10 @@ const MEMBER_PINS: Record<string, MemberPin> = {
   'page:header.title': {
     file: 'apps/console/src/__tests__/component-input-union-specimens.test.ts',
     pins: 'The `object` arm is the inline translation map, with a non-matching control (objectui#3832).',
+  },
+  'page:tabs.items': {
+    file: 'packages/components/src/__tests__/pageTabsItemMembers-8071.test.tsx',
+    pins: 'The SIX members of one tab definition (`label`, `value`, `icon`, `count`, `visibleWhen`, `children`) mapped to the six different parts of the strip they each become, driven through the real renderer — the mapping as a set, which none of the five pre-existing `page:tabs` suites asserts (each pins one member, so none would fail if `count` and `value` swapped roles). `label` becomes the trigger name and `children` the PANEL, with the inactive tab\'s body asserted absent since Radix renders only the active one. `value` is pinned BEHAVIOURALLY through `defaultTab` — the host key app-shell restores `?tab=` with — so selecting a tab by its authored value proves the member is the tab\'s identity without reaching into Radix\'s generated ids; both fallback arms follow, an absent `value` and an EMPTY-STRING one each becoming the positional `tab-INDEX`, which is what separates the real read from a bare `typeof value === \'string\'`. `count` is gated on `Number(count) > 0`, NOT on presence: an authored `count: 0` paints no badge, with a positive count on the same strip as its control. `icon` and `count` are asserted per-item against a neighbour declaring neither, so neither can be strip-wide. `visibleWhen` is covered narrowly — `page-tabs-visibility.test.tsx` is its pin. New file (objectui#8071 slice 7).',
   },
   'record:activity.types': {
     file: 'packages/plugin-detail/src/renderers/__tests__/recordActivityFeed.test.ts',
@@ -2447,11 +2479,11 @@ const NO_READ_SITE_TO_PIN =
  * 51st entry, because the count may only go down.
  */
 const MEMBER_PIN_EXEMPTIONS: Record<string, string> = {
-  // element:button
-  'element:button.action': AWAITING_A_PIN,
+  // element:button — objectui#8071 slice 7 pinned `action`, the block's one
+  // remaining key; fully pinned, header kept as a landmark for a future grep.
 
-  // element:number
-  'element:number.filter': AWAITING_A_PIN,
+  // element:number — objectui#8071 slice 7 pinned `filter`, the block's one
+  // remaining key; fully pinned.
 
   // element:record_picker — objectui#8071 slice 3 pinned all four remaining
   // keys (`dataSource`, `label`, `placeholder`, `sort`); the block is now
@@ -2492,19 +2524,18 @@ const MEMBER_PIN_EXEMPTIONS: Record<string, string> = {
   'object-master-detail-form.initialValues': AWAITING_A_PIN,
   'object-master-detail-form.sections': AWAITING_A_PIN,
 
-  // object-metric
-  'object-metric.aggregate': AWAITING_A_PIN,
-  'object-metric.compareTo': AWAITING_A_PIN,
-  'object-metric.dataSource': AWAITING_A_PIN,
+  // object-metric — objectui#8071 slice 8 pinned the four members that shape
+  // the aggregate query behind the NUMBER (`dataSource`, `aggregate`, `filter`,
+  // `compareTo`). The two left shape what is drawn AROUND the number once it
+  // exists, and neither reaches `fetchMetric`.
   'object-metric.drillDown': AWAITING_A_PIN,
-  'object-metric.filter': AWAITING_A_PIN,
   'object-metric.trend': AWAITING_A_PIN,
 
-  // page:accordion
-  'page:accordion.items': AWAITING_A_PIN,
+  // page:accordion — objectui#8071 slice 7 pinned `items`, the block's one
+  // remaining key; fully pinned.
 
-  // page:tabs
-  'page:tabs.items': AWAITING_A_PIN,
+  // page:tabs — objectui#8071 slice 7 pinned `items`, the block's one
+  // remaining key; fully pinned.
 
   // record:activity — objectui#8071 slice 6 pinned `types`, the block's one
   // remaining key; fully pinned, header kept as a landmark for a future grep.
@@ -2740,11 +2771,141 @@ const NEWLY_JUDGED_UNPINNED_MEMBERS = [
  * record:activity". That is a contract defect rather than a member shape, so it
  * is filed (objectui#8934) rather than frozen into the pin.
  *
+ * ## 41 -> 37, the seventh slice, and the LAST four one-key blocks closed
+ *
+ * objectui#8071's seventh slice applied slice 6's selection rule to what it left
+ * behind: every block whose remainder was exactly one key. Four qualified —
+ * `element:button.action`, `element:number.filter`, `page:accordion.items` and
+ * `page:tabs.items` — so the ceiling follows to 37 in the same commit, and all
+ * four blocks now carry zero exemptions.
+ *
+ * The batch is coherent rather than opportunistic on the same terms slice 6 set:
+ * one package (`packages/components`) registers all four, the two `element:*`
+ * keys sharing `renderers/basic/elements.tsx` and the two `page:*` keys sharing
+ * `renderers/layout/containers.tsx`, and the rule is stateable in a sentence.
+ *
+ * ⚠️ TWO one-key blocks were deliberately NOT taken, and neither is a leftover
+ * this slice could have absorbed:
+ *
+ *   - `record:related_list.actions` is the `NO_READ_SITE_TO_PIN` sentinel, and
+ *     the reading was RE-MEASURED here rather than inherited: on this tree
+ *     `renderers/record-related-list.tsx` still contains ZERO case-sensitive
+ *     occurrences of `actions` (control: `import` reads 9 in the same file), and
+ *     the only near-matches are `useRelatedRecordActions` / `relatedActions` —
+ *     the host bridge the constant already names. Nothing to pin, still.
+ *   - `object-kanban`'s `columns` / `dataSource` are the
+ *     `NEWLY_JUDGED_UNPINNED_MEMBERS` pair, held by an unruled contract question
+ *     (objectui#8913) about whether `columns` survives as judged structure at
+ *     all. Pinning a shape a pending ruling may delete would be worse than
+ *     leaving it exempt, so `NEWLY_JUDGED_UNPINNED_MEMBERS` is UNCHANGED by this
+ *     slice — no block it names was touched.
+ *
+ * ⇒ After this slice every remaining exemption sits on one of four
+ * MULTI-key blocks (`object-grid` 15, `object-form` 7,
+ * `object-master-detail-form` 6, `object-metric` 6) plus the two held keys. The
+ * "close a block outright by taking its last key" shape is now EXHAUSTED, and
+ * the next slice is the first that has to take a partial block or close a
+ * multi-key one whole — stated here so the next reader does not spend the
+ * search rediscovering it.
+ *
+ * Three of the four pins are new files; none of the four keys had a
+ * pre-existing file covering its member SET, and each candidate was read end to
+ * end before being rejected rather than dismissed on its greps.
+ * `element-button-action.test.tsx` drives only `type` and `to` on one
+ * navigation action; `action-bodyExtra-forward.test.tsx` pins one member across
+ * four renderers; `page-accordion-icon.test.tsx` pins `icon` alone; the five
+ * `page:tabs` suites pin one member each; and
+ * `element-number.contractEnvelope-6726.test.tsx` drives the same `find()`
+ * fallback branch but never authors a `filter`, so the locator itself would
+ * refuse it. ⚠️ `action-bodyShape-forward.test.tsx` is the one that had to be
+ * refused rather than merely passed over: it NAMES `element:button` and the key
+ * `action`, so it would satisfy the locator, while what it actually says is
+ * that `element:button` is deliberately out of its scope. Crediting it would
+ * have been a pin that asserts the opposite of its claim — the false-negative
+ * shape objectui#8068 exists to end. Its boundary is instead pinned as
+ * behaviour in the new file, which authors `bodyShape` and asserts it is
+ * dropped.
+ *
+ * ## 37 -> 33, the eighth slice, and the FIRST partial bite of a multi-key block
+ *
+ * objectui#8071's eighth slice is the first that could not close a block by
+ * taking its last key — slice 7 exhausted that shape — so it takes a PART of
+ * one, and the part is chosen by a rule rather than by convenience:
+ *
+ *   **every `object-metric` member that shapes the aggregate query behind the
+ *   NUMBER the tile paints.**
+ *
+ * Four qualify — `dataSource`, `aggregate`, `filter` and `compareTo` — so the
+ * ceiling follows to 33 in the same commit. The rule is mechanical, not
+ * editorial: those four are exactly the members that reach
+ * `ObjectMetricWidget`'s `fetchMetric` / `computeOne` (`dataSource` gates the
+ * effect; `aggregateKey`, `resolvedFilterKey` and `compareToKey` are its other
+ * dependencies), and the two left — `trend` and `drillDown` — reach neither.
+ * They shape what is drawn AROUND the number once it exists: a STATIC badge
+ * beside it, and a drawer opened by clicking it. Neither can change the number.
+ *
+ * ⇒ That is what the next slice inherits, and it is cheap to state: the two
+ * PRESENTATION members of `object-metric`, `trend` and `drillDown`. They were
+ * left together on purpose rather than one being swept in — `drillDown` does
+ * issue a query of its own (the drawer's record list, off the same resolved
+ * filter), so "reaches an adapter" would have been the wrong cut and is stated
+ * here so the next reader does not have to re-derive why it was not used.
+ *
+ * TWO of the four pins PROMOTE pre-existing files, each read end to end before
+ * being credited and each given the one row it was missing:
+ *
+ *   - `ObjectMetric.elementDataSource.test.tsx` (objectstack#6953) already drove
+ *     the binding's `object` and `view` members through the real renderer, with
+ *     an unresolvable `view` reporting rather than aggregating the whole object
+ *     and a binding-less metric unchanged. What it did not have was the
+ *     NEGATIVE direction, so this slice adds it: the view fixture's `columns`,
+ *     `sort` and `pagination` are asserted absent from the aggregate call.
+ *     Without that the pin would have been satisfied by a mapping that forwarded
+ *     everything, which here would mean a metric silently ordered and paged by a
+ *     list view's presentation settings.
+ *   - `ObjectMetricWidget.compareTo.test.tsx` (objectui#3337) already asserted
+ *     the `{ kind, dimension? }` member set — `kind` choosing both window and
+ *     label on a quarter-scoped fixture where the two values disagree about
+ *     each, `dimension` carried but inert, and the no-`compareTo` single-pass
+ *     control. It drove `ObjectMetricWidget` directly, so this slice adds the
+ *     row that mounts `type: 'object-metric'` through `SchemaRenderer`: the
+ *     block's `ElementDataSourceGate` shell re-binds only `objectName` and
+ *     `filter` and forwards the rest untouched, and that is now asserted rather
+ *     than assumed. ⚠️ It is also why the file names the block at all — the
+ *     locator requires it, and a docblock mention alone would have been the
+ *     locator satisfied by prose rather than by behaviour.
+ *
+ * `aggregate` and `filter` share ONE new file,
+ * `objectMetricQueryMembers-8071.test.tsx` — the shape slice 3 used for
+ * `record-picker-label-placeholder-i18n.test.tsx` and slice 6 for the
+ * chatter/discussion pair — because the two keys meet inside a single adapter
+ * call and the assertions have to be written against each other to stay
+ * independent: the `aggregate` rows author NO filter (so the bag comparison is
+ * blind to the filter spelling), and the `filter` rows are the ones that pin it.
+ *
+ * Every other candidate was read end to end and rejected with a reason, not
+ * dismissed on its greps: `public-block-binding-reach.test.tsx` states its own
+ * narrowness — one question per block, "did any call carry the object name" —
+ * and lists `aggregate` only as a plausible sample value;
+ * `widget-dom-leak-sweep.test.tsx` is the DOM-attribute canary, where
+ * `aggregate` is a stub returning `[]`; `ObjectMetricWidget.i18nLabel.test.tsx`
+ * authors `aggregate`, `trend` and `drillDown` purely to make the drill-down
+ * reachable, and its subject is `I18nLabel` resolution — crediting it for
+ * `trend` or `drillDown` would have been slice 7's
+ * `action-bodyShape-forward.test.tsx` mistake in a new place. The remaining
+ * seven files that name `object-metric` do so in prose, in a membership list,
+ * or in a designer-inspector fixture.
+ *
+ * ⚠️ Unchanged by this slice: `NEWLY_JUDGED_UNPINNED_MEMBERS` (no block it names
+ * was touched) and `record:related_list.actions`, whose `NO_READ_SITE_TO_PIN`
+ * reading was not re-measured here because this slice took a different block —
+ * slice 7's measurement stands as the last one taken.
+ *
  * ⇒ The rule for every future slice of objectui#8071: delete the entry, register
  * the pin, and set this constant to the new count. Not to the new count plus
  * room.
  */
-const MEMBER_PIN_EXEMPTION_CEILING = 41;
+const MEMBER_PIN_EXEMPTION_CEILING = 33;
 
 /**
  * Every test file a member pin can live in, as LAZY `?raw` loaders.
