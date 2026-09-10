@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useContext } from 'react';
 import { useDataScope, SchemaRendererContext, useNavigationOverlay, useSafeFieldLabel, useSettledSchema } from '@object-ui/react';
-import { ComponentRegistry, buildExpandFields, getRecordDisplayName } from '@object-ui/core';
+import { ComponentRegistry, buildExpandFields, getRecordDisplayName, isEmptyValue } from '@object-ui/core';
 import { cn, Card, CardContent, NavigationOverlay } from '@object-ui/components';
 import { usePermissions } from '@object-ui/permissions';
 import type { GalleryConfig, ObjectGallerySchema } from '@object-ui/types';
@@ -208,7 +208,9 @@ const resolveCoverUrl = (
     coverField: string,
 ): string | undefined => {
     const raw = item?.[coverField];
-    if (raw == null || raw === '') return undefined;
+    // THE FLOOR by name (objectui#8496), no extension: a cover field holding
+    // `[]` has no first entry either, so the four members are one answer here.
+    if (isEmptyValue(raw)) return undefined;
     return readFileValues(raw)[0]?.url;
 };
 
@@ -568,7 +570,16 @@ export const ObjectGallery: React.FC<ObjectGalleryProps> = (props) => {
             <div className="mt-1.5 space-y-1">
                 {visibleFields.map((field) => {
                     const value = (item as any)[field];
-                    if (value == null || value === '') return null;
+                    // THE FLOOR by name (objectui#8496), no extension: a card
+                    // row is OMITTED for a valueless field rather than drawn
+                    // with a placeholder, so this asks the floor and nothing
+                    // more. ⚠️ `[]` is a MEMBER, and it used to fall through
+                    // here: the row survived and the shared renderer painted
+                    // the em-dash affordance (objectui#8481) under a label, on
+                    // a card that omits every other valueless field. ⛔ Do NOT
+                    // trim — `'   '` is deliberately a value on this surface;
+                    // only `record:details` and `RelatedList` extend that far.
+                    if (isEmptyValue(value)) return null;
                     const enriched = buildEnrichedField(field);
                     const rendererType = resolveCellRendererType(enriched as any) || enriched.type || 'text';
                     const CellRenderer = getCellRenderer(rendererType);

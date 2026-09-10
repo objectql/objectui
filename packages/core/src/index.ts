@@ -23,6 +23,13 @@ export * from './utils/dom-props.js';
 export * from './utils/filter-converter.js';
 export * from './utils/managedBy.js';
 export * from './utils/extract-records.js';
+// The emptiness FLOOR (objectui#8496, director seat, decision batch #86): the
+// weakest common claim about "is this value empty" — `null`, `undefined`, the
+// empty string, the empty array — below `plugin-detail`, `plugin-list`,
+// `plugin-kanban` and `@object-ui/fields`, each of which used to spell those
+// four members privately. Surfaces EXTEND it or DECLINE a member out loud; ⛔
+// the floor itself never grows past the four.
+export * from './utils/emptiness.js';
 export * from './utils/expand-fields.js';
 // The RETIREMENT gate (objectui#4914, maintainer ruling B). Homed here rather
 // than in `@object-ui/fields` because `@object-ui/components` is one of its six

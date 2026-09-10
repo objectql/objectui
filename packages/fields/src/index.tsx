@@ -8,7 +8,7 @@
 
 import React from 'react';
 import type { DateTimeFieldMetadata, FieldMetadata, SelectOptionMetadata } from '@object-ui/types';
-import { ComponentRegistry, percentDisplayValue, getRecordDisplayName, humanizeLabel, isMissingForRequired, formatDate, formatDateTime, formatDateTimeCompactParts, formatRelativeDate, extractRecords, type ComponentMeta, type DateDisplayOptions } from '@object-ui/core';
+import { ComponentRegistry, percentDisplayValue, getRecordDisplayName, humanizeLabel, isEmptyValue, isMissingForRequired, formatDate, formatDateTime, formatDateTimeCompactParts, formatRelativeDate, extractRecords, type ComponentMeta, type DateDisplayOptions } from '@object-ui/core';
 // The platform's own value-shape contract, asked rather than restated
 // (objectui#6744). See `locationStoredValueSchemaFor` below for why this is a
 // runtime import in the barrel and not a hand-written coordinate range.
@@ -333,6 +333,31 @@ import { coerceToSafeValue } from './coerceToSafeValue.js';
 export { coerceToSafeValue };
 
 /**
+ * ## This package and the emptiness FLOOR (objectui#8496)
+ *
+ * `@object-ui/core`'s `isEmptyValue` is the weakest common claim — `null`,
+ * `undefined`, `''`, `[]` — and every guard in this file now stands in a STATED
+ * relation to it instead of re-spelling its members. There are three relations,
+ * and all three are legitimate:
+ *
+ *  - **the floor exactly** — `SelectCellRenderer`, `LookupCellRenderer`,
+ *    `TextCellRenderer`, `FormulaCellRenderer`, `ColorSwatchCellRenderer`;
+ *  - **the floor EXTENDED** — this helper (+ whitespace, on the coerced text);
+ *    `UserCellRenderer` (+ every falsy scalar); `BooleanCellRenderer`
+ *    (+ every non-boolean, objectui#8582); `DateCellRenderer` /
+ *    `DateTimeCellRenderer` (+ every falsy scalar, so the numeric epoch is
+ *    empty, and + every unparsable one, objectui#8581);
+ *  - **the floor with a member DECLINED, out loud** — `JsonCellRenderer` draws
+ *    the two-character literal for `[]` on purpose (objectui#8474 measured and
+ *    kept it), `LocationCellRenderer` and `AddressCellRenderer` inherit that
+ *    through their JSON fallback, and `FileCellRenderer` states "0 files".
+ *
+ * ⛔ Those disagreements are MEASURED, not drift: do not "finish the job" by
+ * making every renderer answer the floor. The pins that go red if one is
+ * flattened are `__tests__/emptinessFloorExtensions-8496.test.tsx`.
+ *
+ * ---
+ *
  * A coerced cell text with nothing in it is NOT a cell value (objectui#8490).
  *
  * `coerceToSafeValue([])` joins zero entries into `''`, and every renderer
@@ -347,13 +372,23 @@ export { coerceToSafeValue };
  * blank string, whatever produced it. Whitespace counts as blank for the same
  * reason — `Number('  ')` is `0` too.
  *
- * ⛔ Not the package's general emptiness predicate — see `isEmptyMultiValue`
- * below for why there is none. This answers ONE question for the renderers
- * that coerce to text before they draw: "did the coercion leave anything to
- * draw?". `BooleanCellRenderer` does not coerce to text and does not ask it.
+ * ⛔ Not the package's general emptiness predicate — the renderers do not agree
+ * on what "empty" means, and the roster above says where each one stands. This
+ * answers ONE question for the renderers that coerce to text before they draw:
+ * "did the coercion leave anything to draw?". `BooleanCellRenderer` does not
+ * coerce to text and does not ask it.
  */
 function isBlankCellText(safe: ReturnType<typeof coerceToSafeValue>): boolean {
-  return safe == null || (typeof safe === 'string' && safe.trim() === '');
+  // THE FLOOR by name, taken on the COERCED text rather than on the raw value
+  // (objectui#8496). `[]` never reaches it as an array — `coerceToSafeValue`
+  // joins zero entries into `''`, which is the floor's string member.
+  return (
+    isEmptyValue(safe) ||
+    // THE EXTENSION: whitespace counts as blank, because `Number('  ')` is `0`
+    // too. It is not a floor member — `'   '` is a value on the gallery, the
+    // kanban and `TextCellRenderer`.
+    (typeof safe === 'string' && safe.trim() === '')
+  );
 }
 
 /**
@@ -648,7 +683,11 @@ function TruncatedText({
  */
 export function TextCellRenderer({ value }: CellRendererProps): React.ReactElement {
   const safe = coerceToSafeValue(value);
-  if (safe == null || safe === '') return <EmptyValue />;
+  // THE FLOOR by name and nothing more (objectui#8496), on the coerced text.
+  // ⛔ Deliberately NOT `isBlankCellText`: a stored `'   '` is a value of a text
+  // cell and keeps its spaces — the trim belongs to the renderers that go on to
+  // coerce the text into a number, a date or an `href`.
+  if (isEmptyValue(safe)) return <EmptyValue />;
   return <TruncatedText text={String(safe)} />;
 }
 
@@ -829,6 +868,12 @@ export function BooleanCellRenderer({ value, field }: CellRendererProps): React.
   // no boolean here. `null` / `undefined` and `[]` (objectui#8490: an empty
   // array holds no boolean) are the same answer for the same reason. A real
   // `false` is a value and stays an unchecked box.
+  //
+  // THE FLOOR, STRICTLY EXTENDED (objectui#8496): every one of its four members
+  // is a non-boolean, so this one test already answers all of them and adding
+  // `isEmptyValue(value) ||` in front of it would be a dead disjunct. What the
+  // floor must NOT do here is grow a `false` member — that is the pinned
+  // disagreement on this renderer.
   if (typeof value !== 'boolean') {
     return <span className="flex items-center justify-center"><EmptyValue /></span>;
   }
@@ -882,6 +927,11 @@ export function DateCellRenderer({ value, field }: CellRendererProps): React.Rea
   // disagrees with itself.
   const locale = useDisplayLocale();
   const t = useFieldTranslate();
+  // THE FLOOR, EXTENDED with every falsy scalar (objectui#8496). The extension
+  // is deliberate and is the pinned disagreement on this renderer: `0` — the
+  // numeric epoch — is EMPTY on a date cell, where the floor says nothing about
+  // it. The floor's own `[]` member is answered one line down, on the coerced
+  // text, because `[]` is truthy. ⛔ Do not "fix" this to spare the epoch.
   if (!value) return <EmptyValue />;
   const safe = coerceToSafeValue(value);
   // `[]` is truthy, so it passed the guard above and reached `formatDate` as
@@ -952,6 +1002,10 @@ export function DateTimeCellRenderer({ value, field }: CellRendererProps): React
   // `undefined`, i.e. the machine's locale, on every session.
   const locale = useDisplayLocale();
   const t = useFieldTranslate();
+  // THE FLOOR, EXTENDED with every falsy scalar — the numeric epoch included,
+  // spelled EXACTLY as `DateCellRenderer` one function up (objectui#8496). The
+  // floor's `[]` member is answered by the unparsable-date test below, which
+  // `coerceToSafeValue([])` reaches as `''`.
   if (!value) return <EmptyValue />;
   const safe = coerceToSafeValue(value);
   const date = safe != null ? new Date(safe as string | number) : null;
@@ -1569,46 +1623,6 @@ export function getSemanticHex(name?: string, fallback: string = '#3b82f6'): str
 }
 
 /**
- * An array with zero entries is not a cell value (objectui#8481).
- *
- * Three renderers below open a MULTI-VALUE container and map their entries
- * into it — `SelectCellRenderer` (a flex-wrap row of badges/dots),
- * `LookupCellRenderer` (a flex-wrap row of record chips) and
- * `UserCellRenderer` (an overlapping avatar stack). Each one's opening guard
- * tested only `null`/`undefined`/`''`, so `[]` reached the array branch and
- * mapped over zero entries: the renderer's whole output was a CHILDLESS
- * container — no glyph, no `aria-label`, a visually blank cell.
- *
- * That blindness lived in the SHARED renderer, so it was the same blank cell
- * on every surface. `@object-ui/plugin-detail` had already grown two private
- * upstream pre-checks against it (objectui#8474's `hasCellValue`, and
- * `RelatedList`'s `isValueEmpty` from objectui#8459); every consumer that does
- * NOT pre-check — `ObjectGrid`, `ObjectGallery`, `ObjectKanban`,
- * `ObjectDataTable` — reached the renderer directly and painted the blank.
- * A renderer with nothing to draw says so itself rather than depending on
- * every caller remembering to ask first.
- *
- * ⛔ Deliberately NOT the package's general emptiness predicate, and
- * deliberately not exported. The renderers in this file do NOT agree on what
- * "empty" means, and that disagreement is measured and in several places
- * intentional: `JsonCellRenderer` draws the two-character literal for `[]`
- * (objectui#8474 measured and kept that), `FileCellRenderer` states "0 files",
- * `BooleanCellRenderer` treats `false` as a value while `DateCellRenderer`'s
- * `!value` treats the epoch as empty. This helper answers ONE question — "is
- * this a multi-value container with no entries to draw?" — for the renderers
- * that ask it: the three below. `BooleanCellRenderer` asked it too between
- * objectui#8490 and objectui#8582; its guard is now `typeof value !== 'boolean'`,
- * which answers the same question for `[]` (an array is not a boolean) and for
- * every non-boolean scalar besides. The renderers that coerce
- * to text before they draw ask `isBlankCellText` instead — the same ruling,
- * taken on the coerced string. Unifying the rest is a separate, contested
- * change.
- */
-function isEmptyMultiValue(value: unknown): boolean {
-  return Array.isArray(value) && value.length === 0;
-}
-
-/**
  * Select field cell renderer.
  *
  * Two visual styles, controlled by `field.appearance` (renderer-level option,
@@ -1626,10 +1640,18 @@ export function SelectCellRenderer({ value, field }: CellRendererProps): React.R
   const options: SelectOptionMetadata[] = selectField.options || [];
   const appearance: 'badge' | 'dot' = selectField.appearance === 'dot' ? 'dot' : 'badge';
 
-  // `[]` is handled HERE rather than in the array branch below, because this
-  // is the statement the renderer makes about having nothing to draw
-  // (objectui#8481).
-  if (value == null || value === '' || isEmptyMultiValue(value)) return <EmptyValue />;
+  // THE FLOOR by name and nothing more (objectui#8496). It used to be spelled
+  // out here as `value == null || value === '' || isEmptyMultiValue(value)` —
+  // the same four members, in the fourth of five private copies.
+  //
+  // `[]` is a floor MEMBER, and it is answered HERE rather than in the array
+  // branch below because this is the statement the renderer makes about having
+  // nothing to draw (objectui#8481): the branch opens a flex-wrap row of badges
+  // and maps zero entries into it, so its whole output was a CHILDLESS
+  // container — no glyph, no accessible name, a visually blank cell. The same
+  // shape is why `LookupCellRenderer` (a row of record chips) and
+  // `UserCellRenderer` (an overlapping avatar stack) ask the floor too.
+  if (isEmptyValue(value)) return <EmptyValue />;
 
   // Match a stored value to a configured option, falling back to a
   // case-insensitive comparison so seed data with mixed case
@@ -1870,6 +1892,10 @@ export function FileCellRenderer({ value, field }: CellRendererProps): React.Rea
   // conditional return violates the rules of hooks — the call would be skipped
   // for an empty value and hook order would desync between renders.
   const t = useFieldTranslate();
+  // THE FLOOR WITH `[]` DECLINED, and extended with every other falsy scalar
+  // (objectui#8496). A file cell STATES ITS COUNT, so an empty array is a
+  // value here — it renders "0 files", which is an answer the em-dash cannot
+  // give. ⛔ Do not replace this with `isEmptyValue(value)`.
   if (!value) return <EmptyValue />;
   
   const fileField = field as any;
@@ -1938,6 +1964,10 @@ export function ImageCellRenderer({ value }: CellRendererProps): React.ReactElem
     [value],
   );
 
+  // THE FLOOR, EXTENDED twice (objectui#8496): every falsy scalar, and every
+  // value that resolves to no displayable image. `[]` is covered by the second
+  // extension rather than by a floor call — unlike `FileCellRenderer` next
+  // door, an image cell has no count to state.
   if (!value || imgs.length === 0) return <EmptyValue />;
 
   const imageAlt = (idx: number, name?: string) =>
@@ -2151,10 +2181,10 @@ export function LookupCellRenderer({ value, field }: CellRendererProps): React.R
   // Always call the hook (rules of hooks). It safely no-ops when inputs are missing.
   const resolvedName = useLookupName(referenceTo, primaryPrimitiveId, displayField);
 
-  // Same childless-container defect as `SelectCellRenderer` above: the array
-  // branch further down opens a flex-wrap row of chips and maps zero entries
-  // into it (objectui#8481).
-  if (value == null || value === '' || isEmptyMultiValue(value)) return <EmptyValue />;
+  // THE FLOOR by name and nothing more (objectui#8496). Same childless-container
+  // defect as `SelectCellRenderer` above: the array branch further down opens a
+  // flex-wrap row of chips and maps zero entries into it (objectui#8481).
+  if (isEmptyValue(value)) return <EmptyValue />;
 
   // A reference can arrive as a JSON-encoded object string — e.g. an
   // unresolved external-id reference '{"externalId":"Website Relaunch"}'.
@@ -2310,7 +2340,9 @@ export function LookupCellRenderer({ value, field }: CellRendererProps): React.R
  */
 export function FormulaCellRenderer({ value }: CellRendererProps): React.ReactElement {
   const safe = coerceToSafeValue(value);
-  if (safe == null || safe === '') return <EmptyValue />;
+  // THE FLOOR by name and nothing more (objectui#8496), on the coerced text —
+  // same relation as `TextCellRenderer`, which this renderer's output mirrors.
+  if (isEmptyValue(safe)) return <EmptyValue />;
   return (
     <span className="text-gray-700 font-mono text-sm">
       {String(safe)}
@@ -2407,9 +2439,12 @@ function UnresolvedUserReference({
  * User/Owner field cell renderer (with avatars)
  */
 export function UserCellRenderer({ value }: CellRendererProps): React.ReactElement {
-  // `!value` never saw `[]` — a truthy empty array reached the avatar-stack
-  // branch below and rendered an empty stack (objectui#8481).
-  if (!value || isEmptyMultiValue(value)) return <EmptyValue />;
+  // THE FLOOR by name (objectui#8496) plus ONE extension: every falsy scalar.
+  // `!value` alone never saw `[]` — a truthy empty array reached the
+  // avatar-stack branch below and rendered an empty stack (objectui#8481) —
+  // and the floor alone would let `0` through to `UnresolvedUserReference`,
+  // which is not what a user reference of zero is.
+  if (isEmptyValue(value) || !value) return <EmptyValue />;
 
   // A primitive is an UNRESOLVED reference, not "the ID/username" (objectui#8434).
   // The comment that stood here stated the branch's premise, and the premise was
@@ -2563,7 +2598,13 @@ export function resolveCellRendererType(fieldOrType: string | { type?: string; f
  * stringified; primitives fall through to their string form.
  */
 export function JsonCellRenderer({ value }: CellRendererProps): React.ReactElement {
-  if (value == null || value === '') return <EmptyValue />;
+  // THE FLOOR WITH ONE MEMBER DECLINED, and the declension is the point
+  // (objectui#8496). `[]` is a floor member everywhere else in this file; here
+  // it is a VALUE and draws the two-character literal, because a `json` cell
+  // states the structure the record holds and "an empty array" is a structure.
+  // objectui#8474 measured that and pinned it. ⛔ Do not simplify this to
+  // `isEmptyValue(value)`: that flattens a decision already on the record.
+  if (isEmptyValue(value) && !Array.isArray(value)) return <EmptyValue />;
   let text: string;
   if (typeof value === 'object') {
     try {
@@ -2584,7 +2625,10 @@ export function JsonCellRenderer({ value }: CellRendererProps): React.ReactEleme
  * Renders a `color` value as a swatch alongside its hex/string value.
  */
 export function ColorSwatchCellRenderer({ value }: CellRendererProps): React.ReactElement {
-  if (value == null) return <EmptyValue />;
+  // THE FLOOR by name and nothing more (objectui#8496). `''` and `[]` reached
+  // the same affordance one branch down (`String([])` is `''`, which the blank
+  // test below caught); asking the floor here says so once, at the door.
+  if (isEmptyValue(value)) return <EmptyValue />;
   // An object is not a colour (objectui#8596). `String({})` is
   // `'[object Object]'`, which this renderer handed to `background-color` —
   // an invalid declaration the browser drops, so the swatch drew a bordered
@@ -2635,7 +2679,11 @@ import { RICH_TEXT_CELL_RENDERERS } from './widgets/richTextDisplay.js';
  * or a `[lat, lng]` array. Falls back to compact JSON for anything else.
  */
 export function LocationCellRenderer({ value }: CellRendererProps): React.ReactElement {
-  if (value == null || value === '') return <EmptyValue />;
+  // THE FLOOR WITH `[]` DECLINED (objectui#8496), inherited rather than chosen:
+  // an unrecognized shape falls through to `JsonCellRenderer` below, whose
+  // pinned answer for `[]` is the array literal (objectui#8474). Declining the
+  // member here keeps the two ends of that fallback saying one thing.
+  if (isEmptyValue(value) && !Array.isArray(value)) return <EmptyValue />;
   let lat: number | undefined;
   let lng: number | undefined;
   if (typeof value === 'object' && !Array.isArray(value)) {
@@ -2694,7 +2742,11 @@ export function AddressCellRenderer({ value }: CellRendererProps): React.ReactEl
   // renderer in this file already uses, and it is provider-safe (it resolves
   // to `'en'` — the unchanged small-to-large order — with nothing mounted).
   const locale = useDisplayLocale();
-  if (value == null || value === '') return <EmptyValue />;
+  // THE FLOOR WITH `[]` DECLINED (objectui#8496), for the same inherited reason
+  // as `LocationCellRenderer`: this renderer's own docblock promises that an
+  // unknown shape stays visible through the JSON fallback rather than being
+  // swallowed, and `[]` is an unknown shape here.
+  if (isEmptyValue(value) && !Array.isArray(value)) return <EmptyValue />;
   // A plain string address (some apps store one) is already display-ready.
   if (typeof value === 'string') return <TruncatedText text={value} className="text-sm" />;
   if (typeof value === 'object' && !Array.isArray(value)) {
