@@ -3,7 +3,7 @@ import React, { useState, useEffect, useContext, useCallback, useMemo } from 're
 import { useDataScope, SchemaRendererContext, SchemaRenderer, useDrillNavigation, useFilterScope, ElementDataSourceGate, type ElementDataSourceMapping } from '@object-ui/react';
 import { ChartRenderer } from './ChartRenderer';
 import { normalizeChartSchema } from './normalizeChartSchema';
-import { ComponentRegistry, chartMeasureKey, humanizeLabel, extractRecords, computeDrillFilter, isDrillEnabled, resolveDrillTitle, resolveFilterPlaceholders, resolveContextTokens, shiftFilterByCompareTo, compareToTrendLabelKey, buildChartSeries, buildOptionColorMap, deriveDimensionLabelMaps, dimensionOptionTranslator, loadDimensionFieldMeta, relabelDimensions, localizeFieldOptions, elementDataSourceBlock, type DimensionFieldMeta, type CompareToConfig, type DrillEvent, type ChartResultField, type ChartSegmentClickEvent } from '@object-ui/core';
+import { ComponentRegistry, chartMeasureKey, humanizeLabel, extractRecords, computeDrillFilter, composeDrillFilter, isDrillEnabled, resolveDrillTitle, resolveFilterPlaceholders, resolveContextTokens, shiftFilterByCompareTo, compareToTrendLabelKey, buildChartSeries, buildOptionColorMap, deriveDimensionLabelMaps, dimensionOptionTranslator, loadDimensionFieldMeta, relabelDimensions, localizeFieldOptions, elementDataSourceBlock, type DimensionFieldMeta, type CompareToConfig, type DrillEvent, type ChartResultField, type ChartSegmentClickEvent } from '@object-ui/core';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, Dialog, DialogContent, DialogHeader, DialogTitle, RefreshIndicator, Button, ChartSkeleton, DataEmptyState } from '@object-ui/components';
 import { AlertCircle, ArrowUpRight, Inbox } from 'lucide-react';
 import { builtinAggregateLabels, useSafeFieldLabel, useSafeTranslate, useObjectTranslation, pickLocalized } from '@object-ui/i18n';
@@ -1007,12 +1007,23 @@ export const ObjectChart = (props: ObjectChartProps) => {
   // target needs it from an effect, and effects may not live after an early
   // return. The drawer reads the same value, so both targets drill by exactly
   // one filter.
+  //
+  // ⛔ Composed through `composeDrillFilter`, NOT by spreading the widget's
+  // filter into an object literal. `schema.filter` admits two arms — a spec
+  // `FilterArray` and the ObjectQL `$filter` object, both of them read (both go
+  // to `ds.aggregate` / `ds.find` verbatim above) — and a spread is only correct
+  // for the second. Spreading the ARRAY arm produced index keys
+  // (`{ '0': ['stage','=','won'] }`), so the widget's own conditions were
+  // dropped for a key the query layer ignores and the drilled list showed rows
+  // this chart is scoped to exclude (objectui#8944). The seam's docblock names
+  // the composition rule (`widget.filter ∧ drill.filter`, via the repo's single
+  // filter sink `mergeFilterNodes`); it is not decided here.
   const drillFilter = useMemo(() => {
     if (!drillEvent) return undefined;
-    return {
-      ...(schema.filter || {}),
-      ...computeDrillFilter(drillDown, drillEvent, { groupByField }),
-    };
+    return composeDrillFilter(
+      schema.filter,
+      computeDrillFilter(drillDown, drillEvent, { groupByField }),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drillEvent, drillDown, groupByField, filterKey]);
 

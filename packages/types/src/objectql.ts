@@ -3306,8 +3306,8 @@ export interface ObjectChartSchema extends BaseSchema {
   values?: string[];
   /**
    * AUTHORABLE — query filter, forwarded verbatim as `$filter` on both query
-   * legs (`ds.aggregate` and `ds.find`), then spread into the drill-down
-   * filter.
+   * legs (`ds.aggregate` and `ds.find`), and conjoined with the click context
+   * to scope a drill-down.
    *
    * ⚠️ BOTH shapes, and the union is measured rather than tidied. The array arm
    * is what `@objectstack/spec` publishes for this prop (`ObjectChart.filter`
@@ -3315,10 +3315,9 @@ export interface ObjectChartSchema extends BaseSchema {
    * registry `inputs` advertises (`{ name: 'filter', type: 'array' }`) — it is
    * the spelling {@link ObjectGanttSchema.filter} and
    * {@link ObjectKanbanSchema.filter} carry. The RECORD arm is what the reads
-   * require: the drill-down filter is built by spreading this value into an
-   * object (`{ ...(schema.filter || {}), ...computeDrillFilter(…) }`), and the
-   * in-repo corpus authors the ObjectQL object form
-   * (`{ close_date: { $gte, $lte } }`) against fakes that read it that way.
+   * require: the in-repo corpus authors the ObjectQL object form
+   * (`{ close_date: { $gte, $lte } }`) against fakes that read it that way, and
+   * both arms travel verbatim to `ds.aggregate` / `ds.find` as `$filter`.
    * Declaring only the array arm would have refused live, working charts.
    *
    * ⚠️ Narrowing to ONE arm is a decision LOCAL TO THIS NODE, not a
@@ -3331,12 +3330,19 @@ export interface ObjectChartSchema extends BaseSchema {
    * only this component's own two-armed read, and objectui#7946 declares the
    * accept set it measured rather than picking an arm without a ruling.
    *
-   * ⭐ Successor, named rather than implied: the drill-down spread below
-   * (`{ ...(schema.filter || {}), ...computeDrillFilter(…) }`) MIS-COMPOSES the
-   * array arm — spreading a `FilterArray` into an object yields index keys
-   * (`{ 0: […] }`), not conditions. Fixing that composition is the work that
-   * makes narrowing to the spec's array-only `FilterArray` possible; until it
-   * lands, declaring only the array arm would refuse live, working charts.
+   * ⭐ The composition that blocked narrowing is FIXED (objectui#8944). The
+   * drill-down used to compose this value by SPREADING it into an object
+   * literal, which mis-composed the array arm into index keys (`{ 0: […] }`)
+   * instead of conditions, so an authored `FilterArray` was silently dropped
+   * from the drilled query. `ObjectChart` now composes through
+   * `composeDrillFilter` (`@object-ui/core`), which routes both arms into the
+   * repo's single filter sink — so the array arm survives the drill, and the
+   * read that forced the record arm to be declared is gone.
+   *
+   * ⇒ What remains before this node can narrow to the spec's array-only
+   * `FilterArray` is a DEPRECATION, not a defect: live charts author the object
+   * form today, and narrowing stops them compiling. That migration is its own
+   * card; this docblock no longer names a bug as the blocker.
    *
    * What this declaration buys today is that `filter: 'stage=won'` and
    * `filter: 42` are compile errors, where before they were not.

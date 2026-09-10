@@ -57,14 +57,53 @@ export function parseUrlFilterTriples(searchParams: URLSearchParams): FilterTrip
  * plain value becomes `filter[field]`. `null`/`undefined` values and objects
  * with no recognized operator are skipped (drill degrades to a superset) rather
  * than stringified to `"[object Object]"`.
+ *
+ * ## `$and` is flattened, because this dialect's conjunction is implicit
+ *
+ * A drill filter composed from more than one source arrives as
+ * `{ $and: [<widget filter>, <click context>] }` — what `composeDrillFilter`
+ * (`@object-ui/core`) lowers `widget.filter ∧ drill.filter` to (objectui#8944).
+ * The READ side already returns a FLAT list of triples that the query layer ANDs
+ * together, so a top-level `$and` is expressible here: emit each child's params
+ * into the same set and `parseUrlFilterTriples` reads the conjunction straight
+ * back. Nesting is walked too, since composing three sources nests.
+ *
+ * ⚠️ Without this branch a composed filter took the `String(value)` path below —
+ * `$and` holds an ARRAY, so it was neither `null` nor a non-array object — and
+ * the URL grew a bogus `filter[$and]=[object Object],[object Object]` while BOTH
+ * real conditions vanished. That is the very outcome this function's contract
+ * says it never produces, and it is wrong in the widening direction: the list
+ * lands unscoped by anything the user actually clicked.
+ *
+ * ⚠️ Two conditions on the SAME field and operator are NOT expressible here (one
+ * param key, one value). The later source wins, so a click context still
+ * overrides the widget's condition on that field exactly as it did when this
+ * value was built by spreading — the drill degrades to a superset there, the
+ * same posture this function already takes for operators it cannot spell.
  */
 export function serializeDrillFilterParams(
   filter: Record<string, unknown> | undefined,
 ): URLSearchParams {
   const params = new URLSearchParams();
   if (!filter) return params;
+  collectFilterParams(filter, params);
+  return params;
+}
+
+/** One source's conditions, written into the shared param set. Recurses on `$and`. */
+function collectFilterParams(filter: Record<string, unknown>, params: URLSearchParams): void {
   for (const [field, value] of Object.entries(filter)) {
     if (value == null) continue;
+    if (field === '$and' && Array.isArray(value)) {
+      // Implicit-AND dialect: each child contributes its own params, in order,
+      // so a later source overrides an earlier one on a field they share.
+      for (const child of value) {
+        if (child && typeof child === 'object' && !Array.isArray(child)) {
+          collectFilterParams(child as Record<string, unknown>, params);
+        }
+      }
+      continue;
+    }
     if (typeof value === 'object' && !Array.isArray(value)) {
       for (const [op, suffix] of Object.entries(RANGE_OP_PARAM)) {
         const bound = (value as Record<string, unknown>)[op];
@@ -72,9 +111,11 @@ export function serializeDrillFilterParams(
       }
       continue; // handled (range ops) or skipped — never String(object)
     }
+    // Arrays reach here as `$in`-style comparands this dialect cannot spell;
+    // skipping keeps the promise above (never `String(array)`).
+    if (Array.isArray(value)) continue;
     params.set(`filter[${field}]`, String(value));
   }
-  return params;
 }
 
 /**

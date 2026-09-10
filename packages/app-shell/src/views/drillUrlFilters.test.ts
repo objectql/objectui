@@ -59,6 +59,57 @@ describe('serializeDrillFilterParams', () => {
   });
 });
 
+describe('serializeDrillFilterParams — a COMPOSED drill filter (objectui#8944)', () => {
+  /**
+   * `composeDrillFilter` lowers `widget.filter ∧ click context` to
+   * `{ $and: […] }` whenever both sources survive. Before this branch existed
+   * that value fell to the `String(value)` path — `$and` holds an ARRAY, so it
+   * was neither null nor a non-array object — and produced a bogus
+   * `filter[$and]=[object Object],[object Object]` while BOTH real conditions
+   * vanished, i.e. the list landed scoped by nothing the user clicked.
+   */
+  it('flattens a top-level $and into the params of each child', () => {
+    const qs = serializeDrillFilterParams({ $and: [{ region: 'emea' }, { stage: 'won' }] });
+    expect(qs.get('filter[region]')).toBe('emea');
+    expect(qs.get('filter[stage]')).toBe('won');
+    // The hazard, named: no key spells the combinator, and nothing stringified.
+    expect(qs.get('filter[$and]')).toBeNull();
+    expect(qs.toString()).not.toContain('object%20Object');
+  });
+
+  it('walks a NESTED $and, which is what composing an array arm produces', () => {
+    // `[['stage','=','won'],['amount','>',100]]` conjoined with a click context
+    // lowers to an $and whose first child is itself an $and.
+    const qs = serializeDrillFilterParams({
+      $and: [{ $and: [{ stage: 'won' }, { amount: { $gt: 100 } }] }, { region: 'emea' }],
+    });
+    expect(qs.get('filter[stage]')).toBe('won');
+    expect(qs.get('filter[amount][gt]')).toBe('100');
+    expect(qs.get('filter[region]')).toBe('emea');
+  });
+
+  it('a composed filter survives the URL round-trip as a conjunction of triples', () => {
+    // The read side ANDs its triples, so the conjunction is preserved in
+    // meaning, not just in bytes.
+    const triples = parseUrlFilterTriples(
+      serializeDrillFilterParams({
+        $and: [{ region: 'emea' }, { close_date: { $gte: '2026-06-01', $lt: '2026-07-01' } }],
+      }),
+    );
+    expect(triples).toEqual<FilterTriple[]>([
+      ['region', '=', 'emea'],
+      ['close_date', '>=', '2026-06-01'],
+      ['close_date', '<', '2026-07-01'],
+    ]);
+  });
+
+  it('skips a bare ARRAY comparand rather than stringifying it', () => {
+    // The same promise the unknown-object case makes, for the shape that used
+    // to escape it.
+    expect(serializeDrillFilterParams({ tags: ['a', 'b'] }).toString()).toBe('');
+  });
+});
+
 describe('round-trip: serialize → parse (write and read sides agree)', () => {
   it('a mixed equality + date-range drill filter survives the URL round-trip', () => {
     const filter = { stage: 'qualification', close_date: { $gte: '2026-06-01', $lt: '2026-07-01' } };
