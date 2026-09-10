@@ -2279,7 +2279,7 @@ const MEMBER_PINS: Record<string, MemberPin> = {
   },
   'object-metric.drillDown': {
     file: 'packages/plugin-dashboard/src/__tests__/objectMetricDrillDownMembers-8071.test.tsx',
-    pins: 'The click-through config\'s member set, read through the registered block on a LIVE drawer. `enabled` is `!== false`, not truthiness, and all four arms (absent, `{}`, `true`, `false`) are pinned against each other, so a "simplification" to `!!config.enabled` — which would silently disable every `{}` config — is red; and it is not sufficient on its own, because without an object name AND a data source the tile stays unclickable rather than opening a list it cannot fetch. `target` chooses the panel SHAPE (`\'dialog\'` = centred modal, anything else the edge-anchored sheet), each arm the other\'s control. `title` OUTRANKS the tile\'s own `title` and `label`, with the chain below it (`title`, then `label`, then the literal "Details") pinned as its fallback. `report` selects the drawer BODY by its own SHAPE — an `objectName`-bearing (or array-`columns`) report goes to a `spec-report` body while anything else falls through to the inline record list, and whether the record list is fetched at all is the observable that separates them. The invariant the key hangs off is pinned too: the drilled list is scoped by the METRIC\'s resolved filter with macros already substituted — the registration\'s own promise that the number and the records behind it agree, and a drawer listing every row of the object is the quiet failure it exists to stop. LIMIT, stated and deliberately NOT asserted: this widget hand-rolls its drawer instead of using `DrillDownDrawer`, so `columns`, `maxRows`, `target: \'navigate\'`, `filter` and `mode` have no read site on this block — filed as objectui#8970 rather than frozen into the pin, because an assertion that a member is dead has to be deleted before the gap can be closed. The spec row is `z.unknown()`, so the read site is the whole member contract. New file (objectui#8071 slice 9).',
+    pins: 'The click-through config\'s member set, read through the registered block on a LIVE drawer. `enabled` is `!== false`, not truthiness, and all four arms (absent, `{}`, `true`, `false`) are pinned against each other, so a "simplification" to `!!config.enabled` — which would silently disable every `{}` config — is red; and it is not sufficient on its own, because without an object name AND a data source the tile stays unclickable rather than opening a list it cannot fetch. `target` chooses the panel SHAPE (`\'dialog\'` = centred modal, anything else the edge-anchored sheet), each arm the other\'s control. `title` OUTRANKS the tile\'s own `title` and `label`, with the chain below it (`title`, then `label`, then the literal "Details") pinned as its fallback. `report` selects the drawer BODY by its own SHAPE — an `objectName`-bearing (or array-`columns`) report goes to a `spec-report` body while anything else falls through to the inline record list, and whether the record list is fetched at all is the observable that separates them. The invariant the key hangs off is pinned too: the drilled list is scoped by the METRIC\'s resolved filter with macros already substituted — the registration\'s own promise that the number and the records behind it agree, and a drawer listing every row of the object is the quiet failure it exists to stop. LIMIT, stated and deliberately NOT asserted: `filter` and `mode` have no read site on this block — a metric has no click event for `${event.*}` to resolve against, and its registration promises the drilled list agrees with the number — so they are left to objectui#8970\'s open question rather than frozen into the pin, because an assertion that a member is dead has to be deleted before the gap can be closed. The other three the shared component honours (`columns`, `maxRows`, `target: \'navigate\'`) were dead here for the same reason and are now LIVE: objectui#8970 routed this block through `DrillDownDrawer`, and they are pinned on their effects in `ObjectMetricWidget.drillRoutedToSharedDrawer-8970.test.tsx`. The spec row is `z.unknown()`, so the read site is the whole member contract. New file (objectui#8071 slice 9).',
   },
   'object-metric.filter': {
     file: 'packages/plugin-dashboard/src/__tests__/objectMetricQueryMembers-8071.test.tsx',
@@ -2944,13 +2944,22 @@ const NEWLY_JUDGED_UNPINNED_MEMBERS = [
  * `action-bodyShape-forward.test.tsx` mistake in a third place.
  *
  * ⚠️ `drillDown` is pinned on the members that ACT and deliberately not on the
- * ones that do not. `ObjectMetricWidget` hand-rolls its own drawer instead of
- * using the shared `DrillDownDrawer`, so five members the shared component
- * honours have no read site here (`columns`, `maxRows`, `target: 'navigate'`,
- * `filter`, `mode`). That is filed (objectui#8970) rather than frozen into the
- * pin — the same choice slice 6 made for `record:activity`'s filter members
- * (objectui#8934), and for the same reason: an assertion that a member is dead
- * has to be deleted before anyone can make it live.
+ * ones that do not. When this slice landed, `ObjectMetricWidget` hand-rolled its
+ * own drawer instead of using the shared `DrillDownDrawer`, so five members the
+ * shared component honours had no read site here (`columns`, `maxRows`,
+ * `target: 'navigate'`, `filter`, `mode`). That was filed (objectui#8970) rather
+ * than frozen into the pin — the same choice slice 6 made for
+ * `record:activity`'s filter members (objectui#8934), and for the same reason:
+ * an assertion that a member is dead has to be deleted before anyone can make it
+ * live.
+ *
+ * ⇒ That reason has since paid out. objectui#8970 routed the block through
+ * `DrillDownDrawer`, and three of the five (`columns`, `maxRows`,
+ * `target: 'navigate'`) now act; nothing had to be deleted to let them. They are
+ * pinned on their effects in
+ * `ObjectMetricWidget.drillRoutedToSharedDrawer-8970.test.tsx`. `filter` and
+ * `mode` still have no read site — the shared drawer honours neither — and are
+ * still not asserted, for the reason above.
  *
  * ⚠️ Unchanged by this slice: `NEWLY_JUDGED_UNPINNED_MEMBERS` (no block it names
  * was touched) and `record:related_list.actions`, whose `NO_READ_SITE_TO_PIN`

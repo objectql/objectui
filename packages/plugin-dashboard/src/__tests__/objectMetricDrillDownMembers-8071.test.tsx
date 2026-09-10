@@ -67,15 +67,23 @@
  *
  * ## LIMITS, stated rather than frozen into an assertion
  *
- * `DrillDownConfig` is shared by five widgets, and this one hand-rolls its own
- * drawer instead of using `DrillDownDrawer`. Three members the shared component
- * honours have no read site on this block: `columns`, `maxRows`, and
- * `target: 'navigate'`. `filter` and `mode` have none either — a metric has no
- * click event to interpolate `${event.*}` against, and its whole slice is the
- * one filter. None of that is asserted here: pinning "this member is dead"
- * would freeze the gap instead of reporting it, and a pin that has to be
- * deleted before the gap can be closed is worse than no pin. Filed as
- * objectui#8970.
+ * `DrillDownConfig` is shared by five widgets, and when this pin was written
+ * this one hand-rolled its own drawer instead of using `DrillDownDrawer`. Three
+ * members the shared component honours had no read site on this block:
+ * `columns`, `maxRows`, and `target: 'navigate'`. `filter` and `mode` had none
+ * either — a metric has no click event to interpolate `${event.*}` against, and
+ * its whole slice is the one filter. None of that was asserted here: pinning
+ * "this member is dead" would freeze the gap instead of reporting it, and a pin
+ * that has to be deleted before the gap can be closed is worse than no pin.
+ * Filed as objectui#8970.
+ *
+ * ⇒ objectui#8970 has since routed the block through `DrillDownDrawer`, and the
+ * restraint paid out exactly as intended: the first three now ACT and not one
+ * assertion in this file had to be deleted to let them — every row below still
+ * passes unchanged against the shared drawer. Their effects are pinned in
+ * `ObjectMetricWidget.drillRoutedToSharedDrawer-8970.test.tsx`. `filter` and
+ * `mode` are still unread here (the shared drawer honours neither), and are
+ * still deliberately not asserted.
  *
  * ## Nothing pre-existing covered this key
  *
