@@ -77,6 +77,14 @@ const repoRoot = (() => {
 
 const DATASET_WIDGET = join(repoRoot, 'packages/plugin-dashboard/src/DatasetWidget.tsx');
 const DASHBOARD_RENDERER = join(repoRoot, 'packages/plugin-dashboard/src/DashboardRenderer.tsx');
+const DASHBOARD_GRID_LAYOUT = join(repoRoot, 'packages/plugin-dashboard/src/DashboardGridLayout.tsx');
+/**
+ * Where the sub-caption's authored read LIVES since objectui#8889. It used to
+ * sit inline in `DashboardRenderer.tsx`; it is now the single decision point
+ * both dashboard surfaces call, which is why leg 3 reads this file and then
+ * checks both surfaces still route to it.
+ */
+const WIDGET_SUB_CAPTION = join(repoRoot, 'packages/plugin-dashboard/src/widgetSubCaption.ts');
 
 const declaredKeys = Object.keys(DashboardWidgetOptionsSchema.shape).sort();
 
@@ -177,13 +185,29 @@ describe('leg 2 — the renderer side: DatasetWidget source census', () => {
 });
 
 describe('leg 3 — the sub-caption convention read site', () => {
-  it('DashboardRenderer still reads options.description for the subCaption channel', () => {
+  it('the subCaption channel still reads options.description, and both surfaces route to it', () => {
     // The evidence for the one accepted key the spec does not declare
     // (objectui#4032 item 4; objectstack#8056 `subCaption`; the server's
     // `translateDashboard` writes this key). If this read disappears,
     // `description` needs re-triage, not silent retention.
-    const src = readFileSync(DASHBOARD_RENDERER, 'utf8');
+    //
+    // objectui#8889 MOVED the read, verbatim, out of `DashboardRenderer.tsx`
+    // and into `widgetSubCaption.ts`: the bundle limb had to reach the
+    // dataset-bound tile too, and an invariant of the form "these two channels
+    // can never disagree" needs ONE decision point, so both dashboard surfaces
+    // now call the same hook instead of each composing the value. The read did
+    // not disappear and this leg's subject did not change — only its address.
+    const src = readFileSync(WIDGET_SUB_CAPTION, 'utf8');
     expect(src).toMatch(/\(widget\.options as [^)]*\)\?\.description/);
+
+    // ⚠️ Re-pointing the path ALONE would be weaker than what this leg held
+    // before the move: it would stay green with the read stranded in a module
+    // nothing calls. So the reachability half is stated explicitly, and it is
+    // stated for BOTH surfaces — objectui#4614 is the card that exists because
+    // a one-surface wiring looks complete and is not.
+    for (const surface of [DASHBOARD_RENDERER, DASHBOARD_GRID_LAYOUT]) {
+      expect(readFileSync(surface, 'utf8')).toMatch(/useWidgetSubCaption\(/);
+    }
   });
 });
 
@@ -215,11 +239,24 @@ describe('leg 4 — repo tripwire: files reading widget.options', () => {
     // header) before extending either this list or the accepted-key set.
     // `useObjectLabel.ts` matches in prose only — it documents the subCaption
     // convention leg 3 pins.
+    //
+    // `widgetSubCaption.ts` joined on objectui#8889, and it is NOT a prose-only
+    // match: it carries the authored read itself,
+    // `(widget.options as …)?.description`, moved verbatim out of
+    // `DashboardRenderer.tsx` so that both dashboard surfaces resolve the
+    // sub-caption through one decision point. It is a first-class consumer of
+    // the bag under exactly the receiver spelling this tripwire watches, so it
+    // belongs here — the tripwire fired correctly, and the census was re-run
+    // rather than the number made to match. The accepted key set is UNCHANGED
+    // by that move: the file reads `description` and nothing else, the key was
+    // already accepted (leg 1), and leg 2's DatasetWidget read set still
+    // measures the same six.
     expect(hits.sort()).toEqual([
       'packages/i18n/src/useObjectLabel.ts',
       'packages/plugin-dashboard/src/DashboardGridLayout.tsx',
       'packages/plugin-dashboard/src/DashboardRenderer.tsx',
       'packages/plugin-dashboard/src/DatasetWidget.tsx',
+      'packages/plugin-dashboard/src/widgetSubCaption.ts',
       'packages/sdui-parser/src/dashboard-widget-options.ts',
     ]);
   });
