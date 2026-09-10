@@ -22,9 +22,16 @@
  *
  *  1. ⛔ `emptyOutDir: false`. `outDir` is inside the project root, so Vite's
  *     DEFAULT is to empty it — and by the time this config runs, `dist/` holds
- *     the 124 files `tsc` just emitted for the whole package. Flipping this
- *     deletes the published package and leaves one bundle behind; the build
- *     still exits 0. This is the assertion this file exists for.
+ *     everything `tsc` just emitted for the whole package. ⚠️ What a flip costs
+ *     is stated as measured, because this header used to overstate it
+ *     (objectui#8712). On `2596b1b85`, `vite build --emptyOutDir` took `dist/`
+ *     from 128 files to 89 — the whole loss inside `dist/zod/` (40 → 1),
+ *     carrying the `./zod` typings and every per-category zod module. `outDir`
+ *     is a SUBDIRECTORY, so what a flip empties is that directory, not the
+ *     published package as a whole. `vite build` reports it as a success; the
+ *     build script reds one step later, in `check:dist-completeness`. This
+ *     assertion is what fails FIRST, in `unit`, before a build is ever run, and
+ *     it is the assertion this file exists for.
  *  2. The entry is `src/zod/index.zod.ts` and the output lands on
  *     `dist/zod/index.zod.js`. Those two together are what makes this an
  *     IN-PLACE overwrite of one `tsc` output rather than a new published file:
@@ -141,9 +148,10 @@ describe('objectui#8598 — the `./zod` subpath build config', () => {
   it('⛔ never empties the out dir — `dist/` holds the whole published package by then', () => {
     expect(
       build.emptyOutDir,
-      '`outDir` is inside the project root, so Vite empties it by DEFAULT. `tsc` has ' +
-        'already written all of `dist/` when this build runs, so the default deletes the ' +
-        'published package and exits 0.',
+      '`outDir` is inside the project root, so Vite empties it by DEFAULT — and `tsc` has ' +
+        'already written all of `dist/` when this build runs. A flip deletes everything in ' +
+        '`dist/zod/`, the `./zod` typings included, and `vite build` reports that as a ' +
+        'success; the build only reds one step later, in `check:dist-completeness`.',
     ).toBe(false);
   });
 
