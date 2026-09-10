@@ -130,6 +130,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isEntrypoint } from './invoked-as.mjs';
 
 /** Pages this gate reads, relative to the scan root. */
 export const DOCS_DIR = 'content/docs';
@@ -412,9 +413,12 @@ export function main(argv) {
   return { code, output };
 }
 
-const invokedDirectly =
-  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
-if (invokedDirectly) {
+// The ONE predicate every `scripts/**` entry guard goes through. A hand-typed
+// comparison against `process.argv[1]` is silently wrong: node leaves that value
+// as the caller typed it, so a script reached through a symlink compares two
+// different paths, answers false and does nothing — exit 0, no output, which a
+// CI wrapper reading only the status cannot tell from a pass.
+if (isEntrypoint(import.meta.url)) {
   const { code, output } = main(process.argv.slice(2));
   process.stdout.write(`${output}\n`);
   process.exit(code);
