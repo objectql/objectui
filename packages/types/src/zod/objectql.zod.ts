@@ -1255,7 +1255,7 @@ export const KanbanConditionalFormattingRuleSchema = z.union([
  * objectui#6939's judging — a lane card with no `title` is refused again.
  */
 const ObjectKanbanLaneSchema = z.object({
-  id: z.string().describe('Lane id — matched against the groupBy value. STRING only: the bucketer builds knownIds from the raw col.id and compares it with Object.keys(groups), which are strings, so a numeric id buckets every card TWICE (objectui#8993)'),
+  id: z.string().describe('Lane id — matched against the groupBy value. STRING only, and the narrowing stands on its own: until objectui#8993 the bucketer built knownIds from the raw col.id and compared it with Object.keys(groups), which are strings, so a numeric id bucketed every card TWICE; the sweep now keys membership the way the injection always did'),
   title: z.string().describe('Lane heading, localized against the groupBy picklist option labels'),
   cards: z.array(KanbanCardSchema).optional().describe('Cards this lane carries — a STATIC board only; an object-bound board buckets records into the lane by groupBy'),
   limit: z.number().optional().describe('WIP limit — the card count at which the lane warns; never reaches the query'),
