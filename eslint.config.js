@@ -22,6 +22,38 @@ export default tseslint.config({
     // fumadocs-mdx codegen for apps/site (gitignored — see apps/site/.gitignore).
     // Linting generated output only reports on the generator's choices.
     '**/.source',
+    // objectui#8592 — the three remaining build artefacts that `eslint .`
+    // still walked. Same principle as `**/.source` and `**/dist` directly
+    // above: linting generated output only reports on the generator's
+    // choices, and the report names a file:line nobody wrote. Measured on
+    // 290de3724 after a full `turbo run build`:
+    // `apps/console/plugin.d.ts` reported 1 warning
+    // (`@typescript-eslint/no-explicit-any` at 41:17) while the other two
+    // reported 0 in the same invocation — the two zeros are what make the 1
+    // a reading rather than a broken invocation.
+    //
+    // Why three literal paths and not a `.gitignore` import: the claim this
+    // change has to keep true is that ONLY git-ignored build output leaves
+    // the linted population and not one source file does. A literal path is
+    // auditable one entry at a time against `git check-ignore` /
+    // `git ls-files`; a gitignore-derived ignore set is not, because it
+    // cannot see tracking — git stops ignoring a path the moment it is
+    // tracked, and a pattern-only reader would keep dropping it, silently
+    // removing a source file from the gate. Each entry below is a git-ignored,
+    // untracked, generated-by-build path, verified that way.
+    //
+    // These mirror the declarations that already exist:
+    //   - `apps/console/plugin.{js,d.ts}` — emitted by
+    //     `tsc -p tsconfig.plugin.json` (apps/console `build:plugin`),
+    //     git-ignored at `apps/console/.gitignore` under "Compiled plugin
+    //     output".
+    //   - `apps/site/next-env.d.ts` — minted by Next's build/typegen,
+    //     git-ignored at `apps/site/.gitignore`.
+    // ⛔ Not a suppression at the report's site: the files are regenerated on
+    // every build, so an inline disable would vanish and the finding return.
+    'apps/console/plugin.js',
+    'apps/console/plugin.d.ts',
+    'apps/site/next-env.d.ts',
   ],
 }, {
   // objectui#4853 — a stale `eslint-disable` is an ERROR, not a warning.
