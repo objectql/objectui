@@ -53,6 +53,7 @@
     "census:body-dialect": "node scripts/body-dialect-census.mjs",
     "census:tsconfig-test-parity": "node scripts/tsconfig-test-parity-census.mjs",
     "census:cross-file-line-citations": "node scripts/cross-file-line-citation-census.mjs",
+    "census:dollar-dialect-aliases": "node scripts/dollar-dialect-alias-census.mjs",
     "check:control-bytes": "node scripts/check-control-bytes.mjs",
     "check:action-ref-convention": "node scripts/check-action-ref-convention.mjs",
     "check:published-dist": "node scripts/check-published-dist-tooling.mjs",
