@@ -58,6 +58,8 @@
  *     `convertOperatorToAST`'s `operatorMap` and for every operator the
  *     unknown-operator error message calls supported (`$null` / `$exists`
  *     live outside the map);
+ *   - the two tables TOGETHER must account for every member of the spec's
+ *     `FILTER_OPERATORS` — see "The blind spot" below;
  *   - every `$`-spelling in the refused table must be refused, and every
  *     combinator row's keyword must be the one its lowered group carries.
  *
@@ -71,6 +73,37 @@
  * from the error the function throws for an unknown operator, and every
  * lowering comes from calling the function.
  * A red here is always "fix the README (or the code)", never "update the test".
+ *
+ * ## The blind spot this pin had, and what closes it (objectui#8976)
+ *
+ * Until objectui#8976 both completeness checks read the SAME two populations,
+ * and both were the CODE's: `operatorMap`'s keys, and the operators the
+ * unknown-operator error calls supported. That makes the pin exact about drift
+ * between the code and the page — and structurally unable to see an operator
+ * missing from BOTH sides at once.
+ *
+ * `$icontains` was exactly that operator. It is a canonical member of
+ * `FILTER_OPERATORS`, `ValueDataSource` executed it, `FilterConditionField`
+ * emitted it and `packages/core/src/adapters/README.md` PRESCRIBED it — while
+ * `convertOperatorToAST` had no row for it and the error message did not list
+ * it. Absent from both code-side populations, it was absent from everything
+ * this pin derives from them, so the README could carry no row for it in either
+ * table and the suite stayed green. A pin that reads only the code cannot
+ * report the code being wrong.
+ *
+ * So a THIRD population is read, and it is the one the code answers TO: the
+ * spec's `FILTER_OPERATORS`. Every canonical member must be accounted for by
+ * these tables — documented as supported, or documented as refused. Which of
+ * the two is not asserted here (that is the code's ruling, and the rows above
+ * already hold the tables to it); what is asserted is that no canonical
+ * operator is missing from BOTH, because that is the state nothing else can
+ * see.
+ *
+ * ⚠️ Deliberately ONE-DIRECTIONAL. The refused table legitimately carries
+ * spellings the spec does NOT declare (`$regex`, and the four lowercase aliases
+ * objectui#8568 retired) — documenting a refusal for something outside
+ * `FILTER_OPERATORS` is the point of that table, not drift. Asserting the
+ * converse would delete it.
  *
  * ## Exhaustiveness IS asserted, deliberately
  *
@@ -88,6 +121,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { convertFiltersToAST, convertOperatorToAST } from '@object-ui/core';
+import { FILTER_OPERATORS } from '@objectstack/spec/data';
 
 /** Walk up to the workspace root, so both files are found by repo layout. */
 function repoRoot(): string {
@@ -330,6 +364,30 @@ describe('README filter-operator tables are decided by convertFiltersToAST (obje
       expect(supportedByError).toContain('$exists');
     });
 
+    it('reads the spec population the code-side lists cannot report on', () => {
+      // The third population, and the only one that is not derived from the
+      // code under test — which is the whole point of adding it (objectui#8976).
+      expect(FILTER_OPERATORS.length).toBeGreaterThanOrEqual(12);
+      expect(FILTER_OPERATORS).toContain('$icontains');
+      // Discriminating control: the spec population is not a restatement of the
+      // one the other completeness case reads. `operatorMap` structurally CANNOT
+      // carry `$null` / `$exists` — they pick their AST operator from the value,
+      // so they are handled before the map is consulted — which is why holding
+      // the page to the map alone always left canonical operators unaccounted
+      // for, and why the population below has to come from outside the code.
+      expect(sorted(FILTER_OPERATORS)).not.toEqual(sorted(operatorMap.keys()));
+      for (const outsideTheMap of ['$null', '$exists']) {
+        expect(FILTER_OPERATORS).toContain(outsideTheMap);
+        expect([...operatorMap.keys()]).not.toContain(outsideTheMap);
+      }
+      // ⚠️ NOT asserted: that the spec list differs from the unknown-operator
+      // message's enumeration. On a healthy tree those two agree — they did not
+      // before objectui#8976, and making them agree is part of what this card
+      // fixed. Pinning them equal would be wrong in the other direction: a spec
+      // operator this converter deliberately refuses must NOT be enumerated as
+      // supported, and the refused table is where it would be documented.
+    });
+
     it('found all three tables, each with rows', () => {
       expect(supported.length).toBeGreaterThanOrEqual(12);
       expect(combinators.length).toBeGreaterThanOrEqual(2);
@@ -439,6 +497,24 @@ describe('README filter-operator tables are decided by convertFiltersToAST (obje
         missing,
         'the code tells an author these operators are supported and the table has no row for them '
           + '(objectui#8558 found `$notContains`, `$endsWith`, `$null`, `$exists` missing)',
+      ).toEqual([]);
+    });
+  });
+
+  describe('every canonical operator is accounted for by the two tables (objectui#8976)', () => {
+    it('no member of the spec FILTER_OPERATORS is missing from BOTH tables', () => {
+      const documented = new Set(
+        [...supported, ...refused].flatMap((row) => operatorSpellings(row.cells[0] ?? '')),
+      );
+      const undocumented = (FILTER_OPERATORS as readonly string[])
+        .filter((spelling) => !documented.has(spelling));
+      expect(
+        undocumented,
+        'the spec declares these operators canonical and this page documents them neither as '
+          + 'supported nor as refused. Until objectui#8976 `$icontains` was exactly that: absent '
+          + 'from `operatorMap` AND from the unknown-operator message, so every other case here '
+          + 'derived it away. Add a row to whichever table the code actually implements — and if '
+          + 'the code implements neither, that is the defect, not this pin',
       ).toEqual([]);
     });
   });
