@@ -232,8 +232,30 @@ export interface ListViewProps {
    */
   dataSource?: any;
   onViewChange?: (view: ViewType) => void;
-  onFilterChange?: (filters: any) => void;
-  onSortChange?: (sort: any) => void;
+  /**
+   * Fires with the advanced-filter group the toolbar's `FilterBuilder` emitted.
+   *
+   * `FilterGroup` because that is what the one call site actually passes: the
+   * builder's own `onChange` value, handed straight through beside
+   * `setCurrentFilters` — itself `React.useState<FilterGroup>`. Deliberately NOT
+   * the filter AST `normalizeFilters` / `buildEffectiveFilter` speak: those run
+   * later, on the query-building path, and nothing they produce reaches this
+   * callback. A host receives the BUILDER's group verbatim, which is what lets
+   * it round-trip back in through `initialFilters`.
+   */
+  onFilterChange?: (filters: FilterGroup) => void;
+  /**
+   * Fires with the view's sort after a builder edit, a header click or a
+   * "reset to the view's default".
+   *
+   * `SortItem[]` because every emit crosses exactly one boundary —
+   * `emitSortChange` — and both of its legs carry that element type: the array
+   * passed in, and `filterPlatformSortableSort`'s return, which is generic in
+   * the element (readonly T[] in, T[] out) and so preserves whatever it is
+   * given. Normalized-vs-raw therefore does not move the TYPE here; it only
+   * decides whether platform-unsortable entries are still present (#6455).
+   */
+  onSortChange?: (sort: SortItem[]) => void;
   onSearchChange?: (search: string) => void;
   /** Called when the user toggles fields via the Hide Fields popover. */
   onHiddenFieldsChange?: (hidden: string[]) => void;
