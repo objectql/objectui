@@ -551,15 +551,17 @@ export const REGRESSION_THIS_GATE_MUST_CATCH_BYTES = 89 * 1024;
  * line per named group; inventing one for it would be a number with no
  * incident behind it.
  *
- * ⭐ Read the new `i18n-locales` headroom for what it is. 8,924 bytes above the
- * baseline it was measured from is about sixty translation keys at the measured
- * ~147 gzipped bytes a short key costs across ten locales — enough for the five
- * PRs this unparked, and then the AGGREGATE line becomes the binding one. ⛔ Its
- * headroom is not restated here: the figure that was went stale inside a
- * fortnight (objectui#7518), and `pnpm check:eager-closure` prints both lines in
- * force on your own build. That the aggregate is the correct place for the
- * constraint to live is the argument for taking the catalogues out of the eager
- * closure rather than for raising anything.
+ * ⭐ RETIRED by objectui#8816's raise — see "Why `i18n-locales` moved UP" below.
+ * The pair this paragraph sized (455,000 over 446,076, 8,924 bytes of headroom)
+ * is gone, and so is the unit it offered: "about sixty translation keys at ~147
+ * gzipped bytes a short key" is an average across a spread now measured at 2.4x,
+ * two real claimants costing 9.2 and 22.3 bytes per key-times-locale. ⛔ Its
+ * forecast was wrong in the direction that matters too — the headroom was gone
+ * in seven days and the AGGREGATE never became the binding line; it is still
+ * carrying 0.26x with both claimants on it. What survives is the last sentence,
+ * which is why it is kept verbatim: that the aggregate is the correct place for
+ * the constraint to live is the argument for taking the catalogues out of the
+ * eager closure rather than for raising anything.
  *
  * ## Why `framework` moved UP — the maintainer ruling of 2026-09-08
  *
@@ -629,11 +631,137 @@ export const REGRESSION_THIS_GATE_MUST_CATCH_BYTES = 89 * 1024;
  * where {@link evaluateHeadroomSensitivity} calls a line blind — but "not blind"
  * is the floor this file refuses to fall through, not a standard it aims at.
  *
+ * ⚠️ That table and that ranking are `3f775eeb8`'s and stay pinned to it — the
+ * `i18n-locales` row in it was retired by objectui#8816's raise below. Re-read
+ * on `ba20b0bc0`, `framework` is still the loosest of the four at 0.29x, but
+ * against a tightest of 0.05x (`ui-components`) that is 6.1x, not an order of
+ * magnitude.
+ *
  * ⛔ {@link REGRESSION_THIS_GATE_MUST_CATCH_BYTES} did NOT move, and this is the
  * exact case the rule under {@link MAX_EAGER_CLOSURE_GZIP_BYTES} was written for:
  * a ceiling that rises while the sensitivity relaxes is a gate quietly retiring
  * itself. Nothing else moved either — not the other three ceilings, not the
  * aggregate, not {@link BASELINE}. One ceiling and its baseline, in one commit.
+ *
+ * ## Why `i18n-locales` moved UP — objectui#8816
+ *
+ * From 455,000 over a 446,076 payload to 465,000 over 456,196. The new baseline
+ * is a reading of the tree this pair was DERIVED FOR: `main` with both claimants
+ * merged into it.
+ *
+ * ⛔ Read what this is not, first, because the shape it resembles is the one the
+ * paragraph under "Raising one" forbids. It is not "the gate fired, so the
+ * number moved". objectui#8816 is a decision card opened 2026-09-09 that asks
+ * exactly this question and carries three routes, and it stood unclaimed while
+ * two finished pull requests queued behind it. The authorisation to take one of
+ * those routes rather than wait is the maintainer's instruction of 2026-09-10
+ * that red pull requests are RESOLVED rather than parked; WHICH route is the
+ * measurement below, and it was taken on measurement, not on the instruction.
+ *
+ * ⛔ WHAT THE BYTES BUY — one console build per row, each from the repo ROOT,
+ * `i18n-locales` read out of the `apps/console/dist/eager-closure.json` the
+ * build itself writes. Four builds, one container, one instrument, so the
+ * deltas are directly comparable:
+ *
+ *   | tree                                   | `i18n-locales` | moved by |
+ *   | `bbe285ee7` — `main`                   |        454,602 |        — |
+ *   | + objectui#8901, its merge `3949cf3a3` |        455,271 |     +669 |
+ *   | + objectui#8888, its merge `ea5eab7b3` |        455,519 |     +917 |
+ *   | both, their merge `ba20b0bc0`          |        456,196 |   +1,594 |
+ *
+ * The two deltas sum to 1,586 against a measured 1,594, so gzip's dictionary
+ * hands back nothing across them: two independent claimants on this chunk are
+ * ADDITIVE to within 8 bytes. That is the fact a SHARED budget needs and the one
+ * a per-pull-request reading cannot produce — each is 271 and 519 bytes over
+ * alone, together they are 1,196 over, and neither single reading licenses that
+ * sum without the third build.
+ *
+ * The bytes are THIRTEEN localization keys in ten locales and nothing else.
+ * objectui#8901 adds three `console.savedViews*` strings so that a REFUSED
+ * saved-view read stops rendering as "this object has no saved views";
+ * objectui#8888 adds ten `chatbot.build.*` strings so the AI build-progress
+ * panel stops showing English literals inside a Chinese conversation. Neither
+ * ships a dependency or a component into this closure: `plugin-chatbot` is lazy
+ * and outside it, and objectui#8901's adapter growth landed in
+ * `vendor-objectstack`, which measured 1,236,299 on ALL FOUR builds — the lit
+ * control saying the movement is this chunk's and no other's.
+ *
+ * ⛔ WHY NOT TRIM INSTEAD, which is the half a raise has to answer. Measured,
+ * per claimant:
+ *
+ *   - objectui#8888's ten keys include five generic console nouns (`Objects`,
+ *     `Views`, `Dashboards`, `App`, `Sample data`), so reuse looks available.
+ *     It is not: only `Objects` and `Dashboards` have any pre-existing
+ *     equivalent in the `en` pack, and each of those already exists THREE times
+ *     under three per-surface namespaces (`appDesigner.*`,
+ *     `console.commandPalette.*`, `search.type*`). Per-surface keys are this
+ *     pack's convention and cross-surface reuse is the deviation. Best measured
+ *     saving 128 bytes against a 519-byte overage.
+ *   - objectui#8901's three keys have NO reuse candidate, and that is
+ *     structural rather than incidental: those strings exist precisely because
+ *     saying what the neighbouring `console.importMappings*` strings say is the
+ *     runtime lie the card was filed to remove.
+ *   - Shortening the copy is the objectui#6759 lever ("say less, in ten
+ *     languages") and it is ⛔ refused here. Widening a ceiling to get a green
+ *     tick and narrowing a payload to get one are the same error facing in
+ *     opposite directions; this file already forbids the first.
+ *
+ * ⇒ Trimming cannot reach 1,196 bytes inside these two changes. What CAN reach
+ * it is outside them, and it is recorded here because it is the work that makes
+ * the next raise unnecessary: `pnpm check:i18n-dead-keys` reports 364 candidates
+ * across 47 namespaces, 127 of them CONFIRMED with no textual footprint anywhere
+ * in this repository, in ten locales each. That gate is report-only by design
+ * and `@object-ui/i18n` PUBLISHES these packs, so deleting a key is a
+ * published-surface removal and a decision, not a byte-saving. It needs its own
+ * card and its own reverse verification — objectui#8816's route C note says so
+ * in as many words — and it is ⛔ deliberately not ridden in on a localization
+ * change.
+ *
+ * ## Why the new headroom is 0.10x and NOT the 804 bytes the overage needed
+ *
+ * The minimal raise — 457,000, exactly enough to admit both claimants — is the
+ * one option this card's own evidence rules OUT. objectui#8816 is not filed
+ * about a full budget. It is filed about what a budget with ~0 headroom DOES:
+ * the gate weighs the MERGE REF, so a sibling change that adds locale keys and
+ * lands first turns an in-flight, not-itself-over pull request red in the merge
+ * queue — an arithmetic collision that reads as a defect in that diff, and sends
+ * its author to investigate something that is not there. objectui#8554 is the
+ * same mechanism one step earlier: `framework` sat at 70,999 against 71,000 and
+ * printed a GREEN sensitivity row while it did, because
+ * {@link evaluateHeadroomSensitivity} has no floor. Re-pinning to 804 bytes
+ * would reproduce both inside a week.
+ *
+ * So the size comes from this key's own convention rather than from the overage:
+ * 8,804 bytes = 0.10x {@link REGRESSION_THIS_GATE_MUST_CATCH_BYTES}, against the
+ * 8,924 (0.10x) the retired pair carried — slightly TIGHTER as a ratio, and on
+ * `ba20b0bc0` the second-tightest of the four ceilings (`ui-components` 0.05x,
+ * `i18n-locales` 0.10x, `vendor-objectstack` 0.19x, `framework` 0.29x).
+ *
+ * ⚠️ What it buys, stated as the interval it is rather than as a key count. Per
+ * key-times-locale this chunk cost 9.2 bytes for objectui#8888's ten short
+ * progress phrases and 22.3 bytes for objectui#8901's three long sentences — a
+ * 2.4x spread between two real claimants one shift apart, so ⛔ a quota written
+ * in keys is not derivable from this measurement. 8,804 bytes is between ~395
+ * and ~958 key-times-locale slots: roughly 40 to 96 keys across ten locales.
+ *
+ * ⚠️ And how long that is, measured rather than hoped. The retired pair landed
+ * on `177afeba1`, 2026-09-03, at 446,076; `main` measured 454,602 on
+ * `bbe285ee7`, 2026-09-10. That is 8,526 bytes in seven days, with the last 398
+ * of them claimed by two independent changes inside ONE shift. At that arrival
+ * rate this raise is about a week of runway, not a settlement — so ⛔ do not read
+ * it as one, and do not read a second raise as routine because this one was
+ * taken. The structural answer is the one this file already names: the aggregate
+ * is the correct place for this constraint to live, and taking the catalogues
+ * OUT of the eager closure is what retires this line instead of moving it.
+ *
+ * ⛔ Nothing else moved. Not {@link REGRESSION_THIS_GATE_MUST_CATCH_BYTES} —
+ * this is the exact case the rule under {@link MAX_EAGER_CLOSURE_GZIP_BYTES} was
+ * written for, and a ceiling that rises while the sensitivity relaxes is a gate
+ * quietly retiring itself. Not the other three per-chunk ceilings, weighed on
+ * the same four builds and unchanged. Not {@link MAX_EAGER_CLOSURE_GZIP_BYTES}:
+ * the aggregate carried 23,507 bytes of headroom (0.26x) with BOTH claimants on
+ * it, so it never objected and there is nothing to re-pin. One ceiling and its
+ * baseline, in one commit.
  *
  * ## Raising one
  *
@@ -654,7 +782,13 @@ export const PER_CHUNK_GZIP_CEILINGS = Object.freeze({
   // Headroom 18,971 bytes = 0.21x REGRESSION_THIS_GATE_MUST_CATCH_BYTES, the
   // proportion the retiring pair carried (18,539 = 0.20x).
   'vendor-objectstack': 1_254_000,
-  'i18n-locales': 455_000,
+  // Raised by objectui#8816, on the maintainer's instruction of 2026-09-10 that
+  // red pull requests are resolved rather than parked, and sized by the four
+  // console builds in "Why `i18n-locales` moved UP" above — ⛔ not by the
+  // overage, which is the one size that card's own evidence rules out. Headroom
+  // 8,804 bytes = 0.10x REGRESSION_THIS_GATE_MUST_CATCH_BYTES over the baseline
+  // below, marginally tighter than the 8,924 (0.10x) the retired pair carried.
+  'i18n-locales': 465_000,
   // Raised by the maintainer ruling of 2026-09-08, ⛔ not by a measurement here:
   // `main` had been red on this line since `f76f43628`. The bytes that put it
   // there were UNATTRIBUTED when this moved and have since been measured to
@@ -689,21 +823,29 @@ export const PER_CHUNK_GZIP_CEILINGS = Object.freeze({
  *     file, and `scripts/check-*.mjs` is not a console build input — so the
  *     {@link BASELINE} argument DOES cover it, and it is ⛔ NOT comparable to
  *     the `i18n-locales` figure below, which is an older build on another commit.
- *   - `i18n-locales` — `e307c9896` plus objectui#7399's own re-attribution
- *     diff; see "Why `framework` moved DOWN" above. It was read from ONE console
- *     build together with the `framework` figure objectui#7399 recorded, so it
- *     is directly comparable to the 523,959 that same tree measured with the
- *     groups still tied — ⚠️ and, since objectui#8541's raise, ⛔ no longer to
- *     the `framework` entry above it.
+ *   - `i18n-locales` — `ba20b0bc0` (objectui#8816), a local merge of `main`
+ *     `bbe285ee7` with BOTH pull requests the raise admits. It supersedes
+ *     objectui#7399's `e307c9896` reading, and it is read from the same
+ *     instrument and container as the three trees it is compared against, which
+ *     is what makes those deltas subtractable.
  *
- *     ⚠️ Unlike every other entry here, this one is NOT a reading of an
- *     unmodified tree: the chunk it names does not exist without the diff that
- *     recorded it, because that diff is what creates it. The
+ *     ⚠️ It is a FORWARD reading and the only entry here that is. It names the
+ *     state `main` reaches once objectui#8901 and objectui#8888 have BOTH
+ *     landed, so while only one of them has, the live payload sits below this
+ *     constant (455,271 and 455,519, both measured) and
+ *     `pnpm check:eager-closure` prints MORE headroom than arithmetic on these
+ *     two constants gives. Read on purpose: a shared budget with two admitted
+ *     claimants has no single-commit baseline that is not stale the moment the
+ *     second one lands, and erring toward the larger payload is the direction
+ *     that cannot hide growth.
+ *
+ *     ⚠️ Unlike the entries above it, this is a reading of a tree carrying
+ *     diffs of its own — the two claimants — which is the point rather than a
+ *     contaminant: their bytes are the subject. The
  *     `scripts/vite-*.ts`-versus-`scripts/check-*.mjs` argument {@link BASELINE}
- *     makes about its own commit does NOT cover it — `apps/console/vite.config.ts`
- *     IS a build input, deliberately, and moving it is the change. What keeps
- *     it honest instead is that the gate re-reads it on every CI build of the
- *     branch that carries the diff.
+ *     makes DOES cover the ceiling edit itself, because this file is not a
+ *     console build input; that was checked rather than assumed, and the check
+ *     is recorded on objectui#8816.
  *
  * Exported so the ceilings are CHECKED against it instead of merely asserted
  * in this comment.
@@ -773,7 +915,11 @@ export const PER_CHUNK_GZIP_CEILINGS = Object.freeze({
 export const PER_CHUNK_BASELINE = Object.freeze({
   // `34a1578ef`, the same build as BASELINE above (objectui#7122).
   'vendor-objectstack': 1_235_029,
-  'i18n-locales': 446_076,
+  // `ba20b0bc0` (objectui#8816) — `main` `bbe285ee7` with BOTH admitted pull
+  // requests merged in. A FORWARD reading; see the provenance note above for
+  // why this one names a state `main` has not reached yet and what that does to
+  // the printed headroom while only one claimant has landed.
+  'i18n-locales': 456_196,
   // `3f775eeb8`, its OWN console build — ⛔ not the one above it and not
   // BASELINE's. Moved with the ceiling in the same commit, per the maintainer
   // ruling of 2026-09-08 and the rule stated under "Raising one".

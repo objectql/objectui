@@ -130,9 +130,9 @@ const es = {
     // numbers, a missing one cannot name how many. Same split as
     // `grid.grouping.partialNotice`. Kept terse deliberately — this copy is
     // eagerly loaded, and since objectui#7399 these bytes are budgeted by the
-    // `i18n-locales` chunk, not `framework` — a ceiling set 8,924 B above the
-    // baseline it was measured from, about sixty short keys' worth across ten
-    // locales. `pnpm check:eager-closure` prints the figure in force.
+    // `i18n-locales` chunk, not `framework`. ⛔ That ceiling's headroom is
+    // deliberately NOT restated here — it moves on every re-baseline, and the
+    // figure that was here went stale. `pnpm check:eager-closure` prints it.
     rowCeilingNote: "Mostrando los primeros {{shown}} de {{total}} registros. Acota el filtro.",
     rowCeilingNoteUnknownTotal: "Mostrando los primeros {{shown}} registros. Acota el filtro.",
   },
@@ -1472,6 +1472,9 @@ const es = {
     importMappingsUnavailable: "No se pudieron cargar las asignaciones de importación guardadas de {{object}}",
     importMappingsRefused: "El servidor rechazó esta solicitud, por lo que la lista está vacía porque no se pudo leer, no porque no haya nada registrado. Vuelve a iniciar sesión o pide acceso a un administrador.",
     importMappingsUnreadable: "Esta lista está vacía porque no se pudo leer, no porque no haya nada registrado. Inténtalo de nuevo e informa del problema si continúa.",
+    savedViewsUnavailable: "No se pudieron cargar las vistas guardadas de {{object}}",
+    savedViewsRefused: "El servidor rechazó esta solicitud, por lo que la lista está vacía porque no se pudo leer, no porque este objeto no tenga vistas guardadas. Vuelve a iniciar sesión o pide acceso a un administrador.",
+    savedViewsUnreadable: "Esta lista está vacía porque no se pudo leer, no porque este objeto no tenga vistas guardadas. Inténtalo de nuevo e informa del problema si continúa.",
     settingsHub: {
       title: "Configuración",
       subtitle: "Configure su espacio de trabajo, las integraciones y los indicadores de funciones.",
@@ -3004,6 +3007,20 @@ const es = {
       countDashboards: "{{count}} paneles",
       countDashboards_one: "{{count}} panel",
       countSeedData: "datos de ejemplo",
+    },
+    build: {
+      building: "Creando {{app}}…",
+      built: "Creación de {{app}} completada",
+      appFallback: "su aplicación",
+      addingSampleData: "añadiendo datos de ejemplo",
+      group: {
+        object: "Objetos",
+        view: "Vistas",
+        dashboard: "Paneles",
+        app: "Aplicación",
+        seed: "Datos de ejemplo",
+      },
+      moreArtifacts: "+{{n}} más",
     },
   },
   chatbotError: {

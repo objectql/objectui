@@ -130,9 +130,9 @@ const pt = {
     // numbers, a missing one cannot name how many. Same split as
     // `grid.grouping.partialNotice`. Kept terse deliberately — this copy is
     // eagerly loaded, and since objectui#7399 these bytes are budgeted by the
-    // `i18n-locales` chunk, not `framework` — a ceiling set 8,924 B above the
-    // baseline it was measured from, about sixty short keys' worth across ten
-    // locales. `pnpm check:eager-closure` prints the figure in force.
+    // `i18n-locales` chunk, not `framework`. ⛔ That ceiling's headroom is
+    // deliberately NOT restated here — it moves on every re-baseline, and the
+    // figure that was here went stale. `pnpm check:eager-closure` prints it.
     rowCeilingNote: "Mostrando os primeiros {{shown}} de {{total}} registros. Restrinja o filtro.",
     rowCeilingNoteUnknownTotal: "Mostrando os primeiros {{shown}} registros. Restrinja o filtro.",
   },
@@ -1467,6 +1467,9 @@ const pt = {
     importMappingsUnavailable: "Não foi possível carregar os mapeamentos de importação salvos de {{object}}",
     importMappingsRefused: "O servidor recusou esta solicitação, portanto esta lista está vazia porque não pôde ser lida, não porque nada esteja registrado. Entre novamente ou peça acesso a um administrador.",
     importMappingsUnreadable: "Esta lista está vazia porque não pôde ser lida, não porque nada esteja registrado. Tente novamente e relate o problema se ele persistir.",
+    savedViewsUnavailable: "Não foi possível carregar as exibições salvas de {{object}}",
+    savedViewsRefused: "O servidor recusou esta solicitação, portanto esta lista está vazia porque não pôde ser lida, não porque este objeto não tenha exibições salvas. Entre novamente ou peça acesso a um administrador.",
+    savedViewsUnreadable: "Esta lista está vazia porque não pôde ser lida, não porque este objeto não tenha exibições salvas. Tente novamente e relate o problema se ele persistir.",
     settingsHub: {
       title: "Configurações",
       subtitle: "Configure seu workspace, integrações e sinalizadores de recursos.",
@@ -2999,6 +3002,20 @@ const pt = {
       countDashboards: "{{count}} painéis",
       countDashboards_one: "{{count}} painel",
       countSeedData: "dados de exemplo",
+    },
+    build: {
+      building: "Criando {{app}}…",
+      built: "Criação de {{app}} concluída",
+      appFallback: "seu aplicativo",
+      addingSampleData: "adicionando dados de exemplo",
+      group: {
+        object: "Objetos",
+        view: "Visões",
+        dashboard: "Painéis",
+        app: "Aplicativo",
+        seed: "Dados de exemplo",
+      },
+      moreArtifacts: "+{{n}} mais",
     },
   },
   chatbotError: {
