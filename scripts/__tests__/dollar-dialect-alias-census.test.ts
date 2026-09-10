@@ -51,6 +51,7 @@ import {
   roleOf,
   isTestPath,
   SELF_FILES,
+  siblingDialectBait,
   evaluateControls,
   runCensus,
 } from '../dollar-dialect-alias-census.mjs';
@@ -232,6 +233,7 @@ describe('the controls can fail, which is the only reason their passing means an
     byRole: { canonicalTotals: { $startsWith: 12 } },
     authoredPayloadCanonical: [{ file: 'apps/x.ts', line: 1, spelling: '$gte' }],
     siblingHits: 0,
+    siblingBait: 4,
     impossibleHits: 0,
   };
   const idsFailing = (over: Record<string, unknown>) =>
@@ -256,6 +258,13 @@ describe('the controls can fail, which is the only reason their passing means an
 
   it('fails sibling-dialect the moment a $-free row is counted', () => {
     expect(idsFailing({ siblingHits: 1 })).toEqual(['sibling-dialect']);
+  });
+
+  it('fails sibling-dialect when its BAIT is gone, rather than passing vacuously', () => {
+    // "The census counted zero sibling rows" and "there are no sibling rows
+    // left to count" are the same reading unless the bait is measured. A
+    // negative control that cannot be tripped is not evidence.
+    expect(idsFailing({ siblingBait: 0 })).toEqual(['sibling-dialect']);
   });
 
   it('does not demand a lit twin on a tree that has no aliases left', () => {
@@ -289,6 +298,12 @@ describe('the tree as it stands today', () => {
     const source = readFileSync(join(REPO_ROOT, SIBLING_DIALECT_FILE), 'utf8');
     expect(source).toMatch(/^\s*startswith:\s*'startswith',$/m);
     expect(source).toMatch(/^\s*notin:\s*'nin',$/m);
+    expect(siblingDialectBait(source)).toBeGreaterThan(0);
+  });
+
+  it('counts bait only where the $ is absent, so the probe is not just a second alias grep', () => {
+    expect(siblingDialectBait("  startswith: 'startswith',\n  notin: 'nin',\n")).toBe(2);
+    expect(siblingDialectBait("  $startswith: 'startswith',\n")).toBe(0);
   });
 
   it('passes every control on a real run, so the printed number is a reading', async () => {

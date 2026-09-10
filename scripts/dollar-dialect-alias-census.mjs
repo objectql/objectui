@@ -341,11 +341,36 @@ function scannable(rel) {
  *                               counted. This is the conflation the census
  *                               exists to avoid; if it ever fires, every
  *                               number above it is about the wrong dialect.
+ *
+ * ⚠️ The negative controls also measure that their BAIT still exists.
+ * `sibling-dialect` counts the `$`-free rows in that file with a deliberately
+ * `$`-less probe and fails when it finds NONE, because "the census counted zero
+ * sibling rows" and "there are no sibling rows left to count" are the same
+ * reading otherwise -- a check that passes because nothing is produced.
+ *
+ * ⚠️ What this control does NOT witness, measured by ablation rather than
+ * assumed. The `$`-strictness lives in TWO layers: the literal prefilter in
+ * `scanText` and the regexes it guards. Loosening the REGEX alone leaves this
+ * control GREEN, because the prefilter has already excluded the file before the
+ * regex runs. So the runtime control witnesses the COMPOSED scanner; the
+ * `$`-strictness and case-sensitivity of the regexes themselves are pinned
+ * directly on `scanText` in the suite, which is where a one-layer regression is
+ * actually caught.
  */
 export const SIBLING_DIALECT_FILE = 'packages/data-objectstack/src/index.ts';
 export const IMPOSSIBLE_SPELLING = '$startswithzzz';
 
-export function evaluateControls({ aliases, specOperators, byRole, authoredPayloadCanonical, siblingHits, impossibleHits }) {
+/**
+ * The `$`-free sibling rows in `FILTER_OPERATOR_ALIASES`, counted with a probe
+ * that deliberately does NOT require the `$`. This is the bait the
+ * `sibling-dialect` control is aimed at, and a control whose bait has vanished
+ * is not a control.
+ */
+export function siblingDialectBait(source) {
+  return [...source.matchAll(/^\s*(?:startswith|endswith|notcontains|notin):\s*'/gm)].length;
+}
+
+export function evaluateControls({ aliases, specOperators, byRole, authoredPayloadCanonical, siblingHits, siblingBait, impossibleHits }) {
   const controls = [];
 
   const twins = aliases.map((a) => canonicalTwin(a, specOperators)).filter(Boolean);
@@ -387,8 +412,10 @@ export function evaluateControls({ aliases, specOperators, byRole, authoredPaylo
     id: 'sibling-dialect',
     kind: 'negative',
     want: 'dead',
-    ok: siblingHits === 0,
-    detail: `$-free rows in ${SIBLING_DIALECT_FILE} counted as $-dialect: ${siblingHits}`,
+    ok: siblingHits === 0 && siblingBait > 0,
+    detail: siblingBait === 0
+      ? `NO BAIT LEFT -- ${SIBLING_DIALECT_FILE} carries no $-free rows for this control to decline, so its zero says nothing`
+      : `${siblingBait} $-free row(s) present in ${SIBLING_DIALECT_FILE}; counted as $-dialect: ${siblingHits}`,
     why: 'FILTER_OPERATOR_ALIASES is a DIFFERENT, deliberately tolerant dialect; counting it would price option 1 against filters it does not touch',
   });
 
@@ -456,6 +483,7 @@ export async function runCensus(root) {
   const authoredPayloadCanonical = canonicalRows
     .filter((r) => r.role === AUTHORED_ROLE && r.shape === 'payload' && !isTestPath(r.file));
   const siblingHits = rows.filter((r) => r.file === SIBLING_DIALECT_FILE).length;
+  const siblingBait = siblingDialectBait(readFileSync(join(root, SIBLING_DIALECT_FILE), 'utf8'));
 
   const controls = evaluateControls({
     aliases,
@@ -463,6 +491,7 @@ export async function runCensus(root) {
     byRole: { canonicalTotals },
     authoredPayloadCanonical,
     siblingHits,
+    siblingBait,
     impossibleHits,
   });
 
