@@ -123,7 +123,14 @@
  * what the package-level `test` scripts are: every one of them names the repo
  * root explicitly (`vitest run --root ../.. packages/<pkg>/`), so they satisfy
  * this comparison instead of tripping it, and `pnpm --filter <pkg> test` /
- * `turbo run test` run the same config as CI.
+ * `turbo run test` load the same config as CI. ⛔ The same config is NOT the
+ * same conclusion: objectui#3240 moved Vitest's ROOT, and `process.cwd()` does
+ * not move with it — under the package-level form the cwd is still
+ * `packages/<pkg>/`, so anything that reads it answers differently there than
+ * CI does. This guard is one of those things whenever a TEST imports a config
+ * and re-enters it (objectui#8590): the worker's `process.argv` carries no
+ * `--root`, so the cwd decides and the package-level form is refused after the
+ * run is already under way. AGENTS.md §测试纪律 carries the same correction.
  *
  * Escape hatch, documented in AGENTS.md: `OBJECTUI_VITEST_GUARD=off`.
  */
