@@ -68,6 +68,8 @@ The [examples catalog](examples/README.md) explains each one in more depth.
 npm install @object-ui/react @object-ui/components
 ```
 
+#### Basic Usage
+
 ```tsx
 import React from 'react'
 import { SchemaRenderer } from '@object-ui/react'
