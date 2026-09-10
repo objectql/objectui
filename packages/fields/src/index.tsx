@@ -957,12 +957,14 @@ const DUE_LIKE_FIELD_NAME =
  * one function down already follows: `as any` would also silence a typo in
  * the property name, this does not. The name spellings stay on a loose record
  * read because `accessorKey` / `key` are grid-column spellings that no field
- * interface carries.
+ * interface carries — and that read goes through `unknown`, because
+ * `FieldMetadata` is a closed union whose members carry no index signature,
+ * so a direct assertion is `TS2352` (measured, not assumed).
  */
 function resolveDueLike(field: CellRendererProps['field']): boolean {
   const declared = (field as DateFieldMetadata | DateTimeFieldMetadata | undefined)?.dueLike;
   if (declared === true) return true;
-  const named = field as Record<string, unknown> | undefined;
+  const named = field as unknown as Record<string, unknown> | undefined;
   const fieldName = String(named?.name || named?.accessorKey || named?.key || '').toLowerCase();
   return DUE_LIKE_FIELD_NAME.test(fieldName);
 }
