@@ -635,6 +635,48 @@ export const REGRESSION_THIS_GATE_MUST_CATCH_BYTES = 89 * 1024;
  * itself. Nothing else moved either — not the other three ceilings, not the
  * aggregate, not {@link BASELINE}. One ceiling and its baseline, in one commit.
  *
+ * ## Why `ui-components` moved UP — lucide-react 1.31.0 to 1.43.0
+ *
+ * Measured on this branch's console build: 410,904 bytes, 11,904 over the
+ * 399,000 that stood. The cause is the icon library growing, and it was ruled
+ * out as a tree-shaking regression BEFORE this number moved, because "the
+ * bundler stopped shaking" and "the dependency got bigger" want opposite fixes
+ * and only one of them is a ceiling.
+ *
+ * What was measured, and the control that fired with it:
+ *
+ *   - ALL 1,818 keys of lucide 1.43.0's runtime `icons` record appear verbatim
+ *     in the built `ui-components` chunk. Not most — all. Of 1.31.0's 1,767
+ *     keys, 1,766 appear in that same chunk; the one absent is `Trash2`, the
+ *     key lucide retired, which is what tells you the probe discriminates
+ *     rather than matching everything. A fabricated key is not found.
+ *   - So icons do not tree-shake here and did not tree-shake before either.
+ *     That is DELIBERATE, not a defect: `renderers/action/resolve-icon.ts`
+ *     imports the whole `icons` record because string lookups are resolved
+ *     against record MEMBERSHIP, which is the seam objectui#5935 consolidated
+ *     onto and `check-lucide-icon-record-names.mjs` enforces. Moving that seam
+ *     to `lucide-react/dynamic.mjs` to shed the bytes would resolve names the
+ *     record deliberately drops (`trash-2`, `edit`, `smile`), which is the
+ *     exact failure that gate's header calls worse than having no gate.
+ *   - The library itself is bigger, two independent ways. Same-artwork control:
+ *     `pencil.mjs`, whose icon node is byte-identical across the two versions,
+ *     goes 455 to 522 bytes, because 1.43.0 reshaped every icon module into an
+ *     `__iconData` object carrying `name`, `size` and `aliases`. And there are
+ *     more icons: the whole icon directory, licence headers stripped and
+ *     gzipped, goes 166,705 to 176,968 bytes (+10,263, +6.2%) from 1.31.0 to
+ *     1.43.0 — the same order as the chunk delta this raise absorbs.
+ *
+ * ⇒ the bytes are not avoidable from the import side, so the ceiling moves.
+ *
+ * Headroom 9,096 bytes = 0.10x {@link REGRESSION_THIS_GATE_MUST_CATCH_BYTES} —
+ * the proportion objectui#7399 re-pinned THIS key to, chosen deliberately over
+ * "just enough to pass". A line left with almost no headroom is the defect
+ * objectui#8816 records, and this key was the tightest of the four before this
+ * raise. ⛔ {@link REGRESSION_THIS_GATE_MUST_CATCH_BYTES} did not move, and
+ * nothing else moved: not the other three ceilings, not the aggregate, not
+ * {@link BASELINE}. The aggregate was re-read on the same build and PASSES on
+ * its own — 3,589,068 of 3,597,000, headroom 7,932 bytes — so it is left alone.
+ *
  * ## Raising one
  *
  * Same discipline as {@link MAX_EAGER_CLOSURE_GZIP_BYTES}, and the same two
@@ -663,7 +705,13 @@ export const PER_CHUNK_GZIP_CEILINGS = Object.freeze({
   // REGRESSION_THIS_GATE_MUST_CATCH_BYTES on `3f775eeb8` — the loosest of the
   // four. See "Why `framework` moved UP" above for what that costs.
   framework: 100_000,
-  'ui-components': 399_000,
+  // Raised for lucide-react 1.31.0 -> 1.43.0: the icons record ships whole by
+  // design and the library grew both in icon count and in per-icon metadata.
+  // Ruled out as a tree-shaking regression first — see "Why `ui-components`
+  // moved UP" above for the measurement and its controls. Headroom 9,096 bytes
+  // = 0.10x REGRESSION_THIS_GATE_MUST_CATCH_BYTES, the proportion objectui#7399
+  // re-pinned this key to.
+  'ui-components': 420_000,
 });
 
 /**
@@ -778,7 +826,10 @@ export const PER_CHUNK_BASELINE = Object.freeze({
   // BASELINE's. Moved with the ceiling in the same commit, per the maintainer
   // ruling of 2026-09-08 and the rule stated under "Raising one".
   framework: 72_245,
-  'ui-components': 391_095,
+  // Moved with its ceiling in the same commit, per the rule stated under
+  // "Raising one": this branch's own console build of the lucide-react 1.43.0
+  // bump. ⛔ Not `2c8474c04`'s build, which measured the 1.31.0 icon set.
+  'ui-components': 410_904,
 });
 
 /**
