@@ -2923,8 +2923,17 @@ export interface ObjectKanbanSchema extends BaseSchema {
    *
    * The lane key the `object-kanban` renderer actually reads —
    * `packages/plugin-kanban/src/ObjectKanban.tsx` reads `schema.groupBy` at
-   * thirteen sites: lane materialisation (`:970`, `:982`, `:994`, `:1009`),
-   * card moves (`:1125`, `:1243`) and their effect deps. Undeclared here until
+   * thirteen sites, in three clusters: the `effectiveColumns` memo (its
+   * `localizeColumn` guard, its bare-string branch, its picklist branch and its
+   * from-data branch), `persistCardMove`, and the `handleCardMove` callback —
+   * plus their effect deps.
+   *
+   * ⚠️ Anchored by SYMBOL, deliberately. The docblock this replaces cited
+   * `:601` / `:613` / `:625` / `:640` / `:747` / `:865`; every one of those had
+   * rotted by the time this card re-derived them (the same reads now sit ~370
+   * lines lower). `check:new-cross-file-line-citations` says the same thing in
+   * its own words — shifting an already-false address by a hunk delta just
+   * moves a wrong pointer somewhere else. Undeclared here until
    * objectui#7322, so an authored value reached the renderer only through
    * {@link BaseSchema}'s `[key: string]: any` — admitted, never examined.
    *
