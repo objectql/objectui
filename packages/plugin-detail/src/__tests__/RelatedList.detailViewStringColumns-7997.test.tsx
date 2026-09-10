@@ -32,18 +32,32 @@
  * ## The firing control, measured rather than asserted
  *
  * A green test against an arm that cannot break is not a measurement. The
- * string branch of `RelatedList.normalizeColumn` was ablated on disk (the
- * `typeof c !== 'string'` guard inverted, so bare strings fall through
- * unresolved), the ablation was proved present by blob hash, and this file was
- * run against it:
+ * string branch of `RelatedList.normalizeColumn` was ablated ON DISK — its
+ * `typeof c !== 'string'` guard widened so that bare strings fall into the
+ * OBJECT branch instead — the mutation was proved present by blob hash before
+ * anything was read, and this file was run against it. Result: **2 failed | 2
+ * passed**.
  *
- *   - `renders the object-schema label as the header` — FAILED (the header cell
- *     read `status`, the raw field name, instead of `SchemaLabel`).
- *   - `renders type-aware cells` — FAILED (cells read `planned` / `running`,
- *     the raw stored values, instead of the option labels).
+ * WHAT FIRED, and it is not what you would guess from the row names:
  *
- * The exact runs are quoted in the PR body. The file was restored from its
- * `HEAD` blob and `git diff HEAD` proved empty before anything else was read.
+ *   - `renders the object-schema label as the header` — FAILED, and the failure
+ *     names the mechanism: `Unable to find an element with the text:
+ *     SchemaLabel`. Header derivation from the field def is string-branch-only.
+ *   - `CONTROL — the header FOLLOWS the object schema` — FAILED the same way
+ *     (`…with the text: RenamedInSchema`). The pair is what carries this file.
+ *
+ * WHAT DID NOT FIRE, recorded because a reader would otherwise assume it did:
+ *
+ *   - `renders type-aware cells` — still PASSED under the ablation. The object
+ *     branch attaches `makeCell` too (`if (!c.cell && !c.render)`), and
+ *     `columnIdentity('status')` resolves a bare string, so the cells keep
+ *     rendering option labels with the string branch gone. That row is a
+ *     NON-REGRESSION row, not a firing row, and it is kept as one: it says the
+ *     header assertions above are not passing on a list that failed to render.
+ *
+ * ⇒ The header pair is the measurement; the cell row is the control that the
+ * measurement is being taken on a live list. The file was restored from its
+ * `HEAD` blob and `git diff HEAD` proved empty before the result was read.
  *
  * ## Desktop, pinned rather than inherited (objectui#8399)
  *
@@ -144,8 +158,13 @@ describe('objectui#7997 — a DetailViewSchema authored with field names renders
   });
 
   it('renders type-aware cells — option labels, not stored values', async () => {
-    // The second thing the string branch buys: a cell renderer resolved from
-    // the field def. Without it the column paints `planned` / `running`.
+    // A cell renderer resolved from the field def; without one the column
+    // paints the stored `planned` / `running`.
+    //
+    // ⚠️ NOT string-branch-exclusive, measured: this row stayed GREEN under the
+    // ablation described in the header, because the object branch attaches
+    // `makeCell` on the same terms. Kept as the row that says the header
+    // assertions above are read off a list that really rendered.
     renderFromView();
 
     await waitFor(() =>
