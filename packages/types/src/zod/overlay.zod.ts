@@ -38,6 +38,100 @@ export const DialogSchema = BaseSchema.extend({
 });
 
 /**
+ * The three ALERT-DIALOG FOOTER REFUSALS (objectui#7963) — `cancelLabel`,
+ * `confirmLabel` and `confirmVariant`, retired from `AlertDialogSchema` on BOTH
+ * faces under ADR-0049 enforce-or-remove (maintainer ruling 2026-09-10, taken
+ * on the readings below; the direction is not re-opened by a later card).
+ *
+ * ## Why a REFUSAL and not a deletion
+ *
+ * `BaseSchemaCore` ends `.passthrough()` and the TS `BaseSchema` closes with
+ * `[key: string]: any`, so a dropped MEMBER key is KEPT, not refused — deleting
+ * these three declarations would have left the silent accept exactly as it was
+ * and thrown away the diagnostic with it. {@link retirementTombstone} keeps the
+ * key DECLARED and unwritable, which is what makes the refusal loud. Same
+ * mechanism, same reasoning as the `actions` and `breadcrumbs` refusal arms on
+ * `PageNodeSchema` (`./layout.zod.ts`, objectui#7926 / objectui#8871).
+ * ⚠️ Both spelled WITHOUT a leading dot on purpose: objectui#8871 keeps a
+ * TREE-SCOPED point-access probe standing over every tracked file, and a prose
+ * mention here is a hit that probe cannot tell from a reader.
+ *
+ * ## What was measured — the frame is BASE `72bcd7783`, stated out loud
+ *
+ * ZERO readers, ⛔ measured with a POINT-ACCESS probe rather than a bare word.
+ * Tree-wide on the base, `schema.cancelLabel`, `schema.confirmLabel` and
+ * `schema.confirmVariant` each score **0**. The FIRING CONTROLS are the sibling
+ * half on the very file under test
+ * (`packages/components/src/renderers/overlay/alert-dialog.tsx`):
+ * `schema.cancelText` = **15** (read at `:37`) and `schema.actionText` = **5**
+ * (read at `:38`). The three zeros are therefore readings of the same
+ * instrument on the same renderer the controls light up, ⛔ not a probe that
+ * failed to run.
+ *
+ * ⛔ A BARE-WORD probe would have lied here, and it would have lied in the
+ * DANGEROUS direction — these spellings are heavily overloaded in this tree,
+ * and every other owner is LIVE: `FormSchema.cancelLabel` (`../form.ts`, read
+ * at `renderers/form/form.tsx:1063,3266`), `objectql.ts`'s `confirmLabel`,
+ * `plugin-designer`'s `ConfirmDialog` React props, `plugin-grid`'s
+ * `def.confirmLabel`, and `plugin-form`'s `ModalForm` / `DrawerForm`, which
+ * BUILD a local `cancelLabel` FROM `schema.cancelText` — the opposite
+ * direction. A bare grep reports dozens of "readers", ⛔ none of them on an
+ * `alert-dialog` node. This retirement touches none of them.
+ *
+ * ## The rest-spread near-miss, closed by MEASUREMENT rather than by reasoning
+ *
+ * The three keys DO reach the primitive: they are not on `SchemaRenderer`'s
+ * strip list, so they ride `componentProps` into the renderer's `...props` and
+ * onto `<AlertDialog {...props}>`. That is the same channel that made
+ * `CollapsibleSchema.open` live (objectui#8236), so "no `schema.KEY` read" was
+ * not safe to read as dead on its own. What settles it is a DOM reading:
+ * `packages/components/src/__tests__/alert-dialog-footer-keys-liveness-7963.test.tsx`
+ * varies one key per fixture through the real renderer and finds the normalised
+ * dialog HTML unmoved, against a `CHANNEL` control (`open`, unread and live
+ * through that same spread) and a `WIRED` control (`cancelText` / `actionText`
+ * drawing both buttons). The mechanism it names: the `AlertDialog` root renders
+ * a CONTEXT PROVIDER, not an element, so an unknown prop is dropped without
+ * reaching any node. That pin is kept, not retired — a retirement does not
+ * retire the measurement that justified it.
+ *
+ * ## No authored document is stranded
+ *
+ * Tree-wide, no fixture, catalog schema, example app, doc fence or template
+ * authors any of the three ON AN `alert-dialog` NODE; the only sites that write
+ * them are the two pins, which write them to TRIP the refusal.
+ * `content/docs/components/overlay/alert-dialog.mdx` never taught them either
+ * (asserted from the other side by `../__tests__/alert-dialog-read-dialect-7104.test.ts`).
+ *
+ * Pinned in `../__tests__/alert-dialog-footer-keys-refusal-7963.test.ts`.
+ */
+const ALERT_DIALOG_CANCEL_LABEL_REFUSAL =
+  '`cancelLabel` is RETIRED from the `alert-dialog` node (objectui#7963, ADR-0049 enforce-or-remove): ' +
+  'nothing reads it, so an authored label drew no button at all and rode `.passthrough()` through the ' +
+  'validator as a silent accept. Author the cancel button label as `cancelText` instead — the key the ' +
+  'renderer reads and the key its registered `inputs` and `defaultProps` ship.';
+
+const ALERT_DIALOG_CONFIRM_LABEL_REFUSAL =
+  '`confirmLabel` is RETIRED from the `alert-dialog` node (objectui#7963, ADR-0049 enforce-or-remove): ' +
+  'nothing reads it, so an authored label drew no button at all and rode `.passthrough()` through the ' +
+  'validator as a silent accept. Author the confirm button label as `actionText` instead — the key the ' +
+  'renderer reads and the key its registered `inputs` and `defaultProps` ship.';
+
+/**
+ * ⚠️ This one has NO surviving twin, and its message must say so rather than
+ * point at a key that does not do the same job: `cancelText` / `actionText` are
+ * the footer's two LABELS, not a variant. ⛔ A replacement was not invented —
+ * the ruling retires the key.
+ */
+const ALERT_DIALOG_CONFIRM_VARIANT_REFUSAL =
+  '`confirmVariant` is RETIRED from the `alert-dialog` node (objectui#7963, ADR-0049 enforce-or-remove): ' +
+  'nothing reads it, so an authored variant moved neither the confirm button\'s class nor any other byte ' +
+  'of the rendered DOM, and it rode `.passthrough()` through the validator as a silent accept. ' +
+  '⛔ It has NO surviving spelling, and `cancelText` / `actionText` are NOT it — those are the footer\'s ' +
+  'two LABELS, not a variant. This node declares no variant key at all: the confirm button is ' +
+  '`AlertDialogAction`, which ships one fixed `buttonVariants()` style. Whether that button should be ' +
+  'styleable from metadata is a separate question that needs its own card and its own ruling.';
+
+/**
  * Alert Dialog Schema - Alert dialog component
  */
 export const AlertDialogSchema = BaseSchema.extend({
@@ -59,9 +153,9 @@ export const AlertDialogSchema = BaseSchema.extend({
     .string()
     .optional()
     .describe('Confirm (action) button label; the action button renders only when this is set (no renderer default)'),
-  cancelLabel: z.string().optional().describe('Cancel button label'),
-  confirmLabel: z.string().optional().describe('Confirm button label'),
-  confirmVariant: z.enum(['default', 'destructive']).optional().describe('Confirm button variant'),
+  cancelLabel: retirementTombstone(ALERT_DIALOG_CANCEL_LABEL_REFUSAL),
+  confirmLabel: retirementTombstone(ALERT_DIALOG_CONFIRM_LABEL_REFUSAL),
+  confirmVariant: retirementTombstone(ALERT_DIALOG_CONFIRM_VARIANT_REFUSAL),
   onAction: handlerKeyRefusal('onAction', 'runtime-slot', 'Action button click handler'),
   onConfirm: handlerKeyRefusal('onConfirm', 'retired', 'Confirm handler'),
   onCancel: handlerKeyRefusal('onCancel', 'retired', 'Cancel handler'),
