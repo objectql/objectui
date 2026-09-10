@@ -25,6 +25,7 @@ import {
   extractRecords,
   buildExpandFields,
   getRecordDisplayName,
+  isEmptyValue,
   resolveNameField,
 } from '@object-ui/core';
 import { getBadgeColorClasses, getBadgeHexAppearance, getCellRenderer, resolveCellRendererType } from '@object-ui/fields';
@@ -721,7 +722,11 @@ export const ObjectKanban: React.FC<ObjectKanbanComponentProps> = ({
       // value didn't get expanded (so we never show "8UY9zHWBfjYjYor4").
       const resolveDisplay = (key: string): string | undefined => {
         const raw = (item as any)[key];
-        if (raw == null || raw === '') return undefined;
+        // THE FLOOR by name (objectui#8496). `[]` is a member and used to reach
+        // the object branch below, which walked six name-ish keys over zero
+        // entries and returned `undefined` anyway — the same answer, spelled
+        // twice.
+        if (isEmptyValue(raw)) return undefined;
         if (typeof raw === 'object') {
           const obj = raw as Record<string, unknown>;
           const candidates = ['name', 'full_name', 'display_name', 'label', 'title', 'username'];
@@ -797,7 +802,15 @@ export const ObjectKanban: React.FC<ObjectKanbanComponentProps> = ({
           if (titleFieldsToSkip.has(f)) continue;
           const def = objectDef?.fields?.[f];
           const raw = (item as any)[f];
-          if (raw == null || raw === '') continue;
+          // THE FLOOR by name (objectui#8496), no extension: a card field with
+          // nothing in it is OMITTED, so this asks the floor and nothing more.
+          // ⚠️ `[]` is a MEMBER and used to fall through here — into the
+          // picklist branch, where it resolved to no label and drew a fully
+          // coloured pill with no children in it until objectui#8489 caught it
+          // one step later. That guard STAYS: it also answers every non-array
+          // value that resolves to nothing, which the floor says nothing about.
+          // ⛔ Do NOT trim — `'   '` is deliberately a value on this surface.
+          if (isEmptyValue(raw)) continue;
           const isPicklist =
             def?.type === 'picklist' ||
             def?.type === 'multipicklist' ||
@@ -914,8 +927,11 @@ export const ObjectKanban: React.FC<ObjectKanbanComponentProps> = ({
       // from semantic fields below (avoids "8UY9zHWBfjYjYor4" appearing as subtitle).
       const incomingDesc = (item as any).description;
       const descMissing =
-        incomingDesc == null ||
-        incomingDesc === '' ||
+        // THE FLOOR by name (objectui#8496) — `[]` is a member, and a card
+        // subtitle has no more to draw for it than for `null`.
+        isEmptyValue(incomingDesc) ||
+        // THE EXTENSION: an id-shaped string is gibberish as a subtitle, the
+        // same rule about the VALUE that `resolveDisplay` applies above.
         (typeof incomingDesc === 'string' && isOpaqueId(incomingDesc));
 
       // P2-4: keep the original record's `description` field intact so the

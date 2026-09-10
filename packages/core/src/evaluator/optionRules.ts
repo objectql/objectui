@@ -31,6 +31,7 @@
  */
 import type { DependsOnInput } from '@object-ui/types';
 import { evalFieldPredicate, type FieldRulePredicate } from './fieldRules.js';
+import { isEmptyValue } from '../utils/emptiness.js';
 
 /**
  * Minimal shape of a select/radio option this module reads. Deliberately has no
@@ -68,10 +69,12 @@ export function resolveDependsOnFields(dependsOn: DependsOnInput): string[] {
     .filter((f): f is string => typeof f === 'string' && f.length > 0);
 }
 
-/** A value counts as "empty" (dependency unmet) when nullish, blank, or an empty array. */
-function isEmptyValue(v: unknown): boolean {
-  return v === undefined || v === null || v === '' || (Array.isArray(v) && v.length === 0);
-}
+// A dependency counts as UNMET on exactly the shared floor — `null`,
+// `undefined`, the empty string, the empty array — and this module is where
+// those four members were first written down. objectui#8496 promoted them out
+// of here into `utils/emptiness.ts` (byte-for-byte the same four) so the four
+// other surfaces that had each re-spelled them could stop. No extension and no
+// declension: a gated option list asks the floor and nothing more.
 
 /**
  * True when at least one `dependsOn` field is empty in the record — the option

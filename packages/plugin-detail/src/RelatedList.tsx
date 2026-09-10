@@ -49,6 +49,7 @@ import {
   compareSortValues,
   getRecordDisplayName,
   getSortValue,
+  isEmptyValue,
   isExpandableFieldType,
   isPlatformSortableField,
   isUnmaterializedFieldType,
@@ -1050,6 +1051,13 @@ export const RelatedList: React.FC<RelatedListProps> = ({
      *
      * ## Why this does NOT delegate to `DetailSection`'s `hasCellValue`
      *
+     * ⚠️ objectui#8496 put the four members BOTH functions share into
+     * `@object-ui/core`'s `isEmptyValue` and had each call it. That is a shared
+     * FLOOR, not a merge: this predicate and `hasCellValue` stay two functions
+     * on purpose, because a grid COLUMN and a record ROW ask the question at two
+     * granularities, and objectui#8459 measured this one as the better-shaped
+     * answer here. ⛔ Do not "finish the job" by deleting one of them.
+     *
      * Measured, not assumed. `hasCellValue` answers `true` for every non-null
      * `object`, and `typeof [] === 'object'` — so it calls an EMPTY ARRAY a
      * VALUE. This surface calls it empty, and that is the answer a grid needs:
@@ -1067,10 +1075,14 @@ export const RelatedList: React.FC<RelatedListProps> = ({
      * `__tests__/RelatedList.emptinessAgreement-8459.test.tsx`.
      */
     const isValueEmpty = (v: any) =>
-      v === null ||
-      v === undefined ||
-      (typeof v === 'string' && v.trim() === '') ||
-      (Array.isArray(v) && v.length === 0);
+      // THE FLOOR, asked by name (objectui#8496): `null`, `undefined`, `''`,
+      // `[]`. Those four are no longer spelled here.
+      isEmptyValue(v) ||
+      // THE EXTENSION, and the only one: a WHITESPACE-ONLY string is empty in a
+      // grid cell. It is not a floor member because the gallery, the kanban and
+      // the shared cell renderers all keep `'   '` a value; only this surface
+      // and `record:details` trim, each for the reason objectui#8350 measured.
+      (typeof v === 'string' && v.trim() === '');
 
     const pruneEmpty = (cols: any[]): any[] => {
       if (!relatedData.length) return cols;
