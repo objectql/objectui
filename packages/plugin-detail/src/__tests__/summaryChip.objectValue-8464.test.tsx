@@ -404,6 +404,16 @@ describe('objectui#8464 — an object-valued summary chip beside the H1', () => 
       },
     );
 
+    /**
+     * ⚠️ The expected text moved from `0.123%` to `12.3%` in objectui#8728, and
+     * the pin is still doing its job. Its subject is ROUTING — that a percent
+     * keeps the chip's own text path and its own single bar instead of being
+     * handed to a cell renderer — and the routing is unchanged. What that card
+     * found is that this chip's two halves scaled the same stored number by two
+     * different rules, so the `0.123%` this line used to require was the text
+     * disagreeing with the bar drawn beside it. The agreement itself is pinned
+     * in `summaryChip.percentOneRule-8728.test.tsx`.
+     */
     it('PERCENT — keeps its own text AND its single decorative bar', () => {
       const { container } = renderPage({
         summaryFields: ['ratio'] as any,
@@ -412,14 +422,14 @@ describe('objectui#8464 — an object-valued summary chip beside the H1', () => 
       });
 
       const chip = requireChip(container, 'ratio');
-      expect(textOf(chip), 'the percent chip keeps its own text').toBe('0.123%');
+      expect(textOf(chip), 'the percent chip keeps its own text').toBe('12.3%');
       // The chip's OWN bar is two `rounded-full` spans — track and fill. A cell
       // renderer routed in here would add its own, so the exact count is the pin.
       expect(nestedPills(chip).length, 'exactly the chip\'s own two-span bar, no renderer bar').toBe(2);
       expect(
         chip.getAttribute('aria-label'),
-        'and the accessible name is unchanged',
-      ).toBe('ratio: 0.123%');
+        'and the accessible name still comes from that same string',
+      ).toBe('ratio: 12.3%');
     });
   });
 
