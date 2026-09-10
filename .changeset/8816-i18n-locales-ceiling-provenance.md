@@ -20,3 +20,13 @@ ruling, and not in the dedicated pull request the ruling asks for.
 The number is right and it is ruled, so nothing moves it back: a revert to
 re-land it in the ruled shape would land `main` red on this line for form. What
 was wrong is the record, and a record is repaired by writing it.
+
+Two further sentences in the same header are repaired in the same commit, for
+the same reason and by the same event. The `PER_CHUNK_BASELINE` entry for
+`i18n-locales` described itself as a FORWARD reading naming "a state `main` has
+not reached yet ... while only one claimant has landed". `main` reached it:
+`fffa30d3f` at 2026-09-10T06:05:37Z and `8ea3beee4` at 2026-09-10T06:05:40Z are
+three seconds apart and both ancestors of the tip, so the sentence was false as
+written. Both sites — the prose entry and the inline comment above the constant
+— now say what the reading now is, and neither restates a headroom the gate is
+the only thing that can keep current.

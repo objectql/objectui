@@ -865,15 +865,21 @@ export const PER_CHUNK_GZIP_CEILINGS = Object.freeze({
  *     instrument and container as the three trees it is compared against, which
  *     is what makes those deltas subtractable.
  *
- *     ⚠️ It is a FORWARD reading and the only entry here that is. It names the
- *     state `main` reaches once objectui#8901 and objectui#8888 have BOTH
- *     landed, so while only one of them has, the live payload sits below this
- *     constant (455,271 and 455,519, both measured) and
- *     `pnpm check:eager-closure` prints MORE headroom than arithmetic on these
- *     two constants gives. Read on purpose: a shared budget with two admitted
- *     claimants has no single-commit baseline that is not stale the moment the
- *     second one lands, and erring toward the larger payload is the direction
- *     that cannot hide growth.
+ *     ⚠️ It WAS a FORWARD reading — the only entry here that ever has been —
+ *     and it is not one any more. It names the state `main` reaches once
+ *     objectui#8901 and objectui#8888 have BOTH landed, and both have:
+ *     `fffa30d3f` at 2026-09-10T06:05:37Z and `8ea3beee4` at
+ *     2026-09-10T06:05:40Z, three seconds apart and both ancestors of `main`.
+ *     ⇒ the gap this entry used to describe is CLOSED, and the sentence that
+ *     described it is history: while only one claimant had landed the live
+ *     payload sat below this constant (455,271 and 455,519, both measured) and
+ *     `pnpm check:eager-closure` printed MORE headroom than arithmetic on these
+ *     two constants gives. ⛔ Do not read a current headroom out of that — the
+ *     figure in force is the one the gate prints on YOUR build. Recorded
+ *     forward on purpose, and the reason outlives the gap: a shared budget with
+ *     two admitted claimants has no single-commit baseline that is not stale
+ *     the moment the second one lands, and erring toward the larger payload is
+ *     the direction that cannot hide growth.
  *
  *     ⚠️ Unlike the entries above it, this is a reading of a tree carrying
  *     diffs of its own — the two claimants — which is the point rather than a
@@ -952,9 +958,10 @@ export const PER_CHUNK_BASELINE = Object.freeze({
   // `34a1578ef`, the same build as BASELINE above (objectui#7122).
   'vendor-objectstack': 1_235_029,
   // `ba20b0bc0` (objectui#8816) — `main` `bbe285ee7` with BOTH admitted pull
-  // requests merged in. A FORWARD reading; see the provenance note above for
-  // why this one names a state `main` has not reached yet and what that does to
-  // the printed headroom while only one claimant has landed.
+  // requests merged in. It WAS a FORWARD reading; `main` has since reached that
+  // state (`fffa30d3f` and `8ea3beee4`, both 2026-09-10, three seconds apart),
+  // so the gap the provenance note above describes is closed. ⛔ The figure in
+  // force is still the one the gate prints on your own build.
   'i18n-locales': 456_196,
   // `3f775eeb8`, its OWN console build — ⛔ not the one above it and not
   // BASELINE's. Moved with the ceiling in the same commit, per the maintainer
