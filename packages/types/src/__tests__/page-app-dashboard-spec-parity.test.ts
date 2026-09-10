@@ -81,7 +81,20 @@ const CASES: Record<string, Case> = {
     // this shape, and this ledger is the right place for the decision to be
     // visible. `../__tests__/page-actions-refusal-7926.test.ts` owns the
     // behaviour; this row owns the fact that the key exists at all.
-    local: ['title', 'pageType', 'body', 'children', 'actions'],
+    //
+    // `breadcrumbs` is the SECOND of that kind and joins for the same reason,
+    // under the same gate (objectui#8871, ADR-0049 enforce-or-remove). Its
+    // authority is not objectui#7926's ruling — that one covers `actions` only —
+    // but the standing enforce-or-remove discipline this package applies to this
+    // face. Same shape, same helper, same reason to be visible here rather than
+    // exempted: a local REFUSAL, not a local capability.
+    // `../__tests__/page-breadcrumbs-refusal-8871.test.ts` owns the behaviour.
+    //
+    // ⚠️ These two are the ONLY members of this row that are refusals. Adding a
+    // third means a third undeclared key was found surviving `.passthrough()` on
+    // this node — which is the census that decides between one more named refusal
+    // and finally making the node strict. ⛔ Do not grow this list reflexively.
+    local: ['title', 'pageType', 'body', 'children', 'actions', 'breadcrumbs'],
   },
   App: {
     spec: SpecAppSchema,

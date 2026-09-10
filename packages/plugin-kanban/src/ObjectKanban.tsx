@@ -126,6 +126,74 @@ export function resolveKanbanCardFields(
 }
 
 /**
+ * The two spellings of the ONE card-title choice, as this board reads them off
+ * a node. Structural on purpose: both declared arms of
+ * {@link ObjectKanbanComponentProps.schema} satisfy it and neither declares
+ * both keys — `KanbanSchema` declares `cardTitle` and tombstones `titleField`
+ * (`titleField?: never`, objectui#7742), `ObjectKanbanSchema` declares
+ * `titleField` and reaches `cardTitle` through `BaseSchema`'s index signature.
+ */
+interface KanbanTitleFieldSource {
+  /** Canonical spelling: the record field rendered as the card title. */
+  cardTitle?: string;
+  /** Legacy spelling of the same choice, live on the `object-kanban` arm. */
+  titleField?: string;
+}
+
+/**
+ * Resolve WHICH RECORD FIELD titles a card, from the one authoring choice this
+ * board spells two ways — `cardTitle` (canonical) and `titleField` (the legacy
+ * alias). Returns `undefined` when the author named neither, which is the
+ * caller's signal to fall through to the shared record-display resolver
+ * (ADR-0079) rather than a field of its own.
+ *
+ * ## `''` MEANS UNSET (objectui#8308) — the one thing nothing used to say
+ *
+ * `cardTitle` names a record FIELD, and `''` cannot name any field, so an empty
+ * string has no meaningful reading on either key: it can only be the residue of
+ * an empty input — an authoring surface that writes a cleared text box back as
+ * `''` instead of dropping the key, or a stored view whose kanban block
+ * round-trips an unset value the same way. So `''` falls through exactly as an
+ * absent key does, and `cardTitle` wins when it is NON-EMPTY. That extends the
+ * precedence `index.tsx` already publishes in prose — "`cardTitle` wins when
+ * both are authored" — to the single case that prose never covered, and it is
+ * the ONLY reading under which the empty string is not silently taken for a
+ * field name no record can have.
+ *
+ * ## Why this is a function and not two operators
+ *
+ * The two read sites — the card list's `effectiveData` memo and the
+ * record-detail drawer's heading — used to spell this same fallback with two
+ * DIFFERENT operators, `||` in one and `??` in the other. Those two differ on
+ * exactly the falsy-but-present values, and on a string key that value is `''`,
+ * so a board authored `{ cardTitle: '', titleField: 'name' }` titled its CARDS
+ * from `name` while its DRAWER heading fell through to the `Record #<id>` floor:
+ * one authored document, two answers to one question.
+ *
+ * Making the two operators agree would have repaired those two sites and left
+ * the property that produced them — the pair is readable ad hoc, anywhere —
+ * fully intact, so a third read site would invent a third precedence. Every
+ * read of the pair goes through here instead; the source census in
+ * `__tests__/ObjectKanban.titleFieldPrecedence-8308.test.tsx` reddens on a
+ * property read of either key outside this function.
+ *
+ * Exported for unit testing and kept pure (no React), like
+ * {@link resolveKanbanCardFields}.
+ */
+export function resolveKanbanTitleField(
+  schema: KanbanTitleFieldSource | null | undefined,
+): string | undefined {
+  // Non-empty, not merely present — see the `''` ruling above. Deliberately a
+  // truthiness test and not a `typeof === 'string'` narrowing: on a string key
+  // the two agree, and narrowing here would ALSO start dropping off-contract
+  // non-string values that both former operators passed through, which is a
+  // change objectui#8308 did not rule on.
+  if (schema?.cardTitle) return schema.cardTitle;
+  if (schema?.titleField) return schema.titleField;
+  return undefined;
+}
+
+/**
  * Props of the `ObjectKanban` React component.
  *
  * Renamed off the bare `ObjectKanbanProps` (objectui#4650): from 17.0.0
@@ -525,13 +593,14 @@ export const ObjectKanban: React.FC<ObjectKanbanComponentProps> = ({
   const effectiveData = useMemo(() => {
     if (!Array.isArray(rawData)) return [];
 
-    // Support cardTitle property from schema (passed by ObjectView)
-    // Fallback to legacy titleField for backwards compatibility
-    const explicitTitleField: string | undefined =
-      schema.cardTitle || schema.titleField;
+    // The author's card-title choice — `cardTitle`, else the legacy
+    // `titleField`, and `''` on either counts as unset. Resolved by the shared
+    // `resolveKanbanTitleField` so this site and the detail drawer's heading
+    // below cannot answer one authored document two ways (objectui#8308).
+    const explicitTitleField: string | undefined = resolveKanbanTitleField(schema);
 
     // Title is resolved per-item below via:
-    //   1. explicit titleField (schema.cardTitle / schema.titleField), if it
+    //   1. the explicit title field (`resolveKanbanTitleField`), if it
     //      yields a non-empty value for the record;
     //   2-4. otherwise the unified `@object-ui/core#getRecordDisplayName`
     //      (ADR-0079): objectDef.titleFormat → objectDef.displayNameField →
@@ -580,7 +649,7 @@ export const ObjectKanban: React.FC<ObjectKanbanComponentProps> = ({
     return rawData.map(item => {
       let resolvedTitle: any = undefined;
 
-      // 1. Explicit titleField (schema.cardTitle / schema.titleField).
+      // 1. The explicit title field (`resolveKanbanTitleField`).
       if (explicitTitleField) {
         resolvedTitle = item[explicitTitleField];
         if (typeof resolvedTitle === 'string') resolvedTitle = resolvedTitle.trim();
@@ -1285,7 +1354,12 @@ export const ObjectKanban: React.FC<ObjectKanbanComponentProps> = ({
         const rec = navigation.selectedRecord as Record<string, any>;
         const recordId = rec.id ?? rec._id;
         if (!objectName || recordId == null) return null;
-        const titleField = schema.cardTitle ?? schema.titleField;
+        // Same resolver as the card list's `explicitTitleField` above — one
+        // read of the pair, one precedence (objectui#8308). This site used to
+        // spell the fallback `??`, which kept an authored `''` and dropped this
+        // heading to the `Record #<id>` floor on a board whose cards were
+        // titled from `titleField`.
+        const titleField = resolveKanbanTitleField(schema);
         const titleText = titleField && rec[titleField]
           ? String(rec[titleField])
           : detailTitle;

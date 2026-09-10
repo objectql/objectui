@@ -416,6 +416,27 @@ export function useBoard(initialColumns: KanbanColumn[]) {
 }
 ```
 
+### Quick Add is a `kanban-ui` capability, not an object-driven one
+
+The Quick Add button at the bottom of a lane is gated on **both** halves of a
+pair: `quickAdd`, and an `onQuickAdd` handler. `onQuickAdd` is a runtime slot —
+a function — so it can only be supplied by a React host that mounts the board
+directly, which is the `kanban-ui` block above.
+
+An **object-driven** board (`object-kanban`, or a kanban view inside `ListView` /
+`ObjectView`) supplies no `onQuickAdd` of its own, and a page written as
+constrained JSX cannot write one either: that tier parses and never executes, so
+a handler attribute is refused there. An authored `quickAdd: true` on those tags
+therefore renders no control. The authoring validator (`validateTree` in
+`@object-ui/sdui-parser`) reports it as an `inert-quick-add` **warning** naming
+the missing half — the document still parses, saves and renders.
+
+<Callout type="info">
+  `quickAdd` is being retired from `object-kanban` / `kanban`; it stays on
+  `kanban-ui`, where the pair works. Inline record creation from a board is not a
+  capability the object-driven boards have.
+</Callout>
+
 ## Bundle Size
 
 The plugin uses lazy loading to optimize bundle size:

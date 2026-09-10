@@ -135,7 +135,7 @@ Top-level page container. Defines a full page with optional regions (header, sid
 | `template` | `string` | Template name for page layout. |
 | `variables` | `PageVariable[]` | Page-level variables with types and defaults. |
 | `regions` | `PageRegion[]` | Named layout regions (header, sidebar, footer). |
-| `body` | `SchemaNode[]` | Main page content. |
+| `body` | `SchemaNode \| SchemaNode[]` | Main page content — one node, or a list of them. |
 | `isDefault` | `boolean` | Whether this is the default page for the object. |
 | `assignedProfiles` | `string[]` | Security profiles that can access this page. |
 

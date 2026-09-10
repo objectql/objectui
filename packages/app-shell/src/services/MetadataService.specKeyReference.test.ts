@@ -16,9 +16,10 @@
  * `saveFields` PUTs `fields.map(toFieldPayload)` to
  * `PUT /api/v1/meta/object/:name`.
  *
- * `referenceTo` is not in `FieldSchema`'s accept set. Measured against the
- * installed `@objectstack/spec` 17.2.0, both at field level and through the
- * whole object document:
+ * `referenceTo` is not in `FieldSchema`'s accept set. Measured on the installed
+ * artifact, both at field level and through the whole object document — this
+ * file states the pin ONCE, in the `objectui#7714` docblock below, so a pin
+ * bump has one place to rot instead of three:
  *
  *   ObjectSchema.safeParse({ …, fields: { rel: { type: 'lookup', label: 'Owner',
  *                                               referenceTo: 'user' } } })
@@ -58,9 +59,11 @@
  *
  * So the fix is a client behaviour, and this file states it: the writer refuses
  * the list and issues **no PUT at all**. That claim is about THE PUT BODY, not
- * about the spec's verdict, which is exactly why it is pinnable at this repo's
- * installed **17.2.0** — where the spec still accepts the draft — and does not
- * wait on the pin bump (objectui#7122).
+ * about the spec's verdict, which is why it never depended on the pin in either
+ * direction: it was pinnable while the spec still accepted a target-less draft,
+ * and it is pinnable now that the spec refuses one. ⛔ Its truth is not a
+ * reading of any installed artifact, so ⛔ do not re-stamp it with a version
+ * when the pin next moves (objectui#8897).
  *
  * ⛔ The refusal is not "strip the incomplete field and save the rest": that
  * would show the author a field the server never received, the silent-drop
@@ -284,10 +287,21 @@ describe('objectui#6041 · saveFields PUTs the relationship target as `reference
  *
  * The row below was written as a tripwire against exactly this event and said
  * what to do when it fired — "the reading becomes `false` and nothing else here
- * moves" — which is what happened: the spec half flipped, and `MetadataService.ts`
- * did not change at all. ⛔ The writer's refusal is still asserted separately and
- * still does not depend on the installed spec; that separation is what kept this
- * a prose-and-one-verdict edit.
+ * moves". That prescription is scoped to THIS FILE, and it was honoured here.
+ *
+ * ⚠️ It was read too widely once, and objectui#8897 is the repair. `MetadataService.ts`
+ * was left untouched on the reasoning that the writer's REFUSAL does not depend
+ * on the installed spec — true of the predicate, false of the PROSE. Its guard
+ * docblock still said "this repo's pin is 17.3.0", and its refusal MESSAGE still
+ * told authors the spec ACCEPTS a blank target and the PUT would succeed. That
+ * message is user-visible, and against the installed artifact it was false. The
+ * writer carried its own prescription for this — "it retires with the pin bump,
+ * not with this note" — and objectui#8897 is that retirement, in both writers.
+ *
+ * ⭐ The lesson the pair leaves behind: a tripwire closes the reading it guards,
+ * NOT every statement that depended on the same fact. A version-qualified claim
+ * about WHAT IS INSTALLED goes false wherever it lives, and the prose sites are
+ * the ones no assertion re-parses.
  */
 describe('objectui#7714 · the target states, and the retired divergence', () => {
   const puttable = async (reference: unknown) => {
@@ -381,8 +395,17 @@ describe('objectui#7714 · the target states, and the retired divergence', () =>
  * Split out because the single sentence this message used to carry ("…and this
  * one has none") is wrong for two of the four states, and a message that
  * prescribes the wrong repair is worse than a terse one: "pick the target
- * object" is not what fixes `reference: 42`, and the 422 the message promises
- * is one this writer cannot deliver for `'   '`, which the spec accepts.
+ * object" is not what fixes `reference: 42`.
+ *
+ * ⭐ The blank row is the one that MOVED, under objectui#8897. While the pin was
+ * 17.3.0 the message said the spec ACCEPTS a whitespace-only target and so
+ * withheld the 422 the other rows promise — a refusal that was honest then and
+ * false the moment the pin reached objectstack#16920. The message now names the
+ * TRIM instead, which is what still tells a blank target apart from an empty one
+ * now that both are refused, and this row pins the corrected text. ⛔ The old
+ * assertions (`/ACCEPTS this value/` and `not.toMatch(/422/)`) were not kept
+ * green by keeping the false sentence: keeping a pin green is never a reason to
+ * keep user-visible text that the artifact contradicts.
  */
 describe('objectui#7714 · the refusal message distinguishes the four states', () => {
   const refusalFor = async (reference: unknown): Promise<string> => {
@@ -418,13 +441,22 @@ describe('objectui#7714 · the refusal message distinguishes the four states', (
     expect(await refusalFor(null)).toMatch(/holds null instead of an object name/);
   });
 
-  it('whitespace-only → says the spec ACCEPTS it, and does not promise a 422 it cannot deliver', async () => {
+  it('whitespace-only → names the TRIM the contract applies, and is not the "is empty" sentence', async () => {
     const m = await refusalFor('   ');
     expect(m).toMatch(/is blank/);
-    expect(m).toMatch(/ACCEPTS this value/);
-    expect(m).toMatch(/objectstack#16126/);
-    // The falsifying half: this is the ONE state where promising the server
-    // would refuse the document would be a lie.
-    expect(m).not.toMatch(/422/);
+    // What replaced "the spec ACCEPTS this value": since 17.4.0 the contract
+    // applies its non-empty test to the trimmed value, so this writer can now
+    // promise the 422 it used to have to withhold here.
+    expect(m).toMatch(/TRIMMED value/);
+    expect(m).toMatch(/422/);
+    expect(m).toMatch(/objectstack#16920/);
+    // Falsification, and the reason the four-state split survives the merge of
+    // the two refusals: blank must still not be rendered as either of the
+    // states that carry a different repair.
+    expect(m).not.toMatch(/is empty/);
+    expect(m).not.toMatch(/has none/);
+    // The retired claim must be GONE, not merely out-ranked by a new match.
+    expect(m).not.toMatch(/ACCEPTS this value/);
+    expect(m).not.toMatch(/would succeed/);
   });
 });

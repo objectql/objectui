@@ -323,10 +323,10 @@
  * The rule, stated here because its EDGES are the whole of its value:
  *
  *     For every workspace package a COVERED document imports, each specifier that
- *     package declares in its own `dependencies` is mapped to the types a
- *     consumer of that package would resolve — resolved from inside that
- *     package's own directory, exactly the way that package's own code resolves
- *     it.
+ *     package declares in its own `dependencies` — or REQUIRES of its consumer in
+ *     its own `peerDependencies` — is mapped to the types a consumer of that
+ *     package would resolve, resolved from inside that package's own directory,
+ *     exactly the way that package's own code resolves it.
  *
  * Four edges, each deliberate:
  *
@@ -335,23 +335,66 @@
  *     blanket mapping would let a snippet import a transitive package no consumer
  *     can reach and still pass green, which is strictly worse than the gap it
  *     would close: the gate's whole value is that it fails where a reader fails.
- *   - **`dependencies` only** — not `peerDependencies`, not `devDependencies`. A
- *     dependency is what the package installs FOR its consumer; a peer is a
- *     requirement ON the consumer that may be unmet; a devDependency reaches no
- *     consumer at all. A snippet importing a peer therefore still fails here.
- *     That is the conservative direction on purpose: this rule fails CLOSED, and
- *     widening it later is a visible edit with a reason, not a silent drift.
- *     ⇒ What a document DOES about that, without surrendering the block: stand
+ *   - **`dependencies`, plus the REQUIRED `peerDependencies` this workspace
+ *     resolves** — never `devDependencies`, and never an OPTIONAL peer. This is
+ *     the widening the previous edge reserved, so it carries its reason here
+ *     rather than arriving silently (objectui#8919, ruled after objectui#8303).
+ *
+ *     THE CLASS IT NOW RESOLVES, stated exactly: a specifier an imported package
+ *     names in its own `peerDependencies`, that its `peerDependenciesMeta` does
+ *     NOT mark optional, and that resolves — from inside that package's own
+ *     directory — to a declaration file outside any package's `src/`. All three
+ *     conditions, or it is not mapped.
+ *
+ *     WHY THAT IS SOUND. The map's one question is whether a reader of the
+ *     documented package can resolve the specifier, and a REQUIRED peer answers
+ *     it yes. It is not an optional extra the reader may lack: the package
+ *     declares it cannot function without it, npm 7+ and pnpm (`auto-install-peers`
+ *     here) install it, and a reader who has not supplied it is holding an
+ *     install the package itself calls broken. So it reaches every reader who
+ *     can use the package AT ALL — the same reachability a `dependencies` entry
+ *     has, arriving through the reader's own tree instead of the package's. On a
+ *     React component library the case makes itself: a consumer with no `react`
+ *     cannot render one node of any package documented here.
+ *
+ *     WHAT STAYS CLOSED, so the widening is a class and not a licence: an
+ *     OPTIONAL peer is exactly what the old reason described — a requirement the
+ *     consumer may legitimately not meet — and stays unmapped; a devDependency
+ *     reaches no consumer at all and stays unmapped; a required peer this
+ *     workspace cannot resolve to a declaration file stays unresolvable rather
+ *     than approximated; and every specifier no imported package names in either
+ *     field is still refused by the bound above. Nothing was declared at the
+ *     repository root to make this pass — the 2026-08-24 ruling on objectui#6120
+ *     rejects that route by name, and it stays rejected.
+ *
+ *     WHAT MADE IT NECESSARY, measured rather than argued. `dependencies`-only
+ *     was not merely conservative here, it was reading a manifest DEFECT as
+ *     coverage. `react` was in the map for the whole corpus only because two
+ *     packages pinned it in `dependencies` while also asking for it as a peer —
+ *     the contradiction objectui#8303 removed, because a library that installs
+ *     its own React puts a second React in the consumer's tree. Correcting those
+ *     two manifests took the map's only `react` entry with it and refused 34
+ *     blocks across 21 files in 19 packages the correction never touched. The
+ *     stand-in remedy below does not reach them: 27 of the 34 use the peer's
+ *     bindings AS JSX components, and a `declare const` stand-in cannot type one
+ *     — its return has to be assignable to React's real `ReactNode`, and React's
+ *     real types are precisely what left the map (`@types/react` is in no
+ *     package's `dependencies` either). objectui#8059 had already written the
+ *     shape down — the refusal "reads as impossible on a peer" — and this is the
+ *     run that measured "reads as" into "is", for 27 of 34.
+ *
+ *     ⇒ A document may still meet a refusal here — an optional peer, or one that
+ *     resolves to no declaration file, reaches this same message. What it DOES
+ *     about that, without surrendering the block: stand
  *     the peer's bindings in with `declare const` typed to what the block uses
- *     them as, and import only what the package declares in its `dependencies`.
+ *     them as, and import only what the map covers.
  *     The block still compiles, so the documented package's own composition
  *     around it stays genuinely checked — where declaring the block a fragment
  *     would have stopped all of it, that composition included. Worked in
  *     `packages/layout/README.md` under "Usage with React Router"; the bound's
  *     refusal message names this remedy too, because a refusal offering only
  *     "import something else" and "give up the block" reads as IMPOSSIBLE on a
- *     package whose headline feature IS the peer integration — the package does
- *     declare it, just in a field this map does not read (objectui#8059).
+ *     package whose headline feature IS the peer integration (objectui#8059).
  *   - **Imported packages only.** A package no covered document imports
  *     contributes nothing, so this map grows only as coverage grows — the same
  *     property `--build-filter` has, for the same reason.
@@ -1239,22 +1282,46 @@ const WORKSPACE_SRC = /[\\/]packages[\\/][^\\/]+[\\/]src[\\/]/;
 const DEPENDENCY_PROBE_FILE = '__doc-snippet-dependency-probe__.ts';
 
 /**
+ * The specifiers a package REQUIRES of its consumer: its `peerDependencies`,
+ * minus any the manifest itself marks optional in `peerDependenciesMeta`.
+ *
+ * The subtraction is the whole point. An OPTIONAL peer is precisely the case
+ * the map's old `dependencies`-only reason described — "a requirement ON the
+ * consumer that may be unmet" — because a consumer is entitled to not have it
+ * and the package still works. A REQUIRED peer is a different statement: the
+ * package declares it cannot function without it, installers act on that, and a
+ * consumer who has not supplied it has an install the package itself calls
+ * broken. Only the second class is mapped.
+ */
+export function requiredPeerSpecifiers(manifest = {}) {
+  const meta = manifest.peerDependenciesMeta || {};
+  return Object.keys(manifest.peerDependencies || {})
+    .filter((specifier) => (meta[specifier] || {}).optional !== true)
+    .sort();
+}
+
+/**
  * `paths` for the THIRD-PARTY specifiers a covered snippet may legitimately
  * import: for each workspace package a covered document imports, every specifier
- * that package DECLARES in its own `dependencies`, resolved from inside that
- * package's directory — which is exactly what the package's own code resolves,
- * and exactly what a consumer who installs it gets.
+ * that package DECLARES in its own `dependencies` or REQUIRES of its consumer in
+ * its own `peerDependencies`, resolved from inside that package's directory —
+ * which is exactly what the package's own code resolves, and exactly what a
+ * consumer who can use that package at all has in their own tree.
  *
- * The rule and its four edges are stated in this file's header; the two things
- * enforced right here are that the set is read from MANIFESTS (never from a walk
- * of `node_modules`) and that a mapping may only ever land on a declaration file
- * outside any package's `src/`. A specifier that ships no types is left
- * unresolvable and reported as such, never mapped to something approximate: the
- * snippet importing it then fails, which is the honest answer.
+ * The rule and its edges are stated in this file's header, including the reason
+ * the peer half was added and the class it admits; the three things enforced
+ * right here are that the set is read from MANIFESTS (never from a walk of
+ * `node_modules`), that a mapping may only ever land on a declaration file
+ * outside any package's `src/`, and that the peer half runs in a SECOND pass so
+ * it can only add specifiers, never re-own or re-resolve one `dependencies`
+ * already backs. A specifier that ships no types is left unresolvable and
+ * reported as such, never mapped to something approximate: the snippet importing
+ * it then fails, which is the honest answer.
  */
 export function deriveDeclaredDependencyPaths(root = repoRoot, importedPackages = [], packageDirOf = {}) {
   const paths = {};
   const declaredBy = {};
+  const declaredIn = {};
   const untyped = [];
   const seen = new Set();
   const options = {
@@ -1264,42 +1331,81 @@ export function deriveDeclaredDependencyPaths(root = repoRoot, importedPackages 
   const host = ts.createCompilerHost(options, false);
   // Sorted, so which package wins a specifier two of them declare is decided by
   // name rather than by walk order — a run must not depend on readdir.
+  const owners = [];
   for (const owner of [...importedPackages].sort()) {
     const dir = packageDirOf[owner];
     if (!dir) continue;
     const manifestPath = join(root, dir, 'package.json');
     if (!existsSync(manifestPath)) continue;
-    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    owners.push({ owner, dir, manifest: JSON.parse(readFileSync(manifestPath, 'utf8')) });
+  }
+  const consider = (owner, dir, specifier, field) => {
+    // A workspace package is mapped from its OWN `exports` by
+    // `derivePackageTypePaths`, and one deliberately left unmapped there
+    // (source-typed) must STAY unmapped — routing it through a node_modules
+    // symlink would judge a snippet against a package's `src/`, the exact
+    // substitution this gate exists to make impossible.
+    if (specifier in packageDirOf) return;
+    if (seen.has(specifier)) return;
+    seen.add(specifier);
+    const resolved = ts.resolveModuleName(
+      specifier,
+      join(root, dir, DEPENDENCY_PROBE_FILE),
+      options,
+      host,
+    );
+    const file = resolved.resolvedModule ? resolved.resolvedModule.resolvedFileName : null;
+    // A REQUIRED peer this workspace cannot resolve to a declaration file is
+    // left unresolvable exactly as an untyped `dependencies` entry is, and for
+    // the same reason: mapping it to something approximate would report green
+    // over a snippet nobody type-checked. The field is recorded so the report
+    // can say which half of the rule the entry came from.
+    if (!file || !DECLARATION_FILE.test(file) || WORKSPACE_SRC.test(file)) {
+      untyped.push({ specifier, owner, field, resolved: file });
+      return;
+    }
+    paths[specifier] = [file];
+    declaredBy[specifier] = owner;
+    declaredIn[specifier] = field;
+  };
+  // TWO passes, not one per owner, and the order is the whole of their meaning:
+  // every specifier ANY imported package installs in its own `dependencies` is
+  // decided before the first peer is looked at, so the peer half can only ever
+  // ADD a specifier no `dependencies` entry already backs. It can neither move
+  // an existing mapping to another owner's directory nor change what an
+  // existing one resolves to.
+  for (const { owner, dir, manifest } of owners) {
     for (const specifier of Object.keys(manifest.dependencies || {}).sort()) {
-      // A workspace package is mapped from its OWN `exports` by
-      // `derivePackageTypePaths`, and one deliberately left unmapped there
-      // (source-typed) must STAY unmapped — routing it through a node_modules
-      // symlink would judge a snippet against a package's `src/`, the exact
-      // substitution this gate exists to make impossible.
-      if (specifier in packageDirOf) continue;
-      if (seen.has(specifier)) continue;
-      seen.add(specifier);
-      const resolved = ts.resolveModuleName(
-        specifier,
-        join(root, dir, DEPENDENCY_PROBE_FILE),
-        options,
-        host,
-      );
-      const file = resolved.resolvedModule ? resolved.resolvedModule.resolvedFileName : null;
-      if (!file || !DECLARATION_FILE.test(file) || WORKSPACE_SRC.test(file)) {
-        untyped.push({ specifier, owner, resolved: file });
-        continue;
-      }
-      paths[specifier] = [file];
-      declaredBy[specifier] = owner;
+      consider(owner, dir, specifier, 'dependencies');
+    }
+  }
+  for (const { owner, dir, manifest } of owners) {
+    for (const specifier of requiredPeerSpecifiers(manifest)) {
+      consider(owner, dir, specifier, 'peerDependencies');
     }
   }
   // `seen` is exactly the set of non-workspace specifiers the imported packages
-  // DECLARE, whether or not each one could be mapped. The UNDECLARED control
-  // reads it to tell its two failure modes apart: a control specifier that has
-  // become a declared dependency (pick another) is a different fact from one
-  // that resolves without any manifest declaring it (resolution has widened).
-  return { paths, declaredBy, untyped, declared: [...seen].sort() };
+  // DECLARE — in either field this map reads — whether or not each one could be
+  // mapped. The UNDECLARED control reads it to tell its two failure modes apart:
+  // a control specifier that has become a declared dependency (pick another) is
+  // a different fact from one that resolves without any manifest declaring it
+  // (resolution has widened). It covers required peers too, so the control
+  // cannot be quietly satisfied by a field the map now reads.
+  return { paths, declaredBy, declaredIn, untyped, declared: [...seen].sort() };
+}
+
+/**
+ * How many of the mapped specifiers arrived through the PEER half of the rule.
+ *
+ * Printed on every run beside the total, because a widening nobody can read off
+ * the gate's own output is the silent drift the header's edge refuses. A reader
+ * of a green run can see how much of this map rests on "the reader must already
+ * have it" rather than on "the package ships it", and a jump in that number is
+ * visible without opening a manifest.
+ */
+export function peerMappedCount(state = {}) {
+  return Object.values(state.dependencyDeclaredIn || {}).filter((field) => field === 'peerDependencies')
+    .length;
 }
 
 /**
@@ -1362,12 +1468,15 @@ export function rootDeclaredSpecifiers(root = repoRoot) {
  * block is compiled with `jsx: ReactJSX`, so a block containing a single JSX tag
  * needs `react/jsx-runtime` whether or not its author wrote an import at all.
  * Refusing it would red a block for a line nobody wrote and no reader could fix,
- * and it would do so unevenly — measured: `react` is mapped in the docs corpus
- * only because `@object-ui/layout` happens to declare it as a real dependency,
- * while the skills corpus imports no package that does, so the same JSX tag is
- * bounded in one gate and not in the other. The bound is a rule about what an
- * AUTHOR may import; whether the compiler can find its own JSX factory is a
- * different question, and TS2875 already answers it loudly.
+ * and it would do so unevenly — measured while `react` reached the map through
+ * one package's `dependencies` and the skills corpus imported no such package,
+ * so the same JSX tag was bounded in one gate and not in the other. That
+ * asymmetry is gone now the map reads REQUIRED peers (every React package here
+ * declares one), which removes the unevenness rather than the exemption: the
+ * bound is a rule about what an AUTHOR may import, and whether the compiler can
+ * find its own JSX factory is a different question that TS2875 already answers
+ * loudly. `react/jsx-runtime` is a SUBPATH, and the map covers bare specifiers
+ * only, so it would still be refused without this.
  *
  * Exempted at BOTH enforcement points, so the block-level check and the resolver
  * cannot disagree about one specifier.
@@ -1627,6 +1736,7 @@ export function analyze({ root = repoRoot, ungated = UNGATED_DOCS } = {}) {
   const {
     paths: dependencyPaths,
     declaredBy: dependencyDeclaredBy,
+    declaredIn: dependencyDeclaredIn,
     untyped: untypedDependencies,
     declared: declaredSpecifiers,
   } = deriveDeclaredDependencyPaths(root, neededPackages, packageDirOf);
@@ -1645,6 +1755,7 @@ export function analyze({ root = repoRoot, ungated = UNGATED_DOCS } = {}) {
     packageDirOf,
     dependencyPaths,
     dependencyDeclaredBy,
+    dependencyDeclaredIn,
     untypedDependencies,
     declaredSpecifiers,
     neededPackages,
@@ -2552,7 +2663,7 @@ function main() {
   // Printed BEFORE the controls: it says how far this run's resolution reaches,
   // which is the thing the UNDECLARED control then bounds.
   console.log(
-    `Third-party resolution: ${Object.keys(state.dependencyPaths).length} specifier(s) mapped from the declared dependencies of ${state.neededPackages.size} imported package(s); ${state.untypedDependencies.length} declared specifier(s) ship no types here and stay unresolvable.`,
+    `Third-party resolution: ${Object.keys(state.dependencyPaths).length} specifier(s) mapped from the declared dependencies of ${state.neededPackages.size} imported package(s), ${peerMappedCount(state)} of them from a REQUIRED peerDependency this workspace resolves; ${state.untypedDependencies.length} declared specifier(s) ship no types here and stay unresolvable.`,
   );
   console.log('Controls:');
   console.log(
@@ -2634,8 +2745,10 @@ function main() {
       `  [bound]     ${block.doc}:${block.fenceLine}  imports ${specifiers.map((s) => `'${s}'`).join(', ')}, which ` +
         "resolve only through this repository's ROOT package.json — this workspace's own devDependency " +
         'set, not anything a reader of the documented packages installs. Import what an imported ' +
-        'package declares in its `dependencies`. A `peerDependencies` entry is a declaration too, but ' +
-        'not one this map reads: a peer is a requirement ON the reader, which may be unmet.' +
+        'package declares in its `dependencies`, or REQUIRES of its consumer in its ' +
+        '`peerDependencies`. That second field is read too, but only for a peer the manifest does NOT ' +
+        'mark optional and that resolves here: an optional peer is a requirement ON the reader, which ' +
+        'may be unmet.' +
         '\n                If the specifier IS such a peer and this block needs its bindings, stand ' +
         'them in with `declare const` typed to what the block uses them as, and import only what the ' +
         "package declares. The block still compiles, so the documented package's own surface around it " +
