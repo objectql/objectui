@@ -496,10 +496,10 @@ function describeUnusableTarget(reference: unknown): string {
   }
   return (
     'and this one is blank — whitespace names no object, so nothing could ever resolve it. '
-      + '`@objectstack/spec` 17.3.0 ACCEPTS this value (measured, at field level and through '
-      + '`ObjectSchema`), so the PUT would succeed and the failure would surface later and further '
-      + 'away — the record picker with no object to query, `$expand` with nothing to resolve. This '
-      + 'writer refuses it deliberately and says so (objectui#7714; upstream objectstack#16126).'
+      + '`@objectstack/spec` applies its non-empty test to the TRIMMED value (since 17.4.0), so the '
+      + 'server refuses the whole object document with 422 `INVALID_METADATA` — which then blocks '
+      + 'EVERY later save of this object, not just this field. This writer refuses it first, at '
+      + 'editor time, naming the field (objectui#7714; upstream objectstack#16920).'
   );
 }
 
@@ -550,21 +550,24 @@ function describeUnusableTarget(reference: unknown): string {
  * Same `custom` issue, same `reference` path, same message absent and `''`
  * already got, so this page and the contract now refuse the identical set.
  *
- * ⚠️ That is the spec FROM THE RELEASE CARRYING objectstack#16920, not the
- * INSTALLED spec. This repo's pin is `@objectstack/spec` 17.3.0
- * (`pnpm-lock.yaml`), which predates the fix (an unreleased `minor` upstream at
- * the time of writing). Measured on the installed 17.3.0 artifact, whose
- * shipped test still reads `field.reference === ''`:
+ * ⭐ That fix SHIPPED IN 17.4.0, and the pin has reached it (objectui#8772):
  *
  *   FieldSchema.safeParse({ type: 'lookup', label: 'L', reference: '   ' })
- *     => success = true
+ *     => success = false, `custom` at path ["reference"]
  *   ObjectSchema.safeParse({ …, fields: { rel: { …, reference: '   ' } } })
- *     => success = true
+ *     => success = false, `custom` at path ["fields","rel","reference"]
  *
- * (controls at that pin: absent and `''` refused as `custom` at `reference`,
- * `'account'` accepted.) Until the pin reaches the fix, this guard is still the
- * only thing refusing `'   '` here. ⛔ Bumping the pin is not this note's
- * business.
+ * (controls in the same run: `'account'` and `' account '` both accepted, so
+ * the schema is consulted and this is a real reading — the trim is for the TEST
+ * only, and a target with surrounding whitespace is still stored as written.)
+ *
+ * ⛔ Those two lines say WHEN the contract changed, not what is installed
+ * today. The claim that rotted here said the opposite — "this repo's pin IS
+ * 17.3.0", a present-tense reading of an artifact — and it went false the
+ * moment the pin moved, while still being shown to authors (objectui#8897).
+ * What is installed is MEASURED, never asserted in prose; the sibling reading
+ * lives in `MetadataService.specKeyReference.test.ts`, which re-parses the
+ * schema on every run.
  *
  * ⭐ Kept — now for its OWN reason rather than the divergence's. It refuses at
  * EDITOR time, before the PUT, naming the field while it is still on screen;
@@ -576,10 +579,12 @@ function describeUnusableTarget(reference: unknown): string {
  * author nothing and only moves the identical failure past the PUT and into a
  * stored document, where it surfaces with no field named.
  *
- * ⚠️ The refusal MESSAGE below still says the spec ACCEPTS this value and still
- * names objectstack#16126. Deliberate: it is version-qualified to 17.3.0, which
- * IS the installed pin, and the pins assert it verbatim. It retires with the
- * pin bump, not with this note.
+ * ⭐ The refusal MESSAGE below has RETIRED its divergence wording, which is what
+ * the note it replaces said would happen — "it retires with the pin bump, not
+ * with this note". objectui#8897 is that retirement. It no longer tells the
+ * author that the spec ACCEPTS a blank target and that the PUT would succeed;
+ * against the installed artifact both halves were false, and that sentence was
+ * the one USER-VISIBLE carrier of this rot.
  */
 function assertRelationshipTargetPresent(
   field: { type?: string; reference?: unknown },
