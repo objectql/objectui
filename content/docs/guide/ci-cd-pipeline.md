@@ -34,7 +34,7 @@ one has its own section below.
 | `skill-examples.yml` | Skill Example Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a MARKED fenced example in a `skills/` or `.claude/skills/` guide no longer compiles against the packages' built types, no longer parses as JSON, uses a bare `any`, or carries a marker that opts nothing in |
 | `skill-eval-tokens.yml` | Skill Eval Token Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when an eval assertion's `must_contain` token is not taught as a whole token anywhere in its own `skills/` bundle |
 | `doc-component-types.yml` | Doc Component Type Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a `content/docs/**.mdx` snippet teaches a `type` nothing registers |
-| `doc-snippet-types.yml` | Doc Snippet Type Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a covered documentation snippet no longer compiles against the packages' built types |
+| `doc-snippet-types.yml` | Doc Snippet Type Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a covered documentation snippet no longer compiles against the packages' built types, **or** when a covered JSDoc `@example` block does (two gates, one job — see below) |
 | `doc-fence-languages.yml` | Doc Fence Language Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a TypeScript block sits under a fence the snippet gate does not read |
 | `pre-install-import-graph.yml` | Pre-Install Import Graph Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a gate a workflow runs *before* `pnpm install` reaches a package anywhere in its import graph |
 | `vi-mock-specifiers.yml` | Inert vi.mock Specifier Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a `vi.mock` / `vi.doMock` relative specifier resolves to no file, or the scan's population collapses |
@@ -1073,6 +1073,60 @@ re-read on every run instead of being skipped exactly when the corpus moved.
 at the harness. Either fix what the snippet teaches, or — if the block is genuinely partial — declare
 it with a reason. Run it locally with `pnpm check:doc-snippets` (after building the packages it
 names: `pnpm exec turbo run build $(node scripts/check-doc-snippet-types.mjs --build-filter)`).
+
+### JSDoc `@example` Types — the second gate in this job (`doc-snippet-types.yml`)
+
+The same job's **last** step runs `scripts/check-doc-example-types.mjs`
+(`pnpm check:doc-examples`). It asks the snippet gate's question of a different corpus: every fenced
+`ts` / `tsx` block inside a JSDoc `@example` on an **exported** declaration under
+`packages/NAME/src/**` must compile `--strict` against the packages' built `dist/*.d.ts`, or be
+declared in the script's `UNGATED_EXAMPLES` ledger with a written reason and the diagnostics it
+currently produces. That population is invisible to every gate above it, whose scan surface stops at
+the authored pages: [#7974](https://github.com/objectstack-ai/objectui/issues/7974) is the shape —
+`useSpecGesture`'s own `@example` passed a scalar where the declared type is an array, so a reader
+copying it out of an IDE hover got TS2322, and nothing in this repository had ever compiled it.
+
+| Command | Reads | Blocks a PR? |
+|---|---|---|
+| `pnpm check:doc-snippets` (`scripts/check-doc-snippet-types.mjs`) | fenced `ts` / `tsx` blocks in the **documents** the `UNGATED_DOCS` ledger does not exempt | **Yes** |
+| `pnpm check:doc-snippets --emit-census` | code this repository's generators emit from **template literals** | No — report-only |
+| `pnpm check:doc-examples` (`scripts/check-doc-example-types.mjs`) | fenced `ts` / `tsx` blocks in JSDoc **`@example`** tags on exported declarations under `packages/NAME/src/**` | **Yes** |
+
+**Why it shares this job rather than getting a workflow.** It is a *sibling* of the gate above, not a
+fork: it imports that script's compiler host, its built-`.d.ts` resolution and every one of its
+controls, and reuses its `analyze()` wholesale — so an `@example` block is judged by exactly the
+program a documentation fence is judged by, and its precondition is the very filtered build this job
+already pays for. A workflow of its own would install the workspace and rebuild the same closure a
+second time for no additional coverage; and it could not even derive that filter without naming
+`scripts/check-doc-snippet-types.mjs` in a second workflow file, which that gate's own pin
+(*"lives in exactly one workflow — one gate, one home"*) fails on by design.
+
+**Why it runs last.** Both gates block, so whichever runs second is skipped when the first is red.
+Ordering the newly wired gate first would let it mask an established one, which is the worse of the
+two directions.
+
+**Its exit codes are three, not two** — the same three as its sibling, for the same reason: `0` every
+covered example compiles or fails exactly as its ledger row says; `1` the gate ran and found errors;
+`2` the gate **could not run** — the packages are unbuilt or typed from source, the walk collapsed,
+or one of the harness's own controls failed, in which case nothing it printed is a verdict about any
+example. Locally that third one is what you get before building, and it is neither green nor red.
+
+**It was declared and run by nothing until
+[#8757](https://github.com/objectstack-ai/objectui/issues/8757).** The command sat in the root
+`package.json` while no workflow named it — measured there, with the sibling's workflow mentions as
+the control that the zero was a reading and not a failed grep. What that cost is on the record: a
+defect this gate catches reached `main` and was repaired 71 minutes later with nothing observing in
+either direction, and the card reporting the red was written from a stale merge base because there
+was no run to read. Its first wired run, on unmodified `main`, exited **0** over 124 blocks — 35
+compiling and 89 declared — so the wiring adds enforcement without importing a backlog. ⛔ A newly
+wired gate is never made green by narrowing what it scans.
+
+**If it fails:** the failing key is the block's path, line and symbol, and the ledger is keyed the
+same way — so a row can be invalidated by an edit that merely moves lines above it, which is
+[#8614](https://github.com/objectstack-ai/objectui/issues/8614) and is **not** fixed here. Fix the
+example, or declare it. Run it locally exactly as this job does: build first
+(`pnpm exec turbo run build $(node scripts/check-doc-snippet-types.mjs --build-filter)`), then
+`pnpm check:doc-examples`; the gate prints that same recipe when it exits `2`.
 
 ## Fence Languages (`doc-fence-languages.yml`)
 
