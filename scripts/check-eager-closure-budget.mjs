@@ -1057,7 +1057,7 @@ export const EXHAUSTED_HEADROOM_FLOOR_MULTIPLE = 0.1;
  * this table ⛔ does not answer it — it only stops the gate being silent while
  * that decision stands unanswered.
  *
- * Both figures were read from one full console build on `e8b7b0785`, from the
+ * Both figures were read from one full console build on `2596b1b85`, from the
  * same report the gate reads. ⚠️ `i18n-locales` carries the pair objectui#8816's
  * maintainer ruling set eight days earlier, whose prose calls its headroom
  * "0.10x": rendered to two decimals it is, measured it is 0.0966x, so the floor
@@ -1065,10 +1065,22 @@ export const EXHAUSTED_HEADROOM_FLOOR_MULTIPLE = 0.1;
  * finding about the ruling, and ⛔ not a reason to bend the bound to 0.095 —
  * bending it to clear a named row is choosing the bound by today's board, which
  * is the one move this card may not make.
+ *
+ * ⭐ `ui-components` was read TWICE while this was being written, an hour apart,
+ * and it moved: 394,708 on `e8b7b0785` and 394,711 five merges later, none of
+ * them about this chunk. The console build is deterministic on a fixed tree —
+ * checked, two builds byte-identical across all four budgeted chunks — so those
+ * three bytes are content and not noise, and the first reading was already stale
+ * when it was taken. That is this card's whole thesis arriving during its own
+ * fix: the tightest line on the board moves under ordinary traffic and nothing
+ * said so. ⚠️ It is also the standing hazard of the figure below. It is pinned
+ * at the byte against a live row, so an unrelated change that grows this chunk
+ * reds here — correctly, and pointing at a row that is genuinely tighter, but
+ * ⛔ the remedy is still never to move this number up.
  */
 export const EXHAUSTED_HEADROOM_ALLOWANCES = Object.freeze({
   'i18n-locales': 8_804,
-  'ui-components': 4_292,
+  'ui-components': 4_289,
 });
 
 /**

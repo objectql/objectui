@@ -804,7 +804,7 @@ describe('ceiling sensitivity, judged live (objectui#5924)', () => {
     });
 
     it('holds a DECLARED row open at its allowance, and reds one byte tighter', () => {
-      // 394,708 is the live `ui-components` measurement the allowance was read
+      // 394,711 is the live `ui-components` measurement the allowance was read
       // from, so this pair is the ratchet at its own hinge rather than a
       // rounded neighbourhood of it.
       const at = (measuredBytes: number) =>
@@ -812,9 +812,9 @@ describe('ceiling sensitivity, judged live (objectui#5924)', () => {
           report: sensitivityReport(BASELINE.gzipBytes, { 'ui-components': measuredBytes }),
         });
 
-      expect(at(394_708).status).toBe('pass');
+      expect(at(394_711).status).toBe('pass');
 
-      const tighter = at(394_709);
+      const tighter = at(394_712);
       expect(tighter.status).toBe('error');
       expect(tighter.exhausted).toEqual(['ui-components']);
     });
@@ -842,7 +842,7 @@ describe('ceiling sensitivity, judged live (objectui#5924)', () => {
       it('holds exactly the rows measured under the floor on the day it landed', () => {
         expect(EXHAUSTED_HEADROOM_ALLOWANCES).toEqual({
           'i18n-locales': 8_804,
-          'ui-components': 4_292,
+          'ui-components': 4_289,
         });
       });
 
