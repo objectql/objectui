@@ -3006,6 +3006,20 @@ const fr = {
       countDashboards_one: "{{count}} tableau de bord",
       countSeedData: "données d’exemple",
     },
+    build: {
+      building: "Création de {{app}}…",
+      built: "Création de {{app}} terminée",
+      appFallback: "votre application",
+      addingSampleData: "ajout de données d’exemple",
+      group: {
+        object: "Objets",
+        view: "Vues",
+        dashboard: "Tableaux de bord",
+        app: "Application",
+        seed: "Données d’exemple",
+      },
+      moreArtifacts: "+{{n}} autres",
+    },
   },
   chatbotError: {
     title: "Échec de la réponse",
