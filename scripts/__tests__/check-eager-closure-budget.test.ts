@@ -16,6 +16,7 @@ import { attachedDocs } from './helpers/attached-docs';
 import {
   BASELINE,
   EXHAUSTED_HEADROOM_ALLOWANCES,
+  EXHAUSTED_HEADROOM_ALLOWANCE_GRANULARITY_MULTIPLE,
   EXHAUSTED_HEADROOM_FLOOR_MULTIPLE,
   MAX_EAGER_CLOSURE_GZIP_BYTES,
   PER_CHUNK_BASELINE,
@@ -803,20 +804,97 @@ describe('ceiling sensitivity, judged live (objectui#5924)', () => {
       expect(result.message).toContain('the size verdict owns this row');
     });
 
-    it('holds a DECLARED row open at its allowance, and reds one byte tighter', () => {
-      // 394,711 is the live `ui-components` measurement the allowance was read
-      // from, so this pair is the ratchet at its own hinge rather than a
-      // rounded neighbourhood of it.
-      const at = (measuredBytes: number) =>
+    /**
+     * A declared row's hinge is its pinned figure LESS one grain, and the pair
+     * is taken at that exact boundary. 4,289 is the live `ui-components`
+     * headroom the allowance was read from, so this is the ratchet at its own
+     * hinge rather than a rounded neighbourhood of it.
+     */
+    describe('a declared row', () => {
+      const CEILING = PER_CHUNK_GZIP_CEILINGS['ui-components'];
+      const ALLOWANCE = EXHAUSTED_HEADROOM_ALLOWANCES['ui-components'];
+      const GRAIN =
+        REGRESSION_THIS_GATE_MUST_CATCH_BYTES * EXHAUSTED_HEADROOM_ALLOWANCE_GRANULARITY_MULTIPLE;
+
+      /** The report with `ui-components` sized to leave exactly `headroom`. */
+      const atHeadroom = (headroom: number) =>
         evaluateHeadroomSensitivity({
-          report: sensitivityReport(BASELINE.gzipBytes, { 'ui-components': measuredBytes }),
+          report: sensitivityReport(BASELINE.gzipBytes, { 'ui-components': CEILING - headroom }),
         });
 
-      expect(at(394_711).status).toBe('pass');
+      it('is held open at its pinned figure', () => {
+        expect(atHeadroom(ALLOWANCE).status).toBe('pass');
+      });
 
-      const tighter = at(394_712);
-      expect(tighter.status).toBe('error');
-      expect(tighter.exhausted).toEqual(['ui-components']);
+      /**
+       * ⭐ The reason this bound is a grain and not a byte, asserted rather than
+       * asserted-about. A byte-exact ratchet would red HERE — and the evidence
+       * table it would print is character-for-character the one the passing run
+       * prints, because every column this gate renders is rounded past a single
+       * byte. A red whose own table is identical to the green table tells its
+       * reader nothing, which is objectui#8554's defect one level in.
+       */
+      it('does NOT red on drift its own table cannot render', () => {
+        const green = atHeadroom(ALLOWANCE);
+        const oneByteTighter = atHeadroom(ALLOWANCE - 1);
+        expect(oneByteTighter.status).toBe('pass');
+
+        const rowOf = (result: { message: string }) =>
+          result.message.split('\n').find((line) => line.includes('`ui-components`'));
+        expect(rowOf(oneByteTighter)).toBe(rowOf(green));
+      });
+
+      it('reds once it has lost a whole grain, and not before', () => {
+        expect(GRAIN).toBe(911.36);
+        expect(atHeadroom(Math.ceil(ALLOWANCE - GRAIN)).status).toBe('pass');
+
+        const tightened = atHeadroom(Math.floor(ALLOWANCE - GRAIN));
+        expect(tightened.status).toBe('error');
+        expect(tightened.exhausted).toEqual(['ui-components']);
+      });
+
+      /**
+       * The remedy text is the half of this that keeps an innocent author out of
+       * their own diff. A row falling under the floor for the first time is
+       * somebody's to fix; a declared row tightening is a standing debt whose
+       * payoff is a decision that author very likely does not own, and the two
+       * verdicts must not read the same.
+       */
+      it('reds with the DEBT remedy, not the find-the-bytes remedy', () => {
+        const message = atHeadroom(Math.floor(ALLOWANCE - GRAIN)).message;
+        expect(message).toContain('ALREADY declared exhausted');
+        expect(message).toContain('BEFORE AUDITING YOUR OWN DIFF');
+        expect(message).toContain('never raise the allowance');
+        // ⛔ and NOT the text a newly-exhausted row gets, which tells its reader
+        // the bytes are theirs to find.
+        expect(message).not.toContain('The remedy is the bytes');
+      });
+
+      it('a row falling under the floor for the FIRST time still gets that one', () => {
+        const message = evaluateHeadroomSensitivity({
+          report: sensitivityReport(BASELINE.gzipBytes, { framework: 70_999 }),
+          ceilings: { ...PER_CHUNK_GZIP_CEILINGS, framework: 71_000 },
+        }).message;
+        expect(message).toContain('The remedy is the bytes');
+        expect(message).not.toContain('ALREADY declared exhausted');
+      });
+
+      it('paying the row DOWN moves its trip point up with it', () => {
+        // The grain coarsens WHEN a declared row reds; it is not a fixed pool of
+        // bytes the row keeps forever. A larger pinned figure trips sooner in
+        // absolute terms, which is what makes this a ratchet rather than a
+        // rebate.
+        const paidDown = ALLOWANCE + 2_000;
+        const at = (headroom: number, allowance: number) =>
+          evaluateHeadroomSensitivity({
+            report: sensitivityReport(BASELINE.gzipBytes, { 'ui-components': CEILING - headroom }),
+            allowances: { ...EXHAUSTED_HEADROOM_ALLOWANCES, 'ui-components': allowance },
+          }).status;
+
+        expect(at(Math.floor(paidDown - GRAIN), paidDown)).toBe('error');
+        // The same headroom was fine under the smaller pin it used to carry.
+        expect(at(Math.floor(paidDown - GRAIN), ALLOWANCE)).toBe('pass');
+      });
     });
 
     it('names every declared row in the PASSING verdict, not only when one fires', () => {
@@ -851,6 +929,33 @@ describe('ceiling sensitivity, judged live (objectui#5924)', () => {
         // for one row, and the row should simply have been dropped from here.
         for (const allowance of Object.values(EXHAUSTED_HEADROOM_ALLOWANCES)) {
           expect(allowance).toBeLessThan(FLOOR);
+        }
+      });
+
+      it('is compared at the coarser of the two grids this gate renders on', () => {
+        // The grain must be at least the coarsest rounding in the row renderer,
+        // or a red can print an evidence table identical to the green one. The
+        // two grids are one decimal of a KiB (102.4 bytes) and two decimals of a
+        // regression (911.36); the second is the binding one, and 0.01x is it.
+        const grain =
+          REGRESSION_THIS_GATE_MUST_CATCH_BYTES * EXHAUSTED_HEADROOM_ALLOWANCE_GRANULARITY_MULTIPLE;
+        expect(grain).toBeGreaterThanOrEqual(1024 / 10);
+        expect(grain).toBe(REGRESSION_THIS_GATE_MUST_CATCH_BYTES / 100);
+      });
+
+      it('is coarser than a byte but far finer than the floor it excuses', () => {
+        // Both directions matter. Too fine and the ratchet fires invisibly; as
+        // coarse as the floor and a declared row would never red at all, which
+        // is the silence this card is about.
+        const grain =
+          REGRESSION_THIS_GATE_MUST_CATCH_BYTES * EXHAUSTED_HEADROOM_ALLOWANCE_GRANULARITY_MULTIPLE;
+        const floor = REGRESSION_THIS_GATE_MUST_CATCH_BYTES * EXHAUSTED_HEADROOM_FLOOR_MULTIPLE;
+        expect(grain).toBeGreaterThan(1);
+        expect(grain).toBeLessThan(floor);
+        // Every declared row must still have a reachable trip point above zero,
+        // or its entry would be decorative.
+        for (const allowance of Object.values(EXHAUSTED_HEADROOM_ALLOWANCES)) {
+          expect(allowance - grain).toBeGreaterThan(0);
         }
       });
 

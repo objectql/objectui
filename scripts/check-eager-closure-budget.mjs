@@ -1073,15 +1073,70 @@ export const EXHAUSTED_HEADROOM_FLOOR_MULTIPLE = 0.1;
  * three bytes are content and not noise, and the first reading was already stale
  * when it was taken. That is this card's whole thesis arriving during its own
  * fix: the tightest line on the board moves under ordinary traffic and nothing
- * said so. ⚠️ It is also the standing hazard of the figure below. It is pinned
- * at the byte against a live row, so an unrelated change that grows this chunk
- * reds here — correctly, and pointing at a row that is genuinely tighter, but
- * ⛔ the remedy is still never to move this number up.
+ * said so.
+ *
+ * ⇒ that reading is also why these figures are NOT compared at the byte. See
+ * {@link EXHAUSTED_HEADROOM_ALLOWANCE_GRANULARITY_MULTIPLE}, which is the unit
+ * the comparison is made in and the reason a red here is a red a reader can see.
  */
 export const EXHAUSTED_HEADROOM_ALLOWANCES = Object.freeze({
   'i18n-locales': 8_804,
   'ui-components': 4_289,
 });
+
+/**
+ * The unit a declared allowance is compared in, as a fraction of
+ * {@link REGRESSION_THIS_GATE_MUST_CATCH_BYTES}. A listed row reds when its
+ * headroom falls a whole one of these below its pinned figure — ⛔ not when it
+ * falls one BYTE below it.
+ *
+ * ## Why the byte is the wrong unit, demonstrated rather than argued
+ *
+ * This gate renders three numbers per row, and every one of them is rounded:
+ * measured and headroom through {@link kb} at one decimal of a KiB, and the
+ * multiple at two decimals of a regression. Take `ui-components` at its pinned
+ * 4,289 bytes of headroom and remove ONE byte — the boundary a byte-exact
+ * comparison would red on:
+ *
+ *     headroom 4,289  ->  385.5 KB measured / headroom 4.2 KB / 0.05x
+ *     headroom 4,288  ->  385.5 KB measured / headroom 4.2 KB / 0.05x
+ *
+ * ⇒ ⭐ identical. Every column. A byte-exact ratchet fires with a red cross above
+ * an evidence table that is character-for-character the table the green run
+ * printed, so the reader cannot see what moved, cannot tell their own diff from
+ * the drift under it, and has nothing to act on. That is the same defect
+ * objectui#8554 is about — a number nobody can read — moved one level in.
+ *
+ * ## Why a hundredth, specifically
+ *
+ * It is the coarser of this file's two rendering grids: 0.01x is 911.36 bytes,
+ * where one tenth of a KiB is 102.4. Choosing the coarser one is what makes a
+ * red visible in BOTH columns rather than only the finer of them. Across the
+ * same trip point that is:
+ *
+ *     headroom 4,289  ->  385.5 KB measured / headroom 4.2 KB / 0.05x
+ *     headroom 3,377  ->  386.4 KB measured / headroom 3.3 KB / 0.04x
+ *
+ * It is also the next decade of the unit this whole file is denominated in —
+ * 1.00x is blind, 0.10x is the floor, 0.01x is the grain — so the instrument
+ * measures at one resolution throughout instead of claiming an 89 KB question
+ * and answering a one-byte one.
+ *
+ * ## What this is NOT
+ *
+ * ⛔ Not a raise, and ⛔ not headroom to spend. The pinned figures do not move,
+ * the table stays pay-down-only, and paying a row down moves its trip point up
+ * with it. It coarsens WHEN a declared row reds, ⛔ never whether it is
+ * declared, and ⛔ never the {@link EXHAUSTED_HEADROOM_FLOOR_MULTIPLE} floor
+ * itself, which is unchanged and still reds an undeclared row at 0.10x.
+ *
+ * ⚠️ ⛔ It does not make a declared row's red CLEARABLE by the pull request that
+ * trips it — nothing at this bound can, while a row's headroom is somebody
+ * else's open decision. What it does is stop that red firing on drift too small
+ * to see, and the verdict text for a declared row says whose question it is
+ * rather than sending its author to audit their own diff.
+ */
+export const EXHAUSTED_HEADROOM_ALLOWANCE_GRANULARITY_MULTIPLE = 0.01;
 
 /**
  * The report shape this checker understands. v2 added `files[].name` — the
@@ -1516,6 +1571,7 @@ export function evaluateHeadroomSensitivity({
   regressionBytes = REGRESSION_THIS_GATE_MUST_CATCH_BYTES,
   floorMultiple = EXHAUSTED_HEADROOM_FLOOR_MULTIPLE,
   allowances = EXHAUSTED_HEADROOM_ALLOWANCES,
+  allowanceGrainMultiple = EXHAUSTED_HEADROOM_ALLOWANCE_GRANULARITY_MULTIPLE,
   reportPath = DEFAULT_REPORT_PATH,
 } = {}) {
   const base = { sites: [], blind: [], exhausted: [] };
@@ -1589,10 +1645,14 @@ export function evaluateHeadroomSensitivity({
   });
   const blind = rows.filter((row) => row.headroomBytes >= regressionBytes);
   const floorBytes = regressionBytes * floorMultiple;
+  const allowanceGrainBytes = regressionBytes * allowanceGrainMultiple;
   // The headroom this row must keep: the floor, unless it is one of the rows
   // that was already under the floor when the floor was written, in which case
-  // it is that row's own pinned figure and the floor is unreachable for it.
-  const floorFor = (row) => allowances[row.key] ?? floorBytes;
+  // it is that row's own pinned figure — less one grain, because a ratchet that
+  // fires on drift the table cannot render is a red with no readable evidence.
+  // See EXHAUSTED_HEADROOM_ALLOWANCE_GRANULARITY_MULTIPLE.
+  const floorFor = (row) =>
+    allowances[row.key] === undefined ? floorBytes : allowances[row.key] - allowanceGrainBytes;
   // ⛔ `headroomBytes >= 0` is load-bearing, not defensive. Without it every
   // OVER-budget row falls under the floor too, and this half would convert the
   // size verdict's exit 1 into a gauge error — see "What it deliberately does
@@ -1614,7 +1674,8 @@ export function evaluateHeadroomSensitivity({
             (allowance === undefined
               ? ''
               : `, under the ${floorMultiple.toFixed(2)}x floor and held open by its ` +
-                `declared ${allowance}-byte allowance, which may only be paid DOWN`);
+                `declared ${allowance}-byte allowance, which may only be paid DOWN; ` +
+                `reds below ${Math.round(allowance - allowanceGrainBytes)} bytes`);
       const failing = row.headroomBytes >= regressionBytes || exhausted.includes(row);
       return (
         `  ${failing ? '❌' : '✅'} ${row.label.padEnd(28)} ` +
@@ -1648,12 +1709,23 @@ export function evaluateHeadroomSensitivity({
     );
   }
 
+  // Two populations, two remedies. A row falling under the floor for the first
+  // time is somebody's to fix; a DECLARED row getting tighter is a standing debt
+  // whose payoff is a decision this run's author very likely does not own. Giving
+  // both the same "find the bytes" text is what sends an innocent author to audit
+  // a diff that is not the cause — the misattribution objectui#8554 documents.
+  const newlyExhausted = exhausted.filter((row) => allowances[row.key] === undefined);
+  const declaredTightened = exhausted.filter((row) => allowances[row.key] !== undefined);
+
   if (exhausted.length > 0) {
     headlines.push(
       `${exhausted.length} ceiling${exhausted.length === 1 ? ' is' : 's are'} EXHAUSTED — under ` +
-        `${floorMultiple.toFixed(2)}x of one ${kb(regressionBytes)} KB regression, or under the ` +
-        `allowance it was pinned at:`,
+        `${floorMultiple.toFixed(2)}x of one ${kb(regressionBytes)} KB regression, or a declared ` +
+        `row that has tightened by a whole ${allowanceGrainMultiple.toFixed(2)}x:`,
     );
+  }
+
+  if (newlyExhausted.length > 0) {
     prose.push(
       `A ceiling with no headroom left has stopped being a measurement of THIS bundle and become ` +
         `a measurement of the NEXT change: it passes today and reds whatever lands next, whether ` +
@@ -1669,6 +1741,25 @@ export function evaluateHeadroomSensitivity({
         `direction. ⛔ Never lower EXHAUSTED_HEADROOM_FLOOR_MULTIPLE, and ⛔ never add a row to ` +
         `EXHAUSTED_HEADROOM_ALLOWANCES to silence this: that object records debt measured on the ` +
         `day the floor landed and may only be paid down.`,
+    );
+  }
+
+  if (declaredTightened.length > 0) {
+    prose.push(
+      `${declaredTightened.map((row) => row.label).join(', ')} ` +
+        `${declaredTightened.length === 1 ? 'was' : 'were'} ALREADY declared exhausted before ` +
+        `this run, and ${declaredTightened.length === 1 ? 'has' : 'have'} now lost a further ` +
+        `${allowanceGrainMultiple.toFixed(2)}x of a regression against the pinned figure.\n` +
+        `⚠️ READ THIS BEFORE AUDITING YOUR OWN DIFF. This row's headroom is a standing debt that ` +
+        `predates this change, and it moves under traffic that has nothing to do with the chunk ` +
+        `— measured at three gzipped bytes across five unrelated merges. So this verdict is NOT ` +
+        `an accusation that your diff spent the bytes, and the amount it names is very likely ` +
+        `not yours. What it asserts is only that the row is tighter than the day it was pinned.\n` +
+        `⛔ There is therefore nothing here for this pull request to "fix", and the two edits that ` +
+        `would turn this green are both forbidden: ⛔ never raise the ceiling, and ⛔ never raise ` +
+        `the allowance. Paying the row down is the open decision on the chunk, ⛔ not a task for ` +
+        `whichever change the queue happened to weigh — take it there, and say on this pull ` +
+        `request that you did.`,
     );
   }
 
