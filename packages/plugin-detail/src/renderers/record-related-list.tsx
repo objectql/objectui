@@ -189,7 +189,20 @@ const RecordRelatedListBody: React.FC<RecordRelatedListRendererProps> = ({
     );
     filteredColumns = rawColumns.filter((c) => {
       const n = colName(c);
-      return n ? allowed.has(n) : true;
+      // Fail CLOSED on an entry this fold cannot NAME (objectui#8793). The
+      // else-branch used to KEEP such an entry, and that was the bypass: the
+      // block resolves identity through `colName`, which deliberately refuses
+      // the table library's own `accessorKey` (objectui#3104), while
+      // `RelatedList` renders a column as `accessorKey || columnIdentity(c)`.
+      // So a column authored `{ accessorKey: 'salary' }` was named by nobody
+      // here, skipped both `enforceFieldSecurity` and `redactFields`, and then
+      // painted its real values through the table's own key. An entry the
+      // security fold cannot check is an entry it must not pass.
+      //
+      // Scoped to the filtering path only: with neither key set this whole
+      // branch is skipped and `columns` is handed down by reference, so an
+      // ordinary related list renders exactly what it always did.
+      return n ? allowed.has(n) : false;
     });
   }
 
