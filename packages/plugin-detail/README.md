@@ -7,7 +7,9 @@ DetailView plugin for ObjectUI - A comprehensive detail page component with fiel
 - **Field Grouping/Sections**: Organize fields into logical sections with titles
 - **Collapsible Sections**: Make sections collapsible to save space
 - **Tab Navigation**: Organize content into tabs for better UX
-- **Related Lists**: Display related records (e.g., contacts for an account)
+- **Related Lists**: Display related records (e.g., contacts for an account) —
+  authored as a `record:related_list` block, ⛔ not as a `detail-view` `related`
+  array, which is retired (objectui#7997; see **RelatedList** below)
 - **Action Buttons**: Edit, Delete, and custom action buttons
 - **Readonly/Edit Mode**: Toggle between view and edit modes
 - **Back Navigation**: Built-in back button with customizable behavior
@@ -128,7 +130,7 @@ const accountDetail = <DetailView
 />;
 ```
 
-### With Tabs and Related Lists
+### With Tabs
 
 ```tsx
 import { DetailView } from '@object-ui/plugin-detail';
@@ -170,30 +172,6 @@ const accountDetail = <DetailView
         },
       },
     ],
-    related: [
-      {
-        title: 'Contacts',
-        type: 'table',
-        api: '/api/accounts/12345/contacts',
-        columns: [
-          { accessorKey: 'name', header: 'Name' },
-          { accessorKey: 'email', header: 'Email' },
-          { accessorKey: 'phone', header: 'Phone' },
-          { accessorKey: 'title', header: 'Title' },
-        ],
-      },
-      {
-        title: 'Opportunities',
-        type: 'table',
-        api: '/api/accounts/12345/opportunities',
-        columns: [
-          { accessorKey: 'name', header: 'Name' },
-          { accessorKey: 'amount', header: 'Amount' },
-          { accessorKey: 'stage', header: 'Stage' },
-          { accessorKey: 'close_date', header: 'Close Date' },
-        ],
-      },
-    ],
     showEdit: true,
     showDelete: true,
   }}
@@ -225,11 +203,10 @@ const schema: DetailViewSchema = {
   summaryFields: ['industry', 'website'],
   layout: 'vertical',
   columns: 2,
-  // See the examples above for the shapes these four carry.
+  // See the examples above for the shapes these three carry.
   sections: [],
   fields: [],
   tabs: [],
-  related: [],
   actions: [],
   showBack: true,
   backUrl: '/accounts',
@@ -277,6 +254,45 @@ Tab navigation for organizing content into different views.
 ### RelatedList
 
 Displays related records in list, grid, or table format.
+
+> #### ⛔ `DetailViewSchema.related` is retired — author `record:related_list`
+>
+> Until objectui#7997 a `detail-view` node could carry its own `related` array,
+> and this README taught it. That array is retired under ADR-0049
+> enforce-or-remove (maintainer ruling 2026-09-10). It was a second entry to a
+> capability `@objectstack/spec` already governs — the protocol declares no
+> `DetailView` schema at all — so it mirrored nothing and drifted from the
+> renderer it fed: it typed `columns` as `TableColumn` objects while the
+> renderer also accepted bare field names. Authoring it is now **refused by
+> name** on both the TypeScript and the JSON face, ⛔ not silently ignored.
+>
+> Nothing about the rendered result changed: both entries always went through
+> the `RelatedList` component documented here. Only the second door closed.
+>
+> ```tsx
+> import { SchemaRenderer } from '@object-ui/react';
+>
+> const contacts = (
+>   <SchemaRenderer
+>     schema={{
+>       type: 'record:related_list',
+>       objectName: 'contact',
+>       relationshipField: 'account_id',
+>       title: 'Contacts',
+>       columns: ['name', 'email', 'phone'],
+>     }}
+>   />
+> );
+> ```
+>
+> ⚠️ `columns` is an array of **field-name strings**, which is what the protocol
+> declares (`RecordRelatedListProps.columns`). The header comes from the related
+> object's field `label` and the cell from the field's type, so a label rename
+> reaches the list for free — the hand-spelled `{ accessorKey, header }` form the
+> retired array taught froze both. `relationshipField` names the field on the
+> related object pointing back at this record, and replaces the retired form's
+> `api` endpoint.
+
 
 Related lists are **paged by default**: the `record:related_list` renderer
 applies the spec default `limit` of **5** when the node doesn't declare one
