@@ -310,6 +310,124 @@ function describeExoticComparand(value: object): string {
 }
 
 /**
+ * A comparand as it appears INSIDE a refusal message.
+ *
+ * `JSON.stringify` alone is not safe here even though it is what the message
+ * wants: it THROWS on a BigInt and on a cyclic object. On THIS face that is not
+ * merely noisy, it would REPLACE the refusal — the call sits inside a
+ * `throw new FilterOperatorError(...)` expression, so a `TypeError` raised while
+ * the message is being built escapes in the refusal's place, and
+ * `classifyLoadError` reads a bare `TypeError` as a network fault: the author
+ * would be told to check their connection about a filter this layer had already
+ * judged. Ported from `ValueDataSource`'s twin (objectui#8748), where the same
+ * call is unsafe for the mirror-image reason — a refusal that throws while
+ * explaining itself turns the one path that stays quiet into the one path that
+ * takes the caller down.
+ *
+ * No JSON-sourced filter can carry either shape, so this is about the in-memory
+ * callers who hand a literal to `convertFiltersToAST`. `?? String(target)` keeps
+ * `undefined` and a symbol readable — `JSON.stringify` returns `undefined` for
+ * both.
+ */
+function describeComparand(target: unknown): string {
+  try {
+    return JSON.stringify(target) ?? String(target);
+  } catch {
+    return String(target);
+  }
+}
+
+/**
+ * An `$icontains` comparand that is not a NON-EMPTY STRING —
+ * `{ name: { $icontains: '' } }`, `{ name: { $icontains: 42 } }` (objectui#9001).
+ *
+ * ## Not this file's ruling, and not a new one
+ *
+ * `FILTER_TEXT_CASES` (`@objectstack/spec/data`) carries both shapes as
+ * REJECTION rows rather than as row-set expectations, each with
+ * `code: 'INVALID_FILTER'` and `mustMention: ['$icontains']`:
+ *
+ * > *an empty `$icontains` comparand is REFUSED* — "Every row contains the
+ * > empty substring, so evaluating it is a predicate that constrains nothing —
+ * > the widening #5240 refused `{ field: {} }` over, one level in."
+ *
+ * > *a non-string `$icontains` comparand is REFUSED* — "Coercing 42 to `"42"`
+ * > would answer a query nobody wrote; the declared comparand type is string."
+ *
+ * `ValueDataSource` has answered both since objectui#8748
+ * (`refuseTextComparand`), so this is a PORT of a shipped, reviewed
+ * implementation one data source over — deliberately NOT a second design.
+ * Measured on `origin/main` `152f0a700` (objectui#8996 and objectui#9019 both
+ * landed), both faces in one process:
+ *
+ * ```
+ * $icontains ''   LOWER=["name","icontains",""]   MATCH=[] REFUSED(1)
+ * $icontains 42   LOWER=["name","icontains",42]   MATCH=[] REFUSED(1)
+ * ```
+ *
+ * One authored filter, refused by the in-memory matcher and lowered onto the
+ * wire by the ObjectStack path — the same acceptance-set split objectui#8568 and
+ * objectui#8976 each closed on the operator-KEY axis, here on the COMPARAND
+ * axis. ⚠️ objectui#8996 did not open this door: before it the `$` dialect was
+ * stopped by the generic unknown-operator arm, an accident rather than a
+ * comparand ruling, while the object-form dialect
+ * (`FILTER_OPERATOR_ALIASES` in `@object-ui/data-objectstack`) already lowered
+ * the same node with no converter involved.
+ *
+ * ## What transfers from the sibling, and what cannot
+ *
+ * The DISCRIMINATION (`typeof target !== 'string' || target === ''`) and the
+ * MESSAGE transfer verbatim, and the message is load-bearing rather than
+ * cosmetic: `mustMention: ['$icontains']` means a differently-worded refusal is
+ * a different failure to honour the same contract, not a stylistic variant.
+ * `filter-text-comparand-9001.test.ts` pins the two messages against each other
+ * by DRIVING both faces and asserting this one contains the sibling's refusal
+ * text, so the mirror cannot drift in silence.
+ *
+ * The DELIVERY cannot transfer, and that is the card's own Q1 answered by the
+ * two call sites rather than by a fresh ruling. `ValueDataSource`
+ * excludes-and-logs because it is deciding about one ROW and HAS a row to
+ * exclude; this function is the PRODUCER deciding whether to send a query at
+ * all, and has none. Its declared refusal shape is {@link FilterOperatorError},
+ * which carries exactly the `INVALID_FILTER` / 400 envelope the spec rows
+ * declare and which this file already uses for `$regex`, `$not`, the retired
+ * aliases and three comparand shapes. Same code, same message, each face's own
+ * envelope.
+ *
+ * ## Scope
+ *
+ * Only `$icontains`, because only `$icontains` is what the table declares. The
+ * sibling positive operators (`$contains` / `$startsWith` / `$endsWith`) have no
+ * such row and keep the answer they have always given here — the same boundary
+ * `refuseTextComparand`'s own docblock draws one data source over. Widening it
+ * by analogy is the published table's decision, not this file's, and the
+ * asymmetry is pinned so the next reader sees a scope boundary rather than an
+ * oversight.
+ */
+function refuseTextComparand(field: string, operator: string, target: unknown): never {
+  const declared =
+    `@objectstack/spec's FILTER_TEXT_CASES declares this shape refused `
+    + `(INVALID_FILTER); the declared comparand for '${operator}' is a NON-EMPTY STRING`;
+  const ported =
+    `It is refused here rather than lowered onto the wire (objectui#9001; ported from `
+    + `ValueDataSource's refuseTextComparand, objectui#8748).`;
+  if (target === '') {
+    throw new FilterOperatorError(
+      `[ObjectUI] The filter comparand for field '${field}' on operator '${operator}' is the EMPTY `
+      + `STRING. Every value contains the empty substring, so evaluating it is a `
+      + `predicate that constrains nothing. ${declared}. Drop the condition instead `
+      + `of sending an empty comparand. ${ported}`
+    );
+  }
+  throw new FilterOperatorError(
+    `[ObjectUI] The filter comparand for field '${field}' on operator '${operator}' is `
+    + `${target === null ? 'null' : typeof target} (${describeComparand(target)}), `
+    + `not a string. Coercing it would answer a query nobody wrote. ${declared}. `
+    + `Write the comparand as a string. ${ported}`
+  );
+}
+
+/**
  * Convert object-based filters to ObjectStack FilterNode AST format.
  * Converts MongoDB-like operators to ObjectStack filter expressions.
  * 
@@ -349,8 +467,12 @@ function describeExoticComparand(value: object): string {
  * why that is refused rather than read as `$in` — or if a field's value is an
  * EXOTIC object the spec does not accept as a comparand (`{ name: /abc/ }`,
  * a `Set`, a `Map`): see the exotic-comparand arm for why that is refused
- * rather than dropped (objectui#8567). An empty operator object (`{}`) is NOT
- * refused — it is the TRUE identity and constrains nothing, as it always has.
+ * rather than dropped (objectui#8567), or if an `$icontains` comparand is not a
+ * NON-EMPTY STRING (`{ name: { $icontains: '' } }`, `{ name: { $icontains: 42 } }`)
+ * — two shapes `@objectstack/spec`'s `FILTER_TEXT_CASES` declares REFUSED and
+ * `ValueDataSource` has refused since objectui#8748; see
+ * {@link refuseTextComparand} (objectui#9001). An empty operator object (`{}`) is
+ * NOT refused — it is the TRUE identity and constrains nothing, as it always has.
  *
  * @example
  * // A filter that is NOTHING BUT combinators reducing to the TRUE identity
@@ -580,6 +702,21 @@ export function convertFiltersToAST(
         const astOperator = convertOperatorToAST(operator);
         
         if (astOperator) {
+          // objectui#9001 — the comparand door, at the ONE place this function
+          // reads a comparand. It runs before the push, so the refused node is
+          // never built; there is no `continue` and no key is skipped, which is
+          // what keeps the TRUE-identity tail's `Object.keys(filter).length`
+          // comparison (objectui#8770, and the counting question objectui#9030
+          // is open on) reading exactly what it read before.
+          //
+          // Keyed on the LOWERED operator rather than on the `$` spelling: the
+          // rule belongs to `icontains` itself, and `ValueDataSource`'s AST arm
+          // is keyed the same way. The `$` spelling the AUTHOR wrote is what
+          // travels into the message, which is what `FILTER_TEXT_CASES`'
+          // `mustMention: ['$icontains']` is about.
+          if (astOperator === 'icontains' && (typeof operatorValue !== 'string' || operatorValue === '')) {
+            refuseTextComparand(field, operator, operatorValue);
+          }
           conditions.push([field, astOperator, operatorValue]);
         } else {
           // A RETIRED lowercase alias is answered by name, before the generic
