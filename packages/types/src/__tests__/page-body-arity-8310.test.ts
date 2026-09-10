@@ -145,6 +145,76 @@ describe('PageNodeSchema.body arity — the declaration matches its reader (obje
 });
 
 /* -------------------------------------------------------------------------- */
+/* Leg 4 — the refusal control: the widened union still has a floor            */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * REFUSAL CONTROL — what the widened `body` must still turn away.
+ *
+ * Legs 1-3 all assert ACCEPTANCE. A `body` arm that had degraded into
+ * accept-anything (`z.any()`, or a union whose floor fell out) passes every one
+ * of them green, so on their own they measure the widening's DIRECTION and
+ * never its BOUND. This block is the missing half. It pins the refusal
+ * ENVELOPE — an `invalid_union` issue at path `['body']` — rather than the bare
+ * falsity of `success`, so a page refused for some unrelated reason cannot
+ * stand in for a `body` that was judged and rejected.
+ *
+ * ## ⚠️ Measured, and it is not what the obvious guess says
+ *
+ * `body: 42` and `body: 'x'` are **LEGAL**, on both faces, and an assertion
+ * that they are refused pins a contract this repo does not have:
+ *
+ * - `../base.ts`: `type SchemaNode = BaseSchema | string | number | boolean | null | undefined`
+ * - `../zod/base.zod.ts`: `nodeUnionOptions = [BaseSchemaCore, z.string(),
+ *   z.number(), z.boolean(), z.null(), z.undefined()]`
+ *
+ * A primitive IS a `SchemaNode` here — the text-node convention — so
+ * `SchemaNode | SchemaNode[]` admits `42` by construction, exactly as
+ * `BaseSchema.body`, `CardSchema.body` and `AspectRatioSchema.body` already
+ * did before this card. ⛔ Do not "harden" this block by asserting a primitive
+ * is refused: that assertion is RED today, and if it ever went green it would
+ * mean the node union had lost arms it is declared to have.
+ *
+ * ## Why these three values, and not a bogus `type`
+ *
+ * `SchemaNodeSchema`'s recursion slot 0 holds `BaseSchemaCore` until
+ * `../zod/index.zod.js` has been evaluated and `AnyComponentSchema` from the
+ * moment it has (`defineNodeComponentUnion`, `../zod/base.zod.ts`). Measured
+ * both ways: `{ type: 'definitely-not-a-node' }` is ACCEPTED in the first world
+ * and REFUSED in the second, so it is a function of module evaluation order in
+ * the importing file and ⛔ must not be used as a refusal fixture. An object
+ * carrying **no `type` at all** is refused in BOTH worlds — `BaseSchemaCore`
+ * requires `type`, and a discriminated union cannot dispatch without it — so
+ * that is the value this control is built on, in either arity.
+ */
+const REFUSED_BODIES: ReadonlyArray<[label: string, body: unknown]> = [
+  ['an object that is not a node — it carries no `type`', {}],
+  ['an object with node-ish keys but still no `type`', { columns: 3 }],
+  ['the LIST arity carrying that same non-node object', [{}]],
+];
+
+describe('PageNodeSchema.body still refuses a non-node — the widening kept its floor (objectui#8310)', () => {
+  for (const [label, body] of REFUSED_BODIES) {
+    it(`refuses ${label}`, () => {
+      const result = ZodPageNodeSchema.safeParse({ type: 'page', title: 'Dashboard', body });
+
+      expect(result.success).toBe(false);
+      if (result.success) return;
+
+      const bodyIssues = result.error.issues.filter((issue) => issue.path[0] === 'body');
+      expect(bodyIssues.length).toBeGreaterThan(0);
+      expect(bodyIssues.map((issue) => issue.code)).toContain('invalid_union');
+    });
+  }
+
+  it('BOUNDARY — a primitive body stays legal, because `SchemaNode` declares it', () => {
+    // ⛔ Not a defect and ⛔ not a candidate for "hardening" — see the docblock.
+    expect(ZodPageNodeSchema.safeParse({ type: 'page', body: 42 }).success).toBe(true);
+    expect(ZodPageNodeSchema.safeParse({ type: 'page', body: 'Hello' }).success).toBe(true);
+  });
+});
+
+/* -------------------------------------------------------------------------- */
 /* README leg — the transcription above is not allowed to become fiction        */
 /* -------------------------------------------------------------------------- */
 
