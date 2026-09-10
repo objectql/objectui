@@ -1,14 +1,17 @@
 ---
-'@object-ui/types': patch
+'@object-ui/types': minor
 ---
 
 Refuse `breadcrumbs` by name on the `page` node (objectui#8871, ADR-0049 enforce-or-remove).
 
 **Accept-set change, deliberately.** A `page` document carrying `breadcrumbs` used to parse
 GREEN and render nothing. `PageNodeSchema` never declared the key and no renderer ever read
-it, so the array survived purely through `BaseSchema`'s `.passthrough()`. It now fails at
-parse with the remedy in the message, and the TypeScript twin is `breadcrumbs?: never`, so
-`tsc` refuses it at the authoring site before anything runs.
+it, so the array survived purely through `BaseSchema`'s `.passthrough()`. On the TypeScript
+face, `tsc` **previously accepted** it too, through `BaseSchema`'s own `[key: string]: any`
+index signature (`packages/types/src/base.ts:467`) — the same open door the zod mirror
+walked through at runtime. It now fails at parse with the remedy in the message, and the
+TypeScript twin is `breadcrumbs?: never`, so `tsc` refuses it at the authoring site before
+anything runs — both faces narrow together.
 
 **Why ADR-0049 and not a fresh ruling.** objectui#7926 refused `actions` on this same node
 and, by its own comments, ruled on that key ONLY — its ruling is not borrowed here. What
@@ -21,18 +24,23 @@ be a decision rather than an accident, and wrote a pin saying so; that pin is **
 not deleted.
 
 **What was measured.** Zero readers, with a **point-access** probe rather than a bare word:
-`\.breadcrumbs` scores 0 tree-wide (exit 1) against 10 files for `\.breadcrumb\b` as the lit
-control. The bare word would have lied — it also names Sentry's own unrelated concept
-(`app-shell/src/observability/sentry.ts`) and appears in two comments listing UI surfaces
-(`core/src/utils/record-title.ts`, `layout/src/NavigationRenderer.tsx`), so a bare probe
-reports five readers that do not exist.
+`\.breadcrumbs` scores 0 tree-wide (exit 1) against `\.breadcrumb\b`'s 16 files tree-wide (13
+under `packages/`) as the lit control. The bare word would have lied — it also names
+Sentry's own unrelated concept (`app-shell/src/observability/sentry.ts`) and appears in two
+comments listing UI surfaces (`core/src/utils/record-title.ts`,
+`layout/src/NavigationRenderer.tsx`), so a bare probe reports five readers that do not exist.
 
 Three author sites, all teaching passages in `content/docs/guide/layout.md`, and that count
-**corrects objectui#7926's "1 site"**: its census filtered on `page`-TAGGED objects, and two
-of the three passages carry no `type` at all — the Schema API block declared
-`breadcrumbs?: Array<{ label, href }>` outright, and Best Practices §2 authored it on an
-untagged fragment. No example app, catalog fixture, template or customer document writes the
-key, so the refusal strands no authored document in this tree.
+**corrects objectui#7926's "1 site"**: its census reads every git-tracked JSON file, every
+`json` fence in `.md`/`.mdx`, and every TS/TSX object literal via the TypeScript AST (PR
+#8870), and it undercounted for **two different reasons**. The Schema API block declared
+`breadcrumbs?: Array<{ label, href }>` outright and its literal does carry `type: 'page'`, but
+that literal sits inside a markdown `typescript` fence — a fence **language** the census's
+`json`-fence reader never visits, so it was never read at all. Best Practices §2 authored it
+on a fragment inside a `json` fence the census does read, but that fragment never writes
+`type`, so a `page`-tagged filter correctly excluded it. No example app, catalog fixture,
+template or customer document writes the key, so the refusal strands no authored document in
+this tree.
 
 **Migration** — the trail is a NODE, and it already ships:
 
@@ -71,7 +79,10 @@ reddened a living pin — `page-app-dashboard-spec-parity.test.ts`, "the compone
 still passes unknown renderer props through" — which stays green and is re-asserted from this
 card's side.
 
-Marked `patch` on the precedent of objectui#7926, which took `patch` for the identical shape
-on this same node one release earlier. (The `ComponentInput.inputType` tombstone,
-objectui#5905, took `minor` for the same helper on a different node; the closer precedent is
-the one that shares the file, the node and the mechanism.)
+Marked `minor`. This card carries `Clause-②: yes`, declared on the dispatch claim, and this
+changeset's own lead sentence is *"Accept-set change, deliberately"* — the reading AGENTS.md's
+版本号策略 gives `minor` for objectui's own breaking changes. objectui#7926's `patch` does not
+transfer here: its ruling was **specified** with `Clause-②: no`, a different premise, so
+citing it for the level would import that ruling's conclusion without its premise. The
+precedents that share this card's `Clause-②: yes` reading — objectui#5905 (both changesets),
+objectui#4919, objectui#5453 — all took `minor`.

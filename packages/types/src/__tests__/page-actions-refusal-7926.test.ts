@@ -40,8 +40,11 @@
  * rewrites) and `breadcrumbs` (1 site, no reader either — its own question, NOT
  * ruled on here; ruled and refused since by objectui#8871 under ADR-0049, whose
  * own census also corrected the "1 site" reading recorded here to THREE — this
- * one filtered on `page`-TAGGED objects, and two of the guide's `breadcrumbs`
- * passages carry no `type` at all). Every other undeclared key the same grep found belongs to a
+ * one read `page`-TAGGED objects and missed two of the guide's `breadcrumbs`
+ * passages for two DIFFERENT reasons: one passage's literal does carry
+ * `type: 'page'` but sits inside a markdown `typescript` fence the census's
+ * `json`-fence reader never visits, and the other is a `json`-fenced fragment
+ * that never writes `type` at all). Every other undeclared key the same grep found belongs to a
  * DIFFERENT declaration that merely spells `type: 'page'`: nav items, spec `page`
  * list views, `registerMetadataResource` rows. None of them is parsed by this
  * schema — and `page-app-dashboard-spec-parity.test.ts` PINS the node staying open

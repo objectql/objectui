@@ -476,9 +476,11 @@ const SpecPageFields = specFieldsExcept(stripImportedDefaults(SpecPageSchema).sh
  * the `content/docs/guide/layout.md` passages this card rewrites) and
  * `breadcrumbs` (its own question — objectui#7926 does not rule on it; RULED
  * and refused separately by objectui#8871, see {@link PAGE_BREADCRUMBS_REFUSAL}
- * below, which also corrects the "1 site" reading recorded here — the census
- * shape that produced it read `page`-TAGGED objects, and two of the guide's
- * three `breadcrumbs` passages carry no `type` at all).
+ * below, which also corrects the "1 site" reading recorded here to THREE — two
+ * were missed for two DIFFERENT reasons: one passage's literal does carry
+ * `type: 'page'` but sits inside a markdown `typescript` fence, a fence
+ * LANGUAGE the census's `json`-fence reader never visits; the other is a
+ * `json`-fenced fragment that never writes `type` at all).
  * Every other undeclared key the grep found sits on a DIFFERENT declaration
  * that merely spells `type: 'page'` — nav items (`pageName`, `href`, `badge`,
  * `labelKey`, `requiredPermissions`), `registerMetadataResource` rows
@@ -520,23 +522,31 @@ const PAGE_ACTIONS_REFUSAL =
  * ## What was measured (objectui#8871, on this branch's base)
  *
  * ZERO readers. `git grep "\.breadcrumbs"` over the whole tree returns nothing
- * (exit 1); the same shape one letter shorter, `"\.breadcrumb\b"`, returns 10
- * files — the lit control that says the probe runs. ⛔ A BARE-WORD probe is
- * useless here and the reason this note spells the shape out: `breadcrumbs`
- * is heavily overloaded in this tree, and a bare grep hits Sentry's own
- * unrelated breadcrumbs concept (`app-shell/src/observability/sentry.ts`) plus
- * two comments listing UI surfaces (`core/src/utils/record-title.ts`,
- * `layout/src/NavigationRenderer.tsx`) — three prose sites, no reader, no
- * declaration. A bare probe reads "5 readers" and every one of them is false.
+ * (exit 1); the same shape one letter shorter, `"\.breadcrumb\b"`, returns 16
+ * files tree-wide (13 under `packages/`) — the lit control that says the
+ * probe runs. ⛔ A BARE-WORD probe is useless here and the reason this note
+ * spells the shape out: `breadcrumbs` is heavily overloaded in this tree, and
+ * a bare grep hits Sentry's own unrelated breadcrumbs concept
+ * (`app-shell/src/observability/sentry.ts`) plus two comments listing UI
+ * surfaces (`core/src/utils/record-title.ts`, `layout/src/NavigationRenderer.tsx`)
+ * — three prose sites, no reader, no declaration. A bare probe reads "5
+ * readers" and every one of them is false.
  *
  * THREE author sites, all of them teaching passages in one file — and the
- * count corrects objectui#7926's "1 site", which came from a census that read
- * `page`-TAGGED objects: `content/docs/guide/layout.md`'s Schema API block
- * declared the member outright, the "Detail Page with Actions" fence authored
- * it on a real `page` node, and Best Practices §2 authored it on an UNTAGGED
- * fragment — and the third is exactly the one a `type: 'page'` filter cannot
- * see. No example app, catalog fixture, template or customer document writes
- * the key; this refusal therefore strands no authored document in the tree.
+ * count corrects objectui#7926's "1 site", which came from a census that
+ * reads every git-tracked JSON file, every `json` fence in `.md`/`.mdx`, and
+ * every TS/TSX object literal via the TypeScript AST (PR #8870). It
+ * undercounted for TWO DIFFERENT reasons: the Schema API block declared the
+ * member outright and its literal does carry `type: 'page'`, but that literal
+ * sits inside a markdown `typescript` fence — a fence LANGUAGE the census's
+ * `json`-fence reader never visits, so it was never read at all. Best
+ * Practices §2 authored it on a fragment inside a `json` fence the census
+ * DOES read, but that fragment never writes `type`, so a `page`-TAGGED filter
+ * correctly excluded it. The "Detail Page with Actions" fence is the one site
+ * both instruments would see — a `json` fence, tagged `type: 'page'` — and is
+ * the "1 site" the earlier census counted. No example app, catalog fixture,
+ * template or customer document writes the key; this refusal therefore
+ * strands no authored document in the tree.
  *
  * ## Why a REFUSAL and not a bare deletion
  *

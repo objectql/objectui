@@ -31,18 +31,24 @@
  * ## What was measured
  *
  * ZERO readers, ⛔ measured with a POINT-ACCESS probe rather than a bare word.
- * `\.breadcrumbs` scores 0 over the whole tree (exit 1) against 10 files for
- * `\.breadcrumb\b` as the lit control. The bare word would have lied: it also
- * names Sentry's own unrelated concept (`app-shell/src/observability/sentry.ts`)
- * and appears in two comments listing UI surfaces (`core/src/utils/record-title.ts`,
+ * `\.breadcrumbs` scores 0 over the whole tree (exit 1) against 16 files
+ * tree-wide (13 under `packages/`) for `\.breadcrumb\b` as the lit control.
+ * The bare word would have lied: it also names Sentry's own unrelated concept
+ * (`app-shell/src/observability/sentry.ts`) and appears in two comments
+ * listing UI surfaces (`core/src/utils/record-title.ts`,
  * `layout/src/NavigationRenderer.tsx`) — three prose sites, no reader, no
  * declaration, and a bare probe reports "5 readers" that do not exist.
  *
  * THREE author sites, all teaching passages in one file, and the count CORRECTS
- * objectui#7926's "1 site": that census filtered on `page`-TAGGED objects, and
- * two of the three passages carry no `type` at all. `the guide teaches the node,
- * not the key` below is that correction as an assertion — it reads the guide by
- * TEXT rather than by parsed page nodes, which is the blind spot that produced
+ * objectui#7926's "1 site": that census reads every git-tracked JSON file,
+ * every `json` fence in `.md`/`.mdx`, and every TS/TSX object literal via the
+ * TypeScript AST (PR #8870), and it missed two of the three passages for two
+ * DIFFERENT reasons — one passage's literal does carry `type: 'page'` but sits
+ * inside a markdown `typescript` fence, a fence LANGUAGE the census's
+ * `json`-fence reader never visits, and the other is a `json`-fenced fragment
+ * that never writes `type` at all. `the guide teaches the node, not the key`
+ * below is that correction as an assertion — it reads the guide by TEXT rather
+ * than by parsed page nodes, which sidesteps both blind spots that produced
  * the undercount.
  *
  * ## Why a refusal rather than a reader
