@@ -108,6 +108,17 @@ const OBJECT_BOUND_CHART_CATEGORY_BINDINGS = [
  *
  * Returns `undefined` only when the schema names no category by any declared
  * spelling — a real answer, and what {@link ObjectChart}'s refusal keys on.
+ *
+ * ⚠️ LEDGERED, on purpose: this is the one `normalizeChartSchema` call in the
+ * package that passes NO language (objectui#8943). It is safe here and only
+ * here — the call reads `.xAxisKey`, a COLUMN NAME, and nothing else. No
+ * `I18nLabel` slot on the result is ever read through this path, so there is no
+ * label for a language to resolve. Keeping the function pure (it is called from
+ * plain module scope, outside any component) is worth more than a language
+ * argument that would change no byte of its answer. ⛔ If this ever starts
+ * reading `title` / `subtitle` / `description` / an axis `title` / a series
+ * `label`, it needs the viewer's language and can no longer be called from
+ * outside a component.
  */
 export function resolveChartCategoryField(schema: {
   aggregate?: { groupBy?: unknown } | undefined;
@@ -1383,11 +1394,12 @@ export const ObjectChart = (props: ObjectChartProps) => {
     // `pickLocalized` answers `''` for an absent value, so `|| 'Details'` keeps
     // the pre-existing fallback exactly as it was for the string arm.
     //
-    // ⚠️ KNOWN INCONSISTENCY, recorded rather than papered over: this makes the
-    // DRILL heading locale-aware while the chart heading beside it still is not
-    // (that one is resolved one layer down, in `normalizeChartSchema`, from a
-    // schema this component has already narrowed). The asymmetry predates this
-    // change and is a successor, not a regression introduced here.
+    // The asymmetry this comment used to record — drill heading locale-aware,
+    // chart heading beside it decided by key order — is CLOSED (objectui#8943).
+    // `normalizeChartSchema`'s `label()` now delegates to this same
+    // `pickLocalized`, and `ChartRenderer` hands it the same
+    // `useObjectTranslation().language` read above. One union, one resolver, two
+    // read sites that agree. ⛔ Do not reintroduce a local pick at either end.
     const title = resolveDrillTitle(drillDown, drillEvent, pickLocalized(schema.title, language) || 'Details');
     const target = drillDown?.target ?? 'drawer';
     const tableSchema = {
