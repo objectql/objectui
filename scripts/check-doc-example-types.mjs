@@ -793,7 +793,7 @@ export const UNGATED_EXAMPLES = {
     reason:
       'usage fragment: references `items`, which the example never declares',
   },
-  'packages/plugin-list/src/ListView.tsx:808 ListViewHandle': {
+  'packages/plugin-list/src/ListView.tsx:830 ListViewHandle': {
     card: null,
     codes: [2304, 2686],
     reason:
