@@ -100,6 +100,9 @@ import type {
   ChartAggregate,
   GanttConfig as SpecGanttConfig,
   CalendarConfig as SpecCalendarConfig,
+  ChartDrillDown,
+  I18nLabel,
+  DashboardWidget as SpecDashboardWidget,
 } from '@objectstack/spec/ui';
 
 /**
@@ -3063,14 +3066,6 @@ export type KanbanConditionalFormattingRule =
  * neither this interface nor its zod mirror. They rode `BaseSchema`'s
  * `[key: string]: any` / `.passthrough()` and arrived UNVALIDATED.
  *
- * ## The ceiling, stated rather than assumed (objectui#5155)
- *
- * `BaseSchema` still carries `[key: string]: any`, so anchoring buys DECLARED
- * members their declared types — `xAxisKey: 42` is refused now — but does NOT
- * buy rejection of a MISSPELLING: `xAxisKy: 'x'` still compiles, exactly as it
- * does on `ObjectGallerySchema` (objectui#6576). The counter-probe in
- * `__tests__/widget-schema-anchors-7946.test.ts` pins that honestly.
- *
  * ## AUTHORABLE vs INTERNAL, per key (objectui#7946, ADR-0049)
  *
  * The four keys added by that card do NOT share one verdict, and the ruling
@@ -3106,6 +3101,52 @@ export type KanbanConditionalFormattingRule =
  * undeclared does not make them unauthorable — it only means an `xAxisKey: 42`
  * rides through unchecked. Declaring buys the VALUE check without minting new
  * authorable vocabulary, and the descriptions say which is which.
+ *
+ * ## The three keys objectui#8885 declared, and why each is bound to the spec
+ *
+ * `ObjectChart.tsx` reads `drillDown`, `title` and `compareTo` off `schema`,
+ * and until objectui#8885 neither published copy of this shape mentioned any of
+ * them — the objectui#6914 class (a key read behind a cast, declared on neither
+ * published face). They rode `BaseSchema`'s `[key: string]: any` /
+ * `.passthrough()` and arrived UNVALIDATED, while two independent declarations
+ * already pointed at `drillDown`: this component's registry `inputs` advertise
+ * it to the designer palette, and `@objectstack/spec` publishes
+ * `ChartDrillDownSchema` for exactly this carrier.
+ *
+ * ⛔ None of the three is re-declared locally. Each binds to the spec symbol
+ * that already owns it, per this file's standing rule ("Never Redefine Types.
+ * ALWAYS import them.") — a local near-copy is the fork `check:spec-symbols`
+ * exists to stop, and the one that would drift the day the protocol moves:
+ *
+ *   - `drillDown` → `ChartDrillDown` (`ChartDrillDownSchema`), which the spec
+ *     documents as the `ObjectChart` react-tier prop by name.
+ *   - `title` → `I18nLabel`, the union the spec's own `ChartConfigSchema.title`
+ *     carries and that this package's `normalizeChartSchema` already resolves.
+ *   - `compareTo` → `SpecDashboardWidget['compareTo']`, bound BY REFERENCE to
+ *     the producer's own declaration (see the member doc).
+ *
+ * ## The ceiling, stated rather than assumed (objectui#5155)
+ *
+ * `BaseSchema` still carries `[key: string]: any`, so declaring a key buys it
+ * its declared TYPE — `xAxisKey: 42` and `title: 42` are both refused now — but
+ * does NOT buy rejection of a MISSPELLING: `xAxisKy: 'x'` and `drillDwn: {}`
+ * still compile, exactly as they do on `ObjectGallerySchema` (objectui#6576).
+ * ONE ceiling, two cards, and each pins it honestly with its own counter-probe:
+ * `__tests__/widget-schema-anchors-7946.test.ts` and
+ * `__tests__/object-chart-undeclared-keys-8885.test.ts`.
+ *
+ * ## Two cards ruled on this shape, and neither ruled for the other
+ *
+ * All eight keys above are declared, but they arrived under two separate
+ * rulings — objectui#7946 (`filter`, `aggregate`, `xAxisKey`, `series`,
+ * `colors`) and objectui#8885 (`drillDown`, `title`, `compareTo`) — and each
+ * card measured only its own. Neither swept the other's keys in, so neither
+ * took a disposition on the other's behalf.
+ *
+ * ⭐ Both census pins were written to survive that, and it is why landing order
+ * did not matter: each ledgers the OTHER card's keys by name and asserts only
+ * that each is STILL READ, never that it is still undeclared. So declaring a
+ * ledgered key does not redden its ledger — dropping the READ does.
  */
 export interface ObjectChartSchema extends BaseSchema {
   type: 'object-chart';
@@ -3248,6 +3289,94 @@ export interface ObjectChartSchema extends BaseSchema {
    * published copies of one shape disagreed silently until objectui#7946.
    */
   colors?: string[] | Record<string, string>;
+  /**
+   * AUTHORABLE — segment drill-down. Clicking a bar / slice / point opens the
+   * underlying records, filtered by the clicked category, in a drawer
+   * (default), a dialog, or the object's full list page. Absent means OFF; `{}`
+   * is enough to turn it on.
+   *
+   * ⛔ `ChartDrillDown` from `@objectstack/spec/ui`, NOT this repo's wider
+   * {@link DrillDownConfig}, and the difference is measured rather than
+   * stylistic. The spec type is the CHART subset — `enabled` / `filter` /
+   * `title` / `target` / `columns` / `maxRows`, all six of which
+   * `ObjectChart.tsx` reads — while `DrillDownConfig` additionally carries
+   * `mode` and `report` for the table / pivot / metric widgets, which this
+   * component reads NEITHER of. Declaring the wider type here would advertise
+   * two keys that are accepted and then dropped, which is the authoring bait
+   * objectui#3354 removed from `DrillDownConfig` itself.
+   *
+   * ⚠️ The `target: 'navigate'` arm is live on BOTH faces AT THIS PACKAGE'S
+   * DECLARED FLOOR, so nothing here is owed a floor bump: the floor is
+   * `@objectstack/spec` `^17.3.0` (`packages/types/package.json`), and
+   * `ChartDrillDownSchema.target` already reads
+   * `z.enum(['drawer', 'dialog', 'navigate'])` at the published 17.3.0 — and at
+   * 17.2.0 before it — after objectstack#5435 widened the union that
+   * objectui#3382 had implemented. ⛔ Cite the FLOOR here, never the version the
+   * lockfile happens to resolve: a range dependency guarantees the floor, and
+   * this sentence previously named 17.4.0 for no better reason than that the
+   * tree was resolving 17.4.0 that day.
+   *
+   * ⇒ What is left is an unmade decision about the DESIGNER PALETTE, not a
+   * protocol gap. The `description` on this component's registry `inputs` still
+   * lists two arms, and `packages/plugin-charts/src/index.test.ts` pins that
+   * withholding BY NAME. Widening an advertised authoring vocabulary is a shape
+   * decision, not the prose this round is allowed to touch — see this card's
+   * acceptance notes for the named successor. (The prose in `ObjectChart.tsx`
+   * that once claimed the protocol itself was narrower is already corrected;
+   * objectui#7946's rework round fixed it, so ⛔ do not repeat that half of the
+   * claim.)
+   */
+  drillDown?: ChartDrillDown;
+  /**
+   * AUTHORABLE — the chart's heading, and the drill drawer's heading fallback.
+   *
+   * Two read sites, and ⛔ they do NOT jointly require the union — ONE of them
+   * does, and the other's CALLER narrows it before the helper ever sees it:
+   *
+   *   - `normalizeChartSchema`'s `label()` takes this value as `unknown` and
+   *     resolves BOTH arms itself, picking the first string out of a locale map.
+   *     ⭐ This is the read that requires the union: declaring `string` alone
+   *     would refuse a locale-map `title` that works today.
+   *   - `ObjectChart.tsx` passes it to `resolveDrillTitle` as the drill drawer's
+   *     heading fallback, and that helper's `fallback` parameter is a plain
+   *     `string` (`@object-ui/core`'s `utils/drill-down.ts`). It never sees the
+   *     map arm: the call site pre-resolves through `pickLocalized(schema.title,
+   *     language)` first, which objectui#7946's rework round added precisely so
+   *     the map arm could not reach a heading as an object.
+   *
+   * `I18nLabel` is exactly that union and is what `@objectstack/spec`'s own
+   * `ChartConfigSchema.title` carries — and the spec's `REACT_BLOCKS` entry for
+   * `ObjectChart` lists `title` among its `dataProps`, so this is a key the
+   * platform's authoring surface already offers.
+   *
+   * ⚠️ NOT a `BaseSchema` member — `title` there belongs to `HTMLAttributes`,
+   * not to the node shape — so before objectui#8885 it rode the index signature
+   * as `any` and a `title: 42` reached `label()` unchecked.
+   */
+  title?: I18nLabel;
+  /**
+   * INTERNAL (relay-composed) — the period-over-period comparison directive.
+   * When present the chart runs a second, time-shifted query and overlays the
+   * previous window as `__comparison` series.
+   *
+   * Bound BY REFERENCE to `SpecDashboardWidget['compareTo']` because that is
+   * literally where the value comes from: `DashboardRenderer` composes this
+   * node with `compareTo: widget.compareTo`, forwarding the dashboard widget's
+   * own key verbatim. Binding to the producer's declaration is what keeps the
+   * two from drifting into a second dialect; the shape it resolves to is the
+   * converged `{ kind, dimension? }` (objectstack#5011), which the renderer
+   * side projects as `CompareToConfig` in `@object-ui/core` and the analytics
+   * contract publishes as `DatasetCompareTo`.
+   *
+   * INTERNAL rather than authorable: no producer in this repo puts it on an
+   * `object-chart` node an author wrote, this component's registry `inputs` do
+   * not advertise it, and `dimension` is deliberately never read on this path
+   * (the executor resolves it, so a renderer that guessed would trade a loud
+   * error for a quietly wrong window). Declaring it mints no new authorable
+   * vocabulary — the key is already authorable ON THE WIDGET — and buys the
+   * value check that `.passthrough()` was skipping.
+   */
+  compareTo?: SpecDashboardWidget['compareTo'];
 }
 
 /**
