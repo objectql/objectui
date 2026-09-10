@@ -474,7 +474,11 @@ const SpecPageFields = specFieldsExcept(stripImportedDefaults(SpecPageSchema).sh
  * plus one literal carrying a spread), and the undeclared keys that survive
  * passthrough on a real `page` NODE are exactly `actions` (3 sites, all of them
  * the `content/docs/guide/layout.md` passages this card rewrites) and
- * `breadcrumbs` (1 site, its own question — objectui#7926 does not rule on it).
+ * `breadcrumbs` (its own question — objectui#7926 does not rule on it; RULED
+ * and refused separately by objectui#8871, see {@link PAGE_BREADCRUMBS_REFUSAL}
+ * below, which also corrects the "1 site" reading recorded here — the census
+ * shape that produced it read `page`-TAGGED objects, and two of the guide's
+ * three `breadcrumbs` passages carry no `type` at all).
  * Every other undeclared key the grep found sits on a DIFFERENT declaration
  * that merely spells `type: 'page'` — nav items (`pageName`, `href`, `badge`,
  * `labelKey`, `requiredPermissions`), `registerMetadataResource` rows
@@ -497,6 +501,80 @@ const PAGE_ACTIONS_REFUSAL =
   '(objectui#7182), not nodes.';
 
 /**
+ * The `breadcrumbs` REFUSAL on the `page` node (objectui#8871) — the key
+ * objectui#7926 measured on this same node and deliberately left parsing, so
+ * that retiring it would be a DECISION rather than an accident. This is that
+ * decision, taken under ADR-0049 enforce-or-remove.
+ *
+ * ## Why ADR-0049 governs this, and not a fresh ruling
+ *
+ * objectui#7926's maintainer ruling covers `actions` and, by its own comments,
+ * nothing else — so it is NOT borrowed here. What reaches this key instead is
+ * the standing enforce-or-remove discipline, which this repository applies to
+ * this exact face: {@link retirementTombstone} is documented as the "ADR-0049
+ * RETIREMENT TOMBSTONE" helper and is internal to these zod modules; 63
+ * changesets under `.changeset/` cite the ADR; and `PageNodeSchema` itself
+ * already carries one of its refusal arms one member up. "Declared-or-authored
+ * but unread" is the population the gate names, and this key is in it.
+ *
+ * ## What was measured (objectui#8871, on this branch's base)
+ *
+ * ZERO readers. `git grep "\.breadcrumbs"` over the whole tree returns nothing
+ * (exit 1); the same shape one letter shorter, `"\.breadcrumb\b"`, returns 10
+ * files — the lit control that says the probe runs. ⛔ A BARE-WORD probe is
+ * useless here and the reason this note spells the shape out: `breadcrumbs`
+ * is heavily overloaded in this tree, and a bare grep hits Sentry's own
+ * unrelated breadcrumbs concept (`app-shell/src/observability/sentry.ts`) plus
+ * two comments listing UI surfaces (`core/src/utils/record-title.ts`,
+ * `layout/src/NavigationRenderer.tsx`) — three prose sites, no reader, no
+ * declaration. A bare probe reads "5 readers" and every one of them is false.
+ *
+ * THREE author sites, all of them teaching passages in one file — and the
+ * count corrects objectui#7926's "1 site", which came from a census that read
+ * `page`-TAGGED objects: `content/docs/guide/layout.md`'s Schema API block
+ * declared the member outright, the "Detail Page with Actions" fence authored
+ * it on a real `page` node, and Best Practices §2 authored it on an UNTAGGED
+ * fragment — and the third is exactly the one a `type: 'page'` filter cannot
+ * see. No example app, catalog fixture, template or customer document writes
+ * the key; this refusal therefore strands no authored document in the tree.
+ *
+ * ## Why a REFUSAL and not a bare deletion
+ *
+ * There is nothing to delete: the key was never in the shape. `BaseSchema` is
+ * `.passthrough()`, so an undeclared key is not refused, it is KEPT — deleting
+ * a declaration that does not exist would leave the silent accept exactly as it
+ * is. Declaring the refusal is what makes it audible, and it is what converts a
+ * write from OUTSIDE this repository — the half no in-tree census can read —
+ * into a named refusal carrying its own remedy.
+ *
+ * ## Why a REFUSAL and not a reader
+ *
+ * The remedy is a NODE, and it already ships. `breadcrumb` is a REGISTERED,
+ * live component (`ComponentRegistry.register('breadcrumb', …)` in
+ * `packages/components/src/renderers/data-display/breadcrumb.tsx`) whose
+ * `BreadcrumbSchema.items` takes the very `{ label, href }` shape these
+ * passages authored, and which honours `separator`, `maxItems` and per-item
+ * `icon` besides. Growing a second road to the same trail would mint a rival
+ * spelling for a vocabulary that already renders — the `wrap` test
+ * (objectui#5453) run in the opposite direction: there the key was retired
+ * because it had NO second road to a consumer; here it is retired because the
+ * road that exists is the one that draws.
+ *
+ * ⛔ NOT `.strict()` on the node, for the reason {@link PAGE_ACTIONS_REFUSAL}
+ * records above: the census found only these two keys on a real `page` node,
+ * and `page-app-dashboard-spec-parity.test.ts` pins the node staying open to
+ * unknown renderer props. One key, by name — again.
+ */
+const PAGE_BREADCRUMBS_REFUSAL =
+  '`breadcrumbs` is not a key of the `page` node and never was (objectui#8871, ADR-0049 ' +
+  'enforce-or-remove): no renderer reads it, so an authored trail drew nothing and rode ' +
+  '`.passthrough()` through the validator as a silent accept. Author the trail as a NODE ' +
+  'in `body` instead — { "type": "breadcrumb", "items": [{ "label": "Home", "href": "/" }] } ' +
+  '— which is a registered renderer and takes the same item shape, plus `separator` and ' +
+  '`maxItems`. ⛔ Not the `page:header` block\'s `breadcrumb` either: that one is SINGULAR ' +
+  'and a BOOLEAN display toggle, not a list of links.';
+
+/**
  * Page Schema — top-level page layout, derived from `@objectstack/spec/ui`
  * `PageSchema` (see {@link SpecPageFields}). The drift guard is
  * `__tests__/page-app-dashboard-spec-parity.test.ts`.
@@ -504,6 +582,7 @@ const PAGE_ACTIONS_REFUSAL =
 export const PageNodeSchema = BaseSchema.extend(SpecPageFields.shape).extend({
   type: z.literal('page'),
   actions: retirementTombstone(PAGE_ACTIONS_REFUSAL),
+  breadcrumbs: retirementTombstone(PAGE_BREADCRUMBS_REFUSAL),
   title: z.string().optional().describe('Page title'),
   icon: z.string().optional().describe('Page icon (Lucide icon name)'),
   description: z.string().optional().describe('Page description'),

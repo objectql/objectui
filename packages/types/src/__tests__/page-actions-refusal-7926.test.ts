@@ -38,7 +38,10 @@
  * a measured zero. On a real `page` NODE only two undeclared keys survive
  * passthrough: `actions` (3 sites, all of them the guide passages this card
  * rewrites) and `breadcrumbs` (1 site, no reader either — its own question, NOT
- * ruled on here). Every other undeclared key the same grep found belongs to a
+ * ruled on here; ruled and refused since by objectui#8871 under ADR-0049, whose
+ * own census also corrected the "1 site" reading recorded here to THREE — this
+ * one filtered on `page`-TAGGED objects, and two of the guide's `breadcrumbs`
+ * passages carry no `type` at all). Every other undeclared key the same grep found belongs to a
  * DIFFERENT declaration that merely spells `type: 'page'`: nav items, spec `page`
  * list views, `registerMetadataResource` rows. None of them is parsed by this
  * schema — and `page-app-dashboard-spec-parity.test.ts` PINS the node staying open
@@ -128,16 +131,22 @@ describe('objectui#7926 — the `page` node refuses `actions` (contract half)', 
     // break it: the cheap way to refuse `actions` is `.strict()`, and the census
     // is the reason that is the wrong shape.
     expect(PageNodeSchema.safeParse({ type: 'page', someRendererProp: 42 }).success).toBe(true);
-    // `breadcrumbs` is the OTHER undeclared key the census found on a real page
-    // node. It has no reader either, and objectui#7926 does NOT rule on it — so
-    // it must still parse. If a later card retires it, this line is the one that
-    // says so out loud instead of the change happening by accident here.
+    // `breadcrumbs` was the OTHER undeclared key the census found on a real page
+    // node, and this line used to assert it STILL PARSED — objectui#7926 did not
+    // rule on it, and the assertion existed so that a later retirement would have
+    // to say so out loud here instead of happening by accident.
+    //
+    // objectui#8871 is that retirement (ADR-0049 enforce-or-remove), so the leg is
+    // FLIPPED rather than deleted: the closure stays asserted instead of becoming
+    // a silent absence. Its own pins live in `page-breadcrumbs-refusal-8871.test.ts`;
+    // what this line still owns is the fact that the node did NOT go strict to get
+    // there — `someRendererProp` above is the same census leg, unmoved.
     expect(
       PageNodeSchema.safeParse({
         type: 'page',
         breadcrumbs: [{ label: 'Home', href: '/' }],
       }).success,
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it('the TypeScript twin refuses it too', () => {

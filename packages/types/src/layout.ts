@@ -769,6 +769,36 @@ export interface PageNodeSchema extends BaseSchema {
    */
   actions?: never;
   /**
+   * ⛔ REFUSED BY NAME — `breadcrumbs` is not a member of this node and never
+   * was (objectui#8871, ADR-0049 enforce-or-remove).
+   *
+   * objectui#7926 measured this key on this node and deliberately LEFT it
+   * parsing, so that retiring it would be a decision rather than an accident;
+   * this is that decision. Its ruling is not borrowed — it covers `actions`
+   * only — what reaches this key is the standing enforce-or-remove discipline,
+   * which this package already applies to this face (see
+   * `zod/tombstone.zod.ts`'s `retirementTombstone`).
+   *
+   * Nothing ever read it: a point-access probe (`\.breadcrumbs`) scores 0
+   * across the tree against 10 files for `\.breadcrumb\b` as the lit control.
+   * ⛔ A bare-word probe is worthless here — the word also names Sentry's own
+   * unrelated concept and appears in two comments listing UI surfaces, so a
+   * bare grep reports readers that do not exist. `BaseSchema` is
+   * `.passthrough()`, so the authored array was never refused, only KEPT.
+   *
+   * The remedy is a NODE that already ships: put
+   * `{ "type": "breadcrumb", "items": [{ "label": "Home", "href": "/" }] }` in
+   * {@link body}. `breadcrumb` is a registered renderer taking that exact item
+   * shape, plus `separator`, `maxItems` and a per-item `icon`.
+   * ⛔ Not the `page:header` block's `breadcrumb`: that one is SINGULAR and a
+   * BOOLEAN display toggle, not a list of links.
+   *
+   * `?: never` is the twin of `layout.zod.ts`'s `retirementTombstone` arm — the
+   * pair is what `__tests__/zod-mirror-parity.test.ts` compares, and it is what
+   * makes `tsc` refuse the key at the authoring site before anything runs.
+   */
+  breadcrumbs?: never;
+  /**
    * Page title
    */
   title?: string;
