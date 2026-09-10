@@ -933,6 +933,7 @@ A drag-and-drop Kanban board. The `object-kanban` type key validates the shape t
 |----------|------|-------------|
 | `objectName` | `string` | Object to fetch records from. |
 | `groupBy` | `string` | **Required.** Field whose values become the lanes (maps to column ids). |
+| `columns` | `Array<string \| KanbanLane>` | Swimlane definitions — a `{ id, title }` lane per `groupBy` value, or a bare value string. **Not** a field projection (that is `cardFields`). A lane's `cards` is optional: an object-bound board buckets records into the lane by `groupBy`, and only a static board writes a lane's cards itself. |
 | `titleField` | `string` | Field used as the card title. |
 | `cardFields` | `string[]` | Fields rendered on each card. |
 | `filter` | `any[]` | Query filter, forwarded verbatim as `$filter`. |
@@ -944,7 +945,9 @@ A drag-and-drop Kanban board. The `object-kanban` type key validates the shape t
 
 > `groupField` is refused by name (objectui#7322): the renderer reads `groupBy`.
 
-> The retired `kanban` arm declared `columns`, `cardTitle`, `swimlaneField`, `grouping` and `navigation`; the `object-kanban` face never did, and it is unchanged. The renderer still reads those keys, so a board may carry them — they are simply not judged. The board's React host supplies `onCardMove` / `onCardClick` / `onQuickAdd` as props; none of the three is authorable in JSON.
+> `columns` is declared on this face since objectui#8913, with the element union `@objectstack/spec` declares — a `{ id, title }` lane or a bare value string. A lane accepts `id`, `title`, `cards`, `limit`, `className` and `collapsed`, which are the members the board implementations read; `id` may be a number, because the renderer coerces it. When a lane carries `cards`, each card is judged — a card with no `title` is refused. An undeclared lane key is accepted and dropped, not refused.
+>
+> The other keys the retired `kanban` arm alone declared — `cardTitle`, `swimlaneField`, `grouping` and `navigation` — are still undeclared on this face. The renderer reads them, so a board may carry them; they are simply not judged. The board's React host supplies `onCardMove` / `onCardClick` / `onQuickAdd` as props; none of the three is authorable in JSON.
 
 > `data` and `bind` are [`BaseSchema`](#baseschema) members, not narrowed here, but this face requires **one of** `bind`, `data`, `objectName` — the renderer's own record-source ladder (an external `data` prop → `bind` via `useDataScope` → this schema's own `data` → a fetch keyed by `objectName`). A purely static board (lanes carrying their own cards, no record source) authors `"groupBy"` and `"data": []`.
 

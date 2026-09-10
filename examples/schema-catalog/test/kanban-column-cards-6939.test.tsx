@@ -46,6 +46,15 @@
  * published mirror's accept/reject behaviour moving, and a renamed member on a
  * published type — pinned in both directions below.
  *
+ * ⚠️ That vector has moved TWICE more since, on the surviving face rather than
+ * on this arm, and the two `it`s below carry the current reading with its
+ * reason: objectui#8802 retired the `kanban` arm (everything inside `columns`
+ * went unjudged), and objectui#8913 declared `columns` on `ObjectKanbanSchema`
+ * with the PROTOCOL's element union — a bare value string or a `{ id, title }`
+ * lane whose `cards` is OPTIONAL. So a lane card's `title` is judged again
+ * while `cards` itself is not required, and an undeclared lane key such as
+ * `items` stays accepted-and-dropped.
+ *
  * ## The harness, and why identity is claimed only within it
  *
  * `kanban` resolves to `KanbanRenderer`, which is
@@ -201,18 +210,36 @@ describe('objectui#6939 — the mirror now accepts the spelling every board read
     //     inside it is judged — not the `cards` / `items` spelling, not a
     //     card's required `title`, not `cards`'s type.
     //
-    // ⛔ NOT repaired here: declaring `columns` on `ObjectKanbanSchema` WIDENS a
-    // published accept set, which is a ruling and not a repair. Recorded as an
-    // assertion so it cannot drift back in silence, and reported on the
-    // retirement PR for the maintainer.
+    // ⭐ objectui#8913 DECLARED `columns` on `ObjectKanbanSchema` — and this leg
+    // is STILL green, which is the finding that card had to make rather than
+    // the one it was sent to make. Two corrections to the paragraph above:
+    //
+    //   1. declaring on this face NARROWS, it does not widen — `BaseSchema`
+    //      carries `[key: string]: any` / `.passthrough()`, so a declaration
+    //      can only add validation where there was none;
+    //   2. `columns[].items` was never refused BY NAME even on the retired
+    //      arm. `KanbanColumnSchema` is a plain (strip-postured) object, so
+    //      `items` was accepted and dropped there too; what refused the
+    //      document was the arm's REQUIRED `cards`. objectui#8913 could not
+    //      make `cards` required, because `@objectstack/spec` declares a lane
+    //      as `{ id, title }` per `groupBy` value — no `cards` — and the
+    //      protocol is the authority. So `items` stays accepted-and-dropped,
+    //      and the judging that came back is the one below.
     expect(reasons(toItemsSpelling(getExample(id).schema))).toEqual([]);
   });
 
-  it('⚠️ `cards` is no longer a judged declaration on the surviving arm — measured, with a firing control', () => {
+  it('⭐ `cards` is a JUDGED declaration again on the surviving arm (objectui#8913) — measured, with a firing control', () => {
     // The same four probes objectui#6939 wrote, re-read on the surviving face.
-    // Every one of them is accepted now, INCLUDING the two that are nonsense
-    // (`cards: 'nope'`, a card with no `title`) and the one objectui#6939
-    // required (`cards` present at all).
+    //
+    // The vector moved TWICE. objectui#6939 made all four judged on the
+    // `kanban` arm; objectui#8802 retired that arm and all four went green
+    // (unjudged); objectui#8913 declared `columns` on `object-kanban` and the
+    // two NONSENSE probes are refused again. `cardsAbsent` is the one that
+    // deliberately did NOT come back — and its `true` is the protocol, not an
+    // oversight: `@objectstack/spec` describes a lane as `{ id, title }` per
+    // `groupBy` value, its own gate-validated example authors three lanes with
+    // no `cards`, and `bucketCardsIntoColumns` reads `col.cards || []`. A lane
+    // is a SWIMLANE first; carrying its own cards is the static board's option.
     const col = (extra: Record<string, unknown>) => ({
       type: 'object-kanban',
       groupBy: 'status',
@@ -224,11 +251,12 @@ describe('objectui#6939 — the mirror now accepts the spelling every board read
       cardHasNoTitle: safeValidateSchema(col({ cards: [{ id: '1' }] })).success,
       cardsAbsent: safeValidateSchema(col({})).success,
       wellFormed: safeValidateSchema(col({ cards: [{ id: '1', title: 'Task' }] })).success,
-    }).toEqual({ cardsIsAString: true, cardHasNoTitle: true, cardsAbsent: true, wellFormed: true });
+    }).toEqual({ cardsIsAString: false, cardHasNoTitle: false, cardsAbsent: true, wellFormed: true });
 
-    // FIRING CONTROL on the same call: the surviving arm is not accepting
-    // everything — its own tombstone still refuses by name, so the four `true`s
-    // above are readings about `columns` and not about a dead validator.
+    // FIRING CONTROL on the same call: the surviving arm is not refusing
+    // everything either — its own tombstone refuses by name on a document whose
+    // `columns` is well-formed, so the vector above is a reading about
+    // `columns` and not about a validator stuck in one direction.
     expect(safeValidateSchema({ ...col({ cards: [] }), groupField: 'status' }).success).toBe(false);
   });
 });

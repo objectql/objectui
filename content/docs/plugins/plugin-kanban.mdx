@@ -82,21 +82,30 @@ const onCardMove = (cardId: string, fromCol: string, toCol: string, index: numbe
 has no function value), never a member of the schema object below —
 `packages/plugin-kanban/README.md` documents this the same way.
 
+`columns` are the board's **swimlanes**, not a field projection — the fields drawn
+on a card are `cardFields`. The element is a **union**, and it is the one
+`@objectstack/spec` declares: a `{ id, title }` lane per `groupBy` value, or a bare
+value string. `cards` is **optional** on a lane — an object-bound board buckets its
+records into the lane by `groupBy`, and only a static board writes a lane's cards
+itself. Both faces of `@object-ui/types` declare this since objectui#8913, so a
+lane and its cards are validated: a card with no `title` is refused.
+
 ```plaintext
 {
   type: 'object-kanban',
   groupBy: 'status',
   data: [],
-  columns?: KanbanColumn[],
+  columns?: Array<string | KanbanLane>,
   className?: string
 }
 
-interface KanbanColumn {
-  id: string
+interface KanbanLane {
+  id: string | number         // matched against the groupBy value
   title: string
-  cards: KanbanCard[]
-  limit?: number              // Max cards allowed
+  cards?: KanbanCard[]        // a STATIC board's lane only
+  limit?: number              // Max cards allowed (WIP limit)
   className?: string
+  collapsed?: boolean         // honoured by the enhanced board
 }
 
 interface KanbanCard {
@@ -114,20 +123,23 @@ interface KanbanCard {
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `columns` | KanbanColumn[] | Array of column definitions |
+| `columns` | `Array<string \| KanbanLane>` | Swimlane definitions — a `{ id, title }` lane per `groupBy` value, or a bare value string. NOT a field projection. |
 | `filter` | ViewFilterRule[] | Query filter for an object-driven board, lowered to `$filter` |
 | `limit` | number | Rows fetched by an object-driven board (default 100) |
 | `className` | string | Additional Tailwind CSS classes |
 
-### Column Properties
+### Lane Properties
+
+An undeclared lane key is accepted and dropped, not refused.
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `id` | string | Unique column identifier |
-| `title` | string | Column title |
-| `cards` | KanbanCard[] | Cards in this column |
-| `limit` | number | Max cards allowed (WIP limit) |
+| `id` | `string \| number` | Lane identifier, matched against the `groupBy` value (the renderer coerces it with `String()`) |
+| `title` | string | Lane title, localized against the `groupBy` picklist's option labels |
+| `cards` | KanbanCard[] | Cards this lane carries — **optional**, and a static board's option; an object-bound board's cards arrive from the record source |
+| `limit` | number | Max cards allowed (WIP limit). Never reaches the query — the fetch window is the board's `limit` |
 | `className` | string | Additional Tailwind CSS classes |
+| `collapsed` | boolean | Whether the lane renders collapsed (honoured by the enhanced board) |
 
 ### Card Properties
 
