@@ -20,7 +20,6 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
-  useIsMobile,
 } from '@object-ui/components';
 import { 
   ArrowLeft, 
@@ -37,7 +36,6 @@ import {
 } from 'lucide-react';
 import { DetailSection } from './DetailSection';
 import { DetailTabs } from './DetailTabs';
-import { RelatedList } from './RelatedList';
 import { SectionGroup } from './SectionGroup';
 import { HeaderHighlight } from './HeaderHighlight';
 import { RecordComments } from './RecordComments';
@@ -56,8 +54,6 @@ import { hasCellValue } from './emptiness';
 import { enrichDetailField } from './fieldEnrichment';
 import { chipTakesCellRenderer } from './summaryChipRenderers';
 
-/** Default page size for related lists in the detail view */
-const DEFAULT_RELATED_PAGE_SIZE = 5;
 
 /** Stable empty draft so the section `data`-merge identity is preserved when
  *  no <InlineEditProvider> is mounted (bare / read-only DetailView). */
@@ -298,7 +294,6 @@ export const DetailView: React.FC<DetailViewProps> = ({
   // Tenant default currency (ADR-0053) for summary metrics whose field omits one.
   const { currency: tenantCurrency } = useLocalization();
   const { fieldOptionLabel } = useSafeFieldLabel();
-  const isMobile = useIsMobile();
 
   // Field-level permission gate. Filter section.fields and top-level
   // fields based on the current user's read permissions BEFORE any
@@ -845,18 +840,22 @@ export const DetailView: React.FC<DetailViewProps> = ({
     return () => document.removeEventListener('keydown', handler);
   }, [schema.recordNavigation]);
 
+  // objectui#7997 — the `related` ENTRY on this node is RETIRED (ADR-0049
+  // enforce-or-remove, maintainer ruling 2026-09-10: 「关掉详情页那个入口（推荐）」).
+  // `DetailViewSchema.related` is a `?: never` tombstone on the TypeScript face
+  // and a `retirementTombstone()` arm on the zod mirror, so this component no
+  // longer reads it and no longer renders a Related tab or a Related section.
+  //
+  // ⛔ The capability did not retire, only this door: author a
+  // `record:related_list` block, which is the protocol-governed entry
+  // (@objectstack/spec `RecordRelatedListProps`) and which has always rendered
+  // through the same `RelatedList` component this branch used — see
+  // `renderers/record-related-list.tsx`.
+  //
   // Auto-discovery of related panels via INVERSE references (other objects
-  // whose FK points to the current record) is the responsibility of the
-  // page layer (e.g. RecordDetailView), which has access to the registry of
-  // all objects. We deliberately do NOT auto-derive related panels from the
-  // current object's *forward* lookups (account, owner, …) — those are
-  // parent references already surfaced as detail fields, and listing them
-  // here always produces empty 0-count panels with no usable "+ New" CTA
-  // (the new child wouldn't have an FK to back-fill). Leaving them out
-  // avoids the misleading "为什么有的能新建有的不能" experience.
-  const effectiveRelated: NonNullable<DetailViewSchema['related']> = React.useMemo(() => {
-    return schema.related ?? [];
-  }, [schema.related]);
+  // whose FK points at the current record) was never this component's job
+  // either; it belongs to the page layer (e.g. RecordDetailView), which has the
+  // registry of all objects.
 
   /**
    * Chrome-level "system" actions (Duplicate, Export, View History, Delete,
@@ -1592,7 +1591,6 @@ export const DetailView: React.FC<DetailViewProps> = ({
           When only the Details tab would render (no related, no activity, no
           discussion), skip the Tabs strip entirely — it's pure visual noise. */}
       {schema.autoTabs && !schema.tabs?.length ? (() => {
-        const hasRelated = effectiveRelated.length > 0;
         const hasActivity = !!schema.activities && schema.activities.length > 0;
         const hasDiscussion = !!discussionSlot;
         const hasHistory = !!schema.history;
@@ -1603,7 +1601,6 @@ export const DetailView: React.FC<DetailViewProps> = ({
         // in Radix's uncontrolled state.
         const tabValues = [
           'details',
-          ...(hasRelated ? ['related'] : []),
           ...(hasActivity ? ['activity'] : []),
           ...(hasDiscussion ? ['discussion'] : []),
           ...(hasHistory ? ['history'] : []),
@@ -1673,7 +1670,7 @@ export const DetailView: React.FC<DetailViewProps> = ({
           </div>
         );
 
-        if (!hasRelated && !hasActivity && !hasDiscussion && !hasHistory) {
+        if (!hasActivity && !hasDiscussion && !hasHistory) {
           // Single-tab case: render just the details content without a tab strip.
           return <div className="mt-2">{detailsContent}</div>;
         }
@@ -1687,17 +1684,6 @@ export const DetailView: React.FC<DetailViewProps> = ({
               >
                 {t('detail.details')}
               </TabsTrigger>
-              {hasRelated && (
-                <TabsTrigger
-                  value="related"
-                  className="relative rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
-                >
-                  <span className="flex items-center gap-1.5">
-                    {t('detail.related')}
-                    <Badge variant="secondary" className="text-xs bg-primary/10 text-primary border-transparent">{effectiveRelated.length}</Badge>
-                  </span>
-                </TabsTrigger>
-              )}
               {hasActivity && (
                 <TabsTrigger
                   value="activity"
@@ -1738,36 +1724,6 @@ export const DetailView: React.FC<DetailViewProps> = ({
             <TabsContent value="details" className="mt-4 motion-safe:data-[state=active]:animate-in motion-safe:data-[state=active]:fade-in-0 motion-safe:duration-150">
               {detailsContent}
             </TabsContent>
-
-            {/* Related Tab Content */}
-            {hasRelated && (
-              <TabsContent value="related" className="mt-4 motion-safe:data-[state=active]:animate-in motion-safe:data-[state=active]:fade-in-0 motion-safe:duration-150">
-                <div className="space-y-3">
-                  {effectiveRelated.map((related, index) => (
-                    <RelatedList
-                      key={index}
-                      title={related.title}
-                      type={related.type}
-                      api={related.api}
-                      data={related.data}
-                      columns={related.columns as any}
-                      dataSource={dataSource}
-                      objectName={related.api}
-                      referenceField={(related as any).referenceField}
-                      icon={(related as any).icon}
-                      onNew={(related as any).onNew}
-                      onViewAll={(related as any).onViewAll}
-                      onRowClick={(related as any).onRowClick}
-                      onRowEdit={(related as any).onRowEdit}
-                      onRowDelete={(related as any).onRowDelete}
-                      collapsible
-                      defaultCollapsed={isMobile && index > 0}
-                      pageSize={DEFAULT_RELATED_PAGE_SIZE}
-                    />
-                  ))}
-                </div>
-              </TabsContent>
-            )}
 
             {/* Activity Tab Content */}
             {hasActivity && (
@@ -1859,35 +1815,6 @@ export const DetailView: React.FC<DetailViewProps> = ({
           {/* Tabs */}
           {schema.tabs && schema.tabs.length > 0 && (
             <DetailTabs tabs={schema.tabs} data={data} />
-          )}
-
-          {/* Related Lists */}
-          {effectiveRelated.length > 0 && (
-            <div className="space-y-3">
-              <h2 className="text-lg font-semibold">{t('detail.related')}</h2>
-              {effectiveRelated.map((related, index) => (
-                <RelatedList
-                  key={index}
-                  title={related.title}
-                  type={related.type}
-                  api={related.api}
-                  data={related.data}
-                  columns={related.columns as any}
-                  dataSource={dataSource}
-                  objectName={related.api}
-                  referenceField={(related as any).referenceField}
-                  icon={(related as any).icon}
-                  onNew={(related as any).onNew}
-                  onViewAll={(related as any).onViewAll}
-                  onRowClick={(related as any).onRowClick}
-                  onRowEdit={(related as any).onRowEdit}
-                  onRowDelete={(related as any).onRowDelete}
-                  collapsible
-                  defaultCollapsed={isMobile && index > 0}
-                  pageSize={DEFAULT_RELATED_PAGE_SIZE}
-                />
-              ))}
-            </div>
           )}
 
           {/* Comments */}

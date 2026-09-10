@@ -18,7 +18,7 @@
 
 import { z } from 'zod';
 import { BaseSchema, SchemaNodeSchema } from './base.zod.js';
-import { handlerKeyRefusal } from './tombstone.zod.js';
+import { handlerKeyRefusal, retirementTombstone } from './tombstone.zod.js';
 import { ListViewSchema as SpecListViewSchema } from '@objectstack/spec/ui';
 
 /**
@@ -160,16 +160,61 @@ export const DetailViewSchema = BaseSchema.extend({
   loading: z.boolean().optional().describe('Whether to show loading state'),
   header: SchemaNodeSchema.optional().describe('Custom header content'),
   footer: SchemaNodeSchema.optional().describe('Custom footer content'),
-  related: z.array(z.object({
-    title: z.string().describe('Relation title'),
-    type: z.enum(['list', 'grid', 'table']).describe('Relation type'),
-    api: z.string().optional().describe('API endpoint for related data'),
-    data: z.array(z.any()).optional().describe('Static data'),
-    columns: z.array(z.any()).optional().describe('Columns for table view'),
-    fields: z.array(z.string()).optional().describe('Fields for list view'),
-    referenceField: z.string().optional().describe('Foreign-key field on the child object pointing back to the parent record. The renderer hides this column from the related-list table by default since the parent is implicit context.'),
-    icon: z.string().optional().describe('Optional Lucide-style icon name to render next to the section title'),
-  })).optional().describe('Related records section'),
+  /**
+   * The DETAIL-VIEW RELATED-LIST REFUSAL (objectui#7997) — `related` retires
+   * from `DetailViewSchema` on BOTH faces under ADR-0049 enforce-or-remove
+   * (maintainer ruling 2026-09-10; the direction is not re-opened by a later
+   * card).
+   *
+   * ## Why a REFUSAL and not a deletion
+   *
+   * `BaseSchemaCore` ends `.passthrough()` and the TypeScript `BaseSchema`
+   * closes with an any-valued index signature, so a dropped MEMBER key is
+   * KEPT, not refused — deleting this declaration would have left the silent
+   * accept exactly as it was and thrown the diagnostic away with it.
+   * `retirementTombstone` keeps the key DECLARED and unwritable, which is what
+   * makes the refusal loud. Same mechanism and same reasoning as the
+   * alert-dialog footer refusals (`./overlay.zod.ts`, objectui#7963) and the
+   * `PageNodeSchema` arms (`./layout.zod.ts`, objectui#7926 / objectui#8871).
+   *
+   * ## What was measured — the frame is BASE `efead6c60`, stated out loud
+   *
+   * ZERO PULL, which is the axis that carried the ruling. No application code
+   * authored this member. Both internal producers of a `detail-view` node —
+   * `RecordDetailDrawer` and `renderers/record-details.tsx` in
+   * `@object-ui/plugin-detail` — synthesize the node WITHOUT `related`. The
+   * only in-tree authorings carrying real columns were `packages/plugin-detail`'s
+   * README and `content/docs/api/schema-reference.md`, both rewritten by the
+   * same change to teach `record:related_list`.
+   *
+   * ⛔ The bare word `related` is worthless as a probe here and fails towards
+   * "live": `relatedListColumns`, `autoDiscoverRelated`, `RelatedList`,
+   * `record:related_list` and `RelatedRecordActionsContext` are all live and
+   * all untouched. The reading is a MEMBER-ACCESS one, and it is the two
+   * producers above that make the zero a measurement rather than a miss.
+   *
+   * ## What did NOT retire
+   *
+   * The capability. `record:related_list` is the protocol-governed entry
+   * (`@objectstack/spec` `RecordRelatedListProps`), it always rendered through
+   * the SAME `RelatedList` component this member fed, and it is unchanged here.
+   *
+   * ⚠️ It is the only DECLARED / protocol-governed entry, ⛔ not the only entry
+   * full stop: `plugin-detail/src/index.tsx` still registers a bare
+   * `related-list` node against the same component, with untyped `columns`.
+   * That registration is out of this card's scope and is untouched.
+   */
+  related: retirementTombstone(
+    '`related` is RETIRED on `detail-view` (objectui#7997, ADR-0049 '
+    + 'enforce-or-remove). It was a second, unmirrored entry to a capability the '
+    + 'protocol already governs: @objectstack/spec declares no DetailView schema, '
+    + 'so this array mirrored nothing and drifted — it declared `columns` as '
+    + 'TableColumn objects while the renderer it fed also took bare field names. '
+    + 'Author a `record:related_list` block instead: it is the protocol-governed '
+    + 'entry (RecordRelatedListProps), its `columns` is an array of field-name '
+    + 'strings, and it renders through the same component, so nothing about the '
+    + 'result is lost — only the second door.',
+  ),
 });
 
 /**

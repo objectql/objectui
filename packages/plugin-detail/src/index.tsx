@@ -297,7 +297,6 @@ ComponentRegistry.register('detail-view', DetailViewRenderer, {
     { name: 'sections', type: 'array' },
     { name: 'fields', type: 'array' },
     { name: 'tabs', type: 'array' },
-    { name: 'related', type: 'array' },
     { name: 'actions', type: 'array' },
     { name: 'showBack', type: 'boolean' },
     { name: 'backUrl', type: 'string' },
@@ -317,7 +316,6 @@ ComponentRegistry.register('detail-view', DetailViewRenderer, {
     sections: [],
     fields: [],
     tabs: [],
-    related: [],
   }
 });
 

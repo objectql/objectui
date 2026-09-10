@@ -18,7 +18,6 @@
 
 import type { BaseSchema, SchemaNode } from './base.js';
 import type { ActionSchema } from './crud.js';
-import type { TableColumn } from './data-display.js';
 import type { SelectOptionMetadata } from './field-types.js';
 import type { ListView as SpecListView } from '@objectstack/spec/ui';
 
@@ -772,44 +771,43 @@ export interface DetailViewSchema extends BaseSchema {
    */
   onNavigate?: (url: string, options?: { replace?: boolean; newTab?: boolean }) => void;
   /**
-   * Related records section
+   * RETIRED (objectui#7997, ADR-0049 enforce-or-remove; maintainer ruling
+   * 2026-09-10, quoted verbatim and untranslated because a paraphrase is a
+   * different ruling: 「关掉详情页那个入口（推荐）」 — "close that entry point on
+   * the detail page (recommended)").
+   *
+   * This was objectui's own second entry to a capability the protocol already
+   * governs. `@objectstack/spec` declares NO `DetailView` schema at all — every
+   * `DetailView` occurrence in `packages/spec/src` is prose about this repo's
+   * own `RecordDetailView.tsx` — so this array mirrored nothing and drifted
+   * freely: it declared `columns` as `TableColumn[]` while the renderer it fed
+   * also accepted bare field names, `{ field, label }` and the legacy
+   * `{ name, label }` spellings.
+   *
+   * ⛔ Do NOT read the retirement as "related lists are gone". The capability
+   * moves to its one DECLARED, protocol-governed entry — `record:related_list`
+   * (`RecordRelatedListComponentProps`, mirroring `@objectstack/spec`
+   * `RecordRelatedListProps`), whose `columns` is an array of FIELD-NAME
+   * strings. Both entries always rendered through the same `RelatedList`
+   * component, so nothing about the rendered result is lost — only the second
+   * door.
+   *
+   * What was measured, and what carried the ruling: ZERO pull. No application
+   * code authored this member; both internal producers of a `detail-view` node
+   * (`RecordDetailDrawer`, `renderers/record-details.tsx`) pass no `related`;
+   * the only in-tree authorings carrying real columns were two documents, both
+   * rewritten by the same change.
+   *
+   * `?: never` is the twin of `zod/views.zod.ts`'s `retirementTombstone` arm,
+   * and the pair is deliberate: a BARE DELETE would not refuse this key, it
+   * would KEEP it. `BaseSchema` closes with an any-valued index signature and
+   * `BaseSchemaCore` ends `.passthrough()`, so an undeclared member is passed
+   * through silently — the mechanism objectui#7963 measured. Declared-and-
+   * unwritable is what makes the refusal loud.
+   *
+   * @deprecated Not part of this contract. Author a `record:related_list` block.
    */
-  related?: Array<{
-    /**
-     * Relation title
-     */
-    title: string;
-    /**
-     * Relation type
-     */
-    type: 'list' | 'grid' | 'table';
-    /**
-     * API endpoint for related data
-     */
-    api?: string;
-    /**
-     * Static data
-     */
-    data?: any[];
-    /**
-     * Columns for table view
-     */
-    columns?: TableColumn[];
-    /**
-     * Fields for list view
-     */
-    fields?: string[];
-    /**
-     * Optional foreign-key field on the child records that points back to the
-     * parent record. When provided, the renderer hides this column from the
-     * default related-list table because the parent is implicit context.
-     */
-    referenceField?: string;
-    /**
-     * Optional Lucide-style icon name to render next to the section title.
-     */
-    icon?: string;
-  }>;
+  related?: never;
   /**
    * Optional audit history feed for this record. When provided, a "History" tab
    * is rendered alongside Details/Related. The renderer treats the data as

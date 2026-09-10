@@ -1088,7 +1088,7 @@ objectui#5667: nothing read them on the authored-node path.
 
 ### DetailViewSchema
 
-An enhanced detail view for a single record with sections, tabs, related records, and navigation.
+An enhanced detail view for a single record with sections, tabs and navigation.
 
 ```json
 {
@@ -1127,18 +1127,6 @@ An enhanced detail view for a single record with sections, tabs, related records
       "content": { "type": "timeline", "events": [] }
     }
   ],
-  "related": [
-    {
-      "title": "Recent Orders",
-      "type": "table",
-      "api": "/api/contacts/contact-123/orders",
-      "columns": [
-        { "name": "id", "label": "Order #" },
-        { "name": "total", "label": "Total" },
-        { "name": "status", "label": "Status" }
-      ]
-    }
-  ],
   "actions": [
     { "type": "action", "label": "Send Email", "icon": "Mail", "level": "primary" }
   ]
@@ -1157,12 +1145,45 @@ An enhanced detail view for a single record with sections, tabs, related records
 | `sections` | `DetailViewSection[]` | Field groups with `title`, `icon`, `fields`, `collapsible`. |
 | `fields` | `DetailViewField[]` | Direct fields (without sections). |
 | `tabs` | `DetailViewTab[]` | Tabbed content with `key`, `label`, `icon`, `badge`, `content`. |
-| `related` | `array` | Related record sections with `title`, `type`, `api`, `columns`. |
+| `related` | ⛔ **RETIRED** | Retired in objectui#7997 (ADR-0049 enforce-or-remove). Authoring it is now refused by name on both faces. Author a `record:related_list` block instead — see below. |
 | `actions` | `ActionSchema[]` | Available actions. |
 | `showBack` / `backUrl` | `boolean` / `string` | Back navigation. |
 | `showEdit` / `editUrl` | `boolean` / `string` | Edit navigation. |
 | `showDelete` / `deleteConfirmation` | `boolean` / `string` | Delete with confirmation message. |
 | `header` / `footer` | `SchemaNode` | Custom header/footer content. |
+
+> **Retired: `related`** (objectui#7997, ADR-0049 enforce-or-remove).
+> Author a `record:related_list` block instead.
+>
+> Until objectui#7997 this block carried its own `related` array, and this page
+> taught it with `{ "name": ..., "label": ... }` columns. That array is retired
+> under ADR-0049 enforce-or-remove: it was a second entry to a capability
+> `@objectstack/spec` already governs, it mirrored no protocol schema, and it
+> drifted from the renderer it fed. Authoring it is now **refused by name** on
+> both the TypeScript and the JSON face — it is not silently ignored.
+>
+> Related lists have one declared entry now, and it renders through the same component:
+>
+> ```json
+> {
+>   "type": "record:related_list",
+>   "objectName": "order",
+>   "relationshipField": "contact_id",
+>   "title": "Recent Orders",
+>   "columns": ["id", "total", "status"]
+> }
+> ```
+>
+> ⚠️ `columns` here is an array of **field-name strings**, not column objects —
+> that is what the protocol declares (`RecordRelatedListProps.columns`), and the
+> header and cell formatting are derived from the related object's schema, so a
+> field label rename reaches the list for free. `relationshipField` names the
+> field on the RELATED object that points back at this record, and replaces the
+> retired form's `api` endpoint.
+>
+> ⚠️ The block reads the parent record from the record page's `RecordContext`,
+> so author it on a record page. Placed anywhere it cannot resolve a parent id
+> it scopes to nothing and renders an empty list.
 
 **Related:** [DetailSchema](#detailschema), [ObjectViewSchema](#objectviewschema)
 
