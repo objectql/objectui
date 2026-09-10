@@ -36,6 +36,7 @@ one has its own section below.
 | `doc-component-types.yml` | Doc Component Type Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a `content/docs/**.mdx` snippet teaches a `type` nothing registers |
 | `doc-snippet-types.yml` | Doc Snippet Type Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a covered documentation snippet no longer compiles against the packages' built types, **or** when a covered JSDoc `@example` block does (two gates, one job — see below) |
 | `doc-fence-languages.yml` | Doc Fence Language Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a TypeScript block sits under a fence the snippet gate does not read |
+| `doc-example-ids.yml` | Doc Example Id Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a `content/docs/**` page references a schema-catalog example id the registry does not carry, or when the gate's own population collapses |
 | `pre-install-import-graph.yml` | Pre-Install Import Graph Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a gate a workflow runs *before* `pnpm install` reaches a package anywhere in its import graph |
 | `vi-mock-specifiers.yml` | Inert vi.mock Specifier Check | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a `vi.mock` / `vi.doMock` relative specifier resolves to no file, or the scan's population collapses |
 | `shell-escape-residue.yml` | Shell Escape Residue Scan | Push / PR to `main`, `develop` — **no path filter**; merge-queue builds; manual | **Yes** — when a fenced block in `AGENTS.md`, `CLAUDE.md`, `skills/**` or `content/docs/**` carries the enumerated machine-produced shell escape, or a scan root fails to resolve |
@@ -1198,6 +1199,53 @@ which is why the probe runs before the verdict.
 **If it fails:** each line is `file:line ```<language> — <first line of the block>`. Re-fence the
 block ```ts (or ```tsx) and fix whatever `check-doc-snippets` then reports, then lower the file's
 number. Run it locally with `pnpm check:doc-fences`; it needs no install and no build.
+
+## Documented Example Ids (`doc-example-ids.yml`)
+
+**Triggers:** Push and PR to `main`/`develop`, merge-queue builds, plus manual dispatch — with **no
+path filter at all**, for the same reason as the three doc sections above: the change that
+introduces this defect is an id typed into an MDX page, and a docs-only pull request is exactly the
+shape `ci.yml`'s expensive jobs short-circuit. It appears in the checks list as **Doc Example Id
+Check**.
+
+Runs `scripts/check-doc-example-ids.mjs`, which walks every `.mdx` and `.md` page under
+`content/docs/**`, reads the `id` prop off each `SchemaExample` tag, and resolves it against the ids
+the generated schema-catalog index carries.
+
+**Why the reference side needed its own gate.** The site's `SchemaExample` component looks its id up
+through `getExample`, and that lookup **throws** on an unknown id rather than degrading — the honest
+behaviour, since a silently wrong or empty example teaches the wrong thing and an author would never
+learn the id was wrong. The cost is that the throw arrives at *page render*, in the published docs.
+The catalog's own suite resolves every registry **entry**, which cannot see a page pointing at an id
+that is not there: the entry simply is not present to render. So a mistyped or stale id passed every
+check in the repository and crashed the page it was on.
+
+**Where the id universe comes from.** The generated catalog index, read twice on every run — the
+`REGISTRY` object's own keys, which is what `getExample` indexes, and the schema import specifiers
+above them. The two must agree exactly; if they diverge, the gate reports that it **could not run**
+rather than judging pages against a half-read registry, because an id missing from the universe
+turns *correct* documentation red.
+
+**Illustrative references are exempted by shape, never by a list.** The catalog authoring guide
+teaches the tag's syntax, so it carries an angle-bracket template and an ellipsis where a real id
+would go. Those are recognised as metasyntax — a value carrying `<`/`>` or an elision cannot be a
+filename-derived id — rather than by naming the two strings, which would be a ledger that rots and
+would say nothing about the next placeholder somebody writes. A value that is merely *wrong* — bad
+case, wrong segment count, a typo — is **not** exempt. Every exemption the run takes is printed in
+its output, so the carve-out is never silent, and the rule's premise is re-derived from the live
+registry each run: if a real id ever carries a marker, the gate stops instead of exempting it.
+
+**Its own emptiness is a failure, not a pass.** A walk that reads no pages, a matcher that finds no
+references, or a registry that reads as zero ids each exit `2` — *could not run* — because all three
+otherwise produce the same clean verdict as a clean tree. The population was clean the day this
+landed, so the gate's test spawns the real script over a throwaway tree carrying a deliberately
+unknown id and asserts it goes red.
+
+**If it fails:** it prints each page, the line, and the id that did not resolve. Fix the id, or add
+the schema under `examples/schema-catalog/src/schemas/` and regenerate the index
+(`pnpm -F @object-ui/example-schema-catalog regenerate`). ⛔ Do not make `getExample` fall back and
+do not add a registry entry just to make a reference resolve. Run it locally with
+`pnpm check:doc-example-ids`; it needs no install and no build.
 
 ## Pre-Install Import Graphs (`pre-install-import-graph.yml`)
 
