@@ -193,6 +193,15 @@ and `button.tsx`, which reads `schema.label`, renders a button with no text.
 > the `page:header` block's own `actions` — which are **action ids**, not nodes
 > (see the [PageHeader reference](/docs/layout/page-header)).
 
+> **⛔ `breadcrumbs` on a `page` node is refused by name** (objectui#8871). This page used
+> to declare it in the Schema API block below and author it in two passages, and it drew
+> **nothing**: no renderer has ever read the key, and `BaseSchema`'s `.passthrough()` kept
+> the array rather than refusing it — the same silent-accept shape as `actions`, retired
+> under the same ADR-0049 enforce-or-remove gate. The trail is a **node**, not a key: put
+> a `breadcrumb` node in `body`, as [Breadcrumbs for Deep Navigation](#2-breadcrumbs-for-deep-navigation)
+> shows. ⛔ Not the `page:header` block's `breadcrumb` either — that one is singular and a
+> **boolean** display toggle, not a list of links.
+
 ### Schema API
 
 <!-- doc-snippet: fragment — a SHAPE excerpt, not an expression — the keys carry `?` optional markers and trailing prose comments, so the object literal cannot parse as TypeScript (measured: TS1109 / TS1005 / TS1011) -->
@@ -204,11 +213,8 @@ and `button.tsx`, which reads `schema.label`, renders a button with no text.
   title?: string,               // Page title
   description?: string,         // Page description/subtitle
   icon?: string,               // Optional icon
-  breadcrumbs?: Array<{        // Breadcrumb navigation
-    label: string,
-    href?: string
-  }>,
   // NO `actions` — refused by name (objectui#7926); put the buttons in `body`
+  // NO `breadcrumbs` — refused by name (objectui#8871); put a `breadcrumb` node in `body`
 
   // Content
   body: SchemaNode,            // Main page content
@@ -528,18 +534,22 @@ Omit `sidebar` and the content fills the width under the top bar.
 
 ### Detail Page with Actions
 
-Same rule as above: the buttons are nodes in `body`, not an `actions` key on the page.
+Same rule as above, and it governs the trail too: the breadcrumb and the buttons are both
+**nodes in `body`** — never a `breadcrumbs` or an `actions` key on the page.
 
 ```json
 {
   "type": "page",
   "title": "Acme Corporation",
-  "breadcrumbs": [
-    { "label": "Home", "href": "/" },
-    { "label": "Customers", "href": "/customers" },
-    { "label": "Acme Corporation" }
-  ],
   "body": [
+    {
+      "type": "breadcrumb",
+      "items": [
+        { "label": "Home", "href": "/" },
+        { "label": "Customers", "href": "/customers" },
+        { "label": "Acme Corporation" }
+      ]
+    },
     {
       "type": "flex",
       "justify": "end",
@@ -675,18 +685,30 @@ Compose the shell once and let the page JSON change per route:
 
 ### 2. Breadcrumbs for Deep Navigation
 
-Add breadcrumbs to help users navigate:
+Add a breadcrumb trail to help users navigate. It is a **node in `body`**, not a key on the
+page — `breadcrumb`, singular, is the registered renderer:
 
 ```json
 {
-  "breadcrumbs": [
+  "type": "breadcrumb",
+  "items": [
     { "label": "Home", "href": "/" },
     { "label": "Products", "href": "/products" },
     { "label": "Electronics", "href": "/products/electronics" },
     { "label": "Laptops" }
-  ]
+  ],
+  "separator": "/",
+  "maxItems": 3
 }
 ```
+
+`separator` defaults to `/`, and `maxItems` collapses the middle of a long trail behind an
+ellipsis while keeping the first crumb and the current page. See the
+[Breadcrumb reference](/docs/components/data-display/breadcrumb) for the per-key face.
+
+⛔ Not `"breadcrumbs"` on the `page` node — that key has no reader and is refused by name
+(objectui#8871), the same way `actions` is. ⛔ Nor the `page:header` block's `breadcrumb`,
+which is a **boolean** display toggle rather than a list of links.
 
 ### 3. Action Buttons at the Top of the Body
 
