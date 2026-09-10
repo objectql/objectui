@@ -153,9 +153,26 @@ export const RETIRED_FIELD_KEY_TOMBSTONES = [
      * that renders the field read-only.
      *
      * Each of those two sites now lifts the VALUE onto the spec key before
-     * dropping the retired one, so the strip loses nothing at all three. The
-     * strip itself is unchanged everywhere: `FieldSchema` refuses this spelling
-     * BY NAME, so no site emits it.
+     * dropping the retired one. The strip itself is unchanged everywhere:
+     * `FieldSchema` refuses this spelling BY NAME, so no site emits it.
+     *
+     * ⚠️ The claim is therefore per site, and is NOT restated as a third
+     * unconditional sentence — restating the conclusion without its condition is
+     * how this entry went wrong the first time:
+     *
+     *   - `metadataFieldsPageCarryOver` — nothing is lost. Its designable branch
+     *     reads through `storedRelationshipTarget` (objectui#8058) and its
+     *     preserved branch through `carryPreservedField` (objectui#8896); both
+     *     re-emit under `reference`.
+     *   - `metadataAdminFieldsReadDoor` — nothing is lost. The door keeps the
+     *     value under `reference` as it drops the key (objectui#8896).
+     *   - `metadataServiceCarryOver` — ⛔ UNMEASURED, deliberately. That site
+     *     strips a stored entry it merges UNDERNEATH an already-built
+     *     `DesignerFieldDefinition`, and `toFieldPayload` writes `reference`
+     *     from that model unconditionally. Whether a target survives therefore
+     *     depends on the CALLER's read door, and `saveFields` has no in-repo
+     *     caller to measure (it is a published service API). Whoever measures
+     *     one: this is the same class, and the answer belongs here.
      *
      * ⛔ That recovery is written per site and keyed to THIS key. It is NOT
      * driven off `specEquivalent` — see the field's own doc, and objectui#6043,
