@@ -25,8 +25,10 @@
  *     retired (objectui#8447 / PR #8512): `$regex` is REFUSED with a
  *     `FilterOperatorError`, because a substring match is a different
  *     question, not a weaker version of the same one;
- *   - only `$startswith` was listed, while the map carries both spellings and
+ *   - only `$startswith` was listed, while the map carried both spellings and
  *     `$startsWith` is the spec's (`FILTER_OPERATORS`, `data/filter.zod.ts`).
+ *     The lowercase half was retired outright by objectui#8568; this pin is
+ *     what named the four rows that had to change with it.
  *
  * Re-deriving the whole table for that card found the rest of the drift: four
  * operators the code's own "Supported operators:" message enumerates —
@@ -53,8 +55,7 @@
  *     `$exists` are probed with both booleans, so their rows must name both
  *     directions;
  *   - the supported table must carry a row for EVERY key of
- *     `convertOperatorToAST`'s `operatorMap` (alias spellings included — the
- *     omitted `$startsWith` was an alias row) and for every operator the
+ *     `convertOperatorToAST`'s `operatorMap` and for every operator the
  *     unknown-operator error message calls supported (`$null` / `$exists`
  *     live outside the map);
  *   - every `$`-spelling in the refused table must be refused, and every
@@ -65,10 +66,10 @@
  * Hardcoding `nin` below would rebuild the defect one level up: a second
  * hand-maintained copy, in a test, that would then have to be edited whenever
  * the map changed — the edit everybody makes without reading. So the map is
- * read from `filter-converter.ts`'s source (the only way to see its lowercase
- * aliases without exporting it; a control below proves the read agrees with
- * the runtime), the supported list is read from the error the function throws
- * for an unknown operator, and every lowering comes from calling the function.
+ * read from `filter-converter.ts`'s source (it is not exported, and a control
+ * below proves the read agrees with the runtime), the supported list is read
+ * from the error the function throws for an unknown operator, and every
+ * lowering comes from calling the function.
  * A red here is always "fix the README (or the code)", never "update the test".
  *
  * ## Exhaustiveness IS asserted, deliberately
@@ -261,10 +262,10 @@ function lowerings(spelling: string): Lowering {
 }
 
 /**
- * `convertOperatorToAST`'s `operatorMap`, read out of the source so the
- * lowercase aliases are visible without exporting the map. The slice is
- * anchored on the declaration, and a control below holds every entry to the
- * runtime, so a moved or reshaped map fails loudly rather than reading empty.
+ * `convertOperatorToAST`'s `operatorMap`, read out of the source because the map
+ * is local to that function and not exported. The slice is anchored on the
+ * declaration, and a control below holds every entry to the runtime, so a moved
+ * or reshaped map fails loudly rather than reading empty.
  */
 function operatorMapFromSource(): Map<string, string> {
   const start = CONVERTER_SOURCE.indexOf('const operatorMap');
@@ -421,7 +422,7 @@ describe('README filter-operator tables are decided by convertFiltersToAST (obje
       ).toEqual([]);
     });
 
-    it('carries a row for every key of the operator map, alias spellings included', () => {
+    it('carries a row for every key of the operator map', () => {
       const listed = new Set(supported.flatMap((row) => operatorSpellings(row.cells[0] ?? '')));
       const missing = [...operatorMap.keys()].filter((spelling) => !listed.has(spelling));
       expect(

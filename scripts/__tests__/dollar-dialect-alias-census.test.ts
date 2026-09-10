@@ -308,6 +308,8 @@ describe('the tree as it stands today', () => {
 
   it('passes every control on a real run, so the printed number is a reading', async () => {
     const r = await runCensus(REPO_ROOT) as {
+      mapKeys: string[];
+      specOperators: string[];
       aliases: string[];
       controls: Array<{ id: string; ok: boolean; detail: string }>;
       rows: Array<{ role: string }>;
@@ -315,13 +317,47 @@ describe('the tree as it stands today', () => {
     };
     const failed = r.controls.filter((c) => !c.ok).map((c) => `${c.id}: ${c.detail}`);
     expect(failed, 'a census run whose controls fail is not a reading').toEqual([]);
-    // Not an exhaustiveness pin on the count — objectui#8568 reserves the
-    // ruling and the count is expected to move. What is pinned is that the
-    // instrument SAW something, because a zero everywhere is blindness.
+
+    // objectui#8568 has since been RULED (option 1) and the four aliases are
+    // retired, so on this tree the derived set is legitimately EMPTY. That is
+    // the DESIGNED post-ruling reading, not blindness: the census models it (its
+    // canonical-twin arm), and the synthetic case above pins the same thing.
+    //
+    // ⚠️ This case used to assert `aliases.length > 0`, `rows.length > 0` and
+    // `selfCarved > 0` unconditionally, and the retirement made all three false
+    // at once. The blindness guard they carried is real and is re-expressed
+    // rather than deleted: on an empty tree the instrument's reach is proved by
+    // `authored-reach`, which counts CANONICAL `$`-operator payloads in
+    // non-test authored files and therefore cannot be satisfied by a scanner
+    // that never opened the authored corpus.
+    const reach = r.controls.find((c) => c.id === 'authored-reach');
+    expect(reach?.ok, 'the scanner must be shown to reach the authored corpus on either tree').toBe(true);
+
+    if (r.aliases.length === 0) {
+      // An empty set has to be DERIVED, not the residue of a failed read on
+      // either side — that is the one way this branch could pass vacuously.
+      expect(r.mapKeys.length, 'an empty alias set read off an EMPTY operatorMap is a read failure').toBeGreaterThan(0);
+      expect(r.specOperators.length, 'an empty alias set read against an EMPTY spec list is a read failure').toBeGreaterThan(0);
+      // Recomputed HERE rather than by calling `deriveAliases` again: measured,
+      // a stubbed `deriveAliases` that returns `[]` satisfies its own output and
+      // this branch would pass while witnessing nothing. Asking the question
+      // independently — every accepted key must be a canonical one — is what
+      // makes an alias re-added to the map red here even if the census's own
+      // derivation is what broke.
+      expect(
+        r.mapKeys.filter((key) => !r.specOperators.includes(key)),
+        'the alias set is accepted-minus-canonical; a non-canonical accepted key means the empty set is wrong',
+      ).toEqual([]);
+      // No alias exists, so no occurrence of one can, and there is nothing for
+      // the self carve-out to remove.
+      expect(r.rows.length).toBe(0);
+      expect(r.selfCarved).toBe(0);
+      return;
+    }
+
+    // The pre-retirement shape, kept intact so this case still holds on any
+    // tree that carries an alias again — including a revert of the retirement.
     expect(r.rows.length).toBeGreaterThan(0);
-    expect(r.aliases.length).toBeGreaterThan(0);
-    // The self carve-out really carved something out; a zero here would mean
-    // the fixture spellings had quietly moved back into the population.
     expect(r.selfCarved).toBeGreaterThan(0);
   });
 });

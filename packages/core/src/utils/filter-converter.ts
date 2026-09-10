@@ -59,10 +59,45 @@ export class FilterOperatorError extends Error {
   }
 }
 
+/**
+ * The four lowercase `$`-dialect spellings this file used to accept "for
+ * tolerance", and the canonical spelling each author meant.
+ *
+ * RETIRED by objectui#8568, on the maintainer's ruling that this project follows
+ * the ObjectStack protocol and its documentation follows the implementation.
+ * They were a renderer-side second dialect — exactly what AGENTS.md #0.1
+ * refuses, and the same ground objectui#8447 stood on when it declined to teach
+ * the in-memory matcher the same arms ("would fossilise a second dialect").
+ * Until now `convertFiltersToAST` accepted them while `ValueDataSource` refused
+ * them, so ONE authored filter had two fates depending on which data source was
+ * behind the view. One dialect, one spelling.
+ *
+ * Refused BY NAME rather than dropped into the unknown-operator arm below,
+ * because the two answers cost an author very different amounts: "unknown
+ * operator, here is the supported list" makes them diff two lists and guess
+ * which entry they meant, while "write `$startsWith`" IS the repair. There is no
+ * deprecation window (maintainer, 2026-08-27), so this message is the entire
+ * migration aid — the reason it is worth spelling out.
+ *
+ * ⛔ Not a lowering table in disguise: nothing reads the value as an operator.
+ * Every VALUE is a member of the spec's `FILTER_OPERATORS` and every KEY is
+ * absent from it, and both directions are EXECUTED against
+ * `@objectstack/spec` in `filter-alias-retirement-8568.test.ts` rather than
+ * restated here, so this map cannot drift into prescribing a spelling the spec
+ * does not declare.
+ */
+const RETIRED_OPERATOR_ALIASES: Record<string, string> = {
+  '$notin': '$nin',
+  '$notcontains': '$notContains',
+  '$startswith': '$startsWith',
+  '$endswith': '$endsWith',
+};
+
 export function convertOperatorToAST(operator: string): string | null {
   // Spec reference: framework/packages/spec/src/data/filter.zod.ts
-  // Canonical MongoDB-style keys are camelCase ($startsWith, $endsWith, $notContains).
-  // Lowercase aliases are accepted for tolerance.
+  // Every key below is a canonical `FILTER_OPERATORS` spelling and nothing else.
+  // The four lowercase aliases that used to sit here are retired and refused by
+  // name (objectui#8568) — see RETIRED_OPERATOR_ALIASES above.
   const operatorMap: Record<string, string> = {
     '$eq': '=',
     '$ne': '!=',
@@ -72,15 +107,11 @@ export function convertOperatorToAST(operator: string): string | null {
     '$lte': '<=',
     '$in': 'in',
     '$nin': 'nin',
-    '$notin': 'nin',
     '$between': 'between',
     '$contains': 'contains',
     '$notContains': 'notcontains',
-    '$notcontains': 'notcontains',
     '$startsWith': 'startswith',
-    '$startswith': 'startswith',
     '$endsWith': 'endswith',
-    '$endswith': 'endswith',
   };
   
   return operatorMap[operator] || null;
@@ -516,6 +547,20 @@ export function convertFiltersToAST(filter: Record<string, any>): FilterNode | R
         if (astOperator) {
           conditions.push([field, astOperator, operatorValue]);
         } else {
+          // A RETIRED lowercase alias is answered by name, before the generic
+          // arm below can swallow it into "unknown operator" (objectui#8568).
+          const canonical = RETIRED_OPERATOR_ALIASES[operator];
+          if (canonical) {
+            throw new FilterOperatorError(
+              `[ObjectUI] The '${operator}' filter operator is retired. Write ` +
+              `'${canonical}' instead — the canonical spelling '@objectstack/spec' declares ` +
+              `in FILTER_OPERATORS (data/filter.zod.ts). The operator itself is unchanged; ` +
+              `only the key is renamed. Field: '${field}', Value: ${JSON.stringify(operatorValue)}. ` +
+              `It used to be accepted here as a lowercase alias while the in-memory matcher ` +
+              `refused it, so the same filter selected rows through one data source and none ` +
+              `through the other (objectui#8568).`
+            );
+          }
           // Unknown operator - throw error to avoid silent failure
           throw new FilterOperatorError(
             `[ObjectUI] Unknown filter operator '${operator}' for field '${field}'. ` +

@@ -125,10 +125,11 @@ AST format**. This is what keeps it compatible with the ObjectStack Protocol
 Every row below is decided by `@object-ui/core`'s `convertFiltersToAST`, and
 this package's `src/readme-filter-operator-table.test.ts` runs each worked
 example through it on every test run, so a row cannot drift from the code
-unnoticed again (objectui#8558). Where a row lists two spellings, the camelCase
-one is the spec's (`FILTER_OPERATORS` in `@objectstack/spec`'s
-`data/filter.zod.ts`) and the lowercase one is an alias the converter also
-accepts; both lower to the same node.
+unnoticed again (objectui#8558). Every spelling below is the spec's own
+(`FILTER_OPERATORS` in `@objectstack/spec`'s `data/filter.zod.ts`) and there are
+no aliases: the four lowercase spellings this table used to list beside the
+camelCase keys — `$notin`, `$notcontains`, `$startswith`, `$endswith` — were
+retired by objectui#8568 and moved to the refused table below.
 
 | MongoDB Operator | ObjectStack Operator | Example |
 |------------------|---------------------|---------|
@@ -140,12 +141,12 @@ accepts; both lower to the same node.
 | `$lt` | `<` | `{ age: { $lt: 65 } }` → `['age', '<', 65]` |
 | `$lte` | `<=` | `{ age: { $lte: 65 } }` → `['age', '<=', 65]` |
 | `$in` | `in` | `{ status: { $in: ['active', 'pending'] } }` → `['status', 'in', ['active', 'pending']]` |
-| `$nin` / `$notin` | `nin` | `{ status: { $nin: ['archived'] } }` → `['status', 'nin', ['archived']]` |
+| `$nin` | `nin` | `{ status: { $nin: ['archived'] } }` → `['status', 'nin', ['archived']]` |
 | `$between` | `between` | `{ age: { $between: [18, 65] } }` → `['age', 'between', [18, 65]]` |
 | `$contains` | `contains` | `{ name: { $contains: 'John' } }` → `['name', 'contains', 'John']` |
-| `$notContains` / `$notcontains` | `notcontains` | `{ name: { $notContains: 'test' } }` → `['name', 'notcontains', 'test']` |
-| `$startsWith` / `$startswith` | `startswith` | `{ email: { $startsWith: 'admin' } }` → `['email', 'startswith', 'admin']` |
-| `$endsWith` / `$endswith` | `endswith` | `{ email: { $endsWith: '@example.com' } }` → `['email', 'endswith', '@example.com']` |
+| `$notContains` | `notcontains` | `{ name: { $notContains: 'test' } }` → `['name', 'notcontains', 'test']` |
+| `$startsWith` | `startswith` | `{ email: { $startsWith: 'admin' } }` → `['email', 'startswith', 'admin']` |
+| `$endsWith` | `endswith` | `{ email: { $endsWith: '@example.com' } }` → `['email', 'endswith', '@example.com']` |
 | `$null` | `is_null` / `is_not_null` | `{ email: { $null: true } }` → `['email', 'is_null', true]` |
 | `$exists` | `is_not_null` / `is_null` | `{ email: { $exists: true } }` → `['email', 'is_not_null', true]` |
 
@@ -180,6 +181,7 @@ the call site rather than as a `400` from the server or as an empty list.
 | `$regex` | The spec has no `$regex`, and it is not downgraded to `contains`: a pattern match and a substring match are different questions, not stronger and weaker forms of one. Use `$contains`, `$startsWith` or `$endsWith`. | `{ name: { $regex: '^J' } }` → throws `INVALID_FILTER` |
 | `$not` | The AST has no negation keyword, and rewriting the negation inward would be silently partial. Use a negated operator instead: `$ne`, `$nin`, `$notContains`. | `{ $not: { status: 'open' } }` → throws `INVALID_FILTER` |
 | a bare array as a field's value | The AST has no array-equality node, and the array is deliberately not read as `$in` (see below). | `{ tags: ['a', 'b'] }` → throws `INVALID_FILTER` |
+| `$notin` / `$notcontains` / `$startswith` / `$endswith` | Retired lowercase aliases (objectui#8568). The `$` dialect follows `@objectstack/spec`'s spellings, and this repo's in-memory matcher already refused these; accepting them here made one authored filter behave differently depending on the data source behind the view. The refusal names the canonical spelling for the alias you wrote — rename the key, the operator is unchanged. | `{ email: { $startswith: 'a' } }` → throws `INVALID_FILTER` |
 | any other `$` key in operator position | Unknown operator; the error message lists the supported ones. | `{ age: { $foo: 1 } }` → throws `INVALID_FILTER` |
 
 A bare array as a field's value — `{ tags: ['a', 'b'] }` — is **refused** at
