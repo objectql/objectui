@@ -87,24 +87,45 @@ interface ZodBundleBuild {
  * ⚠️ ⭐ IMPORTING THE CONFIG RUNS ITS GUARD, and that is worth stating because the
  * same gate went on to break CI. `vite.config.ts` opens with
  * `if (process.env.VITEST) { assertCanonicalVitestInvocation(...) }`, and vitest
- * sets `VITEST`, so the import below EXECUTES that guard. It passes here for one
- * reason only: this file is reached through the canonical root invocation, which
- * is exactly what the guard checks for. ⛔ Run this suite from
- * `packages/types/` and the guard refuses — correctly, and loudly.
+ * sets `VITEST`, so the import below WOULD execute that guard — judging the
+ * WORKER's argv and cwd, never the invocation's. Under a repo-root run those
+ * coincide and it passes. Under the package-level `test` script objectui#8590
+ * added, they do not: the worker's `process.argv` carries no `--root` and its
+ * cwd is `packages/types`, so the guard returns `package-cwd` and its
+ * `process.exit(1)` takes this file's five cases out of a run that had already
+ * passed 3298 of them. ⛔ This header used to record that refusal as "correct,
+ * and loudly" — written when no canonical invocation stood in this directory.
+ * objectui#8590 gave it one, and the sentence is retired with this comment.
  *
- * That is the benign face of the class. Its harmful face is objectui#8598's
- * `Test (shard 2/4)` failure: `VITEST` is inherited by CHILD processes too, so a
- * test that spawns `pnpm --filter PKG run build` handed the same guard a cwd of
- * `packages/PKG` and it killed the build before the bundler started. The repair
- * landed at the spawn (`BUILD_ENV` in `packages/cli/src/__tests__/cli-bin.test.ts`)
- * and is kept there by `scripts/__tests__/spawned-build-vitest-env-8598.test.ts`.
- * ⛔ Not repaired by loosening the gate in this config: that would diverge 1 of 24
+ * So the import below scrubs `VITEST` for its own duration and restores it. That
+ * is the objectui#8598 repair in the same shape and for the same reason: the
+ * CALLER is the only place that knows its callee is a config read rather than a
+ * test run, so that is where the truth about it belongs. Every assertion below
+ * still runs against the real imported config, so no coverage moves.
+ * ⛔ Not repaired by loosening the gate in the config: that would diverge 1 of 24
  * identical guard blocks, and `scripts/__tests__/vitest-invocation-guard.test.ts`
- * refuses the divergence mechanically.
+ * refuses the divergence mechanically. ⛔ Nor by `OBJECTUI_VITEST_GUARD=off`,
+ * which stands the guard down instead of telling it the truth about one call.
+ *
+ * The harmful face of the same class is objectui#8598's `Test (shard 2/4)`
+ * failure: `VITEST` is inherited by CHILD processes too, so a test that spawns
+ * `pnpm --filter PKG run build` handed the same guard a cwd of `packages/PKG`
+ * and it killed the build before the bundler started. The repair landed at the
+ * spawn (`BUILD_ENV` in `packages/cli/src/__tests__/cli-bin.test.ts`) and is
+ * kept there by `scripts/__tests__/spawned-build-vitest-env-8598.test.ts`.
  */
 const CONFIG_SPECIFIER = '../../vite.config.ts';
-const viteConfig = ((await import(CONFIG_SPECIFIER)) as { default?: { build?: Partial<ZodBundleBuild> } })
-  .default;
+const viteConfig = await (async () => {
+  const inherited = process.env.VITEST;
+  delete process.env.VITEST;
+  try {
+    return ((await import(CONFIG_SPECIFIER)) as { default?: { build?: Partial<ZodBundleBuild> } })
+      .default;
+  } finally {
+    if (inherited === undefined) delete process.env.VITEST;
+    else process.env.VITEST = inherited;
+  }
+})();
 
 const build = (viteConfig?.build ?? {}) as ZodBundleBuild;
 
