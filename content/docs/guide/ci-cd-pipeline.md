@@ -50,7 +50,6 @@ one has its own section below.
 | `cross-repo-issue-closer.yml` | Cross-repo Issue Closer | PR `closed` (acts only when merged) | No — runs after merge |
 | `changeset-release.yml` | Changeset Release | Push to `main` (publish half); 6-hourly cron `0 */6 * * *`; manual (version-PR refresh half) | n/a |
 | `changelog.yml` | Auto Changelog | Manual dispatch only — nothing triggers it automatically | n/a |
-| `stale.yml` | Stale Issues & PRs | Daily cron `0 0 * * *`; manual | n/a |
 | `shadcn-check.yml` | Check Shadcn Components | Weekly cron `0 9 * * 1`; manual | n/a |
 | `check-links.yml` | Check Links | Weekly cron `17 4 * * 0`; manual | n/a — reports, never gates |
 | `published-dist-gate.yml` | Published Dist Tooling Scan | Nightly cron `41 3 * * *`; push to `main` touching the gate; manual | No — the blocking copy runs on the publish path, not here |
@@ -411,9 +410,17 @@ not a reason, and the gate does not read it as one.
 [objectui#8465](https://github.com/objectstack-ai/objectui/issues/8465). There were 13 distinct
 action references in this directory. Exactly **one** was spelled differently from the other twelve —
 a commit SHA on `actions/stale` — and it was the only reference in the repository that had **never
-resolved**: 236 scheduled runs of `stale.yml` since 2026-01-16, **0 successes**, every one failing
-in `Set up job`, unnoticed for eight months because nothing downstream consumes that job. The broken
-reference itself is [objectui#8126](https://github.com/objectstack-ai/objectui/issues/8126).
+resolved**: 236 scheduled runs of the stale-issues workflow since 2026-01-16, **0 successes**, every
+one failing in `Set up job`, unnoticed for eight months because nothing downstream consumes that
+job. The broken reference itself was
+[objectui#8126](https://github.com/objectstack-ai/objectui/issues/8126).
+
+That workflow no longer exists. [objectui#8548](https://github.com/objectstack-ai/objectui/issues/8548)
+retired it under enforce-or-remove — a declared automation with zero successes, zero consumers and no
+external authors on the open board is removed rather than repaired — and #8126 closed with it. The
+`DECLARED_EXCEPTIONS` entry that had covered its SHA pin was deleted in the same commit: an entry
+matching nothing is red under the second rule below, so a deletion that left it behind would have
+reddened this gate on `main` for every pull request.
 
 This is **not** an argument that SHA pinning is wrong — it is normally the *more* secure spelling and
 supply-chain guidance recommends it. The failure was the *shape*: one ref written in a form nothing
@@ -2188,21 +2195,6 @@ It uses `pull_request_target` rather than `pull_request` because the latter with
 secrets from fork-originated runs. The usual hazard of `pull_request_target` does not apply here:
 the job never checks out the head ref and never executes anything from the PR — it reads the body
 and calls the issues API.
-
-### Stale Issues (`stale.yml`)
-
-**Trigger:** Daily at 00:00 UTC (cron), or manual dispatch.
-
-| Resource | Stale after | Close after | Exempt labels |
-|----------|-------------|-------------|---------------|
-| Issues | 60 days | 7 days | `pinned`, `security`, `critical`, `bug`, `enhancement` |
-| Pull Requests | 45 days | 14 days | `pinned`, `security`, `in-progress`, `blocked` |
-
-The two exemption lists are set separately (`exempt-issue-labels` and `exempt-pr-labels`) and
-neither is a subset of the other: `critical`, `bug` and `enhancement` exempt issues only,
-`in-progress` and `blocked` exempt pull requests only. This page used to state one merged list
-— `pinned`, `security`, `critical`, `in-progress` — which was wrong in both directions for
-both resources ([#3724](https://github.com/objectstack-ai/objectui/issues/3724)).
 
 ### Half-State Patrol (`half-state-patrol.yml`)
 
