@@ -128,7 +128,7 @@ Schemas can be nested to create complex UIs:
   "body": {
     "type": "grid",
     "columns": 2,
-    "items": [
+    "children": [
       {
         "type": "card",
         "title": "Card 1",
