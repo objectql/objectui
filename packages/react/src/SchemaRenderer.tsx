@@ -559,7 +559,7 @@ export const SchemaRenderer: ForwardRefExoticComponent<
 > = forwardRef<unknown, SchemaRendererProps>(({ schema, ...props }: SchemaRendererProps & ForwardedProps, _ref) => {
   const context = useContext(SchemaRendererContext);
   const dataSource = context?.dataSource || NO_DATA_SOURCE;
-  // Ambient host scope (user / app / features), fed by app-shell's
+  // Ambient host scope (user / features), fed by app-shell's
   // ExpressionProvider. Threaded into `visible`/expression evaluation so
   // component predicates can gate on the signed-in user & deployment flags.
   const predicateScope = usePredicateScope();
@@ -1474,6 +1474,15 @@ export const SchemaRenderer: ForwardRefExoticComponent<
     // documents BROKE the component (objectstack#5576). An explicit React
     // `dataSource` prop is unaffected: it arrives via `...props`, spread last.
     dataSource: _dataSource,
+    // stripped: `BaseSchema.testId` is the author's stable-locator handle, and
+    // this renderer is what makes its declaration true — it is re-emitted as
+    // `data-testid` beside `data-obj-id` below (objectui#8268, ADR-0054 C4).
+    // Leaving it in the spread was the defect: React does not recognise a
+    // `testId` DOM prop, so it landed as a non-standard lowercase `testid`
+    // attribute that no test-library query helper looks for, while React's own
+    // dev warning told the author to spell it `testid` — steering them further
+    // from the documented `data-testid`.
+    testId: _testId,
     _hidden: __hidden,    // stripped: internal visibility flag
     _disabled: __disabled, // stripped: internal disabled flag
     responsiveStyles: _responsiveStyles, // stripped: compiled to scoped CSS, not a DOM prop
@@ -1496,11 +1505,17 @@ export const SchemaRenderer: ForwardRefExoticComponent<
   // Read-only: it reports what evaluation already produced and changes nothing
   // about what is rendered — no DOM attribute either, so no snapshot moves.
   if (__DEV__) {
+    // `testId` is stripped above but stays in THIS scan set. The strip list is
+    // this diagnostic's exclusion list because every other member holds raw
+    // predicate SOURCE by design; `testId` holds a literal, so excluding it
+    // would silently narrow objectui#4795's coverage by one key — measured on
+    // `93127bd6f`, an authored `testId: '${data.x}'` was reported before this
+    // change, and must still be.
     reportUnevaluatedExpressions(
       schema as object,
       evaluatedSchema.type,
       evaluatedSchema.id,
-      componentProps,
+      _testId === undefined ? componentProps : { ...componentProps, testId: _testId },
       evaluatedSchema.properties,
       evaluatedSchema.props
     );
@@ -1585,6 +1600,21 @@ export const SchemaRenderer: ForwardRefExoticComponent<
         className: mergedClassName,
         'data-obj-id': evaluatedSchema.id,
         'data-obj-type': evaluatedSchema.type,
+        // objectui#8268 — `BaseSchema.testId`'s declaration promises this
+        // attribute. Emitted here, not spread above, so the author gets the
+        // `data-testid` every query helper looks for instead of the
+        // non-standard `testid` the raw spread produced.
+        //
+        // ⚠️ CONDITIONALLY, and that is load-bearing, not tidiness. Passing
+        // `'data-testid': undefined` unconditionally would put the key in every
+        // node's props bag, and a component that sets its own `data-testid` and
+        // then spreads what it is handed — the ADR-0054 C4 shape, which many
+        // renderers here have — would have its locator overwritten with
+        // `undefined` and lose it. Measured: the unconditional form turned 9
+        // tests red across 5 files, including the three that assert the props
+        // bag is byte-for-byte unchanged (objectui#6708 / #6752 / #6760). A node
+        // that authors no `testId` must be byte-identical to before this card.
+        ...(_testId === undefined ? {} : { 'data-testid': _testId }),
         ...(__DEV__ && !_validation.valid ? { 'data-obj-schema-invalid': 'true' } : {}),
         ...props
       })}

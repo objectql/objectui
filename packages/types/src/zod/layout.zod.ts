@@ -512,7 +512,15 @@ export const PageNodeSchema = BaseSchema.extend(SpecPageFields.shape).extend({
   template: z.string().optional().describe('Layout template name'),
   variables: z.array(PageVariableSchema).optional().describe('Local page state variables'),
   regions: z.array(PageNodeRegionSchema).optional().describe('Page layout regions'),
-  body: z.array(SchemaNodeSchema).optional().describe('Main content array'),
+  // objectui#8310: ONE node or a list, mirroring the TS face and the runtime.
+  // `FlatContent` in `page.tsx` normalizes a bare node into a one-element list,
+  // and the root README's flagship example authors exactly that; array-only here
+  // made this the only `body` in this file that is not the union (`CardSchema`
+  // and `AspectRatioSchema` already spell it, as does `BaseSchema`).
+  body: z
+    .union([SchemaNodeSchema, z.array(SchemaNodeSchema)])
+    .optional()
+    .describe('Main content — one node or a list of nodes'),
   children: z.union([SchemaNodeSchema, z.array(SchemaNodeSchema)]).optional().describe('Alternative content prop'),
   isDefault: z.boolean().optional().describe('Whether this is the default page'),
   assignedProfiles: z.array(z.string()).optional().describe('Profiles that can access this page'),

@@ -659,23 +659,23 @@ export const UNGATED_EXAMPLES = {
     reason:
       'usage fragment: references `resolveRecordSourceConfig`, `schema`, `useMemo`, which the example never declares',
   },
-  'packages/core/src/validation/schema-validator.ts:490 assertValidSchema': {
+  // Lines moved 490 -> 550 and 515 -> 575 (objectui#8416: `validateSchema`'s
+  // parameter narrowed from `any` to `unknown`, which put the
+  // `SchemaNodeUnderValidation` / `isSchemaNodeShape` pair and its docblocks
+  // above these two JSDoc blocks in schema-validator.ts). Both VERDICTS are
+  // unchanged — only the line half of each key moved, and both were re-derived
+  // from the file rather than arithmetic on the old numbers.
+  'packages/core/src/validation/schema-validator.ts:550 assertValidSchema': {
     card: null,
     codes: [2304, 18046],
     reason:
       'usage fragment: references `schema`, which the example never declares, so what depends on it is judged unbound',
   },
-  'packages/core/src/validation/schema-validator.ts:515 isValidSchema': {
+  'packages/core/src/validation/schema-validator.ts:575 isValidSchema': {
     card: null,
     codes: [2304],
     reason:
       'usage fragment: references `data`, `renderSchema`, which the example never declares',
-  },
-  'packages/data-objectstack/src/cache/MetadataCache.ts:56 MetadataCache': {
-    card: null,
-    codes: [2304],
-    reason:
-      'usage fragment: references `MetadataCache`, `fetchSchemaFromServer`, which the example never declares',
   },
   'packages/data-objectstack/src/index.ts:6323 createObjectStackAdapter': {
     card: null,
@@ -925,7 +925,7 @@ export const UNGATED_EXAMPLES = {
     reason:
       'usage fragment: references `User`, `setUser`, `useEffect`, which the example never declares',
   },
-  'packages/react/src/hooks/useExpression.ts:163 useExpression': {
+  'packages/react/src/hooks/useExpression.ts:165 useExpression': {
     card: null,
     codes: [18004],
     reason:
