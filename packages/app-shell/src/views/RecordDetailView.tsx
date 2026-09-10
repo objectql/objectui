@@ -10,7 +10,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useNavigate, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { activityRowToFeedItem, RecordChatterPanel, InlineEditSaveBar, buildDefaultPageSchema, deriveFieldGroupDetailSections, extractMentions, resolveTitleField, useRecordEditable } from '@object-ui/plugin-detail';
+import { activityRowToFeedItem, RecordChatterRenderer, InlineEditSaveBar, buildDefaultPageSchema, deriveFieldGroupDetailSections, extractMentions, resolveTitleField, useRecordEditable } from '@object-ui/plugin-detail';
 import { Empty, EmptyTitle, EmptyDescription } from '@object-ui/components';
 import { useAuth, createAuthenticatedFetch } from '@object-ui/auth';
 import { usePermissions } from '@object-ui/permissions';
@@ -172,9 +172,15 @@ export function isSecondaryField(fieldName: string, fieldDef: any): boolean {
 /**
  * The discussion feed of a record that has none. A module-level constant, not
  * a fresh `[]` per render: `feedItems` is handed straight to
- * `DiscussionContextProvider` / `RecordChatterPanel` as a prop, so a new array
- * identity every render would defeat every memo downstream of it. Read-only by
- * convention — every write path below produces a NEW array.
+ * `DiscussionContextProvider` as a prop, so a new array identity every render
+ * would defeat every memo downstream of it. Read-only by convention — every
+ * write path below produces a NEW array.
+ *
+ * ⚠️ That identity carries MORE weight since objectui#8983, not less. Both
+ * chatter surfaces now read their rows off that one provider and run them
+ * through `applyFeedConfig` inside a `useMemo` keyed on the array identity
+ * (`record-chatter.tsx`), so a fresh `[]` per render would re-run the feed
+ * pipeline on every render of a record with no comments.
  */
 const EMPTY_FEED: FeedItem[] = [];
 
@@ -2540,30 +2546,47 @@ export function RecordDetailView({ dataSource, objects, onEdit, objectNameOverri
                   />
                 </div>
               )}
-              {/* Auto-append RecordChatterPanel only when the page
-                  schema doesn't already place a `record:discussion` /
+              {/* Auto-append the discussion feed only when the page schema
+                  doesn't already place a `record:discussion` /
                   `record:chatter` component. Hard opt-out via
-                  `assignedPage.disableDiscussion = true`. */}
+                  `assignedPage.disableDiscussion = true`.
+
+                  ── ONE PIPELINE, NOT TWO (objectui#8983) ──────────────────
+                  This mounts `RecordChatterRenderer`: the very component
+                  `ComponentRegistry` resolves BOTH `record:discussion` and
+                  `record:chatter` to (`plugin-detail/src/index.tsx` registers
+                  the two names against it; `recordChatterFeedMembersLive-8934`
+                  pins that they stay one renderer). It used to reach PAST that
+                  renderer to `RecordChatterPanel` with raw rows, and once
+                  objectui#8934 taught the renderer to run `applyFeedConfig`,
+                  that shortcut made the host fallback and the authored /
+                  synthesized block render DIFFERENT feeds from the same rows:
+                  a completed activity appeared here and not there (the spec's
+                  `showCompleted` default is false), and a feed past twenty rows
+                  rendered whole here and paged there. Nobody chose that
+                  divergence; it fell out of closing the gap on one surface.
+
+                  ⚠️ The renderer takes no `items` prop — it reads the feed, the
+                  loading flag, the mutation handlers and the mention
+                  suggestions off the `DiscussionContextProvider` opened above,
+                  carrying the very same `feedItems`. So this is a RE-BINDING of
+                  an existing surface, not a second wiring, and it adds no
+                  package dependency: `@object-ui/plugin-detail` is already this
+                  package's peer dependency and already the source of this
+                  file's detail imports.
+
+                  ⚠️ No authored schema is passed, deliberately. This is a host
+                  affordance, not an authored block — there is no author to read
+                  a `feed` config from — so it renders on the renderer's own
+                  defaults, which are the same three affordances this branch
+                  used to hard-code (`record-chatter.tsx` builds `position:
+                  'bottom'`, `collapsible: false`, reactions / threading /
+                  comment input) plus the protocol's `feed` defaults. Routing a
+                  synthesized node through `SchemaRenderer` instead would add
+                  `hidden` / `disabled` expression evaluation over a node nobody
+                  authored, to reach the component mounted here anyway. */}
               {showAutoDiscussion && (
-                <div className="mt-6">
-                  <RecordChatterPanel
-                    config={{
-                      position: 'bottom',
-                      collapsible: false,
-                      feed: {
-                        enableReactions: true,
-                        enableThreading: true,
-                        showCommentInput: true,
-                      },
-                    }}
-                    items={feedItems}
-                    loading={feedLoading}
-                    onAddComment={handleAddComment}
-                    onAddReply={handleAddReply}
-                    onToggleReaction={handleToggleReaction}
-                    mentionSuggestions={mentionSuggestions}
-                  />
-                </div>
+                <RecordChatterRenderer className="mt-6" />
               )}
               {/* Record-level inline-edit Save/Cancel bar (objectui#2407 P2) —
                   commits the whole draft (highlights + body) in ONE atomic OCC
