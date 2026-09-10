@@ -195,13 +195,17 @@ function lowerLogicalGroup(
     }
     const lowered = convertFiltersToAST(child as Record<string, any>);
     if (!Array.isArray(lowered)) {
-      // `convertFiltersToAST` hands back the ORIGINAL OBJECT when the child
-      // produced no conditions — a `{}` disjunct, or one holding only
-      // null/undefined values. That child is the TRUE identity (#5322), so it
-      // absorbs an `$or` outright and drops out of an `$and`. It must not be
-      // pushed as a child either way: an object in AST child position makes
-      // `isFilterAST` false (measured), and the wire face answers `400
-      // INVALID_FILTER` for the whole filter.
+      // A child that produced no conditions comes back as a NON-ARRAY, in one
+      // of two spellings: the ORIGINAL OBJECT for a `{}` disjunct or one
+      // holding only null/undefined values, and `undefined` for a child that is
+      // itself a TRUE-identity group (`{ $and: [{ $and: [] }] }` —
+      // objectui#8770's tail below). Both mean the same thing here, which is
+      // why the test is `Array.isArray` and not a comparison against either
+      // spelling: that child is the TRUE identity (#5322), so it absorbs an
+      // `$or` outright and drops out of an `$and`. It must not be pushed as a
+      // child either way: an object in AST child position makes `isFilterAST`
+      // false (measured), and the wire face answers `400 INVALID_FILTER` for
+      // the whole filter.
       if (keyword === 'or') return undefined;
       continue;
     }
@@ -347,10 +351,23 @@ function describeExoticComparand(value: object): string {
  * a `Set`, a `Map`): see the exotic-comparand arm for why that is refused
  * rather than dropped (objectui#8567). An empty operator object (`{}`) is NOT
  * refused — it is the TRUE identity and constrains nothing, as it always has.
+ *
+ * @example
+ * // A filter that is NOTHING BUT combinators reducing to the TRUE identity
+ * // constrains nothing, and says so (objectui#8770). Callers skip the slot.
+ * convertFiltersToAST({ $and: [] })
+ * // => undefined
  */
-export function convertFiltersToAST(filter: Record<string, any>): FilterNode | Record<string, any> {
+export function convertFiltersToAST(
+  filter: Record<string, any>,
+): FilterNode | Record<string, any> | undefined {
   const conditions: FilterNode[] = [];
-  
+  /**
+   * How many keys were a `$and` / `$or` group that reduced to the TRUE identity
+   * — see the tail for why a COUNT rather than a flag.
+   */
+  let trueIdentityGroups = 0;
+
   for (const [field, value] of Object.entries(filter)) {
     if (value === null || value === undefined) continue;
 
@@ -364,6 +381,7 @@ export function convertFiltersToAST(filter: Record<string, any>): FilterNode | R
     if (logicKeyword) {
       const group = lowerLogicalGroup(field, logicKeyword, value);
       if (group !== undefined) conditions.push(group);
+      else trueIdentityGroups += 1;
       continue;
     }
 
@@ -593,8 +611,52 @@ export function convertFiltersToAST(filter: Record<string, any>): FilterNode | R
     }
   }
   
-  // If no conditions, return original filter
   if (conditions.length === 0) {
+    // The WHOLE filter was combinators that reduced to the TRUE identity —
+    // objectui#8770.
+    //
+    // `lowerLogicalGroup` answers `undefined` for a group that constrains
+    // nothing (`{ $and: [] }`, `{ $and: [{}] }`, `{ $or: [{}] }` — the
+    // identities objectstack#5322 rules TRUE), deliberately, so that no
+    // childless `['and']` is emitted. When such a group was the only thing in
+    // the filter that `undefined` reached the tail below, and the CALLER'S
+    // ORIGINAL OBJECT came back in its place — so the group did not disappear
+    // at this level after all. It reappeared one level up, in the `$` dialect,
+    // in a slot the AST is expected to occupy.
+    //
+    // What that cost, measured against @objectstack/spec 17.4.0 and
+    // @objectstack/client 17.4.0 rather than assumed: the object is NOT handed
+    // to the wire as a filter and refused there. `client.data.find()` tests the
+    // value with `isFilterAST`, and its ELSE branch spreads a plain object's
+    // entries as query parameters — so `{ $and: [] }` left as `?$and=` and
+    // `{ $or: [{}] }` as `?$or=[object Object]`, with no `filter` parameter at
+    // all, and the server refused the unknown `$`-prefixed parameter with `400
+    // UNSUPPORTED_QUERY_PARAM`. A filter whose ruled answer is EVERY ROW was a
+    // failed list. (The `$expand` / `$search` route sends the same object as
+    // `filter={"$and":[]}`, which the server accepts as a `FilterCondition` and
+    // answers with every row — so the two routes disagreed about one filter,
+    // and the fix makes both say what the ruling says.)
+    //
+    // `undefined` is not a new vocabulary invented here. It is already what
+    // `toFilterNode`, `mergeFilterNodes` and data-objectstack's
+    // `translateFilterToAST` mean by "no filter, skip the slot", and every call
+    // site of this function already acts on it: `lowerLogicalGroup` above tests
+    // `Array.isArray`, the other three test for `undefined` or falsiness.
+    //
+    // ⛔ Scoped to a filter whose EVERY key is such a group, which is why the
+    // count above is compared with the key count instead of being a flag. The
+    // `return filter` below also serves inputs that are not combinators at all
+    // — `{}`, an all-null filter, an empty operator map — and they are NOT this
+    // case: a null-valued key is this function's own long-standing tolerance
+    // rather than a ruled identity, and the object it hands back travels the
+    // `$expand` / `$search` route as `filter={"a":null}`, which the server reads
+    // as a REAL `a IS NULL` predicate. Folding those into "no constraint" would
+    // return MORE rows on a path #5322 said nothing about, so `{ $and: [], a:
+    // null }` keeps the object it has always returned.
+    if (trueIdentityGroups > 0 && trueIdentityGroups === Object.keys(filter).length) {
+      return undefined;
+    }
+    // If no conditions, return original filter
     return filter;
   }
   
@@ -833,7 +895,11 @@ function viewFilterRuleToNode(rule: ViewFilterRuleLike): FilterNode {
  * untouched.
  *
  * Returns `undefined` for an absent or empty source, so callers can skip
- * `$filter` rather than sending an empty array.
+ * `$filter` rather than sending an empty array — and, since objectui#8770, for
+ * an object source that is nothing but TRUE-identity combinators
+ * (`{ $and: [] }`), which constrains nothing and so contributes nothing to the
+ * `and` {@link mergeFilterNodes} builds. That answer is inherited from
+ * {@link convertFiltersToAST}, not decided a second time here.
  */
 export function toFilterNode(source: unknown): FilterNode | Record<string, any> | undefined {
   if (source === null || source === undefined) return undefined;
