@@ -5,8 +5,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+  ANALYSED_PACK_OBJECT_IMPORTERS,
   DESIGNER_TABLE,
   collectDesignerKeys,
+  derivePackObjectImporters,
   propertyChainProbe,
   sweep,
   sweepDesignerTable,
@@ -926,5 +928,158 @@ describe('textFootprint() key boundary', () => {
     expect(footprintOf({ 'packages/x/src/a.ts': `export const k = '${KEY}.detail';\n` }, { keyBoundary: false })).toEqual([
       'packages/x/src/a.ts',
     ]);
+  });
+});
+
+/**
+ * objectui#8752 — the enumeration is DERIVED and PINNED, never hand-counted.
+ *
+ * The header section "The pack-object importers, enumerated" told readers to
+ * re-derive the class and then stated a match total in prose. The total was
+ * true when written and decayed in place — 19 in the comment, 28 when the
+ * drift was filed, 31 when it was corrected — and the bullet list decayed with
+ * it, carrying four entries for a population of five. That is a worse failure
+ * than an uncounted list: the section ships its own re-derivation command, so a
+ * reader who trusts the number is a reader who skips the check.
+ *
+ * The count is gone from the prose and computed on every run. This block pins
+ * the half a count cannot cover: that every non-test importer in the live
+ * population has a BULLET, i.e. that somebody read the file and wrote down what
+ * its shape means for the property-chain leg. A sixth importer fails here, by
+ * name, instead of joining the silence.
+ */
+describe('the pack-object importer enumeration is derived, and pinned to the readings (objectui#8752)', () => {
+  const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+  const scriptPath = path.join(repoRoot, 'scripts', 'check-i18n-dead-keys.mjs');
+  const derived = derivePackObjectImporters(repoRoot);
+
+  it('does not collapse — a broken derivation must not read as a clean enumeration', () => {
+    // The assertion that keeps every other assertion in this block honest. A
+    // grep that matched nothing (a moved directory, a changed specifier, an IO
+    // error swallowed somewhere) returns two empty sets, and two empty sets
+    // satisfy "every importer is analysed" vacuously — the most reassuring
+    // possible rendering of an instrument that stopped looking. Same discipline
+    // as the CLI block's own collapse guards.
+    expect(derived.nonTest.length, 'this repo ships pack-object importers; zero means the derivation broke').toBeGreaterThan(0);
+    expect(derived.test.length, 'test importers vastly outnumber non-test ones here; a handful means the walk broke').toBeGreaterThan(10);
+  });
+
+  it('classifies the locale packs themselves out of the population', () => {
+    // A pack file importing a sibling pack is a DEFINITION, never a reader.
+    for (const file of [...derived.nonTest, ...derived.test]) {
+      expect(file.startsWith('packages/i18n/'), `${file} is a locale-pack file and cannot be a reader of the packs`).toBe(false);
+    }
+  });
+
+  it('splits test importers out — only a non-test importer can keep a SHIPPED key alive', () => {
+    // Both spellings this repo uses, because a predicate that knew one of them
+    // would promote the other half into the set the bullets answer for.
+    for (const file of derived.nonTest) {
+      expect(/(^|\/)__tests__\//.test(file) || /\.test\.tsx?$/.test(file), `${file} is a test file and does not belong in the non-test set`).toBe(false);
+    }
+    expect(derived.test.some((f) => f.includes('/__tests__/'))).toBe(true);
+    expect(derived.test.some((f) => /\.test\.tsx?$/.test(f) && !f.includes('/__tests__/'))).toBe(true);
+  });
+
+  it('EVERY non-test importer in the live population is analysed in the header', () => {
+    const unanalysed = derived.nonTest.filter((f) => !ANALYSED_PACK_OBJECT_IMPORTERS.includes(f));
+    expect(
+      unanalysed,
+      'A pack-object importer with no bullet is a reader nobody has classified — the objectui#8752 ' +
+        'state exactly. Read the file, decide what its shape means for the property-chain leg (covered ' +
+        'by design / by luck / nothing at risk), write the bullet in the header section, and only then ' +
+        'add the path to ANALYSED_PACK_OBJECT_IMPORTERS. ⛔ Adding the path alone makes this test green ' +
+        'while reproducing the defect it exists to catch.',
+    ).toEqual([]);
+  });
+
+  it('EVERY analysed importer still exists in the live population', () => {
+    // The other direction, and it is not symmetry for its own sake: a bullet
+    // about a deleted file reads as coverage of a class that no longer has a
+    // member, which is how an enumeration starts describing a tree nobody has.
+    const vanished = ANALYSED_PACK_OBJECT_IMPORTERS.filter((f) => !derived.nonTest.includes(f));
+    expect(vanished, 'these paths are analysed in the header but no longer import a locale pack — delete the bullet with the entry').toEqual([]);
+  });
+
+  it('each analysed path is spelled in the header, so an entry cannot exist without its reading', () => {
+    // What stops the previous test from being satisfied by a paste. The
+    // constant is an INDEX of bullets; if the path is not in the header text,
+    // the bullet was never written and the reading does not exist.
+    const source = fs.readFileSync(scriptPath, 'utf8');
+    const header = source.slice(0, source.indexOf('\nimport ts from'));
+    for (const file of ANALYSED_PACK_OBJECT_IMPORTERS) {
+      expect(header.includes(file), `${file} is listed as analysed but the header carries no bullet for it`).toBe(true);
+    }
+  });
+
+  it('the header states no hand-written match count', () => {
+    // The regression this card is: a number in prose that nothing recomputes.
+    // The population is printed by the run now, so a total reappearing here is
+    // a step back to the shape that decayed three times.
+    const source = fs.readFileSync(scriptPath, 'utf8');
+    const header = source.slice(0, source.indexOf('\nimport ts from'));
+    const stated = header.match(/\d+\s+matches?\s+today/i);
+    expect(stated, `the enumeration must not state its own population in prose — it decayed through three values doing that; derivePackObjectImporters() reports it instead`).toBeNull();
+  });
+});
+
+/**
+ * objectui#8752 — the fifth importer's reading, MEASURED rather than asserted
+ * in a comment.
+ *
+ * Its bullet claims something specific and load-bearing: the file reads two
+ * TWO-SEGMENT keys off the pack by property access, both legs are blind to that
+ * read, and the keys stay out of the candidate tiers only because the same
+ * expression also spells them literally as the `t()` argument. If that stops
+ * being true — someone templates the key, or moves the default away from its
+ * call — the bullet becomes a false statement about a live blind spot. These
+ * cases are what turn red first.
+ */
+describe('the fifth importer is covered BY COINCIDENCE, not by the leg (objectui#8752)', () => {
+  const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+
+  /**
+   * Assembled from segments for the reason the objectui#6666 control block
+   * above gives: `textFootprint()` greps `scripts/` too, so a dotted key
+   * spelled contiguously here would make THIS FILE a hit for it and the
+   * measurements below would be measuring the test.
+   */
+  const ceilingKey = (leaf: string) => ['common', leaf].join('.');
+  const KEYS = [ceilingKey('rowCeilingNote'), ceilingKey('rowCeilingNoteUnknownTotal')];
+
+  it('the property-chain leg does not apply: both keys are two segments', () => {
+    for (const k of KEYS) {
+      expect(propertyChainProbe(k), `${k} has two segments; a one-word chain is not evidence`).toBeNull();
+    }
+  });
+
+  it('the full-key probe does NOT see a pack-object property read of these keys', () => {
+    // The measurement the bullet rests on, run on a fixture carrying ONLY the
+    // property read — the real file also spells the key literally, so measuring
+    // it there would answer a different question.
+    const root = repoWith({
+      'packages/x/src/reader.tsx': `import { en } from '${I18N_PKG}';\n` + KEYS.map((k) => `const v = en.${k};\n`).join(''),
+    });
+    const found = textFootprint(root, KEYS);
+    for (const k of KEYS) {
+      expect(found.get(k), `${k} read as a property off the pack is invisible to the full-key probe (a '.' on the left marks a longer key)`).toEqual([]);
+    }
+  });
+
+  it('and DID see it before the key boundary — so the blindness is a measured cost of that boundary', () => {
+    // The control that keeps the assertion above from passing for the wrong
+    // reason (a typo in the fixture, a probe that matches nothing at all).
+    const root = repoWith({
+      'packages/x/src/reader.tsx': `import { en } from '${I18N_PKG}';\n` + KEYS.map((k) => `const v = en.${k};\n`).join(''),
+    });
+    const found = textFootprint(root, KEYS, { keyBoundary: false });
+    for (const k of KEYS) expect(found.get(k)).toEqual(['packages/x/src/reader.tsx']);
+  });
+
+  it('what keeps them live is the LITERAL t() argument in the same expression', () => {
+    const source = fs.readFileSync(path.join(repoRoot, 'packages/react/src/utils/nonGridRowCeiling.tsx'), 'utf8');
+    for (const k of KEYS) {
+      expect(source.includes(`t('${k}'`), `${k} must stay spelled literally at its call site — the property read alone is invisible to every leg`).toBe(true);
+    }
   });
 });

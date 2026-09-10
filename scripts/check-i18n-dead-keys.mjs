@@ -152,7 +152,7 @@
  *      for a property access instead of grepping the dotted key, finding
  *      nothing, and concluding the tool is broken.
  *
- * ## The pack-object importers, enumerated (objectui#6666)
+ * ## The pack-object importers, enumerated (objectui#6666, objectui#8752)
  *
  * The leg is only as good as the class it covers, so the class is written down
  * rather than left to memory. Re-derive it — the specifier is kept off the
@@ -164,8 +164,28 @@
  *     packages apps examples e2e \
  *     | grep "@object-ui/i18n" | grep -v '^packages/i18n/'
  *
- * NON-TEST importers — the ones that can keep a SHIPPED key alive (19 matches
- * today, of which these four):
+ * NO MATCH COUNT IS STATED IN THIS SECTION, and the absence is the fix rather
+ * than an omission (objectui#8752). It used to open with one — "19 matches
+ * today, of which these four" — written true and then decayed in place: 19 in
+ * the comment, 28 when the drift was filed, 31 when it was corrected. A stale
+ * total is worse here than no total, and worse for a reason specific to this
+ * section: it ships the command to re-derive itself, so a number a reader
+ * trusts is a re-derivation that never happens. The population is now DERIVED
+ * on every run by `derivePackObjectImporters()` below, which executes exactly
+ * the pipeline above and reports the split; the CLI prints it, so the only
+ * count anyone reads is one that cannot be older than the run.
+ *
+ * The BULLETS stay hand-written, and that is not a half-measure. Each says what
+ * its importer's SHAPE means for this leg — covered by design, covered by luck,
+ * nothing at risk — which is a reading, not a population, and no derivation can
+ * produce it. Derived and read are pinned TO EACH OTHER instead:
+ * `ANALYSED_PACK_OBJECT_IMPORTERS` below lists exactly the paths these bullets
+ * analyse, and `scripts/__tests__/check-i18n-dead-keys.test.ts` fails when the
+ * derived non-test set and that list disagree in either direction. A sixth
+ * importer therefore turns a test red instead of joining the silence, which is
+ * the failure this section had: not a wrong number, an UNCLASSIFIED READER.
+ *
+ * NON-TEST importers — the ones that can keep a SHIPPED key alive:
  *
  *   - `packages/app-shell/src/chrome/LoadingScreen.tsx` — the case this leg was
  *     built for. Bootstrap-critical UI: it must render BEFORE i18n loads, which
@@ -184,12 +204,34 @@
  *     `packages/plugin-grid/demo/bulk-actions.tsx` — whole-pack `resources`
  *     wiring only, no per-key property reads: nothing for the leg to see and
  *     nothing at risk.
+ *   - `packages/react/src/utils/nonGridRowCeiling.tsx` — the importer this
+ *     section was missing when objectui#8752 was filed, and the one worth
+ *     reading twice: it is the first instance in this tree of class 4 below.
+ *     It dereferences the pack at render to supply the `defaultValue` beside a
+ *     `t()` call, and BOTH keys it reads are TWO SEGMENTS. The property-chain
+ *     leg returns `null` below three segments by design, and with the key
+ *     boundary on (objectui#8701) the full-key probe refuses the property read
+ *     too, because a `.` on the left is exactly what marks a longer key.
+ *     Measured on a fixture carrying only the property-read line: no hit for
+ *     either key under today's boundary, a hit for both under the pre-boundary
+ *     substring behaviour. ⇒ BOTH LEGS ARE BLIND to this read.
+ *     Nothing is at risk today, and the reason is a property of this FILE
+ *     rather than of the leg: the same two keys are also spelled literally as
+ *     the first argument of the `t()` call each default sits inside, so the AST
+ *     pass reads them directly and neither is ever a candidate (measured: both
+ *     absent from CONFIRMED and from NEEDS-REVIEW). ⇒ read this bullet as
+ *     covered BY COINCIDENCE, the same tier as `outboundAgentText` above and
+ *     for an unrelated reason. Build either key from a template, or move the
+ *     default away from its call site, and both go dark to every leg while a
+ *     shipping component still renders them — and that edit would read as a
+ *     tidy-up.
  *
  * The rest of the matches are TEST-only importers, deliberately not listed one
  * by one. A key read only by a test is not a key a user can see, so a test
  * importer never establishes liveness — it only ever adds a textual footprint,
- * which the full-key probe already catches. The re-derivation returns both
- * sets; the split is the point, not the count.
+ * which the full-key probe already catches. The derivation returns both sets;
+ * the split is the point, and it is the split — never a total — that the
+ * bullets are answerable to.
  *
  * ## What CONFIRMED does NOT guarantee (objectui#7592)
  *
@@ -222,6 +264,15 @@
  *      is read by hand. Measured when the boundary became the default:
  *      re-deriving that list and reading every NON-TEST importer it returns,
  *      not one of them reads any of the keys the change re-tiered.
+ *      ⚠️ That measurement stands, but it was taken over a list of FOUR that
+ *      had already drifted to five (objectui#8752), so read it as "no wrong
+ *      verdict was found", never as "the population was complete". The fifth —
+ *      `nonGridRowCeiling.tsx`, bulleted above — is this class's first
+ *      instance in the tree: two-segment keys read off the pack by property
+ *      access, invisible to both legs, kept out of the tiers only by a literal
+ *      `t()` argument sitting in the same expression. The list's COMPLETENESS
+ *      is mechanical now (`derivePackObjectImporters()` plus its pin); what
+ *      stays hand-read is what each importer's shape means.
  *
  * The tier is therefore the one to READ FIRST, and each entry still needs a
  * human before deletion. The cost of reading it as bulk-deletable is measured:
@@ -251,7 +302,7 @@
 
 import ts from 'typescript';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -269,6 +320,18 @@ const TEXT_SWEEP_SKIP_DIRS = new Set([
   'node_modules', '.git', 'dist', 'build', 'coverage', '.next', '.turbo',
   '.changeset',
 ]);
+
+/**
+ * The workspace package the locale PACK OBJECTS come from — the import edge
+ * `derivePackObjectImporters()` filters its grep output down to.
+ *
+ * Held as a plain string rather than written into the header's grep recipe for
+ * the reason that recipe already gives: kept off a `from '...'` shape, this
+ * file is not itself read as an importer of it. A string literal is not an
+ * import edge to `workspaceImportSpecifiers()` either, so nothing here is
+ * concealment — it is one spelling for one specifier.
+ */
+const PACK_IMPORT_SPECIFIER = '@object-ui/i18n';
 
 /** The locale pack directory — every candidate's DEFINITION lives here, so a
  *  hit inside it is not evidence of a reference and must not count as one. */
@@ -486,6 +549,111 @@ export function textFootprint(root, keys, options = {}) {
     );
   }
   return result;
+}
+
+/**
+ * The directories the pack-object importer derivation searches, and the only
+ * ones it needs: a pack-object reader outside them cannot be built or shipped.
+ */
+const IMPORTER_SEARCH_DIRS = ['packages', 'apps', 'examples', 'e2e'];
+
+/**
+ * The importer paths the header section "The pack-object importers,
+ * enumerated" ANALYSES — one entry per bullet there, and nothing else.
+ *
+ * This is the hand-read half, deliberately: what a bullet says about its
+ * importer's shape (covered by design / by luck / nothing at risk) is a
+ * reading no derivation produces. What this constant buys is that the reading
+ * cannot go SILENTLY incomplete — `derivePackObjectImporters()` supplies the
+ * live population and this file's test suite fails when the two disagree in
+ * either direction, so a new importer arrives as a red test with a name rather
+ * than as an unclassified reader nobody noticed (objectui#8752, where the
+ * section had been carrying four bullets for a population of five).
+ *
+ * ⛔ Never satisfy that test by pasting a path in here. The entry is the
+ * INDEX of a bullet; adding one without writing the bullet reproduces exactly
+ * the state the pin exists to detect, and the test checks for the bullet too.
+ */
+export const ANALYSED_PACK_OBJECT_IMPORTERS = Object.freeze([
+  'packages/app-shell/src/chrome/LoadingScreen.tsx',
+  'packages/app-shell/src/console/ai/outboundAgentText.ts',
+  'packages/plugin-grid/demo/main.tsx',
+  'packages/plugin-grid/demo/bulk-actions.tsx',
+  'packages/react/src/utils/nonGridRowCeiling.tsx',
+]);
+
+/** A path is a TEST importer when it lives in a `__tests__` directory or is
+ *  itself a `.test.ts`/`.test.tsx` file — this repo spells test files both
+ *  ways, and a predicate that knew only one of them would quietly promote the
+ *  other half into the non-test set the bullets are answerable to. */
+function isTestImporter(relPath) {
+  return /(^|\/)__tests__\//.test(relPath) || /\.test\.tsx?$/.test(relPath);
+}
+
+/**
+ * Derive the pack-object importer population — the class the property-chain
+ * leg covers — by running the header section's own pipeline.
+ *
+ * This exists so that no COUNT has to be written into a comment. The section
+ * used to state one, it decayed through three values while nothing noticed,
+ * and objectui#8752 is that decay. A number the script computes on the run
+ * that prints it cannot be stale; the bullets, which are readings rather than
+ * counts, stay written out and are pinned against `nonTest` by this file's
+ * test suite.
+ *
+ * The regex and the `@object-ui/i18n` filter are the header's, character for
+ * character. Two things are added, and neither narrows the class: the search
+ * skips `TEXT_SWEEP_SKIP_DIRS` (a copy of a pack importer under `dist/` or
+ * `node_modules/` is a build artefact, not a reader), and a missing search
+ * directory is tolerated so a partial checkout degrades to a smaller list
+ * instead of throwing. Locale-pack files are excluded for the same reason a
+ * definition is not a reference.
+ *
+ * @param {string} root Repository root.
+ * @returns {{ nonTest: string[], test: string[] }} Repo-relative POSIX paths,
+ *   sorted. `nonTest` is the set the enumeration's bullets must cover;
+ *   `test` is the rest, which never establishes liveness (see the header).
+ */
+export function derivePackObjectImporters(root) {
+  const dirs = IMPORTER_SEARCH_DIRS.map((dir) => join(root, dir)).filter((dir) => existsSync(dir));
+  if (dirs.length === 0) return { nonTest: [], test: [] };
+
+  const args = [
+    '-rn',
+    '-I',
+    '--include=*.ts',
+    '--include=*.tsx',
+    ...[...TEXT_SWEEP_SKIP_DIRS].flatMap((dir) => ['--exclude-dir', dir]),
+    '-E',
+    String.raw`import \{[^}]*\b(en|zh|builtInLocales|ja|ko|de|fr|es|pt|ru|ar)\b[^}]*\}`,
+    '--',
+    ...dirs,
+  ];
+
+  let output = '';
+  try {
+    output = execFileSync('grep', args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  } catch (error) {
+    // Exit 1 is grep's "no line matched" — a real empty population, not a
+    // failure. Anything else (2 = usage/IO) must surface: a derivation that
+    // swallowed an IO error would return an empty set, and an empty set reads
+    // as "no importers to classify", which is the most reassuring possible
+    // rendering of a broken tool.
+    if (error.status !== 1) throw error;
+  }
+
+  const nonTest = new Set();
+  const test = new Set();
+  for (const line of output.split('\n')) {
+    if (!line) continue;
+    if (!line.includes(PACK_IMPORT_SPECIFIER)) continue;
+    const firstColon = line.indexOf(':');
+    if (firstColon === -1) continue;
+    const relPath = relative(root, line.slice(0, firstColon)).split('\\').join('/');
+    if (relPath.startsWith(LOCALES_DIR) || relPath.startsWith('packages/i18n/')) continue;
+    (isTestImporter(relPath) ? test : nonTest).add(relPath);
+  }
+  return { nonTest: [...nonTest].sort(), test: [...test].sort() };
 }
 
 /** The namespace bucket a key reports under: two segments once the key is at
@@ -942,6 +1110,9 @@ if (invokedDirectly) {
   const asJson = process.argv.includes('--json');
   const result = sweep(root);
   const designer = sweepDesignerTable(root);
+  const importers = derivePackObjectImporters(root);
+  const unanalysedImporters = importers.nonTest.filter((f) => !ANALYSED_PACK_OBJECT_IMPORTERS.includes(f));
+  const vanishedImporters = ANALYSED_PACK_OBJECT_IMPORTERS.filter((f) => !importers.nonTest.includes(f));
 
   // Same collapse guard as the call-site gate's own CLI block: on the REAL
   // repo, an empty or near-empty comparison means the extractor or file walk
@@ -988,6 +1159,13 @@ if (invokedDirectly) {
           candidateCount: result.candidateCount,
           confirmed: result.confirmed,
           needsReview: result.needsReview,
+          packObjectImporters: {
+            nonTest: importers.nonTest,
+            testCount: importers.test.length,
+            analysed: [...ANALYSED_PACK_OBJECT_IMPORTERS],
+            unanalysed: unanalysedImporters,
+            vanished: vanishedImporters,
+          },
           designerTable: {
             file: DESIGNER_TABLE,
             tableSizes: Object.fromEntries(designer.tableSizes),
@@ -1043,6 +1221,37 @@ if (invokedDirectly) {
         for (const hit of hits.slice(0, 5)) console.log(`    ${hit}`);
         if (hits.length > 5) console.log(`    … and ${hits.length - 5} more`);
       }
+    }
+
+    // ── the pack-object importer population, DERIVED (objectui#8752) ────────
+    // Printed rather than written into the header, because the header's
+    // hand-written total decayed through three values while nothing noticed.
+    // A count computed on the run that prints it cannot be stale.
+    console.log(
+      `\npack-object importers of the locale packs, derived this run: ` +
+        `${importers.nonTest.length} non-test, ${importers.test.length} test-only. Only the non-test ` +
+        'ones can keep a SHIPPED key alive, and each is read by hand in the header of this script — a ' +
+        'reading of what its shape means for the property-chain leg, which no count replaces:',
+    );
+    for (const file of importers.nonTest) {
+      const mark = ANALYSED_PACK_OBJECT_IMPORTERS.includes(file) ? 'analysed  ' : 'UNANALYSED';
+      console.log(`  [${mark}]  ${file}`);
+    }
+    if (unanalysedImporters.length > 0) {
+      console.log(
+        `\n⛔ ${unanalysedImporters.length} non-test importer(s) above have no bullet in the header's ` +
+          'enumeration. That is the objectui#8752 state exactly: a pack-object reader nobody has ' +
+          'classified, and the next one lands in the same silence. Read the file, decide what its ' +
+          'shape means for the leg, write the bullet, then add the path to ' +
+          'ANALYSED_PACK_OBJECT_IMPORTERS — in that order.',
+      );
+    }
+    if (vanishedImporters.length > 0) {
+      console.log(
+        `\n⚠️ ${vanishedImporters.length} analysed importer(s) are no longer in the derived set: ` +
+          `${vanishedImporters.join(', ')}. Delete the bullet with the entry, so the enumeration does ` +
+          'not keep reasoning about a file that is gone.',
+      );
     }
 
     console.log(
