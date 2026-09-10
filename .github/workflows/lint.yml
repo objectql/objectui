@@ -381,6 +381,34 @@ jobs:
         if: steps.relevant.outputs.should_run == 'true'
         run: pnpm lint
 
+      # ── vi.mock override VALUE shapes (objectui#8903) ─────────────────────
+      # The third property of the `vi.mock` population, and the only one of the
+      # three that needs a parser. `check-vi-mock-specifiers.mjs` judges whether
+      # a relative specifier resolves; `check-vi-mock-inherit.mjs` judges whether
+      # the factory obtains and spreads the real module. Neither judges what the
+      # override is WORTH: thirteen stubs returned `{ viewers, others }` where
+      # the real hook returns `PresenceUser[]`, and putting them back on disk
+      # made both of those gates print a BYTE-IDENTICAL verdict line and exit 0
+      # (objectui#8083, fixed by PR #8902).
+      #
+      # Its two siblings live in `vi-mock-specifiers.yml`, which runs before any
+      # install so that it sees every pull request shape. This one cannot: it
+      # imports `typescript` to read declared return types, and
+      # `check-pre-install-import-graph.mjs` fails any pre-install gate that
+      # reaches a package — measured, by injecting the import into the sibling
+      # and watching that gate go from exit 0 to exit 1. So it runs here, after
+      # `pnpm install`.
+      #
+      # The `should_run` switch above is not a blind spot for it: the ignore list
+      # is Markdown plus the `content`, `docs` and `.changeset` trees, and both
+      # halves of what this gate compares — the override and the declared export
+      # — live in TypeScript files. `check-vi-mock-override-shape.test.ts` fails
+      # if a pattern matching a TypeScript file is ever added to that list.
+      - name: Check every vi.mock override matches the declared export shape
+        if: steps.relevant.outputs.should_run == 'true'
+        run: node scripts/check-vi-mock-override-shape.mjs
+
+
       # ── The cross-repo closer's outcome contract (#5261) ──────────────────
       # `cross-repo-issue-closer.yml` carries ~250 lines of inline
       # github-script, and until this step existed it was code nobody had ever

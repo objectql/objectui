@@ -301,6 +301,21 @@ first, which is what stops a scanner that recognises nothing from reporting a cl
   itself live under `e2e/live/ci/`
   ([#7692](https://github.com/objectstack-ai/objectui/issues/7692)).
 - Then `pnpm lint`.
+- Then `scripts/check-vi-mock-override-shape.mjs` — a `vi.mock` factory that overrides a typed
+  export must hand back the shape that export declares. Its two siblings run in
+  `vi-mock-specifiers.yml` and judge different properties of the same call sites: whether a relative
+  specifier resolves, and whether the factory inherits the real module. Neither judges what the
+  override is **worth**, and `tsc` never looks — a `vi.mock` factory is untyped, so the compiler
+  never compares a stub against the export's type. Measured rather than argued: thirteen
+  `RecordDetailView` stubs returned `{ viewers, others }` where `useRecordPresence` is declared
+  `PresenceUser[]`, and with all thirteen back on disk both existing gates printed a **byte-identical
+  verdict line and exit 0** ([#8083](https://github.com/objectstack-ai/objectui/issues/8083), repaired
+  by [#8902](https://github.com/objectstack-ai/objectui/pull/8902)). The failure mode is the
+  asymmetric one: when the stubbed contract moves, the files that stubbed it correctly go red and the
+  drifted ones stay green. It runs **after** the install rather than beside its siblings because it
+  reads declared return types with the TypeScript parser, and every pre-install gate's import graph is
+  held to node builtins plus local modules
+  ([#8903](https://github.com/objectstack-ai/objectui/issues/8903)).
 - Then `scripts/check-cross-repo-closer-outcome.mjs` — it extracts the ~250 lines of inline
   `github-script` out of `cross-repo-issue-closer.yml` with a real parser, never a retyped copy,
   runs it under doubles the way `actions/github-script` does, and pins each exit's outcome: which
