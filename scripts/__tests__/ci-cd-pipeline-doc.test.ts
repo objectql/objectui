@@ -145,7 +145,7 @@ describe('ci-cd-pipeline.md — workflow inventory', () => {
         `content/docs/guide/ci-cd-pipeline.md names them:\n` +
         undocumented.map((f) => `  - ${f}`).join('\n') +
         `\n\nAdd a section to that page — a heading that contains the file name ` +
-        `(e.g. "### Stale Issues (\`stale.yml\`)"), what triggers it, and whether it can ` +
+        `(e.g. "### Hook Self-Tests (\`hook-selftests.yml\`)"), what triggers it, and whether it can ` +
         `block a merge — and a row in the "Workflow Inventory" table. A workflow nobody ` +
         `documented is a check contributors get blocked by without knowing it exists ` +
         `(objectui#3212: \`lint.yml\` gated PRs for months while this page never mentioned it).` +
