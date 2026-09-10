@@ -1,10 +1,24 @@
 ---
-'@object-ui/types': patch
+'@object-ui/types': minor
 ---
 
 Collapse the now-redundant `UserActionsSchema` extension, and correct a docblock that
 told authors an undeclared `userActions` key is silently dropped when it is refused by
 name (objectui#8992).
+
+⚠️ **Breaking, in the producer direction, which is why this is `minor` and not `patch`**
+(objectui's own breaking changes ship as `minor` with the break spelled out — AGENTS.md,
+"changeset 里不要声明 `major`"). On the published `@object-ui/types` face,
+`userActions.group` / `.hideFields` / `.rowColor` move from `z.ZodOptional[z.ZodBoolean]`
+to `z.ZodDefault[z.ZodBoolean]` in the emitted `.d.ts`, so `z.output` for those three
+goes from `boolean | undefined` to `boolean` — the key becomes REQUIRED on the output
+type. Measured with `tsc`: a value typed as the old output is **not** assignable to the
+new one (the three read as missing); the reverse direction is fine. **Readers of parsed
+output are unaffected; code that CONSTRUCTS an output-typed `userActions` value must add
+the three keys or widen its annotation.** ⛔ Nothing about what parses changes — see the
+equivalence measurement below. Precedent for the same operation on the same file:
+`ListColumnSchema`'s local `.extend()` collapsed into a plain by-reference re-export and
+shipped under 17.1.0 **Minor Changes**.
 
 `objectql.zod.ts`'s `UserActionsSchema` read
 `stripImportedDefaults(Spec).extend({ group, hideFields, rowColor })`, an extension that
@@ -31,30 +45,34 @@ keys, wrong types, non-objects) with an identical result — same success, same 
 output, same refusal codes, keys and messages — and a sentinel proving the comparison
 can see a difference when one exists.
 
-⚠️ TWO THINGS ON THE PUBLISHED SURFACE DO MOVE, both confined to those three keys, and
+⚠️ TWO THINGS ON THE PUBLISHED SURFACE MOVE, both confined to those three keys, and
 both measured by rebuilding `packages/types/dist` on each side of the change:
 
-1. They lose the three local `.describe()` strings the extension carried, because the
-   protocol declares those keys without descriptions of its own. Nothing in this
-   repository reads them, and a mirror that authors prose for a protocol key is the same
-   class of local invention the import boundary (objectui#8317) removed for defaults.
-2. In the emitted `objectql.zod.d.ts` the three move from `z.ZodOptional<z.ZodBoolean>`
-   to `z.ZodDefault<z.ZodBoolean>` — the spec's own declaration, as the compiler sees it
-   before the runtime strip. `z.input` is unchanged (`boolean | undefined` either way);
-   `z.output` for these three goes from `boolean | undefined` to `boolean`. This is the
-   import boundary's DELIBERATE and ruled property — `stripImportedDefaults` is typed
-   `T` in, `T` out, because stripping is "a property of the PARSE, not of the
-   declaration" (decision batch #90) — and it is what the OTHER EIGHT keys on this same
-   object have declared all along. The extension was making three keys the odd ones out
-   of an object whose eleven members behave identically at runtime; the collapse makes
-   the declaration uniform. ⛔ It does not change what parses: an omitted key is still
-   absent from the parsed output, measured, on all eleven.
+1. They end up carrying no `.describe()` metadata. ⛔ Not because the protocol leaves
+   them undescribed — it describes all three (`group`: "Allow users to change record
+   grouping from the toolbar. …", and likewise `hideFields` / `rowColor` in the 17.3.0
+   and 17.4.0 tarballs). The cause is objectui's own import boundary:
+   `stripImportedDefaults` unwraps each `ZodDefault` with `.removeDefault()` and
+   re-optionalises the inner node, and the description sits on the OUTER node it
+   discards. Measured on this object: all ten defaulted keys read
+   `description = undefined` after the strip, on both sides of this change, while
+   `buttons` — the one member that never carried a default — keeps its description
+   through it. So the three simply stop being an exception: before, the local extension
+   supplied descriptions the other ten defaulted keys did not have. Nothing in this
+   repository reads them.
+2. In the emitted `objectql.zod.d.ts` the three move from `z.ZodOptional[z.ZodBoolean]`
+   to `z.ZodDefault[z.ZodBoolean]` — the spec's own declaration, as the compiler sees it
+   before the runtime strip. This is the import boundary's DELIBERATE and ruled property
+   — `stripImportedDefaults` is typed `T` in, `T` out, because stripping is "a property
+   of the PARSE, not of the declaration" (decision batch #90) — and it is what SEVEN of
+   the other eight keys on this same object have declared all along (`sort`, `search`,
+   `filter`, `refresh`, `rowHeight`, `addRecordForm`, `editInline`; `buttons` is
+   `z.ZodOptional[z.ZodArray[z.ZodString]]` and never declared a default). The extension
+   was making three keys the odd ones out of an object whose eleven members behave
+   identically at runtime; the collapse makes the declaration uniform. ⛔ It does not
+   change what parses: an omitted key is still absent from the parsed output, measured,
+   on all eleven.
 
 The emitted declaration also carries `z.core.$strict` on BOTH sides of this change,
 which is the compiler restating in objectui's own published artifact what the corrected
 docblock now says in prose.
-
-⚠️ The three keys are version-borne from here on. `@object-ui/types` declares
-`@objectstack/spec: ^17.3.0` and that floor is now load-bearing for them — 17.2.0
-declares 8 keys on this object, 17.3.0 declares 11. The extension used to carry the
-three locally whatever version resolved; it no longer does.
