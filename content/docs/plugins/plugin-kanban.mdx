@@ -38,11 +38,13 @@ This package publishes a stylesheet. Import it after the base sheets, or the boa
 ```tsx
 // Import once in your app entry point
 import '@object-ui/plugin-kanban'
-import type { KanbanSchema } from '@object-ui/plugin-kanban'
+import type { ObjectKanbanSchema } from '@object-ui/types'
 
 // Use in schemas
-const schema: KanbanSchema = {
-  type: 'kanban',
+const schema: ObjectKanbanSchema = {
+  type: 'object-kanban',
+  groupBy: 'status',
+  data: [],
   columns: [
     {
       id: 'todo',
@@ -56,10 +58,13 @@ const schema: KanbanSchema = {
       title: 'Done',
       cards: []
     }
-  ],
-  onCardMove: (cardId, fromCol, toCol, index) => {
-    console.log(`Card ${cardId} moved`)
-  }
+  ]
+}
+
+// `onCardMove` is NOT a document key — JSON has no function value. The host
+// supplies it as a React prop, separate from `schema` above.
+const onCardMove = (cardId: string, fromCol: string, toCol: string, index: number) => {
+  console.log(`Card ${cardId} moved`)
 }
 ```
 
@@ -73,11 +78,16 @@ const schema: KanbanSchema = {
 
 ## Schema API
 
+`onCardMove` is NOT a document key: it is a React prop the host supplies (JSON
+has no function value), never a member of the schema object below —
+`packages/plugin-kanban/README.md` documents this the same way.
+
 ```plaintext
 {
-  type: 'kanban',
+  type: 'object-kanban',
+  groupBy: 'status',
+  data: [],
   columns?: KanbanColumn[],
-  onCardMove?: (cardId, fromColumnId, toColumnId, newIndex) => void,
   className?: string
 }
 
@@ -107,7 +117,6 @@ interface KanbanCard {
 | `columns` | KanbanColumn[] | Array of column definitions |
 | `filter` | ViewFilterRule[] | Query filter for an object-driven board, lowered to `$filter` |
 | `limit` | number | Rows fetched by an object-driven board (default 100) |
-| `onCardMove` | function | Callback when a card is moved |
 | `className` | string | Additional Tailwind CSS classes |
 
 ### Column Properties
@@ -182,10 +191,12 @@ names fills the cap only when the board leaves `limit` unset (see
 ### Project Task Board
 
 ```tsx
-import type { KanbanSchema } from '@object-ui/plugin-kanban'
+import type { ObjectKanbanSchema } from '@object-ui/types'
 
-const taskBoard: KanbanSchema = {
-  type: 'kanban',
+const taskBoard: ObjectKanbanSchema = {
+  type: 'object-kanban',
+  groupBy: 'status',
+  data: [],
   columns: [
     {
       id: 'backlog',
@@ -227,21 +238,26 @@ const taskBoard: KanbanSchema = {
       title: 'Done',
       cards: []
     }
-  ],
-  onCardMove: (cardId, fromCol, toCol, index) => {
-    // Update backend/state
-    console.log(`Moved ${cardId} from ${fromCol} to ${toCol}`)
-  }
+  ]
+}
+
+// `onCardMove` is NOT a document key — the host supplies it as a React prop,
+// separate from `taskBoard` above.
+const onCardMove = (cardId: string, fromCol: string, toCol: string, index: number) => {
+  // Update backend/state
+  console.log(`Moved ${cardId} from ${fromCol} to ${toCol}`)
 }
 ```
 
 ### Support Ticket Board
 
 ```tsx
-import type { KanbanSchema } from '@object-ui/plugin-kanban'
+import type { ObjectKanbanSchema } from '@object-ui/types'
 
-const ticketBoard: KanbanSchema = {
-  type: 'kanban',
+const ticketBoard: ObjectKanbanSchema = {
+  type: 'object-kanban',
+  groupBy: 'status',
+  data: [],
   columns: [
     {
       id: 'new',
@@ -277,10 +293,12 @@ const ticketBoard: KanbanSchema = {
 ### Sales Pipeline
 
 ```tsx
-import type { KanbanSchema } from '@object-ui/plugin-kanban'
+import type { ObjectKanbanSchema } from '@object-ui/types'
 
-const salesPipeline: KanbanSchema = {
-  type: 'kanban',
+const salesPipeline: ObjectKanbanSchema = {
+  type: 'object-kanban',
+  groupBy: 'status',
+  data: [],
   columns: [
     {
       id: 'leads',
@@ -366,7 +384,8 @@ Handle card movements to update your backend or state:
 
 ```tsx
 import { useState } from 'react'
-import type { KanbanColumn, KanbanSchema } from '@object-ui/plugin-kanban'
+import type { KanbanColumn } from '@object-ui/plugin-kanban'
+import type { ObjectKanbanSchema } from '@object-ui/types'
 
 declare function updateCardColumn(cardId: string, toColumnId: string, newIndex: number): Promise<void>
 declare function moveCard(columns: KanbanColumn[], cardId: string, toColumnId: string, newIndex: number): KanbanColumn[]
@@ -374,43 +393,54 @@ declare function moveCard(columns: KanbanColumn[], cardId: string, toColumnId: s
 export function useBoard(initialColumns: KanbanColumn[]) {
   const [columns, setColumns] = useState<KanbanColumn[]>(initialColumns)
 
-  const schema: KanbanSchema = {
-    type: 'kanban',
+  const schema: ObjectKanbanSchema = {
+    type: 'object-kanban',
+    groupBy: 'status',
+    data: [],
     columns,
-    // `onCardMove` returns void, so the callback cannot be awaited by the board:
-    // start the write and update local state without blocking the drop.
-    onCardMove: (cardId, fromColumnId, toColumnId, newIndex) => {
-      // Update database
-      void updateCardColumn(cardId, toColumnId, newIndex)
-
-      // Update local state
-      setColumns((prev) => moveCard(prev, cardId, toColumnId, newIndex))
-    },
   }
 
-  return schema
+  // `onCardMove` is NOT a document key — the host supplies it as a React prop,
+  // separate from `schema` above. It returns void, so the callback cannot be
+  // awaited by the board: start the write and update local state without
+  // blocking the drop.
+  const onCardMove = (cardId: string, fromColumnId: string, toColumnId: string, newIndex: number) => {
+    // Update database
+    void updateCardColumn(cardId, toColumnId, newIndex)
+
+    // Update local state
+    setColumns((prev) => moveCard(prev, cardId, toColumnId, newIndex))
+  }
+
+  return { schema, onCardMove }
 }
 ```
 
-### Quick Add is a `kanban-ui` capability, not an object-driven one
+### Quick Add is a React-host capability, not a document one
 
 The Quick Add button at the bottom of a lane is gated on **both** halves of a
 pair: `quickAdd`, and an `onQuickAdd` handler. `onQuickAdd` is a runtime slot —
 a function — so it can only be supplied by a React host that mounts the board
-directly, which is the `kanban-ui` block above.
+component directly: `KanbanRenderer`, exported from `@object-ui/plugin-kanban`,
+forwards both halves by identity.
+
+⚠️ There is **no node type key** that reaches it. The `kanban-ui` registration
+retired with objectui#8257, so a document naming that tag is now an
+`unknown-component` **error** rather than a board with a working pair. Import the
+component instead.
 
 An **object-driven** board (`object-kanban`, or a kanban view inside `ListView` /
 `ObjectView`) supplies no `onQuickAdd` of its own, and a page written as
 constrained JSX cannot write one either: that tier parses and never executes, so
-a handler attribute is refused there. An authored `quickAdd: true` on those tags
+a handler attribute is refused there. An authored `quickAdd: true` on that tag
 therefore renders no control. The authoring validator (`validateTree` in
 `@object-ui/sdui-parser`) reports it as an `inert-quick-add` **warning** naming
 the missing half — the document still parses, saves and renders.
 
 <Callout type="info">
-  `quickAdd` is being retired from `object-kanban` / `kanban`; it stays on
-  `kanban-ui`, where the pair works. Inline record creation from a board is not a
-  capability the object-driven boards have.
+  `quickAdd` is being retired from `object-kanban`; it stays on the
+  `KanbanRenderer` component, where the pair works. Inline record creation from
+  an object-driven board is not a capability those boards have.
 </Callout>
 
 ## Bundle Size
@@ -431,8 +461,14 @@ The kanban board includes:
 
 ## TypeScript Support
 
+`ObjectKanbanSchema` is published by `@object-ui/types` (and its Zod mirror by
+`@object-ui/types/zod`); `@object-ui/plugin-kanban` publishes the card and column
+shapes. Importing all three from the plugin does not resolve — its barrel never
+exported the schema type.
+
 ```plaintext
-import type { KanbanSchema, KanbanCard, KanbanColumn } from '@object-ui/plugin-kanban'
+import type { ObjectKanbanSchema } from '@object-ui/types'
+import type { KanbanCard, KanbanColumn } from '@object-ui/plugin-kanban'
 
 const column: KanbanColumn = {
   id: 'todo',
@@ -441,8 +477,10 @@ const column: KanbanColumn = {
   limit: 5
 }
 
-const kanbanSchema: KanbanSchema = {
-  type: 'kanban',
+const kanbanSchema: ObjectKanbanSchema = {
+  type: 'object-kanban',
+  groupBy: 'status',
+  data: [],
   columns: [column]
 }
 ```
