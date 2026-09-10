@@ -19,6 +19,10 @@
  */
 
 import type { BaseSchema } from './base.js';
+// `KanbanCard` is the kanban CARD vocabulary, declared once in `./complex.ts`
+// and read here by `ObjectKanbanSchema.columns` (objectui#8913) so the two
+// kanban faces judge a card the same way. Type-only: no runtime edge.
+import type { KanbanCard } from './complex.js';
 import type { DrillDownConfig } from './data-display.js';
 import type { BulkActionOperation } from '@objectstack/spec/ui';
 import type { FormField } from './form.js';
@@ -2957,6 +2961,139 @@ export interface ObjectKanbanSchema extends BaseSchema {
    * @deprecated RETIRED (objectui#7322) — author `groupBy` instead.
    */
   groupField?: never;
+  /**
+   * Swimlane definitions — the lanes the board draws, NOT a field projection
+   * (the fields drawn on a card are {@link cardFields}).
+   *
+   * Declared here by objectui#8913. Until then this key rode
+   * {@link BaseSchema}'s `[key: string]: any` on this face: the renderer read
+   * it at three sites while neither published face of this package named it,
+   * so `columns: "todo"`, `columns: [42]` and a lane card with no `title` all
+   * parsed green. Declaring on a face that already carries an index signature
+   * can only NARROW — it adds validation where there was none — and that is
+   * the whole of what this member does.
+   *
+   * ⚠️ Narrowing is not licence to bless whatever the protocol's literal
+   * `z.unknown()` would take: a shape the RENDERER mishandles must not be
+   * declared valid, or the declaration becomes a promise nothing keeps. Two
+   * such shapes were caught in contract review and are refused here — a
+   * numeric lane id (see {@link id}) and a mixed array (see below).
+   *
+   * ## ⭐ TWO ARRAY SHAPES, not a union per element — and the shape is the
+   * protocol's, not this repository's
+   *
+   * `@objectstack/spec` declares this key on `ObjectKanbanPropsSchema`
+   * (`packages/spec/src/ui/component.zod.ts`, read at objectstack
+   * `eabdd66f45f402eba0f8404a8a9de4a501fc83a6`) as
+   * `z.array(z.unknown()).optional()` whose `describe` states the shape in
+   * prose: "Swimlane definitions ({ id, title } per `groupBy` value, or bare
+   * value strings) — NOT a field projection". Both arms are admitted here
+   * WHOLE, per the maintainer principle in force (2026-09-09, recorded verbatim
+   * and untranslated):
+   * 「我们的项目以 objectstack 协议为准，文档应该以实际实现为准。协议不正确的应该先修改协议。」
+   *
+   * ⛔ What is NOT admitted is a MIXED array, and objectui#8913's first cut
+   * admitted one by spelling this as an array of a per-element union. The
+   * protocol's "or" reads as two array shapes, it names no mixed example, and
+   * the renderer cannot serve one: `effectiveColumns` dispatches on
+   * `columns[0]` ALONE (`plugin-kanban/src/ObjectKanban.tsx`), so an
+   * object-first mix sends every string element down the object branch and a
+   * string-first mix is ignored whole. Measured on the real bucketer with
+   * `[{ id: 'done', title: 'Done' }, 'todo']`: lanes come back
+   * `done:r2, undefined:, __uncolumned__:r1` — a blank lane whose own keys are
+   * `["0","1","2","3","cards"]` (the string spread character by character) and
+   * the `todo` record in "Uncategorized" rather than its lane. Admitting a
+   * shape whose only outcome is a broken board is the declared-but-not-honoured
+   * defect this card exists to remove, one layer up. If a later ruling reads
+   * the protocol's prose as a per-element union, that is an
+   * `@objectstack/spec` card and this member follows it.
+   *
+   * ## ⛔ Why this is NOT `KanbanColumn[]`, which is what the card proposed
+   *
+   * {@link KanbanColumn} requires `cards`. It is the RUNTIME lane shape — what
+   * `bucketCardsIntoColumns` produces and what `KanbanImpl` / `KanbanEnhanced`
+   * consume, with `cards` always filled — and using it as the AUTHORING
+   * element would refuse three live shapes, each measured rather than argued:
+   *
+   *   1. the protocol's own gate-validated example
+   *      (`content/docs/protocol/objectui/layout-dsl.mdx`, under an
+   *      `os:check-yaml PageComponentSchema` fence) authors three lanes as
+   *      `{ id, title }` with no `cards`;
+   *   2. the renderer never requires `cards` — `bucketCardsIntoColumns` reads
+   *      `col.cards || []` on both of its legs, and the lanes it materializes
+   *      from a picklist or from the data carry no `cards` at all;
+   *   3. this repository's own typed corpus authors `columns: [{ id, title }]`
+   *      under `satisfies ObjectKanbanSchema` in several `plugin-kanban` board
+   *      tests.
+   *
+   * ⇒ `cards` is OPTIONAL on the authoring arm. A lane that carries it is a
+   * static board's lane and its cards are judged; a lane that does not is a
+   * swimlane and receives its cards from the record source.
+   *
+   * ## The member set is the READ set
+   *
+   * `id` / `title` / `cards` / `limit` / `className` / `collapsed` are exactly
+   * the lane members the two board implementations read, counted off
+   * `KanbanImpl`, `KanbanEnhanced`, `useColumnWidths`, `useCrossSwimlaneMove`,
+   * `useQuickAddReorder` and `bucketCardsIntoColumns`. Their VALUE types come
+   * from those read sites too — see {@link id} for the one this card had to
+   * correct.
+   *
+   * ## ⚠️ The bare-string arm is admitted for PROTOCOL PARITY and is inert here
+   *
+   * The `object-kanban` renderer honours a bare-string lane list only when no
+   * `groupBy` is authored (`ObjectKanban.tsx`, the `effectiveColumns` memo:
+   * the string branch returns only under `if (!schema.groupBy)`). `groupBy` is
+   * REQUIRED on this face, so no document that passes this schema can reach
+   * that branch — the arm is admitted because refusing it would make objectui
+   * narrower than the protocol, not because it does anything. The requiredness
+   * itself is objectui#8990; ⛔ this member does not wait on it.
+   *
+   * ⚠️ An undeclared lane key is ACCEPTED AND DROPPED from the parsed output,
+   * not refused — the lane arm is a plain (non-passthrough) object, the same
+   * posture {@link KanbanColumn}'s mirror carries. That is the TOLERANT face's
+   * posture: the strict authoring twin refuses the same key by name. The
+   * `color` tombstone that mirror holds is deliberately NOT carried here: it
+   * retired with the `kanban` arm (objectui#7664) and refusing a key BY NAME on
+   * this face is a separate decision, not part of this declaration.
+   *
+   * Pinned in `./__tests__/object-kanban-columns-declared-8913.test.ts`.
+   */
+  columns?:
+    | string[]
+    | Array<{
+        /**
+         * Lane id, matched against the `groupBy` value.
+         *
+         * STRING only. objectui#8913's first cut admitted a number here on the
+         * reading that "the renderer coerces with `String(col.id)`" — TRUE at
+         * the i18n lookup in `localizeColumn`, and FALSE at the site that
+         * decides lane membership: `bucketCardsIntoColumns` builds its
+         * `knownIds` set from the RAW `col.id` and compares it against
+         * `Object.keys(groups)`, which are always strings. Measured by calling
+         * the real function with lanes `{ id: 1 }, { id: 2 }` and records
+         * `status: 1` / `status: '2'`: `1:r1, 2:r2, __uncolumned__:r1+r2` —
+         * every card rendered TWICE, once in its lane and once in
+         * "Uncategorized"; the string control is a clean `one:r1`. The retired
+         * arm ({@link KanbanColumn.id}) and its mirror are `string` too, and the
+         * protocol names no type. Carrier for the bucketer defect itself:
+         * objectui#8993.
+         */
+        id: string;
+        /** Lane heading; localized against the `groupBy` picklist's option labels. */
+        title: string;
+        /**
+         * Cards this lane carries. Present on a STATIC board only: an
+         * object-bound board's cards arrive from the record source and are
+         * bucketed into the lane by `groupBy`.
+         */
+        cards?: KanbanCard[];
+        /** WIP limit — the card count at which the lane warns. Never reaches the query. */
+        limit?: number;
+        className?: string;
+        /** Whether the lane renders collapsed (honoured by the enhanced board). */
+        collapsed?: boolean;
+      }>;
   /**
    * Row cap — the most records the board fetches, sent as a real `$top` on
    * the query (`packages/plugin-kanban/src/ObjectKanban.tsx:264`,
