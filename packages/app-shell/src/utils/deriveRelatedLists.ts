@@ -10,7 +10,10 @@
  * This helper scans every object for fields whose `reference`/`reference_to`
  * points back at the parent object and produces one related-list descriptor per
  * eligible FK. The detail page (`RecordDetailView`) feeds these into the
- * `record:related_list` renderers (and the legacy `DetailView.related`).
+ * `record:related_list` renderers. (It also fed `DetailView.related`, which is
+ * RETIRED as of objectui#7997 — that entry is a `?: never` tombstone on both
+ * faces now, and this helper's output reaches the page only as
+ * `record:related_list` nodes.)
  *
  * Rules (kept in lockstep with the relationship-level `relatedList` spec flag):
  *   - Owned children (`master_detail`) and `lookup` children are SHOWN by

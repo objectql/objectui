@@ -1147,7 +1147,8 @@ An enhanced detail view for a single record with sections, tabs and navigation.
 | `showDelete` / `deleteConfirmation` | `boolean` / `string` | Delete with confirmation message. |
 | `header` / `footer` | `SchemaNode` | Custom header/footer content. |
 
-> #### ⛔ `related` is retired — author `record:related_list` instead
+> **Retired: `related`** (objectui#7997, ADR-0049 enforce-or-remove).
+> Author a `record:related_list` block instead.
 >
 > Until objectui#7997 this block carried its own `related` array, and this page
 > taught it with `{ "name": ..., "label": ... }` columns. That array is retired
@@ -1156,7 +1157,7 @@ An enhanced detail view for a single record with sections, tabs and navigation.
 > drifted from the renderer it fed. Authoring it is now **refused by name** on
 > both the TypeScript and the JSON face — it is not silently ignored.
 >
-> Related lists have ONE entry now, and it renders through the same component:
+> Related lists have one declared entry now, and it renders through the same component:
 >
 > ```json
 > {
@@ -1174,6 +1175,10 @@ An enhanced detail view for a single record with sections, tabs and navigation.
 > field label rename reaches the list for free. `relationshipField` names the
 > field on the RELATED object that points back at this record, and replaces the
 > retired form's `api` endpoint.
+>
+> ⚠️ The block reads the parent record from the record page's `RecordContext`,
+> so author it on a record page. Placed anywhere it cannot resolve a parent id
+> it scopes to nothing and renders an empty list.
 
 **Related:** [DetailSchema](#detailschema), [ObjectViewSchema](#objectviewschema)
 

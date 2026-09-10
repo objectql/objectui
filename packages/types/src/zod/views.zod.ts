@@ -198,7 +198,11 @@ export const DetailViewSchema = BaseSchema.extend({
    * The capability. `record:related_list` is the protocol-governed entry
    * (`@objectstack/spec` `RecordRelatedListProps`), it always rendered through
    * the SAME `RelatedList` component this member fed, and it is unchanged here.
-   * One capability, one entry.
+   *
+   * ⚠️ It is the only DECLARED / protocol-governed entry, ⛔ not the only entry
+   * full stop: `plugin-detail/src/index.tsx` still registers a bare
+   * `related-list` node against the same component, with untyped `columns`.
+   * That registration is out of this card's scope and is untouched.
    */
   related: retirementTombstone(
     '`related` is RETIRED on `detail-view` (objectui#7997, ADR-0049 '

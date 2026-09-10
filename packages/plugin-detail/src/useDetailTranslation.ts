@@ -87,6 +87,16 @@ export const DETAIL_DEFAULT_TRANSLATIONS: Record<string, string> = {
   'detail.recordNotFoundDescription': 'The record you are looking for does not exist or may have been deleted.',
   'detail.goBack': 'Go back',
   'detail.details': 'Details',
+  // KEPT DELIBERATELY after objectui#7997 retired `DetailViewSchema.related`.
+  // This map is a fallback for the `en` PACK, not an index of this package's
+  // `t()` call sites, and the key is still live: `@object-ui/components`
+  // `renderers/layout/containers.tsx` maps the built-in page tab
+  // `Related` to it. Dropping the row would leave that tab untranslated
+  // whenever no I18nProvider is mounted — which is the only situation this
+  // map exists for. `check-i18n-dead-keys` newly lists it as
+  // `[needs-review]` because this package's own `t('detail.related')` call
+  // site went with the retired render branch; that report row is expected
+  // and is not a dead key.
   'detail.related': 'Related',
   'detail.relatedRecords': '{{count}} records',
   'detail.relatedRecordOne': '{{count}} record',

@@ -785,7 +785,7 @@ export interface DetailViewSchema extends BaseSchema {
    * `{ name, label }` spellings.
    *
    * ⛔ Do NOT read the retirement as "related lists are gone". The capability
-   * moves to its ONE protocol-governed entry, `record:related_list`
+   * moves to its one DECLARED, protocol-governed entry — `record:related_list`
    * (`RecordRelatedListComponentProps`, mirroring `@objectstack/spec`
    * `RecordRelatedListProps`), whose `columns` is an array of FIELD-NAME
    * strings. Both entries always rendered through the same `RelatedList`

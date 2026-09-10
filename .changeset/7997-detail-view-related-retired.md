@@ -12,10 +12,13 @@ node authoring `related` used to parse **green** and render a Related section; i
 now reds at that key on both faces, and the renderer draws nothing from it.
 
 **What retired is a DOOR, not the capability.** `record:related_list` is
-unchanged and is now the only entry. It is the protocol-governed one
-(`@objectstack/spec` `RecordRelatedListProps`), and it has always rendered
-through the same `RelatedList` component the retired array fed — so nothing
-about the rendered result is lost.
+unchanged and is now the only **declared, protocol-governed** entry
+(`@objectstack/spec` `RecordRelatedListProps`); it has always rendered through
+the same `RelatedList` component the retired array fed, so nothing about the
+rendered result is lost. ⚠️ Not the only entry full stop — `plugin-detail`
+still registers a bare `related-list` node against the same component with
+untyped `columns`, and that registration is out of this card's scope and
+untouched.
 
 | before, on a `detail-view` node | after |
 | --- | --- |
@@ -57,7 +60,15 @@ untouched.
 
 **Documentation.** `packages/plugin-detail/README.md` and
 `content/docs/api/schema-reference.md` stop teaching the retired array and gain a
-migration block each. ⚠️ The docs page had been teaching `{ name, label }`
-columns, a shape the retired declaration itself never admitted — so the
-documentation was already wrong about this member before it retired, in a
-direction no route would have fixed on its own.
+migration block each.
+
+⚠️ The docs page had been teaching `{ name, label }` columns, and the two faces
+disagreed about that shape: the retired **TypeScript** declaration never
+admitted it (`TableColumn` requires `header` **and** `accessorKey`), while the
+retired **zod mirror** did — it spelled the member `z.array(z.any())` — so the
+JSON document that page taught parsed green and rendered. The page was wrong for
+a **typed** author and right for a **JSON** author, which is a sharper defect
+than a single wrong example: the two authoring faces of one member disagreed
+about what a column is. Retiring the member closes that split at the source, and
+the page now teaches `record:related_list`, whose `columns` is
+`z.array(z.string())` on both faces.

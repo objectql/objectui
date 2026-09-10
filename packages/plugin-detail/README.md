@@ -255,7 +255,8 @@ Tab navigation for organizing content into different views.
 
 Displays related records in list, grid, or table format.
 
-> #### ⛔ `DetailViewSchema.related` is retired — author `record:related_list`
+> **Retired: `DetailViewSchema.related`** (objectui#7997, ADR-0049
+> enforce-or-remove). Author a `record:related_list` block instead.
 >
 > Until objectui#7997 a `detail-view` node could carry its own `related` array,
 > and this README taught it. That array is retired under ADR-0049
@@ -292,6 +293,12 @@ Displays related records in list, grid, or table format.
 > retired array taught froze both. `relationshipField` names the field on the
 > related object pointing back at this record, and replaces the retired form's
 > `api` endpoint.
+>
+> ⚠️ The block reads the parent record from the record page's `RecordContext`,
+> so author it on a record page. Placed anywhere it cannot resolve a parent id
+> it scopes to nothing and renders an empty list — which is also what the
+> retired `related` form did whenever it declared `api` without a
+> `referenceField`.
 
 
 Related lists are **paged by default**: the `record:related_list` renderer

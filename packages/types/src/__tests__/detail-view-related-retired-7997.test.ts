@@ -193,7 +193,7 @@ describe('objectui#7997 — a bare delete would have KEPT the key, not refused i
 
 /* ── (d) the survivor — retiring a DOOR, not the capability ───────────────── */
 
-describe('objectui#7997 — `record:related_list` is untouched and is now the only entry', () => {
+describe('objectui#7997 — `record:related_list` is untouched and is the declared entry', () => {
   it('its `columns` is still the protocol shape: an array of field-name strings', () => {
     // `@objectstack/spec` declares `RecordRelatedListProps.columns` as
     // `z.array(z.string())`. This face already mirrored it before the card and

@@ -20,7 +20,6 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
-  useIsMobile,
 } from '@object-ui/components';
 import { 
   ArrowLeft, 
@@ -295,7 +294,6 @@ export const DetailView: React.FC<DetailViewProps> = ({
   // Tenant default currency (ADR-0053) for summary metrics whose field omits one.
   const { currency: tenantCurrency } = useLocalization();
   const { fieldOptionLabel } = useSafeFieldLabel();
-  const isMobile = useIsMobile();
 
   // Field-level permission gate. Filter section.fields and top-level
   // fields based on the current user's read permissions BEFORE any
