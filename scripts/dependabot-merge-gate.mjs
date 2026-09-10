@@ -128,6 +128,7 @@ import { isEntrypoint } from './invoked-as.mjs';
  *   doc-component-types.yml  Doc Component Type Check
  *   doc-snippet-types.yml    Doc Snippet Type Check
  *   doc-fence-languages.yml  Doc Fence Language Check
+ *   doc-example-ids.yml      Doc Example Id Check
  *   pre-install-import-graph.yml  Pre-Install Import Graph Check
  *   vi-mock-specifiers.yml        Inert vi.mock Specifier Check
  *   shell-escape-residue.yml      Shell Escape Residue Scan
@@ -171,6 +172,7 @@ export const REQUIRED_CONTEXTS = Object.freeze([
   'Doc Component Type Check',
   'Doc Snippet Type Check',
   'Doc Fence Language Check',
+  'Doc Example Id Check',
   'Pre-Install Import Graph Check',
   'Inert vi.mock Specifier Check',
   'Shell Escape Residue Scan',

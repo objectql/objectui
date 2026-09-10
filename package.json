@@ -71,6 +71,7 @@
     "check:doc-snippets": "node scripts/check-doc-snippet-types.mjs",
     "check:doc-examples": "node scripts/check-doc-example-types.mjs",
     "check:doc-fences": "node scripts/check-doc-fence-languages.mjs",
+    "check:doc-example-ids": "node scripts/check-doc-example-ids.mjs",
     "check:eager-closure": "node scripts/check-eager-closure-budget.mjs",
     "check:side-effects-array": "node scripts/check-side-effects-array.mjs",
     "check:sdui-registration-pins": "node scripts/check-sdui-registration-pins.mjs",
