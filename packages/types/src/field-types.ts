@@ -25,7 +25,7 @@ import type { Field as SpecField } from '@objectstack/spec/data';
  * sibling field names, or `{ field, param }` entries mapping a sibling onto the
  * remote query parameter a dependent lookup filters by.
  *
- * Measured on the installed `@objectstack/spec` 17.3.0, `FieldSchema` declares
+ * Measured on the installed `@objectstack/spec` (17.4.0), `FieldSchema` declares
  * `dependsOn` as an OPTIONAL ARRAY of `string | { field, param? }` — never a
  * bare string. That is deliberately narrower than `DependsOnInput` (`form.ts`),
  * the shape the widget prop `FieldWidgetComponentProps.dependsOn` and
