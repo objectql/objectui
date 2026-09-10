@@ -17,11 +17,10 @@
  * `record-picker-label-placeholder-i18n.test.tsx` already set for a pair of
  * keys covered by a single mechanism (objectui#8071 slice 3).
  *
- * `feed` is declared a bare `type: 'object'`: the registration carries no
- * member list at all, so its `description` is the whole published statement of
- * what the key admits. (objectui#8934 rewrote that description; the
- * declaration was measured and deliberately left alone — `ComponentInput` has
- * no member-list slot for a fixed-key record.) The only prior coverage,
+ * `feed` is declared a bare `type: 'object'` in the registration, and its
+ * member list is the SPEC's: `@objectstack/spec` declares
+ * `RecordChatterProps.feed: RecordActivityProps.optional()`
+ * (`component.zod.ts:1366`), bound to both names. The only prior coverage,
  * `record-chatter.loading.test.tsx` (read end to end before this file was
  * written), is about the host's `loading` signal reaching the panel and never
  * authors `feed` at all.
@@ -41,32 +40,35 @@
  * member pin rather than a presence check, and it is asserted below in both
  * directions rather than described here.
  *
- * ## LIMIT — which members of `feed` are live on THIS path
+ * ## WHICH members of `feed` are live on this path
  *
- * `config.feed` is handed straight to `RecordActivityTimeline`, which reads
- * exactly the five AFFORDANCE members (`showFilterToggle`,
- * `showCommentInput`, `enableReactions`, `enableThreading`,
- * `showSubscriptionToggle`). The FILTER members of `record:activity`
- * (`types` / `limit` / `showCompleted` / `unifiedTimeline`) are applied by
- * `applyFeedConfig`, which only `record-activity.tsx` calls — so they do
- * nothing nested inside `feed`.
+ * `config.feed` reaches `RecordActivityTimeline`, which reads the five
+ * AFFORDANCE members (`showFilterToggle`, `showCommentInput`,
+ * `enableReactions`, `enableThreading`, `showSubscriptionToggle`) at
+ * `:213-217`. The four FILTER members (`types` / `limit` / `showCompleted` /
+ * `unifiedTimeline`) are applied by `applyFeedConfig`, which
+ * `renderers/record-chatter.tsx` now runs before handing items to the panel,
+ * with `record-activity.tsx:219`'s call shape — so they are live here too
+ * (objectui#8934). Their behaviour is pinned next door in
+ * `recordChatterFeedMembersLive-8934.test.tsx`; this file stays on the
+ * displacement fact above.
  *
- * ⚠️ RE-POINTED (objectui#8934). This section used to state the reading above
- * as a correction to the registration, whose description then read "same shape
- * as record:activity" — wider than the read site is. That gap is closed at the
- * source: the maintainer ruled on 2026-09-10 that the DESCRIPTION changes and
- * the rendering path does not, so the registration now names the five
- * affordances and says the four filter members are not read on this path. The
- * reading above no longer contradicts the published contract; it agrees with
- * it.
+ * ⚠️ RE-POINTED TWICE, and the second time reversed the first — worth stating
+ * because the two versions read the same evidence and disagreed. This section
+ * once recorded the filter members as inert on this path and treated that as
+ * the key's shape; objectui#8934 first proposed narrowing the registration to
+ * match, and that route was overturned on a maintainer principle: the protocol
+ * is the contract, documentation follows the implementation, and a protocol
+ * that is wrong is changed in `@objectstack/spec` first. Since the spec
+ * declares the whole `RecordActivityProps` shape here, the inertness was an
+ * IMPLEMENTATION GAP, and it was closed in the renderer rather than written
+ * into the contract.
  *
- * This file still pins only the LIVE members. The behaviour the corrected
- * description claims — the five affordances move the timeline, a filter member
- * authored inside `feed` moves nothing, with `applyFeedConfig` as the firing
- * control that makes that zero a reading — is pinned next door in
- * `recordChatterFeedAffordanceOnly-8934.test.tsx`. "This member is dead" is
- * asserted in neither file: that is a claim about a contract defect, and the
- * defect was answered by correcting the contract.
+ * ⚠️ Two members of the declared shape are still unread on this path and are
+ * NOT closed by that pipeline: `filterMode` (taken by the timeline as a
+ * component prop, `:187` / `:212`, never off `config`) and `enableMentions`
+ * (whose only reads are on the `record:activity` path). Tracked as
+ * objectui#8968; ⛔ neither is pinned here, in either direction.
  *
  * ## Resolution
  *

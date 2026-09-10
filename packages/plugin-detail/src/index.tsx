@@ -700,29 +700,23 @@ const CHATTER_INPUTS: ComponentInput[] = [
   { name: 'width', type: 'string', description: 'Panel width as a CSS value (side positions only)' },
   { name: 'collapsible', type: 'boolean' },
   { name: 'defaultCollapsed', type: 'boolean' },
-  // `feed` is nested config, and what it carries is NARROWER than the block it
-  // is named after. `RecordChatterPanel` hands `config?.feed` straight to
-  // `RecordActivityTimeline`, which reads exactly the five AFFORDANCE members
-  // in one block (`RecordActivityTimeline.tsx:213-217`). The four FILTER inputs
-  // of `record:activity` (`types` / `limit` / `showCompleted` /
-  // `unifiedTimeline`) are applied by `applyFeedConfig`, whose ONE non-test
-  // call site is `record-activity.tsx`; nothing on the chatter/discussion path
-  // reaches it, so a filter authored in here is accepted and then discarded.
-  // The description used to read "same shape as record:activity" and was
-  // therefore advertising four members this path never reads (objectui#8934).
+  // `feed` delegates its whole member list to `record:activity`, and that is
+  // the SPEC's statement rather than this file's: `@objectstack/spec` declares
+  // `RecordChatterProps.feed: RecordActivityProps.optional()`
+  // (`component.zod.ts:1366`), bound to both names (`:2948` / `:2962`). So the
+  // description names the declaration it delegates to instead of re-listing
+  // eleven members that would then be free to drift from it.
   //
-  // ⚠️ The DECLARATION is deliberately unchanged, and that is a measurement
-  // rather than an omission: there is no member list here to narrow.
-  // `ComponentInput` carries `name` / `type` / `of` / `required` / `enum` /
-  // `description`, and the only slot one level down is `of` — the coarse KIND
-  // of the members of an ARRAY, or of an object used as a MAP, explicitly "NOT
-  // a nested schema: it names no object keys" (`@object-ui/types` `base.ts`).
-  // `feed` is a fixed-key record, not a map, so `of` has no true answer to
-  // give; inventing a member schema to have something to narrow would be the
-  // second source of truth the 2026-08-17 expression-ceiling ruling declined.
-  // Per that ruling the domain is spelled out in `description`, which IS what
-  // ships to `sdui.manifest.json` and is therefore what an AI author reads.
-  { name: 'feed', type: 'object', description: 'Activity-feed affordances nested inside the panel: showFilterToggle, showCommentInput, enableReactions, enableThreading, showSubscriptionToggle (that last one renders nothing on any path — see record:activity). The four FILTER inputs of record:activity (types, limit, showCompleted, unifiedTimeline) are not read here; filtering runs only on the record:activity render path, so one authored inside feed is accepted and then ignored. Use a record:activity block to filter a timeline.' },
+  // objectui#8934: the four FILTER members of that shape (`types` / `limit` /
+  // `showCompleted` / `unifiedTimeline`) used to be discarded on this path
+  // because `record-chatter.tsx` handed `discussion.items` to the panel raw.
+  // That was an IMPLEMENTATION GAP against a wider protocol, not a narrower
+  // contract, so it was closed in the renderer — see `renderers/record-chatter.tsx`,
+  // which now runs `applyFeedConfig` with `record-activity.tsx:219`'s call shape.
+  // ⛔ Do not narrow this declaration to match an implementation: the protocol
+  // is the contract, and a protocol that is wrong is changed in
+  // `@objectstack/spec` first.
+  { name: 'feed', type: 'object', description: 'Activity-feed configuration nested inside the panel — the same shape as record:activity. The spec declares this key as RecordActivityProps (RecordChatterProps.feed), so its members are exactly the inputs record:activity declares; see that block for what each one does.' },
 ];
 
 ComponentRegistry.register('chatter', RecordChatterRenderer, {
