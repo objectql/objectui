@@ -61,6 +61,8 @@ const BUILD_ENV: NodeJS.ProcessEnv = (() => {
 const CTRL_C = String.fromCharCode(3);
 /** Enter, as a tty delivers it. */
 const ENTER = '\r';
+/** Arrow-down, spelled the same way as CTRL_C so this file stays greppable. */
+const DOWN = `${String.fromCharCode(27)}[B`;
 /** CSI sequences a pty echoes, stripped before any assertion reads the transcript. */
 const ANSI = new RegExp(`${String.fromCharCode(27)}\\[[0-9;?]*[a-zA-Z]`, 'g');
 
@@ -92,6 +94,8 @@ interface Run {
   readonly files: string[] | null;
   readonly manifest: Record<string, unknown> | null;
   readonly license: string | null;
+  /** Every emitted file's text, keyed the same way as {@link Run.files}. */
+  readonly contents: Record<string, string> | null;
 }
 
 function listFiles(dir: string): string[] {
@@ -159,8 +163,12 @@ function driveCli(args: string[], steps: Step[], opts: { pty: boolean }): Promis
           ? (JSON.parse(readFileSync(join(dir, 'package.json'), 'utf-8')) as Record<string, unknown>)
           : null;
       const license = files?.includes('LICENSE') === true ? readFileSync(join(dir, 'LICENSE'), 'utf-8') : null;
+      const contents =
+        files === null
+          ? null
+          : Object.fromEntries(files.map((name) => [name, readFileSync(join(dir, name), 'utf-8')]));
       rmSync(cwd, { recursive: true, force: true });
-      resolvePromise({ code, transcript, stderr, files, manifest, license });
+      resolvePromise({ code, transcript, stderr, files, manifest, license, contents });
     });
   });
 }
@@ -270,6 +278,79 @@ describe('create-plugin CLI — cancelling and non-TTY runs (objectui#8786)', ()
       );
       expect(order.every((at) => at >= 0)).toBe(true);
       expect([...order].sort((a, b) => a - b)).toEqual(order);
+    }, 60_000);
+  });
+
+  /**
+   * The whole emitted plugin names ONE licence (objectui#8892).
+   *
+   * Lives in this file, not beside the other licence tests, because those stop
+   * at `buildPluginFiles`: they can assert what the templates would produce,
+   * never what a scaffold on disk actually says. It shares this file's single
+   * unconditional `beforeAll` build on purpose — vitest runs test FILES in
+   * parallel worker threads (`pool: 'threads'`, `isolate: true`), and `tsup`
+   * cleans `dist/` before it writes, so a second file building this same
+   * package would delete the bin out from under the runs here.
+   *
+   * ⚠️ Every other run in this file ends at MIT — the default, and what a
+   * cancel or a non-TTY run takes. A template that hard-coded "MIT" in five of
+   * the six places the id is emitted would be green in all of them. So this one
+   * CHOOSES a different licence and asserts the six agree as a RELATION, read
+   * off the manifest rather than compared to a constant.
+   */
+  describe('a plugin scaffolded with a non-default licence', () => {
+    /**
+     * The four ids the prompt offers, and a line unique to Apache-2.0's text.
+     *
+     * Hand-written rather than imported from `../licenses`, for the reason
+     * `licenses.test.ts` gives about its own copy: a marker derived from the
+     * table the generator reads passes for any two texts as long as they were
+     * consistently swapped.
+     */
+    const OFFERED = ['MIT', 'Apache-2.0', 'BSD-3-Clause', 'ISC'] as const;
+    const APACHE_ONLY_LINE = '                           Version 2.0, January 2004';
+    const MIT_ONLY_LINE = 'Permission is hereby granted, free of charge, to any person obtaining a copy';
+    const SOURCE_FILES = ['src/index.tsx', 'src/DemoImpl.tsx', 'src/types.ts', 'src/DemoImpl.test.tsx'] as const;
+
+    it('agrees with itself across the manifest, the LICENSE, the README and four headers', async () => {
+      // One arrow-down off MIT is Apache-2.0; `prompts` is a `select`, so this
+      // is the only way a run reaches a non-default licence today.
+      const run = await driveCli(
+        ['demo'],
+        [
+          { waitFor: 'Plugin description:', send: ENTER },
+          { waitFor: 'Author name:', send: `Ada${ENTER}` },
+          { waitFor: 'License:', send: `${DOWN}${ENTER}` },
+        ],
+        { pty: true },
+      );
+
+      expect(run.code).toBe(0);
+      expect(run.files).toEqual([...EXPECTED_FILES]);
+
+      // The manifest is the subject, not a constant to compare against: every
+      // assertion below reads the id back off it.
+      const claimed = run.manifest?.license;
+      expect(OFFERED).toContain(claimed);
+      expect(claimed).not.toBe('MIT');
+
+      // The LICENSE carries THAT licence's text, and no other's.
+      expect(claimed).toBe('Apache-2.0');
+      expect(run.license).toContain(APACHE_ONLY_LINE);
+      expect(run.license).not.toContain(MIT_ONLY_LINE);
+
+      // The README and the four source headers name the same id and no other.
+      const readme = run.contents?.['README.md'] ?? '';
+      expect(readme).toContain(`${claimed as string} © Ada`);
+
+      for (const path of SOURCE_FILES) {
+        const header = (run.contents?.[path] ?? '').split('\n').find((line) => line.includes('licensed under'));
+        expect(header, path).toBeDefined();
+        expect(header, path).toContain(claimed as string);
+        for (const other of OFFERED.filter((id) => id !== claimed)) {
+          expect(header, `${path} must not also name ${other}`).not.toContain(other);
+        }
+      }
     }, 60_000);
   });
 

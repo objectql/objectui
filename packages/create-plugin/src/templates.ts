@@ -22,7 +22,7 @@
  * `npm test` in a freshly scaffolded plugin was red on the very first run.
  */
 
-import { DEFAULT_LICENSE_ID, findLicense } from './licenses';
+import { PLUGIN_LICENSES, findLicense } from './licenses';
 
 /** Values interpolated into the templates for one generated plugin. */
 export interface PluginTemplateVars {
@@ -42,6 +42,11 @@ export interface PluginTemplateVars {
    * prompt and a junk value all arrive here as `MIT`. It is a REQUIRED field
    * rather than an optional one with a default here, because a default in two
    * places is two answers to one question.
+   *
+   * ENFORCED, not merely documented: {@link buildLicenseFile} refuses anything
+   * else (objectui#8892). Five of the six places this id is emitted interpolate
+   * it verbatim, so a value the licence table has no text for would ship a
+   * plugin whose LICENSE contradicts its own manifest, README and headers.
    */
   license: string;
   version: string;
@@ -545,21 +550,34 @@ export function licenseCopyrightHolder(vars: PluginTemplateVars): string {
  * rather than taking a licence of its own: the defect this file used to carry
  * was precisely a manifest field and an emitted file set that could disagree.
  *
- * Falls back to {@link DEFAULT_LICENSE_ID}'s text rather than throwing or
- * emitting nothing if an unoffered id ever reaches here. `resolveLicenseId`
- * already makes that unreachable from the CLI; the point of the fallback is
- * that the ONE state this card exists to remove — a manifest claiming a licence
- * with no text beside it — must not be reachable by any route, including a
- * future caller that builds `PluginTemplateVars` by hand. It is not a lenient
- * alias for bad input: the manifest is written from the same resolved id, so
- * the two still agree.
+ * REFUSES an id nothing offers instead of substituting the default licence's
+ * text for it (objectui#8892). The substitution used to be defended here as
+ * making one state unreachable — a manifest claiming a licence with no text
+ * beside it — and it did, by making a worse one reachable in its place.
+ * `vars.license` reaches a scaffolded plugin through SIX statements and this is
+ * the only one that resolves it: {@link buildPackageJson}, {@link buildReadme}
+ * and the four source headers interpolate it verbatim. So an unoffered id used
+ * to emit a package whose manifest, README and four file headers all named that
+ * id while the LICENSE beside them carried MIT — the author then carries the
+ * disagreement into their own distribution. Agreement cannot be restored at
+ * this end for the other five, so the id is refused for all six.
+ *
+ * Refusing costs nothing that the fallback bought. `resolveLicenseId` is total
+ * onto the offered ids and `index.ts` is the only caller, so the CLI cannot
+ * produce this throw; nothing outside this package can call it at all
+ * (`package.json` declares `bin` only — no `exports`, `main` or `types` — and
+ * the build emits one bundled `dist/index.js`); and {@link buildPluginFiles}
+ * runs before `index.ts` creates anything on disk (objectui#8786), so the throw
+ * lands on a run that has written nothing rather than half a plugin.
  */
 export function buildLicenseFile(vars: PluginTemplateVars): string {
-  const license = findLicense(vars.license) ?? findLicense(DEFAULT_LICENSE_ID);
+  const license = findLicense(vars.license);
   if (!license) {
     throw new Error(
-      `create-plugin has no text for its own default licence (${DEFAULT_LICENSE_ID}); ` +
-        'PLUGIN_LICENSES must always carry it.'
+      `create-plugin has no text for licence "${vars.license}", so it will not scaffold a ` +
+        'plugin whose manifest, README and source headers name a licence its LICENSE file ' +
+        `does not carry. Offered ids: ${PLUGIN_LICENSES.map((offered) => offered.id).join(', ')}. ` +
+        'Resolve the answer with resolveLicenseId() before building PluginTemplateVars.'
     );
   }
   return license.text({ year: vars.year, holder: licenseCopyrightHolder(vars) });
