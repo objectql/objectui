@@ -25,8 +25,9 @@ union's own top-level option count.
 
 Red on arrival, reported rather than declared away: `507b61bf7` (PR #8763, objectui#8499)
 armed `SemanticElementSchema`, `HtmlElementSchema`, `InputShorthandSchema` and
-`UiCalendarSchema` in `layout.zod.ts` and `form.zod.ts` and touched no barrel — 48 minutes
-after objectui#8784 was filed on a census reading 107 arms / 107 named / 0 unnamed. The
+`UiCalendarSchema` in `layout.zod.ts` and `form.zod.ts` and touched no barrel deliberately
+(PR #8763 merged 2026-09-09T08:11:20Z; the omission and its reason are declared in
+`.changeset/8499-node-slot-registered-arms.md`). The
 current reading is 111 arms / 154 `type` literals / 106 named / 5 unnamed. Four of the five
 carry ledger rows against objectui#9067, which holds the ruling, because exporting them mints
 new names on a published surface. The fifth, `RetiredKanbanNodeSchema`, is a refusal arm the
