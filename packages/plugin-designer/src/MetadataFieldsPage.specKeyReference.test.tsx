@@ -15,8 +15,8 @@
  * of that gate's two `wire` shapes: `fromDesignerField` builds it and this page
  * PUTs the assembled `fields` map.
  *
- * `referenceTo` is not in `FieldSchema`'s accept set — measured against the
- * installed `@objectstack/spec` 17.2.0, through the whole object document:
+ * `referenceTo` is not in `FieldSchema`'s accept set — measured on the installed
+ * artifact, through the whole object document:
  *
  *   ObjectSchema.safeParse({ …, fields: { rel: { type: 'lookup', label: 'Owner',
  *                                               referenceTo: 'user' } } })
@@ -59,9 +59,10 @@
  * field — because the draft rides along in the same document.
  *
  * This page now refuses the list and issues **no PUT at all**. The claim is
- * about THE PUT BODY, not the spec's verdict, which is why it pins at this
- * repo's installed **17.2.0** (where the spec still accepts the draft) and does
- * not wait on the pin bump (objectui#7122). ⛔ Not "strip the incomplete field
+ * about THE PUT BODY, not the spec's verdict, which is why it never depended on
+ * the pin in either direction — pinnable while the spec still accepted a
+ * target-less draft, and pinnable now that it refuses one. ⛔ Do not re-stamp it
+ * with a version when the pin next moves (objectui#8897). ⛔ Not "strip the incomplete field
  * and save the rest" — that shows the author a field the server never received,
  * the silent-drop shape objectstack#4001 closed. `puts` staying EMPTY is the
  * assertion that tells the two apart.
@@ -370,9 +371,14 @@ describe('objectui#6041 · WRITE — the save carries `reference`, never `refere
     // for the reason that outlives the divergence: this refusal is the page's
     // own, raised at editor time before the PUT, and it does not depend on
     // which spec is installed. That independence is also what keeps this row
-    // green across the pin bump — this repo's pin is `@objectstack/spec` 17.3.0
-    // (`pnpm-lock.yaml`), which predates objectstack#16920 and still parses
-    // `reference: '   '` green at field level and through `ObjectSchema`.
+    // green across the pin bump: the pin has since reached objectstack#16920
+    // (`@objectstack/spec` 17.4.0, objectui#8772), so upstream now refuses
+    // `reference: '   '` under the same `custom` issue at the same `reference`
+    // path — and this row did not move, because it never read the spec.
+    // ⛔ The sentence that used to sit here said the installed pin WAS 17.3.0
+    // and still parsed `'   '` green; both halves went false at the bump
+    // (objectui#8897). The spec-side reading is measured, not narrated, in
+    // `MetadataService.specKeyReference.test.ts`.
     //
     // One render, re-driven per state: `renderPage` per iteration would leave
     // several mounted pages in the document and `getByTestId` would then find
