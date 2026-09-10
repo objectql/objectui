@@ -547,8 +547,15 @@ export const ObjectGantt: React.FC<ObjectGanttProps> = ({
    * State rather than a value derived from `data.length`: once the rows are
    * capped, `data.length === NON_GRID_ROW_CEILING` is exactly what a result
    * set of exactly the ceiling ALSO looks like, so the fact has to be carried
-   * from the response that knew it. Every path that sets `data` sets this too
-   * — a host `data` prop and an inline `value` set are never truncated by us.
+   * from the response that knew it. Every path that sets `data` sets this too.
+   *
+   * ⚠️ The exempt path is now the HOST `data` prop and only it — rows a host
+   * component handed down are not ours to cap. An inline `value` set IS capped
+   * (objectui#8769): it goes through the same adapter query as every other
+   * provider, so the ceiling arrives with the same `$top` and the same
+   * footnote. Ruling a′'s budget is measured in DOM elements per record and
+   * its own table was measured over the inline provider, so an inline row
+   * costs what a fetched row costs and the ruling text carves out no provider.
    */
   const [rowCeiling, setRowCeiling] = useState<{ truncated: boolean; total?: number }>({
     truncated: false,
@@ -580,20 +587,27 @@ export const ObjectGantt: React.FC<ObjectGanttProps> = ({
   const ganttConfig = getGanttConfig(schema);
   const dataProvider = dataConfig?.provider;
   const hasInlineData = dataProvider === 'value';
-  /**
-   * The one primitive field `reload` (below) reads off `dataConfig` beyond
-   * `dataProvider` — the inline-data payload for the `value` provider.
-   * `reload` used to key on `dataConfig` itself: `useMemo` carries no
-   * semantic guarantee (React may discard its cache and recompute), and a
-   * discard alone was enough to give `reload` a fresh identity and re-fire
-   * the mount effect below, refetching. `effectiveDataSource`'s own memo
-   * intentionally keeps `dataConfig` as a dependency (not just its
-   * `object`/`items` primitives): `resolveDataSource` reads a
-   * provider-shaped slice of it (the whole `read`/`write` request config
-   * on `api`), which cannot be flattened to a fixed primitive list the way
-   * the 'object'/'value' branches below can be (objectui#6592).
+  /*
+   * There is deliberately no `dataItems` binding here any more
+   * (objectui#8769). It existed because `reload` READ the inline payload
+   * directly, and it was in `reload`'s dependency list as the one primitive
+   * standing in for `dataConfig` — `reload` may not key on `dataConfig`
+   * itself, because `useMemo` carries no semantic guarantee (React may
+   * discard its cache and recompute) and a discard alone was enough to give
+   * `reload` a fresh identity and re-fire the mount effect below
+   * (objectui#6592).
+   *
+   * `reload` no longer reads the payload: the inline provider goes through
+   * `effectiveDataSource` like every other provider. That memo intentionally
+   * keeps `dataConfig` as a dependency (not just its `object`/`items`
+   * primitives), because `resolveDataSource` reads a provider-shaped slice of
+   * it — the whole `read`/`write` request config on `api` — which cannot be
+   * flattened to a fixed primitive list. Authored items therefore still reach
+   * `reload`: new items → new `dataConfig` (deep-compared above) → new
+   * adapter → new `reload`. The primitive is redundant, and a binding
+   * documented as "the field `reload` reads" that `reload` does not read is
+   * the kind of comment the next reader would trust.
    */
-  const dataItems = dataConfig?.provider === 'value' ? dataConfig.items : undefined;
 
   // Resolve the ViewData config into a concrete DataSource adapter:
   //   provider: 'object' → the context DataSource passed via props (unchanged)
@@ -672,14 +686,24 @@ export const ObjectGantt: React.FC<ObjectGanttProps> = ({
         return;
       }
 
-      if (hasInlineData && dataProvider === 'value') {
-        if (isCurrent()) {
-          setData(dataItems as any[]);
-          setRowCeiling({ truncated: false });
-        }
-        return;
-      }
-
+      // ⭐ THERE IS NO SECOND EXIT FOR THE INLINE PROVIDER (objectui#8769).
+      //
+      // `provider: 'value'` used to return here with `setData(dataItems)` —
+      // BEFORE the `find` below, which is the ONE site that lowers
+      // `schema.filter` to `$filter`, `schema.sort` to `$orderby` and the
+      // objectui#7210 ceiling to `$top`. So an authored `filter` reached
+      // nothing and the chart drew EVERY inline row: the fail-OPEN direction,
+      // because the key that was dropped is the key that NARROWS. Accepting a
+      // declared key one cannot honour is the defect; the adapter can honour
+      // all three, so it honours them.
+      //
+      // `resolveDataSource` already answers this provider with a
+      // `ValueDataSource`, which implements `$filter` / `$orderby` / `$skip` /
+      // `$top` / `$select` over its own array — so nothing below is
+      // provider-specific and no combinator had to be written here
+      // (objectui#8513 stays where it is). The matcher is LOCAL: it never
+      // reaches `convertFiltersToAST`, so a comparand that converter refuses
+      // is excluded-and-logged here rather than thrown at render.
       if (!effectiveDataSource || typeof effectiveDataSource.find !== 'function') {
         throw new Error('DataSource required for object/api providers');
       }
@@ -763,7 +787,7 @@ export const ObjectGantt: React.FC<ObjectGanttProps> = ({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- (rest as any).data intentionally untracked, matching the original effect
-  }, [effectiveDataSource, resource, hasInlineData, dataProvider, dataItems, schema.filter, schema.sort, objectSchema, perms]);
+  }, [effectiveDataSource, resource, hasInlineData, dataProvider, schema.filter, schema.sort, objectSchema, perms]);
 
   /**
    * Does the query this effect is about to issue DERIVE anything from the
