@@ -204,10 +204,18 @@ function toDesignerField(name: string, raw: ServerFieldSchema): DesignerFieldDef
  * such an object come out parseable; it is keyed to the tombstones, so every
  * other unknown key the designer does not render still survives.
  *
- * Two of the four cost nothing: `fromDesignerField` re-emits the lookup target
- * under the spec spelling `reference` on the very next line, and the system
- * flag is read back from the spec spelling `system` (never re-emitted — the
- * strip IS the whole write half of objectui#6044). `formula` is the one entry
+ * Two of the four cost nothing ON THE DESIGNABLE BRANCH: `fromDesignerField`
+ * re-emits the lookup target under the spec spelling `reference` on the very
+ * next line, and the system flag is read back from the spec spelling `system`
+ * (never re-emitted — the strip IS the whole write half of objectui#6044).
+ *
+ * ⚠️ The lookup half of that sentence was written before there WAS a second
+ * branch, and objectui#8060's preserved fields re-emit from the stored document
+ * with no `fromDesignerField` and no read door in front of them — so for them
+ * the strip took the target and the save was refused (objectui#8896). That
+ * branch calls {@link carryPreservedField} rather than this function; the
+ * qualifier is what stops the next reader from carrying the unconditional
+ * reading into a third site. `formula` is the one entry
  * whose strip DROPS a value, and that is objectui#6043's deliberate trade: the
  * server refuses to store it, a blind rename to `expression` would launder
  * non-CEL text into a formula that parses green and evaluates to null, and
@@ -223,11 +231,81 @@ function toDesignerField(name: string, raw: ServerFieldSchema): DesignerFieldDef
  */
 const RETIRED_FIELD_KEYS = retiredFieldKeysFor('metadataFieldsPageCarryOver');
 
+/**
+ * Does this value NAME a target object?
+ *
+ * The one predicate both the recovery in {@link carryPreservedField} and the
+ * refusal in {@link assertRelationshipTargetPresent} read, so the recovery can
+ * never hand the guard a value the guard would refuse — a whitespace-only
+ * target names no object (`ObjectSchema.fields`' key grammar
+ * `/^[a-z_][a-z0-9_]*$/` admits no whitespace-bearing name for it to resolve
+ * to), and that stays true under either spelling.
+ */
+function isUsableTarget(value: unknown): value is string {
+  return typeof value === 'string' && value.trim() !== '';
+}
+
 /** Carry over `prev`'s unknown keys, minus {@link RETIRED_FIELD_KEYS}. */
 function carryOver(prev?: ServerFieldSchema): ServerFieldSchema {
   if (!prev) return {};
   const next: ServerFieldSchema = { ...prev };
   for (const k of RETIRED_FIELD_KEYS) delete next[k];
+  return next;
+}
+
+/**
+ * Carry one PRESERVED field through, recovering a relationship target the
+ * stored document holds ONLY under the retired spelling (objectui#8896).
+ *
+ * ## Why the preserved half needs this and the designable half does not
+ *
+ * `carryOver`'s docblock says the `referenceTo` strip costs nothing because
+ * "`fromDesignerField` re-emits the lookup target under the spec spelling
+ * `reference` on the very next line". That is true of the DESIGNABLE branch,
+ * which round-trips through {@link toDesignerField} and re-emits from the
+ * designer model. The PRESERVED branch (objectui#8060) has no designer model
+ * and no read door at all: it re-emits the stored document verbatim, so the
+ * strip is the last thing that touches the field and the target leaves with it.
+ *
+ * `assertRelationshipTargetPresent` then refuses the WHOLE save — and a
+ * preserved field is rendered read-only here by design, so its message ("Pick
+ * the target object") names a control this page does not have. The author edits
+ * one field and every later save of the object is refused because of a
+ * different field they cannot author. That is the defect; the gate is right.
+ *
+ * ## What is recovered, and what deliberately is not
+ *
+ * ⛔ The retired KEY still never reaches the wire. `FieldSchema` refuses
+ * `referenceTo` by name, so re-emitting it would be the hard 422 the strip
+ * exists to prevent — this recovers the VALUE into the one spelling the spec
+ * declares, which is what the designable half has always done.
+ *
+ * ⛔ Only when the spec key carries no usable target. The predicate is
+ * `assertRelationshipTargetPresent`'s own, and sharing it is load-bearing in
+ * both directions: a live `reference` is never overwritten by a stale legacy
+ * value, and a recovery can never produce a target the gate would refuse —
+ * `referenceTo: '   '` names no object, so it stays refused rather than being
+ * smuggled past as a target.
+ *
+ * ⛔ Keyed to THIS tombstone, not to `specEquivalent` in general. The registry
+ * is explicit that `specEquivalent` is "Documentation for the reader, NEVER an
+ * instruction to migrate a value mechanically" — objectui#6043 refused exactly
+ * that for `formula`, whose value is a LANGUAGE and not an object name, and
+ * `isSystem`'s strip IS the whole write half of objectui#6044. A relationship
+ * target is a bare object name under both spellings, which is what makes
+ * reading it under either one a read rather than a migration.
+ *
+ * ⛔ Not `normalizeFieldReferenceKeys` from `@object-ui/core`. That helper is
+ * the INGESTION-side stamp and it writes `reference_to` as well — a second
+ * spelling `FieldSchema` also refuses by name, and one this carry-over does not
+ * strip. On a write path it would trade this 422 for another.
+ */
+function carryPreservedField(prev: ServerFieldSchema): ServerFieldSchema {
+  const next = carryOver(prev);
+  if (isUsableTarget(next.reference)) return next;
+  const legacy = prev.referenceTo;
+  if (!isUsableTarget(legacy)) return next;
+  next.reference = legacy;
   return next;
 }
 
@@ -495,7 +573,7 @@ function assertRelationshipTargetPresent(
 ): void {
   if (!RELATIONSHIP_TYPES_REQUIRING_REFERENCE.includes(String(field?.type))) return;
   const reference = field?.reference;
-  if (typeof reference === 'string' && reference.trim() !== '') return;
+  if (isUsableTarget(reference)) return;
   throw new Error(
     `${writer} cannot save the field \`${fieldName}\`: a \`${field?.type}\` field needs a `
       + `\`reference\` naming the object it links to, ${describeUnusableTarget(reference)} `
@@ -632,7 +710,7 @@ function toFieldsMap(
       // document verbatim — `type` included — rather than being rebuilt from a
       // designer model that has no way to hold it. The tombstone strip still
       // applies, because those keys 422 whoever wrote them.
-      entries.push([keep.name, carryOver(keep.raw)]);
+      entries.push([keep.name, carryPreservedField(keep.raw)]);
     }
   };
 
