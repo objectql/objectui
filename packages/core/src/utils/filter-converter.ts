@@ -112,6 +112,22 @@ export function convertOperatorToAST(operator: string): string | null {
     '$notContains': 'notcontains',
     '$startsWith': 'startswith',
     '$endsWith': 'endswith',
+    // Case-insensitive contains. A canonical `FILTER_OPERATORS` member that
+    // `ValueDataSource` executes and `FilterConditionField` emits (for its
+    // `containsCaseInsensitive` builder row), while this map refused it with the
+    // generic unknown-operator paragraph — so ONE authored filter selected rows
+    // through the in-memory matcher and 400'd on the ObjectStack lowering path
+    // (objectui#8976). The other direction of the same split objectui#8568 fixed:
+    // there the map was MORE tolerant than the matcher, here it was LESS tolerant
+    // than the contract. Restored by aligning the map with the spec, per AGENTS.md
+    // #0 — not by removing the operator from the builder, which the spec declares.
+    //
+    // The VALUE is an IDENTITY, and that is not a typo: `icontains` is itself a
+    // member of the spec's `VALID_AST_OPERATORS`, so unlike its camelCase siblings
+    // above there is no case to squash. Same identity row, for the same stated
+    // reason, that `FILTER_OPERATOR_ALIASES` carries in
+    // `packages/data-objectstack/src/index.ts`.
+    '$icontains': 'icontains',
   };
   
   return operatorMap[operator] || null;
@@ -526,7 +542,8 @@ export function convertFiltersToAST(filter: Record<string, any>): FilterNode | R
             `converted to 'contains', which matches a literal substring rather than a ` +
             `pattern — a different result, not a degraded one. ` +
             `Field: '${field}', Value: ${JSON.stringify(operatorValue)}. ` +
-            `Use $contains, $startsWith or $endsWith.`
+            `Use $contains for a case-sensitive substring, $icontains for a ` +
+            `case-insensitive one, or $startsWith / $endsWith.`
           );
         }
 
@@ -565,7 +582,7 @@ export function convertFiltersToAST(filter: Record<string, any>): FilterNode | R
           throw new FilterOperatorError(
             `[ObjectUI] Unknown filter operator '${operator}' for field '${field}'. ` +
             `Supported operators: $eq, $ne, $gt, $gte, $lt, $lte, $in, $nin, $between, ` +
-            `$contains, $notContains, $startsWith, $endsWith, $null, $exists. ` +
+            `$contains, $notContains, $startsWith, $endsWith, $icontains, $null, $exists. ` +
             `If you need exact object matching, use the value directly without an operator.`
           );
         }

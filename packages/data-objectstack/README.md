@@ -131,6 +131,16 @@ no aliases: the four lowercase spellings this table used to list beside the
 camelCase keys — `$notin`, `$notcontains`, `$startswith`, `$endswith` — were
 retired by objectui#8568 and moved to the refused table below.
 
+`$icontains` is the case-insensitive member of the `$contains` family, and its
+ObjectStack spelling is the SAME word: `icontains` is itself a member of the
+spec's `VALID_AST_OPERATORS`, so nothing is squashed on the way down. It had no
+row here at all until objectui#8976 — `convertFiltersToAST` refused it as an
+unknown operator while `ValueDataSource` executed it and this repo's own filter
+builder emitted it. The pin now holds these two tables complete against the
+spec's `FILTER_OPERATORS` as well as against the code, so a canonical operator
+that is documented NEITHER as supported NOR as refused fails the suite instead
+of going unnoticed.
+
 | MongoDB Operator | ObjectStack Operator | Example |
 |------------------|---------------------|---------|
 | plain value (no operator) | `=` | `{ status: 'active' }` → `['status', '=', 'active']` |
@@ -147,6 +157,7 @@ retired by objectui#8568 and moved to the refused table below.
 | `$notContains` | `notcontains` | `{ name: { $notContains: 'test' } }` → `['name', 'notcontains', 'test']` |
 | `$startsWith` | `startswith` | `{ email: { $startsWith: 'admin' } }` → `['email', 'startswith', 'admin']` |
 | `$endsWith` | `endswith` | `{ email: { $endsWith: '@example.com' } }` → `['email', 'endswith', '@example.com']` |
+| `$icontains` | `icontains` | `{ name: { $icontains: 'john' } }` → `['name', 'icontains', 'john']` |
 | `$null` | `is_null` / `is_not_null` | `{ email: { $null: true } }` → `['email', 'is_null', true]` |
 | `$exists` | `is_not_null` / `is_null` | `{ email: { $exists: true } }` → `['email', 'is_not_null', true]` |
 
@@ -178,7 +189,7 @@ the call site rather than as a `400` from the server or as an empty list.
 
 | Shape | Why | Example |
 |-------|-----|---------|
-| `$regex` | The spec has no `$regex`, and it is not downgraded to `contains`: a pattern match and a substring match are different questions, not stronger and weaker forms of one. Use `$contains`, `$startsWith` or `$endsWith`. | `{ name: { $regex: '^J' } }` → throws `INVALID_FILTER` |
+| `$regex` | The spec has no `$regex`, and it is not downgraded to `contains`: a pattern match and a substring match are different questions, not stronger and weaker forms of one. Use `$contains` for a case-sensitive substring, `$icontains` for a case-insensitive one, or `$startsWith` / `$endsWith`. | `{ name: { $regex: '^J' } }` → throws `INVALID_FILTER` |
 | `$not` | The AST has no negation keyword, and rewriting the negation inward would be silently partial. Use a negated operator instead: `$ne`, `$nin`, `$notContains`. | `{ $not: { status: 'open' } }` → throws `INVALID_FILTER` |
 | a bare array as a field's value | The AST has no array-equality node, and the array is deliberately not read as `$in` (see below). | `{ tags: ['a', 'b'] }` → throws `INVALID_FILTER` |
 | `$notin` / `$notcontains` / `$startswith` / `$endswith` | Retired lowercase aliases (objectui#8568). The `$` dialect follows `@objectstack/spec`'s spellings, and this repo's in-memory matcher already refused these; accepting them here made one authored filter behave differently depending on the data source behind the view. The refusal names the canonical spelling for the alias you wrote — rename the key, the operator is unchanged. | `{ email: { $startswith: 'a' } }` → throws `INVALID_FILTER` |
