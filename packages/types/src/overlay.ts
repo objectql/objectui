@@ -131,7 +131,8 @@ export interface AlertDialogSchema extends BaseSchema {
    *
    * Declared for objectui#7104: this is the key the renderer reads and the key
    * its registered `inputs` and `defaultProps` ship. `cancelLabel` below is the
-   * declared twin nothing reads.
+   * RETIRED twin (objectui#7963) — declared only so an author who writes it is
+   * refused by name and pointed back here.
    */
   cancelText?: string;
   /**
@@ -141,24 +142,72 @@ export interface AlertDialogSchema extends BaseSchema {
    *
    * Declared for objectui#7104: this is the key the renderer reads and the key
    * its registered `inputs` and `defaultProps` ship. `confirmLabel` below is the
-   * declared twin nothing reads.
+   * RETIRED twin (objectui#7963) — declared only so an author who writes it is
+   * refused by name and pointed back here.
    */
   actionText?: string;
   /**
-   * Cancel button label
-   * @default 'Cancel'
+   * RETIRED (objectui#7963, ADR-0049 enforce-or-remove; maintainer ruling
+   * 2026-09-10) — nothing has ever read this key, so an authored label drew no
+   * button at all. Measured on this branch's BASE `72bcd7783` with a
+   * POINT-ACCESS probe: `schema.cancelLabel` scores **0** tree-wide, against
+   * the FIRING CONTROLS on the very renderer under test
+   * (`packages/components/src/renderers/overlay/alert-dialog.tsx`) —
+   * `schema.cancelText` = **15**, read at `:37`, and `schema.actionText` =
+   * **5**, read at `:38`.
+   * ⛔ A bare-word probe is worthless here and would fail towards "live": every
+   * OTHER owner of this spelling is a live key on a DIFFERENT declaration —
+   * `FormSchema.cancelLabel` (`./form.ts`), `plugin-designer`'s `ConfirmDialog` React
+   * prop, and `plugin-form`'s `ModalForm` / `DrawerForm`, which BUILD a local
+   * `cancelLabel` FROM `schema.cancelText`. None of them is an
+   * `AlertDialogSchema`, and none of them is touched.
+   * The key reached the Radix root through the rest-spread and stopped there —
+   * that root renders a context provider, not an element, so the prop was
+   * dropped before any DOM node
+   * (`packages/components/src/__tests__/alert-dialog-footer-keys-liveness-7963.test.tsx`).
+   * `BaseSchema` closes with `[key: string]: any`, so the value was never
+   * refused, only KEPT.
+   *
+   * Write {@link cancelText} instead — the key the renderer reads.
+   *
+   * `?: never` is the twin of `zod/overlay.zod.ts`'s `retirementTombstone` arm:
+   * the pair is what `__tests__/zod-mirror-parity.test.ts` compares, and it is
+   * what makes `tsc` refuse the key at the authoring site before anything runs.
+   * @deprecated Not part of this contract — the value was inert. Use `cancelText`.
    */
-  cancelLabel?: string;
+  cancelLabel?: never;
   /**
-   * Confirm button label
-   * @default 'Confirm'
+   * RETIRED (objectui#7963, ADR-0049 enforce-or-remove; maintainer ruling
+   * 2026-09-10) — nothing has ever read this key, so an authored label drew no
+   * button at all. Same frame and the same two controls as
+   * {@link cancelLabel}: `schema.confirmLabel` scores **0** tree-wide on BASE
+   * `72bcd7783`. Its other owners are live keys on other declarations
+   * (`objectql.ts`, `plugin-designer`'s `ConfirmDialog` prop, `plugin-grid`'s
+   * `def.confirmLabel`), ⛔ none of them an `AlertDialogSchema`.
+   *
+   * Write {@link actionText} instead — the key the renderer reads.
+   * @deprecated Not part of this contract — the value was inert. Use `actionText`.
    */
-  confirmLabel?: string;
+  confirmLabel?: never;
   /**
-   * Confirm button variant
-   * @default 'default'
+   * RETIRED (objectui#7963, ADR-0049 enforce-or-remove; maintainer ruling
+   * 2026-09-10) — nothing has ever read this key. `schema.confirmVariant`
+   * scores **0** tree-wide on BASE `72bcd7783` under the same two controls, and
+   * the DOM reading is sharper still: with the key authored, the confirm
+   * button's own `class` is byte-identical to the reading without it, measured
+   * against a `VARIANT_INSTRUMENT` control proving that same reading DOES
+   * separate the cancel button's variant from the action button's on this very
+   * DOM.
+   *
+   * ⚠️ Unlike its two siblings this key has NO surviving spelling, and ⛔ one was
+   * not invented: {@link cancelText} / {@link actionText} are the footer's two
+   * LABELS, not a variant, and this node declares no variant key at all — the
+   * confirm button is `AlertDialogAction`, which ships one fixed
+   * `buttonVariants()` style. Whether that button should be styleable from
+   * metadata is a separate question needing its own card and its own ruling.
+   * @deprecated Not part of this contract — the value was inert, and it has no replacement.
    */
-  confirmVariant?: 'default' | 'destructive';
+  confirmVariant?: never;
   /**
    * Confirm (action) button click handler.
    *

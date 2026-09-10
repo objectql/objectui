@@ -339,12 +339,71 @@ describe('the real ledger', () => {
       expect(row.card, key).toMatch(/^objectui#\d+$/);
     }
   });
+
+  /**
+   * objectui#8875 clause 3. The key used to be `path:line symbol`, and the line
+   * number in it was not decoration — it was a STORED literal compared for
+   * equality, so an edit anywhere above a documented symbol invalidated every
+   * row below it in that file and reddened `main` on a branch that had not
+   * touched a single example. PR #8895 added three imports to
+   * `packages/types/src/objectql.ts` and did exactly that; objectui#8614 is the
+   * same failure one card earlier.
+   *
+   * The maintainer ruled the class on 2026-09-10 — 跨文件的「某文件第几行」引用，
+   * 这种完全没必要吧，是否应该避免 — and the repair the ruling names is to stop
+   * storing the number, ⛔ not to recompute it after every shift. So the shape
+   * is pinned in BOTH directions: the key generator may not produce one, and the
+   * ledger may not carry one.
+   */
+  it('keys carry no line address, in either direction', () => {
+    const LINE_ADDRESS = /\.[A-Za-z]+:\d+/;
+
+    for (const key of Object.keys(UNGATED_EXAMPLES)) {
+      expect(
+        key,
+        `${key} embeds a line address. objectui#8875 clause 3 retired that key shape: a stored ` +
+          `line number is a snapshot of a moving quantity, so an unrelated edit above the block ` +
+          `invalidates the row and reddens a branch that changed nothing. Key by ` +
+          `\`path symbol #ordinal\` — see \`ledgerKey\`.`,
+      ).not.toMatch(LINE_ADDRESS);
+      expect(key, `${key} is not in the \`path symbol #ordinal\` shape`).toMatch(/ #\d+$/);
+    }
+
+    // The generator, not only today's ledger: a ledger cleaned by hand while the
+    // generator still emits addresses would go red on the next collected block
+    // instead of here.
+    for (const block of census.blocks) {
+      expect(ledgerKey(block), 'ledgerKey emitted a line address').not.toMatch(LINE_ADDRESS);
+    }
+
+    // Anti-vacuity. A regex that matched nothing would pass both loops above on
+    // an empty tree, so it is shown FIRING on the shape it is written to reject.
+    //
+    // ⛔ ASSEMBLED, not written out. A literal address here would itself be a
+    // cross-file line citation, and the differential gate landed alongside this
+    // change would report it as newly added — correctly. A control for a shape
+    // does not need to be an instance of the thing the shape names.
+    const RETIRED_KEY_SHAPE = ['packages/types/src/objectql.ts', ':', '1618', ' ObjectFormSchema'].join('');
+    expect(RETIRED_KEY_SHAPE).toMatch(LINE_ADDRESS);
+  });
+
+  it('the ordinal discriminates the symbols that document more than one example', () => {
+    // The ordinal is not ceremony: five symbols in this tree carry several
+    // `@example` blocks, and `path symbol` alone would collapse them onto one
+    // key — silently, by making several rows the same row. Keys are checked for
+    // uniqueness against the block count so that collapse cannot happen quietly.
+    const generated = census.blocks.map((b) => ledgerKey(b));
+    expect(new Set(generated).size).toBe(census.blocks.length);
+    expect(new Set(census.blocks.map((b) => `${b.file} ${b.symbol}`)).size).toBeLessThan(
+      census.blocks.length,
+    );
+  });
 });
 
 // ── the card's own acceptance criterion ──────────────────────────────────────
 
 describe('objectui#7974 — the defect this gate was filed for', () => {
-  const key = 'packages/mobile/src/useSpecGesture.ts:69 useSpecGesture';
+  const key = 'packages/mobile/src/useSpecGesture.ts useSpecGesture #1';
 
   it('its example is IN the compiled tier — the gate reaches the block the card named', () => {
     const census = exampleCensus({ root: repoRoot });

@@ -174,9 +174,11 @@ pnpm test                                                # 全量(CI 就是它,�
 ```
 
 AGENTS.md 的「只跑受影响的包」指的是**用上面的路径过滤缩小范围**,不是 `cd` 进包里。
-`pnpm --filter <pkg> test` 与 `turbo run test` **现在是安全的**(objectui#3240):每个包的
-`test` 脚本都改成了显式指回仓根的 `vitest run --root ../.. packages/<pkg>/`,跑的就是仓根
-那一份配置、和 CI 同一个结论;它们只是比上面的写法多绕一层。
+`pnpm --filter <pkg> test` 与 `turbo run test` **不再静默假绿**(objectui#3240):每个包的
+`test` 脚本都改成了显式指回仓根的 `vitest run --root ../.. packages/<pkg>/`,跑的**就是仓根
+那一份配置**;它们只是比上面的写法多绕一层。⛔ 但**同一份配置不等于同一个结论**:#3240 移的
+是 **vitest 的 root**,`process.cwd()` **不动**,包级形式下它仍是 `packages/<pkg>/` —— 见下面
+最后一条。要和 CI 得出同一个结论,就用上面那三条仓根写法。
 
 - **陷阱一:让 vitest 的 cwd 落在包目录里(objectui#3378)。** 今天只剩
   `cd packages/x && pnpm exec vitest` 这一种写法(改造前 `pnpm --filter <pkg> test` 和
@@ -217,6 +219,15 @@ AGENTS.md 的「只跑受影响的包」指的是**用上面的路径过滤缩�
   `examples/schema-catalog` 的 `vitest.config.*`(维护者 2026-08-06 裁决 A);某个包确实需要
   不同的 environment / setup / include,就在 `vitest.config.mts` 的 `projects` 里**加一个
   project**,不要在包里新开一份 config —— 一份 config 一个结论,是这条裁决的全部内容。
+- ⛔ **测试在断言里读文件系统,根定在它自己的文件上,永不定在 `process.cwd()`。** 包级形式的
+  cwd 是 `packages/<pkg>/`、仓根形式是仓根,同一个断言因此读到不同的树 —— 实测两次:
+  objectui#7791(PR #7796)同一个文件仓根 `7 passed`、包级 `2 failed / 5 passed`,cwd 是唯一
+  变量;objectui#7799(PR #7806)按 `packages/*/src` 普查,命中 19 个同类、13 个确有缺陷。
+  拼法用 PR #7796 落地、#7806 沿用的那一个:从**裸** `import.meta.url` 逐段上溯到仓根,
+  ⛔ 不引入第三种;⛔ 尤其别写 `new URL(<相对路径>, import.meta.url)` —— 本仓的测试变换里它被
+  Vite 重写成 `http://localhost:3000/@fs/…`,`fileURLToPath` 在**两种 cwd 下都**抛
+  `ERR_INVALID_URL_SCHEME`,那是把一次假红换成整个套件根本加载不起来。
+  ⚠️ **这一条今天没有任何门拦得住**:#7799 修掉的是 13 个实例,不是这一类。
 
 ### 测试纪律(flaky 测试:先找竞态,别调超时)
 

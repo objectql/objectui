@@ -2277,9 +2277,17 @@ const MEMBER_PINS: Record<string, MemberPin> = {
     file: 'packages/plugin-dashboard/src/ObjectMetric.elementDataSource.test.tsx',
     pins: 'The per-element binding\'s members as a WHITELIST in both directions. Acting: `object` is what gets aggregated, and a named `view`\'s own `filter` becomes the metric\'s scope — with an unresolvable `view` REPORTING instead of aggregating the whole object, which for a metric is the quiet failure (one number, no rows, nothing to notice). Not acting: the same view fixture declares `columns`, `sort` and `pagination`, and the aggregate options bag is asserted whole to keep all three OUT — `OBJECT_METRIC_DATA_SOURCE` names only `filter`, because a metric is one aggregated number with no projection, ordering or page for the rest to act on. A metric with NO binding behaving exactly as before is the control. Pre-existing file (objectstack#6953), promoted here after being read end to end; objectui#8071 slice 8 added the whole-bag row, without which the pin would have been satisfied by a mapping that forwarded everything.',
   },
+  'object-metric.drillDown': {
+    file: 'packages/plugin-dashboard/src/__tests__/objectMetricDrillDownMembers-8071.test.tsx',
+    pins: 'The click-through config\'s member set, read through the registered block on a LIVE drawer. `enabled` is `!== false`, not truthiness, and all four arms (absent, `{}`, `true`, `false`) are pinned against each other, so a "simplification" to `!!config.enabled` — which would silently disable every `{}` config — is red; and it is not sufficient on its own, because without an object name AND a data source the tile stays unclickable rather than opening a list it cannot fetch. `target` chooses the panel SHAPE (`\'dialog\'` = centred modal, anything else the edge-anchored sheet), each arm the other\'s control. `title` OUTRANKS the tile\'s own `title` and `label`, with the chain below it (`title`, then `label`, then the literal "Details") pinned as its fallback. `report` selects the drawer BODY by its own SHAPE — an `objectName`-bearing (or array-`columns`) report goes to a `spec-report` body while anything else falls through to the inline record list, and whether the record list is fetched at all is the observable that separates them. The invariant the key hangs off is pinned too: the drilled list is scoped by the METRIC\'s resolved filter with macros already substituted — the registration\'s own promise that the number and the records behind it agree, and a drawer listing every row of the object is the quiet failure it exists to stop. LIMIT, stated and deliberately NOT asserted: this widget hand-rolls its drawer instead of using `DrillDownDrawer`, so `columns`, `maxRows`, `target: \'navigate\'`, `filter` and `mode` have no read site on this block — filed as objectui#8970 rather than frozen into the pin, because an assertion that a member is dead has to be deleted before the gap can be closed. The spec row is `z.unknown()`, so the read site is the whole member contract. New file (objectui#8071 slice 9).',
+  },
   'object-metric.filter': {
     file: 'packages/plugin-dashboard/src/__tests__/objectMetricQueryMembers-8071.test.tsx',
     pins: 'No named member set — the renderer never inspects the predicate — so the member shape is the SPELLING it arrives under, and there are two, chosen by an adapter capability the author cannot see: FLAT under its own name inside the aggregate options bag, and WRAPPED as `$filter` on the no-`aggregate()` `find()` fallback. Collapsing them into one drops the predicate on whichever path lost and the tile counts every row — the same defect `element:number.filter` was pinned for (slice 7) on a different renderer. Two further halves: placeholders are resolved BEFORE the query (an authored `{current_quarter_start}` reaches the adapter as a real date, and a macro surviving onto the wire is a literal nobody matches), and the key is read BY VALUE rather than by identity (`JSON.stringify` memo) — a deep-equal rebuild by a re-rendering parent must NOT re-probe while a changed comparand MUST and carries the new predicate, each arm the other\'s control against a dependency "simplified" to the raw object. New file (objectui#8071 slice 8).',
+  },
+  'object-metric.trend': {
+    file: 'packages/plugin-dashboard/src/__tests__/objectMetricTrendMembers-8071.test.tsx',
+    pins: 'The static badge\'s three members, each pinned on an observable only that member can move, driven through the registered block. `value` is painted as a PERCENTAGE — the `%` is the badge\'s own, asserted beside a metric whose `format` and `suffix` shape the NUMBER differently. `direction` chooses the glyph and is pinned as a SET (`up` / `down` / `neutral`, plus the OMITTED arm, which still paints the value and draws no glyph at all), so "renders an up arrow" cannot pass on a renderer that draws one unconditionally; an off-list member is asserted not to reach the badge, and a tile with neither `trend` nor `description` draws no badge row — the file\'s non-vacuity floor. The two rows with real semantics to get wrong: the tile-level `description` OUTRANKS `trend.label` in the one caption slot they share, so a tile that authors both silently loses the trend\'s own words; and a `compareTo`-DERIVED trend REPLACES the authored badge outright (`derivedTrend ?? trend`) rather than merging with it. That override is pinned against a no-`compareTo` control on the SAME schema, where 120-vs-100 derives +20% up while the authored badge says 99% down, so neither arm can pass by painting the other\'s numbers — which is what makes the registration\'s own sentence ("Use `compareTo` instead when the trend should be computed from data") true rather than advisory. The spec row is `z.unknown()`, so the read site is the whole member contract. New file (objectui#8071 slice 9).',
   },
   'page:accordion.items': {
     file: 'packages/components/src/__tests__/pageAccordionItemMembers-8071.test.tsx',
@@ -2524,12 +2532,10 @@ const MEMBER_PIN_EXEMPTIONS: Record<string, string> = {
   'object-master-detail-form.initialValues': AWAITING_A_PIN,
   'object-master-detail-form.sections': AWAITING_A_PIN,
 
-  // object-metric — objectui#8071 slice 8 pinned the four members that shape
-  // the aggregate query behind the NUMBER (`dataSource`, `aggregate`, `filter`,
-  // `compareTo`). The two left shape what is drawn AROUND the number once it
-  // exists, and neither reaches `fetchMetric`.
-  'object-metric.drillDown': AWAITING_A_PIN,
-  'object-metric.trend': AWAITING_A_PIN,
+  // object-metric — objectui#8071 slice 8 pinned the four QUERY members
+  // (`dataSource`, `aggregate`, `filter`, `compareTo`) and slice 9 the two
+  // PRESENTATION members (`trend`, `drillDown`); the block is now fully pinned
+  // and this header stays only as a note for the next reader who greps for it.
 
   // page:accordion — objectui#8071 slice 7 pinned `items`, the block's one
   // remaining key; fully pinned.
@@ -2907,11 +2913,55 @@ const NEWLY_JUDGED_UNPINNED_MEMBERS = [
  * reading was not re-measured here because this slice took a different block —
  * slice 7's measurement stands as the last one taken.
  *
+ * ## 33 -> 31, the ninth slice, and the first multi-key block closed by halves
+ *
+ * objectui#8071's ninth slice takes what slice 8 left and named: the two
+ * PRESENTATION members of `object-metric`, `trend` and `drillDown`, so the
+ * ceiling follows to 31 in the same commit and the block drops out of
+ * `MEMBER_PIN_EXEMPTIONS` entirely — the first block closed in TWO bites rather
+ * than one, which is the shape every remaining block (`object-grid` 15,
+ * `object-form` 7, `object-master-detail-form` 6) now has to be closed in.
+ *
+ * The cut is slice 8's, restated because it is the part that is easy to get
+ * wrong: `drillDown` DOES issue a query of its own — the drawer's record list
+ * runs off the same resolved filter — so "reaches an adapter" is not the line.
+ * The line is `fetchMetric` / `computeOne`, the path that produces the NUMBER.
+ * Neither of these two can change it; they shape what is drawn around it.
+ *
+ * BOTH pins are new files, and the measurement that decided it is worth
+ * recording because it corrects the prior note rather than repeating it.
+ * `ObjectMetricWidget.i18nLabel.test.tsx` was flagged for this slice as prior
+ * art that "satisfies any mechanical locator for either" key. Re-measured here,
+ * that is true only of a locator keyed on the KEY NAME: the file contains ZERO
+ * occurrences of the string `object-metric` (control: `ObjectMetricWidget`
+ * reads 15 in the same file), and `memberPinProblem` requires the BLOCK name
+ * too, so this repo's own locator would have refused it. The substance of the
+ * warning stands — it authors `trend` and `drillDown` purely to make the drill
+ * reachable, and its subject is `I18nLabel` resolution — so it is left intact
+ * rather than promoted. The only other file naming block AND key is
+ * `ObjectMetricWidget.compareTo.test.tsx`, already the `compareTo` pin, which
+ * never authors a `trend` prop at all: crediting it would have been slice 7's
+ * `action-bodyShape-forward.test.tsx` mistake in a third place.
+ *
+ * ⚠️ `drillDown` is pinned on the members that ACT and deliberately not on the
+ * ones that do not. `ObjectMetricWidget` hand-rolls its own drawer instead of
+ * using the shared `DrillDownDrawer`, so five members the shared component
+ * honours have no read site here (`columns`, `maxRows`, `target: 'navigate'`,
+ * `filter`, `mode`). That is filed (objectui#8970) rather than frozen into the
+ * pin — the same choice slice 6 made for `record:activity`'s filter members
+ * (objectui#8934), and for the same reason: an assertion that a member is dead
+ * has to be deleted before anyone can make it live.
+ *
+ * ⚠️ Unchanged by this slice: `NEWLY_JUDGED_UNPINNED_MEMBERS` (no block it names
+ * was touched) and `record:related_list.actions`, whose `NO_READ_SITE_TO_PIN`
+ * reading was not re-measured here either — slice 7's measurement still stands
+ * as the last one taken.
+ *
  * ⇒ The rule for every future slice of objectui#8071: delete the entry, register
  * the pin, and set this constant to the new count. Not to the new count plus
  * room.
  */
-const MEMBER_PIN_EXEMPTION_CEILING = 33;
+const MEMBER_PIN_EXEMPTION_CEILING = 31;
 
 /**
  * Every test file a member pin can live in, as LAZY `?raw` loaders.
