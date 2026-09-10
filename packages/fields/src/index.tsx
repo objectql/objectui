@@ -967,7 +967,71 @@ export function DateTimeCellRenderer({ value, field }: CellRendererProps): React
   // `format`, so the bare property read is `TS2339` — SOME cast is load-bearing.
   // `DateTimeFieldMetadata` is the narrowest one that carries it (objectui#7747);
   // `as any` would also silence a typo in the property name, this does not.
-  const style = (field as DateTimeFieldMetadata | undefined)?.format || 'compact';
+  const authoredFormat = (field as DateTimeFieldMetadata | undefined)?.format || 'compact';
+
+  // ── The authored vocabulary is mapped HERE (objectui#8853) ──────────────
+  // `field.format` is ONE authored key, and until this mapping it meant two
+  // different things depending on which of two neighbouring cell renderers
+  // read it. Measured end to end through a real `ObjectGrid` column, one row,
+  // one instant, `format: 'relative'` on both fields: the `date` cell painted
+  // `In 2 days` and the `datetime` cell beside it painted
+  // `Sep 11, 2026, 09:30 AM` — no error, no warning, no fallback. The runtime
+  // accepted the key, parsed it, dropped it, and rendered something that still
+  // looks like a legitimate date, which is why a reader cannot tell an
+  // honoured style from a dropped one by looking at the cell.
+  //
+  // The two words are SELECTED here rather than threaded onward, and that is
+  // the ruling objectui#8352 already made for `formatMeasureDate`'s datetime
+  // arm — the same defect class one surface over. Threading `format` into
+  // `formatDateTime`'s `options.style` is NOT the fix and was measured there:
+  // that key's vocabulary is `'compact'` alone, so a pass-through would honour
+  // the one word the `date` cell does NOT honour while still ignoring both
+  // words it does — the defect inverted, not closed. Widening
+  // `formatDateTime(value, options?)` is refused for the reason it was refused
+  // there and in objectui#7443 ruling B: it is a PUBLISHED signature, and the
+  // parity this card asks for is reachable from the call site without moving
+  // it. Rejecting the currently-accepted spelling is refused too — that would
+  // be a breaking narrowing of a published metadata surface.
+  //
+  //   `'relative'` -> `formatRelativeDate`, the SAME function `formatDate`
+  //                   resolves `'relative'` to, so one calendar day reads the
+  //                   same phrase in either column.
+  //   `'short'`    -> the dense face of THIS type, which for a `datetime` cell
+  //                   is the compact face painted below. `formatDate`'s
+  //                   `'short'` is a narrow DATE face; the datetime equivalent
+  //                   keeps the time of day, exactly as #8352 mapped it.
+  //   anything else, `'compact'` and date patterns such as `'YYYY-MM-DD'`
+  //                   included, falls through unchanged to the default face.
+  //
+  // ⚠️ Beyond the ±7-day window `formatRelativeDate` renders an absolute DATE
+  // face, so an out-of-window `'relative'` datetime shows no time of day. That
+  // window belongs to that function and is INHERITED here, not re-decided —
+  // re-deciding it would put a second copy of the convention in this file,
+  // which is objectui#4576 exactly. `'relative'` is day-granular by
+  // construction (it shows no time inside the window either), and any other
+  // fallback would make the two columns unequal again, which is the defect
+  // being closed. Nothing is taken away from a working feature: this renderer
+  // ignored the word outright before, so it starts honouring a request whose
+  // granularity is days.
+  //
+  // ⚠️ `dueLike` is deliberately NOT threaded, and this is a bounded gap
+  // rather than an oversight. The `date` cell's overdue affordance — the
+  // "Overdue Nd" wording AND the red styling — is gated by a DIFFERENT
+  // authored key plus a field-name heuristic, and this renderer has never read
+  // either. Honouring `format` must not silently acquire a second key's
+  // behaviour; whether a `datetime` cell should paint overdue is its own call,
+  // filed rather than guessed (objectui#8958). `t` stays on the
+  // `formatDateTime` call below exactly as before, and is left off this branch
+  // because `formatRelativeDate` reads it only through `dueLike`.
+  const style = authoredFormat === 'short' ? 'compact' : authoredFormat;
+
+  if (style === 'relative') {
+    return (
+      <span className="tabular-nums text-sm whitespace-nowrap">
+        {formatRelativeDate(date, { locale })}
+      </span>
+    );
+  }
 
   // The compact face is painted in two halves — the time is muted and offset
   // — so this branch asks the shared module for the halves rather than the
