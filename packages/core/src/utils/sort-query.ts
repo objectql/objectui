@@ -39,10 +39,17 @@
  * tolerance — and both are BEHAVIOUR CHANGES the migration delivered, not pure
  * refactor:
  *
- *  - **`order` is optional in `SortConfig`**, so an entry that omits it means
- *    ascending (that is what `$orderby`'s own
- *    `Array<{ field: string; order?: 'asc' | 'desc' }>` shape says). The private
- *    copies required BOTH keys and silently dropped such an entry, which lost an
+ *  - **A missing `order` is READ as ascending rather than dropped.** ⚠️ This
+ *    bullet used to say `order` is "optional in `SortConfig`". It is not:
+ *    `SortConfig.order` is required on the interface, on its zod mirror, and on
+ *    `@objectstack/spec`'s `SortItemSchema`, which refuses an entry without it
+ *    (`invalid_value` at `0.order`, measured on `@objectstack/spec@17.4.0`).
+ *    Corrected under objectui#8973, which is where objectui#8767's contract
+ *    review routed this sentence and its twin in
+ *    `@object-ui/types`' `ObjectGridSchema.sort` docblock. The tolerance is
+ *    real but it is a RUNTIME one — types are erased, so an entry missing
+ *    `order` still arrives and still has to mean something. The private copies
+ *    required BOTH keys and silently dropped such an entry, which lost an
  *    authored sort key instead of ordering by it.
  *  - **Nothing usable yields `undefined`, never `{}`.** An empty object is a
  *    truthy value that means "no ordering" only by accident of the adapter's

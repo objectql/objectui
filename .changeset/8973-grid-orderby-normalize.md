@@ -1,6 +1,7 @@
 ---
 '@object-ui/core': minor
 '@object-ui/plugin-grid': patch
+'@object-ui/types': patch
 ---
 
 `object-grid` normalizes its `sort` before joining it into `$orderby` (objectui#8973).
@@ -45,3 +46,11 @@ what lets a block sending a different wire shape share the one implementation of
 rule instead of keeping a private copy that drifts. `convertSortToQueryParams`'s own
 behaviour is unchanged and pinned against literals captured from the previous
 implementation.
+
+**Two false docblock sentences corrected** (`@object-ui/types`' `ObjectGridSchema.sort`
+and this sink's own header). Both read "`order` is optional and means `'asc'`" — the
+first sitting two lines above a declaration that requires it. `SortConfig.order` is
+required on the interface, on the zod mirror, and on `@objectstack/spec`'s
+`SortItemSchema`, which refuses an entry without it. An author following that
+prescription wrote metadata the spec rejects. objectui#8767's contract review routed
+both sentences to this card by name; comments only, no behaviour.

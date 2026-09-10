@@ -696,8 +696,16 @@ export interface ObjectGridSchema extends BaseSchema {
   /**
    * Sort Configuration
    *
-   * `[{ field: 'name', order: 'desc' }]` — `order` is optional and means
-   * `'asc'`. The legacy string clause (`"name desc"`) is RETIRED
+   * `[{ field: 'name', order: 'desc' }]` — BOTH keys are required, here and on
+   * the zod mirror, and `@objectstack/spec`'s `SortItemSchema` refuses an entry
+   * that omits `order` (`invalid_value` at `0.order`, measured on
+   * `@objectstack/spec@17.4.0`). ⚠️ This sentence used to read "`order` is
+   * optional and means `'asc'`", two lines above a declaration that requires it
+   * — an author who followed it wrote metadata the spec rejects (objectui#8973).
+   * What IS true of a missing `order` is a RUNTIME tolerance, not a
+   * declaration: `normalizeSortEntries` defaults it to `'asc'` rather than
+   * dropping the key, because types are erased and the entry still has to mean
+   * something when it arrives. The legacy string clause (`"name desc"`) is RETIRED
    * (objectui#8221, decision batch #77): the array is the only spelling this
    * key's declared input publishes (`type: 'array'`) and the only one
    * `convertSortToQueryParams` lowers.
