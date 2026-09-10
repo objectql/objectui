@@ -292,15 +292,18 @@ function toDesignerField(name: string, raw: ServerFieldSchema): DesignerFieldDef
  * with no target at all. Restating the conclusion without the read door is how
  * it went wrong the first time.
  *
- * ⚠️ And it is cost-free on the DESIGNABLE half only — the half that has a read
- * door. {@link toFieldsMap} re-emits the fields this designer cannot author
- * through `carryOver(keep.raw)` directly (see {@link partitionStoredFields}),
- * with no `toDesignerField` in the path, so a stored `master_detail` whose
- * target lives only as `referenceTo` still has it stripped and still reaches
- * {@link assertRelationshipTargetPresent} with nothing — measured, and worse
- * there than here, because a preserved field is read-only on this page and the
- * refusal names a control the author has no way to reach. Filed as
- * objectui#8896; ⛔ not fixed here. `formula` is the one entry
+ * ⚠️ This function alone is cost-free on the DESIGNABLE half only — the half
+ * that has a read door. {@link toFieldsMap} re-emits the fields this designer
+ * cannot author from the stored document directly (see
+ * {@link partitionStoredFields}), with no `toDesignerField` in the path, so a
+ * stored `master_detail` whose target lived only as `referenceTo` had it
+ * stripped and reached {@link assertRelationshipTargetPresent} with nothing —
+ * worse there than here, because a preserved field is read-only on this page and
+ * the refusal named a control the author had no way to reach. objectui#8896
+ * closed that by routing the preserved branch through
+ * {@link carryPreservedField}, which reads the target with the SAME
+ * {@link storedRelationshipTarget} this half uses; ⛔ the preserved branch calls
+ * that function, never this one. `formula` is the one entry
  * whose strip DROPS a value, and that is objectui#6043's deliberate trade: the
  * server refuses to store it, a blind rename to `expression` would launder
  * non-CEL text into a formula that parses green and evaluates to null, and
@@ -321,6 +324,53 @@ function carryOver(prev?: ServerFieldSchema): ServerFieldSchema {
   if (!prev) return {};
   const next: ServerFieldSchema = { ...prev };
   for (const k of RETIRED_FIELD_KEYS) delete next[k];
+  return next;
+}
+
+/**
+ * Carry one PRESERVED field through, keeping the relationship target the stored
+ * document holds — objectui#8896.
+ *
+ * ## Why the preserved half needs its own function
+ *
+ * objectui#8058 made the `referenceTo` strip cost nothing ON THE DESIGNABLE
+ * HALF, by teaching the read door to find the target under either spelling: the
+ * value reaches the designer model through {@link storedRelationshipTarget} and
+ * `fromDesignerField` re-emits it as `reference`, so the strip removes a KEY and
+ * not the relationship. {@link toFieldsMap} re-emits objectui#8060's preserved
+ * fields from the stored document directly, with no `toDesignerField` in the
+ * path — so there the strip WAS the last thing to touch the field, the target
+ * left with the key, and {@link assertRelationshipTargetPresent} refused the
+ * whole object's save. That refusal names a control this page does not have: a
+ * preserved field is rendered read-only here by design, so "Pick the target
+ * object" has nowhere to go and every later save of the object stayed refused.
+ *
+ * ## It states the SAME rule as the designable half, through the same reader
+ *
+ * `storedRelationshipTarget` is the one place that decides which spelling a
+ * stored target is read from, and both halves now go through it — the sibling
+ * writers' `toFieldsMap` / `carryOver` pair is already a family where a
+ * difference is a defect waiting to be found twice. Whether the value is USABLE
+ * stays entirely `assertRelationshipTargetPresent`'s question, exactly as on the
+ * designable half: this function adopts what the document holds and invents
+ * nothing, so a stored `referenceTo: '   '` is refused by name rather than
+ * smuggled through, and a field with no target under either spelling emits no
+ * `reference` key at all.
+ *
+ * ⛔ The retired KEY still never reaches the wire — `FieldSchema` refuses it by
+ * name, which is what the strip is for. ⛔ And this is NOT a `specEquivalent`
+ * migration driven off the tombstone registry; the registry is explicit that the
+ * field is "Documentation for the reader, NEVER an instruction to migrate a
+ * value mechanically". What makes THIS key readable under either spelling is
+ * argued once, at {@link storedRelationshipTarget}, and applies here unchanged.
+ */
+function carryPreservedField(prev: ServerFieldSchema): ServerFieldSchema {
+  const next = carryOver(prev);
+  const target = storedRelationshipTarget(prev);
+  // Assigned only when the document holds one, so a field with no target keeps
+  // no `reference` key — `describeUnusableTarget` then says "this one has none"
+  // rather than reporting a value the author never wrote.
+  if (target !== undefined) next.reference = target;
   return next;
 }
 
@@ -725,7 +775,7 @@ function toFieldsMap(
       // document verbatim — `type` included — rather than being rebuilt from a
       // designer model that has no way to hold it. The tombstone strip still
       // applies, because those keys 422 whoever wrote them.
-      entries.push([keep.name, carryOver(keep.raw)]);
+      entries.push([keep.name, carryPreservedField(keep.raw)]);
     }
   };
 
