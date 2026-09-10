@@ -653,10 +653,40 @@ export const REGRESSION_THIS_GATE_MUST_CATCH_BYTES = 89 * 1024;
  * paragraph under "Raising one" forbids. It is not "the gate fired, so the
  * number moved". objectui#8816 is a decision card opened 2026-09-09 that asks
  * exactly this question and carries three routes, and it stood unclaimed while
- * two finished pull requests queued behind it. The authorisation to take one of
- * those routes rather than wait is the maintainer's instruction of 2026-09-10
- * that red pull requests are RESOLVED rather than parked; WHICH route is the
- * measurement below, and it was taken on measurement, not on the instruction.
+ * two finished pull requests queued behind it. WHICH route is the measurement
+ * below, and it was taken on measurement. THAT one of the three could be taken
+ * at all is a MAINTAINER RULING — director seat summon #21, decision batch #110
+ * item 3, recorded on objectui#8816 at comment 5615808548 on 2026-09-10, on the
+ * maintainer's reply to the recommendation of route A at comment 5615318265.
+ * That reply, verbatim:
+ *
+ *     其他同意
+ *
+ * ⛔ The same ruling refuses to be read as a precedent, and the clause is
+ * quoted rather than paraphrased because it governs the NEXT reader of this
+ * constant rather than this one:
+ *
+ *     这是一次维护者裁决下的 ratchet 移动,⛔ 不是先例:下一次撞墙仍回决策箱。
+ *
+ * ⇒ the next change that meets this line goes back to the decision box, and
+ * ⛔ this raise is not authorisation for the one after it.
+ *
+ * ⚠️ THE CONSTANT AND ITS RULING ARRIVED IN THAT ORDER — the wrong one — and
+ * the sequence is recorded here rather than smoothed over, because a reader who
+ * finds the ruling above and the number below will otherwise reconstruct a
+ * history that did not happen. The pair landed in `fffa30d3f` at 06:05:37Z on
+ * 2026-09-10 as a RIDER inside objectui#8901 (`fix(data-objectstack): a refused
+ * view read is not an object with no saved views`), about two hours and forty
+ * minutes BEFORE the ruling was recorded, and ⛔ not in the dedicated pull
+ * request the ruling's execution clause asks for. What stood in for the ruling
+ * at that moment was the maintainer's instruction of 2026-09-10 that red pull
+ * requests are RESOLVED rather than parked — a PRIORITY instruction, read on
+ * the day as authorising the route as well as the urgency. Whether it did was
+ * named as an open fork while the fork was still open, and the maintainer then
+ * settled it as A. ⇒ the number is the ruled number, so ⛔ moving a ruled
+ * constant back in order to re-land it in the ruled shape is refused: that
+ * lands `main` red on this line for form. What was wrong is the record, and a
+ * record is repaired by writing it — objectui#8816, these paragraphs.
  *
  * ⛔ WHAT THE BYTES BUY — one console build per row, each from the repo ROOT,
  * `i18n-locales` read out of the `apps/console/dist/eager-closure.json` the
@@ -782,8 +812,14 @@ export const PER_CHUNK_GZIP_CEILINGS = Object.freeze({
   // Headroom 18,971 bytes = 0.21x REGRESSION_THIS_GATE_MUST_CATCH_BYTES, the
   // proportion the retiring pair carried (18,539 = 0.20x).
   'vendor-objectstack': 1_254_000,
-  // Raised by objectui#8816, on the maintainer's instruction of 2026-09-10 that
-  // red pull requests are resolved rather than parked, and sized by the four
+  // Raised by objectui#8816 on a MAINTAINER RULING — director seat summon #21,
+  // decision batch #110 item 3, comment 5615808548 of 2026-09-10, on the
+  // maintainer's own reply to the recommendation of route A at 5615318265 —
+  // and ⛔ not a precedent, in that ruling's own words: the next change that
+  // meets this line returns to the decision box. ⚠️ It landed BEFORE that
+  // ruling, as a rider inside objectui#8901 (`fffa30d3f`) rather than in the
+  // dedicated pull request the ruling asks for; "Why `i18n-locales` moved UP"
+  // above records that sequence and quotes the ruling. Sized by the four
   // console builds in "Why `i18n-locales` moved UP" above — ⛔ not by the
   // overage, which is the one size that card's own evidence rules out. Headroom
   // 8,804 bytes = 0.10x REGRESSION_THIS_GATE_MUST_CATCH_BYTES over the baseline
