@@ -700,7 +700,26 @@ const CHATTER_INPUTS: ComponentInput[] = [
   { name: 'width', type: 'string', description: 'Panel width as a CSS value (side positions only)' },
   { name: 'collapsible', type: 'boolean' },
   { name: 'defaultCollapsed', type: 'boolean' },
-  { name: 'feed', type: 'object', description: 'Activity-feed config nested inside the panel — same shape as record:activity' },
+  // `feed` delegates its whole member list to `record:activity`, and that is
+  // the SPEC's statement rather than this file's: `@objectstack/spec` declares
+  // `RecordChatterProps.feed: RecordActivityProps.optional()`
+  // (`component.zod.ts:1366`), bound to both names (`:2948` / `:2962`). So the
+  // description names the declaration it delegates to instead of re-listing
+  // its members, which would then be free to drift from it. (Re-listing would
+  // also have to decide what to do with `aria`, which the spec shape carries
+  // and `record:activity`'s own registration does not — one more reason the
+  // delegation is the honest statement.)
+  //
+  // objectui#8934: the four FILTER members of that shape (`types` / `limit` /
+  // `showCompleted` / `unifiedTimeline`) used to be discarded on this path
+  // because `record-chatter.tsx` handed `discussion.items` to the panel raw.
+  // That was an IMPLEMENTATION GAP against a wider protocol, not a narrower
+  // contract, so it was closed in the renderer — see `renderers/record-chatter.tsx`,
+  // which now runs `applyFeedConfig` with `record-activity.tsx:219`'s call shape.
+  // ⛔ Do not narrow this declaration to match an implementation: the protocol
+  // is the contract, and a protocol that is wrong is changed in
+  // `@objectstack/spec` first.
+  { name: 'feed', type: 'object', description: 'Activity-feed configuration nested inside the panel — the same shape as record:activity. The spec declares this key as RecordActivityProps (RecordChatterProps.feed), so its members are the inputs record:activity declares; see that block for what each one does.' },
 ];
 
 ComponentRegistry.register('chatter', RecordChatterRenderer, {

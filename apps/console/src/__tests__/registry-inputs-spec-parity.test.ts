@@ -2768,14 +2768,20 @@ const NEWLY_JUDGED_UNPINNED_MEMBERS = [
  * predicate; and the one `record:chatter` suite is about the host's `loading`
  * signal and never authors `feed` at all.
  *
- * ⚠️ The `feed` pin records a LIMIT rather than pretending the key is uniform:
- * `config.feed` reaches `RecordActivityTimeline`, which reads the five
- * AFFORDANCE members only. `record:activity`'s FILTER members (`types`,
- * `limit`, `showCompleted`, `unifiedTimeline`) are applied by `applyFeedConfig`,
- * which only `record-activity.tsx` calls — so they are inert nested inside
- * `feed`, even though the registration describes it as "same shape as
- * record:activity". That is a contract defect rather than a member shape, so it
- * is filed (objectui#8934) rather than frozen into the pin.
+ * ⚠️ RE-POINTED by objectui#8934, which reversed the reading this paragraph
+ * used to carry. It recorded the `feed` pin as a LIMIT: `config.feed` reached
+ * `RecordActivityTimeline`, which read the five AFFORDANCE members only, while
+ * `record:activity`'s FILTER members (`types`, `limit`, `showCompleted`,
+ * `unifiedTimeline`) were applied by `applyFeedConfig`, which only
+ * `record-activity.tsx` called — so they were inert nested inside `feed`, and
+ * that was called a contract defect. It was an IMPLEMENTATION GAP against a
+ * WIDER protocol instead: `@objectstack/spec` declares
+ * `RecordChatterProps.feed` as `RecordActivityProps` (`component.zod.ts:1366`),
+ * so objectui#8934 closed the gap in `renderers/record-chatter.tsx` rather than
+ * narrowing the declaration, and the four filter members are live on that path
+ * now. (`filterMode` and `enableMentions` are still unread there —
+ * objectui#8968.) This block's own row is unaffected either way: nothing in
+ * this file asserts on that description string.
  *
  * ## 41 -> 37, the seventh slice, and the LAST four one-key blocks closed
  *
